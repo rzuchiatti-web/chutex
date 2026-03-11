@@ -63,9 +63,9 @@ export default function SleepCard({ d }: Props) {
       <div style={{ position: 'relative', zIndex: 2 } as any}>
         <div style={{ textAlign: 'center', paddingTop: 14 } as any}><img src="https://customer-assets.emergentagent.com/job_92308143-f99e-4bad-8264-e3775a214313/artifacts/xtzgjs5s_sommeil.png" alt="" style={{ width: 80, height: 80, objectFit: 'contain', display: 'block', margin: '0 auto', filter: 'drop-shadow(0 8px 20px rgba(0,0,0,0.4))' } as any} /></div>
         <div style={{ padding: '8px 16px 0' } as any}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 } as any}>
+          <div style={{ textAlign: 'center', marginBottom: 8 } as any}>
             <div style={{ fontSize: 15, fontWeight: 900, color: '#FFF' }}>Sommeil</div>
-            <div style={{ fontSize: 22, fontWeight: 900, color: '#FFF' }}>{Math.floor(slD / 60)}h{String(slD % 60).padStart(2, '0')}</div>
+            <div style={{ fontSize: 28, fontWeight: 900, color: '#FFF', lineHeight: 1, marginTop: 4 }}>{Math.floor(slD / 60)}h{String(slD % 60).padStart(2, '0')}</div>
           </div>
           {sleepSession && <SleepHypnogram session={sleepSession} width={640} height={160} showLabels={true} compact={false} timeLabelCount={4} />}
         </div>
@@ -83,15 +83,21 @@ export default function SleepCard({ d }: Props) {
             </div>
           ))}
         </div>
-        <div style={{ padding: '8px 16px', background: 'rgba(0,0,0,0.15)', marginTop: 8, display: 'flex', justifyContent: 'space-between', alignItems: 'center' } as any}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8, flex: 1 } as any}>
-            <span style={{ fontSize: 9, color: 'rgba(255,255,255,0.3)' }}>Apnee</span>
-            <div style={{ width: 60, height: 4, borderRadius: 2, background: 'rgba(255,255,255,0.06)', overflow: 'hidden' } as any}>
-              <div style={{ height: 4, borderRadius: 2, width: `${apneaRisk}%`, background: apneaRisk < 30 ? '#10B981' : apneaRisk < 60 ? '#F59E0B' : '#EF4444' } as any} />
+        {/* Apnea risk — full width bar */}
+        <div style={{ padding: '10px 16px 12px' } as any}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 } as any}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6 } as any}>
+              <i className="ri-lungs-line" style={{ fontSize: 12, color: apneaRisk < 30 ? '#10B981' : apneaRisk < 60 ? '#F59E0B' : '#EF4444' }} />
+              <span style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.4)' }}>Risque d'apnee</span>
             </div>
-            <span style={{ fontSize: 9, fontWeight: 700, color: apneaRisk < 30 ? '#10B981' : apneaRisk < 60 ? '#F59E0B' : '#EF4444' }}>{apneaRisk < 30 ? 'Faible' : apneaRisk < 60 ? 'Modere' : 'Eleve'}</span>
+            <span style={{ fontSize: 11, fontWeight: 800, color: apneaRisk < 30 ? '#10B981' : apneaRisk < 60 ? '#F59E0B' : '#EF4444' }}>{apneaRisk < 30 ? 'Faible' : apneaRisk < 60 ? 'Modere' : 'Eleve'}</span>
           </div>
-          <span style={{ fontSize: 9, fontWeight: 700, color: '#A78BFA' }}>Voir le detail</span>
+          <div style={{ height: 6, borderRadius: 3, background: 'rgba(255,255,255,0.06)', overflow: 'hidden' } as any}>
+            <div style={{ height: 6, borderRadius: 3, width: `${apneaRisk}%`, background: `linear-gradient(90deg, ${apneaRisk < 30 ? '#10B981' : apneaRisk < 60 ? '#F59E0B' : '#EF4444'}80, ${apneaRisk < 30 ? '#10B981' : apneaRisk < 60 ? '#F59E0B' : '#EF4444'})` } as any} />
+          </div>
+        </div>
+        <div style={{ padding: '6px 16px 8px', background: 'rgba(0,0,0,0.15)', textAlign: 'right' } as any}>
+          <span style={{ fontSize: 9, fontWeight: 700, color: '#A78BFA' }}>Voir le detail <i className="ri-arrow-right-s-line" style={{ fontSize: 10 }} /></span>
         </div>
       </div>
     </div>

@@ -126,33 +126,8 @@ export default function GlycemiaDetailPage() {
                   </svg>
                 </div>
 
-                {/* Nora: Actionable advice (not just repeating zone) */}
-                <div style={{ padding: '14px 16px', borderRadius: 16, background: 'rgba(167,139,250,0.06)', border: '1px solid rgba(167,139,250,0.12)', marginBottom: 14 } as any}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10 } as any}>
-                    <div style={{ width: 30, height: 30, borderRadius: 10, flexShrink: 0, background: 'linear-gradient(135deg, rgba(167,139,250,0.25), rgba(167,139,250,0.08))', display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}><span style={{ fontSize: 11, fontWeight: 900, color: P }}>N</span></div>
-                    <div style={{ fontSize: 14, fontWeight: 800, color: '#FFF' }}>Que faire ?</div>
-                  </div>
-                  <div style={{ fontSize: 13, color: '#FFF', lineHeight: 1.7, opacity: 0.85 }}>
-                    {data.zone === 'normal' ? 'Tout va bien. Continuez votre mode de vie actuel et faites une calibration capillaire dans un mois pour confirmer.' :
-                     data.zone === 'normal_high' ? 'Vos indicateurs sont dans la norme haute. Privilegiez les aliments a index glycemique bas et marchez 30 minutes par jour.' :
-                     data.zone === 'vigilance' ? 'Consultez votre medecin pour un bilan sanguin (glycemie a jeun + HbA1c). Reduisez les sucres rapides.' :
-                     data.zone === 'pre_alert' ? 'Un bilan sanguin est recommande rapidement. Contactez votre medecin traitant cette semaine.' :
-                     'Consultez votre medecin des que possible pour un bilan complet (glycemie + HbA1c + bilan lipidique).'}
-                  </div>
-                  {data.factors?.length > 0 && (
-                    <div style={{ marginTop: 12 } as any}>
-                      <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.35)', marginBottom: 6 }}>Facteurs analyses</div>
-                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 5 } as any}>
-                        {data.factors.slice(0, 6).map((f: any, i: number) => (
-                          <span key={i} style={{ padding: '4px 10px', borderRadius: 8, background: f.impact === 'high' ? 'rgba(239,68,68,0.1)' : f.impact === 'moderate' ? 'rgba(245,158,11,0.08)' : 'rgba(255,255,255,0.04)', border: `1px solid ${f.impact === 'high' ? 'rgba(239,68,68,0.18)' : f.impact === 'moderate' ? 'rgba(245,158,11,0.15)' : 'rgba(255,255,255,0.06)'}`, fontSize: 10, fontWeight: 700, color: f.impact === 'high' ? '#FCA5A5' : f.impact === 'moderate' ? '#FCD34D' : 'rgba(255,255,255,0.5)' } as any}>{f.name}: {f.value}</span>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                </div>
-
                 {/* 5 Zones explanation */}
-                <div style={{ marginBottom: 14 } as any}>
+                <div style={{ marginBottom: 0 } as any}>
                   <div style={{ fontSize: 11, fontWeight: 800, color: 'rgba(255,255,255,0.5)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 10 }}>Les 5 zones glycemiques</div>
                   {ZONES_V2.map((z, i) => (
                     <div key={i} style={{ display: 'flex', gap: 10, padding: '8px 0', borderTop: i > 0 ? '1px solid rgba(255,255,255,0.04)' : 'none' } as any}>
@@ -165,37 +140,61 @@ export default function GlycemiaDetailPage() {
                     </div>
                   ))}
                 </div>
+              </div>
 
-                {/* Data quality (NOT "precision" — honest about what it represents) */}
-                <div style={{ padding: '14px 16px', borderRadius: 14, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.06)' } as any}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 } as any}>
-                    <i className="ri-line-chart-line" style={{ fontSize: 14, color: '#FFF' }} />
-                    <span style={{ fontSize: 12, fontWeight: 800, color: '#FFF' }}>Estimation en evolution</span>
+              {/* CARD 2: Estimation en evolution (separate) */}
+              <div style={{ ...GL, padding: '16px 20px', marginBottom: 14 } as any}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 } as any}>
+                  <i className="ri-line-chart-line" style={{ fontSize: 14, color: '#FFF' }} />
+                  <span style={{ fontSize: 12, fontWeight: 800, color: '#FFF' }}>Estimation en evolution</span>
+                </div>
+                <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.7)', lineHeight: 1.7, marginBottom: 10 }}>
+                  Cette estimation s'ameliore en continu grace a vos donnees capteurs et vos calibrations capillaires.
+                </div>
+                <div style={{ display: 'flex', gap: 10 } as any}>
+                  <div style={{ flex: 1, padding: '10px', borderRadius: 12, background: 'rgba(167,139,250,0.08)', textAlign: 'center' } as any}>
+                    <div style={{ fontSize: 8, fontWeight: 700, color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', marginBottom: 3 }}>Donnees</div>
+                    <div style={{ fontSize: 18, fontWeight: 900, color: '#FFF' }}>{data.data_points_used || 0}</div>
+                    <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.35)' }}>facteurs</div>
                   </div>
-                  <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.7)', lineHeight: 1.7, marginBottom: 10 }}>
-                    Cette estimation s'ameliore en continu grace a vos donnees capteurs et vos calibrations capillaires. Plus vous portez votre bracelet et realisez des calibrations, plus l'estimation se rapproche de la realite.
+                  <div style={{ flex: 1, padding: '10px', borderRadius: 12, background: 'rgba(167,139,250,0.08)', textAlign: 'center' } as any}>
+                    <div style={{ fontSize: 8, fontWeight: 700, color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', marginBottom: 3 }}>Calibrations</div>
+                    <div style={{ fontSize: 18, fontWeight: 900, color: '#FFF' }}>{data.calibration?.count || 0}</div>
+                    <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.35)' }}>{(data.calibration?.quality === 'high') ? 'optimale' : (data.calibration?.quality === 'medium') ? 'en cours' : 'a calibrer'}</div>
                   </div>
-                  <div style={{ display: 'flex', gap: 10 } as any}>
-                    <div style={{ flex: 1, padding: '10px', borderRadius: 12, background: 'rgba(167,139,250,0.08)', textAlign: 'center' } as any}>
-                      <div style={{ fontSize: 8, fontWeight: 700, color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', marginBottom: 3 }}>Donnees analysees</div>
-                      <div style={{ fontSize: 18, fontWeight: 900, color: '#FFF' }}>{data.data_points_used || 0}</div>
-                      <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.35)' }}>facteurs</div>
-                    </div>
-                    <div style={{ flex: 1, padding: '10px', borderRadius: 12, background: 'rgba(167,139,250,0.08)', textAlign: 'center' } as any}>
-                      <div style={{ fontSize: 8, fontWeight: 700, color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', marginBottom: 3 }}>Calibrations</div>
-                      <div style={{ fontSize: 18, fontWeight: 900, color: '#FFF' }}>{data.calibration?.count || 0}</div>
-                      <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.35)' }}>{(data.calibration?.quality === 'high') ? 'precision optimale' : (data.calibration?.quality === 'medium') ? 'en amelioration' : 'a calibrer'}</div>
-                    </div>
-                    <div style={{ flex: 1, padding: '10px', borderRadius: 12, background: 'rgba(167,139,250,0.08)', textAlign: 'center' } as any}>
-                      <div style={{ fontSize: 8, fontWeight: 700, color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', marginBottom: 3 }}>Qualite</div>
-                      <div style={{ fontSize: 18, fontWeight: 900, color: P }}>{data.data_completeness_pct || 0}%</div>
-                      <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.35)' }}>completude</div>
-                    </div>
-                  </div>
-                  <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.4)', marginTop: 10, lineHeight: 1.5 }}>
-                    Ceci n'est pas un dispositif medical. L'estimation utilise vos constantes (bracelet + balance) et s'affine avec le temps.
+                  <div style={{ flex: 1, padding: '10px', borderRadius: 12, background: 'rgba(167,139,250,0.08)', textAlign: 'center' } as any}>
+                    <div style={{ fontSize: 8, fontWeight: 700, color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', marginBottom: 3 }}>Qualite</div>
+                    <div style={{ fontSize: 18, fontWeight: 900, color: P }}>{data.data_completeness_pct || 0}%</div>
                   </div>
                 </div>
+                <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.35)', marginTop: 8, lineHeight: 1.5 }}>
+                  Ceci n'est pas un dispositif medical.
+                </div>
+              </div>
+
+              {/* CARD 3: Que faire? (separate) */}
+              <div style={{ ...GL, padding: '16px 20px', marginBottom: 14 } as any}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10 } as any}>
+                  <div style={{ width: 30, height: 30, borderRadius: 10, flexShrink: 0, background: 'linear-gradient(135deg, rgba(167,139,250,0.25), rgba(167,139,250,0.08))', display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}><span style={{ fontSize: 11, fontWeight: 900, color: P }}>N</span></div>
+                  <div style={{ fontSize: 14, fontWeight: 800, color: '#FFF' }}>Que faire ?</div>
+                </div>
+                <div style={{ fontSize: 13, color: '#FFF', lineHeight: 1.7, opacity: 0.85 }}>
+                  {data.zone === 'normal' ? 'Tout va bien. Continuez votre mode de vie actuel et faites une calibration capillaire dans un mois pour confirmer.' :
+                   data.zone === 'normal_high' ? 'Vos indicateurs sont dans la norme haute. Privilegiez les aliments a index glycemique bas et marchez 30 minutes par jour.' :
+                   data.zone === 'vigilance' ? 'Consultez votre medecin pour un bilan sanguin (glycemie a jeun + HbA1c). Reduisez les sucres rapides.' :
+                   data.zone === 'pre_alert' ? 'Un bilan sanguin est recommande rapidement. Contactez votre medecin traitant cette semaine.' :
+                   'Consultez votre medecin des que possible pour un bilan complet (glycemie + HbA1c + bilan lipidique).'}
+                </div>
+                {data.factors?.length > 0 && (
+                  <div style={{ marginTop: 12 } as any}>
+                    <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.35)', marginBottom: 6 }}>Facteurs analyses</div>
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: 5 } as any}>
+                      {data.factors.slice(0, 6).map((f: any, i: number) => (
+                        <span key={i} style={{ padding: '4px 10px', borderRadius: 8, background: f.impact === 'high' ? 'rgba(239,68,68,0.1)' : f.impact === 'moderate' ? 'rgba(245,158,11,0.08)' : 'rgba(255,255,255,0.04)', border: `1px solid ${f.impact === 'high' ? 'rgba(239,68,68,0.18)' : f.impact === 'moderate' ? 'rgba(245,158,11,0.15)' : 'rgba(255,255,255,0.06)'}`, fontSize: 10, fontWeight: 700, color: f.impact === 'high' ? '#FCA5A5' : f.impact === 'moderate' ? '#FCD34D' : 'rgba(255,255,255,0.5)' } as any}>{f.name}: {f.value}</span>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
 
               {/* CARD 2: Calibration */}

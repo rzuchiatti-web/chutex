@@ -53,8 +53,8 @@ function WeightGoalDashCard({ token }: { token: string }) {
       onMouseLeave={(e: any) => { e.currentTarget.style.transform = ''; }}>
       <img src={WEIGHT_BG} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 } as any} />
       <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.3)', zIndex: 1 } as any} />
-      {/* Tape measure image — natural, fills right, no darkening */}
-      <img src={TAPE_MEASURE_IMG} alt="" style={{ position: 'absolute', right: -5, top: '50%', transform: 'translateY(-50%)', width: 100, height: 100, objectFit: 'contain', zIndex: 2, opacity: 0.4 } as any} />
+      {/* Tape measure — natural colors, no filter, centered-right */}
+      <img src={TAPE_MEASURE_IMG} alt="" style={{ position: 'absolute', right: 16, top: '50%', transform: 'translateY(-50%)', width: 80, height: 80, objectFit: 'contain', zIndex: 2 } as any} />
       <div style={{ position: 'relative', zIndex: 3, padding: '16px 18px', height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'center' } as any}>
         <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 6 }}>Objectif poids en cours</div>
         <div style={{ display: 'flex', alignItems: 'baseline', gap: 6, marginBottom: 6 } as any}>
@@ -468,36 +468,7 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
           <AlertBanner activeAlerts={activeAlerts} />
 
           {/* ── PREDICTIVE ALERTS (Nora) ── */}
-          {predictiveAlerts.length > 0 && (
-            <div data-testid="predictive-alerts" style={{ marginBottom: 12 } as any}>
-              {predictiveAlerts.map((a: any) => (
-                <div key={a.id} style={{ padding: '14px 16px', borderRadius: 16, background: a.severity === 'warning' ? 'rgba(245,158,11,0.08)' : 'rgba(139,92,246,0.06)', border: `1px solid ${a.severity === 'warning' ? 'rgba(245,158,11,0.2)' : 'rgba(139,92,246,0.15)'}`, marginBottom: 8, backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)' } as any}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8 } as any}>
-                    <div style={{ width: 32, height: 32, borderRadius: 10, background: `${a.color}15`, display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}>
-                      <i className={a.icon} style={{ fontSize: 16, color: a.color }} />
-                    </div>
-                    <div style={{ flex: 1 } as any}>
-                      <div style={{ fontSize: 12, fontWeight: 800, color: '#FFF' }}>{a.title}</div>
-                    </div>
-                    <div onClick={async () => {
-                      try {
-                        await apiFetch(`/api/nora/predictive-alerts/${a.id}/dismiss`, { method: 'POST' }, token);
-                        // Persist dismissal in localStorage
-                        const dismissed = JSON.parse(localStorage.getItem('dismissed_predictive') || '[]');
-                        dismissed.push(a.id);
-                        localStorage.setItem('dismissed_predictive', JSON.stringify(dismissed));
-                        setPredictiveAlerts(prev => prev.filter(p => p.id !== a.id));
-                      } catch {}
-                    }} style={{ padding: '4px 8px', borderRadius: 8, cursor: 'pointer', fontSize: 10, color: 'rgba(255,255,255,0.3)' } as any}>
-                      <i className="ri-close-line" style={{ fontSize: 14 }} />
-                    </div>
-                  </div>
-                  <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.45)', lineHeight: 1.5, marginBottom: 6 }}>{a.message}</div>
-                  <div style={{ fontSize: 11, color: a.color, fontWeight: 600 }}>{a.recommendation}</div>
-                </div>
-              ))}
-            </div>
-          )}
+          {/* Predictive alerts moved to notifications popup only */}
 
           {/* ── SUBSCRIPTION BANNER (si pas d'abo bracelet) ── */}
           {/* Health data shown even without subscription — values show -- when no data */}
