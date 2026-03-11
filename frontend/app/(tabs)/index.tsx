@@ -95,7 +95,7 @@ function DailyObjectivesOnDashboard({ token }: { token: string }) {
 
   return (
     <div data-testid="dashboard-objectives" style={{ marginBottom: 6 } as any}>
-      <div style={{ fontSize: 16, fontWeight: 800, color: '#1A1A2E', marginBottom: 10 }}>Objectifs du jour</div>
+      <div style={{ fontSize: 16, fontWeight: 800, color: '#FFF', marginBottom: 10 }}>Objectifs du jour</div>
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 } as any}>
         {plan.filter((p: any) => p.key !== 'connect').map((p: any) => (
           <div key={p.key} onClick={() => {
@@ -103,14 +103,14 @@ function DailyObjectivesOnDashboard({ token }: { token: string }) {
             else if (p.key === 'sleep') router.push('/sleep' as any);
             else if (p.key === 'calories_intake') router.push('/minceur' as any);
             else if (p.key === 'hydration') router.push('/minceur' as any);
-          }} style={{ padding: '12px', borderRadius: 14, background: 'rgba(255,255,255,0.5)', border: '1px solid rgba(255,255,255,0.7)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', cursor: 'pointer', boxShadow: '0 2px 12px rgba(0,0,0,0.05)' } as any}>
+          }} style={{ padding: '12px', borderRadius: 14, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', cursor: 'pointer' } as any}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 6 } as any}>
               <i className={p.icon} style={{ fontSize: 14, color: p.color }} />
-              <span style={{ fontSize: 9, fontWeight: 700, color: 'rgba(60,50,80,0.5)', textTransform: 'uppercase' }}>{p.status || p.label}</span>
+              <span style={{ fontSize: 9, fontWeight: 700, color: 'rgba(255,255,255,0.25)', textTransform: 'uppercase' }}>{p.status || p.label}</span>
             </div>
-            <div style={{ fontSize: 20, fontWeight: 900, color: '#1A1A2E' }}>{p.value} <span style={{ fontSize: 10, color: 'rgba(60,50,80,0.4)' }}>{p.unit}</span></div>
-            <div style={{ fontSize: 9, color: 'rgba(60,50,80,0.5)', marginTop: 2 }}>{p.label}</div>
-            {p.progress != null && <div style={{ height: 3, borderRadius: 2, background: 'rgba(0,0,0,0.06)', marginTop: 6, overflow: 'hidden' } as any}><div style={{ height: 3, borderRadius: 2, width: `${p.progress}%`, background: p.color } as any} /></div>}
+            <div style={{ fontSize: 20, fontWeight: 900, color: '#FFF' }}>{p.value} <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.25)' }}>{p.unit}</span></div>
+            <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.3)', marginTop: 2 }}>{p.label}</div>
+            {p.progress != null && <div style={{ height: 3, borderRadius: 2, background: 'rgba(255,255,255,0.06)', marginTop: 6, overflow: 'hidden' } as any}><div style={{ height: 3, borderRadius: 2, width: `${p.progress}%`, background: p.color } as any} /></div>}
           </div>
         ))}
       </div>
@@ -393,9 +393,9 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
 
   /* Glass card helper */
   const GC = ({ children, style, onClick, testId }: any) => (
-    <div data-testid={testId} onClick={onClick} style={{ padding: '16px', borderRadius: 22, background: 'rgba(255,255,255,0.55)', border: '1px solid rgba(255,255,255,0.7)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', marginBottom: 12, cursor: onClick ? 'pointer' : 'default', transition: 'transform 0.2s, background 0.2s', boxShadow: '0 2px 16px rgba(0,0,0,0.06)', ...style } as any}
-      onMouseEnter={(e: any) => { if (onClick) e.currentTarget.style.background = 'rgba(255,255,255,0.65)'; }}
-      onMouseLeave={(e: any) => { if (onClick) e.currentTarget.style.background = 'rgba(255,255,255,0.55)'; }}>
+    <div data-testid={testId} onClick={onClick} style={{ padding: '16px', borderRadius: 22, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', marginBottom: 12, cursor: onClick ? 'pointer' : 'default', transition: 'transform 0.2s, background 0.2s', ...style } as any}
+      onMouseEnter={(e: any) => { if (onClick) e.currentTarget.style.background = 'rgba(255,255,255,0.08)'; }}
+      onMouseLeave={(e: any) => { if (onClick) e.currentTarget.style.background = 'rgba(255,255,255,0.04)'; }}>
       {children}
     </div>
   );
@@ -405,8 +405,9 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
   if (Platform.OS === 'web') {
     return (
       <div data-testid="beneficiary-dashboard" style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, display: 'flex', flexDirection: 'column', fontFamily: "'Inter', system-ui, -apple-system, sans-serif", overflow: 'hidden' } as any}>
-        <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(180deg, #E8E6F0 0%, #D8D0E4 15%, #CDBDD8 30%, #C4AACC 45%, #D4A896 60%, #DFA57A 75%, #E8A468 90%, #EDAA60 100%)', zIndex: 0 } as any} />
-        <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(ellipse at 50% 70%, rgba(237,170,96,0.3) 0%, transparent 60%), radial-gradient(ellipse at 30% 40%, rgba(200,180,220,0.25) 0%, transparent 50%)', zIndex: 0 } as any} />
+        <div style={{ position: 'absolute', inset: 0, background: '#050510', zIndex: 0 } as any} />
+        <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(ellipse at 50% 0%, rgba(88,40,220,0.15) 0%, transparent 55%), radial-gradient(ellipse at 85% 25%, rgba(0,180,220,0.10) 0%, transparent 40%), radial-gradient(ellipse at 15% 60%, rgba(120,40,200,0.08) 0%, transparent 45%), radial-gradient(ellipse at 70% 80%, rgba(0,210,180,0.06) 0%, transparent 35%)', zIndex: 0 } as any} />
+        <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '40%', background: 'linear-gradient(180deg, rgba(20,10,50,0.6) 0%, transparent 100%)', zIndex: 0 } as any} />
 
         <div style={{ flex: 1, overflowY: 'auto', position: 'relative', zIndex: 5, padding: '20px 20px 100px', WebkitOverflowScrolling: 'touch' } as any}>
 
@@ -419,8 +420,8 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
                   {user.avatar_url ? <img src={user.avatar_url} style={{ width: 46, height: 46, borderRadius: 14, objectFit: 'cover' } as any} /> : <span style={{ fontSize: 18, fontWeight: 800, color: '#FFF' }}>{user.name?.charAt(0)?.toUpperCase()}</span>}
                 </div>
                 <div>
-                  <div style={{ fontSize: 16, fontWeight: 800, color: '#1A1A2E', letterSpacing: -0.3, marginBottom: 2 }}>{user.name}</div>
-                  <div style={{ fontSize: 10, color: 'rgba(100,80,140,0.7)', fontWeight: 600, letterSpacing: 0.5, textTransform: 'uppercase' }}>{activeTab === 'beneficiary' ? t('space_beneficiary') : t('space_guardian')}</div>
+                  <div style={{ fontSize: 16, fontWeight: 800, color: '#FFF', letterSpacing: -0.3, marginBottom: 2 }}>{user.name}</div>
+                  <div style={{ fontSize: 10, color: 'rgba(79,195,247,0.6)', fontWeight: 600, letterSpacing: 0.5, textTransform: 'uppercase' }}>{activeTab === 'beneficiary' ? t('space_beneficiary') : t('space_guardian')}</div>
                 </div>
               </div>
               <div style={{ display: 'flex', gap: 8, alignItems: 'center' } as any}>
@@ -428,8 +429,8 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
                 <div data-testid="lang-picker-btn" onClick={() => setLangOpen(!langOpen)} style={{ width: 34, height: 34, borderRadius: 10, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', fontSize: 20, lineHeight: 1 } as any}>
                   {lang === 'FR' ? '\u{1F1EB}\u{1F1F7}' : lang === 'EN' ? '\u{1F1EC}\u{1F1E7}' : lang === 'ES' ? '\u{1F1EA}\u{1F1F8}' : lang === 'DE' ? '\u{1F1E9}\u{1F1EA}' : lang === 'IT' ? '\u{1F1EE}\u{1F1F9}' : lang === 'PT' ? '\u{1F1F5}\u{1F1F9}' : lang === 'NL' ? '\u{1F1F3}\u{1F1F1}' : '\u{1F30D}'}
                 </div>
-                <div data-testid="notif-bell" onClick={() => setShowNotifs(!showNotifs)} style={{ width: 38, height: 38, borderRadius: 12, background: 'rgba(255,255,255,0.5)', border: '1px solid rgba(255,255,255,0.7)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', position: 'relative' } as any}>
-                  <i className="ri-notification-3-line" style={{ fontSize: 17, color: '#3A3A5C' }} />
+                <div data-testid="notif-bell" onClick={() => setShowNotifs(!showNotifs)} style={{ width: 38, height: 38, borderRadius: 12, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', position: 'relative' } as any}>
+                  <i className="ri-notification-3-line" style={{ fontSize: 17, color: 'rgba(255,255,255,0.65)' }} />
                   {(guardianRequests.length > 0 || activeAlerts.length > 0 || predictiveAlerts.length > 0) && <div style={{ position: 'absolute', top: -3, right: -3, width: 9, height: 9, borderRadius: 5, background: '#EF4444', border: '2px solid rgba(4,14,26,0.8)' } as any} />}
                 </div>
               </div>
@@ -469,12 +470,12 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
           {/* ── SUBSCRIPTION BANNER (si pas d'abo bracelet) ── */}
           {/* Health data shown even without subscription — values show -- when no data */}
 
-          <div style={{ height: 1, background: 'linear-gradient(90deg, transparent, rgba(0,0,0,0.06), transparent)', margin: '4px 20px 16px' } as any} />
+          <div style={{ height: 1, background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.06), transparent)', margin: '4px 20px 16px' } as any} />
 
           {/* ── 2. OBJECTIFS JOURNALIERS (remplace VitalsRow + ActivityCard) ── */}
           <DailyObjectivesOnDashboard token={token} />
 
-          <div style={{ height: 1, background: 'linear-gradient(90deg, transparent, rgba(0,0,0,0.06), transparent)', margin: '4px 20px 16px' } as any} />
+          <div style={{ height: 1, background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.06), transparent)', margin: '4px 20px 16px' } as any} />
 
           {/* ── TEAM INVITATIONS ── */}
           {teamInvitations.length > 0 && teamInvitations.map((inv: any) => (
@@ -550,12 +551,12 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
           {/* ── WEIGHT GOAL CARD (si objectif en cours) ── */}
           <WeightGoalDashCard token={token} />
 
-          <div style={{ height: 1, background: 'linear-gradient(90deg, transparent, rgba(0,0,0,0.06), transparent)', margin: '4px 20px 16px' } as any} />
+          <div style={{ height: 1, background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.06), transparent)', margin: '4px 20px 16px' } as any} />
 
           {/* ── 5. NORA IA ── */}
           <CopilotCard />
 
-          <div style={{ height: 1, background: 'linear-gradient(90deg, transparent, rgba(0,0,0,0.06), transparent)', margin: '4px 20px 16px' } as any} />
+          <div style={{ height: 1, background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.06), transparent)', margin: '4px 20px 16px' } as any} />
 
           {/* ── 6. DISPOSITIFS ── */}
           <DeviceCards br={br} sc={sc} vs={vs} weighings={weighings} onStartWeighing={() => setShowWeighing(true)} onRefresh={fetchData} subscription={subscription} />
@@ -564,7 +565,7 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
 
           {/* Les alertes sont affichées en haut du dashboard */}
 
-          <div style={{ height: 1, background: 'linear-gradient(90deg, transparent, rgba(0,0,0,0.06), transparent)', margin: '4px 20px 16px' } as any} />
+          <div style={{ height: 1, background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.06), transparent)', margin: '4px 20px 16px' } as any} />
 
 
           {/* ── Rappels — directly on background ── */}
