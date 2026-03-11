@@ -391,8 +391,6 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
   const vs = dashData?.vest || { fall_detected: false, posture_score: 0, chest_temp: 0, battery: 0, connected: false, wearing_hours_today: 0, alerts_today: 0, paired: false };
   const sl = dashData?.sleep || null;
 
-  const BG_VIDEO = BG_IMAGES.beneficiary;
-
   /* Glass card helper */
   const GC = ({ children, style, onClick, testId }: any) => (
     <div data-testid={testId} onClick={onClick} style={{ padding: '16px', borderRadius: 22, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', marginBottom: 12, cursor: onClick ? 'pointer' : 'default', transition: 'transform 0.2s, background 0.2s', ...style } as any}
