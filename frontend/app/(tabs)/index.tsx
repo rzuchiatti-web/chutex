@@ -407,33 +407,49 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
       <div data-testid="beneficiary-dashboard" style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, display: 'flex', flexDirection: 'column', fontFamily: "'Inter', system-ui, -apple-system, sans-serif", overflow: 'hidden' } as any}>
         <div style={{ position: 'absolute', inset: 0, background: '#EEEDF5', zIndex: 0 } as any} />
 
-        <div style={{ flex: 1, overflowY: 'auto', position: 'relative', zIndex: 5, padding: '20px 20px 100px', WebkitOverflowScrolling: 'touch' } as any}>
+        <div style={{ flex: 1, overflowY: 'auto', position: 'relative', zIndex: 5, padding: '0 0 100px', WebkitOverflowScrolling: 'touch' } as any}>
 
-          {/* ── NEW HEADER: AI Summary + Tabs + Lang ── */}
-          <div data-testid="dashboard-header" style={{ marginBottom: 16, width: '100%', position: 'relative', zIndex: 50 } as any}>
-            {/* Top row: avatar (click→profil), name+tabs, lang, notif */}
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 } as any}>
+          {/* ── HEADER CARD — colored bg, white text, rounded bottom ── */}
+          <div data-testid="dashboard-header" style={{ background: 'linear-gradient(135deg, #6B5CE7 0%, #8B6CF7 40%, #A78BFA 100%)', borderRadius: '0 0 28px 28px', padding: '24px 20px 22px', marginBottom: 16, position: 'relative', zIndex: 50 } as any}>
+            {/* Top row: avatar, name, lang, notif */}
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 } as any}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 12 } as any}>
-                <div onClick={() => router.push('/(tabs)/profile' as any)} style={{ width: 46, height: 46, borderRadius: 23, background: '#E8E6F0', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '2px solid #FFF', boxShadow: '0 2px 12px rgba(0,0,0,0.08)', flexShrink: 0, cursor: 'pointer', overflow: 'hidden' } as any}>
-                  {user.avatar_url ? <img src={user.avatar_url} style={{ width: 46, height: 46, borderRadius: 23, objectFit: 'cover' } as any} /> : <span style={{ fontSize: 18, fontWeight: 800, color: '#6B5CE7' }}>{user.name?.charAt(0)?.toUpperCase()}</span>}
+                <div onClick={() => router.push('/(tabs)/profile' as any)} style={{ width: 46, height: 46, borderRadius: 23, background: 'rgba(255,255,255,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '2px solid rgba(255,255,255,0.35)', flexShrink: 0, cursor: 'pointer', overflow: 'hidden' } as any}>
+                  {user.avatar_url ? <img src={user.avatar_url} style={{ width: 46, height: 46, borderRadius: 23, objectFit: 'cover' } as any} /> : <span style={{ fontSize: 18, fontWeight: 800, color: '#FFF' }}>{user.name?.charAt(0)?.toUpperCase()}</span>}
                 </div>
                 <div>
-                  <div style={{ fontSize: 16, fontWeight: 800, color: '#1A1A2E', letterSpacing: -0.3, marginBottom: 2 }}>{user.name}</div>
-                  <div style={{ fontSize: 10, color: '#9898AD', fontWeight: 600, letterSpacing: 0.5, textTransform: 'uppercase' }}>{activeTab === 'beneficiary' ? t('space_beneficiary') : t('space_guardian')}</div>
+                  <div style={{ fontSize: 16, fontWeight: 800, color: '#FFF', letterSpacing: -0.3, marginBottom: 2 }}>{user.name}</div>
+                  <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.6)', fontWeight: 600, letterSpacing: 0.5, textTransform: 'uppercase' }}>{activeTab === 'beneficiary' ? t('space_beneficiary') : t('space_guardian')}</div>
                 </div>
               </div>
               <div style={{ display: 'flex', gap: 8, alignItems: 'center' } as any}>
-                {/* Language flag */}
                 <div data-testid="lang-picker-btn" onClick={() => setLangOpen(!langOpen)} style={{ width: 34, height: 34, borderRadius: 10, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', fontSize: 20, lineHeight: 1 } as any}>
                   {lang === 'FR' ? '\u{1F1EB}\u{1F1F7}' : lang === 'EN' ? '\u{1F1EC}\u{1F1E7}' : lang === 'ES' ? '\u{1F1EA}\u{1F1F8}' : lang === 'DE' ? '\u{1F1E9}\u{1F1EA}' : lang === 'IT' ? '\u{1F1EE}\u{1F1F9}' : lang === 'PT' ? '\u{1F1F5}\u{1F1F9}' : lang === 'NL' ? '\u{1F1F3}\u{1F1F1}' : '\u{1F30D}'}
                 </div>
-                <div data-testid="notif-bell" onClick={() => setShowNotifs(!showNotifs)} style={{ width: 38, height: 38, borderRadius: 12, background: '#FFF', border: '1px solid rgba(0,0,0,0.06)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', position: 'relative', boxShadow: '0 2px 8px rgba(0,0,0,0.04)' } as any}>
-                  <i className="ri-notification-3-line" style={{ fontSize: 17, color: '#6B6B80' }} />
-                  {(guardianRequests.length > 0 || activeAlerts.length > 0 || predictiveAlerts.length > 0) && <div style={{ position: 'absolute', top: -3, right: -3, width: 9, height: 9, borderRadius: 5, background: '#EF4444', border: '2px solid #EEEDF5' } as any} />}
+                <div data-testid="notif-bell" onClick={() => setShowNotifs(!showNotifs)} style={{ width: 38, height: 38, borderRadius: 12, background: 'rgba(255,255,255,0.15)', border: '1px solid rgba(255,255,255,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', position: 'relative' } as any}>
+                  <i className="ri-notification-3-line" style={{ fontSize: 17, color: '#FFF' }} />
+                  {(guardianRequests.length > 0 || activeAlerts.length > 0 || predictiveAlerts.length > 0) && <div style={{ position: 'absolute', top: -3, right: -3, width: 9, height: 9, borderRadius: 5, background: '#EF4444', border: '2px solid #6B5CE7' } as any} />}
+                </div>
+              </div>
+            </div>
+            {/* Nora greeting */}
+            <div style={{ background: 'rgba(255,255,255,0.12)', borderRadius: 16, padding: '12px 14px', display: 'flex', alignItems: 'flex-start', gap: 10 } as any}>
+              <div style={{ width: 28, height: 28, borderRadius: 10, background: 'rgba(255,255,255,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, marginTop: 1 } as any}>
+                <i className="ri-sparkling-2-line" style={{ fontSize: 14, color: '#FFF' }} />
+              </div>
+              <div style={{ flex: 1 } as any}>
+                <div style={{ fontSize: 13, fontWeight: 700, color: '#FFF', marginBottom: 2 }}>Bonjour {user.name?.split(' ')[0]} !</div>
+                <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.7)', lineHeight: 1.5 }}>
+                  {healthSummary?.score > 70 ? 'Votre etat de sante est bon aujourd\'hui. Continuez ainsi !' :
+                   healthSummary?.score > 50 ? 'Etat de sante correct. Pensez a bouger un peu et bien vous hydrater.' :
+                   healthSummary?.score > 0 ? 'Quelques indicateurs a surveiller. Nora vous accompagne.' :
+                   'Bienvenue ! Connectez vos appareils pour un suivi personnalise.'}
                 </div>
               </div>
             </div>
           </div>
+
+          <div style={{ padding: '0 20px' } as any}>
 
           <NotificationsPopup show={showNotifs} onClose={() => setShowNotifs(false)} activeAlerts={activeAlerts} guardianRequests={guardianRequests} predictiveAlerts={predictiveAlerts} token={token} onRefresh={fetchData} />
 
@@ -626,6 +642,7 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
 
           <GuardianActivationPopup show={showGuardianActivation} onClose={() => { setShowGuardianActivation(false); setActiveTab("beneficiary"); }} step={guardianActivationStep} setStep={setGuardianActivationStep} alertSms={alertSms} setAlertSms={setAlertSms} alertEmail={alertEmail} setAlertEmail={setAlertEmail} activating={activatingGuardian} onActivate={activateGuardianMode} />
 
+          </div> {/* end padding wrapper */}
         </div>
       </div>
     );
