@@ -111,13 +111,16 @@ function isV6Device(name: string): boolean {
 
 export async function scanForBracelet(
   onFound: (device: { id: string; name: string; rssi: number; mac: string }) => void,
-  timeoutMs = 20000
+  timeoutMs = 20000,
+  targetMac?: string
 ): Promise<void> {
   if (Platform.OS === 'web' || !bleManagerInstance) return;
   stopBraceletScan();
 
   return new Promise((resolve) => {
     const seen = new Set<string>();
+    const normalizedTarget = targetMac?.replace(/[:\-\s]/g, '').toLowerCase();
+
     braceletScanSub = bleManagerInstance.startDeviceScan(
       null,
       { allowDuplicates: false },
@@ -125,6 +128,18 @@ export async function scanForBracelet(
         if (error) { console.warn('BLE bracelet scan error:', error); return; }
         if (!device) return;
         const name = device.name || device.localName || '';
+        const deviceMac = (device.id || '').replace(/[:\-\s]/g, '').toLowerCase();
+
+        // Match by target MAC (from QR code or manual input)
+        if (normalizedTarget && deviceMac.includes(normalizedTarget)) {
+          if (!seen.has(device.id)) {
+            seen.add(device.id);
+            onFound({ id: device.id, name: name || 'Bracelet V6', rssi: device.rssi, mac: device.id });
+          }
+          return;
+        }
+
+        // Match by device name patterns
         if (name && isV6Device(name) && !seen.has(device.id)) {
           seen.add(device.id);
           onFound({ id: device.id, name, rssi: device.rssi, mac: device.id });

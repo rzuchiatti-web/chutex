@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { GlassOverlay } from './GlassOverlay';
 import { DEVICE_META } from './constants';
 
@@ -9,13 +9,83 @@ interface PairingStepsProps {
   onClose: () => void;
   onLaunchScan: (dt: string) => void;
   onScaleWeighing: () => void;
+  targetMac?: string;
+  onSetTargetMac?: (mac: string) => void;
 }
 
-export function PairingStepsPopup({ deviceType, step, onSetStep, onClose, onLaunchScan, onScaleWeighing }: PairingStepsProps) {
+export function PairingStepsPopup({ deviceType, step, onSetStep, onClose, onLaunchScan, onScaleWeighing, targetMac, onSetTargetMac }: PairingStepsProps) {
   const meta = DEVICE_META[deviceType];
+  const isBracelet = deviceType === 'bracelet';
   const steps = meta.steps;
   const cur = steps[step];
   const isLast = step === steps.length - 1;
+  const [macInput, setMacInput] = useState(targetMac || '');
+  const [showQrReader, setShowQrReader] = useState(false);
+
+  const handleMacSubmit = () => {
+    if (macInput.trim()) {
+      onSetTargetMac?.(macInput.trim());
+    }
+    onLaunchScan(deviceType);
+  };
+
+  // Special last step for bracelet: MAC input + QR scan option
+  if (isBracelet && isLast) {
+    return (
+      <GlassOverlay onClose={onClose}>
+        <div style={{ textAlign: 'center' } as any}>
+          <img src={meta.img} alt="" style={{ width: 80, height: 80, objectFit: 'contain', margin: '0 auto 16px', display: 'block', filter: `drop-shadow(0 8px 24px ${meta.color}30)` } as any} />
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, marginBottom: 20 } as any}>
+            {steps.map((_: any, i: number) => (
+              <div key={i} style={{ height: 4, borderRadius: 2, width: i === step ? 24 : 12, background: i === step ? meta.color : i < step ? `${meta.color}66` : 'rgba(255,255,255,0.1)' } as any} />
+            ))}
+          </div>
+
+          <div style={{ fontSize: 18, fontWeight: 900, color: '#FFF', marginBottom: 6 }}>Connecter le bracelet</div>
+          <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', marginBottom: 20 }}>Entrez l'adresse MAC du bracelet (QR code) ou lancez la recherche automatique</div>
+
+          {/* MAC input */}
+          <div style={{ marginBottom: 16 } as any}>
+            <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 8, textAlign: 'left' }}>Adresse MAC (optionnel)</div>
+            <input
+              data-testid="mac-address-input"
+              type="text"
+              value={macInput}
+              onChange={(e: any) => setMacInput(e.target.value)}
+              placeholder="Ex: 2a66eec842ee9261"
+              style={{
+                width: '100%', padding: '14px 16px', borderRadius: 14,
+                background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)',
+                color: '#FFF', fontSize: 15, fontFamily: 'monospace', letterSpacing: 1,
+                outline: 'none', boxSizing: 'border-box',
+              } as any}
+            />
+            <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.25)', marginTop: 6, textAlign: 'left' }}>
+              Vous trouverez cette adresse sur le QR code du bracelet ou dans l'app du fabricant
+            </div>
+          </div>
+
+          {/* Info tip */}
+          <div style={{ padding: '12px 16px', borderRadius: 14, background: `${meta.color}08`, border: `1px solid ${meta.color}18`, marginBottom: 20, textAlign: 'left' } as any}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10 } as any}>
+              <i className="ri-information-line" style={{ fontSize: 16, color: meta.color, flexShrink: 0 }} />
+              <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', lineHeight: 1.5 }}>
+                {macInput ? `Recherche ciblee sur: ${macInput}` : 'Sans adresse MAC, la recherche scannera tous les appareils V6 a proximite.'}
+              </span>
+            </div>
+          </div>
+
+          {/* Buttons */}
+          <div style={{ display: 'flex', gap: 10 } as any}>
+            <div onClick={() => onSetStep(step - 1)} style={{ flex: 1, padding: '14px', borderRadius: 999, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', cursor: 'pointer', textAlign: 'center', fontSize: 14, fontWeight: 700, color: 'rgba(255,255,255,0.5)' } as any}>Retour</div>
+            <div data-testid="launch-pairing-btn" onClick={handleMacSubmit} style={{ flex: 1, padding: '14px', borderRadius: 999, background: `linear-gradient(135deg, ${meta.color}CC, ${meta.color})`, cursor: 'pointer', textAlign: 'center', fontSize: 14, fontWeight: 700, color: '#FFF', boxShadow: `0 4px 20px ${meta.color}40` } as any}>
+              {macInput ? 'Connecter' : 'Rechercher'}
+            </div>
+          </div>
+        </div>
+      </GlassOverlay>
+    );
+  }
 
   return (
     <GlassOverlay onClose={onClose}>

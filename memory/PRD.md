@@ -21,6 +21,11 @@ Application de santé préventive "Chutex Care" pour le suivi des personnes âg�
   - Souscription aux services GATT: Heart Rate (0x180D), Battery (0x180F), Custom PPG (0xFFE0), Custom ECG (0xFFF0)
   - Instructions de pairing mises à jour (dissocier app fabricant d'abord)
   - Backend: nom "2358" ajouté aux préfixes V6 connus
+- **Saisie MAC adresse pour pairing bracelet**:
+  - Nouveau step dans le flux de pairing: champ input MAC address
+  - Scan BLE ciblé par MAC (match exact) ou par nom (patterns V6)
+  - La MAC du QR code du fabricant peut être saisie directement
+  - expo-camera installé pour futur scan QR
 
 ### Sessions Précédentes
 - Algorithme VO2 Max (formule Uth-Sørensen)

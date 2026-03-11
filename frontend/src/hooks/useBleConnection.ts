@@ -48,6 +48,7 @@ export function useBleConnection(token: string, fetchDevices: () => Promise<void
   const [bleStatus, setBleStatus] = useState<'idle' | 'scanning' | 'connected' | 'error'>('idle');
   const [bleError, setBleError] = useState('');
   const [bleVitals, setBleVitals] = useState<any>({});
+  const [targetMac, setTargetMac] = useState('');
 
   const startPairing = (dt: string) => {
     setPairingDevice(dt);
@@ -88,7 +89,7 @@ export function useBleConnection(token: string, fetchDevices: () => Promise<void
           foundDevice = device;
           setBleError(`Bracelet trouve: ${device.name}. Connexion...`);
         }
-      }, 15000);
+      }, 15000, targetMac || undefined);
 
       if (!foundDevice) {
         setBleStatus('error');
@@ -422,6 +423,7 @@ export function useBleConnection(token: string, fetchDevices: () => Promise<void
   return {
     pairingDevice, pairingStep, setPairingStep,
     bleStatus, bleError, bleVitals,
+    targetMac, setTargetMac,
     startPairing, closePairing, launchBleScan, launchScaleWeighing,
   };
 }

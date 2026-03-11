@@ -81,6 +81,8 @@ export function DeviceManagement({ token }: { token: string }) {
             onClose={ble.closePairing}
             onLaunchScan={ble.launchBleScan}
             onScaleWeighing={() => { ble.closePairing(); handleScaleWeighingFromPairing(); }}
+            targetMac={ble.targetMac}
+            onSetTargetMac={ble.setTargetMac}
           />
         )}
 
