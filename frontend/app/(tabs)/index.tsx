@@ -405,9 +405,7 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
   if (Platform.OS === 'web') {
     return (
       <div data-testid="beneficiary-dashboard" style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, display: 'flex', flexDirection: 'column', fontFamily: "'Inter', system-ui, -apple-system, sans-serif", overflow: 'hidden' } as any}>
-        <div style={{ position: 'absolute', inset: 0, background: '#050510', zIndex: 0 } as any} />
-        <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(ellipse at 50% 0%, rgba(88,40,220,0.15) 0%, transparent 55%), radial-gradient(ellipse at 85% 25%, rgba(0,180,220,0.10) 0%, transparent 40%), radial-gradient(ellipse at 15% 60%, rgba(120,40,200,0.08) 0%, transparent 45%), radial-gradient(ellipse at 70% 80%, rgba(0,210,180,0.06) 0%, transparent 35%)', zIndex: 0 } as any} />
-        <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '40%', background: 'linear-gradient(180deg, rgba(20,10,50,0.6) 0%, transparent 100%)', zIndex: 0 } as any} />
+        <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(160deg, #C47A3A 0%, #A85A3A 10%, #8B3A42 20%, #6E2848 30%, #5A2455 38%, #3E2858 46%, #2E3462 55%, #264060 65%, #1E4E68 75%, #1A5A6E 85%, #1C6472 95%, #1E6E78 100%)', zIndex: 0 } as any} />
 
         <div style={{ flex: 1, overflowY: 'auto', position: 'relative', zIndex: 5, padding: '20px 20px 100px', WebkitOverflowScrolling: 'touch' } as any}>
 
