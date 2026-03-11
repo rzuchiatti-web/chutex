@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Platform } from 'react-native';
-import { useRouter } from 'expo-router';
+import { useRouter, useFocusEffect } from 'expo-router';
 import { useAuth } from '../src/context/AuthContext';
 import { apiFetch } from '../src/services/api';
 
@@ -29,8 +29,9 @@ export default function ActivityDetailPage() {
   const [loading, setLoading] = useState(true);
   const [showExplain, setShowExplain] = useState(false);
 
-  useEffect(() => {
+  const fetchData = useCallback(() => {
     if (!token) return;
+    setLoading(true);
     Promise.all([
       apiFetch('/api/health/daily-report', {}, token).catch(() => ({})),
       apiFetch('/api/health/activity-streak', {}, token).catch(() => ({})),
@@ -41,6 +42,8 @@ export default function ActivityDetailPage() {
       if (trk?.completed) setTracked(trk.completed);
     }).finally(() => setLoading(false));
   }, [token]);
+
+  useFocusEffect(useCallback(() => { fetchData(); }, [fetchData]));
 
   const toggleTrack = async (index: number) => {
     const k = `exercise_${index}`, was = tracked[k];

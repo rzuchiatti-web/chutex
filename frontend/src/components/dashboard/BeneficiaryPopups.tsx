@@ -41,7 +41,7 @@ export function NotificationsPopup({ show, onClose, activeAlerts, guardianReques
 
         {/* Predictive alerts from Nora */}
         {pAlerts.map((a: any) => (
-          <div key={a.id} style={{ padding: '14px 16px', borderRadius: 16, background: a.severity === 'warning' ? 'rgba(245,158,11,0.08)' : 'rgba(139,92,246,0.06)', border: `1px solid ${a.severity === 'warning' ? 'rgba(245,158,11,0.2)' : 'rgba(139,92,246,0.15)'}`, marginBottom: 8, backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)' } as any}>
+          <div key={a.id} data-testid={`predictive-alert-${a.id}`} style={{ padding: '14px 16px', borderRadius: 16, background: a.severity === 'warning' ? 'rgba(245,158,11,0.08)' : 'rgba(139,92,246,0.06)', border: `1px solid ${a.severity === 'warning' ? 'rgba(245,158,11,0.2)' : 'rgba(139,92,246,0.15)'}`, marginBottom: 8, backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)' } as any}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 6 } as any}>
               <div style={{ width: 32, height: 32, borderRadius: 10, background: `${a.color || '#F59E0B'}15`, display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}>
                 <i className={a.icon || 'ri-pulse-line'} style={{ fontSize: 16, color: a.color || '#F59E0B' }} />
@@ -49,7 +49,9 @@ export function NotificationsPopup({ show, onClose, activeAlerts, guardianReques
               <div style={{ flex: 1 } as any}>
                 <div style={{ fontSize: 12, fontWeight: 800, color: '#FFF' }}>{a.title}</div>
               </div>
-              <div style={{ width: 20, height: 20, borderRadius: 6, background: 'rgba(167,139,250,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}><span style={{ fontSize: 7, fontWeight: 900, color: '#A78BFA' }}>N</span></div>
+              <div onClick={async (e: any) => { e.stopPropagation(); try { await apiFetch(`/api/nora/predictive-alerts/${a.id}/dismiss`, { method: 'POST' }, token); if (onRefresh) onRefresh(); } catch {} }} style={{ width: 24, height: 24, borderRadius: 8, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any} data-testid={`dismiss-alert-${a.id}`}>
+                <i className="ri-close-line" style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)' }} />
+              </div>
             </div>
             <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.5)', lineHeight: 1.5 }}>{a.message}</div>
             {a.recommendation && <div style={{ fontSize: 11, color: a.color || '#F59E0B', fontWeight: 600, marginTop: 4 }}>{a.recommendation}</div>}

@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Platform } from 'react-native';
-import { useRouter, useLocalSearchParams } from 'expo-router';
+import { useRouter, useLocalSearchParams, useFocusEffect } from 'expo-router';
 import { useAuth } from '../src/context/AuthContext';
 import { apiFetch } from '../src/services/api';
 import { BG_IMAGES } from '../src/components/dashboard/constants';
@@ -23,7 +23,13 @@ export default function ExerciseDetailPage() {
   const [loading, setLoading] = useState(true);
   const [done, setDone] = useState(false);
 
-  useEffect(() => { if (!token) return; apiFetch('/api/minceur/weight-details', {}, token).then(d => { const exercises = d?.recommendations?.exercises || []; if (exercises[idx]) setEx(exercises[idx]); setDone(!!d?.tracking?.completed?.[`exercise_${idx}`]); }).catch(() => {}).finally(() => setLoading(false)); }, [token, idx]);
+  const fetchExercise = useCallback(() => {
+    if (!token) return;
+    setLoading(true);
+    apiFetch('/api/minceur/weight-details', {}, token).then(d => { const exercises = d?.recommendations?.exercises || []; if (exercises[idx]) setEx(exercises[idx]); setDone(!!d?.tracking?.completed?.[`exercise_${idx}`]); }).catch(() => {}).finally(() => setLoading(false));
+  }, [token, idx]);
+
+  useFocusEffect(useCallback(() => { fetchExercise(); }, [fetchExercise]));
   const toggle = async () => { setDone(!done); try { await apiFetch('/api/minceur/track', { method: 'POST', body: JSON.stringify({ type: 'exercise', index: idx }) }, token); } catch { setDone(done); } };
 
   if (Platform.OS !== 'web') return null;

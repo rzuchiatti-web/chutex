@@ -258,10 +258,7 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
         apiFetch('/api/nora/checkin-daily', { method: 'POST' }, token).then(s => { if (s) setStreakData(s); }).catch(() => {});
         apiFetch('/api/nora/predictive-check', {}, token).then(p => {
           if (p?.alerts) {
-            // Filter out previously dismissed alerts
-            const dismissed = JSON.parse(localStorage.getItem('dismissed_predictive') || '[]');
-            const filtered = p.alerts.filter((a: any) => !dismissed.includes(a.id));
-            setPredictiveAlerts(filtered);
+            setPredictiveAlerts(p.alerts);
           }
         }).catch(() => {});
         apiFetch('/api/health/activity-streak', {}, token).then(s => { if (s) setActivityStreakData(s); }).catch(() => {});
@@ -410,7 +407,8 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
   if (Platform.OS === 'web') {
     return (
       <div data-testid="beneficiary-dashboard" style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, display: 'flex', flexDirection: 'column', fontFamily: "'Inter', system-ui, -apple-system, sans-serif", overflow: 'hidden' } as any}>
-        <img src={BG_VIDEO} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 } as any} />
+        <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(170deg, #040E1A 0%, #0A1628 25%, #0D1F35 45%, #091A2A 65%, #06101C 85%, #030B14 100%)', zIndex: 0 } as any} />
+        <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(ellipse at 20% 20%, rgba(14,116,144,0.08) 0%, transparent 50%), radial-gradient(ellipse at 80% 60%, rgba(34,211,238,0.04) 0%, transparent 40%)', zIndex: 0 } as any} />
 
         <div style={{ flex: 1, overflowY: 'auto', position: 'relative', zIndex: 5, padding: '20px 20px 100px', WebkitOverflowScrolling: 'touch' } as any}>
 
@@ -434,7 +432,7 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
                 </div>
                 <div data-testid="notif-bell" onClick={() => setShowNotifs(!showNotifs)} style={{ width: 38, height: 38, borderRadius: 12, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', position: 'relative' } as any}>
                   <i className="ri-notification-3-line" style={{ fontSize: 17, color: 'rgba(255,255,255,0.65)' }} />
-                  {(guardianRequests.length > 0 || activeAlerts.length > 0) && <div style={{ position: 'absolute', top: -3, right: -3, width: 9, height: 9, borderRadius: 5, background: '#EF4444', border: '2px solid rgba(4,14,26,0.8)' } as any} />}
+                  {(guardianRequests.length > 0 || activeAlerts.length > 0 || predictiveAlerts.length > 0) && <div style={{ position: 'absolute', top: -3, right: -3, width: 9, height: 9, borderRadius: 5, background: '#EF4444', border: '2px solid rgba(4,14,26,0.8)' } as any} />}
                 </div>
               </div>
             </div>

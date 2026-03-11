@@ -1,0 +1,66 @@
+{
+  "summary": "Tested iteration 105 fixes. Backend APIs all pass (12/12). Frontend testing reveals CRITICAL BUG: Dashboard background still shows mountain SVG image instead of CSS gradient. Predictive notifications DO appear in popup when clicking bell icon. Exercise validation API works. Nora chat context works.",
+  "backend_issues": {
+    "critical": [],
+    "minor": []
+  },
+  "frontend_issues": {
+    "critical": [
+      {
+        "component": "Dashboard background",
+        "issue": "Dashboard renders BG_IMAGES.beneficiary SVG as first child instead of the CSS gradient divs defined in code at lines 410-411 of index.tsx. The gradient divs are completely missing from DOM output.",
+        "selector": "[data-testid='beneficiary-dashboard'] > :first-child",
+        "expected": "First 2 children should be gradient divs with linear-gradient and radial-gradient",
+        "actual": "First child is <img src='...iklovqya_background_beneficiary.svg'...>",
+        "priority": "HIGH"
+      }
+    ],
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": [
+      {
+        "screen": "Dashboard",
+        "issues": [
+          "Background shows mountain/nature image instead of dark clinical gradient as specified in requirements"
+        ]
+      }
+    ]
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_iteration105_fixes.py",
+    "/app/test_reports/pytest/pytest_iteration105.xml"
+  ],
+  "action_items": [
+    "CRITICAL: Fix dashboard background - gradient divs at lines 410-411 in /app/frontend/app/(tabs)/index.tsx are not rendering. Instead an IMG element with BG_IMAGES.beneficiary SVG is injected. Possible Expo hot reload caching issue - may need full rebuild or check if another component is overriding.",
+    "Verify predictive alert data-testids are working (predictive-alert-{id}, dismiss-alert-{id})",
+    "Exercise validation persistence could not be fully tested via UI due to ActivityCard not being rendered on dashboard (replaced by DailyObjectivesOnDashboard)"
+  ],
+  "critical_code_review_comments": [
+    "Dashboard background: Code at lines 410-411 defines CSS gradients but DOM shows IMG element - investigate render mismatch",
+    "BG_VIDEO variable at line 394 is defined but never used in web rendering - dead code that can be removed"
+  ],
+  "updated_files": [
+    "/app/backend/tests/test_iteration105_fixes.py"
+  ],
+  "success_rate": {
+    "backend": "100% (12/12 tests passed)",
+    "frontend": "75% - Dashboard loads, notifications work, but background bug critical"
+  },
+  "test_credentials": {
+    "phone": "0651245918",
+    "password": "test123",
+    "user": "Josette Zuchiatti (beneficiary)"
+  },
+  "seed_data_creation": "None",
+  "retest_needed": true,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "Dashboard background is broken - showing SVG image instead of CSS gradient despite correct code. Predictive notifications appear in bell popup with HRV and sleep degradation alerts. Backend APIs fully functional. Exercise validation works via API but ActivityCard is replaced with DailyObjectivesOnDashboard component on dashboard.",
+  "features_verified": {
+    "predictive_notifications_in_popup": "PASS - Alerts appear with titles like 'Variabilite cardiaque en baisse', 'Qualite de sommeil en degradation'",
+    "predictive_alert_dismiss_api": "PASS - /api/nora/predictive-alerts/{id}/dismiss works correctly",
+    "notification_bell_badge": "PARTIAL - Code exists but couldn't verify red badge in DOM query",
+    "exercise_validation_persistence": "BACKEND PASS - API /api/minceur/track and /api/minceur/today-tracking work. UI not testable due to no ActivityCard",
+    "dashboard_dark_gradient": "FAIL - Still showing mountain SVG image instead of CSS gradient",
+    "nora_ai_context_health_data": "PASS - /api/chat/message returns AI responses, /api/nora/morning-briefing includes health objectives"
+  }
+}
