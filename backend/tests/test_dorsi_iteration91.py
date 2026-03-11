@@ -12,7 +12,7 @@ import requests
 import os
 import time
 
-BASE_URL = "https://mollie-payment-test.preview.emergentagent.com"
+BASE_URL = "https://nora-health-1.preview.emergentagent.com"
 
 # Test credentials
 TEST_PHONE = "0651245918"
