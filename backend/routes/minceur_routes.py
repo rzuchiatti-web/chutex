@@ -450,6 +450,30 @@ async def delete_weight_goal(user=Depends(get_current_user)):
     return {"status": "deleted"}
 
 
+@router.get("/minceur/weight-goal-status")
+async def get_weight_goal_status(user=Depends(get_current_user)):
+    """Lightweight: just return goal + current weight (no AI, no heavy computation)"""
+    uid = user["id"]
+    goal = await db.minceur_goals.find_one({"user_id": uid}, {"_id": 0})
+    if not goal:
+        return {"target_kg": None}
+
+    history = await get_weight_history(uid)
+    current_weight = history[0]["weight"] if history else 0
+
+    u = await db.users.find_one({"id": uid}, {"_id": 0})
+    if not current_weight and u:
+        current_weight = u.get("weight_kg", 0)
+
+    return {
+        "target_kg": goal.get("target_kg"),
+        "weeks": goal.get("weeks"),
+        "current": current_weight,
+        "created_at": goal.get("created_at"),
+    }
+
+
+
 @router.post("/minceur/refresh-recommendations")
 async def refresh_recommendations(user=Depends(get_current_user)):
     """Force refresh AI recommendations"""

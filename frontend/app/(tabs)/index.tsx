@@ -34,14 +34,15 @@ function WeightGoalDashCard({ token }: { token: string }) {
   const router = useRouter();
   const [goal, setGoal] = React.useState<any>(null);
   React.useEffect(() => {
-    apiFetch('/api/minceur/weight-details', {}, token)
-      .then(d => { if (d?.goal) setGoal({ ...d.goal, current: d.current?.weight || 0, calories: d.recommendations?.daily_calories || 0 }); })
-      .catch(() => {});
+    // Use lightweight DB queries, not the heavy weight-details endpoint
+    Promise.all([
+      apiFetch('/api/minceur/weight-goal-status', {}, token).catch(() => null),
+    ]).then(([g]) => { if (g && g.target_kg) setGoal(g); });
   }, [token]);
 
   if (!goal) return null;
 
-  const diff = goal.current - goal.target_kg;
+  const diff = (goal.current || 0) - goal.target_kg;
   const remaining = Math.abs(diff).toFixed(1);
   const progressPct = diff > 0 ? Math.max(5, Math.min(95, 100 - (diff / (diff + 2)) * 100)) : 50;
 
