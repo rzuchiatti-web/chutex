@@ -199,7 +199,23 @@ async def get_dashboard_summary(user=Depends(get_current_user)):
         {"user_id": uid, "device_type": "vest"}, {"_id": 0}, sort=[("timestamp", -1)]
     )
 
-    br_data = (last_bracelet_reading or {}).get("data", {}) if last_bracelet_reading else {}
+    br_data = {}
+    if last_bracelet_reading:
+        br_data = (last_bracelet_reading or {}).get("data", {})
+    # Fallback: use device fields for latest vitals if reading doesn't have them
+    if bracelet_dev:
+        if not br_data.get("heart_rate") and bracelet_dev.get("last_heart_rate"):
+            br_data["heart_rate"] = bracelet_dev["last_heart_rate"]
+        if not br_data.get("spo2") and bracelet_dev.get("last_spo2"):
+            br_data["spo2"] = bracelet_dev["last_spo2"]
+        if not br_data.get("temperature") and bracelet_dev.get("last_temperature"):
+            br_data["temperature"] = bracelet_dev["last_temperature"]
+        if not br_data.get("steps") and bracelet_dev.get("last_steps"):
+            br_data["steps"] = bracelet_dev["last_steps"]
+        if not br_data.get("calories") and bracelet_dev.get("last_calories"):
+            br_data["calories"] = bracelet_dev["last_calories"]
+        if not br_data.get("blood_pressure") and bracelet_dev.get("last_systolic"):
+            br_data["blood_pressure"] = {"systolic": bracelet_dev["last_systolic"], "diastolic": bracelet_dev.get("last_diastolic", 0)}
     sc_data = (last_scale_reading or {}).get("data", {}) if last_scale_reading else {}
     vs_data = (last_vest_reading or {}).get("data", {}) if last_vest_reading else {}
     br_connected = False
