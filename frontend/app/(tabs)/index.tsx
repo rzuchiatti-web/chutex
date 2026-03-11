@@ -25,6 +25,60 @@ import { requestNotificationPermission, startReminderChecker, notifyAlert } from
 import { SubscriptionBanner, SubscriptionGate } from '../../src/components/SubscriptionGate';
 
 /* ═══════════════════════════════════════════════════════ */
+/*              WEIGHT GOAL CARD ON DASHBOARD              */
+/* ═══════════════════════════════════════════════════════ */
+const TAPE_IMG = 'https://customer-assets.emergentagent.com/job_8afdc991-0ab2-4687-a2a5-438b9a5f0711/artifacts/dwmw2i8r_Balance_connecte_Vita_chutex.svg';
+
+function WeightGoalDashCard({ token }: { token: string }) {
+  const router = useRouter();
+  const [goal, setGoal] = React.useState<any>(null);
+  React.useEffect(() => {
+    apiFetch('/api/minceur/weight-details', {}, token)
+      .then(d => { if (d?.goal) setGoal({ ...d.goal, current: d.current?.weight || 0, calories: d.recommendations?.daily_calories || 0 }); })
+      .catch(() => {});
+  }, [token]);
+
+  if (!goal) return null;
+
+  const diff = goal.current - goal.target_kg;
+  const pct = goal.current > 0 && diff > 0 ? Math.min(100, Math.round(((goal.current - (goal.current - diff)) / diff) * 0)) : 0;
+  const remaining = Math.abs(diff).toFixed(1);
+
+  return (
+    <div data-testid="weight-goal-dash-card" onClick={() => router.push('/minceur' as any)}
+      style={{ borderRadius: 18, overflow: 'hidden', marginBottom: 10, cursor: 'pointer', position: 'relative' } as any}>
+      {/* Background gradient amber */}
+      <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(135deg, rgba(245,158,11,0.12), rgba(217,119,6,0.06))', zIndex: 0 } as any} />
+      <div style={{ position: 'relative', zIndex: 1, padding: '16px 18px', display: 'flex', alignItems: 'center', gap: 14 } as any}>
+        {/* Image */}
+        <div style={{ width: 56, height: 56, borderRadius: 14, background: 'rgba(245,158,11,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}>
+          <img src={TAPE_IMG} alt="" style={{ width: 40, height: 40, objectFit: 'contain', filter: 'drop-shadow(0 4px 8px rgba(0,0,0,0.3))' } as any} />
+        </div>
+        {/* Content */}
+        <div style={{ flex: 1 } as any}>
+          <div style={{ fontSize: 14, fontWeight: 800, color: '#FFF', marginBottom: 3 }}>Objectif poids</div>
+          <div style={{ display: 'flex', alignItems: 'baseline', gap: 6 } as any}>
+            <span style={{ fontSize: 22, fontWeight: 900, color: '#F59E0B' }}>{goal.current > 0 ? goal.current : '--'}</span>
+            <i className="ri-arrow-right-line" style={{ fontSize: 14, color: 'rgba(255,255,255,0.25)' }} />
+            <span style={{ fontSize: 22, fontWeight: 900, color: '#FFF' }}>{goal.target_kg}</span>
+            <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)' }}>kg</span>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 4 } as any}>
+            <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.35)' }}>{diff > 0 ? `-${remaining}kg restant` : `+${remaining}kg restant`} · {goal.weeks} sem</span>
+            {goal.calories > 0 && <span style={{ fontSize: 10, fontWeight: 700, color: '#F59E0B' }}>{goal.calories} kcal/j</span>}
+          </div>
+        </div>
+        <i className="ri-arrow-right-s-line" style={{ fontSize: 20, color: 'rgba(255,255,255,0.15)' }} />
+      </div>
+      {/* Progress bar */}
+      <div style={{ height: 3, background: 'rgba(255,255,255,0.04)' } as any}>
+        <div style={{ height: 3, background: 'linear-gradient(90deg, #F59E0B80, #F59E0B)', width: `${Math.max(5, 100 - Math.min(100, Math.abs(diff) * 10))}%`, transition: 'width 0.5s' } as any} />
+      </div>
+    </div>
+  );
+}
+
+/* ═══════════════════════════════════════════════════════ */
 /*               DAILY OBJECTIVES ON DASHBOARD             */
 /* ═══════════════════════════════════════════════════════ */
 function DailyObjectivesOnDashboard({ token }: { token: string }) {
@@ -511,6 +565,9 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
               <i className="ri-arrow-right-s-line" style={{ fontSize: 18, color: 'rgba(255,255,255,0.15)' }} />
             </div>
           )}
+
+          {/* ── WEIGHT GOAL CARD (si objectif en cours) ── */}
+          <WeightGoalDashCard token={token} />
 
           <div style={{ height: 1, background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.06), transparent)', margin: '4px 20px 16px' } as any} />
 

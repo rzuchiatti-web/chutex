@@ -198,11 +198,11 @@ export default function HealthScreen() {
           {/* 0. Analysis Phase */}
           <AnalysisPhase analysisPhase={analysisPhase} showInfo={showAnalysisInfo} setShowInfo={setShowAnalysisInfo} progressBg={PROGRESS_BG} />
 
-          {/* 1. Hero BioAge — hidden during analysis phase */}
-          {!analysisPhase && (hasMeaningfulVitals || hasBodyAge) && (
-            <HeroScore bioAge={noraBodyAge || d.body_age || 0} realAge={user?.date_of_birth ? Math.floor((Date.now() - new Date(user.date_of_birth).getTime()) / 31557600000) : 0} status={status} statusColor={statusColor} ai={ai} subs={subs} showDetail={showScoreDetail} setShowDetail={setShowScoreDetail} d={d} bodyAgeNora={bodyAgeNora} agingRate={agingRate} />
+          {/* 1. Hero BioAge + Aging Rate — show when any data or aging rate available */}
+          {!analysisPhase && (hasMeaningfulVitals || hasBodyAge || (agingRate && agingRate.rate > 0)) && (
+            <HeroScore bioAge={agingRate?.bio_age || noraBodyAge || d.body_age || 0} realAge={agingRate?.real_age || (user?.date_of_birth ? Math.floor((Date.now() - new Date(user.date_of_birth).getTime()) / 31557600000) : 0)} status={status} statusColor={statusColor} ai={ai} subs={subs} showDetail={showScoreDetail} setShowDetail={setShowScoreDetail} d={d} bodyAgeNora={bodyAgeNora} agingRate={agingRate} />
           )}
-          {!analysisPhase && !hasMeaningfulVitals && !hasBodyAge && (
+          {!analysisPhase && !hasMeaningfulVitals && !hasBodyAge && !(agingRate && agingRate.rate > 0) && (
             <div data-testid="health-score-unavailable" style={{ padding: '18px 16px', borderRadius: 16, marginBottom: 8, background: 'rgba(245,158,11,0.08)', border: '1px solid rgba(245,158,11,0.22)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)' } as any}>
               <div style={{ fontSize: 13, fontWeight: 800, color: '#FCD34D', marginBottom: 6 }}>Score Nora indisponible</div>
               <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.55)', lineHeight: 1.55 }}>
@@ -213,28 +213,7 @@ export default function HealthScreen() {
 
           <div style={{ height: 1, background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.06), transparent)', margin: '4px 20px 16px' } as any} />
 
-          {/* 2. Daily Objectives (no program here — moved to Programmes tab) */}
-
-          {/* 3. Daily Objectives — no card wrapper */}
-          <div style={{ fontSize: 16, fontWeight: 800, color: '#FFF', marginBottom: 14 }}>Objectifs journaliers</div>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginBottom: 14 } as any}>
-            {filteredPlan.map((p: any) => (
-              <div key={p.key} style={{ padding: '12px', borderRadius: 14, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' } as any}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 6 } as any}><i className={p.icon} style={{ fontSize: 14, color: p.color }} /><span style={{ fontSize: 9, fontWeight: 700, color: 'rgba(255,255,255,0.25)', textTransform: 'uppercase' }}>{p.status || p.label}</span></div>
-                <div style={{ fontSize: 20, fontWeight: 900, color: '#FFF' }}>{p.value} <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.25)' }}>{p.unit}</span></div>
-                <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.3)', marginTop: 2 }}>{p.label}</div>
-                {p.progress != null && <div style={{ height: 3, borderRadius: 2, background: 'rgba(255,255,255,0.06)', marginTop: 6, overflow: 'hidden' } as any}><div style={{ height: 3, borderRadius: 2, width: `${p.progress}%`, background: p.color } as any} /></div>}
-              </div>
-            ))}
-            {filteredPlan.length === 0 && (
-              <div data-testid="health-plan-unavailable" style={{ gridColumn: '1 / -1', padding: '14px', borderRadius: 14, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', color: 'rgba(255,255,255,0.45)', fontSize: 12, lineHeight: 1.5 } as any}>
-                Aucun objectif personnalise pour le moment. Connectez le bracelet pour generer un plan base sur vos donnees reelles.
-              </div>
-            )}
-          </div>
-          {/* 3b moved after sections */}
-
-          <div style={{ height: 1, background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.06), transparent)', margin: '4px 20px 16px' } as any} />
+          {/* 2. (Objectifs journaliers retires — affiches sur le dashboard) */}
 
           {/* 4. Vitals Row — same design as dashboard */}
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 14 } as any}>
