@@ -5,7 +5,7 @@ import { REMINDER_IMAGES } from './constants';
 import { PhoneInputWithPrefix } from '../PhoneInputWithPrefix';
 
 /* ─── NOTIFICATIONS POPUP ─── */
-export function NotificationsPopup({ show, onClose, activeAlerts, guardianRequests, token, onRefresh }: any) {
+export function NotificationsPopup({ show, onClose, activeAlerts, guardianRequests, predictiveAlerts, token, onRefresh }: any) {
   const router = useRouter();
   const [processing, setProcessing] = useState<string | null>(null);
   if (!show) return null;
@@ -25,6 +25,8 @@ export function NotificationsPopup({ show, onClose, activeAlerts, guardianReques
     } catch {} finally { setProcessing(null); }
   };
 
+  const pAlerts = predictiveAlerts || [];
+
   return (
     <div onClick={onClose} style={{ position: 'fixed', inset: 0, zIndex: 9999, backdropFilter: 'blur(32px)', WebkitBackdropFilter: 'blur(32px)', background: 'rgba(0,0,0,0.3)', overflowY: 'auto' } as any}>
       <div onClick={(e: any) => e.stopPropagation()} style={{ width: '100%', maxWidth: 420, margin: '0 auto', padding: '40px 24px 120px', boxSizing: 'border-box' } as any}>
@@ -35,7 +37,25 @@ export function NotificationsPopup({ show, onClose, activeAlerts, guardianReques
           <div style={{ width: 56, height: 56, borderRadius: 16, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', marginBottom: 14 } as any}><i className="ri-notification-3-line" style={{ fontSize: 26, color: 'rgba(255,255,255,0.6)' }} /></div>
           <div style={{ fontSize: 22, fontWeight: 900, color: '#FFF' }}>Notifications</div>
         </div>
-        {activeAlerts.length === 0 && guardianRequests.length === 0 && <div style={{ textAlign: 'center', padding: '20px 0', fontSize: 13, color: 'rgba(255,255,255,0.3)' }}>Aucune notification pour le moment.</div>}
+        {activeAlerts.length === 0 && guardianRequests.length === 0 && pAlerts.length === 0 && <div style={{ textAlign: 'center', padding: '20px 0', fontSize: 13, color: 'rgba(255,255,255,0.3)' }}>Aucune notification pour le moment.</div>}
+
+        {/* Predictive alerts from Nora */}
+        {pAlerts.map((a: any) => (
+          <div key={a.id} style={{ padding: '14px 16px', borderRadius: 16, background: a.severity === 'warning' ? 'rgba(245,158,11,0.08)' : 'rgba(139,92,246,0.06)', border: `1px solid ${a.severity === 'warning' ? 'rgba(245,158,11,0.2)' : 'rgba(139,92,246,0.15)'}`, marginBottom: 8, backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)' } as any}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 6 } as any}>
+              <div style={{ width: 32, height: 32, borderRadius: 10, background: `${a.color || '#F59E0B'}15`, display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}>
+                <i className={a.icon || 'ri-pulse-line'} style={{ fontSize: 16, color: a.color || '#F59E0B' }} />
+              </div>
+              <div style={{ flex: 1 } as any}>
+                <div style={{ fontSize: 12, fontWeight: 800, color: '#FFF' }}>{a.title}</div>
+              </div>
+              <div style={{ width: 20, height: 20, borderRadius: 6, background: 'rgba(167,139,250,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}><span style={{ fontSize: 7, fontWeight: 900, color: '#A78BFA' }}>N</span></div>
+            </div>
+            <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.5)', lineHeight: 1.5 }}>{a.message}</div>
+            {a.recommendation && <div style={{ fontSize: 11, color: a.color || '#F59E0B', fontWeight: 600, marginTop: 4 }}>{a.recommendation}</div>}
+          </div>
+        ))}
+
         {activeAlerts.map((a: any) => (
           <div key={a.id} onClick={() => { onClose(); router.push({ pathname: '/alert-detail', params: { alertId: a.id } }); }} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '14px 16px', borderRadius: 16, background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.15)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', marginBottom: 8, cursor: 'pointer' } as any}>
             <div style={{ width: 36, height: 36, borderRadius: 10, background: 'rgba(239,68,68,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}><i className="ri-alarm-warning-line" style={{ fontSize: 18, color: '#EF4444' }} /></div>

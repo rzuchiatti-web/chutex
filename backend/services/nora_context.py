@@ -112,6 +112,20 @@ async def build_nora_context(user: dict) -> dict:
             "duration_days": program.get("duration_days", 21) if program else 21,
         }
 
+    # ── Weight goal ──
+    weight_goal = await db.minceur_goals.find_one({"user_id": uid}, {"_id": 0})
+    ctx["weight_goal"] = weight_goal
+
+    # ── Glycemia estimation ──
+    glycemia_cals = await db.glycemia_calibrations.count_documents({"user_id": uid})
+    ctx["glycemia_calibrations"] = glycemia_cals
+
+    # ── Sleep data ──
+    sleep_reading = None
+    if bracelet_reading and bracelet_reading.get("data", {}).get("sleep_quality", 0) > 0:
+        sleep_reading = bracelet_reading["data"]
+    ctx["sleep_data"] = sleep_reading
+
     # ── Smart recommendations ──
     recs = []
     sub_type = sub.get("subscription_type", "") if sub else ""
@@ -246,6 +260,30 @@ def format_nora_context_for_prompt(ctx: dict) -> str:
         parts.append(f"Programme actif: '{ap['title']}' — Jour {ap['current_day']}/{ap['duration_days']}.")
     else:
         parts.append("Aucun programme de prevention en cours.")
+
+    # Weight goal
+    wg = ctx.get("weight_goal")
+    if wg and wg.get("target_kg"):
+        parts.append(f"Objectif poids: {wg['target_kg']}kg en {wg.get('weeks', 12)} semaines.")
+
+    # Glycemia
+    gc = ctx.get("glycemia_calibrations", 0)
+    if gc > 0:
+        parts.append(f"Glycemie: {gc} calibrations capillaires effectuees. L'estimation glycemique s'ameliore.")
+
+    # Sleep
+    sd = ctx.get("sleep_data")
+    if sd:
+        sq = sd.get("sleep_quality", 0)
+        dur = sd.get("sleep_duration_min", 0)
+        deep = sd.get("deep_sleep_min", 0)
+        if sq > 0:
+            parts.append(f"Sommeil: qualite {sq}%, duree {dur}min, sommeil profond {deep}min.")
+
+    # Body age
+    ba = hd.get("nora_body_age")
+    if ba:
+        parts.append(f"Age biologique estime: {ba} ans (age reel: {ctx.get('age', '?')} ans).")
 
     # Recommendations
     if ctx["recommendations"]:
