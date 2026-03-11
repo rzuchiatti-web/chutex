@@ -90,27 +90,32 @@ function DailyObjectivesOnDashboard({ token }: { token: string }) {
       .finally(() => setLoading(false));
   }, [token]);
 
-  if (loading) return <div style={{ padding: '12px 0', textAlign: 'center' } as any}><div style={{ width: 20, height: 20, borderRadius: '50%', border: '2px solid rgba(0,0,0,0.04)', borderTopColor: '#6B5CE7', animation: 'spin 0.8s linear infinite', margin: '0 auto' } as any} /></div>;
+  if (loading) return <div style={{ padding: '12px 0', textAlign: 'center' } as any}><div style={{ width: 20, height: 20, borderRadius: '50%', border: '2px solid rgba(0,0,0,0.04)', borderTopColor: '#0F766E', animation: 'spin 0.8s linear infinite', margin: '0 auto' } as any} /></div>;
   if (!plan.length) return null;
 
+  const items = plan.filter((p: any) => p.key !== 'connect');
   return (
-    <div data-testid="dashboard-objectives" style={{ marginBottom: 6 } as any}>
-      <div style={{ fontSize: 16, fontWeight: 800, color: '#1A1A2E', marginBottom: 10 }}>Objectifs du jour</div>
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 } as any}>
-        {plan.filter((p: any) => p.key !== 'connect').map((p: any) => (
-          <div key={p.key} onClick={() => {
+    <div data-testid="dashboard-objectives" style={{ marginBottom: 8 } as any}>
+      <div style={{ fontSize: 13, fontWeight: 700, color: '#94A3B8', letterSpacing: 0.5, textTransform: 'uppercase', marginBottom: 12 }}>Objectifs du jour</div>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 } as any}>
+        {items.map((p: any, idx: number) => (
+          <div key={p.key} className="clinic-card-enter" onClick={() => {
             if (p.key === 'steps') router.push({ pathname: '/metric-detail' as any, params: { key: 'steps' } });
             else if (p.key === 'sleep') router.push('/sleep' as any);
             else if (p.key === 'calories_intake') router.push('/minceur' as any);
             else if (p.key === 'hydration') router.push('/minceur' as any);
-          }} style={{ padding: '12px', borderRadius: 14, background: '#FFF', border: '1px solid rgba(0,0,0,0.04)', cursor: 'pointer', boxShadow: '0 2px 12px rgba(0,0,0,0.04)' } as any}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 6 } as any}>
-              <i className={p.icon} style={{ fontSize: 14, color: p.color }} />
-              <span style={{ fontSize: 9, fontWeight: 700, color: '#9898AD', textTransform: 'uppercase' }}>{p.status || p.label}</span>
+          }} style={{ padding: '18px 16px', borderRadius: 20, background: '#FFF', border: '1px solid rgba(0,0,0,0.04)', cursor: 'pointer', boxShadow: '0 10px 30px -10px rgba(0,0,0,0.05)', transition: 'transform 0.25s ease, box-shadow 0.25s ease', animationDelay: `${idx * 0.08}s` } as any}
+            onMouseEnter={(e: any) => { e.currentTarget.style.transform = 'translateY(-4px)'; e.currentTarget.style.boxShadow = '0 20px 40px -10px rgba(0,0,0,0.1)'; }}
+            onMouseLeave={(e: any) => { e.currentTarget.style.transform = ''; e.currentTarget.style.boxShadow = '0 10px 30px -10px rgba(0,0,0,0.05)'; }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 } as any}>
+              <div style={{ width: 36, height: 36, borderRadius: 12, background: `${p.color}12`, display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}>
+                <i className={p.icon} style={{ fontSize: 17, color: p.color }} />
+              </div>
+              {p.progress != null && <div style={{ fontSize: 11, fontWeight: 800, color: p.progress >= 100 ? '#10B981' : p.color }}>{Math.min(100, Math.round(p.progress))}%</div>}
             </div>
-            <div style={{ fontSize: 20, fontWeight: 900, color: '#1A1A2E' }}>{p.value} <span style={{ fontSize: 10, color: '#9898AD' }}>{p.unit}</span></div>
-            <div style={{ fontSize: 9, color: '#B0B0BE', marginTop: 2 }}>{p.label}</div>
-            {p.progress != null && <div style={{ height: 3, borderRadius: 2, background: '#F0F0F5', marginTop: 6, overflow: 'hidden' } as any}><div style={{ height: 3, borderRadius: 2, width: `${p.progress}%`, background: p.color } as any} /></div>}
+            <div style={{ fontSize: 24, fontWeight: 900, color: '#0F172A', letterSpacing: -1, marginBottom: 2 }}>{p.value}<span style={{ fontSize: 11, fontWeight: 600, color: '#94A3B8', marginLeft: 4 }}>{p.unit}</span></div>
+            <div style={{ fontSize: 11, color: '#94A3B8', fontWeight: 500 }}>{p.label}</div>
+            {p.progress != null && <div style={{ height: 4, borderRadius: 2, background: '#F1F5F9', marginTop: 10, overflow: 'hidden' } as any}><div style={{ height: 4, borderRadius: 2, width: `${Math.min(100, p.progress)}%`, background: `linear-gradient(90deg, ${p.color}88, ${p.color})`, transition: 'width 1s ease' } as any} /></div>}
           </div>
         ))}
       </div>
@@ -408,53 +413,75 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
 
         <div style={{ flex: 1, overflowY: 'auto', position: 'relative', zIndex: 5, padding: '0 0 100px', WebkitOverflowScrolling: 'touch' } as any}>
 
-          {/* ── HEADER — Frosted glass, dark text, premium clinical ── */}
-          <div data-testid="dashboard-header" style={{ background: 'rgba(255,255,255,0.85)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', borderBottom: '1px solid rgba(0,0,0,0.05)', padding: '20px 22px', marginBottom: 8, position: 'sticky', top: 0, zIndex: 50 } as any}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' } as any}>
+          {/* ══════ HERO SECTION — Dark clinical header ══════ */}
+          <div data-testid="dashboard-header" style={{ background: 'linear-gradient(160deg, #0F172A 0%, #1E293B 100%)', padding: '24px 22px 28px', position: 'relative', overflow: 'hidden' } as any}>
+            {/* Subtle grid pattern */}
+            <div style={{ position: 'absolute', inset: 0, opacity: 0.04, backgroundImage: 'radial-gradient(circle at 1px 1px, #FFF 1px, transparent 0)', backgroundSize: '24px 24px' } as any} />
+            {/* Top row */}
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24, position: 'relative', zIndex: 2 } as any}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 14 } as any}>
-                <div onClick={() => router.push('/(tabs)/profile' as any)} style={{ width: 48, height: 48, borderRadius: 16, background: '#F1F5F9', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid rgba(0,0,0,0.04)', flexShrink: 0, cursor: 'pointer', overflow: 'hidden' } as any}>
-                  {user.avatar_url ? <img src={user.avatar_url} style={{ width: 48, height: 48, borderRadius: 16, objectFit: 'cover' } as any} /> : <span style={{ fontSize: 19, fontWeight: 800, color: '#0F766E' }}>{user.name?.charAt(0)?.toUpperCase()}</span>}
+                <div onClick={() => router.push('/(tabs)/profile' as any)} style={{ width: 48, height: 48, borderRadius: 16, background: 'rgba(255,255,255,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid rgba(255,255,255,0.1)', flexShrink: 0, cursor: 'pointer', overflow: 'hidden' } as any}>
+                  {user.avatar_url ? <img src={user.avatar_url} style={{ width: 48, height: 48, borderRadius: 16, objectFit: 'cover' } as any} /> : <span style={{ fontSize: 19, fontWeight: 800, color: '#FFF' }}>{user.name?.charAt(0)?.toUpperCase()}</span>}
                 </div>
                 <div>
-                  <div style={{ fontSize: 17, fontWeight: 800, color: '#0F172A', letterSpacing: -0.5 }}>{user.name}</div>
-                  <div style={{ fontSize: 11, color: '#94A3B8', fontWeight: 600, letterSpacing: 0.3, textTransform: 'uppercase' }}>{activeTab === 'beneficiary' ? t('space_beneficiary') : t('space_guardian')}</div>
+                  <div style={{ fontSize: 18, fontWeight: 800, color: '#FFF', letterSpacing: -0.5 }}>{user.name}</div>
+                  <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', fontWeight: 500, letterSpacing: 0.3 }}>{activeTab === 'beneficiary' ? t('space_beneficiary') : t('space_guardian')}</div>
                 </div>
               </div>
               <div style={{ display: 'flex', gap: 8, alignItems: 'center' } as any}>
                 <div data-testid="lang-picker-btn" onClick={() => setLangOpen(!langOpen)} style={{ width: 36, height: 36, borderRadius: 12, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', fontSize: 20, lineHeight: 1 } as any}>
                   {lang === 'FR' ? '\u{1F1EB}\u{1F1F7}' : lang === 'EN' ? '\u{1F1EC}\u{1F1E7}' : lang === 'ES' ? '\u{1F1EA}\u{1F1F8}' : lang === 'DE' ? '\u{1F1E9}\u{1F1EA}' : lang === 'IT' ? '\u{1F1EE}\u{1F1F9}' : lang === 'PT' ? '\u{1F1F5}\u{1F1F9}' : lang === 'NL' ? '\u{1F1F3}\u{1F1F1}' : '\u{1F30D}'}
                 </div>
-                <div data-testid="notif-bell" onClick={() => setShowNotifs(!showNotifs)} style={{ width: 40, height: 40, borderRadius: 13, background: '#F1F5F9', border: '1px solid rgba(0,0,0,0.04)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', position: 'relative', transition: 'background 0.2s' } as any}>
-                  <i className="ri-notification-3-line" style={{ fontSize: 18, color: '#64748B' }} />
-                  {(guardianRequests.length > 0 || activeAlerts.length > 0 || predictiveAlerts.length > 0) && <div style={{ position: 'absolute', top: -2, right: -2, width: 10, height: 10, borderRadius: 5, background: '#EF4444', border: '2.5px solid #F8FAFC' } as any} />}
+                <div data-testid="notif-bell" onClick={() => setShowNotifs(!showNotifs)} style={{ width: 40, height: 40, borderRadius: 13, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', position: 'relative' } as any}>
+                  <i className="ri-notification-3-line" style={{ fontSize: 18, color: 'rgba(255,255,255,0.6)' }} />
+                  {(guardianRequests.length > 0 || activeAlerts.length > 0 || predictiveAlerts.length > 0) && <div style={{ position: 'absolute', top: -2, right: -2, width: 10, height: 10, borderRadius: 5, background: '#EF4444', border: '2.5px solid #0F172A' } as any} />}
                 </div>
               </div>
             </div>
-          </div>
 
-          <div style={{ padding: '0 20px' } as any}>
-
-          {/* ── Nora greeting card ── */}
-          <div style={{ background: 'linear-gradient(135deg, #F0FDFA 0%, #CCFBF1 100%)', border: '1px solid #99F6E4', borderRadius: 24, padding: '20px 22px', marginBottom: 16, display: 'flex', alignItems: 'flex-start', gap: 14, boxShadow: '0 4px 16px rgba(15,118,110,0.06)' } as any}>
-            <div style={{ width: 40, height: 40, borderRadius: 14, background: '#0F766E', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}>
-              <i className="ri-heart-pulse-line" style={{ fontSize: 20, color: '#FFF' }} />
-            </div>
-            <div style={{ flex: 1 } as any}>
-              <div style={{ fontSize: 15, fontWeight: 700, color: '#0F172A', marginBottom: 4, letterSpacing: -0.3 }}>Bonjour {user.name?.split(' ')[0]}</div>
-              <div style={{ fontSize: 13, color: '#64748B', lineHeight: 1.6 }}>
-                {healthSummary?.score > 70 ? 'Vos indicateurs sont au vert. Continuez comme ca.' :
-                 healthSummary?.score > 50 ? 'Etat correct. Pensez a bien vous hydrater aujourd\'hui.' :
-                 healthSummary?.score > 0 ? 'Quelques points a surveiller. Je reste vigilante.' :
-                 'Connectez vos appareils pour un suivi personnalise.'}
+            {/* ── Health Score Gauge + Nora ── */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: 20, position: 'relative', zIndex: 2 } as any}>
+              {/* Animated circular gauge */}
+              <div style={{ flexShrink: 0, position: 'relative', width: 88, height: 88 } as any}>
+                <svg width="88" height="88" viewBox="0 0 88 88">
+                  <circle cx="44" cy="44" r="38" fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth="6" />
+                  <circle cx="44" cy="44" r="38" fill="none" stroke={healthSummary?.score > 70 ? '#10B981' : healthSummary?.score > 50 ? '#F59E0B' : healthSummary?.score > 0 ? '#EF4444' : 'rgba(255,255,255,0.1)'} strokeWidth="6" strokeLinecap="round" strokeDasharray={`${(healthSummary?.score || 0) / 100 * 2 * Math.PI * 38} ${2 * Math.PI * 38}`} transform="rotate(-90 44 44)" style={{ transition: 'stroke-dasharray 1.5s ease' }} />
+                </svg>
+                <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' } as any}>
+                  <div style={{ fontSize: 26, fontWeight: 900, color: '#FFF', lineHeight: 1, letterSpacing: -1 }}>{healthSummary?.score || '--'}</div>
+                  <div style={{ fontSize: 8, fontWeight: 600, color: 'rgba(255,255,255,0.35)', textTransform: 'uppercase', letterSpacing: 1, marginTop: 2 }}>Score</div>
+                </div>
+              </div>
+              {/* Nora message */}
+              <div style={{ flex: 1 } as any}>
+                <div style={{ fontSize: 15, fontWeight: 700, color: '#FFF', marginBottom: 4, letterSpacing: -0.3 }}>Bonjour {user.name?.split(' ')[0]}</div>
+                <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.45)', lineHeight: 1.6 }}>
+                  {healthSummary?.score > 70 ? 'Vos indicateurs sont au vert. Etat de sante optimal.' :
+                   healthSummary?.score > 50 ? 'Etat correct. Pensez a bien vous hydrater.' :
+                   healthSummary?.score > 0 ? 'Quelques points meritent votre attention.' :
+                   'Connectez vos appareils pour un suivi complet.'}
+                </div>
               </div>
             </div>
-            {healthSummary?.score > 0 && (
-              <div style={{ flexShrink: 0, width: 52, height: 52, borderRadius: 16, background: '#FFFFFF', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', border: '1px solid rgba(0,0,0,0.04)' } as any}>
-                <div style={{ fontSize: 20, fontWeight: 900, color: '#0F766E', lineHeight: 1, letterSpacing: -1 }}>{healthSummary.score}</div>
-                <div style={{ fontSize: 7, color: '#94A3B8', fontWeight: 700, textTransform: 'uppercase', letterSpacing: 0.5, marginTop: 2 }}>Score</div>
-              </div>
-            )}
+
+            {/* ── Vitals strip ── */}
+            <div style={{ display: 'flex', gap: 1, marginTop: 20, background: 'rgba(255,255,255,0.04)', borderRadius: 16, overflow: 'hidden', position: 'relative', zIndex: 2 } as any}>
+              {[
+                { icon: 'ri-heart-pulse-line', val: br.heart_rate || '--', unit: 'bpm', color: '#EF4444' },
+                { icon: 'ri-drop-line', val: br.spo2 || '--', unit: '%SpO2', color: '#3B82F6' },
+                { icon: 'ri-footprint-line', val: br.steps || '--', unit: 'pas', color: '#10B981' },
+                { icon: 'ri-temp-hot-line', val: br.temperature || '--', unit: '', color: '#F59E0B' },
+              ].map((v, i) => (
+                <div key={i} style={{ flex: 1, padding: '12px 8px', textAlign: 'center', borderRight: i < 3 ? '1px solid rgba(255,255,255,0.04)' : 'none' } as any}>
+                  <i className={v.icon} style={{ fontSize: 14, color: v.color, display: 'block', marginBottom: 4 }} />
+                  <div style={{ fontSize: 16, fontWeight: 800, color: '#FFF', letterSpacing: -0.5 }}>{v.val}</div>
+                  <div style={{ fontSize: 8, fontWeight: 600, color: 'rgba(255,255,255,0.25)', textTransform: 'uppercase', letterSpacing: 0.5 }}>{v.unit}</div>
+                </div>
+              ))}
+            </div>
           </div>
+
+          <div style={{ padding: '20px 20px 0' } as any}>
 
           <NotificationsPopup show={showNotifs} onClose={() => setShowNotifs(false)} activeAlerts={activeAlerts} guardianRequests={guardianRequests} predictiveAlerts={predictiveAlerts} token={token} onRefresh={fetchData} />
 
