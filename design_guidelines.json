@@ -1,0 +1,108 @@
+{
+  "project_name": "Chutex Care Redesign",
+  "design_philosophy": {
+    "theme": "Digital Clinic",
+    "mood": "Sophisticated, Sterile but Warm, Premium, Clarity",
+    "mode": "Light Mode ONLY",
+    "core_principles": [
+      "No Gimmicks (Remove ECG animations, remove mesh blobs)",
+      "Information Density over Decoration",
+      "Softened Clinical (Warm Grays instead of cold blues)",
+      "Tactile Depth (Subtle shadows, crisp borders)"
+    ]
+  },
+  "palette": {
+    "background": "#F8FAFC",
+    "surface": "#FFFFFF",
+    "surface_secondary": "#F1F5F9",
+    "text_primary": "#0F172A",
+    "text_secondary": "#64748B",
+    "text_tertiary": "#94A3B8",
+    "primary": "#0F766E",
+    "primary_soft": "#CCFBF1",
+    "accent_alert": "#EF4444",
+    "accent_warning": "#F59E0B",
+    "accent_success": "#10B981",
+    "accent_info": "#0EA5E9",
+    "border_subtle": "rgba(0,0,0,0.06)"
+  },
+  "typography": {
+    "font_family": "Inter, system-ui, sans-serif",
+    "styles": {
+      "h1": { "fontSize": 28, "fontWeight": "800", "letterSpacing": -1, "color": "#0F172A" },
+      "h2": { "fontSize": 20, "fontWeight": "700", "letterSpacing": -0.5, "color": "#1E293B" },
+      "h3": { "fontSize": 16, "fontWeight": "600", "letterSpacing": -0.3, "color": "#334155" },
+      "body": { "fontSize": 14, "fontWeight": "400", "color": "#64748B", "lineHeight": 1.5 },
+      "caption": { "fontSize": 12, "fontWeight": "500", "color": "#94A3B8", "textTransform": "uppercase", "letterSpacing": 0.5 },
+      "number_big": { "fontSize": 32, "fontWeight": "800", "letterSpacing": -1.5, "color": "#0F172A" }
+    }
+  },
+  "component_styles": {
+    "DashboardContainer": {
+      "background": "#F8FAFC",
+      "instructions": "Remove the 'clinic-mesh' divs and SVG noise. Use a clean, solid background."
+    },
+    "Header": {
+      "background": "rgba(255,255,255,0.9)",
+      "backdropFilter": "blur(20px)",
+      "borderBottom": "1px solid rgba(0,0,0,0.05)",
+      "boxShadow": "none",
+      "padding": "20px 24px",
+      "marginBottom": "24px",
+      "instructions": "Remove the purple linear-gradient. Use black text for high contrast. Remove the ECG SVG animation completely."
+    },
+    "GlassCard": {
+      "background": "#FFFFFF",
+      "borderRadius": "24px",
+      "border": "1px solid rgba(0,0,0,0.04)",
+      "boxShadow": "0 10px 30px -10px rgba(0,0,0,0.05)",
+      "padding": "24px",
+      "transition": "transform 0.2s ease, box-shadow 0.2s ease",
+      "hover_transform": "translateY(-4px)",
+      "hover_shadow": "0 20px 40px -10px rgba(0,0,0,0.08)"
+    },
+    "SOSButton": {
+      "background": "#FEF2F2",
+      "border": "1px solid #FECACA",
+      "color": "#EF4444",
+      "borderRadius": "20px",
+      "boxShadow": "0 4px 12px rgba(239, 68, 68, 0.1)",
+      "instructions": "Make it distinct but not alarming. Use a soft red background with deep red text."
+    },
+    "NoraAI_Card": {
+      "background": "linear-gradient(135deg, #F0F9FF 0%, #E0F2FE 100%)",
+      "border": "1px solid #BAE6FD",
+      "instructions": "Replace the video background with this subtle gradient. It feels more 'medical' and less 'marketing'."
+    }
+  },
+  "assets": {
+    "images": {
+      "user_avatar_placeholder": "https://i.pravatar.cc/150?u=a042581f4e29026704d",
+      "guardian_avatars": [
+        "https://i.pravatar.cc/150?u=a042581f4e29026024d",
+        "https://i.pravatar.cc/150?u=a042581f4e29026704d",
+        "https://i.pravatar.cc/150?u=1"
+      ],
+      "nora_icon": "ri-sparkling-2-line"
+    }
+  },
+  "implementation_steps": [
+    "Open /app/frontend/app/(tabs)/index.tsx",
+    "Locate the Web specific block (if Platform.OS === 'web')",
+    "Step 1: CLEANUP. Remove the <div className='clinic-mesh'> and the SVG noise div.",
+    "Step 2: HEADER. Change the header background from purple gradient to white/glass. Remove the ECG <svg>. Change text color to dark slate (#0F172A).",
+    "Step 3: CARDS. Update the 'style' props of cards to remove Neumorphic shadows (6px 6px...) and replace with 'Clean Clinical' shadows (0 10px 30px...). Increase padding to 24px.",
+    "Step 4: OBJECTIVES. Redesign the grid items. Remove the heavy borders. Use white cards with very subtle borders.",
+    "Step 5: NORA. Replace the video background in CopilotCard with a soft blue gradient.",
+    "Step 6: TYPOGRAPHY. Apply 'letterSpacing: -0.5px' to all headers (objectives, section titles) to make it look premium.",
+    "Step 7: SOS. Redesign the SOS button to be 'Soft Red' (bg-red-50) instead of white.",
+    "CRITICAL: Do not break the 'onClick' handlers or 'data-testid' attributes."
+  ],
+  "universal_guidelines": [
+    "Use 'Inter' font everywhere.",
+    "Avoid gradients for text.",
+    "Use 24px border radius for all cards.",
+    "Use 16px border radius for buttons.",
+    "Spacing should be generous (gap: 16px or 24px)."
+  ]
+}
