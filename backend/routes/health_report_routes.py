@@ -892,7 +892,7 @@ async def get_daily_report(user=Depends(get_current_user)):
     }
     if bracelet_reading and bracelet_reading.get("data"):
         rd = bracelet_reading["data"]
-        for k in ["heart_rate", "spo2", "temperature", "steps", "calories", "distance_km", "hrv", "stress_level", "recovery_score", "sleep_quality", "sleep_duration", "sleep_deep_pct", "sleep_rem_pct"]:
+        for k in ["heart_rate", "spo2", "temperature", "steps", "calories", "distance_km", "hrv", "stress_level", "recovery_score", "sleep_quality", "sleep_duration", "sleep_duration_min", "sleep_deep_pct", "sleep_rem_pct", "deep_sleep_min", "light_sleep_min", "rem_sleep_min", "sleep_interruptions"]:
             if rd.get(k): d[k] = rd[k]
         if rd.get("blood_pressure"): d["blood_pressure"] = rd["blood_pressure"]
     if scale_reading and scale_reading.get("data"):

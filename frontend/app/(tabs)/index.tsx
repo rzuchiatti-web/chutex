@@ -52,9 +52,9 @@ function WeightGoalDashCard({ token }: { token: string }) {
       onMouseEnter={(e: any) => { e.currentTarget.style.transform = 'translateY(-1px)'; }}
       onMouseLeave={(e: any) => { e.currentTarget.style.transform = ''; }}>
       <img src={WEIGHT_BG} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 } as any} />
-      <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.45)', zIndex: 1 } as any} />
-      {/* Tape measure image — right side, directly on background */}
-      <img src={TAPE_MEASURE_IMG} alt="" style={{ position: 'absolute', right: 10, top: '50%', transform: 'translateY(-50%)', width: 60, height: 60, objectFit: 'contain', zIndex: 2, opacity: 0.6, filter: 'drop-shadow(0 4px 12px rgba(0,0,0,0.4))' } as any} />
+      <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.3)', zIndex: 1 } as any} />
+      {/* Tape measure image — large, semi-transparent, fills right side */}
+      <img src={TAPE_MEASURE_IMG} alt="" style={{ position: 'absolute', right: -8, top: '50%', transform: 'translateY(-50%)', width: 90, height: 90, objectFit: 'contain', zIndex: 2, opacity: 0.25 } as any} />
       <div style={{ position: 'relative', zIndex: 3, padding: '16px 18px', height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'center' } as any}>
         <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 6 }}>Objectif poids en cours</div>
         <div style={{ display: 'flex', alignItems: 'baseline', gap: 6, marginBottom: 6 } as any}>
@@ -256,7 +256,14 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
         apiFetch('/api/programs/team/invitations', {}, token).then(inv => { if (Array.isArray(inv)) setTeamInvitations(inv); }).catch(() => {});
         // Daily checkin + streak + predictive alerts + activity streak
         apiFetch('/api/nora/checkin-daily', { method: 'POST' }, token).then(s => { if (s) setStreakData(s); }).catch(() => {});
-        apiFetch('/api/nora/predictive-check', {}, token).then(p => { if (p?.alerts) setPredictiveAlerts(p.alerts); }).catch(() => {});
+        apiFetch('/api/nora/predictive-check', {}, token).then(p => {
+          if (p?.alerts) {
+            // Filter out previously dismissed alerts
+            const dismissed = JSON.parse(localStorage.getItem('dismissed_predictive') || '[]');
+            const filtered = p.alerts.filter((a: any) => !dismissed.includes(a.id));
+            setPredictiveAlerts(filtered);
+          }
+        }).catch(() => {});
         apiFetch('/api/health/activity-streak', {}, token).then(s => { if (s) setActivityStreakData(s); }).catch(() => {});
       } catch {}
     } catch {} finally { setLoading(false); setRefreshing(false); }
@@ -472,7 +479,16 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
                     <div style={{ flex: 1 } as any}>
                       <div style={{ fontSize: 12, fontWeight: 800, color: '#FFF' }}>{a.title}</div>
                     </div>
-                    <div onClick={async () => { try { await apiFetch(`/api/nora/predictive-alerts/${a.id}/dismiss`, { method: 'POST' }, token); setPredictiveAlerts(prev => prev.filter(p => p.id !== a.id)); } catch {} }} style={{ padding: '4px 8px', borderRadius: 8, cursor: 'pointer', fontSize: 10, color: 'rgba(255,255,255,0.3)' } as any}>
+                    <div onClick={async () => {
+                      try {
+                        await apiFetch(`/api/nora/predictive-alerts/${a.id}/dismiss`, { method: 'POST' }, token);
+                        // Persist dismissal in localStorage
+                        const dismissed = JSON.parse(localStorage.getItem('dismissed_predictive') || '[]');
+                        dismissed.push(a.id);
+                        localStorage.setItem('dismissed_predictive', JSON.stringify(dismissed));
+                        setPredictiveAlerts(prev => prev.filter(p => p.id !== a.id));
+                      } catch {}
+                    }} style={{ padding: '4px 8px', borderRadius: 8, cursor: 'pointer', fontSize: 10, color: 'rgba(255,255,255,0.3)' } as any}>
                       <i className="ri-close-line" style={{ fontSize: 14 }} />
                     </div>
                   </div>

@@ -479,7 +479,11 @@ async def predictive_health_check(user=Depends(get_current_user)):
         if not existing:
             await db.predictive_alerts.insert_one(a)
 
-    return {"alerts": [{k: v for k, v in a.items() if k != "user_id"} for a in alerts], "analyzed_readings": len(readings)}
+    # Return only dismissed=false alerts, exclude _id and user_id
+    active = await db.predictive_alerts.find(
+        {"user_id": uid, "status": "active"}, {"_id": 0, "user_id": 0}
+    ).to_list(20)
+    return {"alerts": active, "analyzed_readings": len(readings)}
 
 
 @router.post("/nora/predictive-alerts/{alert_id}/dismiss")
