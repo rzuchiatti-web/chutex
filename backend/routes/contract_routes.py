@@ -234,6 +234,7 @@ async def create_contract(data: ContractCreate):
             "description": f"{plan['name']} — {contract_number}",
             "redirectUrl": f"{base_url}/contract-success?contract={contract_number}",
             "webhookUrl": f"{base_url}/api/mollie/webhook",
+            "method": ["creditcard", "directdebit", "bancontact", "ideal"],
             "metadata": {"contract_number": contract_number, "plan": data.plan, "beneficiary_phone": ben_phone},
             "sequenceType": "first",
         })
