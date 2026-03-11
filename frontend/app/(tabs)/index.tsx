@@ -47,7 +47,7 @@ function WeightGoalDashCard({ token }: { token: string }) {
   const progressPct = diff > 0 ? Math.max(5, Math.min(95, 100 - (diff / (diff + 2)) * 100)) : 50;
 
   return (
-    <div data-testid="weight-goal-dash-card" onClick={() => router.push('/minceur' as any)}
+    <div data-testid="weight-goal-dash-card" className="cl-reveal cl-reveal-d5 cl-press" onClick={() => router.push('/minceur' as any)}
       style={{ borderRadius: 18, overflow: 'hidden', marginBottom: 14, cursor: 'pointer', position: 'relative', height: 100, transition: 'transform 0.15s' } as any}
       onMouseEnter={(e: any) => { e.currentTarget.style.transform = 'translateY(-1px)'; }}
       onMouseLeave={(e: any) => { e.currentTarget.style.transform = ''; }}>
@@ -95,7 +95,7 @@ function DailyObjectivesOnDashboard({ token }: { token: string }) {
 
   const items = plan.filter((p: any) => p.key !== 'connect');
   return (
-    <div data-testid="dashboard-objectives" style={{ marginBottom: 8 } as any}>
+    <div data-testid="dashboard-objectives" className="cl-reveal cl-reveal-d3" style={{ marginBottom: 8 } as any}>
       <div style={{ fontSize: 14, fontWeight: 800, color: '#FFF', letterSpacing: -0.3, marginBottom: 12 }}>Objectifs du jour</div>
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 } as any}>
         {items.map((p: any, idx: number) => (
@@ -398,9 +398,7 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
 
   /* Card helper — Glass effect */
   const GC = ({ children, style, onClick, testId }: any) => (
-    <div data-testid={testId} onClick={onClick} style={{ padding: '20px', borderRadius: 20, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', marginBottom: 12, cursor: onClick ? 'pointer' : 'default', transition: 'transform 0.15s ease, background 0.15s ease', ...style } as any}
-      onMouseEnter={(e: any) => { if (onClick) { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.background = 'rgba(255,255,255,0.10)'; }}}
-      onMouseLeave={(e: any) => { if (onClick) { e.currentTarget.style.transform = ''; e.currentTarget.style.background = 'rgba(255,255,255,0.06)'; }}}>
+    <div data-testid={testId} onClick={onClick} className="cl-card cl-press" style={{ padding: '20px', borderRadius: 20, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', marginBottom: 12, cursor: onClick ? 'pointer' : 'default', ...style } as any}>
       {children}
     </div>
   );
@@ -474,7 +472,7 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
         <div style={{ flex: 1, overflowY: 'auto', position: 'relative', zIndex: 5, padding: '0 0 100px', WebkitOverflowScrolling: 'touch' } as any}>
 
           {/* ══════ HEADER — Glass style ══════ */}
-          <div data-testid="dashboard-header" style={{ padding: '20px 20px 16px', position: 'relative' } as any}>
+          <div data-testid="dashboard-header" className="cl-reveal" style={{ padding: '20px 20px 16px', position: 'relative' } as any}>
             {/* Top row */}
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' } as any}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 12 } as any}>
@@ -504,7 +502,7 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
 
           <LanguagePopup show={langOpen} onClose={() => setLangOpen(false)} lang={lang} setLang={setLang} />
           {/* ── SOS Button ── */}
-          <div data-testid="sos-button" onClick={handleSOS} style={{
+          <div data-testid="sos-button" className="cl-reveal cl-reveal-d1 cl-press" onClick={handleSOS} style={{
             padding: '16px 20px', borderRadius: 18, cursor: 'pointer', marginBottom: 12,
             background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.2)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)',
             display: 'flex', alignItems: 'center', gap: 14,
@@ -575,7 +573,7 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
 
           {/* ── 4. PROGRAMME EN COURS ── */}
           {activeProgram?.active ? (
-            <div data-testid="active-program-card" onClick={() => router.push('/(tabs)/chat' as any)} style={{ borderRadius: 18, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', padding: '16px', marginBottom: 12, cursor: 'pointer', transition: 'transform 0.15s, background 0.15s' } as any}
+            <div data-testid="active-program-card" className="cl-reveal cl-reveal-d4 cl-card cl-press" onClick={() => router.push('/(tabs)/chat' as any)} style={{ borderRadius: 18, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', padding: '16px', marginBottom: 12, cursor: 'pointer', transition: 'transform 0.15s, background 0.15s' } as any}
               onMouseEnter={(e: any) => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.background = 'rgba(255,255,255,0.10)'; }}
               onMouseLeave={(e: any) => { e.currentTarget.style.transform = ''; e.currentTarget.style.background = 'rgba(255,255,255,0.06)'; }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 12 } as any}>
@@ -604,7 +602,7 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
               )}
             </div>
           ) : (
-            <div data-testid="discover-programs" onClick={() => router.push('/(tabs)/chat' as any)} style={{ borderRadius: 18, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', padding: '14px 16px', marginBottom: 12, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 12, transition: 'transform 0.15s, background 0.15s' } as any}
+            <div data-testid="discover-programs" className="cl-reveal cl-reveal-d4 cl-card cl-press" onClick={() => router.push('/(tabs)/chat' as any)} style={{ borderRadius: 18, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', padding: '14px 16px', marginBottom: 12, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 12, transition: 'transform 0.15s, background 0.15s' } as any}
               onMouseEnter={(e: any) => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.background = 'rgba(255,255,255,0.10)'; }}
               onMouseLeave={(e: any) => { e.currentTarget.style.transform = ''; e.currentTarget.style.background = 'rgba(255,255,255,0.06)'; }}>
               <div style={{ width: 36, height: 36, borderRadius: 12, background: 'rgba(167,139,250,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}>
@@ -639,7 +637,7 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
 
 
           {/* ── Rappels — directly on background ── */}
-          <div data-testid="reminders-section" style={{ marginBottom: 16 } as any}>
+          <div data-testid="reminders-section" className="cl-reveal cl-reveal-d7" style={{ marginBottom: 16 } as any}>
             <div style={{ fontSize: 14, fontWeight: 800, color: '#FFF', marginBottom: 10 }}>{t('my_reminders')}</div>
             {[
               { type: 'hydration', label: 'Hydratation', img: REMINDER_IMAGES.hydration, color: '#38BDF8' },
@@ -700,7 +698,7 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
 
           </div> {/* end padding wrapper */}
         </div>
-        <style dangerouslySetInnerHTML={{ __html: `@keyframes spin{to{transform:rotate(360deg)}}` }} />
+        <style dangerouslySetInnerHTML={{ __html: `@keyframes spin{to{transform:rotate(360deg)}} @keyframes pulseRing{0%{transform:scale(1);opacity:0.3}100%{transform:scale(1.5);opacity:0}}` }} />
       </div>
     );
   }
