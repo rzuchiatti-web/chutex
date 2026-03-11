@@ -16,6 +16,7 @@ export function DeviceCard({ deviceType: dt, device, subscription, weighings, on
   const router = useRouter();
   const meta = DEVICE_META[dt];
   const isAssociated = device && (device.connected || device.battery > 0 || device.last_sync);
+  const showActions = isAssociated || dt === 'dorsi'; // Dorsi bilan always accessible
   const realBattery = device?.battery || 0;
   const realConnected = device?.connected || false;
   const vestActive = dt === 'vest' && device?.last_sync && (Date.now() - new Date(device.last_sync).getTime()) < 30000;
@@ -41,9 +42,9 @@ export function DeviceCard({ deviceType: dt, device, subscription, weighings, on
       <div style={{ padding: '0 20px 20px' } as any}>
         <div style={{ fontSize: 18, fontWeight: 800, color: '#FFF', marginBottom: 4, textAlign: 'center' }}>{meta.name}</div>
         <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)', lineHeight: 1.5, marginBottom: 16, textAlign: 'center' }}>{meta.desc}</div>
-        {isAssociated ? (
+        {showActions ? (
           <div>
-            {realBattery > 0 && (
+            {isAssociated && realBattery > 0 && (
               <>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 } as any}>
                   <span style={{ fontSize: 12, fontWeight: 600, color: 'rgba(255,255,255,0.5)' }}><i className="ri-battery-line" style={{ fontSize: 14, marginRight: 6 }} />Batterie</span>
