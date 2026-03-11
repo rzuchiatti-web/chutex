@@ -16,6 +16,58 @@ router = APIRouter()
 HUMAN_MAP_IMG = 'https://static.prod-images.emergentagent.com/jobs/92308143-f99e-4bad-8264-e3775a214313/images/507b1652c3de902f1f09c90079dc145841dafc79343fd12f407cb3208b5df085.png'
 
 
+def estimate_vo2_max(age: int, resting_hr: float, hrv: float, steps_daily: float = 0, gender: str = "F", weight_kg: float = 0) -> float:
+    """
+    Estimate VO2 Max using the Uth-Sorensen-Overgaard-Pedersen formula
+    with HRV and activity corrections (similar to WHOOP/Garmin approach).
+
+    Based on: Uth et al. (2004) "Estimation of VO2max from the ratio between HRmax and HRrest"
+    + HRV correction from Buchheit (2014) meta-analysis
+    + Activity level adjustment from step count
+
+    Returns VO2 Max in ml/kg/min (clamped 12-60 for seniors)
+    """
+    if not age or not resting_hr or resting_hr < 40:
+        return 0
+
+    # 1. Max heart rate (Tanaka formula, more accurate for elderly)
+    hr_max = 208 - (0.7 * age)
+
+    # 2. Base VO2 Max (Uth-Sorensen formula)
+    vo2_base = 15.3 * (hr_max / resting_hr)
+
+    # 3. HRV correction: higher HRV = better cardiorespiratory fitness
+    # Average HRV for 65+ year olds is ~30-40ms. Each ms above/below adjusts VO2
+    hrv_correction = 0
+    if hrv and hrv > 0:
+        hrv_correction = (hrv - 35) * 0.12  # +0.12 ml/kg/min per ms above baseline
+
+    # 4. Activity correction: daily steps indicate fitness level
+    activity_correction = 0
+    if steps_daily and steps_daily > 0:
+        # 4000 steps/day = baseline for seniors, each 1000 above adds ~0.4
+        activity_correction = max(0, (steps_daily - 4000) / 1000) * 0.4
+
+    # 5. Gender correction: males typically +3-5 ml/kg/min
+    gender_correction = 2.5 if gender.upper() in ("M", "HOMME", "MALE") else 0
+
+    # 6. Weight penalty: BMI-related deduction for overweight
+    weight_correction = 0
+    if weight_kg and age:
+        # Rough estimate: above 80kg for women, 90kg for men → small penalty
+        threshold = 90 if gender.upper() in ("M", "HOMME", "MALE") else 80
+        if weight_kg > threshold:
+            weight_correction = -((weight_kg - threshold) * 0.15)
+
+    vo2_max = vo2_base + hrv_correction + activity_correction + gender_correction + weight_correction
+
+    # Clamp to physiological range (seniors: 12-60)
+    vo2_max = max(12, min(60, round(vo2_max, 1)))
+
+    return vo2_max
+
+
+
 def gen_data():
     """Return empty/zero data structure. Real data is injected from device_readings."""
     return {
@@ -895,6 +947,35 @@ async def get_daily_report(user=Depends(get_current_user)):
         for k in ["heart_rate", "spo2", "temperature", "steps", "calories", "distance_km", "hrv", "stress_level", "recovery_score", "sleep_quality", "sleep_duration", "sleep_duration_min", "sleep_deep_pct", "sleep_rem_pct", "deep_sleep_min", "light_sleep_min", "rem_sleep_min", "sleep_interruptions"]:
             if rd.get(k): d[k] = rd[k]
         if rd.get("blood_pressure"): d["blood_pressure"] = rd["blood_pressure"]
+
+    # ── VO2 Max estimation (Uth-Sorensen + HRV correction, like WHOOP) ──
+    if d.get("heart_rate") and d["heart_rate"] > 0:
+        u = user
+        age = None
+        dob = u.get("date_of_birth", "")
+        if dob:
+            for fmt in ("%d/%m/%Y", "%Y-%m-%d"):
+                try:
+                    born = datetime.strptime(dob, fmt)
+                    age = (datetime.now(timezone.utc) - born.replace(tzinfo=timezone.utc)).days // 365
+                    break
+                except ValueError:
+                    continue
+        gender = u.get("gender", "F")
+        weight = d.get("weight", 0) or u.get("weight_kg", 0) or 0
+        # Use 7-day average steps for activity level
+        seven_ago = (datetime.now(timezone.utc) - timedelta(days=7)).isoformat()
+        recent_steps = await db.device_readings.find(
+            {"user_id": uid, "device_type": "bracelet", "timestamp": {"$gte": seven_ago}}, {"_id": 0, "data.steps": 1}
+        ).to_list(30)
+        step_vals = [r.get("data", {}).get("steps", 0) for r in recent_steps if r.get("data", {}).get("steps", 0) > 0]
+        avg_steps = sum(step_vals) / len(step_vals) if step_vals else d.get("steps", 0)
+
+        if age and age > 0:
+            d["vo2_max"] = estimate_vo2_max(
+                age=age, resting_hr=d["heart_rate"], hrv=d.get("hrv", 0),
+                steps_daily=avg_steps, gender=gender, weight_kg=weight
+            )
     if scale_reading and scale_reading.get("data"):
         sd = scale_reading["data"]
         for k in ["weight", "bmi", "body_fat_pct", "muscle_pct", "water_pct", "visceral_fat", "body_age", "bone_mass_kg", "basal_metabolism", "protein_pct"]:
