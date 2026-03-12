@@ -63,7 +63,7 @@ function GlycemiaCard({ token }: { token: string | null }) {
         </div>
         <div style={{ padding: '8px 16px', background: 'rgba(0,0,0,0.2)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' } as any}>
           <span style={{ fontSize: 9, color: 'rgba(255,255,255,0.3)' }}>Estimation en evolution continue</span>
-          <span style={{ fontSize: 9, fontWeight: 700, color: '#A78BFA' }}>Voir le detail <i className="ri-arrow-right-s-line" style={{ fontSize: 10 }} /></span>
+          <span style={{ fontSize: 9, fontWeight: 700, color: '#FFF' }}>Voir le detail <i className="ri-arrow-right-s-line" style={{ fontSize: 10 }} /></span>
         </div>
       </div>
     </div>

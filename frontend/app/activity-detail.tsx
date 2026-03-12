@@ -3,6 +3,7 @@ import { Platform } from 'react-native';
 import { useRouter, useFocusEffect } from 'expo-router';
 import { useAuth } from '../src/context/AuthContext';
 import { apiFetch } from '../src/services/api';
+import NoraCard from '../src/components/shared/NoraCard';
 
 const G = '#10B981', A = '#F59E0B', B = '#38BDF8', R = '#EF4444', P = '#A78BFA', CY = '#22D3EE';
 const GL: any = { borderRadius: 22, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' };
@@ -174,20 +175,12 @@ export default function ActivityDetailPage() {
               </div>
 
               {/* ══ Nora ══ */}
-              <div style={{ ...GL, padding: 16, marginBottom: 14 } as any}>
-                <div style={{ display: 'flex', gap: 10, alignItems: 'flex-start' } as any}>
-                  <div style={{ width: 28, height: 28, borderRadius: 9, flexShrink: 0, background: 'linear-gradient(135deg, rgba(167,139,250,0.2), rgba(167,139,250,0.05))', display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}><span style={{ fontSize: 10, fontWeight: 900, color: P }}>N</span></div>
-                  <div style={{ flex: 1 } as any}>
-                    <div style={{ fontSize: 9, fontWeight: 700, color: P, textTransform: 'uppercase', letterSpacing: 1, marginBottom: 3 }}>Analyse de Nora</div>
-                    <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.45)', lineHeight: 1.6 }}>
-                      {recPct >= 80 ? `Excellente recuperation a ${recPct}% ! Votre corps est pret pour une activite soutenue. Profitez-en pour une marche rapide, du renforcement musculaire ou une seance de gymnastique douce. ${vo2 > 0 ? `Votre VO2 Max de ${vo2} ml/kg/min est ${vo2Label.toLowerCase()}.` : ''} Temps de recuperation estime : ${recTimeStr}.` :
-                       recPct >= 60 ? `Bonne recuperation a ${recPct}%. Privilegiez une activite moderee : marche en exterieur, yoga doux ou etirements. ${vo2 > 0 ? `Votre capacite aerobique (VO2 Max ${vo2}) est ${vo2Label.toLowerCase()}.` : ''} Votre corps aura besoin d'environ ${recTimeStr} pour recuperer pleinement.` :
-                       recPct >= 40 ? `Recuperation moyenne a ${recPct}%. Optez pour du repos actif : stretching leger, mobilite articulaire, respiration profonde. ${vo2 > 0 ? `VO2 Max: ${vo2} (${vo2Label.toLowerCase()}).` : ''} Estimation de recuperation : ${recTimeStr}. Hydratez-vous bien.` :
-                       `Recuperation insuffisante a ${recPct}%. Accordez-vous du repos aujourd'hui. Hydratez-vous, privilegiez des repas legers et couchez-vous tot. ${vo2 > 0 ? `VO2 Max: ${vo2} (${vo2Label.toLowerCase()}).` : ''} Temps necessaire : ${recTimeStr}.`}
-                    </div>
-                  </div>
-                </div>
-              </div>
+              <NoraCard title="Analyse activite" text={
+                recPct >= 80 ? `Excellente recuperation a ${recPct}% ! Votre corps est pret pour une activite soutenue. Profitez-en pour une marche rapide, du renforcement musculaire ou une seance de gymnastique douce. ${vo2 > 0 ? `Votre VO2 Max de ${vo2} ml/kg/min est ${vo2Label.toLowerCase()}.` : ''} Temps de recuperation estime : ${recTimeStr}.` :
+                recPct >= 60 ? `Bonne recuperation a ${recPct}%. Privilegiez une activite moderee : marche en exterieur, yoga doux ou etirements. ${vo2 > 0 ? `Votre capacite aerobique (VO2 Max ${vo2}) est ${vo2Label.toLowerCase()}.` : ''} Votre corps aura besoin d'environ ${recTimeStr} pour recuperer pleinement.` :
+                recPct >= 40 ? `Recuperation moyenne a ${recPct}%. Optez pour du repos actif : stretching leger, mobilite articulaire, respiration profonde. ${vo2 > 0 ? `VO2 Max: ${vo2} (${vo2Label.toLowerCase()}).` : ''} Estimation de recuperation : ${recTimeStr}. Hydratez-vous bien.` :
+                `Recuperation insuffisante a ${recPct}%. Accordez-vous du repos aujourd'hui. Hydratez-vous, privilegiez des repas legers et couchez-vous tot. ${vo2 > 0 ? `VO2 Max: ${vo2} (${vo2Label.toLowerCase()}).` : ''} Temps necessaire : ${recTimeStr}.`
+              } />
 
               {/* ══ EXERCICES DU JOUR — style repas avec image ══ */}
               {minceur?.recommendations?.exercises && minceur.recommendations.exercises.length > 0 && (

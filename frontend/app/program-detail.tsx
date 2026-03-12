@@ -6,6 +6,7 @@ import { useRouter, useLocalSearchParams } from 'expo-router';
 import NativePageView from '../src/components/NativePageView';
 import { BG_IMAGES } from '../src/components/dashboard/constants';
 import Loader from '../src/components/Loader';
+import NoraCard from '../src/components/shared/NoraCard';
 
 export default function ProgramDetailScreen() {
   const { token } = useAuth();
@@ -183,7 +184,7 @@ export default function ProgramDetailScreen() {
             {/* Tracked metrics */}
             {(program.tracked_metrics || []).length > 0 && (
               <div style={{ marginBottom: 24 } as any}>
-                <div style={{ fontSize: 9, fontWeight: 800, color: 'rgba(255,255,255,0.25)', textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 12 }}>Suivi Nora</div>
+                <div style={{ fontSize: 9, fontWeight: 800, color: 'rgba(255,255,255,0.25)', textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 12 }}>Suivi par Nora</div>
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 } as any}>
                   {program.tracked_metrics.map((m: string, i: number) => (
                     <div key={i} style={{ padding: '7px 12px', borderRadius: 99, background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.14)', fontSize: 11, color: 'rgba(255,255,255,0.45)', display: 'flex', alignItems: 'center', gap: 5 , backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)' } as any}>
@@ -229,7 +230,7 @@ export default function ProgramDetailScreen() {
 
             <div onClick={() => { if (hasActiveConflict) { setError('Vous avez deja un programme actif.'); return; } setMode('duo'); setStep(hasOnboarding ? 1 : 3); }}
               data-testid="start-team-btn"
-              style={{ padding: '14px', borderRadius: 16, textAlign: 'center', cursor: hasActiveConflict ? 'not-allowed' : 'pointer', background: 'rgba(167,139,250,0.06)', border: '1px solid rgba(167,139,250,0.18)', fontSize: 13, fontWeight: 700, color: '#A78BFA', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, opacity: hasActiveConflict ? 0.4 : 1 , backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)' } as any}>
+              style={{ padding: '14px', borderRadius: 16, textAlign: 'center', cursor: hasActiveConflict ? 'not-allowed' : 'pointer', background: '#000', border: '1px solid rgba(255,255,255,0.15)', fontSize: 13, fontWeight: 700, color: '#FFF', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, opacity: hasActiveConflict ? 0.4 : 1 } as any}>
               <i className="ri-team-line" style={{ fontSize: 16 }} />Le faire avec un ami
             </div>
 

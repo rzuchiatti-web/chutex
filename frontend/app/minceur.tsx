@@ -3,6 +3,7 @@ import { Platform } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useAuth } from '../src/context/AuthContext';
 import { apiFetch } from '../src/services/api';
+import NoraCard from '../src/components/shared/NoraCard';
 import { BG_IMAGES } from '../src/components/dashboard/constants';
 
 const A = '#F59E0B', G = '#10B981', R = '#EF4444', B = '#60A5FA', P = '#A78BFA';
@@ -542,40 +543,10 @@ export default function MinceurPage() {
                   </div>}
 
                   {/* Nora at bottom */}
-                  {recs.nora_insight && <div data-testid="nora-insight" style={{ ...CD, padding: '14px 16px', marginBottom: 14, display: 'flex', gap: 12, alignItems: 'flex-start' } as any}><div style={{ width: 30, height: 30, borderRadius: 10, flexShrink: 0, background: 'linear-gradient(135deg, rgba(167,139,250,0.2), rgba(167,139,250,0.05))', display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}><span style={{ fontSize: 11, fontWeight: 900, color: P }}>N</span></div><div style={{ flex: 1 } as any}><div style={{ fontSize: 9, fontWeight: 700, color: P, textTransform: 'uppercase', letterSpacing: 1, marginBottom: 3 }}>Analyse de Nora</div><div style={{ fontSize: 12, color: 'rgba(255,255,255,0.45)', lineHeight: 1.6 }}>{recs.nora_insight}{recs.tip_of_the_day ? ` ${recs.tip_of_the_day}` : ''}</div></div></div>}
+                  {recs.nora_insight && <NoraCard text={`${recs.nora_insight}${recs.tip_of_the_day ? ` ${recs.tip_of_the_day}` : ''}`} />}
 
                   {/* Nora Weekly Report */}
-                  {weeklyReport?.nora_message && (
-                    <div data-testid="nora-weekly-report" style={{ ...CD, padding: 0, marginBottom: 14, overflow: 'hidden', background: 'linear-gradient(135deg, rgba(167,139,250,0.06), rgba(96,165,250,0.04))' } as any}>
-                      <div style={{ padding: '14px 16px 10px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' } as any}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 8 } as any}>
-                          <div style={{ width: 28, height: 28, borderRadius: 9, background: 'linear-gradient(135deg, rgba(167,139,250,0.2), rgba(96,165,250,0.15))', display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}>
-                            <i className="ri-calendar-check-line" style={{ fontSize: 13, color: P }} />
-                          </div>
-                          <span style={{ fontSize: 10, fontWeight: 800, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: 1 }}>Bilan hebdomadaire</span>
-                        </div>
-                        <span style={{ fontSize: 8, color: 'rgba(255,255,255,0.15)' }}>Cette semaine</span>
-                      </div>
-                      {/* Weekly stats */}
-                      <div style={{ display: 'flex', padding: '0 12px 12px', gap: 6 } as any}>
-                        {[
-                          { v: weeklyReport.week_summary?.meals_validated || 0, l: 'Repas', icon: 'ri-restaurant-2-line', c: A },
-                          { v: weeklyReport.week_summary?.exercises_validated || 0, l: 'Exercices', icon: 'ri-heart-pulse-line', c: G },
-                          { v: weeklyReport.week_summary?.days_active || 0, l: 'Jours actifs', icon: 'ri-fire-line', c: '#F97316' },
-                        ].map((s, i) => (
-                          <div key={i} style={{ flex: 1, padding: '8px 6px', borderRadius: 10, background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.04)', textAlign: 'center' } as any}>
-                            <i className={s.icon} style={{ fontSize: 14, color: s.c, display: 'block', marginBottom: 3 }} />
-                            <div style={{ fontSize: 18, fontWeight: 900, color: '#FFF' }}>{s.v}</div>
-                            <div style={{ fontSize: 7, color: 'rgba(255,255,255,0.25)', fontWeight: 700, textTransform: 'uppercase' }}>{s.l}</div>
-                          </div>
-                        ))}
-                      </div>
-                      {/* Nora message */}
-                      <div style={{ padding: '10px 16px 14px', borderTop: '1px solid rgba(255,255,255,0.04)' } as any}>
-                        <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', lineHeight: 1.6 }}>{weeklyReport.nora_message}</div>
-                      </div>
-                    </div>
-                  )}
+                  {weeklyReport?.nora_message && <NoraCard title="Bilan hebdomadaire" text={weeklyReport.nora_message} />}
                 </div>
               )}
               {!recs && !loading && <div style={{ ...CD, padding: 28, textAlign: 'center', ...fade(0.2) } as any}><div style={{ width: 32, height: 32, margin: '0 auto 10px', borderRadius: '50%', border: '2px solid rgba(255,255,255,0.05)', borderTopColor: P, animation: 'spin 0.8s linear infinite' } as any} /><div style={{ fontSize: 12, color: 'rgba(255,255,255,0.2)' }}>Generation des recommandations...</div></div>}
