@@ -13,7 +13,7 @@ import pytest
 import requests
 import os
 
-BASE_URL = os.environ.get("REACT_APP_BACKEND_URL", "https://premium-clinical-ui.preview.emergentagent.com").rstrip("/")
+BASE_URL = os.environ.get("REACT_APP_BACKEND_URL", "https://glassmorphism-dash.preview.emergentagent.com").rstrip("/")
 
 # Test credentials - API uses email field for both email and phone numbers
 TEST_EMAIL = "0600000099"  # Marie Test's phone (used as email field)

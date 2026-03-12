@@ -13,7 +13,7 @@ import requests
 import os
 import uuid
 
-BASE_URL = os.environ.get('REACT_APP_BACKEND_URL', 'https://premium-clinical-ui.preview.emergentagent.com').rstrip('/')
+BASE_URL = os.environ.get('REACT_APP_BACKEND_URL', 'https://glassmorphism-dash.preview.emergentagent.com').rstrip('/')
 
 # Test credentials
 GUARDIAN_CREDS = {"email": "claire.martin@email.fr", "password": "demo123"}
