@@ -95,7 +95,7 @@ function NoraPill() {
     <div className="dash-slide-up" style={{ display: 'flex', justifyContent: 'center', marginBottom: 14 } as any}>
       <div style={{ display: 'inline-flex', alignItems: 'center', gap: 10, background: '#000', borderRadius: 999, padding: '6px 16px 6px 6px', boxShadow: '0 2px 12px rgba(0,0,0,0.15)' } as any}>
         <video src={NORA_VIDEO_URL} autoPlay loop muted playsInline style={{ width: 28, height: 28, borderRadius: 14, objectFit: 'cover' } as any} />
-        <span style={{ fontSize: 12, fontWeight: 700, color: '#FFF', letterSpacing: -0.2 }}>Nora recommandation</span>
+        <span style={{ fontSize: 12, fontWeight: 700, color: '#FFF', letterSpacing: -0.2 }}>Nora recommandation journaliere</span>
       </div>
     </div>
   );
@@ -453,35 +453,41 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
   );
 
   /* ─── WEB: Redesigned beneficiary dashboard ─── */
-  // Morning briefing effect — runs once on mount
+  // Dark mode toggle
+  const [isDark, setIsDark] = useState(() => typeof localStorage !== 'undefined' && localStorage.getItem('chutex_dark') === '1');
   if (Platform.OS === 'web') {
+    const BG_IMG = 'https://customer-assets.emergentagent.com/job_9950a869-9328-4a4b-abf4-a6fb213a3b47/artifacts/iklovqya_background_beneficiary.svg';
+    const toggleDark = () => { const next = !isDark; setIsDark(next); localStorage.setItem('chutex_dark', next ? '1' : '0'); };
+    const C = isDark ? { bg: '#000', card: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)', text: '#FFF', sub: 'rgba(255,255,255,0.4)', sep: 'rgba(255,255,255,0.06)', headerBg: 'rgba(255,255,255,0.06)', btnBg: 'rgba(255,255,255,0.08)', arrow: 'rgba(255,255,255,0.2)', pill: '#FFF' } : { bg: '#FFF', card: '#EDEDF0', border: 'none', text: '#111', sub: 'rgba(0,0,0,0.4)', sep: 'rgba(0,0,0,0.06)', headerBg: '#EDEDF0', btnBg: '#FFF', arrow: 'rgba(0,0,0,0.2)', pill: '#111' };
     return (
-      <div data-testid="beneficiary-dashboard" style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, display: 'flex', flexDirection: 'column', fontFamily: "'Inter', system-ui, -apple-system, sans-serif", overflow: 'hidden', background: '#FFF' } as any}>
+      <div data-testid="beneficiary-dashboard" style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, display: 'flex', flexDirection: 'column', fontFamily: "'Inter', system-ui, -apple-system, sans-serif", overflow: 'hidden', background: C.bg } as any}>
+        {isDark && <img src={BG_IMG} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 } as any} />}
+        {isDark && <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.35)', zIndex: 1 } as any} />}
 
         <div style={{ flex: 1, overflowY: 'auto', position: 'relative', zIndex: 5, padding: '0 0 100px', WebkitOverflowScrolling: 'touch' } as any}>
 
           {/* ══════ HEADER — Full width gray rounded ══════ */}
-          <div data-testid="dashboard-header" className="dash-slide-up" style={{ padding: '16px 20px', margin: '8px 16px 0', borderRadius: 22, background: '#EDEDF0' } as any}>
+          <div data-testid="dashboard-header" className="dash-slide-up" style={{ padding: '16px 20px', margin: '8px 16px 0', borderRadius: 22, background: C.headerBg, backdropFilter: isDark ? 'blur(20px)' : 'none', WebkitBackdropFilter: isDark ? 'blur(20px)' : 'none', border: isDark ? '1px solid rgba(255,255,255,0.08)' : 'none' } as any}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' } as any}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 12 } as any}>
-                <div onClick={() => router.push('/(tabs)/profile' as any)} style={{ width: 44, height: 44, borderRadius: 22, background: '#D8D8DC', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, cursor: 'pointer', overflow: 'hidden' } as any}>
-                  {user.avatar_url ? <img src={user.avatar_url} style={{ width: 44, height: 44, borderRadius: 22, objectFit: 'cover' } as any} /> : <span style={{ fontSize: 17, fontWeight: 800, color: '#111' }}>{user.name?.charAt(0)?.toUpperCase()}</span>}
+                <div onClick={() => router.push('/(tabs)/profile' as any)} style={{ width: 44, height: 44, borderRadius: 22, background: isDark ? 'rgba(255,255,255,0.1)' : '#D8D8DC', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, cursor: 'pointer', overflow: 'hidden' } as any}>
+                  {user.avatar_url ? <img src={user.avatar_url} style={{ width: 44, height: 44, borderRadius: 22, objectFit: 'cover' } as any} /> : <span style={{ fontSize: 17, fontWeight: 800, color: C.text }}>{user.name?.charAt(0)?.toUpperCase()}</span>}
                 </div>
                 <div>
-                  <div style={{ fontSize: 18, fontWeight: 800, color: '#111', letterSpacing: -0.5 }}>{user.name}</div>
-                  <div style={{ fontSize: 11, color: 'rgba(0,0,0,0.4)', fontWeight: 500 }}>{activeTab === 'beneficiary' ? t('space_beneficiary') : t('space_guardian')}</div>
+                  <div style={{ fontSize: 18, fontWeight: 800, color: C.text, letterSpacing: -0.5 }}>{user.name}</div>
+                  <div style={{ fontSize: 11, color: C.sub, fontWeight: 500 }}>{activeTab === 'beneficiary' ? t('space_beneficiary') : t('space_guardian')}</div>
                 </div>
               </div>
               <div style={{ display: 'flex', gap: 8, alignItems: 'center' } as any}>
-                <div data-testid="lang-picker-btn" onClick={() => setLangOpen(!langOpen)} style={{ width: 36, height: 36, borderRadius: 18, background: '#FFF', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', fontSize: 18, lineHeight: 1 } as any}>
+                <div data-testid="lang-picker-btn" onClick={() => setLangOpen(!langOpen)} style={{ width: 36, height: 36, borderRadius: 18, background: C.btnBg, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', fontSize: 18, lineHeight: 1 } as any}>
                   {lang === 'FR' ? '\u{1F1EB}\u{1F1F7}' : lang === 'EN' ? '\u{1F1EC}\u{1F1E7}' : lang === 'ES' ? '\u{1F1EA}\u{1F1F8}' : lang === 'DE' ? '\u{1F1E9}\u{1F1EA}' : lang === 'IT' ? '\u{1F1EE}\u{1F1F9}' : lang === 'PT' ? '\u{1F1F5}\u{1F1F9}' : lang === 'NL' ? '\u{1F1F3}\u{1F1F1}' : '\u{1F30D}'}
                 </div>
-                <div data-testid="notif-bell" onClick={() => setShowNotifs(!showNotifs)} style={{ width: 36, height: 36, borderRadius: 18, background: '#FFF', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', position: 'relative' } as any}>
-                  <i className="ri-notification-4-line" style={{ fontSize: 18, color: 'rgba(0,0,0,0.5)' }} />
-                  {(guardianRequests.length > 0 || activeAlerts.length > 0 || predictiveAlerts.length > 0) && <div style={{ position: 'absolute', top: -1, right: -1, width: 9, height: 9, borderRadius: 5, background: '#EF4444', border: '2px solid #EDEDF0' } as any} />}
+                <div data-testid="notif-bell" onClick={() => setShowNotifs(!showNotifs)} style={{ width: 36, height: 36, borderRadius: 18, background: C.btnBg, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', position: 'relative' } as any}>
+                  <i className="ri-notification-4-line" style={{ fontSize: 18, color: C.sub }} />
+                  {(guardianRequests.length > 0 || activeAlerts.length > 0 || predictiveAlerts.length > 0) && <div style={{ position: 'absolute', top: -1, right: -1, width: 9, height: 9, borderRadius: 5, background: '#EF4444', border: `2px solid ${C.headerBg}` } as any} />}
                 </div>
-                <div data-testid="dark-mode-toggle" onClick={() => { const isDark = localStorage.getItem('chutex_dark') === '1'; localStorage.setItem('chutex_dark', isDark ? '0' : '1'); window.location.reload(); }} style={{ width: 36, height: 36, borderRadius: 18, background: '#FFF', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}>
-                  <i className="ri-moon-line" style={{ fontSize: 16, color: 'rgba(0,0,0,0.5)' }} />
+                <div data-testid="dark-mode-toggle" onClick={toggleDark} style={{ width: 36, height: 36, borderRadius: 18, background: C.btnBg, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}>
+                  <i className={isDark ? 'ri-sun-line' : 'ri-moon-line'} style={{ fontSize: 16, color: C.sub }} />
                 </div>
               </div>
             </div>
@@ -563,7 +569,6 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
           ))}
 
           {/* ── 4. PROGRAMME EN COURS ── */}
-          <TypewriterTitle text="Programme en cours." />
           {activeProgram?.active ? (
             <div data-testid="active-program-card" className="dash-slide-up cl-press" onClick={() => router.push('/(tabs)/chat' as any)} style={{ borderRadius: 18, background: '#EDEDF0', padding: '16px', marginBottom: 20, cursor: 'pointer', transition: 'transform 0.18s' } as any}
               onMouseEnter={(e: any) => { e.currentTarget.style.transform = 'translateY(-2px)'; }}
@@ -623,21 +628,18 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
           <div style={{ height: 0 } as any} />
 
 
-          {/* ── Rappels — directly on background ── */}
-          <div data-testid="reminders-section" className="dash-slide-up" style={{ marginBottom: 20 } as any}>
-            <TypewriterTitle text="Mes rappels." />
+          {/* ── Rappels — inside a single gray card ── */}
+          <div data-testid="reminders-section" className="dash-slide-up" style={{ padding: '16px', borderRadius: 20, background: '#EDEDF0', marginBottom: 20 } as any}>
             {[
               { type: 'hydration', label: 'Hydratation', img: REMINDER_IMAGES.hydration, color: '#38BDF8' },
               { type: 'medication', label: 'Traitement', img: REMINDER_IMAGES.medication, color: '#F59E0B' },
               { type: 'alarm', label: 'Alarmes', img: REMINDER_IMAGES.alarm, color: '#EF4444' },
-            ].map((cat) => {
+            ].map((cat, idx) => {
               const catRems = reminders.filter((r: any) => r.reminder_type === cat.type);
               const activeCount = catRems.filter((r: any) => r.active).length;
               const nextTime = activeCount > 0 ? getNextReminderTime(catRems.find((r: any) => r.active)) : '';
               return (
-                <div key={cat.type} data-testid={`reminder-cat-${cat.type}`} onClick={() => { setEditReminder({ _type: cat.type }); setShowReminderCRUD(true); }} style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '12px 14px', borderRadius: 16, background: '#EDEDF0', marginBottom: 8, cursor: 'pointer', transition: 'transform 0.18s' } as any}
-                  onMouseEnter={(e: any) => { e.currentTarget.style.transform = 'translateY(-1px)'; }}
-                  onMouseLeave={(e: any) => { e.currentTarget.style.transform = ''; }}>
+                <div key={cat.type} data-testid={`reminder-cat-${cat.type}`} onClick={() => { setEditReminder({ _type: cat.type }); setShowReminderCRUD(true); }} style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '12px 0', borderTop: idx > 0 ? '1px solid rgba(0,0,0,0.06)' : 'none', cursor: 'pointer' } as any}>
                   <img src={cat.img} alt={cat.label} style={{ width: 44, height: 44, objectFit: 'contain', flexShrink: 0 } as any} />
                   <div style={{ flex: 1 } as any}>
                     <div style={{ fontSize: 14, fontWeight: 800, color: '#111' }}>{cat.label}</div>

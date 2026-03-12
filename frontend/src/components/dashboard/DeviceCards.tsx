@@ -173,16 +173,17 @@ export default function DeviceCards({ br, sc, vs, onStartWeighing, weighings = [
 
   return (
     <>
-      {connectedDevices.length > 0 && <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(79,195,247,0.5)', letterSpacing: 1.5, textTransform: 'uppercase', marginBottom: 10 }}>{t('devices_connected')}</div>}
+      <div style={{ padding: '16px', borderRadius: 20, background: '#EDEDF0', marginBottom: 20 } as any}>
       {connectedDevices.length === 0 && (
-        <div onClick={() => router.push('/(tabs)/devices' as any)} style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '16px 18px', borderRadius: 18, background: '#EDEDF0', marginBottom: 12, cursor: 'pointer' } as any}>
+        <div onClick={() => router.push('/(tabs)/devices' as any)} style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '4px 0', cursor: 'pointer' } as any}>
           <div style={{ width: 44, height: 44, borderRadius: 14, background: 'rgba(59,130,246,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}><i className="ri-bluetooth-connect-line" style={{ fontSize: 22, color: '#3B82F6' }} /></div>
           <div style={{ flex: 1 } as any}><div style={{ fontSize: 14, fontWeight: 700, color: '#111' }}>Connecter un appareil</div><div style={{ fontSize: 11, color: 'rgba(0,0,0,0.35)' }}>Bracelet, balance ou gilet</div></div>
           <i className="ri-arrow-right-s-line" style={{ fontSize: 18, color: 'rgba(0,0,0,0.2)' }} />
         </div>
       )}
-      {connectedDevices.map((d) => (
-        <div key={d.id} data-testid={`device-card-${d.id}`} onClick={() => router.push('/(tabs)/devices' as any)} style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '12px 14px', borderRadius: 18, background: '#EDEDF0', marginBottom: 8, transition: 'transform 0.2s', cursor: 'pointer' } as any}>
+      {connectedDevices.length === 0 && <div style={{ height: 1, background: 'rgba(0,0,0,0.06)', margin: '10px 0' } as any} />}
+      {devices.map((d, idx) => (
+        <div key={d.id} data-testid={`device-card-${d.id}`} onClick={() => router.push('/(tabs)/devices' as any)} style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '12px 0', borderTop: idx > 0 ? '1px solid rgba(0,0,0,0.06)' : 'none', cursor: 'pointer' } as any}>
           <img src={d.img} alt="" style={{ width: 48, height: 48, objectFit: 'contain', flexShrink: 0 } as any} />
           <div style={{ flex: 1, minWidth: 0 } as any}>
             <div style={{ fontSize: 14, fontWeight: 800, color: '#111', marginBottom: 3 }}>{d.name}</div>
@@ -214,6 +215,7 @@ export default function DeviceCards({ br, sc, vs, onStartWeighing, weighings = [
           <i className="ri-arrow-right-s-line" style={{ fontSize: 16, color: 'rgba(0,0,0,0.2)', flexShrink: 0 }} />
         </div>
       ))}
+      </div>
 
       {/* ──── Pairing Flow Popup ──── */}
       <PairingPopup />
