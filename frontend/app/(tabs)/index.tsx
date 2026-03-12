@@ -328,6 +328,8 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
   useEffect(() => { fetchData(); const iv = setInterval(fetchData, 30000); return () => clearInterval(iv); }, [fetchData]);
   useEffect(() => { requestNotificationPermission(); }, []);
   // Morning briefing — only once per day (not per session)
+  // Disabled auto-redirect to prevent dashboard crash — user can access briefing manually
+  /*
   useEffect(() => {
     if (Platform.OS === 'web') {
       const today = new Date().toISOString().split('T')[0];
@@ -335,6 +337,7 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
       if (lastSeen !== today) { router.push('/morning-briefing' as any); }
     }
   }, []);
+  */
   useEffect(() => { if (reminders.length > 0) { const cleanup = startReminderChecker(reminders); return cleanup; } }, [reminders]);
 
   // Check for due reminders on load
