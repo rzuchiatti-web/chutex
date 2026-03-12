@@ -173,7 +173,7 @@ export default function DeviceCards({ br, sc, vs, onStartWeighing, weighings = [
 
   return (
     <>
-      <div style={{ padding: '16px', borderRadius: 20, background: 'var(--card-bg, #EDEDF0)', marginBottom: 20 } as any}>
+      <div style={{ padding: '16px', borderRadius: 20, background: 'var(--card-bg, #EDEDF0)', marginBottom: 20, backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' } as any}>
       {connectedDevices.length === 0 && (
         <div onClick={() => router.push('/(tabs)/devices' as any)} style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '4px 0', cursor: 'pointer' } as any}>
           <div style={{ width: 44, height: 44, borderRadius: 14, background: 'rgba(59,130,246,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}><i className="ri-bluetooth-connect-line" style={{ fontSize: 22, color: '#3B82F6' }} /></div>
