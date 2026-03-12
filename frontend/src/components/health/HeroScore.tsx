@@ -10,7 +10,7 @@ function NoraExplanationCard({ text }: { text: string }) {
 
   useEffect(() => {
     setTimeout(() => setEntered(true), 50);
-    setTimeout(() => setShowText(true), 1000);
+    setTimeout(() => setShowText(true), 2200);
   }, []);
 
   useEffect(() => {
@@ -35,7 +35,7 @@ function NoraExplanationCard({ text }: { text: string }) {
         opacity: entered ? (showText ? 0.6 : 1) : 0,
         filter: entered ? 'none' : 'blur(16px)',
         zIndex: 1,
-        transition: 'all 1s cubic-bezier(0.22,0.61,0.36,1), opacity 1s ease 0.1s, filter 1s ease 0.1s',
+        transition: 'left 1.2s cubic-bezier(0.22,0.61,0.36,1), top 1.2s cubic-bezier(0.22,0.61,0.36,1), width 1.2s ease, height 1.2s ease, transform 1.2s ease, border-radius 1.2s ease, opacity 1.4s ease 0.1s, filter 1.4s ease 0.1s',
       } as any} src={NORA_VIDEO} />
       {showText && (
         <div style={{ position: 'relative', zIndex: 2, paddingTop: 2 } as any}>
