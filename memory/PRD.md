@@ -11,6 +11,11 @@ Health monitoring and care application for elderly beneficiaries ("Chutex Care")
 
 ## What's Been Implemented
 
+### Session - March 12, 2026 (Batch 4)
+1. **Nora Knowledge Update** — Added HDS data hosting info (serveurs certifies HDS classe 6, France, Free/Groupe Iliad) to `nora_context.py`
+2. **Standardized Loaders** — Simplified `Loader.tsx` and `FullScreenLoader.tsx` to centered white text "Analyse en cours..." with animated dots, removed video/overlay
+3. **Guardian Space UI Unification** — Replaced `CopilotCard` with `NoraCard` in `GuardianHome.tsx` and `(tabs)/index.tsx` for consistent Nora branding
+
 ### Session - March 12, 2026 (Batch 3)
 1. **Health page header** — Added dashboard-style header with avatar, user name, "Espace sante" subtitle
 2. **Health page light/dark toggle** — "Light"/"Dark" text toggle synced with dashboard via localStorage
@@ -63,10 +68,15 @@ Health monitoring and care application for elderly beneficiaries ("Chutex Care")
 | Guardian 2 | +33619559380 | test123 |
 
 ## Key Files
-- `/app/frontend/app/(tabs)/index.tsx` - Main dashboard
+- `/app/frontend/app/(tabs)/index.tsx` - Main dashboard (uses NoraCard)
 - `/app/frontend/app/(tabs)/health.tsx` - Health page (light/dark mode)
 - `/app/frontend/src/components/health/HeroScore.tsx` - Bio age with Nora pill
+- `/app/frontend/src/components/shared/NoraCard.tsx` - Reusable Nora premium card
+- `/app/frontend/src/components/Loader.tsx` - Standardized loader (white text)
+- `/app/frontend/src/components/FullScreenLoader.tsx` - Standardized full screen loader
+- `/app/frontend/src/components/dashboard/GuardianHome.tsx` - Guardian dashboard (uses NoraCard)
 - `/app/frontend/app/meal-detail.tsx` - Meal detail with recipe step icons
 - `/app/frontend/app/onboarding.tsx` - Onboarding with Nora intro
 - `/app/frontend/app/morning-briefing.tsx` - Morning briefing (no overlay)
+- `/app/backend/services/nora_context.py` - Nora AI context with HDS knowledge
 - `/app/backend/routes/minceur_routes.py` - Minceur endpoints incl. /exercises
