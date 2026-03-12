@@ -74,16 +74,17 @@ export default function ChatIAScreen() {
   return (
     <div data-testid="chat-ia-screen" style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, display: 'flex', flexDirection: 'column', fontFamily: "'Inter', system-ui, sans-serif", background: '#000', zIndex: 9999 } as any}>
 
-      {/* Nora video — always visible, animates position */}
+      {/* Nora video — always visible, premium entrance + animates position */}
       <video autoPlay loop muted playsInline style={{
         position: 'absolute', left: '50%',
-        top: hasMessages ? '12px' : '30%',
-        transform: hasMessages ? 'translate(-50%, 0)' : 'translate(-50%, -50%)',
-        width: hasMessages ? 80 : 160, height: hasMessages ? 80 : 160,
-        objectFit: 'contain', borderRadius: hasMessages ? 40 : 80,
-        opacity: entered ? (hasMessages ? 0.6 : 0.8) : 0,
+        top: hasMessages ? '12px' : '28%',
+        transform: hasMessages ? 'translate(-50%, 0) scale(1)' : 'translate(-50%, -50%) scale(1)',
+        width: hasMessages ? 90 : 200, height: hasMessages ? 90 : 200,
+        objectFit: 'contain', borderRadius: hasMessages ? 45 : 100,
+        opacity: entered ? (hasMessages ? 0.6 : 1) : 0,
+        filter: entered ? 'none' : 'blur(20px)',
         zIndex: 1,
-        transition: 'top 0.8s cubic-bezier(0.22,0.61,0.36,1), width 0.8s ease, height 0.8s ease, transform 0.8s ease, border-radius 0.8s ease, opacity 0.6s ease',
+        transition: 'top 1s cubic-bezier(0.22,0.61,0.36,1), width 1s cubic-bezier(0.22,0.61,0.36,1), height 1s cubic-bezier(0.22,0.61,0.36,1), transform 1s cubic-bezier(0.22,0.61,0.36,1), border-radius 1s ease, opacity 1.2s ease 0.2s, filter 1.2s ease 0.2s',
       } as any} src={NORA_VIDEO} />
 
       {/* Top bar */}
