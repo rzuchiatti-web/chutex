@@ -92,10 +92,10 @@ function WeightGoalDashCard({ token }: { token: string }) {
 /* ═══════════════════════════════════════════════════════ */
 function NoraPill() {
   return (
-    <div className="dash-slide-up" style={{ display: 'flex', justifyContent: 'center', marginBottom: 14 } as any}>
+    <div className="dash-slide-up" style={{ display: 'flex', justifyContent: 'center', marginBottom: 18 } as any}>
       <div style={{ display: 'inline-flex', alignItems: 'center', gap: 10, background: '#000', borderRadius: 999, padding: '6px 16px 6px 6px', boxShadow: '0 2px 12px rgba(0,0,0,0.15)' } as any}>
         <video src={NORA_VIDEO_URL} autoPlay loop muted playsInline style={{ width: 28, height: 28, borderRadius: 14, objectFit: 'cover' } as any} />
-        <span style={{ fontSize: 12, fontWeight: 700, color: '#FFF', letterSpacing: -0.2 }}>Nora recommandation journaliere</span>
+        <span style={{ fontSize: 12, fontWeight: 700, color: '#FFF', letterSpacing: -0.2 }}>Nora · Voici vos objectifs journaliers</span>
       </div>
     </div>
   );
@@ -130,10 +130,16 @@ function DailyObjectivesOnDashboard({ token }: { token: string }) {
   return (
     <div data-testid="dashboard-objectives" style={{ marginBottom: 20 } as any}>
       <NoraPill />
-      <TypewriterTitle text="Voici vos objectifs journaliers." />
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 } as any}>
         {items.map((p: any, idx: number) => {
           const objImg = OBJ_IMAGES[p.key];
+          // Custom labels per card
+          const isHydration = p.key === 'hydration';
+          const isCalories = p.key === 'calories_intake';
+          const isSteps = p.key === 'steps';
+          const displayValue = isHydration ? String(p.value).replace(/L$/i, '').trim() : p.value;
+          const displayUnit = isHydration ? 'Litre' : p.unit;
+          const displayLabel = isCalories ? 'Apport calorique' : isHydration ? 'Hydratation minimum' : isSteps ? null : p.label;
           return (
             <div key={p.key} className="dash-slide-up" onClick={() => {
               if (p.key === 'steps') router.push({ pathname: '/metric-detail' as any, params: { key: 'steps' } });
@@ -150,17 +156,22 @@ function DailyObjectivesOnDashboard({ token }: { token: string }) {
             } as any}
               onMouseEnter={(e: any) => { e.currentTarget.style.transform = 'translateY(-2px)'; }}
               onMouseLeave={(e: any) => { e.currentTarget.style.transform = ''; }}>
-              {objImg && <img src={objImg} alt="" style={{ width: 48, height: 48, objectFit: 'contain', marginBottom: 10 } as any} />}
+              {objImg && <img src={objImg} alt="" style={{ width: 56, height: 56, objectFit: 'contain', marginBottom: 10 } as any} />}
               {!objImg && (
-                <div style={{ width: 48, height: 48, borderRadius: 14, background: 'rgba(0,0,0,0.04)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 10 } as any}>
-                  <i className={p.icon} style={{ fontSize: 20, color: p.color }} />
+                <div style={{ width: 56, height: 56, borderRadius: 16, background: 'rgba(0,0,0,0.04)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 10 } as any}>
+                  <i className={p.icon} style={{ fontSize: 24, color: p.color }} />
                 </div>
               )}
               <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'center', gap: 3 } as any}>
-                <span style={{ fontSize: 24, fontWeight: 900, color: 'var(--card-text, #111)', letterSpacing: -1 }}>{p.value}</span>
-                <span style={{ fontSize: 11, fontWeight: 600, color: 'var(--card-sub, rgba(0,0,0,0.4))' }}>{p.unit}</span>
+                <span style={{ fontSize: 26, fontWeight: 900, color: 'var(--card-text, #111)', letterSpacing: -1 }}>{displayValue}</span>
+                <span style={{ fontSize: 11, fontWeight: 600, color: 'var(--card-sub, rgba(0,0,0,0.4))' }}>{displayUnit}</span>
               </div>
-              <div style={{ fontSize: 10, color: 'var(--card-sub, rgba(0,0,0,0.4))', fontWeight: 500, lineHeight: 1.3, marginTop: 2 }}>{p.label}</div>
+              {isSteps && p.progress != null && (
+                <div style={{ width: '100%', height: 5, borderRadius: 3, background: 'rgba(0,0,0,0.06)', marginTop: 6, overflow: 'hidden' } as any}>
+                  <div style={{ height: 5, borderRadius: 3, width: `${Math.min(100, p.progress)}%`, background: p.color || '#10B981', transition: 'width 1s ease' } as any} />
+                </div>
+              )}
+              {displayLabel && <div style={{ fontSize: 10, color: 'var(--card-sub, rgba(0,0,0,0.4))', fontWeight: 500, lineHeight: 1.3, marginTop: 4 }}>{displayLabel}</div>}
             </div>
           );
         })}
