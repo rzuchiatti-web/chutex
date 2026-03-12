@@ -33,12 +33,44 @@ export default function ChatIAScreen() {
   const [typingId, setTypingId] = useState<string | null>(null);
   const [clearing, setClearing] = useState(false);
   const [entered, setEntered] = useState(false);
+  const [showText, setShowText] = useState(false);
+  const [typedGreeting, setTypedGreeting] = useState('');
+  const [typedDesc, setTypedDesc] = useState('');
+  const [greetingDone, setGreetingDone] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
   const role = user?.active_role || user?.role || 'beneficiary';
   const firstName = user?.name?.split(' ')[0] || '';
+  const descText = role === 'guardian'
+    ? 'Je suis Nora, votre assistante medicale. Posez-moi vos questions sur vos beneficiaires.'
+    : 'Je suis Nora, votre assistante medicale. Je connais votre dossier de sante. Posez-moi vos questions.';
 
-  useEffect(() => { loadHistory(); setTimeout(() => setEntered(true), 100); }, [role]);
+  useEffect(() => { loadHistory(); setTimeout(() => setEntered(true), 100); setTimeout(() => setShowText(true), 1400); }, [role]);
   useEffect(() => { bottomRef.current?.scrollIntoView({ behavior: 'smooth' }); }, [messages, typingId]);
+
+  // Typewriter for greeting (after video entrance)
+  useEffect(() => {
+    if (!showText || hasMessages) return;
+    const greeting = `Bonjour ${firstName},`;
+    let i = 0;
+    setTypedGreeting('');
+    const iv = setInterval(() => {
+      if (i <= greeting.length) { setTypedGreeting(greeting.slice(0, i)); i++; }
+      else { clearInterval(iv); setGreetingDone(true); }
+    }, 40);
+    return () => clearInterval(iv);
+  }, [showText, hasMessages]);
+
+  // Typewriter for description (after greeting done)
+  useEffect(() => {
+    if (!greetingDone || hasMessages) return;
+    let i = 0;
+    setTypedDesc('');
+    const iv = setInterval(() => {
+      if (i <= descText.length) { setTypedDesc(descText.slice(0, i)); i++; }
+      else { clearInterval(iv); }
+    }, 18);
+    return () => clearInterval(iv);
+  }, [greetingDone, hasMessages]);
 
   const loadHistory = async () => {
     setLoading(true);
@@ -108,12 +140,12 @@ export default function ChatIAScreen() {
         {/* Empty state — text below video */}
         {!hasMessages && !loading && (
           <div style={{ textAlign: 'center', padding: '0 32px', marginTop: 80 } as any}>
-            <div style={{ fontSize: 26, fontWeight: 900, color: '#FFF', marginBottom: 8, opacity: entered ? 1 : 0, filter: entered ? 'none' : 'blur(12px)', transform: entered ? 'translateY(0) scale(1)' : 'translateY(20px) scale(0.9)', transition: 'all 1.2s cubic-bezier(0.22,0.61,0.36,1) 0.5s' } as any}>Bonjour {firstName},</div>
-            <div style={{ fontSize: 14, fontWeight: 500, color: 'rgba(255,255,255,0.5)', lineHeight: 1.6, maxWidth: 300, margin: '0 auto', opacity: entered ? 1 : 0, filter: entered ? 'none' : 'blur(12px)', transform: entered ? 'translateY(0) scale(1)' : 'translateY(20px) scale(0.9)', transition: 'all 1.2s cubic-bezier(0.22,0.61,0.36,1) 0.8s' } as any}>
-              {role === 'guardian'
-                ? 'Je suis Nora, votre assistante medicale. Posez-moi vos questions sur vos beneficiaires.'
-                : 'Je suis Nora, votre assistante medicale. Je connais votre dossier de sante. Posez-moi vos questions.'}
-            </div>
+            {showText && <div style={{ fontSize: 26, fontWeight: 900, color: '#FFF', marginBottom: 8 }}>
+              {typedGreeting}<span style={{ opacity: greetingDone ? 0 : 1, color: 'rgba(255,255,255,0.3)', transition: 'opacity 0.3s' } as any}>|</span>
+            </div>}
+            {greetingDone && <div style={{ fontSize: 14, fontWeight: 500, color: 'rgba(255,255,255,0.5)', lineHeight: 1.6, maxWidth: 300, margin: '0 auto' }}>
+              {typedDesc}<span style={{ opacity: typedDesc.length < descText.length ? 1 : 0, color: 'rgba(255,255,255,0.2)', transition: 'opacity 0.3s' } as any}>|</span>
+            </div>}
           </div>
         )}
 
