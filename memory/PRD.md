@@ -13,14 +13,20 @@ Health monitoring application for elderly beneficiaries with IoT device integrat
 
 ### Session 2026-03-12
 - **Bug Fix: Dorsi Bilan Server Error** - Fixed error handling in `submitBilan` and `createProgram` with defensive data construction ensuring all 4 directions have mobility+pain, clear error messages for session expiry vs generic errors
-- **Dashboard Redesign** - Applied new visual design based on user mockup:
+- **Dashboard Full Redesign — Light Mode** - Complete overhaul matching user mockup:
+  - Background: White/light gray (#F2F2F7) replacing dark glassmorphism
   - NoraPill: Black pill badge with Nora video thumbnail centered above objectives
-  - TypewriterTitle: Blinking cursor typewriter-style titles on all sections
-  - Objective cards: 2x2 grid with 3D images (kcal, hydration, muscle, sleep)
-  - CopilotCard: Black card with Nora video on right side
-  - Guardians card: Guardian illustration image added
+  - TypewriterTitle: Centered, black text, blinking cursor on all sections
+  - Objective cards: 2x2 grid with 3D images (kcal, hydration water drop, physical activity, sleep moon) - horizontal layout (img left + text right)
+  - CopilotCard: Pure black (#000) card with Nora video with padding on right side
+  - Program card: White card with blue accents  
+  - Reminders: White cards with images
+  - Guardians card: White with guardian illustration image
+  - Header: Light mode (white buttons, dark text)
+  - SOS: White card with red accent
+  - All text colors: dark (#111) instead of white
   - Slide-up animations (`dash-slide-up`) on all cards
-  - CSS: `@keyframes dashSlideUp` and `@keyframes twBlink` for cursor blink
+  - CSS: `@keyframes dashSlideUp` + `@keyframes twBlink`
 
 ### Previous Sessions
 - Full IoT integration (Lefu WiFi webhook, V6 4G webhook)

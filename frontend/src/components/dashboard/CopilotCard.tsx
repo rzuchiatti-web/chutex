@@ -10,15 +10,17 @@ export default function CopilotCard({ subtitle }: { subtitle?: string }) {
   return (
     <div data-testid="copilot-ia-card" onClick={() => router.push('/chat-ia' as any)}
       className="dash-slide-up"
-      style={{ borderRadius: 20, overflow: 'hidden', position: 'relative', height: 120, marginBottom: 12, cursor: 'pointer', transition: 'transform 0.18s', background: '#111', display: 'flex', alignItems: 'center' } as any}
+      style={{ borderRadius: 20, overflow: 'hidden', position: 'relative', height: 110, marginBottom: 12, cursor: 'pointer', transition: 'transform 0.18s', background: '#000', display: 'flex', alignItems: 'center' } as any}
       onMouseEnter={(e: any) => { e.currentTarget.style.transform = 'translateY(-2px) scale(1.005)'; }}
       onMouseLeave={(e: any) => { e.currentTarget.style.transform = ''; }}>
-      {/* Nora Video — right side */}
-      <video src={NORA_VIDEO} autoPlay loop muted playsInline
-        style={{ position: 'absolute', right: 0, top: 0, height: '100%', width: 140, objectFit: 'cover', opacity: 0.9, zIndex: 0 } as any} />
-      <div style={{ position: 'absolute', right: 0, top: 0, height: '100%', width: 140, background: 'linear-gradient(90deg, #111 0%, transparent 40%)', zIndex: 1 } as any} />
+      {/* Nora Video — right side, with vertical padding */}
+      <div style={{ position: 'absolute', right: 0, top: 8, bottom: 8, width: 130, overflow: 'hidden', borderRadius: 12 } as any}>
+        <video src={NORA_VIDEO} autoPlay loop muted playsInline
+          style={{ width: '100%', height: '100%', objectFit: 'cover', opacity: 0.9 } as any} />
+      </div>
+      <div style={{ position: 'absolute', right: 100, top: 0, height: '100%', width: 60, background: 'linear-gradient(90deg, #000 0%, transparent 100%)', zIndex: 1 } as any} />
       {/* Text — left side */}
-      <div style={{ position: 'relative', zIndex: 2, padding: '0 22px', maxWidth: '65%' } as any}>
+      <div style={{ position: 'relative', zIndex: 2, padding: '0 22px', maxWidth: '60%' } as any}>
         <div style={{ fontSize: 20, fontWeight: 900, color: '#FFF', marginBottom: 6, letterSpacing: -0.3, lineHeight: 1.15 }}>Nora IA</div>
         <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.5)', lineHeight: 1.5 }}>{subtitle || t('nora_subtitle')}</div>
       </div>
