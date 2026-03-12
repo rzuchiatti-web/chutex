@@ -425,6 +425,119 @@ async def lefu_weighing(data: dict):
     return {"code": 0, "msg": "success", "count": len(results)}
 
 
+@router.post("/lefu/wifi/record")
+async def lefu_wifi_record(data: dict):
+    """V2/V3 protocol - single weighing upload. Official Lefu endpoint.
+    Format: { sn, type, mac, charge, weight, impedance, timestamp, heartRate }"""
+    mac = data.get('mac', '')
+    sn = data.get('sn', '')
+    now = datetime.now(timezone.utc).isoformat()
+
+    device = await db.devices.find_one({"mac_address": mac, "device_type": "scale"}, {"_id": 0})
+    if not device:
+        device = await db.devices.find_one({"mac_address": sn, "device_type": "scale"}, {"_id": 0})
+    user_id = device.get('user_id') if device else None
+
+    weight = float(data.get('weight', 0))
+    impedance = int(data.get('impedance', 0))
+    heart_rate = int(data.get('heartRate', 0))
+    charge = data.get('charge', '0')
+    ts = data.get('timestamp', '')
+    ts_str = now
+    if ts:
+        try:
+            ts_int = int(ts)
+            if ts_int > 1e12:
+                ts_int = ts_int // 1000
+            ts_str = datetime.fromtimestamp(ts_int, tz=timezone.utc).isoformat()
+        except: pass
+
+    body_data = {}
+    if impedance and user_id:
+        user_profile = await db.users.find_one({"id": user_id}, {"_id": 0})
+        if user_profile:
+            try:
+                from services.lefu_service import calculate_body_data
+                height = user_profile.get('height_cm', 170)
+                age = 50
+                if user_profile.get('date_of_birth'):
+                    try:
+                        dob = datetime.fromisoformat(user_profile['date_of_birth'].replace('Z', '+00:00'))
+                        age = (datetime.now(timezone.utc) - dob).days // 365
+                    except: pass
+                sex = 1 if user_profile.get('gender', '').lower() in ('m', 'male', 'homme', 'masculin') else 2
+                body_data = await calculate_body_data(weight, impedance, height, age, sex)
+            except: pass
+
+    measurement = {
+        "id": str(uuid.uuid4()), "mac": mac, "sn": sn, "user_id": user_id,
+        "device_type": "scale", "source": "wifi", "timestamp": ts_str,
+        "weight": body_data.get('weight', weight),
+        "bmi": body_data.get('bmi', 0),
+        "body_fat_pct": body_data.get('body_fat_pct', 0),
+        "muscle_pct": body_data.get('muscle_rate', 0),
+        "water_pct": body_data.get('hydration_pct', 0),
+        "bone_mass": body_data.get('bone_mass', 0),
+        "visceral_fat": body_data.get('visceral_fat', 0),
+        "metabolic_age": body_data.get('body_age', 0),
+        "heart_rate": heart_rate,
+        "impedance": impedance,
+        "health_evaluation": "Normal" if body_data.get('bmi', 0) > 0 and 18.5 <= body_data.get('bmi', 0) <= 25 else "",
+        "raw_data": data,
+    }
+
+    await db.weighings.insert_one({k: v for k, v in measurement.items() if k != '_id'})
+    await db.device_readings.insert_one({k: v for k, v in measurement.items() if k != '_id'})
+
+    if device:
+        battery = int(float(charge) * 100) if charge else 0
+        await db.devices.update_one(
+            {"user_id": user_id, "device_type": "scale"},
+            {"$set": {"connected": True, "last_sync": ts_str, "battery": battery}}
+        )
+
+    return {"errorCode": 0, "text": "success"}
+
+
+@router.get("/lefu/wifi/config")
+async def lefu_wifi_config(sn: str = '', mac: str = ''):
+    """V2/V3 protocol - device config sync. Called by scale on boot."""
+    now = datetime.now(timezone.utc)
+    return {
+        "errorCode": 0,
+        "text": "success",
+        "unit": 1,
+        "time": int(now.timestamp()),
+        "timeZone": 1
+    }
+
+
+@router.post("/lefu/wifi/torre/register")
+async def lefu_torre_register(data: dict):
+    """Torre/V4.0 protocol - device registration"""
+    mac = data.get('mac', '')
+    sn = data.get('sn', '')
+    now = datetime.now(timezone.utc).isoformat()
+    await db.lefu_devices.update_one({"mac": mac}, {"$set": {
+        "mac": mac, "sn": sn, "model": data.get('type', ''), "protocol": "torre",
+        "registered_at": now, "status": "active",
+    }}, upsert=True)
+    return {"code": 0, "msg": "success"}
+
+
+@router.post("/lefu/wifi/torre/config")
+async def lefu_torre_config(data: dict):
+    """Torre/V4.0 protocol - device config sync"""
+    now = datetime.now(timezone.utc)
+    return {"code": 0, "data": {"unit": 1, "time": int(now.timestamp()), "timeZone": 1}}
+
+
+@router.post("/lefu/wifi/torre/record")
+async def lefu_torre_record(data: dict):
+    """Torre/V4.0 protocol - weighing upload. Redirects to main handler."""
+    return await lefu_weighing(data)
+
+
 @router.get("/devices/scale/history")
 async def get_scale_history(user=Depends(get_current_user)):
     """Get scale measurement history for the user"""
