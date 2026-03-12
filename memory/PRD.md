@@ -1,68 +1,68 @@
 # Chutex Care - PRD
 
 ## Original Problem Statement
-Health monitoring application for elderly beneficiaries with IoT device integration (bracelet, scale, vest), AI-powered health recommendations (Nora), guardian monitoring, teleassistance, and rehabilitation programs (Dorsi).
+Health monitoring and care application for elderly beneficiaries ("Chutex Care"). Features include smart bracelet/scale integration, AI assistant "Nora", guardian alerts, wellness programs, nutrition tracking, and teleassistance.
 
-## Architecture
-- Frontend: React Native (Expo) - Web + Mobile
-- Backend: FastAPI + MongoDB
-- AI: GPT-5.2 via Emergent LLM Key
-- IoT: Lefu Scale (WiFi webhook), V6 Bracelet (4G webhook planned), Dorsi cushion (BLE)
+## Core Architecture
+- **Frontend**: React Native (Expo) served as web
+- **Backend**: FastAPI + MongoDB
+- **AI**: OpenAI GPT via Emergent LLM key (Nora assistant)
+- **3rd Party**: Lefu Cloud API, Mollie, VAPI.ai, Mailjet, SMSMode
 
 ## What's Been Implemented
 
-### Session 2026-03-12
-- **Bug Fix: Dorsi Bilan Server Error** - Fixed error handling in `submitBilan` and `createProgram` with defensive data construction ensuring all 4 directions have mobility+pain, clear error messages for session expiry vs generic errors
-- **Dashboard Full Redesign — Light Mode** - Complete overhaul matching user mockup:
-  - Background: White/light gray (#F2F2F7) replacing dark glassmorphism
-  - NoraPill: Black pill badge with Nora video thumbnail centered above objectives
-  - TypewriterTitle: Centered, black text, blinking cursor on all sections
-  - Objective cards: 2x2 grid with 3D images (kcal, hydration water drop, physical activity, sleep moon) - horizontal layout (img left + text right)
-  - CopilotCard: Pure black (#000) card with Nora video with padding on right side
-  - Program card: White card with blue accents  
-  - Reminders: White cards with images
-  - Guardians card: White with guardian illustration image
-  - Header: Light mode (white buttons, dark text)
-  - SOS: White card with red accent
-  - All text colors: dark (#111) instead of white
-  - Slide-up animations (`dash-slide-up`) on all cards
-  - CSS: `@keyframes dashSlideUp` + `@keyframes twBlink`
+### Session - March 12, 2026
+1. **Meal Recipe Step Icons** - Added contextual cooking icons (couper, cuire, melanger, servir, etc.) to meal preparation steps in `meal-detail.tsx` using keyword detection. 12 icon categories mapped to French cooking verbs.
+2. **Page Load Optimization** - Created lightweight `/api/minceur/exercises` endpoint replacing heavy `/api/minceur/weight-details` in `activity-detail.tsx`. Deferred AI analysis loading in `health-detail.tsx` so page content renders immediately.
+3. **Morning Briefing Redirect** - Re-enabled the auto-redirect to `/morning-briefing` on first daily visit in `(tabs)/index.tsx`.
 
-### Previous Sessions
-- Full IoT integration (Lefu WiFi webhook, V6 4G webhook)
-- Dashboard glassmorphism theme with dark background
-- Dorsi rehabilitation program (bilans, games, streaks, AI adaptive)
-- Health metrics, weight goals, programs
-- Multi-role system (beneficiary, guardian, teleassistance, admin, company)
-- Morning briefing AI, Nora AI chat
+### Previous Sessions (Summary)
+- Dashboard with light/dark mode toggle
+- Nora AI re-branding with reusable `NoraCard.tsx`
+- Chat, onboarding, morning briefing UI redesigns
+- Dorsi Bilan bug fix
+- Dashboard crash fixes (React hooks, CSS variables)
+- Edge-to-edge display
 
-## Pending Issues
-- P1: Swipe Picker bug in weight goal setting
-- P2: Slow page load on detail pages
-- P2: Visuals/icons for meal preparation steps
+## Prioritized Backlog
 
-## Blocked Tasks
-- Lefu Scale WiFi pairing (user blocked by manufacturer app)
-- V6 Bracelet 4G firmware ($5000 custom firmware pending)
+### P0 (Blocked - External)
+- V6 Bracelet 4G Integration (waiting manufacturer firmware)
+- Lefu Scale WiFi Pairing (waiting user support)
 
-## Upcoming Tasks
-- P0: True ML for Glycemia Estimation (V3)
-- P1: Meal preparation step icons
+### P0 (Next)
+- True ML for Glycemia Estimation (V3)
+
+### P1
+- (none pending)
+
+### P2
+- Slow page load on remaining detail pages (partially addressed)
+
+### Future
 - Guardian Referral System
 - Free 7-Day Trial
 - View Contract PDF
 - Vivoo Urine Test Integration
 - Health Correlations UI
-- Patent documentation for glucose algorithm
+- Technical documentation for glucose algorithm (patent)
 
-## Assets
-- Nora Video: https://customer-assets.emergentagent.com/job_ba3a5789-c8f1-4b12-b5d8-478a7f99aaea/artifacts/b6eh1r76_Nora_video.mp4
-- Kcal Image: https://customer-assets.emergentagent.com/job_ba3a5789-c8f1-4b12-b5d8-478a7f99aaea/artifacts/385muol8_img_kcal.png
-- Guardians Image: https://customer-assets.emergentagent.com/job_ba3a5789-c8f1-4b12-b5d8-478a7f99aaea/artifacts/ashlkedd_img_gardians.png
+## Mocked Features
+- Biological Age / Aging Rate
+- Glycemia Estimation (V2 algorithm, not true ML)
+- Sleep Data (detailed metrics simulated)
 
-## Credentials
+## Test Credentials
 | Role | Email/Phone | Password |
 |---|---|---|
 | Beneficiary | 0651245918 | test123 |
 | Guardian 1 | +33689896539 | test123 |
 | Guardian 2 | +33619559380 | test123 |
+
+## Key Files
+- `/app/frontend/app/(tabs)/index.tsx` - Main dashboard
+- `/app/frontend/app/meal-detail.tsx` - Meal detail with recipe step icons
+- `/app/frontend/app/activity-detail.tsx` - Activity detail (optimized)
+- `/app/frontend/app/health-detail.tsx` - Health detail (deferred AI)
+- `/app/backend/routes/minceur_routes.py` - Minceur endpoints incl. /exercises
+- `/app/frontend/components/shared/NoraCard.tsx` - Reusable Nora component
