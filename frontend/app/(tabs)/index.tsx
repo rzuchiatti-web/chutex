@@ -128,7 +128,7 @@ function DailyObjectivesOnDashboard({ token }: { token: string }) {
 
   const items = plan.filter((p: any) => p.key !== 'connect');
   return (
-    <div data-testid="dashboard-objectives" style={{ marginBottom: 8 } as any}>
+    <div data-testid="dashboard-objectives" style={{ marginBottom: 16 } as any}>
       <NoraPill />
       <TypewriterTitle text="Voici vos objectifs journaliers." />
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 } as any}>
@@ -445,7 +445,7 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
 
   /* Card helper — Gray card */
   const GC = ({ children, style, onClick, testId }: any) => (
-    <div data-testid={testId} onClick={onClick} className="dash-slide-up" style={{ padding: '20px', borderRadius: 20, background: '#EDEDF0', marginBottom: 12, cursor: onClick ? 'pointer' : 'default', transition: 'transform 0.18s', ...style } as any}
+    <div data-testid={testId} onClick={onClick} className="dash-slide-up" style={{ padding: '20px', borderRadius: 20, background: '#EDEDF0', marginBottom: 16, cursor: onClick ? 'pointer' : 'default', transition: 'transform 0.18s', ...style } as any}
       onMouseEnter={(e: any) => { if (onClick) e.currentTarget.style.transform = 'translateY(-2px)'; }}
       onMouseLeave={(e: any) => { e.currentTarget.style.transform = ''; }}>
       {children}
@@ -460,8 +460,8 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
 
         <div style={{ flex: 1, overflowY: 'auto', position: 'relative', zIndex: 5, padding: '0 0 100px', WebkitOverflowScrolling: 'touch' } as any}>
 
-          {/* ══════ HEADER — Gray rounded card ══════ */}
-          <div data-testid="dashboard-header" className="dash-slide-up" style={{ padding: '16px', margin: '12px 20px 0', borderRadius: 20, background: '#EDEDF0' } as any}>
+          {/* ══════ HEADER — Full width gray ══════ */}
+          <div data-testid="dashboard-header" className="dash-slide-up" style={{ padding: '16px 20px', background: '#EDEDF0' } as any}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' } as any}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 12 } as any}>
                 <div onClick={() => router.push('/(tabs)/profile' as any)} style={{ width: 44, height: 44, borderRadius: 22, background: '#D8D8DC', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, cursor: 'pointer', overflow: 'hidden' } as any}>
@@ -484,14 +484,14 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
             </div>
           </div>
 
-          <div style={{ padding: '0 20px' } as any}>
+          <div style={{ padding: '0 20px', marginTop: 16 } as any}>
 
           <NotificationsPopup show={showNotifs} onClose={() => setShowNotifs(false)} activeAlerts={activeAlerts} guardianRequests={guardianRequests} predictiveAlerts={predictiveAlerts} token={token} onRefresh={fetchData} />
 
           <LanguagePopup show={langOpen} onClose={() => setLangOpen(false)} lang={lang} setLang={setLang} />
           {/* ── SOS Button ── */}
           <div data-testid="sos-button" className="dash-slide-up" onClick={handleSOS} style={{
-            padding: '16px 20px', borderRadius: 18, cursor: 'pointer', marginBottom: 12,
+            padding: '16px 20px', borderRadius: 18, cursor: 'pointer', marginBottom: 16,
             background: '#EDEDF0',
             display: 'flex', alignItems: 'center', gap: 14,
             transition: 'transform 0.18s, box-shadow 0.18s',
@@ -522,12 +522,12 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
           {/* ── SUBSCRIPTION BANNER (si pas d'abo bracelet) ── */}
           {/* Health data shown even without subscription — values show -- when no data */}
 
-          <div style={{ height: 1, background: 'rgba(0,0,0,0.08)', margin: '14px 0 18px' } as any} />
+          <div style={{ height: 0 } as any} />
 
           {/* ── 2. OBJECTIFS JOURNALIERS (remplace VitalsRow + ActivityCard) ── */}
           <DailyObjectivesOnDashboard token={token} />
 
-          <div style={{ height: 1, background: 'rgba(0,0,0,0.08)', margin: '14px 0 18px' } as any} />
+          <div style={{ height: 0 } as any} />
 
           {/* ── TEAM INVITATIONS ── */}
           {teamInvitations.length > 0 && teamInvitations.map((inv: any) => (
@@ -562,7 +562,7 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
           {/* ── 4. PROGRAMME EN COURS ── */}
           <TypewriterTitle text="Programme en cours." />
           {activeProgram?.active ? (
-            <div data-testid="active-program-card" className="dash-slide-up cl-press" onClick={() => router.push('/(tabs)/chat' as any)} style={{ borderRadius: 18, background: '#EDEDF0', padding: '16px', marginBottom: 12, cursor: 'pointer', transition: 'transform 0.18s' } as any}
+            <div data-testid="active-program-card" className="dash-slide-up cl-press" onClick={() => router.push('/(tabs)/chat' as any)} style={{ borderRadius: 18, background: '#EDEDF0', padding: '16px', marginBottom: 16, cursor: 'pointer', transition: 'transform 0.18s' } as any}
               onMouseEnter={(e: any) => { e.currentTarget.style.transform = 'translateY(-2px)'; }}
               onMouseLeave={(e: any) => { e.currentTarget.style.transform = ''; }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 12 } as any}>
@@ -579,14 +579,9 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
                 <div style={{ height: 8, borderRadius: 4, width: `${activeProgram.progress_pct}%`, background: activeProgram.program.color, transition: 'width 0.5s' } as any} />
               </div>
               {activeProgram.today_tasks && (
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' } as any}>
-                  <div>
-                    <div style={{ fontSize: 13, fontWeight: 800, color: '#111', marginBottom: 2 }}>{activeProgram.today_tasks.focus}</div>
-                    <div style={{ fontSize: 11, color: activeProgram.program.color, fontWeight: 700 }}>{activeProgram.today_tasks.tasks?.length || 0} taches · {activeProgram.today_checkin ? 'Check-in fait' : 'A valider aujourd\'hui'}</div>
-                  </div>
-                  <div style={{ padding: '6px 12px', borderRadius: 999, background: activeProgram.today_checkin ? 'rgba(16,185,129,0.12)' : `${activeProgram.program.color}15`, border: `1px solid ${activeProgram.today_checkin ? 'rgba(16,185,129,0.25)' : activeProgram.program.color + '25'}` } as any}>
-                    <span style={{ fontSize: 10, fontWeight: 700, color: activeProgram.today_checkin ? '#10B981' : activeProgram.program.color }}>{activeProgram.today_checkin ? 'Fait' : 'Ouvrir'}</span>
-                  </div>
+                <div>
+                  <div style={{ fontSize: 13, fontWeight: 800, color: '#111', marginBottom: 2 }}>{activeProgram.today_tasks.focus}</div>
+                  <div style={{ fontSize: 11, color: activeProgram.program.color, fontWeight: 700 }}>{activeProgram.today_tasks.tasks?.length || 0} taches · {activeProgram.today_checkin ? 'Check-in fait' : 'A valider aujourd\'hui'}</div>
                 </div>
               )}
             </div>
@@ -608,12 +603,12 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
           {/* ── WEIGHT GOAL CARD (si objectif en cours) ── */}
           <WeightGoalDashCard token={token} />
 
-          <div style={{ height: 1, background: 'rgba(0,0,0,0.08)', margin: '14px 0 18px' } as any} />
+          <div style={{ height: 0 } as any} />
 
           {/* ── 5. NORA IA ── */}
           <CopilotCard />
 
-          <div style={{ height: 1, background: 'rgba(0,0,0,0.08)', margin: '14px 0 18px' } as any} />
+          <div style={{ height: 0 } as any} />
 
           {/* ── 6. DISPOSITIFS ── */}
           <DeviceCards br={br} sc={sc} vs={vs} weighings={weighings} onStartWeighing={() => setShowWeighing(true)} onRefresh={fetchData} subscription={subscription} />
@@ -622,7 +617,7 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
 
           {/* Les alertes sont affichées en haut du dashboard */}
 
-          <div style={{ height: 1, background: 'rgba(0,0,0,0.08)', margin: '14px 0 18px' } as any} />
+          <div style={{ height: 0 } as any} />
 
 
           {/* ── Rappels — directly on background ── */}
