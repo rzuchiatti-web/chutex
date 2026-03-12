@@ -40,9 +40,10 @@ export default function ChatIAScreen() {
   const bottomRef = useRef<HTMLDivElement>(null);
   const role = user?.active_role || user?.role || 'beneficiary';
   const firstName = user?.name?.split(' ')[0] || '';
+  const hasMessages = messages.length > 0;
   const descText = role === 'guardian'
-    ? 'Je suis Nora, votre assistante medicale. Posez-moi vos questions sur vos beneficiaires.'
-    : 'Je suis Nora, votre assistante medicale. Je connais votre dossier de sante. Posez-moi vos questions.';
+    ? 'Je suis Nora, l\'intelligence artificielle developpee par Chutex pour ameliorer la longevite de vos beneficiaires. Posez-moi vos questions.'
+    : 'Je suis Nora, l\'intelligence artificielle developpee par Chutex pour ameliorer votre longevite. Je connais votre dossier de sante. Posez-moi vos questions.';
 
   useEffect(() => { loadHistory(); setTimeout(() => setEntered(true), 100); setTimeout(() => setShowText(true), 1400); }, [role]);
   useEffect(() => { bottomRef.current?.scrollIntoView({ behavior: 'smooth' }); }, [messages, typingId]);
@@ -100,8 +101,6 @@ export default function ChatIAScreen() {
   };
 
   if (Platform.OS !== 'web') return <NativePageView path="/chat-ia" />;
-
-  const hasMessages = messages.length > 0;
 
   return (
     <div data-testid="chat-ia-screen" style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, display: 'flex', flexDirection: 'column', fontFamily: "'Inter', system-ui, sans-serif", background: '#000', zIndex: 9999 } as any}>

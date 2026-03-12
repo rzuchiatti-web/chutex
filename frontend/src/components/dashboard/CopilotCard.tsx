@@ -19,7 +19,7 @@ export default function CopilotCard({ subtitle }: { subtitle?: string }) {
       <div style={{ position: 'absolute', right: 80, top: 0, height: '100%', width: 70, background: 'linear-gradient(90deg, #000 0%, transparent 100%)', zIndex: 1 } as any} />
       {/* Text — left side, vertically centered */}
       <div style={{ position: 'relative', zIndex: 2, padding: '0 24px', maxWidth: '55%', display: 'flex', flexDirection: 'column', justifyContent: 'center' } as any}>
-        <div style={{ fontSize: 22, fontWeight: 900, color: '#FFF', marginBottom: 8, letterSpacing: -0.3, lineHeight: 1.15 }}>Nora IA</div>
+        <div style={{ fontSize: 22, fontWeight: 900, color: '#FFF', marginBottom: 8, letterSpacing: -0.3, lineHeight: 1.15 }}>Nora</div>
         <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.5)', lineHeight: 1.5 }}>{subtitle || t('nora_subtitle')}</div>
       </div>
     </div>

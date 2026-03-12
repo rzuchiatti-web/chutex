@@ -20,7 +20,7 @@ export default function MorningBriefingScreen() {
 
   const NORA_CONTENT: Record<string, { greeting: string; features: { icon: string; color: string; label: string; value: string; detail: string }[] }> = {
     beneficiary: {
-      greeting: `Je suis Nora, votre assistante sante personnelle.\n\nMon objectif est de vous accompagner chaque jour pour ameliorer votre longevite, preserver votre sante et optimiser votre bien-etre. Grace a vos appareils connectes et a l'intelligence artificielle, je vais analyser vos donnees pour vous offrir un suivi personnalise. Voici ce que je peux faire pour vous :`,
+      greeting: `Je suis Nora, l'intelligence artificielle developpee par Chutex pour ameliorer votre longevite.\n\nGrace a vos appareils connectes, je vais analyser vos donnees pour vous offrir un suivi personnalise. Voici ce que je peux faire pour vous :`,
       features: [
         { icon: 'ri-heart-pulse-line', color: '#EF4444', label: 'Suivi sante', value: 'Surveillance continue', detail: 'Frequence cardiaque, tension, SpO2, sommeil en temps reel' },
         { icon: 'ri-alarm-warning-line', color: '#F59E0B', label: 'Alertes preventives', value: 'Surveillance intelligente', detail: 'Detection automatique des anomalies et alerte de vos proches' },
@@ -29,7 +29,7 @@ export default function MorningBriefingScreen() {
       ],
     },
     guardian: {
-      greeting: `Je suis Nora, l'assistante sante de Chutex Care.\n\nEn tant que gardien, vous avez un role essentiel dans le suivi de vos proches. Je vous tiendrai informe en temps reel et vous alerterai en cas de besoin. Voici vos outils :`,
+      greeting: `Je suis Nora, l'intelligence artificielle de Chutex.\n\nEn tant que gardien, vous avez un role essentiel dans le suivi de vos proches. Je vous tiendrai informe en temps reel et vous alerterai en cas de besoin. Voici vos outils :`,
       features: [
         { icon: 'ri-group-line', color: '#38BDF8', label: 'Suivi de vos proches', value: 'Tableau de bord', detail: 'Visualisez les donnees sante de vos beneficiaires en un coup d\'oeil' },
         { icon: 'ri-notification-3-line', color: '#EF4444', label: 'Alertes en direct', value: 'Notifications push', detail: 'Soyez prevenu immediatement en cas de chute ou anomalie' },
@@ -38,7 +38,7 @@ export default function MorningBriefingScreen() {
       ],
     },
     prescriber_company: {
-      greeting: `Je suis Nora, l'IA integree a la plateforme Chutex Care.\n\nVotre structure SAAD dispose maintenant d'un outil puissant pour suivre et proteger vos beneficiaires. Voici les fonctionnalites a votre disposition :`,
+      greeting: `Je suis Nora, l'intelligence artificielle de Chutex.\n\nVotre structure dispose maintenant d'un outil puissant pour suivre et proteger vos beneficiaires. Voici les fonctionnalites a votre disposition :`,
       features: [
         { icon: 'ri-building-2-line', color: '#38BDF8', label: 'Gestion structure', value: 'Back-office complet', detail: 'Gerez vos equipes, beneficiaires et intervenants depuis un seul endroit' },
         { icon: 'ri-shield-check-line', color: '#10B981', label: 'Teleassistance', value: 'Centre d\'alertes', detail: 'Recevez et gerez les alertes de tous vos beneficiaires' },
@@ -122,7 +122,7 @@ export default function MorningBriefingScreen() {
       <video autoPlay loop muted playsInline style={{
         position: 'absolute', left: '50%', transform: `translate(-50%, -50%)`,
         top: videoUp ? '18%' : '45%',
-        width: 120, height: 120, objectFit: 'contain', opacity: 0.6, zIndex: 0,
+        width: 180, height: 180, objectFit: 'contain', opacity: 0.6, zIndex: 0,
         transition: 'top 1.2s cubic-bezier(0.22, 0.61, 0.36, 1), opacity 0.8s',
         borderRadius: 60,
       } as any} src={NORA_VIDEO} />
