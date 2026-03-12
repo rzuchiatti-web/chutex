@@ -436,6 +436,10 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
     } catch (e: any) { Alert.alert('Erreur', e.message); } finally { setActivatingGuardian(false); }
   };
 
+  // Dark mode hook — must be before any conditional return
+  const [isDark, setIsDark] = useState(false);
+  useEffect(() => { if (typeof localStorage !== 'undefined' && localStorage.getItem('chutex_dark') === '1') setIsDark(true); }, []);
+
   if (loading) return Platform.OS === 'web' ? <Loader /> : <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#F2F2F7' }}><ActivityIndicator size="large" color="#111" /></View>;
 
   const br = dashData?.bracelet || { heart_rate: 0, spo2: 0, steps: 0, blood_pressure: { systolic: 0, diastolic: 0 }, temperature: 0, battery: 0, connected: false, calories: 0, distance_km: 0, heart_rate_history: [], paired: false };
@@ -453,9 +457,6 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
   );
 
   /* ─── WEB: Redesigned beneficiary dashboard ─── */
-  // Dark mode toggle
-  const [isDark, setIsDark] = useState(false);
-  useEffect(() => { if (typeof localStorage !== 'undefined' && localStorage.getItem('chutex_dark') === '1') setIsDark(true); }, []);
   if (Platform.OS === 'web') {
     const BG_IMG = 'https://customer-assets.emergentagent.com/job_9950a869-9328-4a4b-abf4-a6fb213a3b47/artifacts/iklovqya_background_beneficiary.svg';
     const toggleDark = () => { const next = !isDark; setIsDark(next); localStorage.setItem('chutex_dark', next ? '1' : '0'); };
