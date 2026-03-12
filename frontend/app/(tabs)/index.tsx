@@ -103,7 +103,7 @@ function NoraPill() {
 
 function TypewriterTitle({ text }: { text: string; delay?: number }) {
   return (
-    <div className="dash-slide-up" style={{ fontSize: 20, fontWeight: 900, color: '#111', letterSpacing: -0.5, marginBottom: 20, textAlign: 'center' } as any}>
+    <div className="dash-slide-up" style={{ fontSize: 20, fontWeight: 900, color: C.text, letterSpacing: -0.5, marginBottom: 20, textAlign: 'center' } as any}>
       {text}
     </div>
   );
@@ -142,7 +142,7 @@ function DailyObjectivesOnDashboard({ token }: { token: string }) {
               else if (p.key === 'hydration') router.push('/minceur' as any);
             }} style={{
               padding: '12px', borderRadius: 16,
-              background: '#EDEDF0',
+              background: C.card,
               cursor: 'pointer', transition: 'transform 0.18s, box-shadow 0.18s',
               animationDelay: `${idx * 0.1}s`,
               display: 'flex', alignItems: 'center', gap: 10,
@@ -157,10 +157,10 @@ function DailyObjectivesOnDashboard({ token }: { token: string }) {
               )}
               <div style={{ flex: 1, minWidth: 0 } as any}>
                 <div style={{ display: 'flex', alignItems: 'baseline', gap: 4 } as any}>
-                  <span style={{ fontSize: 22, fontWeight: 900, color: '#111', letterSpacing: -1 }}>{p.value}</span>
-                  <span style={{ fontSize: 11, fontWeight: 600, color: 'rgba(0,0,0,0.4)' }}>{p.unit}</span>
+                  <span style={{ fontSize: 22, fontWeight: 900, color: C.text, letterSpacing: -1 }}>{p.value}</span>
+                  <span style={{ fontSize: 11, fontWeight: 600, color: C.sub }}>{p.unit}</span>
                 </div>
-                <div style={{ fontSize: 9, color: 'rgba(0,0,0,0.4)', fontWeight: 500, lineHeight: 1.3 }}>{p.label}</div>
+                <div style={{ fontSize: 9, color: C.sub, fontWeight: 500, lineHeight: 1.3 }}>{p.label}</div>
               </div>
             </div>
           );
@@ -445,22 +445,23 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
   const vs = dashData?.vest || { fall_detected: false, posture_score: 0, chest_temp: 0, battery: 0, connected: false, wearing_hours_today: 0, alerts_today: 0, paired: false };
   const sl = dashData?.sleep || null;
 
-  /* Card helper — Gray card */
-  const GC = ({ children, style, onClick, testId }: any) => (
-    <div data-testid={testId} onClick={onClick} className="dash-slide-up" style={{ padding: '20px', borderRadius: 20, background: '#EDEDF0', marginBottom: 20, cursor: onClick ? 'pointer' : 'default', transition: 'transform 0.18s', ...style } as any}
-      onMouseEnter={(e: any) => { if (onClick) e.currentTarget.style.transform = 'translateY(-2px)'; }}
-      onMouseLeave={(e: any) => { e.currentTarget.style.transform = ''; }}>
-      {children}
-    </div>
-  );
-
   /* ─── WEB: Redesigned beneficiary dashboard ─── */
   if (Platform.OS === 'web') {
     const BG_IMG = 'https://customer-assets.emergentagent.com/job_9950a869-9328-4a4b-abf4-a6fb213a3b47/artifacts/iklovqya_background_beneficiary.svg';
     const toggleDark = () => { const next = !isDark; setIsDark(next); localStorage.setItem('chutex_dark', next ? '1' : '0'); };
-    const C = isDark ? { bg: '#000', card: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)', text: '#FFF', sub: 'rgba(255,255,255,0.4)', sep: 'rgba(255,255,255,0.06)', headerBg: 'rgba(255,255,255,0.06)', btnBg: 'rgba(255,255,255,0.08)', arrow: 'rgba(255,255,255,0.2)', pill: '#FFF' } : { bg: '#FFF', card: '#EDEDF0', border: 'none', text: '#111', sub: 'rgba(0,0,0,0.4)', sep: 'rgba(0,0,0,0.06)', headerBg: '#EDEDF0', btnBg: '#FFF', arrow: 'rgba(0,0,0,0.2)', pill: '#111' };
+    const C = isDark ? { bg: '#000', card: 'rgba(255,255,255,0.06)', text: '#FFF', sub: 'rgba(255,255,255,0.4)', headerBg: 'rgba(255,255,255,0.06)', btnBg: 'rgba(255,255,255,0.08)', arrow: 'rgba(255,255,255,0.2)' } : { bg: '#FFF', card: '#EDEDF0', text: '#111', sub: 'rgba(0,0,0,0.4)', headerBg: '#EDEDF0', btnBg: '#FFF', arrow: 'rgba(0,0,0,0.2)' };
+    const glass = isDark ? { backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1px solid rgba(255,255,255,0.08)' } : {};
+
+    /* Card helper — adapts to dark/light */
+    const GC = ({ children, style, onClick, testId }: any) => (
+      <div data-testid={testId} onClick={onClick} className="dash-slide-up" style={{ padding: '20px', borderRadius: 20, background: C.card, marginBottom: 20, cursor: onClick ? 'pointer' : 'default', transition: 'transform 0.18s', ...glass, ...style } as any}
+        onMouseEnter={(e: any) => { if (onClick) e.currentTarget.style.transform = 'translateY(-2px)'; }}
+        onMouseLeave={(e: any) => { e.currentTarget.style.transform = ''; }}>
+        {children}
+      </div>
+    );
     return (
-      <div data-testid="beneficiary-dashboard" style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, display: 'flex', flexDirection: 'column', fontFamily: "'Inter', system-ui, -apple-system, sans-serif", overflow: 'hidden', background: C.bg } as any}>
+      <div data-testid="beneficiary-dashboard" style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, display: 'flex', flexDirection: 'column', fontFamily: "'Inter', system-ui, -apple-system, sans-serif", overflow: 'hidden', background: C.bg, '--card-bg': C.card, '--card-text': C.text, '--card-sub': C.sub, '--card-arrow': C.arrow, '--card-sep': isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.06)' } as any}>
         {isDark && <img src={BG_IMG} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 } as any} />}
         {isDark && <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.35)', zIndex: 1 } as any} />}
 
@@ -501,7 +502,7 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
           {/* ── SOS Button ── */}
           <div data-testid="sos-button" className="dash-slide-up" onClick={handleSOS} style={{
             padding: '16px 20px', borderRadius: 18, cursor: 'pointer', marginBottom: 20,
-            background: '#EDEDF0',
+            background: C.card,
             display: 'flex', alignItems: 'center', gap: 14,
             transition: 'transform 0.18s, box-shadow 0.18s',
           } as any}
@@ -513,10 +514,10 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
                   <i className="ri-alarm-warning-line" style={{ fontSize: 24, color: '#FFF' }} />
                 </div>
                 <div style={{ flex: 1 } as any}>
-                  <div style={{ fontSize: 18, fontWeight: 900, color: '#111', letterSpacing: 2 }}>SOS</div>
-                  <div style={{ fontSize: 11, color: 'rgba(0,0,0,0.4)' }}>{t('sos_sub')}</div>
+                  <div style={{ fontSize: 18, fontWeight: 900, color: C.text, letterSpacing: 2 }}>SOS</div>
+                  <div style={{ fontSize: 11, color: C.sub }}>{t('sos_sub')}</div>
                 </div>
-                <i className="ri-arrow-right-s-line" style={{ fontSize: 20, color: 'rgba(0,0,0,0.2)' }} />
+                <i className="ri-arrow-right-s-line" style={{ fontSize: 20, color: C.arrow }} />
               </>
             )}
           </div>
@@ -546,8 +547,8 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
                   <i className="ri-team-line" style={{ fontSize: 20, color: '#A78BFA' }} />
                 </div>
                 <div style={{ flex: 1 } as any}>
-                  <div style={{ fontSize: 13, fontWeight: 800, color: '#111' }}>Invitation programme en equipe</div>
-                  <div style={{ fontSize: 11, color: 'rgba(0,0,0,0.4)' }}>{inv.inviter_name} vous invite a faire "{inv.program_title}" ensemble</div>
+                  <div style={{ fontSize: 13, fontWeight: 800, color: C.text }}>Invitation programme en equipe</div>
+                  <div style={{ fontSize: 11, color: C.sub }}>{inv.inviter_name} vous invite a faire "{inv.program_title}" ensemble</div>
                 </div>
               </div>
               <div style={{ display: 'flex', gap: 8 } as any}>
@@ -563,14 +564,14 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
                     await apiFetch(`/api/programs/team/invitations/${inv.id}/reject`, { method: 'POST' }, token);
                     setTeamInvitations(prev => prev.filter(i => i.id !== inv.id));
                   } catch {}
-                }} style={{ flex: 1, padding: '12px', borderRadius: 12, background: 'rgba(0,0,0,0.03)', border: '1px solid rgba(0,0,0,0.08)', textAlign: 'center', cursor: 'pointer', fontSize: 13, fontWeight: 600, color: 'rgba(0,0,0,0.4)' } as any}>Refuser</div>
+                }} style={{ flex: 1, padding: '12px', borderRadius: 12, background: C.card, border: '1px solid rgba(0,0,0,0.08)', textAlign: 'center', cursor: 'pointer', fontSize: 13, fontWeight: 600, color: C.sub } as any}>Refuser</div>
               </div>
             </div>
           ))}
 
           {/* ── 4. PROGRAMME EN COURS ── */}
           {activeProgram?.active ? (
-            <div data-testid="active-program-card" className="dash-slide-up cl-press" onClick={() => router.push('/(tabs)/chat' as any)} style={{ borderRadius: 18, background: '#EDEDF0', padding: '16px', marginBottom: 20, cursor: 'pointer', transition: 'transform 0.18s' } as any}
+            <div data-testid="active-program-card" className="dash-slide-up cl-press" onClick={() => router.push('/(tabs)/chat' as any)} style={{ borderRadius: 18, background: C.card, padding: '16px', marginBottom: 20, cursor: 'pointer', transition: 'transform 0.18s' } as any}
               onMouseEnter={(e: any) => { e.currentTarget.style.transform = 'translateY(-2px)'; }}
               onMouseLeave={(e: any) => { e.currentTarget.style.transform = ''; }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 12 } as any}>
@@ -578,33 +579,33 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
                   <i className={activeProgram.program.icon} style={{ fontSize: 26, color: activeProgram.program.color }} />
                 </div>
                 <div style={{ flex: 1 } as any}>
-                  <div style={{ fontSize: 15, fontWeight: 900, color: '#111' }}>{activeProgram.program.title}</div>
+                  <div style={{ fontSize: 15, fontWeight: 900, color: C.text }}>{activeProgram.program.title}</div>
                   <div style={{ fontSize: 12, color: activeProgram.program.color, fontWeight: 700 }}>{activeProgram.current_phase?.name || 'Phase en cours'} · Jour {activeProgram.current_day}/{activeProgram.program.duration_days}</div>
                 </div>
-                <div style={{ fontSize: 28, fontWeight: 900, color: '#111' }}>{activeProgram.progress_pct}%</div>
+                <div style={{ fontSize: 28, fontWeight: 900, color: C.text }}>{activeProgram.progress_pct}%</div>
               </div>
-              <div style={{ height: 8, borderRadius: 4, background: '#FFF', overflow: 'hidden', marginBottom: 14 } as any}>
+              <div style={{ height: 8, borderRadius: 4, background: isDark ? 'rgba(255,255,255,0.08)' : '#FFF', overflow: 'hidden', marginBottom: 14 } as any}>
                 <div style={{ height: 8, borderRadius: 4, width: `${activeProgram.progress_pct}%`, background: activeProgram.program.color, transition: 'width 0.5s' } as any} />
               </div>
               {activeProgram.today_tasks && (
                 <div>
-                  <div style={{ fontSize: 13, fontWeight: 800, color: '#111', marginBottom: 2 }}>{activeProgram.today_tasks.focus}</div>
+                  <div style={{ fontSize: 13, fontWeight: 800, color: C.text, marginBottom: 2 }}>{activeProgram.today_tasks.focus}</div>
                   <div style={{ fontSize: 11, color: activeProgram.program.color, fontWeight: 700 }}>{activeProgram.today_tasks.tasks?.length || 0} taches · {activeProgram.today_checkin ? 'Check-in fait' : 'A valider aujourd\'hui'}</div>
                 </div>
               )}
             </div>
           ) : (
-            <div data-testid="discover-programs" className="dash-slide-up cl-press" onClick={() => router.push('/(tabs)/chat' as any)} style={{ borderRadius: 18, background: '#EDEDF0', padding: '14px 16px', marginBottom: 12, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 12, transition: 'transform 0.18s' } as any}
+            <div data-testid="discover-programs" className="dash-slide-up cl-press" onClick={() => router.push('/(tabs)/chat' as any)} style={{ borderRadius: 18, background: C.card, padding: '14px 16px', marginBottom: 12, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 12, transition: 'transform 0.18s' } as any}
               onMouseEnter={(e: any) => { e.currentTarget.style.transform = 'translateY(-2px)'; }}
               onMouseLeave={(e: any) => { e.currentTarget.style.transform = ''; }}>
               <div style={{ width: 36, height: 36, borderRadius: 12, background: 'rgba(167,139,250,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}>
                 <i className="ri-road-map-line" style={{ fontSize: 18, color: '#A78BFA' }} />
               </div>
               <div style={{ flex: 1 } as any}>
-                <div style={{ fontSize: 13, fontWeight: 800, color: '#111' }}>Programmes prevention</div>
-                <div style={{ fontSize: 10, color: 'rgba(0,0,0,0.4)' }}>Decouvrez nos parcours personnalises</div>
+                <div style={{ fontSize: 13, fontWeight: 800, color: C.text }}>Programmes prevention</div>
+                <div style={{ fontSize: 10, color: C.sub }}>Decouvrez nos parcours personnalises</div>
               </div>
-              <i className="ri-arrow-right-s-line" style={{ fontSize: 18, color: 'rgba(0,0,0,0.2)' }} />
+              <i className="ri-arrow-right-s-line" style={{ fontSize: 18, color: C.arrow }} />
             </div>
           )}
 
@@ -628,8 +629,9 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
           <div style={{ height: 0 } as any} />
 
 
-          {/* ── Rappels — inside a single gray card ── */}
-          <div data-testid="reminders-section" className="dash-slide-up" style={{ padding: '16px', borderRadius: 20, background: '#EDEDF0', marginBottom: 20 } as any}>
+          {/* ── Rappels — inside a single card ── */}
+          <div data-testid="reminders-section" className="dash-slide-up" style={{ padding: '16px', borderRadius: 20, background: C.card, marginBottom: 20, ...glass } as any}>
+            <div style={{ fontSize: 16, fontWeight: 900, color: C.text, marginBottom: 12 }}>Rappels</div>
             {[
               { type: 'hydration', label: 'Hydratation', img: REMINDER_IMAGES.hydration, color: '#38BDF8' },
               { type: 'medication', label: 'Traitement', img: REMINDER_IMAGES.medication, color: '#F59E0B' },
@@ -642,12 +644,12 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
                 <div key={cat.type} data-testid={`reminder-cat-${cat.type}`} onClick={() => { setEditReminder({ _type: cat.type }); setShowReminderCRUD(true); }} style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '12px 0', borderTop: idx > 0 ? '1px solid rgba(0,0,0,0.06)' : 'none', cursor: 'pointer' } as any}>
                   <img src={cat.img} alt={cat.label} style={{ width: 44, height: 44, objectFit: 'contain', flexShrink: 0 } as any} />
                   <div style={{ flex: 1 } as any}>
-                    <div style={{ fontSize: 14, fontWeight: 800, color: '#111' }}>{cat.label}</div>
+                    <div style={{ fontSize: 14, fontWeight: 800, color: C.text }}>{cat.label}</div>
                     <div style={{ fontSize: 11, color: activeCount > 0 ? cat.color : 'rgba(0,0,0,0.35)', fontWeight: 600 }}>
                       {activeCount > 0 ? `${activeCount} rappel${activeCount > 1 ? 's' : ''} actif${activeCount > 1 ? 's' : ''}${nextTime ? ` · dans ${nextTime}` : ''}` : 'Non configure'}
                     </div>
                   </div>
-                  <i className="ri-arrow-right-s-line" style={{ fontSize: 18, color: 'rgba(0,0,0,0.2)' }} />
+                  <i className="ri-arrow-right-s-line" style={{ fontSize: 18, color: C.arrow }} />
                 </div>
               );
             })}
@@ -655,26 +657,25 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
 
           {/* ── Rappels — directly on background ── */}
           <GC testId="guardians-section">
-            <div style={{ fontSize: 20, fontWeight: 900, color: '#111', textAlign: 'center', marginBottom: 20 }}>Mes gardiens</div>
-            <div style={{ textAlign: 'center', marginBottom: 20 } as any}>
-              <img src={IMG_GUARDIANS} alt="" style={{ width: 180, height: 80, objectFit: 'contain', margin: '0 auto' } as any} />
+            <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 16 } as any}>
+              <div style={{ fontSize: 20, fontWeight: 900, color: C.text }}>Mes gardiens</div>
+              <img src={IMG_GUARDIANS} alt="" style={{ width: 100, height: 50, objectFit: 'contain' } as any} />
             </div>
-            <div style={{ height: 1, background: 'rgba(0,0,0,0.08)', marginBottom: 20 } as any} />
             {guardians.map((g: any, i: number) => (
               <div key={g.id || i} onClick={() => router.push({ pathname: '/guardian-detail', params: { guardianId: g.id } })} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 0', borderTop: i > 0 ? '1px solid rgba(0,0,0,0.06)' : 'none', cursor: 'pointer' } as any}>
-                <div style={{ width: 44, height: 44, borderRadius: 12, background: '#FFF', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', flexShrink: 0 } as any}>
+                <div style={{ width: 44, height: 44, borderRadius: 12, background: isDark ? 'rgba(255,255,255,0.1)' : '#FFF', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', flexShrink: 0 } as any}>
                   {g.avatar_url ? <img src={g.avatar_url} style={{ width: 44, height: 44, objectFit: 'cover' } as any} /> : <span style={{ fontSize: 18, fontWeight: 800, color: '#C7C7CC' }}>{g.name?.charAt(0)}</span>}
                 </div>
-                <div style={{ flex: 1 } as any}><div style={{ fontSize: 15, fontWeight: 700, color: '#111' }}>{g.name}</div><div style={{ fontSize: 12, color: 'rgba(0,0,0,0.4)' }}>{g.relationship || t('guardian')}</div></div>
-                <i className="ri-arrow-right-s-line" style={{ fontSize: 20, color: 'rgba(0,0,0,0.25)' }} />
+                <div style={{ flex: 1 } as any}><div style={{ fontSize: 15, fontWeight: 700, color: C.text }}>{g.name}</div><div style={{ fontSize: 12, color: C.sub }}>{g.relationship || t('guardian')}</div></div>
+                <i className="ri-arrow-right-s-line" style={{ fontSize: 20, color: C.arrow }} />
               </div>
             ))}
-            {guardians.length === 0 && <div style={{ fontSize: 11, color: 'rgba(0,0,0,0.35)', textAlign: 'center', padding: '6px 0' }}>Aucun gardien</div>}
-            <div data-testid="add-guardian-btn" onClick={() => setShowAddGuardianPopup(true)} style={{ marginTop: 12, padding: '14px', borderRadius: 14, background: 'rgba(0,0,0,0.03)', border: '1px solid rgba(0,0,0,0.06)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10, transition: 'background 0.15s' } as any}
+            {guardians.length === 0 && <div style={{ fontSize: 11, color: C.sub, textAlign: 'center', padding: '6px 0' }}>Aucun gardien</div>}
+            <div data-testid="add-guardian-btn" onClick={() => setShowAddGuardianPopup(true)} style={{ marginTop: 12, padding: '14px', borderRadius: 14, background: C.card, border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10, transition: 'background 0.15s' } as any}
               onMouseEnter={(e: any) => { e.currentTarget.style.background = 'rgba(0,0,0,0.06)'; }}
               onMouseLeave={(e: any) => { e.currentTarget.style.background = 'rgba(0,0,0,0.03)'; }}>
               <i className="ri-heart-add-line" style={{ fontSize: 18, color: '#A78BFA' }} />
-              <span style={{ fontSize: 14, fontWeight: 700, color: '#111' }}>Ajouter un gardien</span>
+              <span style={{ fontSize: 14, fontWeight: 700, color: C.text }}>Ajouter un gardien</span>
             </div>
           </GC>
 
@@ -1061,7 +1062,7 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
                 </div>
               ))}
             </div>
-            <div onClick={() => { setShowConnectDevice(null); router.push('/(tabs)/devices' as any); }} style={{ padding: '15px', borderRadius: 999, background: '#FFF', color: '#111', cursor: 'pointer', textAlign: 'center', fontSize: 15, fontWeight: 800, marginBottom: 10 } as any}>Aller dans Appareils</div>
+            <div onClick={() => { setShowConnectDevice(null); router.push('/(tabs)/devices' as any); }} style={{ padding: '15px', borderRadius: 999, background: '#FFF', color: C.text, cursor: 'pointer', textAlign: 'center', fontSize: 15, fontWeight: 800, marginBottom: 10 } as any}>Aller dans Appareils</div>
             <div onClick={() => setShowConnectDevice(null)} style={{ textAlign: 'center', fontSize: 13, color: 'rgba(255,255,255,0.3)', cursor: 'pointer', padding: 8 } as any}>Fermer</div>
           </div>
         </div>

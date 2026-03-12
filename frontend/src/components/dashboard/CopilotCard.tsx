@@ -10,19 +10,18 @@ export default function CopilotCard({ subtitle }: { subtitle?: string }) {
   return (
     <div data-testid="copilot-ia-card" onClick={() => router.push('/chat-ia' as any)}
       className="dash-slide-up"
-      style={{ borderRadius: 20, overflow: 'hidden', position: 'relative', height: 110, marginBottom: 12, cursor: 'pointer', transition: 'transform 0.18s', background: '#000', display: 'flex', alignItems: 'center' } as any}
+      style={{ borderRadius: 20, overflow: 'hidden', position: 'relative', height: 150, marginBottom: 20, cursor: 'pointer', transition: 'transform 0.18s', background: '#000', display: 'flex', alignItems: 'center' } as any}
       onMouseEnter={(e: any) => { e.currentTarget.style.transform = 'translateY(-2px) scale(1.005)'; }}
       onMouseLeave={(e: any) => { e.currentTarget.style.transform = ''; }}>
-      {/* Nora Video — right side, fully visible */}
+      {/* Nora Video — right side, bigger */}
       <video src={NORA_VIDEO} autoPlay loop muted playsInline
-        style={{ position: 'absolute', right: 8, top: '50%', transform: 'translateY(-50%)', height: 90, width: 90, objectFit: 'contain', borderRadius: 12, zIndex: 0 } as any} />
-      <div style={{ position: 'absolute', right: 60, top: 0, height: '100%', width: 60, background: 'linear-gradient(90deg, #000 0%, transparent 100%)', zIndex: 1 } as any} />
-      {/* Text — left side */}
-      <div style={{ position: 'relative', zIndex: 2, padding: '0 22px', maxWidth: '60%' } as any}>
-        <div style={{ fontSize: 20, fontWeight: 900, color: '#FFF', marginBottom: 6, letterSpacing: -0.3, lineHeight: 1.15 }}>Nora IA</div>
-        <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.5)', lineHeight: 1.5 }}>{subtitle || t('nora_subtitle')}</div>
+        style={{ position: 'absolute', right: 10, top: '50%', transform: 'translateY(-50%)', height: 120, width: 120, objectFit: 'contain', borderRadius: 16, zIndex: 0 } as any} />
+      <div style={{ position: 'absolute', right: 80, top: 0, height: '100%', width: 70, background: 'linear-gradient(90deg, #000 0%, transparent 100%)', zIndex: 1 } as any} />
+      {/* Text — left side, vertically centered */}
+      <div style={{ position: 'relative', zIndex: 2, padding: '0 24px', maxWidth: '55%', display: 'flex', flexDirection: 'column', justifyContent: 'center' } as any}>
+        <div style={{ fontSize: 22, fontWeight: 900, color: '#FFF', marginBottom: 8, letterSpacing: -0.3, lineHeight: 1.15 }}>Nora IA</div>
+        <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.5)', lineHeight: 1.5 }}>{subtitle || t('nora_subtitle')}</div>
       </div>
-      <i className="ri-arrow-right-s-line" style={{ position: 'absolute', right: 14, top: '50%', transform: 'translateY(-50%)', fontSize: 20, color: 'rgba(255,255,255,0.3)', zIndex: 3 }} />
     </div>
   );
 }
