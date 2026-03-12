@@ -5,6 +5,7 @@ import { useAuth } from '../src/context/AuthContext';
 import { apiFetch } from '../src/services/api';
 import FullScreenLoader from '../src/components/FullScreenLoader';
 import NativePageView from '../src/components/NativePageView';
+import NoraCard from '../src/components/shared/NoraCard';
 
 const BG = 'https://customer-assets.emergentagent.com/job_443c9c6e-0feb-4920-a358-fe7cc1a6289b/artifacts/mhh7xwy3_ChatGPT%20Image%2017%20f%C3%A9vr.%202026%2C%2014_08_43.png';
 const G: any = { borderRadius: 20, background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' };
@@ -474,26 +475,7 @@ export default function MetricDetailScreen() {
         )}
 
         {/* ─── Nora analysis ─── */}
-        <div data-testid="nora-analysis" style={{ ...G, padding: '18px', marginBottom: 14 } as any}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 14 } as any}>
-            <div style={{ width: 32, height: 32, borderRadius: 10, background: 'rgba(167,139,250,0.2)', border: '1px solid rgba(167,139,250,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}>
-              <span style={{ fontSize: 12, fontWeight: 900, color: '#A78BFA' }}>N</span>
-            </div>
-            <div>
-              <div style={{ fontSize: 15, fontWeight: 900, color: '#FFF' }}>Nora</div>
-              <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.4)' }}>Analyse {m.title?.toLowerCase()}</div>
-            </div>
-          </div>
-          <div style={{ fontSize: 14, color: 'rgba(255,255,255,0.7)', lineHeight: 1.7 }}>
-            {noraText(key || '', m, currentVal, avg, isNormal, stats)}
-          </div>
-          {!isGauge && stats.trend != null && (
-            <div style={{ padding: '10px 14px', borderRadius: 12, background: stats.trend <= 0 ? 'rgba(16,185,129,0.08)' : 'rgba(245,158,11,0.08)', border: `1px solid ${stats.trend <= 0 ? 'rgba(16,185,129,0.15)' : 'rgba(245,158,11,0.15)'}`, marginTop: 12 } as any}>
-              <div style={{ fontSize: 12, fontWeight: 700, color: stats.trend <= 0 ? '#10B981' : '#F59E0B' }}>Tendance : {stats.trend > 0 ? '+' : ''}{stats.trend} sur la periode</div>
-              <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.45)', marginTop: 4 }}>{stats.trend <= 0 ? 'Evolution stable ou en amelioration.' : 'Legere augmentation, a suivre.'}</div>
-            </div>
-          )}
-        </div>
+        <NoraCard title={`Analyse ${m.title?.toLowerCase()}`} text={noraText(key || '', m, currentVal, avg, isNormal, stats)} />
 
         {/* ─── What is this metric? (Expandable) ─── */}
         <div data-testid="explain-section" onClick={() => setShowExplain(!showExplain)} style={{ ...G, padding: '16px 18px', marginBottom: 14, cursor: 'pointer' } as any}>
@@ -619,8 +601,7 @@ export default function MetricDetailScreen() {
           </div>
           <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', marginBottom: 12, lineHeight: 1.5 }}>Vos gardiens seront alertes si cette donnee depasse les seuils definis.</div>
           {nMin != null && !thEdit && !(threshold?.min_val != null) && (
-            <div style={{ display: 'flex', alignItems: 'flex-start', gap: 8, padding: '10px 12px', borderRadius: 12, background: 'rgba(167,139,250,0.08)', border: '1px solid rgba(167,139,250,0.12)', marginBottom: 12 } as any}>
-              <div style={{ width: 20, height: 20, borderRadius: 6, background: 'rgba(167,139,250,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, marginTop: 1 } as any}><span style={{ fontSize: 8, fontWeight: 900, color: '#A78BFA' }}>N</span></div>
+            <div style={{ display: 'flex', alignItems: 'flex-start', gap: 8, padding: '10px 12px', borderRadius: 12, background: '#000', marginBottom: 12 } as any}>
               <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.6)', lineHeight: 1.6 }}>
                 {(() => {
                   const suggestions: Record<string, string> = {

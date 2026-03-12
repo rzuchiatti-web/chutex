@@ -8,6 +8,7 @@ import HeroScore from '../../src/components/health/HeroScore';
 import DailyObjectives from '../../src/components/health/DailyObjectives';
 import WeighingFlow from '../../src/components/dashboard/WeighingFlow';
 import ActivityCard from '../../src/components/dashboard/ActivityCard';
+import NoraCard from '../../src/components/shared/NoraCard';
 import SleepCard from '../../src/components/health/SleepCard';
 import HealthSections from '../../src/components/health/HealthSections';
 
@@ -168,17 +169,8 @@ export default function HealthScreen() {
 
             {/* Nora recommendations */}
             {noDataRecs.length > 0 && (
-              <div style={{ padding: '16px 18px', borderRadius: 20, background: 'rgba(167,139,250,0.06)', border: '1px solid rgba(167,139,250,0.15)', marginBottom: 20, width: '100%', maxWidth: 340, backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', textAlign: 'left' } as any}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 } as any}>
-                  <div style={{ width: 24, height: 24, borderRadius: 8, background: 'rgba(167,139,250,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}><span style={{ fontSize: 10, fontWeight: 900, color: '#A78BFA' }}>N</span></div>
-                  <span style={{ fontSize: 11, fontWeight: 700, color: '#A78BFA' }}>Recommandations de Nora</span>
-                </div>
-                {noDataRecs.map((rec: string, i: number) => (
-                  <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: 10, padding: '8px 0', borderTop: i > 0 ? '1px solid rgba(255,255,255,0.06)' : 'none' } as any}>
-                    <i className="ri-arrow-right-circle-line" style={{ fontSize: 14, color: '#A78BFA', marginTop: 2, flexShrink: 0 }} />
-                    <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.6)', lineHeight: 1.5 }}>{rec}</span>
-                  </div>
-                ))}
+              <div style={{ width: '100%', maxWidth: 340, textAlign: 'left', marginBottom: 20 } as any}>
+                <NoraCard title="Recommandations de Nora" text={noDataRecs.join(' · ')} />
               </div>
             )}
 
