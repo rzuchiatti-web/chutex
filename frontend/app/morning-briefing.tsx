@@ -5,17 +5,18 @@ import { apiFetch } from '../src/services/api';
 import NativePageView from '../src/components/NativePageView';
 import Loader from '../src/components/Loader';
 
+const NORA_VIDEO = 'https://customer-assets.emergentagent.com/job_ba3a5789-c8f1-4b12-b5d8-478a7f99aaea/artifacts/b6eh1r76_Nora_video.mp4';
+
 export default function MorningBriefingScreen() {
   const { user, token } = useAuth();
-  const [text, setText] = useState('');
+  const [displayText, setDisplayText] = useState('');
+  const [fullMessage, setFullMessage] = useState('');
   const [visibleObjs, setVisibleObjs] = useState(0);
   const [done, setDone] = useState(false);
   const [objectives, setObjectives] = useState<any[]>([]);
-  const [audioPlaying, setAudioPlaying] = useState(false);
-  const [audioLoading, setAudioLoading] = useState(false);
+  const [videoUp, setVideoUp] = useState(false);
   const started = useRef(false);
   const scrollRef = useRef<HTMLDivElement>(null);
-  const audioRef = useRef<HTMLAudioElement | null>(null);
 
   const NORA_CONTENT: Record<string, { greeting: string; features: { icon: string; color: string; label: string; value: string; detail: string }[] }> = {
     beneficiary: {
@@ -47,6 +48,7 @@ export default function MorningBriefingScreen() {
     },
   };
 
+  // Fetch data
   useEffect(() => {
     if (started.current || !user) return;
     started.current = true;
@@ -57,55 +59,52 @@ export default function MorningBriefingScreen() {
       apiFetch('/api/health/daily-report', {}, token).catch(() => null),
       apiFetch('/api/nora/morning-briefing', {}, token).catch(() => null),
     ]).then(([report, briefing]) => {
-      // Check if Nora intro was already seen (stored in localStorage)
       const introSeen = typeof localStorage !== 'undefined' && localStorage.getItem('nora_intro_seen');
       const hasAnyData = report && !report.no_data;
 
+      let msg = '';
+      let objs: any[] = [];
+
       if (!introSeen && !hasAnyData) {
-        // FIRST TIME: Nora welcome
         const nora = NORA_CONTENT[role] || NORA_CONTENT.beneficiary;
-        setText(`Bonjour ${name},\n\n${nora.greeting}`);
-        setObjectives(nora.features);
+        msg = `Bonjour ${name},\n\n${nora.greeting}`;
+        objs = nora.features;
         if (typeof localStorage !== 'undefined') localStorage.setItem('nora_intro_seen', 'true');
       } else {
-        // DAILY BRIEFING: Real health data + objectives
         if (typeof localStorage !== 'undefined') localStorage.setItem('nora_intro_seen', 'true');
-        const msg = briefing?.nora_message || `Bonjour ${name}, bienvenue dans votre journee.`;
-        setText(msg);
-        setObjectives(briefing?.objectives || report?.daily_plan || []);
+        msg = briefing?.nora_message || `Bonjour ${name}, bienvenue dans votre journee.`;
+        objs = briefing?.objectives || report?.daily_plan || [];
       }
 
-      // Start typewriter
-      setDone(false);
-      const fullText = typeof text === 'string' ? text : '';
-    }).then(() => {}).catch(() => {});
-
-    // Typewriter effect runs after text is set
+      setFullMessage(msg);
+      setObjectives(objs);
+    }).catch(() => {});
   }, [user]);
 
-  // Typewriter effect
+  // Typewriter effect - triggered when fullMessage is set
   useEffect(() => {
-    if (!text || done) return;
+    if (!fullMessage) return;
+    setVideoUp(true); // Move video up when text starts
     let idx = 0;
-    const fullText = text;
-    setText('');
+    setDisplayText('');
     const iv = setInterval(() => {
-      if (idx <= fullText.length) { setText(fullText.slice(0, idx)); idx++; }
+      if (idx <= fullMessage.length) { setDisplayText(fullMessage.slice(0, idx)); idx++; }
       else {
         clearInterval(iv);
-        const objCount = objectives.length;
         objectives.forEach((_, i) => {
           setTimeout(() => { setVisibleObjs(i + 1); if (scrollRef.current) scrollRef.current.scrollTop = scrollRef.current.scrollHeight; }, 500 + i * 700);
         });
-        setTimeout(() => setDone(true), 500 + objCount * 700 + 400);
+        setTimeout(() => setDone(true), 500 + objectives.length * 700 + 400);
       }
     }, 22);
     return () => clearInterval(iv);
-  }, [objectives]);
+  }, [fullMessage]);
 
-  const smoothScroll = () => {
-    setTimeout(() => scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: 'smooth' }), 50);
-  };
+  // Safety timeout
+  useEffect(() => {
+    const timeout = setTimeout(() => { if (!done) setDone(true); }, 30000);
+    return () => clearTimeout(timeout);
+  }, [done]);
 
   const goToDashboard = () => {
     if (typeof window !== 'undefined') {
@@ -115,50 +114,26 @@ export default function MorningBriefingScreen() {
     }
   };
 
-  // Safety timeout: auto-show slide after 30s even if typewriter hasn't finished
-  useEffect(() => {
-    const timeout = setTimeout(() => { if (!done) setDone(true); }, 30000);
-    return () => clearTimeout(timeout);
-  }, [done]);
-
-  const playBriefingAudio = async () => {
-    if (audioPlaying && audioRef.current) { audioRef.current.pause(); audioRef.current = null; setAudioPlaying(false); return; }
-    setAudioLoading(true);
-    try {
-      const backendUrl = process.env.EXPO_PUBLIC_BACKEND_URL || '';
-      const res = await fetch(`${backendUrl}/api/nora/speak-briefing`, { method: 'POST', headers: { 'Authorization': `Bearer ${token}` } });
-      if (!res.ok) throw new Error('TTS error');
-      const blob = await res.blob();
-      const url = URL.createObjectURL(blob);
-      const audio = new Audio(url);
-      audioRef.current = audio;
-      audio.onended = () => { setAudioPlaying(false); audioRef.current = null; };
-      audio.play();
-      setAudioPlaying(true);
-    } catch { } finally { setAudioLoading(false); }
-  };
-
   if (Platform.OS !== 'web') return <NativePageView path="/morning-briefing" />;
-
-  const NORA_VIDEO = 'https://customer-assets.emergentagent.com/job_ba3a5789-c8f1-4b12-b5d8-478a7f99aaea/artifacts/b6eh1r76_Nora_video.mp4';
 
   return (
     <div data-testid="morning-briefing" style={{ position: 'fixed', inset: 0, zIndex: 99999, display: 'flex', flexDirection: 'column', fontFamily: "'Inter', system-ui, sans-serif", background: '#000' } as any}>
-      <video autoPlay loop muted playsInline style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%,-50%)', width: 200, height: 200, objectFit: 'contain', opacity: 0.15, zIndex: 0 } as any} src={NORA_VIDEO} />
+      {/* Nora video - starts centered, moves up when text arrives */}
+      <video autoPlay loop muted playsInline style={{
+        position: 'absolute', left: '50%', transform: `translate(-50%, -50%)`,
+        top: videoUp ? '18%' : '45%',
+        width: 120, height: 120, objectFit: 'contain', opacity: 0.6, zIndex: 0,
+        transition: 'top 1.2s cubic-bezier(0.22, 0.61, 0.36, 1), opacity 0.8s',
+        borderRadius: 60,
+      } as any} src={NORA_VIDEO} />
 
       <div ref={scrollRef as any} style={{ flex: 1, position: 'relative', zIndex: 5, overflowY: 'auto', padding: '0 24px', WebkitOverflowScrolling: 'touch', scrollBehavior: 'smooth' } as any}>
-        <div style={{ height: '35vh', flexShrink: 0 } as any} />
+        <div style={{ height: videoUp ? '28vh' : '50vh', flexShrink: 0, transition: 'height 1s ease' } as any} />
 
         <div style={{ textAlign: 'center', marginBottom: 28 } as any}>
           <div style={{ fontSize: 15, fontWeight: 600, color: '#FFF', lineHeight: 1.55, whiteSpace: 'pre-wrap', maxWidth: 300, margin: '0 auto' }}>
-            {text}<span style={{ opacity: done ? 0 : 1, transition: 'opacity 0.3s', color: 'rgba(255,255,255,0.3)' }}>|</span>
+            {displayText}<span style={{ opacity: done ? 0 : 1, transition: 'opacity 0.3s', color: 'rgba(255,255,255,0.3)' }}>|</span>
           </div>
-          {done && (
-            <div data-testid="tts-button" onClick={playBriefingAudio} style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '10px 20px', borderRadius: 999, background: audioPlaying ? 'rgba(167,139,250,0.2)' : 'rgba(255,255,255,0.08)', border: `1px solid ${audioPlaying ? 'rgba(167,139,250,0.4)' : 'rgba(255,255,255,0.12)'}`, cursor: 'pointer', marginTop: 14, transition: 'all 0.2s' } as any}>
-              <i className={audioLoading ? 'ri-loader-4-line' : audioPlaying ? 'ri-pause-line' : 'ri-volume-up-line'} style={{ fontSize: 16, color: audioPlaying ? '#A78BFA' : 'rgba(255,255,255,0.5)' }} />
-              <span style={{ fontSize: 12, fontWeight: 600, color: audioPlaying ? '#A78BFA' : 'rgba(255,255,255,0.5)' }}>{audioLoading ? 'Chargement...' : audioPlaying ? 'Pause' : 'Ecouter Nora'}</span>
-            </div>
-          )}
         </div>
 
         {visibleObjs >= 1 && (
@@ -166,7 +141,7 @@ export default function MorningBriefingScreen() {
         )}
 
         {objectives.slice(0, visibleObjs).map((o, i) => (
-          <div key={i} style={{ padding: '14px 16px', borderRadius: 16, marginBottom: 8, background: 'rgba(255,255,255,0.06)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', border: '1px solid rgba(255,255,255,0.08)', animation: 'slideUp 0.45s cubic-bezier(.22,.61,.36,1) forwards' } as any}>
+          <div key={i} style={{ padding: '14px 16px', borderRadius: 16, marginBottom: 8, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)', animation: 'slideUp 0.45s cubic-bezier(.22,.61,.36,1) forwards' } as any}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 4 } as any}>
               <div style={{ width: 32, height: 32, borderRadius: 10, background: `${o.color}15`, border: `1px solid ${o.color}25`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}>
                 <i className={o.icon} style={{ fontSize: 16, color: o.color }} />
@@ -182,10 +157,10 @@ export default function MorningBriefingScreen() {
         <div style={{ height: 20 } as any} />
       </div>
 
-      {/* Slide to unlock */}
+      {/* Bottom actions */}
       <div style={{ position: 'relative', zIndex: 10, padding: '8px 24px 28px', flexShrink: 0 } as any}>
         {done ? (
-          <div data-testid="briefing-slide" style={{ position: 'relative', height: 56, borderRadius: 999, overflow: 'hidden', background: 'rgba(255,255,255,0.1)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', border: '1px solid rgba(255,255,255,0.15)', animation: 'fadeIn 0.5s ease' } as any}>
+          <div data-testid="briefing-slide" style={{ position: 'relative', height: 56, borderRadius: 999, overflow: 'hidden', background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.15)', animation: 'fadeIn 0.5s ease' } as any}>
             <div id="slide-fill" style={{ position: 'absolute', top: 0, left: 0, bottom: 0, width: '56px', background: 'rgba(255,255,255,0.06)', borderRadius: 999 } as any} />
             <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', pointerEvents: 'none' } as any}>
               <span style={{ fontSize: 14, fontWeight: 600, color: 'rgba(255,255,255,0.4)', userSelect: 'none' }}>Glisser pour continuer</span>
@@ -199,12 +174,7 @@ export default function MorningBriefingScreen() {
                 const rect = track.getBoundingClientRect();
                 const max = rect.width - 56;
                 const sx = e.clientX;
-                const move = (ev: any) => {
-                  const dx = Math.max(0, Math.min(max, ev.clientX - sx));
-                  thumb.style.transform = `translateX(${dx}px)`;
-                  if (fill) fill.style.width = `${56 + dx}px`;
-                  if (dx >= max * 0.8) { end(); thumb.style.transform = `translateX(${max}px)`; if (fill) fill.style.width = '100%'; setTimeout(goToDashboard, 200); }
-                };
+                const move = (ev: any) => { const dx = Math.max(0, Math.min(max, ev.clientX - sx)); thumb.style.transform = `translateX(${dx}px)`; if (fill) fill.style.width = `${56 + dx}px`; if (dx >= max * 0.8) { end(); thumb.style.transform = `translateX(${max}px)`; if (fill) fill.style.width = '100%'; setTimeout(goToDashboard, 200); } };
                 const end = () => { document.removeEventListener('mousemove', move); document.removeEventListener('mouseup', up); };
                 const up = () => { end(); thumb.style.transition = 'transform 0.3s'; thumb.style.transform = 'translateX(0)'; if (fill) { fill.style.transition = 'width 0.3s'; fill.style.width = '56px'; } setTimeout(() => { thumb.style.transition = ''; if (fill) fill.style.transition = ''; }, 300); };
                 document.addEventListener('mousemove', move);
@@ -217,12 +187,7 @@ export default function MorningBriefingScreen() {
                 const rect = track.getBoundingClientRect();
                 const max = rect.width - 56;
                 const sx = e.touches[0].clientX;
-                const move = (ev: any) => {
-                  const dx = Math.max(0, Math.min(max, ev.touches[0].clientX - sx));
-                  thumb.style.transform = `translateX(${dx}px)`;
-                  if (fill) fill.style.width = `${56 + dx}px`;
-                  if (dx >= max * 0.8) { end(); thumb.style.transform = `translateX(${max}px)`; if (fill) fill.style.width = '100%'; setTimeout(goToDashboard, 200); }
-                };
+                const move = (ev: any) => { const dx = Math.max(0, Math.min(max, ev.touches[0].clientX - sx)); thumb.style.transform = `translateX(${dx}px)`; if (fill) fill.style.width = `${56 + dx}px`; if (dx >= max * 0.8) { end(); thumb.style.transform = `translateX(${max}px)`; if (fill) fill.style.width = '100%'; setTimeout(goToDashboard, 200); } };
                 const end = () => { document.removeEventListener('touchmove', move); document.removeEventListener('touchend', up); };
                 const up = () => { end(); thumb.style.transition = 'transform 0.3s'; thumb.style.transform = 'translateX(0)'; if (fill) { fill.style.transition = 'width 0.3s'; fill.style.width = '56px'; } setTimeout(() => { thumb.style.transition = ''; if (fill) fill.style.transition = ''; }, 300); };
                 document.addEventListener('touchmove', move, { passive: true });
@@ -234,7 +199,7 @@ export default function MorningBriefingScreen() {
           </div>
         ) : (
           <div style={{ padding: '14px', textAlign: 'center' } as any}>
-            <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.12)', marginBottom: 8 }}>Analyse en cours...</div>
+            <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.15)', marginBottom: 8 }}>Analyse en cours...</div>
             <div data-testid="skip-briefing" onClick={goToDashboard} style={{ fontSize: 12, fontWeight: 600, color: 'rgba(255,255,255,0.3)', cursor: 'pointer', padding: 6 } as any}>Passer</div>
           </div>
         )}

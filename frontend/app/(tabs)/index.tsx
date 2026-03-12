@@ -103,7 +103,7 @@ function NoraPill() {
 
 function TypewriterTitle({ text }: { text: string; delay?: number }) {
   return (
-    <div className="dash-slide-up" style={{ fontSize: 20, fontWeight: 900, color: '#111', letterSpacing: -0.5, marginBottom: 16, textAlign: 'center' } as any}>
+    <div className="dash-slide-up" style={{ fontSize: 20, fontWeight: 900, color: '#111', letterSpacing: -0.5, marginBottom: 20, textAlign: 'center' } as any}>
       {text}
     </div>
   );
@@ -128,7 +128,7 @@ function DailyObjectivesOnDashboard({ token }: { token: string }) {
 
   const items = plan.filter((p: any) => p.key !== 'connect');
   return (
-    <div data-testid="dashboard-objectives" style={{ marginBottom: 16 } as any}>
+    <div data-testid="dashboard-objectives" style={{ marginBottom: 20 } as any}>
       <NoraPill />
       <TypewriterTitle text="Voici vos objectifs journaliers." />
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 } as any}>
@@ -445,7 +445,7 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
 
   /* Card helper — Gray card */
   const GC = ({ children, style, onClick, testId }: any) => (
-    <div data-testid={testId} onClick={onClick} className="dash-slide-up" style={{ padding: '20px', borderRadius: 20, background: '#EDEDF0', marginBottom: 16, cursor: onClick ? 'pointer' : 'default', transition: 'transform 0.18s', ...style } as any}
+    <div data-testid={testId} onClick={onClick} className="dash-slide-up" style={{ padding: '20px', borderRadius: 20, background: '#EDEDF0', marginBottom: 20, cursor: onClick ? 'pointer' : 'default', transition: 'transform 0.18s', ...style } as any}
       onMouseEnter={(e: any) => { if (onClick) e.currentTarget.style.transform = 'translateY(-2px)'; }}
       onMouseLeave={(e: any) => { e.currentTarget.style.transform = ''; }}>
       {children}
@@ -460,8 +460,8 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
 
         <div style={{ flex: 1, overflowY: 'auto', position: 'relative', zIndex: 5, padding: '0 0 100px', WebkitOverflowScrolling: 'touch' } as any}>
 
-          {/* ══════ HEADER — Full width gray ══════ */}
-          <div data-testid="dashboard-header" className="dash-slide-up" style={{ padding: '16px 20px', background: '#EDEDF0' } as any}>
+          {/* ══════ HEADER — Full width gray rounded ══════ */}
+          <div data-testid="dashboard-header" className="dash-slide-up" style={{ padding: '16px 20px', margin: '8px 16px 0', borderRadius: 22, background: '#EDEDF0' } as any}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' } as any}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 12 } as any}>
                 <div onClick={() => router.push('/(tabs)/profile' as any)} style={{ width: 44, height: 44, borderRadius: 22, background: '#D8D8DC', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, cursor: 'pointer', overflow: 'hidden' } as any}>
@@ -480,6 +480,9 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
                   <i className="ri-notification-4-line" style={{ fontSize: 18, color: 'rgba(0,0,0,0.5)' }} />
                   {(guardianRequests.length > 0 || activeAlerts.length > 0 || predictiveAlerts.length > 0) && <div style={{ position: 'absolute', top: -1, right: -1, width: 9, height: 9, borderRadius: 5, background: '#EF4444', border: '2px solid #EDEDF0' } as any} />}
                 </div>
+                <div data-testid="dark-mode-toggle" onClick={() => { const isDark = localStorage.getItem('chutex_dark') === '1'; localStorage.setItem('chutex_dark', isDark ? '0' : '1'); window.location.reload(); }} style={{ width: 36, height: 36, borderRadius: 18, background: '#FFF', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}>
+                  <i className="ri-moon-line" style={{ fontSize: 16, color: 'rgba(0,0,0,0.5)' }} />
+                </div>
               </div>
             </div>
           </div>
@@ -491,7 +494,7 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
           <LanguagePopup show={langOpen} onClose={() => setLangOpen(false)} lang={lang} setLang={setLang} />
           {/* ── SOS Button ── */}
           <div data-testid="sos-button" className="dash-slide-up" onClick={handleSOS} style={{
-            padding: '16px 20px', borderRadius: 18, cursor: 'pointer', marginBottom: 16,
+            padding: '16px 20px', borderRadius: 18, cursor: 'pointer', marginBottom: 20,
             background: '#EDEDF0',
             display: 'flex', alignItems: 'center', gap: 14,
             transition: 'transform 0.18s, box-shadow 0.18s',
@@ -562,7 +565,7 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
           {/* ── 4. PROGRAMME EN COURS ── */}
           <TypewriterTitle text="Programme en cours." />
           {activeProgram?.active ? (
-            <div data-testid="active-program-card" className="dash-slide-up cl-press" onClick={() => router.push('/(tabs)/chat' as any)} style={{ borderRadius: 18, background: '#EDEDF0', padding: '16px', marginBottom: 16, cursor: 'pointer', transition: 'transform 0.18s' } as any}
+            <div data-testid="active-program-card" className="dash-slide-up cl-press" onClick={() => router.push('/(tabs)/chat' as any)} style={{ borderRadius: 18, background: '#EDEDF0', padding: '16px', marginBottom: 20, cursor: 'pointer', transition: 'transform 0.18s' } as any}
               onMouseEnter={(e: any) => { e.currentTarget.style.transform = 'translateY(-2px)'; }}
               onMouseLeave={(e: any) => { e.currentTarget.style.transform = ''; }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 12 } as any}>
@@ -621,7 +624,7 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
 
 
           {/* ── Rappels — directly on background ── */}
-          <div data-testid="reminders-section" className="dash-slide-up" style={{ marginBottom: 16 } as any}>
+          <div data-testid="reminders-section" className="dash-slide-up" style={{ marginBottom: 20 } as any}>
             <TypewriterTitle text="Mes rappels." />
             {[
               { type: 'hydration', label: 'Hydratation', img: REMINDER_IMAGES.hydration, color: '#38BDF8' },
@@ -650,11 +653,11 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
 
           {/* ── Rappels — directly on background ── */}
           <GC testId="guardians-section">
-            <div style={{ fontSize: 20, fontWeight: 900, color: '#111', textAlign: 'center', marginBottom: 16 }}>Mes gardiens</div>
-            <div style={{ textAlign: 'center', marginBottom: 16 } as any}>
+            <div style={{ fontSize: 20, fontWeight: 900, color: '#111', textAlign: 'center', marginBottom: 20 }}>Mes gardiens</div>
+            <div style={{ textAlign: 'center', marginBottom: 20 } as any}>
               <img src={IMG_GUARDIANS} alt="" style={{ width: 180, height: 80, objectFit: 'contain', margin: '0 auto' } as any} />
             </div>
-            <div style={{ height: 1, background: 'rgba(0,0,0,0.08)', marginBottom: 16 } as any} />
+            <div style={{ height: 1, background: 'rgba(0,0,0,0.08)', marginBottom: 20 } as any} />
             {guardians.map((g: any, i: number) => (
               <div key={g.id || i} onClick={() => router.push({ pathname: '/guardian-detail', params: { guardianId: g.id } })} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 0', borderTop: i > 0 ? '1px solid rgba(0,0,0,0.06)' : 'none', cursor: 'pointer' } as any}>
                 <div style={{ width: 44, height: 44, borderRadius: 12, background: '#FFF', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', flexShrink: 0 } as any}>
@@ -815,7 +818,7 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
 
       {/* ─── QUICK ACTIONS ─── */}
       <SectionHeader title="Actions rapides" />
-      <View style={{ flexDirection: 'row', gap: 8, marginBottom: 16 }}>
+      <View style={{ flexDirection: 'row', gap: 8, marginBottom: 20 }}>
         <QuickAction icon="pulse-outline" label="ECG" onPress={() => router.push('/ecg')} color="rgba(0,0,0,0.10)" />
         <QuickAction icon="locate-outline" label="Zones" onPress={() => router.push('/geofencing')} color="rgba(16,185,129,0.10)" />
         <QuickAction icon="qr-code-outline" label="QR Code" onPress={() => router.push('/link-code')} color="rgba(124,92,255,0.10)" />
@@ -886,7 +889,7 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
       ))}
 
       {/* ─── SOS BUTTON ─── */}
-      <Animated.View style={{ transform: [{ scale: sosPulse }], marginBottom: 16 }}>
+      <Animated.View style={{ transform: [{ scale: sosPulse }], marginBottom: 20 }}>
         <TouchableOpacity testID="sos-button" activeOpacity={0.85} style={{
           backgroundColor: '#EF4444', borderRadius: 24, paddingVertical: 22, alignItems: 'center',
           ...(Platform.OS === 'web' ? { boxShadow: '0 4px 24px rgba(239,68,68,0.3)' } : { shadowColor: '#EF4444', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.3, shadowRadius: 16, elevation: 8 }),
@@ -903,7 +906,7 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
 
       {/* ─── HEALTH CATEGORIES ─── */}
       <SectionHeader title={t('heart_health')} />
-      <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 10, marginBottom: 16 }}>
+      <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 10, marginBottom: 20 }}>
         {[
           { key: 'heart', title: t('heart_health'), img: HEALTH_IMAGES.heart, route: '/health-detail', params: { metricId: 'heart_rate' }, bg: 'rgba(239,68,68,0.06)' },
           { key: 'blood', title: t('blood_health'), img: HEALTH_IMAGES.blood, route: '/health-detail', params: { metricId: 'spo2' }, bg: 'rgba(0,0,0,0.06)' },
@@ -923,7 +926,7 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
       </View>
 
       {/* ─── QUICK VITALS ─── */}
-      <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 10, marginBottom: 16 }}>
+      <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 10, marginBottom: 20 }}>
         {[
           { id: 'spo2', label: t('spo2'), val: vitals?.spo2 || '--', unit: '%', icon: 'water-outline', color: CHX.fg },
           { id: 'heart_rate', label: t('pulse'), val: vitals?.heart_rate || '--', unit: t('bpm'), icon: 'heart-outline', color: '#EF4444' },
@@ -956,7 +959,7 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
           <Image source={{ uri: 'https://customer-assets.emergentagent.com/job_1026023a-fd73-4c44-a002-9618d437c4c8/artifacts/mdk4g3eq_Muscle.png' }} style={{ width: 50, height: 50, resizeMode: 'contain' }} />
         </View>
         <Text style={{ fontSize: 16, fontWeight: '800', color: CHX.fg, textAlign: 'center', marginBottom: 14 }}>{t('physical_activity')}</Text>
-        <View style={{ flexDirection: 'row', justifyContent: 'space-around', marginBottom: 16 }}>
+        <View style={{ flexDirection: 'row', justifyContent: 'space-around', marginBottom: 20 }}>
           {[
             { val: vitals?.steps || '0', label: t('steps') },
             { val: '0', label: t('kcal') },
@@ -1043,7 +1046,7 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
               <div style={{ fontSize: 20, fontWeight: 800, color: '#FFF', marginBottom: 6 }}>{showConnectDevice === 'scale' ? 'Balance non connectee' : 'Bracelet non connecte'}</div>
               <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)', lineHeight: 1.6 }}>Pour acceder a vos donnees de sante, vous devez d'abord associer votre {showConnectDevice === 'scale' ? 'balance connectee' : 'bracelet Elio'} via Bluetooth.</div>
             </div>
-            <div style={{ padding: '14px 16px', borderRadius: 16, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', marginBottom: 16 } as any}>
+            <div style={{ padding: '14px 16px', borderRadius: 16, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', marginBottom: 20 } as any}>
               {[
                 { icon: 'ri-bluetooth-line', text: 'Activez le Bluetooth sur votre telephone' },
                 { icon: showConnectDevice === 'scale' ? 'ri-scales-3-line' : 'ri-watch-line', text: `Allumez votre ${showConnectDevice === 'scale' ? 'balance' : 'bracelet'}` },
