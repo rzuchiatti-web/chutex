@@ -103,9 +103,8 @@ function NoraPill() {
 
 function TypewriterTitle({ text }: { text: string; delay?: number }) {
   return (
-    <div className="dash-slide-up" style={{ fontSize: 18, fontWeight: 900, color: '#111', letterSpacing: -0.5, marginBottom: 14, textAlign: 'center' } as any}>
-      <span>{text}</span>
-      <span style={{ display: 'inline-block', width: 2, height: 18, background: '#111', marginLeft: 2, verticalAlign: 'middle', animation: 'twBlink 1s step-end infinite' } as any} />
+    <div className="dash-slide-up" style={{ fontSize: 20, fontWeight: 900, color: '#111', letterSpacing: -0.5, marginBottom: 16, textAlign: 'center' } as any}>
+      {text}
     </div>
   );
 }
@@ -523,12 +522,12 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
           {/* ── SUBSCRIPTION BANNER (si pas d'abo bracelet) ── */}
           {/* Health data shown even without subscription — values show -- when no data */}
 
-          <div style={{ height: 1, background: 'rgba(0,0,0,0.08)', margin: '8px 0 12px' } as any} />
+          <div style={{ height: 1, background: 'rgba(0,0,0,0.08)', margin: '14px 0 18px' } as any} />
 
           {/* ── 2. OBJECTIFS JOURNALIERS (remplace VitalsRow + ActivityCard) ── */}
           <DailyObjectivesOnDashboard token={token} />
 
-          <div style={{ height: 1, background: 'rgba(0,0,0,0.08)', margin: '8px 0 12px' } as any} />
+          <div style={{ height: 1, background: 'rgba(0,0,0,0.08)', margin: '14px 0 18px' } as any} />
 
           {/* ── TEAM INVITATIONS ── */}
           {teamInvitations.length > 0 && teamInvitations.map((inv: any) => (
@@ -567,23 +566,23 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
               onMouseEnter={(e: any) => { e.currentTarget.style.transform = 'translateY(-2px)'; }}
               onMouseLeave={(e: any) => { e.currentTarget.style.transform = ''; }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 12 } as any}>
-                <div style={{ width: 44, height: 44, borderRadius: 14, background: `${activeProgram.program.color}10`, display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}>
-                  <i className={activeProgram.program.icon} style={{ fontSize: 22, color: activeProgram.program.color }} />
+                <div style={{ width: 52, height: 52, borderRadius: 14, background: '#FFF', display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}>
+                  <i className={activeProgram.program.icon} style={{ fontSize: 26, color: activeProgram.program.color }} />
                 </div>
                 <div style={{ flex: 1 } as any}>
-                  <div style={{ fontSize: 14, fontWeight: 800, color: '#111' }}>{activeProgram.program.title}</div>
-                  <div style={{ fontSize: 11, color: activeProgram.program.color, fontWeight: 600 }}>{activeProgram.current_phase?.name || 'Phase en cours'} · Jour {activeProgram.current_day}/{activeProgram.program.duration_days}</div>
+                  <div style={{ fontSize: 15, fontWeight: 900, color: '#111' }}>{activeProgram.program.title}</div>
+                  <div style={{ fontSize: 12, color: activeProgram.program.color, fontWeight: 700 }}>{activeProgram.current_phase?.name || 'Phase en cours'} · Jour {activeProgram.current_day}/{activeProgram.program.duration_days}</div>
                 </div>
-                <div style={{ fontSize: 20, fontWeight: 900, color: activeProgram.program.color }}>{activeProgram.progress_pct}%</div>
+                <div style={{ fontSize: 28, fontWeight: 900, color: '#111' }}>{activeProgram.progress_pct}%</div>
               </div>
-              <div style={{ height: 6, borderRadius: 3, background: '#F0F0F5', overflow: 'hidden', marginBottom: 12 } as any}>
-                <div style={{ height: 6, borderRadius: 3, width: `${activeProgram.progress_pct}%`, background: `linear-gradient(90deg, ${activeProgram.program.color}80, ${activeProgram.program.color})`, transition: 'width 0.5s' } as any} />
+              <div style={{ height: 8, borderRadius: 4, background: '#FFF', overflow: 'hidden', marginBottom: 14 } as any}>
+                <div style={{ height: 8, borderRadius: 4, width: `${activeProgram.progress_pct}%`, background: activeProgram.program.color, transition: 'width 0.5s' } as any} />
               </div>
               {activeProgram.today_tasks && (
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' } as any}>
                   <div>
-                    <div style={{ fontSize: 12, fontWeight: 700, color: '#111', marginBottom: 2 }}>{activeProgram.today_tasks.focus}</div>
-                    <div style={{ fontSize: 10, color: 'rgba(0,0,0,0.4)' }}>{activeProgram.today_tasks.tasks?.length || 0} taches · {activeProgram.today_checkin ? 'Check-in fait' : 'A valider'}</div>
+                    <div style={{ fontSize: 13, fontWeight: 800, color: '#111', marginBottom: 2 }}>{activeProgram.today_tasks.focus}</div>
+                    <div style={{ fontSize: 11, color: activeProgram.program.color, fontWeight: 700 }}>{activeProgram.today_tasks.tasks?.length || 0} taches · {activeProgram.today_checkin ? 'Check-in fait' : 'A valider aujourd\'hui'}</div>
                   </div>
                   <div style={{ padding: '6px 12px', borderRadius: 999, background: activeProgram.today_checkin ? 'rgba(16,185,129,0.12)' : `${activeProgram.program.color}15`, border: `1px solid ${activeProgram.today_checkin ? 'rgba(16,185,129,0.25)' : activeProgram.program.color + '25'}` } as any}>
                     <span style={{ fontSize: 10, fontWeight: 700, color: activeProgram.today_checkin ? '#10B981' : activeProgram.program.color }}>{activeProgram.today_checkin ? 'Fait' : 'Ouvrir'}</span>
@@ -609,12 +608,12 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
           {/* ── WEIGHT GOAL CARD (si objectif en cours) ── */}
           <WeightGoalDashCard token={token} />
 
-          <div style={{ height: 1, background: 'rgba(0,0,0,0.08)', margin: '8px 0 12px' } as any} />
+          <div style={{ height: 1, background: 'rgba(0,0,0,0.08)', margin: '14px 0 18px' } as any} />
 
           {/* ── 5. NORA IA ── */}
           <CopilotCard />
 
-          <div style={{ height: 1, background: 'rgba(0,0,0,0.08)', margin: '8px 0 12px' } as any} />
+          <div style={{ height: 1, background: 'rgba(0,0,0,0.08)', margin: '14px 0 18px' } as any} />
 
           {/* ── 6. DISPOSITIFS ── */}
           <DeviceCards br={br} sc={sc} vs={vs} weighings={weighings} onStartWeighing={() => setShowWeighing(true)} onRefresh={fetchData} subscription={subscription} />
@@ -623,7 +622,7 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
 
           {/* Les alertes sont affichées en haut du dashboard */}
 
-          <div style={{ height: 1, background: 'rgba(0,0,0,0.08)', margin: '8px 0 12px' } as any} />
+          <div style={{ height: 1, background: 'rgba(0,0,0,0.08)', margin: '14px 0 18px' } as any} />
 
 
           {/* ── Rappels — directly on background ── */}
@@ -656,18 +655,18 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
 
           {/* ── Rappels — directly on background ── */}
           <GC testId="guardians-section">
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 } as any}>
-              <div style={{ fontSize: 18, fontWeight: 900, color: '#111', letterSpacing: -0.5, display: 'flex', alignItems: 'center', gap: 2 }}>
-                <span>Mes gardiens</span>
-                <span style={{ display: 'inline-block', width: 2, height: 18, background: '#111', marginLeft: 2, animation: 'twBlink 1s step-end infinite' } as any} />
-              </div>
-              <img src={IMG_GUARDIANS} alt="" style={{ width: 80, height: 44, objectFit: 'contain', borderRadius: 8 } as any} />
+            <div style={{ fontSize: 20, fontWeight: 900, color: '#111', textAlign: 'center', marginBottom: 16 }}>Mes gardiens</div>
+            <div style={{ textAlign: 'center', marginBottom: 16 } as any}>
+              <img src={IMG_GUARDIANS} alt="" style={{ width: 180, height: 80, objectFit: 'contain', margin: '0 auto' } as any} />
             </div>
+            <div style={{ height: 1, background: 'rgba(0,0,0,0.08)', marginBottom: 16 } as any} />
             {guardians.map((g: any, i: number) => (
-              <div key={g.id || i} onClick={() => router.push({ pathname: '/guardian-detail', params: { guardianId: g.id } })} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 0', borderTop: i > 0 ? '1px solid rgba(0,0,0,0.06)' : 'none', cursor: 'pointer' } as any}>
-                <div style={{ width: 36, height: 36, borderRadius: 10, background: 'rgba(79,195,247,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}><span style={{ fontSize: 14, fontWeight: 800, color: '#4FC3F7' }}>{g.name?.charAt(0)}</span></div>
-                <div style={{ flex: 1 } as any}><div style={{ fontSize: 13, fontWeight: 700, color: '#111' }}>{g.name}</div><div style={{ fontSize: 10, color: 'rgba(0,0,0,0.4)' }}>{g.relationship || t('guardian')}</div></div>
-                <i className="ri-arrow-right-s-line" style={{ fontSize: 16, color: 'rgba(0,0,0,0.2)' }} />
+              <div key={g.id || i} onClick={() => router.push({ pathname: '/guardian-detail', params: { guardianId: g.id } })} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 0', borderTop: i > 0 ? '1px solid rgba(0,0,0,0.06)' : 'none', cursor: 'pointer' } as any}>
+                <div style={{ width: 44, height: 44, borderRadius: 12, background: '#FFF', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', flexShrink: 0 } as any}>
+                  {g.avatar_url ? <img src={g.avatar_url} style={{ width: 44, height: 44, objectFit: 'cover' } as any} /> : <span style={{ fontSize: 18, fontWeight: 800, color: '#C7C7CC' }}>{g.name?.charAt(0)}</span>}
+                </div>
+                <div style={{ flex: 1 } as any}><div style={{ fontSize: 15, fontWeight: 700, color: '#111' }}>{g.name}</div><div style={{ fontSize: 12, color: 'rgba(0,0,0,0.4)' }}>{g.relationship || t('guardian')}</div></div>
+                <i className="ri-arrow-right-s-line" style={{ fontSize: 20, color: 'rgba(0,0,0,0.25)' }} />
               </div>
             ))}
             {guardians.length === 0 && <div style={{ fontSize: 11, color: 'rgba(0,0,0,0.35)', textAlign: 'center', padding: '6px 0' }}>Aucun gardien</div>}

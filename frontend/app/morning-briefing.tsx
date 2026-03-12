@@ -115,6 +115,12 @@ export default function MorningBriefingScreen() {
     }
   };
 
+  // Safety timeout: auto-show slide after 30s even if typewriter hasn't finished
+  useEffect(() => {
+    const timeout = setTimeout(() => { if (!done) setDone(true); }, 30000);
+    return () => clearTimeout(timeout);
+  }, [done]);
+
   const playBriefingAudio = async () => {
     if (audioPlaying && audioRef.current) { audioRef.current.pause(); audioRef.current = null; setAudioPlaying(false); return; }
     setAudioLoading(true);
@@ -227,7 +233,10 @@ export default function MorningBriefingScreen() {
             </div>
           </div>
         ) : (
-          <div style={{ padding: '14px', textAlign: 'center', fontSize: 11, color: 'rgba(255,255,255,0.12)' } as any}>Analyse en cours...</div>
+          <div style={{ padding: '14px', textAlign: 'center' } as any}>
+            <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.12)', marginBottom: 8 }}>Analyse en cours...</div>
+            <div data-testid="skip-briefing" onClick={goToDashboard} style={{ fontSize: 12, fontWeight: 600, color: 'rgba(255,255,255,0.3)', cursor: 'pointer', padding: 6 } as any}>Passer</div>
+          </div>
         )}
       </div>
 
