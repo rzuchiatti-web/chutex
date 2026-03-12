@@ -11,17 +11,21 @@ Health monitoring and care application for elderly beneficiaries ("Chutex Care")
 
 ## What's Been Implemented
 
-### Session - March 12, 2026
-1. **Meal Recipe Step Icons** - Added contextual cooking icons (couper, cuire, melanger, servir, etc.) to meal preparation steps in `meal-detail.tsx` using keyword detection. 12 icon categories mapped to French cooking verbs.
-2. **Page Load Optimization** - Created lightweight `/api/minceur/exercises` endpoint replacing heavy `/api/minceur/weight-details` in `activity-detail.tsx`. Deferred AI analysis loading in `health-detail.tsx` so page content renders immediately.
-3. **Morning Briefing Redirect** - Re-enabled the auto-redirect to `/morning-briefing` on first daily visit in `(tabs)/index.tsx`.
+### Session - March 12, 2026 (Batch 2)
+1. **Morning briefing overlay removed** — Nora video opacity changed from 0.6 to 1.0, no overlay
+2. **Nora onboarding redesigned** — Big video stays at top, premium scrolling text (longevity, health, aging well), no icons, Nora presents herself first then the app, short phrases with spacing, "Passer" skip + "Continuer" at end
+3. **Health page bio age pill** — Pure black pill with Nora video on the left + "AGE BIOLOGIQUE" text, replacing the old purple "N" badge
+
+### Session - March 12, 2026 (Batch 1)
+1. **Meal Recipe Step Icons** — 12 contextual cooking icons in `meal-detail.tsx`
+2. **Page Load Optimization** — Lightweight `/api/minceur/exercises` endpoint, deferred AI in `health-detail.tsx`
+3. **Morning Briefing Redirect** — Re-enabled auto-redirect in `index.tsx`
 
 ### Previous Sessions (Summary)
 - Dashboard with light/dark mode toggle
 - Nora AI re-branding with reusable `NoraCard.tsx`
 - Chat, onboarding, morning briefing UI redesigns
-- Dorsi Bilan bug fix
-- Dashboard crash fixes (React hooks, CSS variables)
+- Dorsi Bilan bug fix, Dashboard crash fixes
 - Edge-to-edge display
 
 ## Prioritized Backlog
@@ -33,9 +37,6 @@ Health monitoring and care application for elderly beneficiaries ("Chutex Care")
 ### P0 (Next)
 - True ML for Glycemia Estimation (V3)
 
-### P1
-- (none pending)
-
 ### P2
 - Slow page load on remaining detail pages (partially addressed)
 
@@ -45,7 +46,7 @@ Health monitoring and care application for elderly beneficiaries ("Chutex Care")
 - View Contract PDF
 - Vivoo Urine Test Integration
 - Health Correlations UI
-- Technical documentation for glucose algorithm (patent)
+- Documentation glucose algorithm (patent)
 
 ## Mocked Features
 - Biological Age / Aging Rate
@@ -61,8 +62,11 @@ Health monitoring and care application for elderly beneficiaries ("Chutex Care")
 
 ## Key Files
 - `/app/frontend/app/(tabs)/index.tsx` - Main dashboard
+- `/app/frontend/app/(tabs)/health.tsx` - Health page
+- `/app/frontend/app/onboarding.tsx` - Onboarding with Nora intro
+- `/app/frontend/app/morning-briefing.tsx` - Morning briefing (no overlay)
 - `/app/frontend/app/meal-detail.tsx` - Meal detail with recipe step icons
 - `/app/frontend/app/activity-detail.tsx` - Activity detail (optimized)
-- `/app/frontend/app/health-detail.tsx` - Health detail (deferred AI)
+- `/app/frontend/src/components/health/HeroScore.tsx` - Bio age with Nora pill
 - `/app/backend/routes/minceur_routes.py` - Minceur endpoints incl. /exercises
 - `/app/frontend/components/shared/NoraCard.tsx` - Reusable Nora component

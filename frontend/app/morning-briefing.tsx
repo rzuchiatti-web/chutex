@@ -118,11 +118,11 @@ export default function MorningBriefingScreen() {
 
   return (
     <div data-testid="morning-briefing" style={{ position: 'fixed', inset: 0, zIndex: 99999, display: 'flex', flexDirection: 'column', fontFamily: "'Inter', system-ui, sans-serif", background: '#000' } as any}>
-      {/* Nora video - starts centered, moves up when text arrives */}
+      {/* Nora video - starts centered, moves up when text arrives — no overlay */}
       <video autoPlay loop muted playsInline style={{
         position: 'absolute', left: '50%', transform: `translate(-50%, -50%)`,
         top: videoUp ? '18%' : '45%',
-        width: 180, height: 180, objectFit: 'contain', opacity: 0.6, zIndex: 0,
+        width: 180, height: 180, objectFit: 'contain', opacity: 1, zIndex: 0,
         transition: 'top 1.2s cubic-bezier(0.22, 0.61, 0.36, 1), opacity 0.8s',
         borderRadius: 60,
       } as any} src={NORA_VIDEO} />

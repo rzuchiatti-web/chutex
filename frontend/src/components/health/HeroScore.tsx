@@ -26,15 +26,9 @@ export default function HeroScore({ bioAge, realAge, status, statusColor, ai, su
     <>
       {/* ═══ BIO AGE ═══ */}
       <div style={{ textAlign: 'center', padding: '24px 20px 8px' } as any}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, marginBottom: 10 } as any}>
-          {isNoraComputed && (
-            <div style={{ width: 18, height: 18, borderRadius: 6, background: 'rgba(167,139,250,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}>
-              <span style={{ fontSize: 8, fontWeight: 900, color: '#A78BFA' }}>N</span>
-            </div>
-          )}
-          <span style={{ fontSize: 9, fontWeight: 700, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: 1.5 }}>
-            Age biologique
-          </span>
+        <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '6px 16px 6px 6px', borderRadius: 999, background: '#000', marginBottom: 14 } as any}>
+          <video autoPlay loop muted playsInline src="https://customer-assets.emergentagent.com/job_ba3a5789-c8f1-4b12-b5d8-478a7f99aaea/artifacts/b6eh1r76_Nora_video.mp4" style={{ width: 26, height: 26, borderRadius: 13, objectFit: 'cover', flexShrink: 0 } as any} />
+          <span style={{ fontSize: 10, fontWeight: 800, color: '#FFF', textTransform: 'uppercase', letterSpacing: 1.2 }}>Age biologique</span>
         </div>
         {ba > 0 ? (
           <div style={{ fontSize: 64, fontWeight: 900, color: '#FFF', lineHeight: 1 }}>{ba}<span style={{ fontSize: 18, color: 'rgba(255,255,255,0.3)', marginLeft: 4 }}>ans</span></div>

@@ -59,106 +59,107 @@ export default function OnboardingScreen() {
 /* ═══════════════════════════════════════════════ */
 function NoraIntroSlide({ onContinue }: { onContinue: () => void }) {
   const [entered, setEntered] = useState(false);
-  const [showText, setShowText] = useState(false);
-  const [typedTitle, setTypedTitle] = useState('');
-  const [titleDone, setTitleDone] = useState(false);
-  const [typedDesc, setTypedDesc] = useState('');
-  const [descDone, setDescDone] = useState(false);
-  const [showFeatures, setShowFeatures] = useState(0);
+  const [visibleLines, setVisibleLines] = useState(0);
   const [showBtn, setShowBtn] = useState(false);
+  const scrollRef = useRef<HTMLDivElement>(null);
 
-  const title = 'Bienvenue sur Chutex';
-  const desc = 'Votre compagnon sante intelligent, propulse par Nora, notre intelligence artificielle.';
-  const features = [
-    { icon: 'ri-heart-pulse-line', text: 'Suivi sante en temps reel' },
-    { icon: 'ri-brain-line', text: 'Analyse IA personnalisee' },
-    { icon: 'ri-shield-check-line', text: 'Teleassistance Chutex Care 24/7' },
-    { icon: 'ri-group-line', text: 'Espace gardien pour vos proches' },
+  const lines = [
+    'Je suis Nora.',
+    '',
+    'Votre intelligence artificielle\ndediee a votre longevite.',
+    '',
+    'Je vous aide a comprendre\nvotre corps.',
+    '',
+    'A mieux vieillir.',
+    '',
+    'A prendre soin de vous,\nchaque jour.',
+    '',
+    'Je surveille votre sante\nen temps reel.',
+    '',
+    'Frequence cardiaque.\nSommeil. Activite.',
+    '',
+    'J\'analyse vos donnees\npour vous offrir\ndes recommandations\npersonnalisees.',
+    '',
+    'Nutrition adaptee.\nExercices sur mesure.',
+    '',
+    'Vos proches restent\ninformes et rassures.',
+    '',
+    'Bienvenue sur Chutex.',
   ];
 
   useEffect(() => {
     setTimeout(() => setEntered(true), 50);
-    setTimeout(() => setShowText(true), 2200);
+    let lineIdx = 0;
+    const startDelay = setTimeout(() => {
+      const iv = setInterval(() => {
+        lineIdx++;
+        if (lineIdx <= lines.length) {
+          setVisibleLines(lineIdx);
+          if (scrollRef.current) scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+        } else {
+          clearInterval(iv);
+          setTimeout(() => setShowBtn(true), 600);
+        }
+      }, 800);
+    }, 2000);
+    // Safety: show button after 25s regardless
+    const safety = setTimeout(() => setShowBtn(true), 25000);
+    return () => { clearTimeout(startDelay); clearTimeout(safety); };
   }, []);
-
-  useEffect(() => {
-    if (!showText) return;
-    let i = 0;
-    const iv = setInterval(() => {
-      if (i <= title.length) { setTypedTitle(title.slice(0, i)); i++; }
-      else { clearInterval(iv); setTitleDone(true); }
-    }, 40);
-    return () => clearInterval(iv);
-  }, [showText]);
-
-  useEffect(() => {
-    if (!titleDone) return;
-    let i = 0;
-    const iv = setInterval(() => {
-      if (i <= desc.length) { setTypedDesc(desc.slice(0, i)); i++; }
-      else {
-        clearInterval(iv); setDescDone(true);
-        features.forEach((_, fi) => setTimeout(() => setShowFeatures(fi + 1), 400 + fi * 400));
-        setTimeout(() => setShowBtn(true), 400 + features.length * 400 + 300);
-      }
-    }, 15);
-    return () => clearInterval(iv);
-  }, [titleDone]);
 
   return (
     <div style={{ height: '100dvh', display: 'flex', flexDirection: 'column', fontFamily: 'Inter, system-ui, sans-serif', background: '#000', position: 'relative', overflow: 'hidden' } as any}>
 
-      {/* Nora video — recette premium: centered then moves up */}
-      <video autoPlay loop muted playsInline style={{
-        position: 'absolute', left: '50%', zIndex: 1,
-        top: showText ? '8%' : '35%',
-        transform: showText ? 'translate(-50%, 0) scale(1)' : 'translate(-50%, -50%) scale(1)',
-        width: showText ? 70 : 180, height: showText ? 70 : 180,
-        objectFit: 'contain', borderRadius: showText ? 24 : 90,
-        opacity: entered ? 1 : 0,
-        filter: entered ? 'none' : 'blur(20px)',
-        transition: 'top 1.2s cubic-bezier(0.22,0.61,0.36,1), width 1.2s ease, height 1.2s ease, transform 1.2s ease, border-radius 1.2s ease, opacity 1.4s ease 0.1s, filter 1.4s ease 0.1s',
-      } as any} src={NORA_VIDEO} />
+      {/* Nora video — stays big at top */}
+      <div style={{ flexShrink: 0, display: 'flex', justifyContent: 'center', paddingTop: 'calc(env(safe-area-inset-top, 20px) + 24px)', paddingBottom: 16 } as any}>
+        <video autoPlay loop muted playsInline style={{
+          width: 160, height: 160,
+          objectFit: 'contain', borderRadius: 50,
+          opacity: entered ? 1 : 0,
+          filter: entered ? 'none' : 'blur(20px)',
+          transition: 'opacity 1.4s ease 0.1s, filter 1.4s ease 0.1s',
+        } as any} src={NORA_VIDEO} />
+      </div>
 
-      {/* Content */}
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', position: 'relative', zIndex: 5, padding: '0 32px', textAlign: 'center' } as any}>
-        {showText && (
-          <div style={{ marginTop: 60 } as any}>
-            <div style={{ fontSize: 28, fontWeight: 900, color: '#FFF', marginBottom: 12, lineHeight: 1.2 }}>
-              {typedTitle}<span style={{ opacity: titleDone ? 0 : 1, color: 'rgba(255,255,255,0.3)', transition: 'opacity 0.3s' }}>|</span>
-            </div>
-            {titleDone && (
-              <div style={{ fontSize: 14, color: 'rgba(255,255,255,0.5)', lineHeight: 1.6, maxWidth: 300, margin: '0 auto 28px' }}>
-                {typedDesc}<span style={{ opacity: descDone ? 0 : 1, color: 'rgba(255,255,255,0.2)', transition: 'opacity 0.3s' }}>|</span>
+      {/* Scrolling text content */}
+      <div ref={scrollRef as any} style={{ flex: 1, overflowY: 'auto', padding: '0 32px', WebkitOverflowScrolling: 'touch', scrollBehavior: 'smooth', position: 'relative', zIndex: 5 } as any}>
+        <div style={{ textAlign: 'center', paddingBottom: 40 } as any}>
+          {lines.slice(0, visibleLines).map((line, i) => {
+            if (line === '') return <div key={i} style={{ height: 24 } as any} />;
+            return (
+              <div key={i} style={{
+                fontSize: 17, fontWeight: 700, color: '#FFF', lineHeight: 1.5,
+                whiteSpace: 'pre-wrap', marginBottom: 4,
+                opacity: 0, animation: 'noraLineIn 0.8s cubic-bezier(0.22,0.61,0.36,1) forwards',
+              } as any}>
+                {line}
               </div>
-            )}
-            {features.slice(0, showFeatures).map((f, i) => (
-              <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 0', animation: 'noraFeatureIn 0.5s cubic-bezier(0.22,0.61,0.36,1) both', justifyContent: 'center' } as any}>
-                <i className={f.icon} style={{ fontSize: 18, color: '#FFF', width: 24, textAlign: 'center' }} />
-                <span style={{ fontSize: 14, fontWeight: 600, color: 'rgba(255,255,255,0.7)' }}>{f.text}</span>
-              </div>
-            ))}
-          </div>
-        )}
+            );
+          })}
+        </div>
       </div>
 
       {/* Continue button */}
-      <div style={{ padding: '16px 32px 40px', position: 'relative', zIndex: 10 } as any}>
-        {showBtn && (
+      <div style={{ padding: '16px 32px calc(env(safe-area-inset-bottom, 20px) + 16px)', position: 'relative', zIndex: 10, flexShrink: 0 } as any}>
+        {showBtn ? (
           <div data-testid="nora-continue-btn" onClick={onContinue} style={{
             padding: '18px', borderRadius: 999, background: '#FFF', color: '#000',
             textAlign: 'center', fontSize: 16, fontWeight: 800, cursor: 'pointer',
-            animation: 'noraFeatureIn 0.6s cubic-bezier(0.22,0.61,0.36,1) both',
-            transition: 'transform 0.2s, opacity 0.2s',
+            animation: 'noraLineIn 0.6s cubic-bezier(0.22,0.61,0.36,1) both',
+            transition: 'transform 0.2s',
           } as any}
             onMouseEnter={(e: any) => { e.currentTarget.style.transform = 'scale(1.02)'; }}
             onMouseLeave={(e: any) => { e.currentTarget.style.transform = ''; }}>
             Continuer
           </div>
+        ) : (
+          <div data-testid="nora-skip-btn" onClick={onContinue} style={{ textAlign: 'center', padding: 12, cursor: 'pointer' } as any}>
+            <span style={{ fontSize: 13, fontWeight: 600, color: 'rgba(255,255,255,0.25)' }}>Passer</span>
+          </div>
         )}
       </div>
 
-      <style dangerouslySetInnerHTML={{ __html: '@keyframes noraFeatureIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}' }} />
+      <style dangerouslySetInnerHTML={{ __html: '@keyframes noraLineIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}' }} />
     </div>
   );
 }
