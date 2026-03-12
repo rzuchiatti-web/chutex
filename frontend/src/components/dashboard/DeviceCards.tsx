@@ -175,44 +175,18 @@ export default function DeviceCards({ br, sc, vs, onStartWeighing, weighings = [
     <>
       <div style={{ padding: '16px', borderRadius: 20, background: 'var(--card-bg, #EDEDF0)', marginBottom: 20, backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' } as any}>
       <div style={{ fontSize: 16, fontWeight: 900, color: 'var(--card-text, #111)', marginBottom: 12 }}>Dispositifs</div>
-      {connectedDevices.length === 0 && (
-        <div onClick={() => router.push('/(tabs)/devices' as any)} style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '4px 0', cursor: 'pointer' } as any}>
-          <div style={{ width: 44, height: 44, borderRadius: 14, background: 'rgba(59,130,246,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}><i className="ri-bluetooth-connect-line" style={{ fontSize: 22, color: '#3B82F6' }} /></div>
-          <div style={{ flex: 1 } as any}><div style={{ fontSize: 14, fontWeight: 700, color: 'var(--card-text, #111)' }}>Connecter un appareil</div><div style={{ fontSize: 11, color: 'var(--card-sub, rgba(0,0,0,0.35))' }}>Bracelet, balance ou gilet</div></div>
-          <i className="ri-arrow-right-s-line" style={{ fontSize: 18, color: 'var(--card-arrow, rgba(0,0,0,0.2))' }} />
-        </div>
-      )}
-      {connectedDevices.length === 0 && <div style={{ height: 1, background: 'var(--card-sep, rgba(0,0,0,0.06))', margin: '10px 0' } as any} />}
-      {devices.map((d, idx) => (
+      {connectedDevices.map((d, idx) => (
         <div key={d.id} data-testid={`device-card-${d.id}`} onClick={() => router.push('/(tabs)/devices' as any)} style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '12px 0', borderTop: idx > 0 ? '1px solid rgba(0,0,0,0.06)' : 'none', cursor: 'pointer' } as any}>
           <img src={d.img} alt="" style={{ width: 48, height: 48, objectFit: 'contain', flexShrink: 0 } as any} />
           <div style={{ flex: 1, minWidth: 0 } as any}>
             <div style={{ fontSize: 14, fontWeight: 800, color: 'var(--card-text, #111)', marginBottom: 3 }}>{d.name}</div>
-            {d.paired ? (
-              <>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 5 } as any}>
-                  <span style={{ width: 6, height: 6, borderRadius: 3, background: d.connected ? '#10B981' : d.id === 'vest' ? '#F59E0B' : '#EF4444' } as any} />
-                  <span style={{ fontSize: 10, fontWeight: 600, color: d.connected ? '#10B981' : d.id === 'vest' ? '#F59E0B' : '#EF4444' }}>{d.connected ? (d.id === 'vest' ? 'En marche' : 'Connecte') : (d.id === 'vest' ? 'En veille' : 'Deconnecte')}</span>
-                </div>
-                <div style={{ height: 4, borderRadius: 2, background: 'var(--card-sep, rgba(0,0,0,0.06))', overflow: 'hidden', marginTop: 6 } as any}><div style={{ height: 4, borderRadius: 2, width: `${d.battery}%`, background: batteryGrad(d.battery) } as any} /></div>
-              </>
-            ) : (
-              <div style={{ fontSize: 10, fontWeight: 600, color: 'var(--card-sub, rgba(0,0,0,0.35))' }}>Non associe</div>
-            )}
-          </div>
-          {d.paired ? (
-            <div style={{ fontSize: 14, fontWeight: 900, color: batteryColor(d.battery), flexShrink: 0 }}>{d.battery}%</div>
-          ) : (
-            <div style={{ flexShrink: 0 } as any}>
-              <div data-testid={`associate-${d.id}`} onClick={(e: any) => {
-                e.stopPropagation();
-                if (d.id === 'bracelet' && needsSub) { setShowNoSubPopup(true); return; }
-                if (d.id === 'scale') { onStartWeighing?.(); return; }
-                startPairing(d.id);
-              }} style={{ padding: '6px 14px', borderRadius: 999, background: '#FFF', cursor: 'pointer', fontSize: 11, fontWeight: 700, color: 'var(--card-text, #111)', transition: 'opacity 0.2s', opacity: d.id === 'bracelet' && needsSub ? 0.5 : 1 } as any}
-              >{d.id === 'scale' ? 'Nouvelle pesee' : 'Associer'}</div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 5 } as any}>
+              <span style={{ width: 6, height: 6, borderRadius: 3, background: d.connected ? '#10B981' : d.id === 'vest' ? '#F59E0B' : '#EF4444' } as any} />
+              <span style={{ fontSize: 10, fontWeight: 600, color: d.connected ? '#10B981' : d.id === 'vest' ? '#F59E0B' : '#EF4444' }}>{d.connected ? (d.id === 'vest' ? 'En marche' : 'Connecte') : (d.id === 'vest' ? 'En veille' : 'Deconnecte')}</span>
             </div>
-          )}
+            <div style={{ height: 4, borderRadius: 2, background: 'var(--card-sep, rgba(0,0,0,0.06))', overflow: 'hidden', marginTop: 6 } as any}><div style={{ height: 4, borderRadius: 2, width: `${d.battery}%`, background: batteryGrad(d.battery) } as any} /></div>
+          </div>
+          <div style={{ fontSize: 14, fontWeight: 900, color: batteryColor(d.battery), flexShrink: 0 }}>{d.battery}%</div>
           <i className="ri-arrow-right-s-line" style={{ fontSize: 16, color: 'var(--card-arrow, rgba(0,0,0,0.2))', flexShrink: 0 }} />
         </div>
       ))}
@@ -221,60 +195,43 @@ export default function DeviceCards({ br, sc, vs, onStartWeighing, weighings = [
       {/* ──── Pairing Flow Popup ──── */}
       <PairingPopup />
 
-      {/* ──── No Subscription Popup (bracelet) — landing page style ──── */}
+      {/* ──── No Subscription Popup (bracelet) — single feature showcase ──── */}
       {showNoSubPopup && (
         <GlassOverlay onClose={() => setShowNoSubPopup(false)}>
-          <div style={{ textAlign: 'center', marginBottom: 24 } as any}>
-            <div style={{ fontSize: 22, fontWeight: 900, color: '#FFF', marginBottom: 8 }}>Abonnement requis</div>
-            <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.45)', lineHeight: 1.6 }}>Pour associer votre bracelet Elio, choisissez votre formule.</div>
+          <div style={{ textAlign: 'center', marginBottom: 28 } as any}>
+            <img src="https://customer-assets.emergentagent.com/job_8afdc991-0ab2-4687-a2a5-438b9a5f0711/artifacts/2fto1qw7_bracelet_sante_connecte_elio_chutex_care_teleassistance_telealarme%281%29.svg" alt="" style={{ width: 110, height: 110, objectFit: 'contain', margin: '0 auto 20px', display: 'block' } as any} />
+            <div style={{ fontSize: 24, fontWeight: 900, color: '#FFF', marginBottom: 8, lineHeight: 1.2 }}>Bracelet Elio</div>
+            <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.45)', lineHeight: 1.6 }}>Le bracelet connecte 4G qui veille sur votre sante au quotidien.</div>
           </div>
 
-          {/* Standard Card */}
-          <div onClick={() => { setShowNoSubPopup(false); if (typeof window !== 'undefined') window.open('https://chutex-innovation.com/products/elio-smart-health-bracelet', '_blank'); }}
-            style={{ padding: '20px', borderRadius: 20, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', marginBottom: 14, cursor: 'pointer', transition: 'border-color 0.2s', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' } as any}
-            onMouseEnter={(e: any) => e.currentTarget.style.borderColor = 'rgba(59,130,246,0.4)'}
-            onMouseLeave={(e: any) => e.currentTarget.style.borderColor = 'rgba(255,255,255,0.12)'}>
-            <div style={{ display: 'flex', gap: 16, alignItems: 'center' } as any}>
-              <div style={{ width: 72, height: 72, borderRadius: 16, background: 'rgba(255,255,255,0.06)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}>
-                <img src="https://customer-assets.emergentagent.com/job_8afdc991-0ab2-4687-a2a5-438b9a5f0711/artifacts/2fto1qw7_bracelet_sante_connecte_elio_chutex_care_teleassistance_telealarme%281%29.svg" alt="" style={{ width: 56, height: 56, objectFit: 'contain' } as any} />
+          {/* Features list */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 28 } as any}>
+            {[
+              { icon: 'ri-heart-pulse-line', text: 'Suivi cardiaque continu (FC, HRV, SpO2)', color: '#EF4444' },
+              { icon: 'ri-temp-hot-line', text: 'Temperature corporelle en temps reel', color: '#F59E0B' },
+              { icon: 'ri-moon-line', text: 'Analyse du sommeil (phases, qualite, duree)', color: '#818CF8' },
+              { icon: 'ri-footprint-line', text: 'Compteur de pas, calories et distance', color: '#10B981' },
+              { icon: 'ri-alarm-warning-line', text: 'Detection automatique de chute', color: '#EF4444' },
+              { icon: 'ri-signal-tower-line', text: 'Connectivite 4G integree', color: '#3B82F6' },
+              { icon: 'ri-brain-line', text: 'Nora IA : analyse personnalisee de vos donnees', color: '#A78BFA' },
+              { icon: 'ri-calendar-check-line', text: 'Programmes de prevention gratuits', color: '#22D3EE' },
+              { icon: 'ri-body-scan-line', text: 'Estimation de l\'age biologique', color: '#F59E0B' },
+            ].map((f, i) => (
+              <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 14px', borderRadius: 14, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.06)' } as any}>
+                <i className={f.icon} style={{ fontSize: 18, color: f.color, flexShrink: 0 }} />
+                <span style={{ fontSize: 13, color: 'rgba(255,255,255,0.7)', lineHeight: 1.4 }}>{f.text}</span>
               </div>
-              <div style={{ flex: 1 } as any}>
-                <div style={{ fontSize: 17, fontWeight: 800, color: '#FFF', marginBottom: 6 }}>Bracelet Elio</div>
-                <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', lineHeight: 1.5 }}>Suivi cardiaque, SpO2, temperature, detection de chute.</div>
-              </div>
-            </div>
-            <div style={{ marginTop: 14, display: 'flex', alignItems: 'baseline', gap: 6 } as any}>
-              <span style={{ fontSize: 28, fontWeight: 900, color: '#3B82F6' }}>24,90</span>
-              <span style={{ fontSize: 13, color: 'rgba(255,255,255,0.4)' }}>EUR/mois</span>
-            </div>
-            <div style={{ fontSize: 12, color: '#10B981', marginTop: 4 }}>soit 12,45 EUR apres credit d'impot*</div>
+            ))}
           </div>
 
-          {/* Care Card */}
-          <div onClick={() => { setShowNoSubPopup(false); router.push('/subscription' as any); }}
-            style={{ padding: '20px', borderRadius: 20, background: 'linear-gradient(135deg, rgba(124,92,255,0.1), rgba(167,139,250,0.04))', border: '1px solid rgba(124,92,255,0.25)', marginBottom: 14, cursor: 'pointer', position: 'relative', transition: 'border-color 0.2s', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' } as any}
-            onMouseEnter={(e: any) => e.currentTarget.style.borderColor = 'rgba(124,92,255,0.5)'}
-            onMouseLeave={(e: any) => e.currentTarget.style.borderColor = 'rgba(124,92,255,0.25)'}>
-            <div style={{ position: 'absolute', top: 12, right: 14, padding: '4px 12px', borderRadius: 999, background: 'rgba(16,185,129,0.15)', border: '1px solid rgba(16,185,129,0.25)' } as any}>
-              <span style={{ fontSize: 9, fontWeight: 700, color: '#10B981', textTransform: 'uppercase', letterSpacing: 0.5 }}>Recommande</span>
-            </div>
-            <div style={{ display: 'flex', gap: 16, alignItems: 'center' } as any}>
-              <div style={{ width: 72, height: 72, borderRadius: 16, background: 'rgba(124,92,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}>
-                <img src="https://customer-assets.emergentagent.com/job_8afdc991-0ab2-4687-a2a5-438b9a5f0711/artifacts/2fto1qw7_bracelet_sante_connecte_elio_chutex_care_teleassistance_telealarme%281%29.svg" alt="" style={{ width: 56, height: 56, objectFit: 'contain' } as any} />
-              </div>
-              <div style={{ flex: 1 } as any}>
-                <div style={{ fontSize: 17, fontWeight: 800, color: '#FFF', marginBottom: 6 }}>Chutex Care</div>
-                <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', lineHeight: 1.5 }}>Bracelet connecte avec teleassistance 24h/24, 7j/7. Detection de chute, bouton SOS.</div>
-              </div>
-            </div>
-            <div style={{ marginTop: 14, display: 'flex', alignItems: 'baseline', gap: 6 } as any}>
-              <span style={{ fontSize: 28, fontWeight: 900, color: '#A78BFA' }}>39,90</span>
-              <span style={{ fontSize: 13, color: 'rgba(255,255,255,0.4)' }}>EUR/mois</span>
-            </div>
-            <div style={{ fontSize: 12, color: '#10B981', marginTop: 4 }}>soit 19,95 EUR apres credit d'impot*</div>
+          {/* CTA Button */}
+          <div data-testid="elio-cta-button" onClick={() => { setShowNoSubPopup(false); if (typeof window !== 'undefined') window.open('https://chutex-innovation.com/products/elio-smart-health-bracelet', '_blank'); }}
+            style={{ padding: '17px', borderRadius: 999, background: '#FFF', cursor: 'pointer', textAlign: 'center', fontSize: 15, fontWeight: 800, color: '#111', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, transition: 'transform 0.2s, opacity 0.2s' } as any}
+            onMouseEnter={(e: any) => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.opacity = '0.9'; }}
+            onMouseLeave={(e: any) => { e.currentTarget.style.transform = ''; e.currentTarget.style.opacity = '1'; }}>
+            <i className="ri-shopping-bag-line" style={{ fontSize: 18 }} />
+            Decouvrir le Bracelet Elio
           </div>
-
-          <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.2)', textAlign: 'center', lineHeight: 1.5, marginTop: 4 }}>*Credit d'impot de 50% au titre des services a la personne (art. 199 sexdecies du CGI).<br/>Si vous avez deja souscrit, votre abonnement sera detecte automatiquement.</div>
         </GlassOverlay>
       )}
     </>

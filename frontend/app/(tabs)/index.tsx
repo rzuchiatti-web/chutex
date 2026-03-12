@@ -580,7 +580,7 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
           ))}
 
           {/* ── 4. PROGRAMME EN COURS ── */}
-          {activeProgram?.active ? (
+          {activeProgram?.active && (
             <div data-testid="active-program-card" className="dash-slide-up cl-press" onClick={() => router.push('/(tabs)/chat' as any)} style={{ borderRadius: 18, background: C.card, padding: '16px', marginBottom: 20, cursor: 'pointer', transition: 'transform 0.18s', ...glass } as any}
               onMouseEnter={(e: any) => { e.currentTarget.style.transform = 'translateY(-2px)'; }}
               onMouseLeave={(e: any) => { e.currentTarget.style.transform = ''; }}>
@@ -604,19 +604,6 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
                 </div>
               )}
             </div>
-          ) : (
-            <div data-testid="discover-programs" className="dash-slide-up cl-press" onClick={() => router.push('/(tabs)/chat' as any)} style={{ borderRadius: 18, background: C.card, padding: '14px 16px', marginBottom: 12, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 12, transition: 'transform 0.18s' } as any}
-              onMouseEnter={(e: any) => { e.currentTarget.style.transform = 'translateY(-2px)'; }}
-              onMouseLeave={(e: any) => { e.currentTarget.style.transform = ''; }}>
-              <div style={{ width: 36, height: 36, borderRadius: 12, background: 'rgba(167,139,250,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}>
-                <i className="ri-road-map-line" style={{ fontSize: 18, color: '#A78BFA' }} />
-              </div>
-              <div style={{ flex: 1 } as any}>
-                <div style={{ fontSize: 13, fontWeight: 800, color: C.text }}>Programmes prevention</div>
-                <div style={{ fontSize: 10, color: C.sub }}>Decouvrez nos parcours personnalises</div>
-              </div>
-              <i className="ri-arrow-right-s-line" style={{ fontSize: 18, color: C.arrow }} />
-            </div>
           )}
 
           {/* ── WEIGHT GOAL CARD (si objectif en cours) ── */}
@@ -631,8 +618,12 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
 
           <div style={{ height: 1, background: isDark ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.06)", margin: "10px 0 24px" } as any} />
 
-          {/* ── 6. DISPOSITIFS ── */}
-          <DeviceCards br={br} sc={sc} vs={vs} weighings={weighings} onStartWeighing={() => setShowWeighing(true)} onRefresh={fetchData} subscription={subscription} />
+          {/* ── 6. DISPOSITIFS (uniquement si appareils connectes) ── */}
+          {(br.connected || br.paired || ((sc.connected || sc.paired) && weighings.length > 0) || vs.connected || vs.paired) && (
+            <>
+              <DeviceCards br={br} sc={sc} vs={vs} weighings={weighings} onStartWeighing={() => setShowWeighing(true)} onRefresh={fetchData} subscription={subscription} />
+            </>
+          )}
 
           {showWeighing && <WeighingFlow onClose={() => setShowWeighing(false)} d={dashData?.scale || {}} weighings={weighings} />}
 
