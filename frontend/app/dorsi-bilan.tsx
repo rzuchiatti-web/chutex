@@ -204,15 +204,29 @@ export default function DorsiBilanPage() {
     setSaving(true);
     const dirIdx = step - 3;
     const dir = DIRS[dirIdx];
-    const finalData = { ...data, [dir.key]: { ...data[dir.key], pain: currentPain } };
+    // Build final measurements ensuring all 4 directions have mobility + pain
+    const finalData: Record<string, { mobility: number; pain: number }> = {};
+    for (const d of DIRS) {
+      const existing = data[d.key] || { mobility: 0, pain: 0 };
+      finalData[d.key] = {
+        mobility: existing.mobility || 0,
+        pain: d.key === dir.key ? currentPain : (existing.pain || 0),
+      };
+    }
     try {
       const result = await apiFetch('/api/dorsi/bilan', { method: 'POST', body: JSON.stringify({ measurements: finalData }) }, token);
       setBilanResult(result);
       setData(finalData);
       setStep(7);
-      // Refresh bilans for overlay
       apiFetch('/api/dorsi/bilans', {}, token).then(setAllBilans).catch(() => {});
-    } catch (e: any) { alert(e.message || 'Erreur'); } finally { setSaving(false); }
+    } catch (e: any) {
+      const msg = e?.message || '';
+      if (msg.includes('401') || msg.includes('Token') || msg.includes('expire')) {
+        alert('Votre session a expire. Veuillez vous reconnecter.');
+      } else {
+        alert(msg || 'Erreur lors de la sauvegarde du bilan. Veuillez reessayer.');
+      }
+    } finally { setSaving(false); }
   }, [data, currentPain, step, token]);
 
   const createProgram = useCallback(async () => {
@@ -220,7 +234,14 @@ export default function DorsiBilanPage() {
     try {
       await apiFetch('/api/dorsi/program', { method: 'POST', body: JSON.stringify({ bilan_id: bilanResult.id }) }, token);
       router.push('/dorsi-program' as any);
-    } catch (e: any) { alert(e.message || 'Erreur'); }
+    } catch (e: any) {
+      const msg = e?.message || '';
+      if (msg.includes('401') || msg.includes('Token') || msg.includes('expire')) {
+        alert('Votre session a expire. Veuillez vous reconnecter.');
+      } else {
+        alert(msg || 'Erreur lors de la creation du programme. Veuillez reessayer.');
+      }
+    }
   }, [bilanResult, token, router]);
 
   if (Platform.OS !== 'web') return null;
