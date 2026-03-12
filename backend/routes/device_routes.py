@@ -311,6 +311,48 @@ async def get_dashboard_summary(user=Depends(get_current_user)):
 
 
 # ==================== LEFU WIFI SCALE ENDPOINTS ====================
+
+@router.post("/scale/register-member")
+async def register_scale_member(data: dict, user=Depends(get_current_user)):
+    """Register current user as a member on a shared scale.
+    Multiple beneficiaries can share one scale — each gets their own memberid.
+    The scale identifies who is weighing by weight proximity."""
+    uid = user['id']
+    mac = data.get('mac', '')
+    reference_weight = data.get('reference_weight', user.get('weight_kg', 0))
+    now = datetime.now(timezone.utc).isoformat()
+
+    member_id = str(uuid.uuid4())
+    await db.scale_members.update_one(
+        {"user_id": uid, "mac": mac},
+        {"$set": {
+            "user_id": uid, "mac": mac, "member_id": member_id,
+            "reference_weight": float(reference_weight),
+            "user_name": user.get('name', ''),
+            "gender": user.get('gender', ''),
+            "height_cm": user.get('height_cm', 170),
+            "date_of_birth": user.get('date_of_birth', ''),
+            "updated_at": now,
+        }},
+        upsert=True
+    )
+    # Also ensure the scale device is linked
+    await db.devices.update_one(
+        {"user_id": uid, "device_type": "scale"},
+        {"$set": {"mac_address": mac, "last_sync": now, "shared": True}},
+        upsert=True
+    )
+    return {"status": "ok", "member_id": member_id, "reference_weight": reference_weight}
+
+
+@router.get("/scale/members")
+async def get_scale_members(mac: str = '', user=Depends(get_current_user)):
+    """Get all members registered on a scale (for the devices page)"""
+    query = {"mac": mac} if mac else {"user_id": user['id']}
+    members = await db.scale_members.find(query, {"_id": 0}).to_list(20)
+    return members
+
+
 @router.post("/lefu/wifi/register")
 async def lefu_register(data: dict):
     """Lefu WiFi scale registration endpoint - called by the scale itself"""
@@ -332,15 +374,8 @@ async def lefu_weighing(data: dict):
     scale_type = data.get('scaleType', 0)  # 0=4-electrode, 1=8-electrode
     now = datetime.now(timezone.utc).isoformat()
 
-    # Find which user has this scale by MAC
-    device = await db.devices.find_one({"mac_address": mac, "device_type": "scale"}, {"_id": 0})
-    if not device:
-        device = await db.devices.find_one({"mac_address": sn, "device_type": "scale"}, {"_id": 0})
-    user_id = device.get('user_id') if device else None
-
     measurements_list = data.get('list', [])
     if not measurements_list:
-        # Fallback: old format with weight/impedance at root level
         measurements_list = [data]
 
     results = []
@@ -348,17 +383,47 @@ async def lefu_weighing(data: dict):
         weight = entry.get('weight', 0)
         heart_rate = entry.get('heartRate', 0)
         timestamp = entry.get('timestamp', 0)
+        lefu_member_id = entry.get('memberid', '')
+        lefu_user_id = entry.get('userid', '')
         ts_str = datetime.fromtimestamp(timestamp, tz=timezone.utc).isoformat() if timestamp else now
+
+        # ── RESOLVE USER: memberid → weight proximity → MAC fallback ──
+        user_id = None
+        user_profile = None
+
+        # 1. Try memberid mapping
+        if lefu_member_id:
+            member = await db.scale_members.find_one({"member_id": lefu_member_id}, {"_id": 0})
+            if member:
+                user_id = member['user_id']
+
+        # 2. Try weight proximity (for shared scales)
+        if not user_id and weight > 0:
+            members = await db.scale_members.find({"mac": mac}, {"_id": 0}).to_list(10)
+            if members:
+                best_match = min(members, key=lambda m: abs(m.get('reference_weight', 0) - weight))
+                if abs(best_match.get('reference_weight', 0) - weight) < 15:  # within 15kg tolerance
+                    user_id = best_match['user_id']
+                    # Update memberid mapping for future
+                    if lefu_member_id:
+                        await db.scale_members.update_one(
+                            {"user_id": user_id, "mac": mac},
+                            {"$set": {"member_id": lefu_member_id, "reference_weight": weight}}
+                        )
+
+        # 3. Fallback: MAC → device owner
+        if not user_id:
+            device = await db.devices.find_one({"mac_address": {"$in": [mac, sn]}, "device_type": "scale"}, {"_id": 0})
+            if device:
+                user_id = device.get('user_id')
+
+        if user_id:
+            user_profile = await db.users.find_one({"id": user_id}, {"_id": 0})
 
         # Parse impedance array
         impedance_data = entry.get('data', [])
         impedances = [int(d.get('impedance', 0)) for d in impedance_data] if impedance_data else []
-        primary_impedance = impedances[0] if impedances else entry.get('impedance', 0)
-
-        # Get user profile for body composition calculation
-        user_profile = None
-        if user_id:
-            user_profile = await db.users.find_one({"id": user_id}, {"_id": 0})
+        primary_impedance = impedances[0] if impedances else int(entry.get('impedance', 0) or 0)
 
         body_data = {}
         if primary_impedance and user_profile:
