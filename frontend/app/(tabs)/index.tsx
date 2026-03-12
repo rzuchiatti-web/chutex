@@ -143,6 +143,7 @@ function DailyObjectivesOnDashboard({ token }: { token: string }) {
             }} style={{
               padding: '12px', borderRadius: 16,
               background: 'var(--card-bg, #EDEDF0)',
+              backdropFilter: 'var(--card-blur, none)', WebkitBackdropFilter: 'var(--card-blur, none)', border: 'var(--card-border, none)',
               cursor: 'pointer', transition: 'transform 0.18s, box-shadow 0.18s',
               animationDelay: `${idx * 0.1}s`,
               display: 'flex', alignItems: 'center', gap: 10,
@@ -464,7 +465,7 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
       </div>
     );
     return (
-      <div data-testid="beneficiary-dashboard" style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, display: 'flex', flexDirection: 'column', fontFamily: "'Inter', system-ui, -apple-system, sans-serif", overflow: 'hidden', background: C.bg, '--card-bg': C.card, '--card-text': C.text, '--card-sub': C.sub, '--card-arrow': C.arrow, '--card-sep': isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.06)' } as any}>
+      <div data-testid="beneficiary-dashboard" style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, display: 'flex', flexDirection: 'column', fontFamily: "'Inter', system-ui, -apple-system, sans-serif", overflow: 'hidden', background: C.bg, '--card-bg': C.card, '--card-text': C.text, '--card-sub': C.sub, '--card-arrow': C.arrow, '--card-sep': isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.06)', '--card-blur': isDark ? 'blur(20px)' : 'none', '--card-border': isDark ? '1px solid rgba(255,255,255,0.08)' : 'none' } as any}>
         {isDark && <img src={BG_IMG} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 } as any} />}
         {isDark && <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.35)', zIndex: 1 } as any} />}
 
@@ -535,12 +536,12 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
           {/* ── SUBSCRIPTION BANNER (si pas d'abo bracelet) ── */}
           {/* Health data shown even without subscription — values show -- when no data */}
 
-          <div style={{ height: 0 } as any} />
+          <div style={{ height: 1, background: isDark ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.06)", margin: "10px 0 24px" } as any} />
 
           {/* ── 2. OBJECTIFS JOURNALIERS (remplace VitalsRow + ActivityCard) ── */}
           <DailyObjectivesOnDashboard token={token} />
 
-          <div style={{ height: 0 } as any} />
+          <div style={{ height: 1, background: isDark ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.06)", margin: "10px 0 24px" } as any} />
 
           {/* ── TEAM INVITATIONS ── */}
           {teamInvitations.length > 0 && teamInvitations.map((inv: any) => (
@@ -574,7 +575,7 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
 
           {/* ── 4. PROGRAMME EN COURS ── */}
           {activeProgram?.active ? (
-            <div data-testid="active-program-card" className="dash-slide-up cl-press" onClick={() => router.push('/(tabs)/chat' as any)} style={{ borderRadius: 18, background: C.card, padding: '16px', marginBottom: 20, cursor: 'pointer', transition: 'transform 0.18s' } as any}
+            <div data-testid="active-program-card" className="dash-slide-up cl-press" onClick={() => router.push('/(tabs)/chat' as any)} style={{ borderRadius: 18, background: C.card, padding: '16px', marginBottom: 20, cursor: 'pointer', transition: 'transform 0.18s', ...glass } as any}
               onMouseEnter={(e: any) => { e.currentTarget.style.transform = 'translateY(-2px)'; }}
               onMouseLeave={(e: any) => { e.currentTarget.style.transform = ''; }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 12 } as any}>
@@ -615,12 +616,12 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
           {/* ── WEIGHT GOAL CARD (si objectif en cours) ── */}
           <WeightGoalDashCard token={token} />
 
-          <div style={{ height: 0 } as any} />
+          <div style={{ height: 1, background: isDark ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.06)", margin: "10px 0 24px" } as any} />
 
           {/* ── 5. NORA IA ── */}
           <CopilotCard />
 
-          <div style={{ height: 0 } as any} />
+          <div style={{ height: 1, background: isDark ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.06)", margin: "10px 0 24px" } as any} />
 
           {/* ── 6. DISPOSITIFS ── */}
           <DeviceCards br={br} sc={sc} vs={vs} weighings={weighings} onStartWeighing={() => setShowWeighing(true)} onRefresh={fetchData} subscription={subscription} />
@@ -629,7 +630,7 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
 
           {/* Les alertes sont affichées en haut du dashboard */}
 
-          <div style={{ height: 0 } as any} />
+          <div style={{ height: 1, background: isDark ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.06)", margin: "10px 0 24px" } as any} />
 
 
           {/* ── Rappels — inside a single card ── */}
@@ -660,8 +661,8 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
 
           {/* ── Rappels — directly on background ── */}
           <GC testId="guardians-section">
-            <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 16 } as any}>
-              <div style={{ fontSize: 20, fontWeight: 900, color: C.text }}>Mes gardiens</div>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 } as any}>
+              <div style={{ fontSize: 16, fontWeight: 900, color: C.text }}>Mes gardiens</div>
               <img src={IMG_GUARDIANS} alt="" style={{ width: 100, height: 50, objectFit: 'contain' } as any} />
             </div>
             {guardians.map((g: any, i: number) => (
