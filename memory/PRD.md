@@ -11,14 +11,19 @@ Health monitoring and care application for elderly beneficiaries ("Chutex Care")
 
 ## What's Been Implemented
 
+### Session - March 12, 2026 (Batch 3)
+1. **Health page header** — Added dashboard-style header with avatar, user name, "Espace sante" subtitle
+2. **Health page light/dark toggle** — "Light"/"Dark" text toggle synced with dashboard via localStorage
+3. **Health page light mode** — All elements adapted: white bg, gray cards (#EDEDF0), black text, no glassmorphism
+
 ### Session - March 12, 2026 (Batch 2)
-1. **Morning briefing overlay removed** — Nora video opacity changed from 0.6 to 1.0, no overlay
-2. **Nora onboarding redesigned** — Big video stays at top, premium scrolling text (longevity, health, aging well), no icons, Nora presents herself first then the app, short phrases with spacing, "Passer" skip + "Continuer" at end
-3. **Health page bio age pill** — Pure black pill with Nora video on the left + "AGE BIOLOGIQUE" text, replacing the old purple "N" badge
+1. **Morning briefing overlay removed** — Nora video opacity 0.6 → 1.0
+2. **Nora onboarding redesigned** — Big video at top, premium scrolling text about longevity/health
+3. **Health page bio age pill** — Pure black pill with Nora video on left + "AGE BIOLOGIQUE" text
 
 ### Session - March 12, 2026 (Batch 1)
 1. **Meal Recipe Step Icons** — 12 contextual cooking icons in `meal-detail.tsx`
-2. **Page Load Optimization** — Lightweight `/api/minceur/exercises` endpoint, deferred AI in `health-detail.tsx`
+2. **Page Load Optimization** — Lightweight `/api/minceur/exercises` endpoint, deferred AI
 3. **Morning Briefing Redirect** — Re-enabled auto-redirect in `index.tsx`
 
 ### Previous Sessions (Summary)
@@ -36,9 +41,6 @@ Health monitoring and care application for elderly beneficiaries ("Chutex Care")
 
 ### P0 (Next)
 - True ML for Glycemia Estimation (V3)
-
-### P2
-- Slow page load on remaining detail pages (partially addressed)
 
 ### Future
 - Guardian Referral System
@@ -62,11 +64,9 @@ Health monitoring and care application for elderly beneficiaries ("Chutex Care")
 
 ## Key Files
 - `/app/frontend/app/(tabs)/index.tsx` - Main dashboard
-- `/app/frontend/app/(tabs)/health.tsx` - Health page
+- `/app/frontend/app/(tabs)/health.tsx` - Health page (light/dark mode)
+- `/app/frontend/src/components/health/HeroScore.tsx` - Bio age with Nora pill
+- `/app/frontend/app/meal-detail.tsx` - Meal detail with recipe step icons
 - `/app/frontend/app/onboarding.tsx` - Onboarding with Nora intro
 - `/app/frontend/app/morning-briefing.tsx` - Morning briefing (no overlay)
-- `/app/frontend/app/meal-detail.tsx` - Meal detail with recipe step icons
-- `/app/frontend/app/activity-detail.tsx` - Activity detail (optimized)
-- `/app/frontend/src/components/health/HeroScore.tsx` - Bio age with Nora pill
 - `/app/backend/routes/minceur_routes.py` - Minceur endpoints incl. /exercises
-- `/app/frontend/components/shared/NoraCard.tsx` - Reusable Nora component
