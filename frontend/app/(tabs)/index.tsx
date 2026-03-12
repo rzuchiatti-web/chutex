@@ -103,7 +103,7 @@ function NoraPill() {
 
 function TypewriterTitle({ text }: { text: string; delay?: number }) {
   return (
-    <div className="dash-slide-up" style={{ fontSize: 20, fontWeight: 900, color: C.text, letterSpacing: -0.5, marginBottom: 20, textAlign: 'center' } as any}>
+    <div className="dash-slide-up" style={{ fontSize: 20, fontWeight: 900, color: 'var(--card-text, #111)', letterSpacing: -0.5, marginBottom: 20, textAlign: 'center' } as any}>
       {text}
     </div>
   );
@@ -142,7 +142,7 @@ function DailyObjectivesOnDashboard({ token }: { token: string }) {
               else if (p.key === 'hydration') router.push('/minceur' as any);
             }} style={{
               padding: '12px', borderRadius: 16,
-              background: C.card,
+              background: 'var(--card-bg, #EDEDF0)',
               cursor: 'pointer', transition: 'transform 0.18s, box-shadow 0.18s',
               animationDelay: `${idx * 0.1}s`,
               display: 'flex', alignItems: 'center', gap: 10,
@@ -157,10 +157,10 @@ function DailyObjectivesOnDashboard({ token }: { token: string }) {
               )}
               <div style={{ flex: 1, minWidth: 0 } as any}>
                 <div style={{ display: 'flex', alignItems: 'baseline', gap: 4 } as any}>
-                  <span style={{ fontSize: 22, fontWeight: 900, color: C.text, letterSpacing: -1 }}>{p.value}</span>
-                  <span style={{ fontSize: 11, fontWeight: 600, color: C.sub }}>{p.unit}</span>
+                  <span style={{ fontSize: 22, fontWeight: 900, color: 'var(--card-text, #111)', letterSpacing: -1 }}>{p.value}</span>
+                  <span style={{ fontSize: 11, fontWeight: 600, color: 'var(--card-sub, rgba(0,0,0,0.4))' }}>{p.unit}</span>
                 </div>
-                <div style={{ fontSize: 9, color: C.sub, fontWeight: 500, lineHeight: 1.3 }}>{p.label}</div>
+                <div style={{ fontSize: 9, color: 'var(--card-sub, rgba(0,0,0,0.4))', fontWeight: 500, lineHeight: 1.3 }}>{p.label}</div>
               </div>
             </div>
           );
