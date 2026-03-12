@@ -16,11 +16,7 @@ export default function Root({ children }: PropsWithChildren) {
         <style dangerouslySetInnerHTML={{ __html: `
           html, body { margin: 0; padding: 0; background: #0A0A1A; overflow: hidden; height: 100%; }
           #root { height: 100%; }
-          body { padding-top: env(safe-area-inset-top, 0px) !important; padding-top: constant(safe-area-inset-top, 0px) !important; }
           * { -webkit-overflow-scrolling: touch; }
-          @supports (padding-top: env(safe-area-inset-top)) {
-            body { padding-top: env(safe-area-inset-top) !important; }
-          }
 
           /* ═══ Premium Clinical Motion System ═══ */
 
