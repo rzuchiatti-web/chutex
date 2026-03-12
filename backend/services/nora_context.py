@@ -296,7 +296,9 @@ def format_nora_context_for_prompt(ctx: dict) -> str:
 
 # ── App services knowledge base for Nora ──
 APP_SERVICES_KNOWLEDGE = """
-SERVICES DE L'APPLICATION CHUTEX CARE WATCH:
+SERVICES DE L'APPLICATION CHUTEX:
+
+L'application s'appelle Chutex (PAS "CareWatch", PAS "Care Watch", PAS "Chutex Care Watch"). Chutex Care est UNIQUEMENT le nom du service de teleassistance 24/7.
 
 1. ABONNEMENT STANDARD — Bracelet Elio (24,90 EUR/mois):
    - Suivi cardiaque en continu (FC, HRV, SpO2)
@@ -311,39 +313,68 @@ SERVICES DE L'APPLICATION CHUTEX CARE WATCH:
    - Tout le Standard +
    - Bouton SOS sur le bracelet
    - Plateau d'ecoute professionnel 24h/24, 7j/7
-   - Envoi d'intervenants Care en cas d'urgence
+   - Envoi d'intervenants en cas d'urgence
    - Suivi GPS en temps reel
    - Notifications automatiques aux gardiens
    - Rapports de cloture d'intervention
    - RECOMMANDE pour les personnes de +70 ans vivant seules
 
-3. BALANCE VITA (appareil complementaire):
-   - Balance connectee 8 electrodes
-   - Mesure: poids, IMC, masse grasse, masse musculaire, hydratation, masse osseuse, graisse viscerale, age corporel, proteines, muscle squelettique
-   - Indispensable pour une analyse complete de la composition corporelle
-   - Se connecte automatiquement a l'app
+3. BRACELET ELIO V6 (appareil principal):
+   - Bracelet connecte 4G
+   - Mesure: frequence cardiaque, HRV, SpO2, temperature, tension arterielle, pas, calories, sommeil
+   - Detection de chute automatique
+   - Bouton SOS (avec abonnement Chutex Care)
 
-4. PROGRAMMES DE PREVENTION (gratuits avec abonnement):
+4. BALANCE VITA (appareil complementaire):
+   - Balance connectee WiFi 8 electrodes
+   - Mesure: poids, IMC, masse grasse, masse musculaire, hydratation, masse osseuse, graisse viscerale, age corporel, proteines, muscle squelettique
+   - Multi-utilisateurs (une balance pour tout le foyer)
+   - Se connecte automatiquement a l'app via WiFi
+
+5. PROGRAMMES DE PREVENTION (gratuits avec abonnement):
+   - "21 jours pour prevenir les chutes" — Programme equilibre et renforcement en 3 phases
    - "21 jours pour mieux dormir" — Programme sommeil progressif en 3 phases
    - "14 jours pour stabiliser sa tension" — Programme cardiovasculaire
    - "30 jours pour bouger plus" — Programme activite physique adaptee
    - Check-ins quotidiens, badges, suivi de progression
    - Possibilite de faire les programmes en equipe
+   - Jeux de rehabilitation (Dorsi pour le dos)
 
-5. NORA — Assistante IA medicale:
+6. NORA — Intelligence Artificielle Chutex:
    - Analyse en temps reel des donnees de sante
    - Recommandations personnalisees basees sur les donnees reelles
-   - Chat medical disponible 24/7
-   - Rapports de sante hebdomadaires et quotidiens
+   - Chat IA disponible 24/7
+   - Briefing matinal quotidien personnalise
+   - Estimation glycemie, age biologique, taux de vieillissement
+   - Correlations et alertes predictives
 
-6. ESPACE GARDIEN:
+7. BILAN LOMBAIRE DORSI:
+   - Evaluation de la mobilite lombaire (4 directions: avant, arriere, gauche, droite)
+   - Mesure de l'amplitude et de la douleur
+   - Generation de programme de reeducation adapte
+   - Suivi de progression dans le temps
+
+8. ESPACE GARDIEN:
    - Suivi en temps reel de la sante du beneficiaire
    - Reception des alertes SOS et chutes
    - Coordination des interventions
    - Notifications automatiques
+   - Possibilite de rattacher plusieurs beneficiaires
+
+9. ESPACE MINCEUR:
+   - Objectif poids avec suivi sur plusieurs semaines
+   - Suivi calories, hydratation
+   - Recommandations nutritionnelles
+   - Plans de repas personnalises
+
+10. TELEASSISTANCE:
+    - Plateforme d'alerte en temps reel pour les structures SAAD
+    - Gestion des interventions d'urgence
+    - Historique des alertes et rapports
 
 REGLES STRICTES:
 - Ne JAMAIS recommander au beneficiaire d'activer un espace ou role gardien. Le beneficiaire est un patient, pas un gardien.
 - Ne JAMAIS suggerer de "devenir gardien" ou "activer le role gardien" a un beneficiaire.
+- Ne JAMAIS dire "CareWatch", "Care Watch" ou "Chutex Care Watch" — ca n'existe pas. L'app s'appelle Chutex.
 - Les recommandations doivent porter uniquement sur: les dispositifs de sante, les programmes de prevention, l'abonnement, et le suivi medical.
 """

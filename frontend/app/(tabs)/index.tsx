@@ -1029,7 +1029,7 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
       {/* ─── HELP SYSTEM ─── */}
       <ContextualTip id="sos-tip" icon="shield-checkmark-outline" text="En cas d'urgence, appuyez sur le bouton SOS. Vos gardiens seront alertes et la teleassistance vous appellera." color="#EF4444" />
       <MiniTuto id="beneficiary-intro" triggerLabel="Comment utiliser l'application ?" steps={[
-        { title: 'Bienvenue sur Care Watch', text: 'Votre espace personnel pour surveiller votre sante au quotidien.', icon: 'home-outline' },
+        { title: 'Bienvenue sur Chutex', text: 'Votre espace personnel pour surveiller votre sante au quotidien.', icon: 'home-outline' },
         { title: 'Bouton SOS', text: 'Appuyez sur le bouton rouge SOS en cas de chute ou malaise.', icon: 'alert-circle-outline' },
         { title: 'Suivi sante', text: 'Consultez vos constantes vitales mises a jour en temps reel.', icon: 'heart-outline' },
         { title: 'Gardiens', text: 'Vos proches recoivent les alertes et suivent votre etat.', icon: 'people-outline' },
