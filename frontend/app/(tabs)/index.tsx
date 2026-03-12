@@ -454,7 +454,8 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
 
   /* ─── WEB: Redesigned beneficiary dashboard ─── */
   // Dark mode toggle
-  const [isDark, setIsDark] = useState(() => typeof localStorage !== 'undefined' && localStorage.getItem('chutex_dark') === '1');
+  const [isDark, setIsDark] = useState(false);
+  useEffect(() => { if (typeof localStorage !== 'undefined' && localStorage.getItem('chutex_dark') === '1') setIsDark(true); }, []);
   if (Platform.OS === 'web') {
     const BG_IMG = 'https://customer-assets.emergentagent.com/job_9950a869-9328-4a4b-abf4-a6fb213a3b47/artifacts/iklovqya_background_beneficiary.svg';
     const toggleDark = () => { const next = !isDark; setIsDark(next); localStorage.setItem('chutex_dark', next ? '1' : '0'); };
