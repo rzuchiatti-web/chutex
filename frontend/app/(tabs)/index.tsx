@@ -29,6 +29,17 @@ import { SubscriptionBanner, SubscriptionGate } from '../../src/components/Subsc
 /* ═══════════════════════════════════════════════════════ */
 const WEIGHT_BG = 'https://customer-assets.emergentagent.com/job_443c9c6e-0feb-4920-a358-fe7cc1a6289b/artifacts/v5t9l2mb_ChatGPT%20Image%2017%20f%C3%A9vr.%202026%2C%2014_10_07.png';
 const TAPE_MEASURE_IMG = 'https://customer-assets.emergentagent.com/job_e5e873d0-c3a6-4073-8807-5b369c712c84/artifacts/d7demq52_img_objectif_poids.png';
+const NORA_VIDEO_URL = 'https://customer-assets.emergentagent.com/job_ba3a5789-c8f1-4b12-b5d8-478a7f99aaea/artifacts/b6eh1r76_Nora_video.mp4';
+const IMG_KCAL = 'https://customer-assets.emergentagent.com/job_ba3a5789-c8f1-4b12-b5d8-478a7f99aaea/artifacts/385muol8_img_kcal.png';
+const IMG_GUARDIANS = 'https://customer-assets.emergentagent.com/job_ba3a5789-c8f1-4b12-b5d8-478a7f99aaea/artifacts/ashlkedd_img_gardians.png';
+
+/* ── Objective icon images ── */
+const OBJ_IMAGES: Record<string, string> = {
+  calories_intake: IMG_KCAL,
+  hydration: 'https://static.prod-images.emergentagent.com/jobs/d4cb6ccb-5171-476f-a516-d21f3db23d77/images/87293416760eaefc039bb568767e81f9426ad1e89b8df9dfc0ab81330863f690.png',
+  steps: 'https://customer-assets.emergentagent.com/job_1026023a-fd73-4c44-a002-9618d437c4c8/artifacts/mdk4g3eq_Muscle.png',
+  sleep: 'https://static.prod-images.emergentagent.com/jobs/d4cb6ccb-5171-476f-a516-d21f3db23d77/images/d723d777bc8ccb155c7c562cb38db14c8a78daa32762e06c918e2295c239f21c.png',
+};
 
 function WeightGoalDashCard({ token }: { token: string }) {
   const router = useRouter();
@@ -47,7 +58,7 @@ function WeightGoalDashCard({ token }: { token: string }) {
   const progressPct = diff > 0 ? Math.max(5, Math.min(95, 100 - (diff / (diff + 2)) * 100)) : 50;
 
   return (
-    <div data-testid="weight-goal-dash-card" className="cl-reveal cl-reveal-d5 cl-press" onClick={() => router.push('/minceur' as any)}
+    <div data-testid="weight-goal-dash-card" className="dash-slide-up cl-press" onClick={() => router.push('/minceur' as any)}
       style={{ borderRadius: 18, overflow: 'hidden', marginBottom: 14, cursor: 'pointer', position: 'relative', height: 100, transition: 'transform 0.15s' } as any}
       onMouseEnter={(e: any) => { e.currentTarget.style.transform = 'translateY(-1px)'; }}
       onMouseLeave={(e: any) => { e.currentTarget.style.transform = ''; }}>
@@ -77,6 +88,29 @@ function WeightGoalDashCard({ token }: { token: string }) {
 }
 
 /* ═══════════════════════════════════════════════════════ */
+/*               NORA PILL BADGE + TYPEWRITER TITLE        */
+/* ═══════════════════════════════════════════════════════ */
+function NoraPill() {
+  return (
+    <div className="dash-slide-up" style={{ display: 'flex', justifyContent: 'center', marginBottom: 14 } as any}>
+      <div style={{ display: 'inline-flex', alignItems: 'center', gap: 10, background: '#111', borderRadius: 999, padding: '6px 16px 6px 6px', boxShadow: '0 2px 12px rgba(0,0,0,0.25)' } as any}>
+        <video src={NORA_VIDEO_URL} autoPlay loop muted playsInline style={{ width: 28, height: 28, borderRadius: 14, objectFit: 'cover' } as any} />
+        <span style={{ fontSize: 12, fontWeight: 700, color: '#FFF', letterSpacing: -0.2 }}>Nora recommandation</span>
+      </div>
+    </div>
+  );
+}
+
+function TypewriterTitle({ text, delay }: { text: string; delay?: number }) {
+  return (
+    <div className="dash-slide-up" style={{ fontSize: 18, fontWeight: 900, color: '#FFF', letterSpacing: -0.5, marginBottom: 14, display: 'flex', alignItems: 'center', gap: 2 } as any}>
+      <span>{text}</span>
+      <span className="tw-cursor" style={{ display: 'inline-block', width: 2, height: 20, background: '#FFF', marginLeft: 2, animation: 'twBlink 1s step-end infinite' } as any} />
+    </div>
+  );
+}
+
+/* ═══════════════════════════════════════════════════════ */
 /*               DAILY OBJECTIVES ON DASHBOARD             */
 /* ═══════════════════════════════════════════════════════ */
 function DailyObjectivesOnDashboard({ token }: { token: string }) {
@@ -95,29 +129,44 @@ function DailyObjectivesOnDashboard({ token }: { token: string }) {
 
   const items = plan.filter((p: any) => p.key !== 'connect');
   return (
-    <div data-testid="dashboard-objectives" className="cl-reveal cl-reveal-d3" style={{ marginBottom: 8 } as any}>
-      <div style={{ fontSize: 14, fontWeight: 800, color: '#FFF', letterSpacing: -0.3, marginBottom: 12 }}>Objectifs du jour</div>
+    <div data-testid="dashboard-objectives" style={{ marginBottom: 8 } as any}>
+      <NoraPill />
+      <TypewriterTitle text="Voici vos objectifs journaliers." />
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 } as any}>
-        {items.map((p: any, idx: number) => (
-          <div key={p.key} className="clinic-card-enter" onClick={() => {
-            if (p.key === 'steps') router.push({ pathname: '/metric-detail' as any, params: { key: 'steps' } });
-            else if (p.key === 'sleep') router.push('/sleep' as any);
-            else if (p.key === 'calories_intake') router.push('/minceur' as any);
-            else if (p.key === 'hydration') router.push('/minceur' as any);
-          }} style={{ padding: '16px 14px', borderRadius: 18, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', cursor: 'pointer', transition: 'transform 0.15s ease, background 0.15s ease', animationDelay: `${idx * 0.08}s` } as any}
-            onMouseEnter={(e: any) => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.background = 'rgba(255,255,255,0.10)'; }}
-            onMouseLeave={(e: any) => { e.currentTarget.style.transform = ''; e.currentTarget.style.background = 'rgba(255,255,255,0.06)'; }}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 } as any}>
-              <div style={{ width: 34, height: 34, borderRadius: 10, background: 'rgba(255,255,255,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}>
-                <i className={p.icon} style={{ fontSize: 16, color: p.color }} />
+        {items.map((p: any, idx: number) => {
+          const objImg = OBJ_IMAGES[p.key];
+          return (
+            <div key={p.key} className="dash-slide-up" onClick={() => {
+              if (p.key === 'steps') router.push({ pathname: '/metric-detail' as any, params: { key: 'steps' } });
+              else if (p.key === 'sleep') router.push('/sleep' as any);
+              else if (p.key === 'calories_intake') router.push('/minceur' as any);
+              else if (p.key === 'hydration') router.push('/minceur' as any);
+            }} style={{
+              padding: '16px 14px', borderRadius: 18,
+              background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)',
+              backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)',
+              cursor: 'pointer', transition: 'transform 0.18s, background 0.18s',
+              animationDelay: `${idx * 0.1}s`,
+              display: 'flex', alignItems: 'center', gap: 12,
+            } as any}
+              onMouseEnter={(e: any) => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.background = 'rgba(255,255,255,0.10)'; }}
+              onMouseLeave={(e: any) => { e.currentTarget.style.transform = ''; e.currentTarget.style.background = 'rgba(255,255,255,0.06)'; }}>
+              {objImg && <img src={objImg} alt="" style={{ width: 42, height: 42, objectFit: 'contain', flexShrink: 0 } as any} />}
+              {!objImg && (
+                <div style={{ width: 42, height: 42, borderRadius: 12, background: 'rgba(255,255,255,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}>
+                  <i className={p.icon} style={{ fontSize: 18, color: p.color }} />
+                </div>
+              )}
+              <div style={{ flex: 1, minWidth: 0 } as any}>
+                <div style={{ display: 'flex', alignItems: 'baseline', gap: 4 } as any}>
+                  <span style={{ fontSize: 24, fontWeight: 900, color: '#FFF', letterSpacing: -1 }}>{p.value}</span>
+                  <span style={{ fontSize: 11, fontWeight: 600, color: 'rgba(255,255,255,0.45)' }}>{p.unit}</span>
+                </div>
+                <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.35)', fontWeight: 500, lineHeight: 1.3, whiteSpace: 'normal', overflow: 'hidden' }}>{p.label}</div>
               </div>
-              {p.progress != null && <div style={{ fontSize: 11, fontWeight: 800, color: p.progress >= 100 ? '#34C759' : '#FFF' }}>{Math.min(100, Math.round(p.progress))}%</div>}
             </div>
-            <div style={{ fontSize: 22, fontWeight: 900, color: '#FFF', letterSpacing: -1, marginBottom: 2 }}>{p.value}<span style={{ fontSize: 11, fontWeight: 600, color: 'rgba(255,255,255,0.4)', marginLeft: 4 }}>{p.unit}</span></div>
-            <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', fontWeight: 500 }}>{p.label}</div>
-            {p.progress != null && <div style={{ height: 3, borderRadius: 2, background: 'rgba(255,255,255,0.08)', marginTop: 10, overflow: 'hidden' } as any}><div style={{ height: 3, borderRadius: 2, width: `${Math.min(100, p.progress)}%`, background: p.color, transition: 'width 1s ease' } as any} /></div>}
-          </div>
-        ))}
+          );
+        })}
       </div>
     </div>
   );
@@ -514,8 +563,9 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
           ))}
 
           {/* ── 4. PROGRAMME EN COURS ── */}
+          <TypewriterTitle text="Programme en cours." />
           {activeProgram?.active ? (
-            <div data-testid="active-program-card" className="cl-reveal cl-reveal-d4 cl-card cl-press" onClick={() => router.push('/(tabs)/chat' as any)} style={{ borderRadius: 18, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', padding: '16px', marginBottom: 12, cursor: 'pointer', transition: 'transform 0.15s, background 0.15s' } as any}
+            <div data-testid="active-program-card" className="dash-slide-up cl-press" onClick={() => router.push('/(tabs)/chat' as any)} style={{ borderRadius: 18, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', padding: '16px', marginBottom: 12, cursor: 'pointer', transition: 'transform 0.18s, background 0.18s' } as any}
               onMouseEnter={(e: any) => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.background = 'rgba(255,255,255,0.10)'; }}
               onMouseLeave={(e: any) => { e.currentTarget.style.transform = ''; e.currentTarget.style.background = 'rgba(255,255,255,0.06)'; }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 12 } as any}>
@@ -544,7 +594,7 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
               )}
             </div>
           ) : (
-            <div data-testid="discover-programs" className="cl-reveal cl-reveal-d4 cl-card cl-press" onClick={() => router.push('/(tabs)/chat' as any)} style={{ borderRadius: 18, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', padding: '14px 16px', marginBottom: 12, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 12, transition: 'transform 0.15s, background 0.15s' } as any}
+            <div data-testid="discover-programs" className="dash-slide-up cl-press" onClick={() => router.push('/(tabs)/chat' as any)} style={{ borderRadius: 18, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', padding: '14px 16px', marginBottom: 12, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 12, transition: 'transform 0.18s, background 0.18s' } as any}
               onMouseEnter={(e: any) => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.background = 'rgba(255,255,255,0.10)'; }}
               onMouseLeave={(e: any) => { e.currentTarget.style.transform = ''; e.currentTarget.style.background = 'rgba(255,255,255,0.06)'; }}>
               <div style={{ width: 36, height: 36, borderRadius: 12, background: 'rgba(167,139,250,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}>
@@ -579,8 +629,8 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
 
 
           {/* ── Rappels — directly on background ── */}
-          <div data-testid="reminders-section" className="cl-reveal cl-reveal-d7" style={{ marginBottom: 16 } as any}>
-            <div style={{ fontSize: 14, fontWeight: 800, color: '#FFF', marginBottom: 10 }}>{t('my_reminders')}</div>
+          <div data-testid="reminders-section" className="dash-slide-up" style={{ marginBottom: 16 } as any}>
+            <TypewriterTitle text="Mes rappels." />
             {[
               { type: 'hydration', label: 'Hydratation', img: REMINDER_IMAGES.hydration, color: '#38BDF8' },
               { type: 'medication', label: 'Traitement', img: REMINDER_IMAGES.medication, color: '#F59E0B' },
@@ -608,7 +658,13 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
 
           {/* ── Rappels — directly on background ── */}
           <GC testId="guardians-section">
-            <div style={{ fontSize: 14, fontWeight: 800, color: '#FFF', marginBottom: 12 }}>Mes gardiens</div>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 } as any}>
+              <div style={{ fontSize: 18, fontWeight: 900, color: '#FFF', letterSpacing: -0.5, display: 'flex', alignItems: 'center', gap: 2 }}>
+                <span>Mes gardiens</span>
+                <span className="tw-cursor" style={{ display: 'inline-block', width: 2, height: 18, background: '#FFF', marginLeft: 2, animation: 'twBlink 1s step-end infinite' } as any} />
+              </div>
+              <img src={IMG_GUARDIANS} alt="" style={{ width: 80, height: 44, objectFit: 'contain', borderRadius: 8 } as any} />
+            </div>
             {guardians.map((g: any, i: number) => (
               <div key={g.id || i} onClick={() => router.push({ pathname: '/guardian-detail', params: { guardianId: g.id } })} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 0', borderTop: i > 0 ? '1px solid rgba(0,0,0,0.04)' : 'none', cursor: 'pointer' } as any}>
                 <div style={{ width: 36, height: 36, borderRadius: 10, background: 'rgba(79,195,247,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}><span style={{ fontSize: 14, fontWeight: 800, color: '#4FC3F7' }}>{g.name?.charAt(0)}</span></div>
@@ -640,7 +696,7 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
 
           </div> {/* end padding wrapper */}
         </div>
-        <style dangerouslySetInnerHTML={{ __html: `@keyframes spin{to{transform:rotate(360deg)}} @keyframes pulseRing{0%{transform:scale(1);opacity:0.3}100%{transform:scale(1.5);opacity:0}}` }} />
+        <style dangerouslySetInnerHTML={{ __html: `@keyframes spin{to{transform:rotate(360deg)}} @keyframes pulseRing{0%{transform:scale(1);opacity:0.3}100%{transform:scale(1.5);opacity:0}} @keyframes twBlink{0%,100%{opacity:1}50%{opacity:0}} @keyframes dashSlideUp{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}} .dash-slide-up{animation:dashSlideUp 0.5s ease-out both} .dash-slide-up:nth-child(1){animation-delay:0s} .dash-slide-up:nth-child(2){animation-delay:0.08s} .dash-slide-up:nth-child(3){animation-delay:0.16s} .dash-slide-up:nth-child(4){animation-delay:0.24s} .dash-slide-up:nth-child(5){animation-delay:0.32s} .dash-slide-up:nth-child(6){animation-delay:0.4s} .tw-cursor{animation:twBlink 1s step-end infinite}` }} />
       </div>
     );
   }
