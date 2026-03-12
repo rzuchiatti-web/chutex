@@ -176,6 +176,8 @@ function DailyObjectivesOnDashboard({ token }: { token: string }) {
 function BeneficiaryHome({ token, user }: { token: string; user: any }) {
   const router = useRouter();
   const { t, lang, setLang, flags: langFlags } = useI18n();
+  const [isDark, setIsDark] = useState(false);
+  useEffect(() => { if (typeof localStorage !== 'undefined' && localStorage.getItem('chutex_dark') === '1') setIsDark(true); }, []);
   const [dashData, setDashData] = useState<any>(null);
   const [langOpen, setLangOpen] = useState(false);
   const [guardians, setGuardians] = useState<any[]>([]);
@@ -435,10 +437,6 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
       Alert.alert('Espace aidant active', 'Vous pouvez maintenant basculer vers votre espace aidant.');
     } catch (e: any) { Alert.alert('Erreur', e.message); } finally { setActivatingGuardian(false); }
   };
-
-  // Dark mode hook — must be before any conditional return
-  const [isDark, setIsDark] = useState(false);
-  useEffect(() => { if (typeof localStorage !== 'undefined' && localStorage.getItem('chutex_dark') === '1') setIsDark(true); }, []);
 
   if (loading) return Platform.OS === 'web' ? <Loader /> : <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#F2F2F7' }}><ActivityIndicator size="large" color="#111" /></View>;
 
