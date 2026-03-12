@@ -474,6 +474,20 @@ async def get_weight_goal_status(user=Depends(get_current_user)):
 
 
 
+@router.get("/minceur/exercises")
+async def get_daily_exercises(user=Depends(get_current_user)):
+    """Lightweight: return only today's exercise recommendations from cache"""
+    uid = user["id"]
+    u = await db.users.find_one({"id": uid}, {"_id": 0})
+    if not u:
+        return {"exercises": []}
+    latest_history = await get_weight_history(uid)
+    latest = latest_history[0] if latest_history else {}
+    goal = await db.minceur_goals.find_one({"user_id": uid}, {"_id": 0})
+    recs = await generate_daily_recommendations(uid, u, latest, goal)
+    return {"exercises": recs.get("exercises", []) if recs else []}
+
+
 @router.post("/minceur/refresh-recommendations")
 async def refresh_recommendations(user=Depends(get_current_user)):
     """Force refresh AI recommendations"""

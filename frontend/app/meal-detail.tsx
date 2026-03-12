@@ -18,6 +18,27 @@ const FOOD_E: Record<string, string> = { oeuf: '🥚', lait: '🥛', yaourt: '�
 function foodEmoji(name: string): string { const n = name.toLowerCase(); for (const [k, v] of Object.entries(FOOD_E)) { if (n.includes(k)) return v; } return '🍽️'; }
 const ICONS: Record<string, string> = { breakfast: 'ri-cup-line', lunch: 'ri-restaurant-2-line', snack: 'ri-apple-line', dinner: 'ri-moon-line' };
 
+/* ── Cooking step icon detection ── */
+const STEP_ICONS: { keywords: string[]; icon: string; color: string }[] = [
+  { keywords: ['couper', 'tranch', 'decoup', 'eminc', 'hach', 'taill', 'ciseler'], icon: 'ri-scissors-line', color: '#EF4444' },
+  { keywords: ['melang', 'remuer', 'battre', 'fouett', 'incorpor', 'homog'], icon: 'ri-refresh-line', color: '#A78BFA' },
+  { keywords: ['cuire', 'chauffe', 'revenir', 'sauter', 'griller', 'rotir', 'frire', 'dorer', 'mijoter', 'braiser', 'pocher', 'flamber', 'saisir', 'rissoler'], icon: 'ri-fire-line', color: '#F59E0B' },
+  { keywords: ['four', 'prechauff', 'enfourne', 'gratine'], icon: 'ri-temp-hot-line', color: '#EF4444' },
+  { keywords: ['verser', 'ajoute', 'depose', 'nappe'], icon: 'ri-add-circle-line', color: '#38BDF8' },
+  { keywords: ['servir', 'dresser', 'present', 'dispose', 'garni', 'decore'], icon: 'ri-restaurant-line', color: '#10B981' },
+  { keywords: ['repos', 'refroidi', 'laisser', 'attendre', 'temper', 'mariner', 'infuse'], icon: 'ri-time-line', color: '#A78BFA' },
+  { keywords: ['assaisonn', 'saler', 'poivrer', 'epice', 'relever'], icon: 'ri-sparkling-line', color: '#F59E0B' },
+  { keywords: ['peler', 'eплuch', 'epluche', 'laver', 'rincer', 'nettoyer', 'essuyer'], icon: 'ri-drop-line', color: '#38BDF8' },
+  { keywords: ['mixer', 'broyer', 'reduire', 'piler', 'ecraser'], icon: 'ri-blender-line', color: '#A78BFA' },
+  { keywords: ['bouilli', 'ebulliti', 'eau', 'vapeur'], icon: 'ri-water-flash-line', color: '#38BDF8' },
+  { keywords: ['enfarine', 'farine', 'paner', 'enrobe'], icon: 'ri-cake-3-line', color: '#F59E0B' },
+];
+function stepIcon(text: string): { icon: string; color: string } {
+  const t = text.toLowerCase();
+  for (const s of STEP_ICONS) { if (s.keywords.some(k => t.includes(k))) return { icon: s.icon, color: s.color }; }
+  return { icon: 'ri-knife-line', color: 'rgba(255,255,255,0.3)' };
+}
+
 export default function MealDetailPage() {
   const { token } = useAuth();
   const router = useRouter();
@@ -132,12 +153,20 @@ export default function MealDetailPage() {
                       <span style={{ fontSize: 10, fontWeight: 800, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: 1 }}>Preparation</span>
                     </div>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: 8 } as any}>
-                      {m.recipe.map((step: string, i: number) => (
-                        <div key={i} style={{ display: 'flex', gap: 12, padding: '10px 12px', borderRadius: 14, background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.04)', animation: `fadeSlide 0.3s ${i * 0.08}s ease both` } as any}>
-                          <div style={{ width: 28, height: 28, borderRadius: 10, background: `${col}12`, border: `1px solid ${col}20`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, fontSize: 12, fontWeight: 900, color: col } as any}>{i + 1}</div>
-                          <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.5)', lineHeight: 1.6, flex: 1, paddingTop: 4 }}>{step}</div>
-                        </div>
-                      ))}
+                      {m.recipe.map((step: string, i: number) => {
+                        const si = stepIcon(step);
+                        return (
+                          <div key={i} style={{ display: 'flex', gap: 12, padding: '12px 14px', borderRadius: 14, background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.04)', animation: `fadeSlide 0.3s ${i * 0.08}s ease both` } as any}>
+                            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4, flexShrink: 0 } as any}>
+                              <div style={{ width: 32, height: 32, borderRadius: 10, background: `${si.color}12`, border: `1px solid ${si.color}20`, display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}>
+                                <i className={si.icon} style={{ fontSize: 15, color: si.color }} />
+                              </div>
+                              <span style={{ fontSize: 8, fontWeight: 800, color: 'rgba(255,255,255,0.15)' }}>{'0' + (i + 1)}</span>
+                            </div>
+                            <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.5)', lineHeight: 1.6, flex: 1, paddingTop: 6 }}>{step}</div>
+                          </div>
+                        );
+                      })}
                     </div>
                   </div>
                 )}

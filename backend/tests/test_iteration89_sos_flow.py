@@ -15,7 +15,7 @@ import pytest
 import requests
 import os
 
-BASE_URL = os.environ.get('EXPO_PUBLIC_BACKEND_URL', 'https://glassmorphism-dash.preview.emergentagent.com')
+BASE_URL = os.environ.get('EXPO_PUBLIC_BACKEND_URL', 'https://beneficiary-hub-9.preview.emergentagent.com')
 
 # Test credentials as provided
 TEST_ACCOUNTS = {

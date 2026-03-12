@@ -25,7 +25,7 @@ export default function ActivityDetailPage() {
   const router = useRouter();
   const [d, setD] = useState<any>(null);
   const [streak, setStreak] = useState<any>(null);
-  const [minceur, setMinceur] = useState<any>(null);
+  const [exercises, setExercises] = useState<any[]>([]);
   const [tracked, setTracked] = useState<Record<string, boolean>>({});
   const [loading, setLoading] = useState(true);
   const [showExplain, setShowExplain] = useState(false);
@@ -36,10 +36,11 @@ export default function ActivityDetailPage() {
     Promise.all([
       apiFetch('/api/health/daily-report', {}, token).catch(() => ({})),
       apiFetch('/api/health/activity-streak', {}, token).catch(() => ({})),
-      apiFetch('/api/minceur/weight-details', {}, token).catch(() => ({})),
+      apiFetch('/api/minceur/exercises', {}, token).catch(() => ({})),
       apiFetch('/api/minceur/today-tracking', {}, token).catch(() => ({})),
-    ]).then(([report, st, minc, trk]) => {
-      setD(report); setStreak(st); setMinceur(minc);
+    ]).then(([report, st, exData, trk]) => {
+      setD(report); setStreak(st);
+      if (exData?.exercises) setExercises(exData.exercises);
       if (trk?.completed) setTracked(trk.completed);
     }).finally(() => setLoading(false));
   }, [token]);
@@ -183,14 +184,14 @@ export default function ActivityDetailPage() {
               } />
 
               {/* ══ EXERCICES DU JOUR — style repas avec image ══ */}
-              {minceur?.recommendations?.exercises && minceur.recommendations.exercises.length > 0 && (
+              {exercises.length > 0 && (
                 <div style={{ ...GL, padding: 16, marginBottom: 14 } as any}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 } as any}>
                     <i className="ri-heart-pulse-line" style={{ fontSize: 14, color: G }} />
                     <span style={{ fontSize: 13, fontWeight: 800, color: '#FFF' }}>Vos exercices du jour</span>
                   </div>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: 8 } as any}>
-                    {minceur.recommendations.exercises.map((ex: any, i: number) => {
+                    {exercises.map((ex: any, i: number) => {
                       const int = ex.intensity || 'modere';
                       const intC = int === 'leger' ? G : int === 'modere' ? A : R;
                       const dn = tracked[`exercise_${i}`];

@@ -141,14 +141,13 @@ export default function HealthDetailScreen() {
   useEffect(() => {
     (async () => {
       try {
-        const [rep, ai] = await Promise.all([
-          apiFetch('/api/health/daily-report', {}, token),
-          metricId && metricId !== 'heart_rate' && metricId !== 'spo2' && metricId !== 'blood_pressure' && metricId !== 'temperature'
-            ? apiFetch(`/api/health/section-analysis/${metricId}`, {}, token).catch(() => null)
-            : null,
-        ]);
+        const rep = await apiFetch('/api/health/daily-report', {}, token);
         setReport(rep);
-        setSectionAi(ai);
+        setLoading(false);
+        // Defer AI analysis — show page content immediately
+        if (metricId && metricId !== 'heart_rate' && metricId !== 'spo2' && metricId !== 'blood_pressure' && metricId !== 'temperature') {
+          apiFetch(`/api/health/section-analysis/${metricId}`, {}, token).then(ai => { if (ai) setSectionAi(ai); }).catch(() => {});
+        }
       } catch {} finally { setLoading(false); }
     })();
   }, [token]);
