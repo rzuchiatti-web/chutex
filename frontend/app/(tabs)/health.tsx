@@ -11,7 +11,6 @@ import ActivityCard from '../../src/components/dashboard/ActivityCard';
 import NoraCard from '../../src/components/shared/NoraCard';
 import SleepCard from '../../src/components/health/SleepCard';
 import HealthSections from '../../src/components/health/HealthSections';
-import { isDarkMode } from '../../src/components/dashboard/constants';
 
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
@@ -93,7 +92,6 @@ export default function HealthScreen() {
   const [healthProgCatalog, setHealthProgCatalog] = useState<any[]>([]);
   const [refreshing, setRefreshing] = useState(false);
   const [agingRate, setAgingRate] = useState<any>(null);
-  const [isDark, setIsDark] = useState(() => { if (Platform.OS === 'web') { const s = localStorage.getItem('chutex_dark'); return s === null ? isDarkMode : s === '1'; } return isDarkMode; });
 
   const fetchData = useCallback(async () => {
     try {
@@ -157,22 +155,17 @@ export default function HealthScreen() {
   if (Platform.OS === 'web' && effectiveRole === 'beneficiary') {
     if (reportLoading) return <FullScreenLoader />;
 
-    const toggleDark = () => { const next = !isDark; setIsDark(next); localStorage.setItem('chutex_dark', next ? '1' : '0'); };
-    const C = isDark ? { bg: '#000', card: 'rgba(255,255,255,0.06)', text: '#FFF', sub: 'rgba(255,255,255,0.4)', headerBg: 'rgba(255,255,255,0.06)', btnBg: 'rgba(255,255,255,0.08)', arrow: 'rgba(255,255,255,0.2)', sep: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)', vitalBg: 'rgba(255,255,255,0.06)', vitalHover: 'rgba(255,255,255,0.10)', vitalLabel: 'rgba(255,255,255,0.5)', vitalVal: '#FFF', vitalUnit: 'rgba(255,255,255,0.3)', vitalStatus: 0.7, cardOverlay: 'rgba(0,0,0,0.4)', footerBg: 'rgba(0,0,0,0.15)', footerLabel: 'rgba(255,255,255,0.2)', linkColor: '#60A5FA', unavailBg: 'rgba(245,158,11,0.08)', unavailBorder: 'rgba(245,158,11,0.22)', unavailTitle: '#FCD34D', unavailText: 'rgba(255,255,255,0.55)' }
-      : { bg: '#FFF', card: '#EDEDF0', text: '#111', sub: 'rgba(0,0,0,0.4)', headerBg: '#EDEDF0', btnBg: '#FFF', arrow: 'rgba(0,0,0,0.2)', sep: 'rgba(0,0,0,0.06)', border: 'none', vitalBg: '#EDEDF0', vitalHover: '#E2E2E6', vitalLabel: 'rgba(0,0,0,0.45)', vitalVal: '#111', vitalUnit: 'rgba(0,0,0,0.3)', vitalStatus: 1, cardOverlay: 'rgba(0,0,0,0.4)', footerBg: 'rgba(0,0,0,0.15)', footerLabel: 'rgba(255,255,255,0.2)', linkColor: '#3B82F6', unavailBg: 'rgba(245,158,11,0.06)', unavailBorder: 'rgba(245,158,11,0.18)', unavailTitle: '#D97706', unavailText: 'rgba(0,0,0,0.55)' };
-    const darkGlass = isDark ? { backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' } : {};
-
     /* No data — show connect device message + Nora recommendations */
     if (report?.no_data || !hasAnyHealthData) {
       const noDataAi = report?.ai;
       const noDataRecs = noDataAi?.secondary_recs || [];
       return (
-        <div data-testid="health-no-data" style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, display: 'flex', flexDirection: 'column', fontFamily: "'Inter', system-ui, sans-serif", overflow: 'auto', background: C.bg } as any}>
-          {isDark && <img src={BG_DARK} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 } as any} />}
-          {isDark && <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.45)', zIndex: 1 } as any} />}
+        <div data-testid="health-no-data" style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, display: 'flex', flexDirection: 'column', fontFamily: "'Inter', system-ui, sans-serif", overflow: 'auto' } as any}>
+          <img src={BG_DARK} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 } as any} />
+          <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.45)', zIndex: 1 } as any} />
           <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', position: 'relative', zIndex: 5, padding: '0 28px', textAlign: 'center', overflowY: 'auto', WebkitOverflowScrolling: 'touch', paddingTop: 'env(safe-area-inset-top, 60px)', paddingBottom: 100 } as any}>
-            <div style={{ fontSize: 24, fontWeight: 900, color: C.text, marginBottom: 10 }}>{noDataAi?.hero_line || 'Aucune donnee de sante'}</div>
-            <div style={{ fontSize: 14, color: C.sub, lineHeight: 1.6, maxWidth: 320, marginBottom: 20 }}>{noDataAi?.priority || 'Connectez vos dispositifs pour commencer a suivre votre sante et recevoir des analyses personnalisees de Nora.'}</div>
+            <div style={{ fontSize: 24, fontWeight: 900, color: '#FFF', marginBottom: 10 }}>{noDataAi?.hero_line || 'Aucune donnee de sante'}</div>
+            <div style={{ fontSize: 14, color: 'rgba(255,255,255,0.5)', lineHeight: 1.6, maxWidth: 320, marginBottom: 20 }}>{noDataAi?.priority || 'Connectez vos dispositifs pour commencer a suivre votre sante et recevoir des analyses personnalisees de Nora.'}</div>
 
             {/* Nora recommendations */}
             {noDataRecs.length > 0 && (
@@ -181,41 +174,18 @@ export default function HealthScreen() {
               </div>
             )}
 
-            <div onClick={() => router.push('/(tabs)/devices' as any)} style={{ padding: '16px 36px', borderRadius: 999, background: isDark ? '#FFF' : '#111', color: isDark ? '#111' : '#FFF', cursor: 'pointer', fontSize: 15, fontWeight: 700, flexShrink: 0 } as any}>Connecter un dispositif</div>
+            <div onClick={() => router.push('/(tabs)/devices' as any)} style={{ padding: '16px 36px', borderRadius: 999, background: '#FFF', color: '#111', cursor: 'pointer', fontSize: 15, fontWeight: 700, flexShrink: 0 } as any}>Connecter un dispositif</div>
           </div>
         </div>
       );
     }
 
     return (
-      <div data-testid="health-screen" style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, display: 'flex', flexDirection: 'column', fontFamily: "'Inter', system-ui, sans-serif", overflow: 'hidden', background: C.bg } as any}>
-        {isDark && <img src={BG_DARK} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 } as any} />}
-        {isDark && <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.35)', zIndex: 1 } as any} />}
+      <div data-testid="health-screen" style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, display: 'flex', flexDirection: 'column', fontFamily: "'Inter', system-ui, sans-serif", overflow: 'hidden' } as any}>
+        <img src={BG_DARK} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 } as any} />
+        <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.35)', zIndex: 1 } as any} />
 
-        <div style={{ flex: 1, overflowY: 'auto', position: 'relative', zIndex: 5, padding: '0 0 120px', WebkitOverflowScrolling: 'touch' } as any}>
-
-          {/* ══════ HEADER — same as Dashboard ══════ */}
-          <div data-testid="health-header" style={{ padding: '16px 20px', margin: '8px 16px 0', borderRadius: 22, background: C.headerBg, ...darkGlass, border: isDark ? '1px solid rgba(255,255,255,0.08)' : 'none' } as any}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' } as any}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 12 } as any}>
-                <div onClick={() => router.push('/(tabs)/profile' as any)} style={{ width: 44, height: 44, borderRadius: 22, background: isDark ? 'rgba(255,255,255,0.1)' : '#D8D8DC', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, cursor: 'pointer', overflow: 'hidden' } as any}>
-                  {user?.avatar_url ? <img src={user.avatar_url} style={{ width: 44, height: 44, borderRadius: 22, objectFit: 'cover' } as any} /> : <span style={{ fontSize: 17, fontWeight: 800, color: C.text }}>{user?.name?.charAt(0)?.toUpperCase()}</span>}
-                </div>
-                <div>
-                  <div style={{ fontSize: 18, fontWeight: 800, color: C.text, letterSpacing: -0.5 }}>{user?.name}</div>
-                  <div style={{ fontSize: 11, color: C.sub, fontWeight: 500 }}>Espace sante</div>
-                </div>
-              </div>
-              <div style={{ display: 'flex', gap: 8, alignItems: 'center' } as any}>
-                <div data-testid="health-dark-toggle" onClick={toggleDark} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 14px', borderRadius: 18, background: C.btnBg, cursor: 'pointer' } as any}>
-                  <i className={isDark ? 'ri-sun-line' : 'ri-moon-line'} style={{ fontSize: 14, color: C.sub }} />
-                  <span style={{ fontSize: 11, fontWeight: 700, color: C.sub }}>{isDark ? 'Light' : 'Dark'}</span>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div style={{ padding: '0 20px', marginTop: 16 } as any}>
+        <div style={{ flex: 1, overflowY: 'auto', position: 'relative', zIndex: 5, padding: '20px 20px 120px', WebkitOverflowScrolling: 'touch' } as any}>
 
           {/* 0. Analysis Phase */}
           <AnalysisPhase analysisPhase={analysisPhase} showInfo={showAnalysisInfo} setShowInfo={setShowAnalysisInfo} progressBg={PROGRESS_BG} />
@@ -225,15 +195,15 @@ export default function HealthScreen() {
             <HeroScore bioAge={agingRate?.bio_age || noraBodyAge || d.body_age || 0} realAge={agingRate?.real_age || (user?.date_of_birth ? Math.floor((Date.now() - new Date(user.date_of_birth).getTime()) / 31557600000) : 0)} status={status} statusColor={statusColor} ai={ai} subs={subs} showDetail={showScoreDetail} setShowDetail={setShowScoreDetail} d={d} bodyAgeNora={bodyAgeNora} agingRate={agingRate} />
           )}
           {!analysisPhase && !hasMeaningfulVitals && !hasBodyAge && !(agingRate && agingRate.rate > 0) && (
-            <div data-testid="health-score-unavailable" style={{ padding: '18px 16px', borderRadius: 16, marginBottom: 8, background: C.unavailBg, border: `1px solid ${C.unavailBorder}`, ...darkGlass } as any}>
-              <div style={{ fontSize: 13, fontWeight: 800, color: C.unavailTitle, marginBottom: 6 }}>Score Nora indisponible</div>
-              <div style={{ fontSize: 12, color: C.unavailText, lineHeight: 1.55 }}>
+            <div data-testid="health-score-unavailable" style={{ padding: '18px 16px', borderRadius: 16, marginBottom: 8, background: 'rgba(245,158,11,0.08)', border: '1px solid rgba(245,158,11,0.22)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)' } as any}>
+              <div style={{ fontSize: 13, fontWeight: 800, color: '#FCD34D', marginBottom: 6 }}>Score Nora indisponible</div>
+              <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.55)', lineHeight: 1.55 }}>
                 Nous avons besoin de mesures physiologiques valides (bracelet Elio) pour calculer un score fiable.
               </div>
             </div>
           )}
 
-          <div style={{ height: 1, background: isDark ? 'linear-gradient(90deg, transparent, rgba(255,255,255,0.06), transparent)' : `linear-gradient(90deg, transparent, ${C.sep}, transparent)`, margin: '4px 0 16px' } as any} />
+          <div style={{ height: 1, background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.06), transparent)', margin: '4px 20px 16px' } as any} />
 
           {/* 2. (Objectifs journaliers retires — affiches sur le dashboard) */}
 
@@ -279,22 +249,22 @@ export default function HealthScreen() {
                 key: 'temperature',
               },
             ].map((v, i) => (
-              <div key={i} onClick={() => router.push({ pathname: '/metric-detail' as any, params: { key: v.key } })} style={{ padding: '12px 14px 10px', borderRadius: 18, background: C.vitalBg, border: isDark ? '1px solid rgba(255,255,255,0.08)' : 'none', cursor: 'pointer', ...darkGlass, transition: 'transform 0.15s, background 0.15s' } as any}
-                onMouseEnter={(e: any) => { e.currentTarget.style.background = C.vitalHover; e.currentTarget.style.transform = 'translateY(-2px)'; }}
-                onMouseLeave={(e: any) => { e.currentTarget.style.background = C.vitalBg; e.currentTarget.style.transform = ''; }}
+              <div key={i} onClick={() => router.push({ pathname: '/metric-detail' as any, params: { key: v.key } })} style={{ padding: '12px 14px 10px', borderRadius: 18, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)', cursor: 'pointer', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', transition: 'transform 0.15s, background 0.15s' } as any}
+                onMouseEnter={(e: any) => { e.currentTarget.style.background = 'rgba(255,255,255,0.10)'; e.currentTarget.style.transform = 'translateY(-2px)'; }}
+                onMouseLeave={(e: any) => { e.currentTarget.style.background = 'rgba(255,255,255,0.06)'; e.currentTarget.style.transform = ''; }}
               >
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 } as any}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 6 } as any}>
                     <i className={v.icon} style={{ fontSize: 13, color: v.color }} />
-                    <span style={{ fontSize: 10, fontWeight: 700, color: C.vitalLabel }}>{v.label}</span>
+                    <span style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.5)' }}>{v.label}</span>
                   </div>
-                  <i className="ri-arrow-right-s-line" style={{ fontSize: 14, color: C.arrow }} />
+                  <i className="ri-arrow-right-s-line" style={{ fontSize: 14, color: 'rgba(255,255,255,0.15)' }} />
                 </div>
                 <div style={{ display: 'flex', alignItems: 'baseline', gap: 3, marginBottom: 2 } as any}>
-                  <span style={{ fontSize: 28, fontWeight: 900, color: C.vitalVal, lineHeight: 1, letterSpacing: -0.5 }}>{v.val}</span>
-                  <span style={{ fontSize: 11, fontWeight: 500, color: C.vitalUnit }}>{v.unit}</span>
+                  <span style={{ fontSize: 28, fontWeight: 900, color: '#FFF', lineHeight: 1, letterSpacing: -0.5 }}>{v.val}</span>
+                  <span style={{ fontSize: 11, fontWeight: 500, color: 'rgba(255,255,255,0.3)' }}>{v.unit}</span>
                 </div>
-                <div style={{ fontSize: 10, fontWeight: 600, color: v.color, opacity: C.vitalStatus }}>{v.status}</div>
+                <div style={{ fontSize: 10, fontWeight: 600, color: v.color, opacity: 0.7 }}>{v.status}</div>
               </div>
             ))}
           </div>
@@ -306,7 +276,7 @@ export default function HealthScreen() {
             return <ActivityCard steps={d.steps || 0} calories={d.calories || 0} distance={d.distance_km || 0} recovery={d.recovery_score || 0} stress={d.stress_level || 0} sleepQuality={d.sleep_quality || 0} heartRate={d.heart_rate || 0} streak={activityStreak} stepGoal={sGoal} />;
           })()}
 
-          <div style={{ height: 1, background: isDark ? 'linear-gradient(90deg, transparent, rgba(255,255,255,0.06), transparent)' : `linear-gradient(90deg, transparent, ${C.sep}, transparent)`, margin: '16px 0 16px' } as any} />
+          <div style={{ height: 1, background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.06), transparent)', margin: '16px 20px 16px' } as any} />
           <SleepCard d={d} />
 
           {/* Poids & Nutrition — style page detail with blue bg */}
@@ -356,48 +326,46 @@ export default function HealthScreen() {
           <HealthSections d={d} subs={subs} />
 
           {/* 7. Pesee card — button + history */}
-          <div style={{ borderRadius: 18, background: C.vitalBg, border: isDark ? '1px solid rgba(255,255,255,0.08)' : 'none', ...darkGlass, marginBottom: 14, overflow: 'hidden' } as any}>
-            <div data-testid="action-weighing" onClick={() => setWeighingStep(1)} style={{ padding: '12px 16px', display: 'flex', alignItems: 'center', gap: 14, cursor: 'pointer', borderBottom: `1px solid ${C.sep}` } as any}>
-              <img src="https://customer-assets.emergentagent.com/job_8afdc991-0ab2-4687-a2a5-438b9a5f0711/artifacts/dwmw2i8r_Balance_connecte_Vita_chutex.svg" alt="Balance" style={{ height: 40, objectFit: 'contain', filter: isDark ? 'drop-shadow(0 4px 12px rgba(0,0,0,0.3))' : 'none', flexShrink: 0 } as any} />
-              <div style={{ flex: 1 } as any}><div style={{ fontSize: 14, fontWeight: 800, color: C.text }}>Nouvelle pesee</div><div style={{ fontSize: 10, color: C.sub }}>Balance 8 electrodes</div></div>
+          <div style={{ borderRadius: 18, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', marginBottom: 14, overflow: 'hidden' } as any}>
+            <div data-testid="action-weighing" onClick={() => setWeighingStep(1)} style={{ padding: '12px 16px', display: 'flex', alignItems: 'center', gap: 14, cursor: 'pointer', borderBottom: '1px solid rgba(255,255,255,0.04)' } as any}>
+              <img src="https://customer-assets.emergentagent.com/job_8afdc991-0ab2-4687-a2a5-438b9a5f0711/artifacts/dwmw2i8r_Balance_connecte_Vita_chutex.svg" alt="Balance" style={{ height: 40, objectFit: 'contain', filter: 'drop-shadow(0 4px 12px rgba(0,0,0,0.3))', flexShrink: 0 } as any} />
+              <div style={{ flex: 1 } as any}><div style={{ fontSize: 14, fontWeight: 800, color: '#FFF' }}>Nouvelle pesee</div><div style={{ fontSize: 10, color: 'rgba(255,255,255,0.3)' }}>Balance 8 electrodes</div></div>
               <div style={{ padding: '8px 14px', borderRadius: 12, background: 'rgba(167,139,250,0.12)', border: '1px solid rgba(167,139,250,0.25)', display: 'flex', alignItems: 'center', gap: 6 } as any}><i className="ri-scales-3-line" style={{ fontSize: 14, color: '#A78BFA' }} /><span style={{ fontSize: 11, fontWeight: 700, color: '#A78BFA' }}>Lancer</span></div>
             </div>
             <div style={{ padding: '0 16px' } as any}>
-              {weighings.length === 0 && <div style={{ textAlign: 'center', padding: '12px 0', fontSize: 11, color: C.sub }}>Aucune pesee</div>}
+              {weighings.length === 0 && <div style={{ textAlign: 'center', padding: '12px 0', fontSize: 11, color: 'rgba(255,255,255,0.2)' }}>Aucune pesee</div>}
               {weighings.slice(0, 3).map((w: any, i: number) => (
-                <div key={i} onClick={() => router.push({ pathname: '/weighing-report' as any, params: { id: w.id } })} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 0', borderTop: i > 0 ? `1px solid ${C.sep}` : 'none', cursor: 'pointer' } as any}>
-                  <div style={{ flex: 1 } as any}><span style={{ fontSize: 14, fontWeight: 800, color: C.text }}>{w.weight} kg</span><span style={{ fontSize: 10, color: C.sub, marginLeft: 8 }}>{new Date(w.date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })}</span></div>
+                <div key={i} onClick={() => router.push({ pathname: '/weighing-report' as any, params: { id: w.id } })} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 0', borderTop: i > 0 ? '1px solid rgba(255,255,255,0.04)' : 'none', cursor: 'pointer' } as any}>
+                  <div style={{ flex: 1 } as any}><span style={{ fontSize: 14, fontWeight: 800, color: '#FFF' }}>{w.weight} kg</span><span style={{ fontSize: 10, color: 'rgba(255,255,255,0.25)', marginLeft: 8 }}>{new Date(w.date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })}</span></div>
                   <span style={{ padding: '2px 8px', borderRadius: 999, background: w.status === 'Bonne' ? 'rgba(16,185,129,0.12)' : 'rgba(245,158,11,0.12)', fontSize: 9, fontWeight: 700, color: w.status === 'Bonne' ? '#10B981' : '#F59E0B' }}>{w.status}</span>
-                  <i className="ri-arrow-right-s-line" style={{ fontSize: 14, color: C.arrow }} />
+                  <i className="ri-arrow-right-s-line" style={{ fontSize: 14, color: 'rgba(255,255,255,0.12)' }} />
                 </div>
               ))}
             </div>
           </div>
 
           {/* 8. ECG card — button + history */}
-          <div style={{ borderRadius: 18, background: C.vitalBg, border: isDark ? '1px solid rgba(255,255,255,0.08)' : 'none', ...darkGlass, marginBottom: 14, overflow: 'hidden' } as any}>
-            <div data-testid="action-ecg" onClick={() => router.push('/ecg' as any)} style={{ padding: '12px 16px', display: 'flex', alignItems: 'center', gap: 14, cursor: 'pointer', borderBottom: `1px solid ${C.sep}` } as any}>
-              <img src="https://customer-assets.emergentagent.com/job_8afdc991-0ab2-4687-a2a5-438b9a5f0711/artifacts/2fto1qw7_bracelet_sante_connecte_elio_chutex_care_teleassistance_telealarme%281%29.svg" alt="Bracelet" style={{ height: 40, objectFit: 'contain', filter: isDark ? 'drop-shadow(0 4px 12px rgba(0,0,0,0.3))' : 'none', flexShrink: 0 } as any} />
-              <div style={{ flex: 1 } as any}><div style={{ fontSize: 14, fontWeight: 800, color: C.text }}>Realiser un ECG</div><div style={{ fontSize: 10, color: C.sub }}>Electrocardiogramme</div></div>
+          <div style={{ borderRadius: 18, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', marginBottom: 14, overflow: 'hidden' } as any}>
+            <div data-testid="action-ecg" onClick={() => router.push('/ecg' as any)} style={{ padding: '12px 16px', display: 'flex', alignItems: 'center', gap: 14, cursor: 'pointer', borderBottom: '1px solid rgba(255,255,255,0.04)' } as any}>
+              <img src="https://customer-assets.emergentagent.com/job_8afdc991-0ab2-4687-a2a5-438b9a5f0711/artifacts/2fto1qw7_bracelet_sante_connecte_elio_chutex_care_teleassistance_telealarme%281%29.svg" alt="Bracelet" style={{ height: 40, objectFit: 'contain', filter: 'drop-shadow(0 4px 12px rgba(0,0,0,0.3))', flexShrink: 0 } as any} />
+              <div style={{ flex: 1 } as any}><div style={{ fontSize: 14, fontWeight: 800, color: '#FFF' }}>Realiser un ECG</div><div style={{ fontSize: 10, color: 'rgba(255,255,255,0.3)' }}>Electrocardiogramme</div></div>
               <div style={{ padding: '8px 14px', borderRadius: 12, background: 'rgba(249,115,22,0.12)', border: '1px solid rgba(249,115,22,0.25)', display: 'flex', alignItems: 'center', gap: 6 } as any}><i className="ri-pulse-line" style={{ fontSize: 14, color: '#F97316' }} /><span style={{ fontSize: 11, fontWeight: 700, color: '#F97316' }}>Lancer</span></div>
             </div>
             <div style={{ padding: '0 16px' } as any}>
-              {(!report?.ecg_history || report.ecg_history.length === 0) && <div style={{ textAlign: 'center', padding: '12px 0', fontSize: 11, color: C.sub }}>Aucun ECG</div>}
+              {(!report?.ecg_history || report.ecg_history.length === 0) && <div style={{ textAlign: 'center', padding: '12px 0', fontSize: 11, color: 'rgba(255,255,255,0.2)' }}>Aucun ECG</div>}
               {(report?.ecg_history || []).slice(0, 3).map((e: any, i: number) => (
-                <div key={i} onClick={() => router.push({ pathname: '/ecg-detail' as any, params: { id: e.id } })} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 0', borderTop: i > 0 ? `1px solid ${C.sep}` : 'none', cursor: 'pointer' } as any}>
-                  <div style={{ flex: 1 } as any}><span style={{ fontSize: 13, fontWeight: 700, color: C.text }}>{e.result || 'Rythme sinusal'}</span><span style={{ fontSize: 10, color: C.sub, marginLeft: 8 }}>{e.bpm || '--'} bpm</span></div>
+                <div key={i} onClick={() => router.push({ pathname: '/ecg-detail' as any, params: { id: e.id } })} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 0', borderTop: i > 0 ? '1px solid rgba(255,255,255,0.04)' : 'none', cursor: 'pointer' } as any}>
+                  <div style={{ flex: 1 } as any}><span style={{ fontSize: 13, fontWeight: 700, color: '#FFF' }}>{e.result || 'Rythme sinusal'}</span><span style={{ fontSize: 10, color: 'rgba(255,255,255,0.25)', marginLeft: 8 }}>{e.bpm || '--'} bpm</span></div>
                   <span style={{ padding: '2px 8px', borderRadius: 999, background: e.normal !== false ? 'rgba(16,185,129,0.12)' : 'rgba(239,68,68,0.12)', fontSize: 9, fontWeight: 700, color: e.normal !== false ? '#10B981' : '#EF4444' }}>{e.normal !== false ? 'Normal' : 'Anomalie'}</span>
-                  <i className="ri-arrow-right-s-line" style={{ fontSize: 14, color: C.arrow }} />
+                  <i className="ri-arrow-right-s-line" style={{ fontSize: 14, color: 'rgba(255,255,255,0.12)' }} />
                 </div>
               ))}
             </div>
           </div>
 
-          <div style={{ height: 1, background: isDark ? 'linear-gradient(90deg, transparent, rgba(255,255,255,0.06), transparent)' : `linear-gradient(90deg, transparent, ${C.sep}, transparent)`, margin: '4px 0 16px' } as any} />
+          <div style={{ height: 1, background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.06), transparent)', margin: '4px 20px 16px' } as any} />
 
-          {ai.motivation && <div style={{ textAlign: 'center', padding: '16px 0', fontSize: 13, color: C.sub, fontStyle: 'italic' }}>{ai.motivation}</div>}
-
-          </div>
+          {ai.motivation && <div style={{ textAlign: 'center', padding: '16px 0', fontSize: 13, color: 'rgba(255,255,255,0.25)', fontStyle: 'italic' }}>{ai.motivation}</div>}
 
           {weighingStep > 0 && <WeighingFlow onClose={() => setWeighingStep(0)} d={d} weighings={weighings} />}
       </div>
