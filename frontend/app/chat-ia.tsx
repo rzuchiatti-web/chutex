@@ -108,8 +108,8 @@ export default function ChatIAScreen() {
         {/* Empty state — text below video */}
         {!hasMessages && !loading && (
           <div style={{ textAlign: 'center', padding: '0 32px', marginTop: 80 } as any}>
-            <div style={{ fontSize: 26, fontWeight: 900, color: '#FFF', marginBottom: 8, opacity: entered ? 1 : 0, transform: entered ? 'translateY(0)' : 'translateY(16px)', transition: 'all 0.7s ease 0.4s' } as any}>Bonjour {firstName},</div>
-            <div style={{ fontSize: 14, fontWeight: 500, color: 'rgba(255,255,255,0.5)', lineHeight: 1.6, maxWidth: 300, margin: '0 auto', opacity: entered ? 1 : 0, transform: entered ? 'translateY(0)' : 'translateY(16px)', transition: 'all 0.7s ease 0.6s' } as any}>
+            <div style={{ fontSize: 26, fontWeight: 900, color: '#FFF', marginBottom: 8, opacity: entered ? 1 : 0, filter: entered ? 'none' : 'blur(12px)', transform: entered ? 'translateY(0) scale(1)' : 'translateY(20px) scale(0.9)', transition: 'all 1.2s cubic-bezier(0.22,0.61,0.36,1) 0.5s' } as any}>Bonjour {firstName},</div>
+            <div style={{ fontSize: 14, fontWeight: 500, color: 'rgba(255,255,255,0.5)', lineHeight: 1.6, maxWidth: 300, margin: '0 auto', opacity: entered ? 1 : 0, filter: entered ? 'none' : 'blur(12px)', transform: entered ? 'translateY(0) scale(1)' : 'translateY(20px) scale(0.9)', transition: 'all 1.2s cubic-bezier(0.22,0.61,0.36,1) 0.8s' } as any}>
               {role === 'guardian'
                 ? 'Je suis Nora, votre assistante medicale. Posez-moi vos questions sur vos beneficiaires.'
                 : 'Je suis Nora, votre assistante medicale. Je connais votre dossier de sante. Posez-moi vos questions.'}
