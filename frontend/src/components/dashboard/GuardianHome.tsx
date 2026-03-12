@@ -6,7 +6,7 @@ import { useI18n } from '../../context/I18nContext';
 import { apiFetch } from '../../services/api';
 import { requestNotificationPermission, notifyAlert, notifyIntervention } from '../../services/notifications';
 import FullScreenLoader from '../FullScreenLoader';
-import CopilotCard from './CopilotCard';
+import NoraCard from '../shared/NoraCard';
 import { Card, HeroCard, StatusBadge, PillButton, SectionHeader, LanguageFlagButton } from './SharedUI';
 import { Icon } from '../WebIcon';
 import { ContextualTip, MiniTuto } from '../HelpSystem';
@@ -365,7 +365,9 @@ export default function GuardianHome({ token, user }: { token: string; user: any
 
           {/* Nora IA card */}
           <div style={{ height: 1, background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.06), transparent)', margin: '16px 20px' } as any} />
-          <CopilotCard subtitle={"Un accompagnement intelligent pour comprendre la sant\u00e9 de vos b\u00e9n\u00e9ficiaires et agir au quotidien."} />
+          <div onClick={() => router.push('/chat-ia' as any)} style={{ cursor: 'pointer' } as any}>
+            <NoraCard title="Nora" text={"Un accompagnement intelligent pour comprendre la sant\u00e9 de vos b\u00e9n\u00e9ficiaires et agir au quotidien."} />
+          </div>
         </div>
         {/* POPUP AJOUTER BENEFICIAIRE */}
         {showAddBenPopup && (
