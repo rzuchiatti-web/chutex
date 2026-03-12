@@ -131,7 +131,7 @@ function DailyObjectivesOnDashboard({ token }: { token: string }) {
     <div data-testid="dashboard-objectives" style={{ marginBottom: 20 } as any}>
       <NoraPill />
       <TypewriterTitle text="Voici vos objectifs journaliers." />
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 } as any}>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 } as any}>
         {items.map((p: any, idx: number) => {
           const objImg = OBJ_IMAGES[p.key];
           return (
@@ -141,28 +141,26 @@ function DailyObjectivesOnDashboard({ token }: { token: string }) {
               else if (p.key === 'calories_intake') router.push('/minceur' as any);
               else if (p.key === 'hydration') router.push('/minceur' as any);
             }} style={{
-              padding: '12px', borderRadius: 16,
+              padding: '16px 12px', borderRadius: 18,
               background: 'var(--card-bg, #EDEDF0)',
               backdropFilter: 'var(--card-blur, none)', WebkitBackdropFilter: 'var(--card-blur, none)', border: 'var(--card-border, none)',
-              cursor: 'pointer', transition: 'transform 0.18s, box-shadow 0.18s',
+              cursor: 'pointer', transition: 'transform 0.18s',
               animationDelay: `${idx * 0.1}s`,
-              display: 'flex', alignItems: 'center', gap: 10,
+              display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center',
             } as any}
-              onMouseEnter={(e: any) => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.08)'; }}
-              onMouseLeave={(e: any) => { e.currentTarget.style.transform = ''; e.currentTarget.style.boxShadow = '0 1px 4px rgba(0,0,0,0.04)'; }}>
-              {objImg && <img src={objImg} alt="" style={{ width: 38, height: 38, objectFit: 'contain', flexShrink: 0 } as any} />}
+              onMouseEnter={(e: any) => { e.currentTarget.style.transform = 'translateY(-2px)'; }}
+              onMouseLeave={(e: any) => { e.currentTarget.style.transform = ''; }}>
+              {objImg && <img src={objImg} alt="" style={{ width: 48, height: 48, objectFit: 'contain', marginBottom: 10 } as any} />}
               {!objImg && (
-                <div style={{ width: 38, height: 38, borderRadius: 10, background: 'rgba(0,0,0,0.04)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}>
-                  <i className={p.icon} style={{ fontSize: 16, color: p.color }} />
+                <div style={{ width: 48, height: 48, borderRadius: 14, background: 'rgba(0,0,0,0.04)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 10 } as any}>
+                  <i className={p.icon} style={{ fontSize: 20, color: p.color }} />
                 </div>
               )}
-              <div style={{ flex: 1, minWidth: 0 } as any}>
-                <div style={{ display: 'flex', alignItems: 'baseline', gap: 4 } as any}>
-                  <span style={{ fontSize: 22, fontWeight: 900, color: 'var(--card-text, #111)', letterSpacing: -1 }}>{p.value}</span>
-                  <span style={{ fontSize: 11, fontWeight: 600, color: 'var(--card-sub, rgba(0,0,0,0.4))' }}>{p.unit}</span>
-                </div>
-                <div style={{ fontSize: 9, color: 'var(--card-sub, rgba(0,0,0,0.4))', fontWeight: 500, lineHeight: 1.3 }}>{p.label}</div>
+              <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'center', gap: 3 } as any}>
+                <span style={{ fontSize: 24, fontWeight: 900, color: 'var(--card-text, #111)', letterSpacing: -1 }}>{p.value}</span>
+                <span style={{ fontSize: 11, fontWeight: 600, color: 'var(--card-sub, rgba(0,0,0,0.4))' }}>{p.unit}</span>
               </div>
+              <div style={{ fontSize: 10, color: 'var(--card-sub, rgba(0,0,0,0.4))', fontWeight: 500, lineHeight: 1.3, marginTop: 2 }}>{p.label}</div>
             </div>
           );
         })}
