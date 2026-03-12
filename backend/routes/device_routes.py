@@ -371,7 +371,7 @@ async def lefu_weighing(data: dict):
                         dob = datetime.fromisoformat(user_profile['date_of_birth'].replace('Z', '+00:00'))
                         age = (datetime.now(timezone.utc) - dob).days // 365
                     except: pass
-                sex = 1 if user_profile.get('gender', '').lower() in ('m', 'male', 'homme', 'masculin') else 2
+                sex = 1 if user_profile.get('gender', '').lower() in ('m', 'male', 'homme', 'masculin') else 0
                 body_data = await calculate_body_data(weight, primary_impedance, height, age, sex)
             except: pass
 
@@ -465,7 +465,7 @@ async def lefu_wifi_record(data: dict):
                         dob = datetime.fromisoformat(user_profile['date_of_birth'].replace('Z', '+00:00'))
                         age = (datetime.now(timezone.utc) - dob).days // 365
                     except: pass
-                sex = 1 if user_profile.get('gender', '').lower() in ('m', 'male', 'homme', 'masculin') else 2
+                sex = 1 if user_profile.get('gender', '').lower() in ('m', 'male', 'homme', 'masculin') else 0
                 body_data = await calculate_body_data(weight, impedance, height, age, sex)
             except: pass
 

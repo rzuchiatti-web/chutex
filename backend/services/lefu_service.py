@@ -52,7 +52,7 @@ async def get_lefu_token() -> str:
 async def calculate_body_data(weight_kg: float, impedance: int, height_cm: float, age: int, sex: int) -> dict:
     """
     Call Lefu AC Four-Electrode Algorithm API to calculate body composition
-    sex: 1=male, 2=female
+    sex: 0=female, 1=male
     Returns dict with all body metrics or empty dict on failure
     """
     token = await get_lefu_token()
@@ -61,43 +61,56 @@ async def calculate_body_data(weight_kg: float, impedance: int, height_cm: float
 
     try:
         async with httpx.AsyncClient() as client:
+            payload = {
+                "weightKg": weight_kg,
+                "impedance": int(impedance),
+                "height": int(height_cm),
+                "age": int(age),
+                "sex": int(sex),
+            }
+            logger.info(f"Lefu body data request: {payload}")
             resp = await client.get(
                 f"{LEFU_BASE_URL}/openapi-bodydata/bodyData/getAcLfBodyData",
-                params={
-                    "weight": weight_kg,
-                    "impedance": impedance,
-                    "heightCm": height_cm,
-                    "age": age,
-                    "sex": sex,
-                },
+                params=payload,
                 headers={
-                    "Content-Type": "application/json",
                     "token": token,
                 },
                 timeout=10
             )
             data = resp.json()
-            if data.get("code") == 0 and data.get("data"):
+            if data.get("code") in (0, 200) and data.get("data"):
                 body = data["data"]
+                # Parse lefuBodyData array format
+                lefu_items = body.get("lefuBodyData", [])
+                parsed = {}
+                for item in lefu_items:
+                    key = item.get("bodyParamKey", "")
+                    val = item.get("currentValue", 0)
+                    if key and val is not None:
+                        parsed[key] = val
+                # Also support old flat format
+                if not parsed:
+                    parsed = body
+                logger.info(f"Lefu body data parsed: {list(parsed.keys())}")
                 return {
                     "weight": weight_kg,
-                    "bmi": body.get("ppBMI", 0),
-                    "body_fat_pct": body.get("ppFat", 0),
-                    "muscle_mass": body.get("ppMuscleKg", 0),
-                    "bone_mass": body.get("ppBoneKg", 0),
-                    "hydration_pct": body.get("ppWaterPercentage", 0),
-                    "visceral_fat": body.get("ppVisceralFat", 0),
-                    "basal_metabolism": body.get("ppBMR", 0),
-                    "body_age": body.get("ppBodyAge", 0),
-                    "protein_pct": body.get("ppProteinPercentage", 0),
-                    "health_score": body.get("ppBodyScore", 0),
-                    "subcutaneous_fat": body.get("ppBodySubcutaneousFat", 0),
-                    "lean_body_mass": body.get("ppBodyLBM", 0),
-                    "muscle_rate": body.get("ppMusclePercentage", 0),
-                    "fat_free_weight": body.get("ppFatFreeWeight", 0),
-                    "body_type": body.get("ppBodyType", 0),
-                    "ideal_weight": body.get("ppIdealWeightKg", 0),
-                    "obesity_level": body.get("ppObesityLevel", 0),
+                    "bmi": parsed.get("ppBMI", 0),
+                    "body_fat_pct": parsed.get("ppFat", parsed.get("ppBodyfatPercentage", 0)),
+                    "muscle_mass": parsed.get("ppMuscleKg", 0),
+                    "bone_mass": parsed.get("ppBoneKg", 0),
+                    "hydration_pct": parsed.get("ppWaterPercentage", 0),
+                    "visceral_fat": parsed.get("ppVisceralFat", parsed.get("ppVFAL", 0)),
+                    "basal_metabolism": parsed.get("ppBMR", 0),
+                    "body_age": parsed.get("ppBodyAge", 0),
+                    "protein_pct": parsed.get("ppProteinPercentage", 0),
+                    "health_score": parsed.get("ppBodyScore", 0),
+                    "subcutaneous_fat": parsed.get("ppBodySubcutaneousFat", parsed.get("ppVFPercentage", 0)),
+                    "lean_body_mass": parsed.get("ppBodyLBM", parsed.get("ppLoseFatWeightKg", 0)),
+                    "muscle_rate": parsed.get("ppMusclePercentage", 0),
+                    "fat_free_weight": parsed.get("ppFatFreeWeight", parsed.get("ppLoseFatWeightKg", 0)),
+                    "body_type": parsed.get("ppBodyType", 0),
+                    "ideal_weight": parsed.get("ppIdealWeightKg", 0),
+                    "obesity_level": parsed.get("ppObesityLevel", 0),
                     "raw_lefu_response": body,
                 }
             else:
