@@ -5,6 +5,7 @@ import { useAuth } from '../src/context/AuthContext';
 import { apiFetch } from '../src/services/api';
 import FullScreenLoader from '../src/components/FullScreenLoader';
 import NativePageView from '../src/components/NativePageView';
+import NoraCard from '../src/components/shared/NoraCard';
 
 const BG = 'https://customer-assets.emergentagent.com/job_443c9c6e-0feb-4920-a358-fe7cc1a6289b/artifacts/1lq6xl58_ChatGPT%20Image%2017%20f%C3%A9vr.%202026%2C%2008_54_55.png';
 
@@ -154,7 +155,7 @@ export default function ECGDetailScreen() {
                 { title: 'Frequence cardiaque (BPM)', icon: 'ri-heart-pulse-line', color: '#EF4444', text: 'Le nombre de battements par minute au repos. Entre 60 et 100 bpm est considere normal pour un adulte. En dessous de 60, on parle de bradycardie. Au dessus de 100, de tachycardie.' },
                 { title: 'Intervalle PR', icon: 'ri-time-line', color: '#38BDF8', text: "Mesure le temps de conduction electrique entre les oreillettes et les ventricules. Normal entre 120 et 200 ms. Un PR trop long peut indiquer un bloc auriculo-ventriculaire." },
                 { title: 'Complexe QRS', icon: 'ri-pulse-line', color: '#10B981', text: 'Represente la depolarisation des ventricules, le moment ou ils se contractent pour pomper le sang. Normal en dessous de 120 ms. Un QRS elargi peut signaler un trouble de conduction.' },
-                { title: 'Intervalle QT / QTc', icon: 'ri-timer-line', color: '#A78BFA', text: "Mesure le temps total de depolarisation et repolarisation des ventricules. Le QTc est corrige selon la frequence cardiaque. Un QTc superieur a 460 ms augmente le risque d'arythmie." },
+                { title: 'Intervalle QT / QTc', icon: 'ri-timer-line', color: '#FFF', text: "Mesure le temps total de depolarisation et repolarisation des ventricules. Le QTc est corrige selon la frequence cardiaque. Un QTc superieur a 460 ms augmente le risque d'arythmie." },
                 { title: 'Rythme sinusal', icon: 'ri-checkbox-circle-line', color: '#F59E0B', text: "Un rythme sinusal signifie que l'impulsion electrique part du noeud sinusal (le pacemaker naturel du coeur). C'est le rythme normal. Toute deviation peut indiquer une arythmie." },
                 { title: 'Fibrillation auriculaire', icon: 'ri-error-warning-line', color: '#EF4444', text: "La FA est un trouble du rythme ou les oreillettes battent de facon irreguliere et rapide. L'ECG permet de la detecter par l'absence d'ondes P regulieres et un rythme irregulier." },
               ].map((item, i) => (
@@ -187,18 +188,11 @@ export default function ECGDetailScreen() {
         </div>
 
         {/* Nora analysis card */}
-        <div style={{ borderRadius: 18, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', padding: '16px 18px', marginBottom: 14 } as any}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12 } as any}>
-            <div style={{ width: 28, height: 28, borderRadius: 9, background: 'rgba(167,139,250,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}><span style={{ fontSize: 10, fontWeight: 900, color: '#A78BFA' }}>N</span></div>
-            <div><span style={{ fontSize: 13, fontWeight: 800, color: '#FFF' }}>Nora</span><span style={{ fontSize: 10, color: 'rgba(255,255,255,0.3)', marginLeft: 6 }}>Analyse ECG</span></div>
-          </div>
-          <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.5)', lineHeight: 1.7 }}>
-            {allNormal
-              ? `Votre electrocardiogramme montre un rythme sinusal regulier a ${ecg?.bpm || 72} bpm. Les intervalles PR (${iv.pr || 160}ms), QRS (${iv.qrs || 88}ms) et QTc (${iv.qtc || 410}ms) sont tous dans les normes. Aucun signe de fibrillation auriculaire, de bloc de branche ou d'anomalie du segment ST n'a ete detecte. Ce resultat est rassurant et ne necessite pas d'action immediate.`
-              : `Votre ECG presente des elements qui meritent attention. A ${ecg?.bpm || 72} bpm, ${ecg?.bpm > 100 ? 'votre frequence cardiaque est elevee (tachycardie). ' : ecg?.bpm < 50 ? 'votre frequence cardiaque est basse (bradycardie). ' : ''}${(iv.qtc || 410) >= 460 ? 'L\'intervalle QTc est allonge, ce qui peut indiquer un risque d\'arythmie. ' : ''}${(iv.qrs || 88) >= 120 ? 'Le complexe QRS est elargi, suggerant un trouble de conduction. ' : ''}Je recommande de partager ce trace avec votre medecin traitant pour une evaluation approfondie.`
-            }
-          </div>
-        </div>
+        <NoraCard title="Analyse ECG" text={
+          allNormal
+            ? `Votre electrocardiogramme montre un rythme sinusal regulier a ${ecg?.bpm || 72} bpm. Les intervalles PR (${iv.pr || 160}ms), QRS (${iv.qrs || 88}ms) et QTc (${iv.qtc || 410}ms) sont tous dans les normes. Aucun signe de fibrillation auriculaire, de bloc de branche ou d'anomalie du segment ST n'a ete detecte. Ce resultat est rassurant et ne necessite pas d'action immediate.`
+            : `Votre ECG presente des elements qui meritent attention. A ${ecg?.bpm || 72} bpm, ${ecg?.bpm > 100 ? 'votre frequence cardiaque est elevee (tachycardie). ' : ecg?.bpm < 50 ? 'votre frequence cardiaque est basse (bradycardie). ' : ''}${(iv.qtc || 410) >= 460 ? 'L\'intervalle QTc est allonge, ce qui peut indiquer un risque d\'arythmie. ' : ''}${(iv.qrs || 88) >= 120 ? 'Le complexe QRS est elargi, suggerant un trouble de conduction. ' : ''}Je recommande de partager ce trace avec votre medecin traitant pour une evaluation approfondie.`
+        } />
 
       </div>
     </div>
