@@ -103,6 +103,102 @@ def parse_v6_temperature(data: bytes) -> dict:
     return {"temperature": round(temp, 1)}
 
 
+@router.post("/bracelet/v6/4g/push")
+async def push_v6_4g_data(request_body: dict):
+    """Receive V6 bracelet data via 4G firmware webhook (no auth required).
+    The bracelet pushes data directly to our server. User identified by IMEI/MAC."""
+    imei = request_body.get("imei", request_body.get("device_id", ""))
+    mac = request_body.get("mac", "")
+    now = datetime.now(timezone.utc).isoformat()
+
+    # Find user by IMEI or MAC
+    device = await db.devices.find_one(
+        {"device_type": "bracelet", "$or": [{"imei": imei}, {"ble_device_id": mac}, {"mac_address": mac}, {"ble_device_id": imei}]},
+        {"_id": 0}
+    )
+    user_id = device.get("user_id") if device else None
+
+    # Parse all vitals from the payload
+    hr = request_body.get("heart_rate", request_body.get("heartRate", 0))
+    spo2 = request_body.get("spo2", request_body.get("bloodOxygen", 0))
+    temp = request_body.get("temperature", request_body.get("bodyTemp", 0))
+    systolic = request_body.get("systolic", request_body.get("bloodPressureHigh", 0))
+    diastolic = request_body.get("diastolic", request_body.get("bloodPressureLow", 0))
+    steps = request_body.get("steps", 0)
+    calories = request_body.get("calories", 0)
+    hrv = request_body.get("hrv", 0)
+    battery = request_body.get("battery", request_body.get("bat", 0))
+    sleep_data = request_body.get("sleep", None)
+    timestamp = request_body.get("timestamp", now)
+
+    # Store consolidated reading
+    reading = {
+        "id": str(uuid.uuid4()), "user_id": user_id,
+        "device_type": "bracelet", "device_model": "v6",
+        "device_id": imei or mac, "data_type": "consolidated", "source": "4g",
+        "data": {
+            "heart_rate": hr, "spo2": spo2, "temperature": temp,
+            "systolic": systolic, "diastolic": diastolic,
+            "steps": steps, "calories": calories, "hrv": hrv, "battery": battery,
+        },
+        "timestamp": timestamp, "raw_data": request_body,
+    }
+    await db.device_readings.insert_one({k: v for k, v in reading.items() if k != '_id'})
+
+    # Store individual readings for metric history
+    if hr > 0:
+        await db.device_readings.insert_one({"id": str(uuid.uuid4()), "user_id": user_id, "device_type": "bracelet", "device_model": "v6", "data_type": "heart_rate", "data": {"heart_rate": hr, "hrv": hrv}, "source": "4g", "timestamp": timestamp})
+    if spo2 > 0:
+        await db.device_readings.insert_one({"id": str(uuid.uuid4()), "user_id": user_id, "device_type": "bracelet", "device_model": "v6", "data_type": "spo2", "data": {"spo2": spo2}, "source": "4g", "timestamp": timestamp})
+    if systolic > 0:
+        await db.device_readings.insert_one({"id": str(uuid.uuid4()), "user_id": user_id, "device_type": "bracelet", "device_model": "v6", "data_type": "blood_pressure", "data": {"systolic": systolic, "diastolic": diastolic}, "source": "4g", "timestamp": timestamp})
+    if sleep_data:
+        await db.device_readings.insert_one({"id": str(uuid.uuid4()), "user_id": user_id, "device_type": "bracelet", "device_model": "v6", "data_type": "sleep", "data": sleep_data, "source": "4g", "timestamp": timestamp})
+
+    # Update device status
+    update_fields = {"connected": True, "last_sync": now, "model": "v6", "imei": imei}
+    if hr > 0: update_fields["last_heart_rate"] = hr
+    if spo2 > 0: update_fields["last_spo2"] = spo2
+    if temp > 30: update_fields["last_temperature"] = temp
+    if systolic > 0: update_fields["last_systolic"] = systolic; update_fields["last_diastolic"] = diastolic
+    if steps > 0: update_fields["last_steps"] = steps
+    if calories > 0: update_fields["last_calories"] = calories
+    if hrv > 0: update_fields["last_hrv"] = hrv
+    if battery > 0: update_fields["battery"] = battery
+
+    if user_id:
+        await db.devices.update_one(
+            {"user_id": user_id, "device_type": "bracelet"},
+            {"$set": update_fields}, upsert=True
+        )
+    else:
+        # Store for later association
+        await db.devices.update_one(
+            {"imei": imei, "device_type": "bracelet"},
+            {"$set": {**update_fields, "device_type": "bracelet"}}, upsert=True
+        )
+
+    # Anomaly detection
+    if hr > 120 or (hr > 0 and hr < 50):
+        await db.alerts.insert_one({
+            "id": str(uuid.uuid4()), "beneficiary_id": user_id or "",
+            "alert_type": "anomaly", "severity": "high",
+            "message": f"Frequence cardiaque anormale: {hr} bpm (V6 4G)",
+            "device_type": "bracelet", "device_model": "v6", "status": "active",
+            "created_at": now, "resolved_at": None,
+        })
+    if spo2 > 0 and spo2 < 92:
+        await db.alerts.insert_one({
+            "id": str(uuid.uuid4()), "beneficiary_id": user_id or "",
+            "alert_type": "anomaly", "severity": "critical",
+            "message": f"SpO2 critique: {spo2}% (V6 4G)",
+            "device_type": "bracelet", "device_model": "v6", "status": "active",
+            "created_at": now, "resolved_at": None,
+        })
+
+    return {"code": 0, "msg": "success", "user_matched": user_id is not None}
+
+
 @router.post("/bracelet/v6/push")
 async def push_v6_data(request_body: dict, user=Depends(get_current_user)):
     """Receive parsed V6 bracelet data from frontend BLE or 4G relay"""
