@@ -62,7 +62,7 @@ export default function ProgramsScreen() {
           {/* Active program compact card */}
           {activeProgram?.active && (() => {
             const pg = activeProgram.program;
-            const c = pg?.color || '#A78BFA';
+            const c = pg?.color || '#FFF';
             const pct = activeProgram.progress_pct || 0;
             return (
               <div onClick={() => router.push('/(tabs)/chat' as any)} style={{ padding: '16px 18px', borderRadius: 20, background: `${c}08`, border: `1px solid ${c}25`, marginBottom: 20, cursor: 'pointer', ...g } as any}>

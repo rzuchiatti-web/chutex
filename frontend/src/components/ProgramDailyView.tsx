@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { Platform } from 'react-native';
 import ReactDOM from 'react-dom';
 import { apiFetch } from '../services/api';
+import NoraCard from './shared/NoraCard';
 
 const MOOD = [
   { val: 1, icon: 'ri-emotion-sad-line', label: 'Difficile', color: '#EF4444' },
@@ -207,7 +208,7 @@ export default function ProgramDailyView({ token, onStop }: Props) {
   const tt = data.today_tasks || {};
   const cd = data.current_day;
   const dur = pg?.duration_days || 21;
-  const c = pg?.color || '#A78BFA';
+  const c = pg?.color || '#FFF';
   const pct = Math.round((cd / dur) * 100);
   const phase = data.current_phase;
   const phases = pg?.phases || [];
@@ -327,17 +328,7 @@ export default function ProgramDailyView({ token, onStop }: Props) {
       )}
 
       {/* ═══ CONSEIL NORA ═══ */}
-      {tt.tip && (
-        <div style={{ padding: '16px 18px', borderRadius: 18, background: 'rgba(167,139,250,0.04)', border: '1px solid rgba(167,139,250,0.12)', marginBottom: 14, animation: 'pdv-fade 400ms ease 300ms both', ...g } as any}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 } as any}>
-            <div style={{ width: 28, height: 28, borderRadius: 9, background: 'linear-gradient(135deg, rgba(167,139,250,0.2), rgba(139,92,246,0.15))', border: '1px solid rgba(167,139,250,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}>
-              <span style={{ fontSize: 10, fontWeight: 900, color: '#A78BFA' }}>N</span>
-            </div>
-            <span style={{ fontSize: 11, fontWeight: 800, color: '#A78BFA' }}>Conseil de Nora</span>
-          </div>
-          <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.5)', lineHeight: 1.7 }}>{tt.tip}</div>
-        </div>
-      )}
+      {tt.tip && <NoraCard title="Conseil de Nora" text={tt.tip} />}
 
       {/* ═══ CHECK-IN — Données utiles pour adapter le programme ═══ */}
       {!checkedIn ? (

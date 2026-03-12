@@ -41,7 +41,7 @@ export default function ProgramDetailScreen() {
   if (Platform.OS !== 'web') return <NativePageView path={`/program-detail?id=${id}`} />;
   if (!program) return <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#000' }}><Text style={{ color: '#FFF' }}>Chargement...</Text></View>;
 
-  const clr = program.color || '#A78BFA';
+  const clr = program.color || '#FFF';
   const hasOnboarding = (program.onboarding_fields || []).length > 0;
   const hasActiveConflict = !!activeProgram?.active && activeProgram?.program?.id !== programId;
 
@@ -287,7 +287,7 @@ export default function ProgramDetailScreen() {
           <div style={{ animation: 'detail-fade-in 350ms ease both' } as any}>
             <div style={{ textAlign: 'center', marginBottom: 28 } as any}>
               <div style={{ width: 56, height: 56, borderRadius: 18, background: 'rgba(167,139,250,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 14px' , backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)' } as any}>
-                <i className="ri-team-line" style={{ fontSize: 28, color: '#A78BFA' }} />
+                <i className="ri-team-line" style={{ fontSize: 28, color: '#FFF' }} />
               </div>
               <div style={{ fontSize: 22, fontWeight: 900, color: '#FFF', marginBottom: 6 }}>Invitez vos amis</div>
               <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.4)' }}>Le programme est lance ! Invitez des amis.</div>
@@ -295,7 +295,7 @@ export default function ProgramDetailScreen() {
 
             <GlassBox style={{ background: 'rgba(167,139,250,0.06)', border: '1px solid rgba(167,139,250,0.18)', marginBottom: 18, textAlign: 'center' }}>
               <div style={{ fontSize: 8, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 4 }}>Code d equipe</div>
-              <div style={{ fontSize: 28, fontWeight: 900, color: '#A78BFA', letterSpacing: 4 }}>{inviteCode}</div>
+              <div style={{ fontSize: 28, fontWeight: 900, color: '#FFF', letterSpacing: 4 }}>{inviteCode}</div>
               <div onClick={() => navigator.clipboard?.writeText(inviteCode)} style={{ marginTop: 6, fontSize: 11, color: 'rgba(255,255,255,0.3)', cursor: 'pointer' } as any}><i className="ri-file-copy-line" style={{ marginRight: 4 }} />Copier</div>
             </GlassBox>
 
