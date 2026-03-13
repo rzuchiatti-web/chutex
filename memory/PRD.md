@@ -11,27 +11,36 @@ Health monitoring and care application for elderly beneficiaries ("Chutex Care")
 
 ## What's Been Implemented
 
+### Session - March 13, 2026
+1. **Guardian Navbar Prescription Fix** — Fixed broken "Prescriptions" navigation link in guardian space. Changed WhoopTabBar guardian tab key from `health` to `devices` (which contains `PrescriptionManagement`). Also fixed `devices` tab visibility to only hide for web beneficiaries, not guardians.
+
+### Session - March 12, 2026 (Batch 5)
+1. **Whoop-style Navbar** — Glassmorphism floating tab bar (`WhoopTabBar` inline in `_layout.tsx`) for both beneficiary and guardian spaces
+2. **LLM Cost Optimization** — Caching (`cachetools`) and prompt optimization in `nora_service.py`
+3. **Guardian Experience Refactor** — Redesigned beneficiary detail page, read-only health page, fixed data connection for Nora
+4. **Test User** — Created guardian Marie Dupont (+33699887766 / test123) linked to beneficiary Josette
+
 ### Session - March 12, 2026 (Batch 4)
-1. **Nora Knowledge Update** — Added HDS data hosting info (serveurs certifies HDS classe 6, France, Free/Groupe Iliad) to `nora_context.py`
-2. **Standardized Loaders** — Simplified `Loader.tsx` and `FullScreenLoader.tsx` to centered white text "Analyse en cours..." with animated dots, removed video/overlay
-3. **Guardian Space UI Unification** — Replaced `CopilotCard` with `NoraCard` in `GuardianHome.tsx` and `(tabs)/index.tsx` for consistent Nora branding
-4. **Dashboard Cleanup** — Hide DeviceCards section when no connected devices, hide program section when no active program, only show connected devices (no "Non associe")
-5. **Bracelet Popup Redesign** — Replaced two-card subscription popup with single feature showcase (9 features: FC, SpO2, temp, sommeil, pas, chute, 4G, Nora, age bio) + white CTA button → chutex-innovation.com
+1. **Nora Knowledge Update** — Added HDS data hosting info to `nora_context.py`
+2. **Standardized Loaders** — Simplified `Loader.tsx` and `FullScreenLoader.tsx`
+3. **Guardian Space UI Unification** — Consistent Nora branding
+4. **Dashboard Cleanup** — Hide empty sections
+5. **Bracelet Popup Redesign** — Single feature showcase
 
 ### Session - March 12, 2026 (Batch 3)
-1. **Health page header** — Added dashboard-style header with avatar, user name, "Espace sante" subtitle
-2. **Health page light/dark toggle** — "Light"/"Dark" text toggle synced with dashboard via localStorage
-3. **Health page light mode** — All elements adapted: white bg, gray cards (#EDEDF0), black text, no glassmorphism
+1. **Health page header** — Dashboard-style header with avatar
+2. **Health page light/dark toggle** — Synced with dashboard via localStorage
+3. **Health page light mode** — Adapted elements
 
 ### Session - March 12, 2026 (Batch 2)
-1. **Morning briefing overlay removed** — Nora video opacity 0.6 → 1.0
-2. **Nora onboarding redesigned** — Big video at top, premium scrolling text about longevity/health
-3. **Health page bio age pill** — Pure black pill with Nora video on left + "AGE BIOLOGIQUE" text
+1. **Morning briefing overlay removed**
+2. **Nora onboarding redesigned**
+3. **Health page bio age pill**
 
 ### Session - March 12, 2026 (Batch 1)
-1. **Meal Recipe Step Icons** — 12 contextual cooking icons in `meal-detail.tsx`
-2. **Page Load Optimization** — Lightweight `/api/minceur/exercises` endpoint, deferred AI
-3. **Morning Briefing Redirect** — Re-enabled auto-redirect in `index.tsx`
+1. **Meal Recipe Step Icons**
+2. **Page Load Optimization**
+3. **Morning Briefing Redirect**
 
 ### Previous Sessions (Summary)
 - Dashboard with light/dark mode toggle
@@ -68,17 +77,17 @@ Health monitoring and care application for elderly beneficiaries ("Chutex Care")
 | Beneficiary | 0651245918 | test123 |
 | Guardian 1 | +33689896539 | test123 |
 | Guardian 2 | +33619559380 | test123 |
+| New Guardian | +33699887766 | test123 |
 
 ## Key Files
-- `/app/frontend/app/(tabs)/index.tsx` - Main dashboard (uses NoraCard)
+- `/app/frontend/app/(tabs)/_layout.tsx` - Tab layout with WhoopTabBar (inline)
+- `/app/frontend/app/(tabs)/index.tsx` - Main dashboard
 - `/app/frontend/app/(tabs)/health.tsx` - Health page (light/dark mode)
+- `/app/frontend/app/(tabs)/devices.tsx` - Devices/Prescriptions (PrescriptionManagement for guardians)
 - `/app/frontend/src/components/health/HeroScore.tsx` - Bio age with Nora pill
 - `/app/frontend/src/components/shared/NoraCard.tsx` - Reusable Nora premium card
-- `/app/frontend/src/components/Loader.tsx` - Standardized loader (white text)
-- `/app/frontend/src/components/FullScreenLoader.tsx` - Standardized full screen loader
-- `/app/frontend/src/components/dashboard/GuardianHome.tsx` - Guardian dashboard (uses NoraCard)
-- `/app/frontend/app/meal-detail.tsx` - Meal detail with recipe step icons
-- `/app/frontend/app/onboarding.tsx` - Onboarding with Nora intro
-- `/app/frontend/app/morning-briefing.tsx` - Morning briefing (no overlay)
+- `/app/frontend/src/components/Loader.tsx` - Standardized loader
+- `/app/frontend/src/components/dashboard/GuardianHome.tsx` - Guardian dashboard
+- `/app/frontend/app/health-readonly.tsx` - Read-only health page for guardians
+- `/app/backend/services/nora_service.py` - Nora AI with caching
 - `/app/backend/services/nora_context.py` - Nora AI context with HDS knowledge
-- `/app/backend/routes/minceur_routes.py` - Minceur endpoints incl. /exercises

@@ -28,7 +28,7 @@ function WhoopTabBar({ state, navigation, role }: any) {
   const tabs = role === 'guardian' ? [
     { key: 'index', icon: 'ri-home-smile-2-fill', label: 'Accueil' },
     { key: 'teleconsult', icon: 'ri-service-fill', label: 'Interventions' },
-    { key: 'health', icon: 'ri-file-list-3-fill', label: 'Prescriptions' },
+    { key: 'devices', icon: 'ri-file-list-3-fill', label: 'Prescriptions' },
     { key: 'profile', icon: 'ri-menu-3-fill', label: 'Plus' },
   ] : [
     { key: 'index', icon: 'ri-home-smile-2-fill', label: 'Accueil' },
@@ -191,7 +191,7 @@ export default function TabLayout() {
       }} />
       <Tabs.Screen name="devices" options={{
         tabBarIcon: ({ color, size }) => isCompany ? <Icon name="document-text-outline" size={size} color={color} /> : isG ? <Icon name="document-text-outline" size={size} color={color} /> : <MCIcon name="bluetooth-connect" size={size} color={color} />,
-        href: useWhoop ? null : undefined,
+        href: isWebBen ? null : undefined,
       }} />
       <Tabs.Screen name="profile" options={{
         tabBarIcon: ({ color, size }) => <Icon name="person-outline" size={size} color={color} />,
