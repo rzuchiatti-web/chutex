@@ -623,6 +623,21 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
             </>
           )}
 
+          {/* ── CONNECTER UN DISPOSITIF (toujours visible) ── */}
+          <div data-testid="connect-device-card" className="dash-slide-up cl-press" onClick={() => router.push('/(tabs)/devices' as any)}
+            style={{ borderRadius: 18, background: C.card, padding: '14px 16px', marginBottom: 12, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 12, transition: 'transform 0.18s', ...glass } as any}
+            onMouseEnter={(e: any) => { e.currentTarget.style.transform = 'translateY(-2px)'; }}
+            onMouseLeave={(e: any) => { e.currentTarget.style.transform = ''; }}>
+            <div style={{ width: 40, height: 40, borderRadius: 12, background: isDark ? 'rgba(59,130,246,0.12)' : 'rgba(59,130,246,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}>
+              <i className="ri-bluetooth-connect-line" style={{ fontSize: 20, color: '#3B82F6' }} />
+            </div>
+            <div style={{ flex: 1 } as any}>
+              <div style={{ fontSize: 13, fontWeight: 800, color: C.text }}>Mes dispositifs</div>
+              <div style={{ fontSize: 10, color: C.sub }}>Gerer vos appareils connectes</div>
+            </div>
+            <i className="ri-arrow-right-s-line" style={{ fontSize: 18, color: C.arrow }} />
+          </div>
+
           {showWeighing && <WeighingFlow onClose={() => setShowWeighing(false)} d={dashData?.scale || {}} weighings={weighings} />}
 
           {/* Les alertes sont affichées en haut du dashboard */}

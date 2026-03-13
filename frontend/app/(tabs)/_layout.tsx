@@ -1,22 +1,89 @@
 import React from 'react';
-import { Tabs } from 'expo-router';
+import { Tabs, useRouter, usePathname } from 'expo-router';
 import { Icon, MCIcon } from '../../src/components/WebIcon';
 import { useAuth } from '../../src/context/AuthContext';
 import { View, ActivityIndicator, Platform } from 'react-native';
 import FullScreenLoader from '../../src/components/FullScreenLoader';
 
-export default function TabLayout() {
-  const { user, loading } = useAuth();
+const NORA_VIDEO = 'https://customer-assets.emergentagent.com/job_ba3a5789-c8f1-4b12-b5d8-478a7f99aaea/artifacts/b6eh1r76_Nora_video.mp4';
+
+/* ── Custom Whoop-style tab bar for web beneficiary ── */
+function WhoopTabBar({ state, navigation }: any) {
+  const router = useRouter();
+  const pathname = usePathname();
   const [isDark, setIsDark] = React.useState(true);
 
   React.useEffect(() => {
-    if (Platform.OS === 'web' && typeof localStorage !== 'undefined') {
+    if (typeof localStorage !== 'undefined') {
       const check = () => setIsDark(localStorage.getItem('chutex_dark') !== '0');
       check();
       const iv = setInterval(check, 500);
       return () => clearInterval(iv);
     }
   }, []);
+
+  const activeColor = isDark ? '#FFF' : '#111';
+  const inactiveColor = isDark ? 'rgba(255,255,255,0.3)' : 'rgba(0,0,0,0.25)';
+  const glassBg = isDark ? 'rgba(30,30,40,0.75)' : 'rgba(230,230,235,0.85)';
+
+  const tabs = [
+    { key: 'index', icon: 'ri-home-5-fill', label: 'Accueil', path: '/' },
+    { key: 'health', icon: 'ri-heart-pulse-fill', label: 'Sante', path: '/health' },
+    { key: 'chat', icon: 'ri-message-3-fill', label: 'Chat', path: '/chat' },
+    { key: 'profile', icon: 'ri-menu-line', label: 'Plus', path: '/profile' },
+  ];
+
+  const currentRoute = state?.routes?.[state.index]?.name || '';
+
+  return (
+    <div style={{ position: 'fixed', bottom: 16, left: 16, right: 16, zIndex: 999, display: 'flex', alignItems: 'center', gap: 12, pointerEvents: 'auto' } as any}>
+      {/* Glass tab container */}
+      <div style={{
+        flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'space-around',
+        height: 62, borderRadius: 22, padding: '0 8px',
+        background: glassBg,
+        backdropFilter: 'blur(28px)', WebkitBackdropFilter: 'blur(28px)',
+        border: isDark ? '1px solid rgba(255,255,255,0.08)' : '1px solid rgba(0,0,0,0.06)',
+        boxShadow: '0 8px 32px rgba(0,0,0,0.3)',
+      } as any}>
+        {tabs.map((tab) => {
+          const isActive = currentRoute === tab.key;
+          return (
+            <div key={tab.key} data-testid={`nav-tab-${tab.key}`}
+              onClick={() => {
+                const idx = state.routes.findIndex((r: any) => r.name === tab.key);
+                if (idx >= 0) navigation.navigate(state.routes[idx].name);
+              }}
+              style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 3, padding: '8px 12px', cursor: 'pointer', transition: 'opacity 0.2s', opacity: isActive ? 1 : 0.6 } as any}>
+              <i className={tab.icon} style={{ fontSize: 22, color: isActive ? activeColor : inactiveColor, transition: 'color 0.2s' }} />
+              <span style={{ fontSize: 9, fontWeight: 700, color: isActive ? activeColor : inactiveColor, letterSpacing: 0.3, transition: 'color 0.2s' }}>{tab.label}</span>
+            </div>
+          );
+        })}
+      </div>
+
+      {/* Nora AI circle button */}
+      <div data-testid="nav-nora-button"
+        onClick={() => router.push('/chat-ia' as any)}
+        style={{
+          width: 62, height: 62, borderRadius: 999, flexShrink: 0,
+          background: '#000', overflow: 'hidden', cursor: 'pointer',
+          border: '2px solid rgba(167,139,250,0.35)',
+          boxShadow: '0 0 20px rgba(167,139,250,0.15), 0 8px 32px rgba(0,0,0,0.4)',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          transition: 'transform 0.2s, box-shadow 0.2s',
+          position: 'relative',
+        } as any}
+        onMouseEnter={(e: any) => { e.currentTarget.style.transform = 'scale(1.08)'; e.currentTarget.style.boxShadow = '0 0 30px rgba(167,139,250,0.3), 0 8px 32px rgba(0,0,0,0.4)'; }}
+        onMouseLeave={(e: any) => { e.currentTarget.style.transform = ''; e.currentTarget.style.boxShadow = '0 0 20px rgba(167,139,250,0.15), 0 8px 32px rgba(0,0,0,0.4)'; }}>
+        <video autoPlay loop muted playsInline style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: 999 } as any} src={NORA_VIDEO} />
+      </div>
+    </div>
+  );
+}
+
+export default function TabLayout() {
+  const { user, loading } = useAuth();
 
   if (loading) return <FullScreenLoader />;
   if (!user) return null;
@@ -29,10 +96,14 @@ export default function TabLayout() {
   const isCompany = r === 'prescriber_company' || r === 'company';
   const isWebBen = Platform.OS === 'web' && isBen;
 
-  // Single unified tab bar style — NO position absolute, just styled inline
   const isWebAny = Platform.OS === 'web' && (isBen || isG || isTA || isCompany);
   const hideTabBar = isAdmin;
+
+  // Non-web or non-beneficiary tab bar style
   const tabStyle = hideTabBar ? {
+    display: 'none' as any,
+    height: 0,
+  } : isWebBen ? {
     display: 'none' as any,
     height: 0,
   } : isWebAny ? {
@@ -57,64 +128,51 @@ export default function TabLayout() {
     shadowColor: 'transparent',
   };
 
-  const activeColor = isDark ? '#FFFFFF' : '#111111';
-  const inactiveColor = isDark ? 'rgba(255,255,255,0.35)' : 'rgba(0,0,0,0.3)';
-
-  const TabIcon = ({ icon, focused, svgIcon }: { icon?: string; focused: boolean; svgIcon?: any }) => {
-    if (!isWebBen) return null;
-    return (
-      <div style={{ width: 44, height: 44, display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}>
-        {svgIcon || <i className={icon} style={{ fontSize: 22, color: focused ? activeColor : inactiveColor }} />}
-      </div>
-    );
-  };
-
-  // Inject CSS to fix tab bar glass on web
-  if ((isWebBen || (Platform.OS === 'web' && (isG || isTA))) && typeof document !== 'undefined') {
-    const existing = document.getElementById('navbar-glass-fix');
-    if (!existing) {
-      const s = document.createElement('style');
-      s.id = 'navbar-glass-fix';
-      s.textContent = `[role="tablist"]{background:transparent!important;background-color:transparent!important;border-top:none!important;}[role="tablist"]>div{background:transparent!important;background-color:transparent!important;}`;
-      document.head.appendChild(s);
-    }
-    // Force parent transparent via JS
-    requestAnimationFrame(() => {
-      const tl = document.querySelector('[role="tablist"]');
-      if (tl) {
-        let p = tl.parentElement;
-        while (p && p !== document.body) {
-          (p as HTMLElement).style.backgroundColor = 'transparent';
-          (p as HTMLElement).style.background = 'transparent';
-          p = p.parentElement;
-        }
+  // Inject CSS to fix tab bar glass on web (for non-beneficiary roles)
+  if (!isWebBen && (Platform.OS === 'web' && (isG || isTA))) {
+    if (typeof document !== 'undefined') {
+      const existing = document.getElementById('navbar-glass-fix');
+      if (!existing) {
+        const s = document.createElement('style');
+        s.id = 'navbar-glass-fix';
+        s.textContent = `[role="tablist"]{background:transparent!important;background-color:transparent!important;border-top:none!important;}[role="tablist"]>div{background:transparent!important;background-color:transparent!important;}`;
+        document.head.appendChild(s);
       }
-    });
+      requestAnimationFrame(() => {
+        const tl = document.querySelector('[role="tablist"]');
+        if (tl) {
+          let p = tl.parentElement;
+          while (p && p !== document.body) {
+            (p as HTMLElement).style.backgroundColor = 'transparent';
+            (p as HTMLElement).style.background = 'transparent';
+            p = p.parentElement;
+          }
+        }
+      });
+    }
   }
 
   return (
-    <Tabs key={`${r}-${isDark}`} sceneContainerStyle={{ backgroundColor: 'transparent' }} screenOptions={{
-      headerShown: false,
-      tabBarActiveTintColor: activeColor,
-      tabBarInactiveTintColor: inactiveColor,
-      tabBarShowLabel: false,
-      tabBarStyle: tabStyle,
-    }}>
+    <Tabs
+      key={r}
+      tabBar={isWebBen ? (props) => <WhoopTabBar {...props} /> : undefined}
+      sceneContainerStyle={{ backgroundColor: 'transparent' }}
+      screenOptions={{
+        headerShown: false,
+        tabBarActiveTintColor: '#FFFFFF',
+        tabBarInactiveTintColor: 'rgba(255,255,255,0.35)',
+        tabBarShowLabel: false,
+        tabBarStyle: tabStyle,
+      }}>
       <Tabs.Screen name="index" options={{
-        tabBarIcon: ({ color, size, focused }) => isWebBen
-          ? <TabIcon icon="ri-home-5-fill" focused={focused} />
-          : <Icon name={(isAdmin || isCompany) ? 'stats-chart-outline' : 'home-outline'} size={size} color={color} />,
+        tabBarIcon: ({ color, size }) => <Icon name={(isAdmin || isCompany) ? 'stats-chart-outline' : 'home-outline'} size={size} color={color} />,
       }} />
       <Tabs.Screen name="health" options={{
-        tabBarIcon: ({ color, size, focused }) => isWebBen
-          ? <TabIcon icon="ri-heart-pulse-fill" focused={focused} />
-          : isAdmin ? <Icon name="people-outline" size={size} color={color} /> : isCompany ? <Icon name="business-outline" size={size} color={color} /> : <MCIcon name="heart-pulse" size={size} color={color} />,
+        tabBarIcon: ({ color, size }) => isAdmin ? <Icon name="people-outline" size={size} color={color} /> : isCompany ? <Icon name="business-outline" size={size} color={color} /> : <MCIcon name="heart-pulse" size={size} color={color} />,
         href: (!isBen && !isAdmin && !isCompany) ? null : undefined,
       }} />
       <Tabs.Screen name="chat" options={{
-        tabBarIcon: ({ color, size, focused }) => isWebBen
-          ? <TabIcon icon="ri-dna-line" focused={focused} />
-          : <Icon name="chatbubble-ellipses-outline" size={22} color={color} />,
+        tabBarIcon: ({ color, size }) => <Icon name="chatbubble-ellipses-outline" size={22} color={color} />,
         href: (!isBen) ? null : undefined,
       }} />
       <Tabs.Screen name="alerts" options={{
@@ -122,20 +180,15 @@ export default function TabLayout() {
         href: isBen ? null : undefined,
       }} />
       <Tabs.Screen name="teleconsult" options={{
-        tabBarIcon: ({ color, size, focused }) => isWebBen
-          ? <TabIcon icon="ri-stethoscope-fill" focused={focused} />
-          : (isAdmin || isCompany) ? <Icon name="medkit-outline" size={size} color={color} /> : isG ? <Icon name="tab-intervention" size={size} color={color} /> : <Icon name={isTA ? 'headset-outline' : 'videocam-outline'} size={size} color={color} />,
+        tabBarIcon: ({ color, size }) => (isAdmin || isCompany) ? <Icon name="medkit-outline" size={size} color={color} /> : isG ? <Icon name="tab-intervention" size={size} color={color} /> : <Icon name={isTA ? 'headset-outline' : 'videocam-outline'} size={size} color={color} />,
         href: isBen ? null : undefined,
       }} />
       <Tabs.Screen name="devices" options={{
-        tabBarIcon: ({ color, size, focused }) => isWebBen
-          ? <TabIcon icon="ri-bluetooth-connect-fill" focused={focused} />
-          : isCompany ? <Icon name="document-text-outline" size={size} color={color} /> : isG ? <Icon name="document-text-outline" size={size} color={color} /> : <MCIcon name="bluetooth-connect" size={size} color={color} />,
+        tabBarIcon: ({ color, size }) => isCompany ? <Icon name="document-text-outline" size={size} color={color} /> : isG ? <Icon name="document-text-outline" size={size} color={color} /> : <MCIcon name="bluetooth-connect" size={size} color={color} />,
+        href: isWebBen ? null : undefined,
       }} />
       <Tabs.Screen name="profile" options={{
-        tabBarIcon: ({ color, size, focused }) => isWebBen
-          ? <TabIcon icon="ri-user-fill" focused={focused} />
-          : <Icon name="person-outline" size={size} color={color} />,
+        tabBarIcon: ({ color, size }) => <Icon name="person-outline" size={size} color={color} />,
       }} />
     </Tabs>
   );
