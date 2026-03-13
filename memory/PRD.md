@@ -13,6 +13,7 @@ Health monitoring and care application for elderly beneficiaries ("Chutex Care")
 
 ### Session - March 13, 2026
 1. **Guardian Navbar Prescription Fix** — Fixed broken "Prescriptions" navigation link in guardian space. Changed WhoopTabBar guardian tab key from `health` to `devices` (which contains `PrescriptionManagement`). Also fixed `devices` tab visibility to only hide for web beneficiaries, not guardians.
+2. **Beneficiary Detail Crash Fix** — Fixed `glass is not defined` error in `beneficiary-detail.tsx` that prevented guardians from viewing beneficiary details. Added missing glassmorphism constant.
 
 ### Session - March 12, 2026 (Batch 5)
 1. **Whoop-style Navbar** — Glassmorphism floating tab bar (`WhoopTabBar` inline in `_layout.tsx`) for both beneficiary and guardian spaces
