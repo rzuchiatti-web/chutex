@@ -532,7 +532,7 @@ async def guardian_beneficiary_ai_report(bid: str, user=Depends(get_current_user
         return {"summary": f"{ben['name']}, {ben.get('medical_conditions','aucune pathologie connue')}. Appareils: {dev_info}."}
     try:
         from emergentintegrations.llm.chat import LlmChat, UserMessage
-        prompt = f"Resume en 2 phrases max l'etat de sante de {ben['name']} ({ben.get('gender','')}, {ben.get('date_of_birth','')}). Pathologies: {ben.get('medical_conditions','aucune')}. Donnees: {data_str}. Appareils: {dev_info}. Sois factuel, pas d'emoji."
+        prompt = f"En 2-3 phrases, donne UNIQUEMENT une analyse sante de ce beneficiaire. NE REPETE PAS son nom, adresse ou infos de profil. Donnees: {data_str}. Pathologies: {ben.get('medical_conditions','aucune')}. Donne des observations cliniques (normal/anormal, risques, recommandations). Sois factuel, pas d'emoji."
         chat = LlmChat(api_key=api_key, session_id=f"guard-{bid[:8]}",
                        system_message="Medecin. 2 phrases max. Factuel.").with_model("openai", "gpt-5.2")
         r = await chat.send_message(UserMessage(text=prompt))

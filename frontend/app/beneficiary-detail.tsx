@@ -330,10 +330,8 @@ export default function BeneficiaryDetailScreen() {
           </div>
 
           {/* Info grid with icons */}
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginBottom: 12 } as any}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginBottom: 8 } as any}>
             {[
-              { icon: 'ri-map-pin-line', label: 'Adresse', val: data.address || 'N/A', color: '#60A5FA', testid: 'beneficiary-profile-address-value' },
-              { icon: 'ri-building-line', label: 'Ville', val: [data.postal_code, data.city].filter(Boolean).join(' ') || 'N/A', color: '#34D399', testid: 'beneficiary-profile-city-value' },
               { icon: 'ri-calendar-line', label: 'Age', val: ageYears != null ? `${ageYears} ans` : 'N/A', color: '#F59E0B', testid: 'beneficiary-profile-age-value' },
               { icon: 'ri-user-line', label: 'Genre', val: genderLabel, color: '#A78BFA', testid: 'beneficiary-profile-gender-value' },
               data.blood_type && { icon: 'ri-heart-3-line', label: 'Groupe sanguin', val: data.blood_type, color: '#EF4444', testid: 'beneficiary-profile-blood-value' },
@@ -348,6 +346,16 @@ export default function BeneficiaryDetailScreen() {
                 </div>
               </div>
             ))}
+          </div>
+          {/* Address full width */}
+          <div style={{ padding: '10px 12px', borderRadius: 14, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.06)', display: 'flex', alignItems: 'flex-start', gap: 8, marginBottom: 12 } as any}>
+            <div style={{ width: 28, height: 28, borderRadius: 8, background: 'rgba(96,165,250,0.12)', border: '1px solid rgba(96,165,250,0.22)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, marginTop: 1 } as any}>
+              <i className="ri-map-pin-line" style={{ fontSize: 13, color: '#60A5FA' }} />
+            </div>
+            <div>
+              <div style={{ fontSize: 8, fontWeight: 700, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 2 }}>Adresse</div>
+              <div data-testid="beneficiary-profile-address-value" style={{ fontSize: 12, fontWeight: 700, color: '#FFF', lineHeight: 1.3 }}>{addressDisplay}</div>
+            </div>
           </div>
 
           {/* Taille / Poids */}
@@ -393,35 +401,48 @@ export default function BeneficiaryDetailScreen() {
           </div>
         )}
 
-        {/* ── NORA ANALYSE ── */}
+        {/* ── NORA ANALYSE (carte noire premium) ── */}
         {noraAnalysis && (
-          <GlassCard style={{ background: 'linear-gradient(135deg, rgba(167,139,250,0.08), rgba(139,92,246,0.03))', border: '1px solid rgba(167,139,250,0.15)' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 } as any}>
-              <div style={{ width: 28, height: 28, borderRadius: 8, background: 'rgba(167,139,250,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}>
-                <i className="ri-sparkling-2-line" style={{ fontSize: 14, color: '#A78BFA' }} />
+          <div style={{ padding: 0, borderRadius: 20, background: '#000', border: '1px solid rgba(255,255,255,0.08)', marginBottom: 12, overflow: 'hidden', position: 'relative', minHeight: 120 } as any}>
+            <video autoPlay loop muted playsInline style={{ position: 'absolute', top: 0, right: 0, width: 120, height: '100%', objectFit: 'cover', opacity: 0.6, borderRadius: '0 20px 20px 0' } as any}
+              src="https://customer-assets.emergentagent.com/job_9950a869-9328-4a4b-abf4-a6fb213a3b47/artifacts/8h3820je_dna%281%29.webm" />
+            <div style={{ position: 'absolute', top: 0, right: 0, width: 160, height: '100%', background: 'linear-gradient(90deg, #000 0%, transparent 100%)' } as any} />
+            <div style={{ position: 'relative', zIndex: 2, padding: '18px 140px 18px 18px', display: 'flex', flexDirection: 'column', justifyContent: 'center', minHeight: 120 } as any}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 } as any}>
+                <span style={{ fontSize: 13, fontWeight: 800, color: '#FFF' }}>Nora</span>
+                <span style={{ fontSize: 9, fontWeight: 600, color: 'rgba(255,255,255,0.3)' }}>Analyse sante</span>
               </div>
-              <span style={{ fontSize: 11, fontWeight: 700, color: '#A78BFA' }}>Analyse Nora</span>
+              <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.65)', lineHeight: 1.7 }}>{noraAnalysis}</div>
             </div>
-            <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.65)', lineHeight: 1.6 }}>{noraAnalysis}</div>
-          </GlassCard>
+          </div>
         )}
 
         {/* ── CONSTANTES VITALES ── */}
         <SectionTitle icon="ri-heart-pulse-line" label="Constantes vitales" color="#EF4444" />
         <GlassCard>
           {metrics.length > 0 ? (
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(110px, 1fr))', gap: 8 } as any}>
-              {metrics.map((m, i) => (
-                <div key={i} data-testid={`beneficiary-vital-card-${m.label.toLowerCase().replace(/\s+/g, '-')}`} style={{ padding: '12px 10px', borderRadius: 16, background: `${m.color}08`, border: `1px solid ${m.color}18` } as any}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 8 } as any}>
-                    <i className={m.icon} style={{ fontSize: 12, color: m.color }} />
-                    <span style={{ fontSize: 8, fontWeight: 700, color: 'rgba(255,255,255,0.35)', textTransform: 'uppercase', letterSpacing: 0.3 }}>{m.label}</span>
+            <>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(110px, 1fr))', gap: 8 } as any}>
+                {metrics.map((m, i) => (
+                  <div key={i} data-testid={`beneficiary-vital-card-${m.label.toLowerCase().replace(/\s+/g, '-')}`} style={{ padding: '12px 10px', borderRadius: 16, background: `${m.color}08`, border: `1px solid ${m.color}18` } as any}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 8 } as any}>
+                      <i className={m.icon} style={{ fontSize: 12, color: m.color }} />
+                      <span style={{ fontSize: 8, fontWeight: 700, color: 'rgba(255,255,255,0.35)', textTransform: 'uppercase', letterSpacing: 0.3 }}>{m.label}</span>
+                    </div>
+                    <div style={{ fontSize: 22, fontWeight: 900, color: m.color, lineHeight: 1 }}>{m.val}</div>
+                    <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.35)', marginTop: 2, fontWeight: 600 }}>{m.unit}</div>
                   </div>
-                  <div style={{ fontSize: 22, fontWeight: 900, color: m.color, lineHeight: 1 }}>{m.val}</div>
-                  <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.35)', marginTop: 2, fontWeight: 600 }}>{m.unit}</div>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+              <div data-testid="view-health-page-btn" onClick={() => router.push({ pathname: '/health-readonly' as any, params: { beneficiaryId: activeBid } })}
+                style={{ marginTop: 12, padding: '12px', borderRadius: 999, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', cursor: 'pointer', textAlign: 'center', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, transition: 'background 0.2s' } as any}
+                onMouseEnter={(e: any) => { e.currentTarget.style.background = 'rgba(255,255,255,0.1)'; }}
+                onMouseLeave={(e: any) => { e.currentTarget.style.background = 'rgba(255,255,255,0.06)'; }}>
+                <i className="ri-heart-pulse-line" style={{ fontSize: 14, color: '#FFF' }} />
+                <span style={{ fontSize: 12, fontWeight: 700, color: '#FFF' }}>Voir la page sante complete</span>
+                <i className="ri-arrow-right-s-line" style={{ fontSize: 14, color: 'rgba(255,255,255,0.4)' }} />
+              </div>
+            </>
           ) : (
             <div data-testid="beneficiary-vitals-empty" style={{ textAlign: 'center', padding: '20px 0', fontSize: 12, color: 'rgba(255,255,255,0.3)' }}>Aucune constante disponible</div>
           )}
