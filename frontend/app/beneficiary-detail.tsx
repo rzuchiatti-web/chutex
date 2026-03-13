@@ -167,6 +167,13 @@ export default function BeneficiaryDetailScreen() {
     </div>
   );
 
+  const InfoCell = ({ label, value, highlight, color, ...rest }: any) => (
+    <div style={{ padding: '10px 12px', borderRadius: 12, background: highlight ? `${color || '#F59E0B'}08` : 'rgba(255,255,255,0.03)', border: highlight ? `1px solid ${color || '#F59E0B'}20` : '1px solid rgba(255,255,255,0.04)' } as any} {...rest}>
+      <div style={{ fontSize: 9, fontWeight: 700, color: highlight ? (color || '#F59E0B') : 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 3 }}>{label}</div>
+      <div style={{ fontSize: 13, fontWeight: 600, color: 'rgba(255,255,255,0.75)', lineHeight: 1.4 }}>{value}</div>
+    </div>
+  );
+
   const devList = [
     { label: 'Bracelet Elio', img: IMG_BRACELET, d: bracelet, type: 'bracelet' },
     { label: 'Balance Vita', img: IMG_SCALE, d: scale, type: 'scale' },
@@ -317,14 +324,15 @@ export default function BeneficiaryDetailScreen() {
 
         {/* ── PROFIL & DOSSIER MEDICAL ── */}
         <div style={{ borderRadius: 24, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', padding: 24, marginBottom: 14, ...glass, animation: 'beneficiary-fade-in 400ms ease' } as any}>
-          {/* Identity header */}
+
+          {/* ─ Identity header ─ */}
           <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 20 } as any}>
             <div style={{ width: 64, height: 64, borderRadius: 20, background: '#FFF', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}>
               <span style={{ fontSize: 24, fontWeight: 900, color: '#111' }}>{firstName?.charAt(0)}{lastName?.charAt(0)}</span>
             </div>
             <div style={{ flex: 1 } as any}>
               <div style={{ fontSize: 22, fontWeight: 900, color: '#FFF', letterSpacing: -0.3, lineHeight: 1.2 }} data-testid="beneficiary-firstname-value">{firstName} <span data-testid="beneficiary-lastname-value">{lastName}</span></div>
-              <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', marginTop: 4 }}>{ageYears ? `${ageYears} ans` : ''}{ageYears && genderLabel ? ' · ' : ''}{genderLabel}{data.blood_type ? ` · ${data.blood_type}` : ''}</div>
+              <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', marginTop: 4 }}>Beneficiaire</div>
             </div>
             {data.phone && (
               <div data-testid="beneficiary-call-btn" onClick={() => window.open(`tel:${data.phone}`, '_self')} style={{ width: 44, height: 44, borderRadius: 14, background: 'rgba(16,185,129,0.15)', border: '1px solid rgba(16,185,129,0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', flexShrink: 0 } as any}>
@@ -333,59 +341,55 @@ export default function BeneficiaryDetailScreen() {
             )}
           </div>
 
-          {/* Info pills row */}
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginBottom: 16 } as any}>
-            <div style={{ padding: '6px 12px', borderRadius: 999, background: 'rgba(96,165,250,0.08)', border: '1px solid rgba(96,165,250,0.15)', display: 'flex', alignItems: 'center', gap: 6 } as any}>
-              <i className="ri-map-pin-line" style={{ fontSize: 11, color: '#60A5FA' }} />
-              <span data-testid="beneficiary-profile-address-value" style={{ fontSize: 11, fontWeight: 600, color: 'rgba(255,255,255,0.6)' }}>{addressDisplay}</span>
+          {/* ─ Section: Identite ─ */}
+          <div style={{ borderTop: '1px solid rgba(255,255,255,0.06)', paddingTop: 16, marginBottom: 16 } as any}>
+            <div style={{ fontSize: 9, fontWeight: 700, color: 'rgba(255,255,255,0.25)', textTransform: 'uppercase', letterSpacing: 1.2, marginBottom: 10 }}>
+              <i className="ri-user-line" style={{ fontSize: 11, marginRight: 6, color: '#60A5FA' }} />Identite
             </div>
-            {data.height_cm && (
-              <div style={{ padding: '6px 12px', borderRadius: 999, background: 'rgba(59,130,246,0.08)', border: '1px solid rgba(59,130,246,0.15)', display: 'flex', alignItems: 'center', gap: 6 } as any}>
-                <i className="ri-ruler-line" style={{ fontSize: 11, color: '#3B82F6' }} />
-                <span data-testid="beneficiary-profile-height-value" style={{ fontSize: 11, fontWeight: 600, color: 'rgba(255,255,255,0.6)' }}>{data.height_cm} cm</span>
-              </div>
-            )}
-            {profileWeight && (
-              <div style={{ padding: '6px 12px', borderRadius: 999, background: 'rgba(245,158,11,0.08)', border: '1px solid rgba(245,158,11,0.15)', display: 'flex', alignItems: 'center', gap: 6 } as any}>
-                <i className="ri-scales-3-line" style={{ fontSize: 11, color: '#F59E0B' }} />
-                <span data-testid="beneficiary-profile-weight-value" style={{ fontSize: 11, fontWeight: 600, color: 'rgba(255,255,255,0.6)' }}>{profileWeight} kg</span>
-              </div>
-            )}
-            {data.height_cm && profileWeight && (
-              <div style={{ padding: '6px 12px', borderRadius: 999, background: 'rgba(139,92,246,0.08)', border: '1px solid rgba(139,92,246,0.15)', display: 'flex', alignItems: 'center', gap: 6 } as any}>
-                <span style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.6)' }}>IMC {(profileWeight / Math.pow(data.height_cm / 100, 2)).toFixed(1)}</span>
-              </div>
-            )}
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(100px, 1fr))', gap: 10 } as any}>
+              {ageYears && <InfoCell label="Age" value={`${ageYears} ans`} />}
+              <InfoCell label="Genre" value={genderLabel} />
+              {data.date_of_birth && <InfoCell label="Date de naissance" value={new Date(data.date_of_birth).toLocaleDateString('fr-FR')} />}
+              {data.phone && <InfoCell label="Telephone" value={data.phone} />}
+            </div>
           </div>
 
-          {/* Medical conditions & allergies */}
-          {(data.medical_conditions || data.allergies) && (
-            <div style={{ borderTop: '1px solid rgba(255,255,255,0.06)', paddingTop: 14 } as any}>
-              <div style={{ fontSize: 9, fontWeight: 700, color: 'rgba(255,255,255,0.25)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 10 }}>Dossier medical</div>
-              {data.medical_conditions && (
-                <div style={{ display: 'flex', alignItems: 'flex-start', gap: 10, marginBottom: 8 } as any}>
-                  <div style={{ width: 28, height: 28, borderRadius: 8, background: 'rgba(245,158,11,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}>
-                    <i className="ri-stethoscope-line" style={{ fontSize: 13, color: '#F59E0B' }} />
-                  </div>
-                  <div>
-                    <div style={{ fontSize: 9, fontWeight: 700, color: '#F59E0B', textTransform: 'uppercase', marginBottom: 2 }}>Pathologies</div>
-                    <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.65)', lineHeight: 1.5 }}>{data.medical_conditions}</div>
-                  </div>
-                </div>
-              )}
-              {data.allergies && data.allergies !== 'Aucune' && (
-                <div style={{ display: 'flex', alignItems: 'flex-start', gap: 10 } as any}>
-                  <div style={{ width: 28, height: 28, borderRadius: 8, background: 'rgba(239,68,68,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}>
-                    <i className="ri-alert-line" style={{ fontSize: 13, color: '#EF4444' }} />
-                  </div>
-                  <div>
-                    <div style={{ fontSize: 9, fontWeight: 700, color: '#EF4444', textTransform: 'uppercase', marginBottom: 2 }}>Allergies</div>
-                    <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.65)', lineHeight: 1.5 }}>{data.allergies}</div>
-                  </div>
-                </div>
-              )}
+          {/* ─ Section: Adresse ─ */}
+          <div style={{ borderTop: '1px solid rgba(255,255,255,0.06)', paddingTop: 16, marginBottom: 16 } as any}>
+            <div style={{ fontSize: 9, fontWeight: 700, color: 'rgba(255,255,255,0.25)', textTransform: 'uppercase', letterSpacing: 1.2, marginBottom: 10 }}>
+              <i className="ri-map-pin-line" style={{ fontSize: 11, marginRight: 6, color: '#60A5FA' }} />Adresse
+            </div>
+            <div data-testid="beneficiary-profile-address-value" style={{ fontSize: 13, color: 'rgba(255,255,255,0.7)', lineHeight: 1.5 }}>
+              {data.address || '-'}
+              {(data.postal_code || data.city) && <><br />{[data.postal_code, data.city].filter(Boolean).join(' ')}</>}
+            </div>
+          </div>
+
+          {/* ─ Section: Physique ─ */}
+          {(data.height_cm || profileWeight) && (
+            <div style={{ borderTop: '1px solid rgba(255,255,255,0.06)', paddingTop: 16, marginBottom: 16 } as any}>
+              <div style={{ fontSize: 9, fontWeight: 700, color: 'rgba(255,255,255,0.25)', textTransform: 'uppercase', letterSpacing: 1.2, marginBottom: 10 }}>
+                <i className="ri-body-scan-line" style={{ fontSize: 11, marginRight: 6, color: '#10B981' }} />Physique
+              </div>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(100px, 1fr))', gap: 10 } as any}>
+                {data.height_cm && <InfoCell data-testid="beneficiary-profile-height-value" label="Taille" value={`${data.height_cm} cm`} />}
+                {profileWeight && <InfoCell data-testid="beneficiary-profile-weight-value" label="Poids" value={`${profileWeight} kg`} />}
+                {data.height_cm && profileWeight && <InfoCell label="IMC" value={(profileWeight / Math.pow(data.height_cm / 100, 2)).toFixed(1)} />}
+              </div>
             </div>
           )}
+
+          {/* ─ Section: Dossier Medical ─ */}
+          <div style={{ borderTop: '1px solid rgba(255,255,255,0.06)', paddingTop: 16 } as any}>
+            <div style={{ fontSize: 9, fontWeight: 700, color: 'rgba(255,255,255,0.25)', textTransform: 'uppercase', letterSpacing: 1.2, marginBottom: 10 }}>
+              <i className="ri-stethoscope-line" style={{ fontSize: 11, marginRight: 6, color: '#F59E0B' }} />Dossier Medical
+            </div>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: 10 } as any}>
+              <InfoCell label="Groupe sanguin" value={data.blood_type || 'Non renseigne'} highlight={!!data.blood_type} />
+              <InfoCell label="Pathologies" value={data.medical_conditions || 'Aucune'} highlight={!!data.medical_conditions && data.medical_conditions !== 'Aucune'} color="#F59E0B" />
+              <InfoCell label="Allergies" value={data.allergies || 'Aucune'} highlight={!!data.allergies && data.allergies !== 'Aucune'} color="#EF4444" />
+            </div>
+          </div>
         </div>
 
         {/* ── ALERTE ACTIVE ── */}
