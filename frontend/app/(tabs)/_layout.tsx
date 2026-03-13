@@ -27,8 +27,8 @@ function WhoopTabBar({ state, navigation, role }: any) {
 
   const tabs = role === 'guardian' ? [
     { key: 'index', icon: 'ri-home-smile-2-fill', label: 'Accueil' },
-    { key: 'alerts', icon: 'ri-alarm-warning-fill', label: 'Alertes' },
     { key: 'teleconsult', icon: 'ri-service-fill', label: 'Interventions' },
+    { key: 'health', icon: 'ri-file-list-3-fill', label: 'Prescriptions' },
     { key: 'profile', icon: 'ri-menu-3-fill', label: 'Plus' },
   ] : [
     { key: 'index', icon: 'ri-home-smile-2-fill', label: 'Accueil' },
