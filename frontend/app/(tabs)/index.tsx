@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback, useRef } from 'react';
 import AlertBanner from '../../src/components/dashboard/AlertBanner';
 import VitalsRow from '../../src/components/dashboard/VitalsRow';
 import ActivityCard from '../../src/components/dashboard/ActivityCard';
-import NoraCard from '../../src/components/shared/NoraCard';
+import CopilotCard from '../../src/components/dashboard/CopilotCard';
 import DeviceCards from '../../src/components/dashboard/DeviceCards';
 import Loader from '../../src/components/Loader';
 import WeighingFlow from '../../src/components/dashboard/WeighingFlow';
@@ -612,9 +612,7 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
           <div style={{ height: 1, background: isDark ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.06)", margin: "10px 0 24px" } as any} />
 
           {/* ── 5. NORA IA ── */}
-          <div onClick={() => router.push('/chat-ia' as any)} style={{ cursor: 'pointer' } as any}>
-            <NoraCard title="Nora" text="Votre assistante IA personnalisee, disponible 24/7 pour analyser vos donnees et vous accompagner." />
-          </div>
+          <CopilotCard />
 
           <div style={{ height: 1, background: isDark ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.06)", margin: "10px 0 24px" } as any} />
 
