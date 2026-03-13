@@ -27,10 +27,10 @@ function WhoopTabBar({ state, navigation }: any) {
   const glassBg = isDark ? 'rgba(30,30,40,0.75)' : 'rgba(230,230,235,0.85)';
 
   const tabs = [
-    { key: 'index', icon: 'ri-home-5-fill', label: 'Accueil', path: '/' },
+    { key: 'index', icon: 'ri-home-smile-2-fill', label: 'Accueil', path: '/' },
     { key: 'health', icon: 'ri-heart-pulse-fill', label: 'Sante', path: '/health' },
-    { key: 'chat', icon: 'ri-message-3-fill', label: 'Chat', path: '/chat' },
-    { key: 'profile', icon: 'ri-menu-line', label: 'Plus', path: '/profile' },
+    { key: 'chat', icon: 'ri-chat-3-fill', label: 'Chat', path: '/chat' },
+    { key: 'profile', icon: 'ri-menu-3-fill', label: 'Plus', path: '/profile' },
   ];
 
   const currentRoute = state?.routes?.[state.index]?.name || '';
@@ -76,7 +76,7 @@ function WhoopTabBar({ state, navigation }: any) {
         } as any}
         onMouseEnter={(e: any) => { e.currentTarget.style.transform = 'scale(1.08)'; e.currentTarget.style.boxShadow = '0 0 30px rgba(167,139,250,0.3), 0 8px 32px rgba(0,0,0,0.4)'; }}
         onMouseLeave={(e: any) => { e.currentTarget.style.transform = ''; e.currentTarget.style.boxShadow = '0 0 20px rgba(167,139,250,0.15), 0 8px 32px rgba(0,0,0,0.4)'; }}>
-        <video autoPlay loop muted playsInline style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: 999 } as any} src={NORA_VIDEO} />
+        <video autoPlay loop muted playsInline style={{ width: '70%', height: '70%', objectFit: 'cover', borderRadius: 999 } as any} src={NORA_VIDEO} />
       </div>
     </div>
   );
