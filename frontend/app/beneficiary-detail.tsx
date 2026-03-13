@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import FullScreenLoader from '../src/components/FullScreenLoader';
+import NoraCard from '../src/components/shared/NoraCard';
 import { View, Text, Platform } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useGlobalSearchParams, useLocalSearchParams, useRouter } from 'expo-router';
@@ -313,79 +314,78 @@ export default function BeneficiaryDetailScreen() {
           </div>
         </div>
 
-        {/* ── PROFIL & DOSSIER MEDICAL (grouped at top) ── */}
-        <GlassCard style={{ background: 'linear-gradient(135deg, rgba(167,139,250,0.06), rgba(139,92,246,0.02))', border: '1px solid rgba(167,139,250,0.12)', padding: 20 }}>
-          {/* Name */}
-          <div style={{ textAlign: 'center', marginBottom: 18 } as any}>
-            <div style={{ width: 56, height: 56, borderRadius: 16, background: 'linear-gradient(135deg, #A78BFA, #7C3AED)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 10px', border: '2px solid rgba(167,139,250,0.4)' } as any}>
-              <span style={{ fontSize: 22, fontWeight: 900, color: '#FFF' }}>{firstName?.charAt(0)}{lastName?.charAt(0)}</span>
+        {/* ── PROFIL & DOSSIER MEDICAL ── */}
+        <div style={{ borderRadius: 24, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', padding: 24, marginBottom: 14, ...glass, animation: 'beneficiary-fade-in 400ms ease' } as any}>
+          {/* Identity header */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 20 } as any}>
+            <div style={{ width: 64, height: 64, borderRadius: 20, background: '#FFF', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}>
+              <span style={{ fontSize: 24, fontWeight: 900, color: '#111' }}>{firstName?.charAt(0)}{lastName?.charAt(0)}</span>
             </div>
-            <div style={{ fontSize: 24, fontWeight: 800, color: '#FFF', letterSpacing: -0.3 }} data-testid="beneficiary-firstname-value">{firstName} <span data-testid="beneficiary-lastname-value" style={{ fontWeight: 800 }}>{lastName}</span></div>
-            {ageYears != null && <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.45)', marginTop: 4 }}>{ageYears} ans · {genderLabel}</div>}
+            <div style={{ flex: 1 } as any}>
+              <div style={{ fontSize: 22, fontWeight: 900, color: '#FFF', letterSpacing: -0.3, lineHeight: 1.2 }} data-testid="beneficiary-firstname-value">{firstName} <span data-testid="beneficiary-lastname-value">{lastName}</span></div>
+              <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', marginTop: 4 }}>{ageYears ? `${ageYears} ans` : ''}{ageYears && genderLabel ? ' · ' : ''}{genderLabel}{data.blood_type ? ` · ${data.blood_type}` : ''}</div>
+            </div>
             {data.phone && (
-              <div data-testid="beneficiary-call-btn" onClick={() => window.open(`tel:${data.phone}`, '_self')} style={{ display: 'inline-flex', alignItems: 'center', gap: 8, marginTop: 10, padding: '10px 24px', borderRadius: 999, background: 'linear-gradient(135deg, rgba(16,185,129,0.2), rgba(5,150,105,0.1))', border: '1px solid rgba(16,185,129,0.3)', cursor: 'pointer', fontSize: 13, fontWeight: 700, color: '#10B981' } as any}>
-                <i className="ri-phone-fill" style={{ fontSize: 16 }} />Appeler {firstName}
+              <div data-testid="beneficiary-call-btn" onClick={() => window.open(`tel:${data.phone}`, '_self')} style={{ width: 44, height: 44, borderRadius: 14, background: 'rgba(16,185,129,0.15)', border: '1px solid rgba(16,185,129,0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', flexShrink: 0 } as any}>
+                <i className="ri-phone-fill" style={{ fontSize: 18, color: '#10B981' }} />
               </div>
             )}
           </div>
 
-          {/* Info grid with icons */}
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginBottom: 8 } as any}>
-            {[
-              { icon: 'ri-calendar-line', label: 'Age', val: ageYears != null ? `${ageYears} ans` : 'N/A', color: '#F59E0B', testid: 'beneficiary-profile-age-value' },
-              { icon: 'ri-user-line', label: 'Genre', val: genderLabel, color: '#A78BFA', testid: 'beneficiary-profile-gender-value' },
-              data.blood_type && { icon: 'ri-heart-3-line', label: 'Groupe sanguin', val: data.blood_type, color: '#EF4444', testid: 'beneficiary-profile-blood-value' },
-            ].filter(Boolean).map((item: any, i: number) => (
-              <div key={i} style={{ padding: '10px 12px', borderRadius: 14, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.06)', display: 'flex', alignItems: 'flex-start', gap: 8 } as any}>
-                <div style={{ width: 28, height: 28, borderRadius: 8, background: `${item.color}12`, border: `1px solid ${item.color}22`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, marginTop: 1 } as any}>
-                  <i className={item.icon} style={{ fontSize: 13, color: item.color }} />
-                </div>
-                <div>
-                  <div style={{ fontSize: 8, fontWeight: 700, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 2 }}>{item.label}</div>
-                  <div data-testid={item.testid} style={{ fontSize: 12, fontWeight: 700, color: '#FFF', lineHeight: 1.3 }}>{item.val}</div>
-                </div>
+          {/* Info pills row */}
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginBottom: 16 } as any}>
+            <div style={{ padding: '6px 12px', borderRadius: 999, background: 'rgba(96,165,250,0.08)', border: '1px solid rgba(96,165,250,0.15)', display: 'flex', alignItems: 'center', gap: 6 } as any}>
+              <i className="ri-map-pin-line" style={{ fontSize: 11, color: '#60A5FA' }} />
+              <span data-testid="beneficiary-profile-address-value" style={{ fontSize: 11, fontWeight: 600, color: 'rgba(255,255,255,0.6)' }}>{addressDisplay}</span>
+            </div>
+            {data.height_cm && (
+              <div style={{ padding: '6px 12px', borderRadius: 999, background: 'rgba(59,130,246,0.08)', border: '1px solid rgba(59,130,246,0.15)', display: 'flex', alignItems: 'center', gap: 6 } as any}>
+                <i className="ri-ruler-line" style={{ fontSize: 11, color: '#3B82F6' }} />
+                <span data-testid="beneficiary-profile-height-value" style={{ fontSize: 11, fontWeight: 600, color: 'rgba(255,255,255,0.6)' }}>{data.height_cm} cm</span>
               </div>
-            ))}
-          </div>
-          {/* Address full width */}
-          <div style={{ padding: '10px 12px', borderRadius: 14, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.06)', display: 'flex', alignItems: 'flex-start', gap: 8, marginBottom: 12 } as any}>
-            <div style={{ width: 28, height: 28, borderRadius: 8, background: 'rgba(96,165,250,0.12)', border: '1px solid rgba(96,165,250,0.22)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, marginTop: 1 } as any}>
-              <i className="ri-map-pin-line" style={{ fontSize: 13, color: '#60A5FA' }} />
-            </div>
-            <div>
-              <div style={{ fontSize: 8, fontWeight: 700, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 2 }}>Adresse</div>
-              <div data-testid="beneficiary-profile-address-value" style={{ fontSize: 12, fontWeight: 700, color: '#FFF', lineHeight: 1.3 }}>{addressDisplay}</div>
-            </div>
+            )}
+            {profileWeight && (
+              <div style={{ padding: '6px 12px', borderRadius: 999, background: 'rgba(245,158,11,0.08)', border: '1px solid rgba(245,158,11,0.15)', display: 'flex', alignItems: 'center', gap: 6 } as any}>
+                <i className="ri-scales-3-line" style={{ fontSize: 11, color: '#F59E0B' }} />
+                <span data-testid="beneficiary-profile-weight-value" style={{ fontSize: 11, fontWeight: 600, color: 'rgba(255,255,255,0.6)' }}>{profileWeight} kg</span>
+              </div>
+            )}
+            {data.height_cm && profileWeight && (
+              <div style={{ padding: '6px 12px', borderRadius: 999, background: 'rgba(139,92,246,0.08)', border: '1px solid rgba(139,92,246,0.15)', display: 'flex', alignItems: 'center', gap: 6 } as any}>
+                <span style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.6)' }}>IMC {(profileWeight / Math.pow(data.height_cm / 100, 2)).toFixed(1)}</span>
+              </div>
+            )}
           </div>
 
-          {/* Taille / Poids */}
-          {(data.height_cm || profileWeight) && (
-            <div style={{ display: 'flex', gap: 8, marginBottom: 12 } as any}>
-              {data.height_cm && (
-                <div style={{ flex: 1, padding: '12px 14px', borderRadius: 14, background: 'rgba(59,130,246,0.06)', border: '1px solid rgba(59,130,246,0.15)', display: 'flex', alignItems: 'center', gap: 10 } as any}>
-                  <i className="ri-ruler-line" style={{ fontSize: 18, color: '#60A5FA' }} />
+          {/* Medical conditions & allergies */}
+          {(data.medical_conditions || data.allergies) && (
+            <div style={{ borderTop: '1px solid rgba(255,255,255,0.06)', paddingTop: 14 } as any}>
+              <div style={{ fontSize: 9, fontWeight: 700, color: 'rgba(255,255,255,0.25)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 10 }}>Dossier medical</div>
+              {data.medical_conditions && (
+                <div style={{ display: 'flex', alignItems: 'flex-start', gap: 10, marginBottom: 8 } as any}>
+                  <div style={{ width: 28, height: 28, borderRadius: 8, background: 'rgba(245,158,11,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}>
+                    <i className="ri-stethoscope-line" style={{ fontSize: 13, color: '#F59E0B' }} />
+                  </div>
                   <div>
-                    <div style={{ fontSize: 8, fontWeight: 700, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', marginBottom: 2 }}>Taille</div>
-                    <div data-testid="beneficiary-profile-height-value" style={{ fontSize: 18, fontWeight: 900, color: '#60A5FA' }}>{data.height_cm} <span style={{ fontSize: 11, fontWeight: 600 }}>cm</span></div>
+                    <div style={{ fontSize: 9, fontWeight: 700, color: '#F59E0B', textTransform: 'uppercase', marginBottom: 2 }}>Pathologies</div>
+                    <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.65)', lineHeight: 1.5 }}>{data.medical_conditions}</div>
                   </div>
                 </div>
               )}
-              {profileWeight && (
-                <div style={{ flex: 1, padding: '12px 14px', borderRadius: 14, background: 'rgba(245,158,11,0.06)', border: '1px solid rgba(245,158,11,0.15)', display: 'flex', alignItems: 'center', gap: 10 } as any}>
-                  <i className="ri-scales-3-line" style={{ fontSize: 18, color: '#F59E0B' }} />
+              {data.allergies && data.allergies !== 'Aucune' && (
+                <div style={{ display: 'flex', alignItems: 'flex-start', gap: 10 } as any}>
+                  <div style={{ width: 28, height: 28, borderRadius: 8, background: 'rgba(239,68,68,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}>
+                    <i className="ri-alert-line" style={{ fontSize: 13, color: '#EF4444' }} />
+                  </div>
                   <div>
-                    <div style={{ fontSize: 8, fontWeight: 700, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', marginBottom: 2 }}>Poids</div>
-                    <div data-testid="beneficiary-profile-weight-value" style={{ fontSize: 18, fontWeight: 900, color: '#F59E0B' }}>{profileWeight} <span style={{ fontSize: 11, fontWeight: 600 }}>kg</span></div>
+                    <div style={{ fontSize: 9, fontWeight: 700, color: '#EF4444', textTransform: 'uppercase', marginBottom: 2 }}>Allergies</div>
+                    <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.65)', lineHeight: 1.5 }}>{data.allergies}</div>
                   </div>
                 </div>
               )}
             </div>
           )}
-
-          {/* Medical conditions */}
-          {data.medical_conditions && <div style={{ padding: '10px 12px', borderRadius: 12, background: 'rgba(245,158,11,0.06)', border: '1px solid rgba(245,158,11,0.15)', marginBottom: 6, display: 'flex', alignItems: 'flex-start', gap: 8 } as any}><div style={{ width: 24, height: 24, borderRadius: 6, background: 'rgba(245,158,11,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, marginTop: 1 } as any}><i className="ri-stethoscope-line" style={{ fontSize: 12, color: '#F59E0B' }} /></div><div><div style={{ fontSize: 8, fontWeight: 700, color: '#F59E0B', textTransform: 'uppercase', marginBottom: 3 }}>Pathologies</div><div style={{ fontSize: 12, color: '#FFF', lineHeight: 1.5 }}>{data.medical_conditions}</div></div></div>}
-          {data.allergies && <div style={{ padding: '10px 12px', borderRadius: 12, background: 'rgba(239,68,68,0.06)', border: '1px solid rgba(239,68,68,0.15)', display: 'flex', alignItems: 'flex-start', gap: 8 } as any}><div style={{ width: 24, height: 24, borderRadius: 6, background: 'rgba(239,68,68,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, marginTop: 1 } as any}><i className="ri-alert-line" style={{ fontSize: 12, color: '#EF4444' }} /></div><div><div style={{ fontSize: 8, fontWeight: 700, color: '#EF4444', textTransform: 'uppercase', marginBottom: 3 }}>Allergies</div><div style={{ fontSize: 12, color: '#FFF', lineHeight: 1.5 }}>{data.allergies}</div></div></div>}
-        </GlassCard>
+        </div>
 
         {/* ── ALERTE ACTIVE ── */}
         {activeAlerts.length > 0 && (
@@ -401,20 +401,9 @@ export default function BeneficiaryDetailScreen() {
           </div>
         )}
 
-        {/* ── NORA ANALYSE (carte noire premium) ── */}
+        {/* ── NORA ANALYSE (composant NoraCard premium) ── */}
         {noraAnalysis && (
-          <div style={{ padding: 0, borderRadius: 20, background: '#000', border: '1px solid rgba(255,255,255,0.08)', marginBottom: 12, overflow: 'hidden', position: 'relative', minHeight: 120 } as any}>
-            <video autoPlay loop muted playsInline style={{ position: 'absolute', top: 0, right: 0, width: 120, height: '100%', objectFit: 'cover', opacity: 0.6, borderRadius: '0 20px 20px 0' } as any}
-              src="https://customer-assets.emergentagent.com/job_9950a869-9328-4a4b-abf4-a6fb213a3b47/artifacts/8h3820je_dna%281%29.webm" />
-            <div style={{ position: 'absolute', top: 0, right: 0, width: 160, height: '100%', background: 'linear-gradient(90deg, #000 0%, transparent 100%)' } as any} />
-            <div style={{ position: 'relative', zIndex: 2, padding: '18px 140px 18px 18px', display: 'flex', flexDirection: 'column', justifyContent: 'center', minHeight: 120 } as any}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 } as any}>
-                <span style={{ fontSize: 13, fontWeight: 800, color: '#FFF' }}>Nora</span>
-                <span style={{ fontSize: 9, fontWeight: 600, color: 'rgba(255,255,255,0.3)' }}>Analyse sante</span>
-              </div>
-              <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.65)', lineHeight: 1.7 }}>{noraAnalysis}</div>
-            </div>
-          </div>
+          <NoraCard title="Analyse de Nora" text={noraAnalysis} />
         )}
 
         {/* ── CONSTANTES VITALES ── */}
