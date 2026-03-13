@@ -23,7 +23,7 @@ function WhoopTabBar({ state, navigation, role }: any) {
 
   const activeColor = isDark ? '#FFF' : '#111';
   const inactiveColor = isDark ? 'rgba(255,255,255,0.3)' : 'rgba(0,0,0,0.25)';
-  const glassBg = isDark ? 'rgba(30,30,40,0.75)' : 'rgba(230,230,235,0.85)';
+  const glassBg = isDark ? 'rgba(15,15,25,0.55)' : 'rgba(245,245,250,0.6)';
 
   const tabs = role === 'guardian' ? [
     { key: 'index', icon: 'ri-home-smile-2-fill', label: 'Accueil' },
@@ -33,7 +33,7 @@ function WhoopTabBar({ state, navigation, role }: any) {
   ] : [
     { key: 'index', icon: 'ri-home-smile-2-fill', label: 'Accueil' },
     { key: 'health', icon: 'ri-heart-pulse-fill', label: 'Sante' },
-    { key: 'chat', icon: 'ri-chat-3-fill', label: 'Chat' },
+    { key: 'chat', icon: 'ri-road-map-fill', label: 'Programmes' },
     { key: 'profile', icon: 'ri-menu-3-fill', label: 'Plus' },
   ];
 
@@ -72,14 +72,14 @@ function WhoopTabBar({ state, navigation, role }: any) {
         style={{
           width: 62, height: 62, borderRadius: 999, flexShrink: 0,
           background: '#000', overflow: 'hidden', cursor: 'pointer',
-          border: '2px solid rgba(167,139,250,0.35)',
-          boxShadow: '0 0 20px rgba(167,139,250,0.15), 0 8px 32px rgba(0,0,0,0.4)',
+          border: '2px solid rgba(255,255,255,0.5)',
+          boxShadow: '0 0 16px rgba(255,255,255,0.08), 0 8px 32px rgba(0,0,0,0.4)',
           display: 'flex', alignItems: 'center', justifyContent: 'center',
           transition: 'transform 0.2s, box-shadow 0.2s',
           position: 'relative',
         } as any}
-        onMouseEnter={(e: any) => { e.currentTarget.style.transform = 'scale(1.08)'; e.currentTarget.style.boxShadow = '0 0 30px rgba(167,139,250,0.3), 0 8px 32px rgba(0,0,0,0.4)'; }}
-        onMouseLeave={(e: any) => { e.currentTarget.style.transform = ''; e.currentTarget.style.boxShadow = '0 0 20px rgba(167,139,250,0.15), 0 8px 32px rgba(0,0,0,0.4)'; }}>
+        onMouseEnter={(e: any) => { e.currentTarget.style.transform = 'scale(1.08)'; e.currentTarget.style.boxShadow = '0 0 24px rgba(255,255,255,0.15), 0 8px 32px rgba(0,0,0,0.4)'; }}
+        onMouseLeave={(e: any) => { e.currentTarget.style.transform = ''; e.currentTarget.style.boxShadow = '0 0 16px rgba(255,255,255,0.08), 0 8px 32px rgba(0,0,0,0.4)'; }}>
         <video autoPlay loop muted playsInline style={{ width: '70%', height: '70%', objectFit: 'cover', borderRadius: 999 } as any} src={NORA_VIDEO} />
       </div>
     </div>
