@@ -1,5 +1,5 @@
 import React from 'react';
-import { Tabs, useRouter, usePathname } from 'expo-router';
+import { Tabs, useRouter } from 'expo-router';
 import { Icon, MCIcon } from '../../src/components/WebIcon';
 import { useAuth } from '../../src/context/AuthContext';
 import { View, ActivityIndicator, Platform } from 'react-native';
@@ -7,10 +7,9 @@ import FullScreenLoader from '../../src/components/FullScreenLoader';
 
 const NORA_VIDEO = 'https://customer-assets.emergentagent.com/job_ba3a5789-c8f1-4b12-b5d8-478a7f99aaea/artifacts/b6eh1r76_Nora_video.mp4';
 
-/* ── Custom Whoop-style tab bar for web beneficiary ── */
-function WhoopTabBar({ state, navigation }: any) {
+/* ── Custom Whoop-style tab bar for web beneficiary & guardian ── */
+function WhoopTabBar({ state, navigation, role }: any) {
   const router = useRouter();
-  const pathname = usePathname();
   const [isDark, setIsDark] = React.useState(true);
 
   React.useEffect(() => {
@@ -26,11 +25,16 @@ function WhoopTabBar({ state, navigation }: any) {
   const inactiveColor = isDark ? 'rgba(255,255,255,0.3)' : 'rgba(0,0,0,0.25)';
   const glassBg = isDark ? 'rgba(30,30,40,0.75)' : 'rgba(230,230,235,0.85)';
 
-  const tabs = [
-    { key: 'index', icon: 'ri-home-smile-2-fill', label: 'Accueil', path: '/' },
-    { key: 'health', icon: 'ri-heart-pulse-fill', label: 'Sante', path: '/health' },
-    { key: 'chat', icon: 'ri-chat-3-fill', label: 'Chat', path: '/chat' },
-    { key: 'profile', icon: 'ri-menu-3-fill', label: 'Plus', path: '/profile' },
+  const tabs = role === 'guardian' ? [
+    { key: 'index', icon: 'ri-home-smile-2-fill', label: 'Accueil' },
+    { key: 'alerts', icon: 'ri-alarm-warning-fill', label: 'Alertes' },
+    { key: 'teleconsult', icon: 'ri-service-fill', label: 'Interventions' },
+    { key: 'profile', icon: 'ri-menu-3-fill', label: 'Plus' },
+  ] : [
+    { key: 'index', icon: 'ri-home-smile-2-fill', label: 'Accueil' },
+    { key: 'health', icon: 'ri-heart-pulse-fill', label: 'Sante' },
+    { key: 'chat', icon: 'ri-chat-3-fill', label: 'Chat' },
+    { key: 'profile', icon: 'ri-menu-3-fill', label: 'Plus' },
   ];
 
   const currentRoute = state?.routes?.[state.index]?.name || '';
@@ -95,6 +99,8 @@ export default function TabLayout() {
   const isAdmin = r === 'admin';
   const isCompany = r === 'prescriber_company' || r === 'company';
   const isWebBen = Platform.OS === 'web' && isBen;
+  const isWebG = Platform.OS === 'web' && isG;
+  const useWhoop = isWebBen || isWebG;
 
   const isWebAny = Platform.OS === 'web' && (isBen || isG || isTA || isCompany);
   const hideTabBar = isAdmin;
@@ -103,7 +109,7 @@ export default function TabLayout() {
   const tabStyle = hideTabBar ? {
     display: 'none' as any,
     height: 0,
-  } : isWebBen ? {
+  } : useWhoop ? {
     display: 'none' as any,
     height: 0,
   } : isWebAny ? {
@@ -128,8 +134,8 @@ export default function TabLayout() {
     shadowColor: 'transparent',
   };
 
-  // Inject CSS to fix tab bar glass on web (for non-beneficiary roles)
-  if (!isWebBen && (Platform.OS === 'web' && (isG || isTA))) {
+  // Inject CSS to fix tab bar glass on web (for non-whoop roles)
+  if (!useWhoop && (Platform.OS === 'web' && (isG || isTA))) {
     if (typeof document !== 'undefined') {
       const existing = document.getElementById('navbar-glass-fix');
       if (!existing) {
@@ -155,7 +161,7 @@ export default function TabLayout() {
   return (
     <Tabs
       key={r}
-      tabBar={isWebBen ? (props) => <WhoopTabBar {...props} /> : undefined}
+      tabBar={useWhoop ? (props) => <WhoopTabBar {...props} role={isG ? 'guardian' : 'beneficiary'} /> : undefined}
       sceneContainerStyle={{ backgroundColor: 'transparent' }}
       screenOptions={{
         headerShown: false,
@@ -181,11 +187,11 @@ export default function TabLayout() {
       }} />
       <Tabs.Screen name="teleconsult" options={{
         tabBarIcon: ({ color, size }) => (isAdmin || isCompany) ? <Icon name="medkit-outline" size={size} color={color} /> : isG ? <Icon name="tab-intervention" size={size} color={color} /> : <Icon name={isTA ? 'headset-outline' : 'videocam-outline'} size={size} color={color} />,
-        href: isBen ? null : undefined,
+        href: isWebBen ? null : undefined,
       }} />
       <Tabs.Screen name="devices" options={{
         tabBarIcon: ({ color, size }) => isCompany ? <Icon name="document-text-outline" size={size} color={color} /> : isG ? <Icon name="document-text-outline" size={size} color={color} /> : <MCIcon name="bluetooth-connect" size={size} color={color} />,
-        href: isWebBen ? null : undefined,
+        href: useWhoop ? null : undefined,
       }} />
       <Tabs.Screen name="profile" options={{
         tabBarIcon: ({ color, size }) => <Icon name="person-outline" size={size} color={color} />,
