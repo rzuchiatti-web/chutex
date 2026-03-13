@@ -1,12 +1,51 @@
 from fastapi import APIRouter, Depends
 from datetime import datetime, timezone
-import os, uuid
+import os, uuid, hashlib, time
 
 from database import db
 from auth import get_current_user
 from services.nora_context import build_nora_context, format_nora_context_for_prompt, APP_SERVICES_KNOWLEDGE
 
 router = APIRouter()
+
+# ── Response cache ──
+_response_cache: dict = {}  # key -> {"response": str, "ts": float}
+CACHE_TTL_STATIC = 3600    # 1h for app/service questions
+CACHE_TTL_HEALTH = 300     # 5min for health data questions
+
+_STATIC_KEYWORDS = [
+    "abonnement", "prix", "tarif", "cout", "combien", "formule",
+    "bracelet", "elio", "balance", "vita", "gilet",
+    "hebergement", "donnees", "hds", "securite", "rgpd", "serveur",
+    "programme", "prevention", "chute", "sommeil", "tension", "dorsi",
+    "teleassistance", "care", "sos", "urgence",
+    "nora", "qui es-tu", "qui tu es", "comment fonctionne",
+    "espace gardien", "gardien", "aidant",
+    "minceur", "calories", "poids"
+]
+
+def _is_static_question(msg: str) -> bool:
+    m = msg.lower()
+    return sum(1 for kw in _STATIC_KEYWORDS if kw in m) >= 2
+
+def _cache_key(uid: str, msg: str, is_guardian: bool) -> str:
+    normalized = msg.lower().strip()
+    return hashlib.md5(f"{uid}:{is_guardian}:{normalized}".encode()).hexdigest()
+
+def _get_cached(key: str, ttl: int):
+    entry = _response_cache.get(key)
+    if entry and (time.time() - entry["ts"]) < ttl:
+        return entry["response"]
+    return None
+
+def _set_cache(key: str, response: str):
+    _response_cache[key] = {"response": response, "ts": time.time()}
+    # Evict old entries if cache gets too large
+    if len(_response_cache) > 500:
+        cutoff = time.time() - CACHE_TTL_STATIC
+        keys_to_del = [k for k, v in _response_cache.items() if v["ts"] < cutoff]
+        for k in keys_to_del:
+            del _response_cache[k]
 
 
 async def build_health_context(user, for_guardian=False, beneficiary_data=None):
@@ -138,43 +177,35 @@ async def send_chat_message(data: dict, user=Depends(get_current_user)):
     # Call LLM
     api_key = os.environ.get("EMERGENT_LLM_KEY")
     ai_response = ""
-    if api_key:
+
+    # Check cache first
+    is_static = _is_static_question(user_message)
+    ckey = _cache_key(uid, user_message, is_guardian)
+    ttl = CACHE_TTL_STATIC if is_static else CACHE_TTL_HEALTH
+    cached = _get_cached(ckey, ttl)
+    if cached:
+        ai_response = cached
+    elif api_key:
         try:
             from emergentintegrations.llm.chat import LlmChat, UserMessage
             guardian_extra = ""
             if is_guardian:
-                guardian_extra = """
-- L'utilisateur est un GARDIEN/AIDANT dans l'espace gardien de Chutex.
-- Il te pose des questions sur la sante de ses beneficiaires. Reponds en faisant reference aux donnees des beneficiaires.
-- Tu peux aussi l'aider sur le fonctionnement de l'espace gardien: interventions, prescriptions, alertes, rattachement de beneficiaires, suivi en temps reel.
-- Si il te demande comment fonctionne l'espace gardien, explique: suivi sante en temps reel, reception des alertes SOS/chutes, coordination des interventions, et gestion des prescriptions si il est prescripteur.
-- Tu peux le tutoyer car c'est un aidant, pas un patient."""
-            system = f"""Tu es Nora, l'intelligence artificielle developpee par Chutex pour ameliorer la longevite de ses beneficiaires. Tu es specialisee en prevention, longevite et bien vieillir. Tu es un professionnel de sante rigoureux et factuel. Ton nom est Nora — quand on te demande qui tu es, tu reponds simplement que tu es Nora, l'IA developpee par Chutex. L'application s'appelle Chutex. Chutex Care est le service de teleassistance 24/7 propose par Chutex. NE DIS JAMAIS "CareWatch", "Care Watch" ou "Chutex Care Watch" — ca n'existe pas.
+                guardian_extra = "\n- L'utilisateur est un GARDIEN/AIDANT. Reponds sur la sante de ses beneficiaires. Aide-le sur l'espace gardien (interventions, alertes, suivi temps reel). Tutoie-le."
+            system = f"""Tu es Nora, IA de Chutex specialisee en prevention et longevite. Reponds en {lang_name}, ton serieux et factuel, max 3-4 phrases sauf question complexe. L'app s'appelle Chutex (JAMAIS "CareWatch"). Chutex Care = service teleassistance 24/7.
 
-DONNEES SANTE DU PATIENT:
+DONNEES SANTE:
 {health_ctx}
 
 {APP_SERVICES_KNOWLEDGE}
 
-REGLES STRICTES:
-- Reponds toujours en {lang_name}, de facon claire, precise et medicalement fondee (max 3-4 phrases sauf si la question necessite plus de detail)
-- Base tes reponses EXCLUSIVEMENT sur les DONNEES REELLES ci-dessus
-- Si les donnees sante sont vides, absentes ou montrent "aucune donnee", "no_data", ou des valeurs a 0 : NE DIS JAMAIS que le patient va bien. Dis clairement que tu n'as pas de donnees de sante disponibles, qu'aucun appareil n'est connecte, et que tu ne peux pas evaluer son etat sans donnees. Propose-lui de connecter son bracelet Elio ou sa balance Vita.
-- NE FABRIQUE JAMAIS de donnees ou d'evaluations positives sans donnees reelles
-- Donne des recommandations CONCRETES, ACTIONNABLES et MEDICALEMENT PERTINENTES uniquement quand tu as des donnees
-- Tu connais PARFAITEMENT les services de l'application Chutex (abonnements, appareils, programmes). Quand c'est pertinent, recommande un service adapte au profil du patient :
-  * Si +75 ans sans Care → recommande la teleassistance Chutex Care
-  * Si pas de balance → recommande la Balance Vita pour completer l'analyse corporelle
-  * Si anomalie sommeil/stress → recommande le programme "21 jours pour mieux dormir"
-  * Si tension elevee → recommande le programme "14 jours pour stabiliser sa tension"
-  * Si faible activite → recommande le programme "30 jours pour bouger plus"
-- Tu peux expliquer en detail chaque abonnement, appareil ou programme si le patient le demande
-- Si des symptomes graves sont mentionnes, recommande fermement une consultation medicale en presentiel
-- NE JAMAIS utiliser d'emojis
-- NE JAMAIS etre excessivement encourageant ou feliciter de maniere superficielle
-- Ton professionnel, serieux et bienveillant sans etre complaisant
-- Privilegier les conseils de LONGEVITE, PREVENTION et BIEN VIEILLIR adaptes a l'age du patient{guardian_extra}
-- IMPORTANT: Ne dis PAS bonjour si l'historique montre que la conversation est deja en cours."""
+REGLES:
+- Base-toi EXCLUSIVEMENT sur les donnees reelles ci-dessus
+- Si donnees absentes/vides/0 : dis clairement qu'aucune donnee n'est disponible, propose de connecter Elio ou Balance Vita. NE FABRIQUE JAMAIS de donnees
+- Recommandations concretes et medicalement pertinentes uniquement avec donnees reelles
+- Si +75 ans sans Care → recommande teleassistance. Si anomalie sommeil → programme sommeil. Si tension elevee → programme tension. Si faible activite → programme activite
+- Symptomes graves → consultation medicale en presentiel
+- Pas d'emojis, pas de felicitations superficielles, pas de bonjour si conversation deja en cours
+- Privilegier longevite, prevention, bien vieillir{guardian_extra}"""
 
             chat = LlmChat(
                 api_key=api_key,
@@ -185,6 +216,8 @@ REGLES STRICTES:
             prompt = f"Historique recent:\n{history_str}\n\nNouveau message du {'gardien' if is_guardian else 'patient'}: {user_message}"
             r = await chat.send_message(UserMessage(text=prompt))
             ai_response = r.strip()
+            # Cache the response
+            _set_cache(ckey, ai_response)
         except Exception as e:
             print(f"Chat AI error: {e}")
 

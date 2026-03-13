@@ -296,91 +296,18 @@ def format_nora_context_for_prompt(ctx: dict) -> str:
 
 # ── App services knowledge base for Nora ──
 APP_SERVICES_KNOWLEDGE = """
-SERVICES DE L'APPLICATION CHUTEX:
+SERVICES CHUTEX (JAMAIS "CareWatch"):
 
-L'application s'appelle Chutex (PAS "CareWatch", PAS "Care Watch", PAS "Chutex Care Watch"). Chutex Care est UNIQUEMENT le nom du service de teleassistance 24/7.
+1. STANDARD (24,90EUR/mois): Bracelet Elio — suivi FC/HRV/SpO2/sommeil/temp/pas/calories/chute + historique + Nora IA. Soit 12,45EUR apres credit impot 50%.
+2. CHUTEX CARE (39,90EUR/mois): Standard + SOS bracelet + teleassistance 24/7 + GPS + envoi intervenants + notifications gardiens. Recommande +70 ans seuls. Soit 19,95EUR apres credit impot.
+3. BRACELET ELIO V6: 4G, FC/HRV/SpO2/temp/tension/pas/calories/sommeil, detection chute, SOS (avec Care).
+4. BALANCE VITA: WiFi 8 electrodes, poids/IMC/graisse/muscle/eau/os/graisse viscerale/age corporel/proteines/muscle squelettique. Multi-utilisateurs.
+5. PROGRAMMES PREVENTION (gratuits avec abo): Chutes 21j, Sommeil 21j, Tension 14j, Activite 30j — check-ins quotidiens, badges, equipe possible. Dorsi: bilan lombaire + reeducation.
+6. NORA IA: analyse temps reel, recommandations, chat 24/7, briefing matinal, estimation glycemie/age bio/vieillissement, correlations predictives.
+7. ESPACE GARDIEN: suivi beneficiaire temps reel, alertes SOS/chutes, interventions, notifications, multi-beneficiaires.
+8. ESPACE MINCEUR: objectif poids, suivi calories/hydratation, recommandations nutrition, plans repas.
+9. TELEASSISTANCE: plateforme alertes SAAD, gestion interventions urgence, historique.
+10. HEBERGEMENT: Serveurs HDS classe 6 (Hebergeur Donnees Sante), en France chez Free (Groupe Iliad). Donnees ne quittent jamais la France. Conforme RGPD et reglementation europeenne.
 
-1. ABONNEMENT STANDARD — Bracelet Elio (24,90 EUR/mois):
-   - Suivi cardiaque en continu (FC, HRV, SpO2)
-   - Suivi du sommeil (phases, qualite, duree)
-   - Temperature corporelle
-   - Compteur de pas et calories
-   - Detection de chute
-   - Historique complet dans l'app
-   - Analyse IA Nora personnalisee
-
-2. ABONNEMENT CHUTEX CARE — Teleassistance 24/7 (39,90 EUR/mois):
-   - Tout le Standard +
-   - Bouton SOS sur le bracelet
-   - Plateau d'ecoute professionnel 24h/24, 7j/7
-   - Envoi d'intervenants en cas d'urgence
-   - Suivi GPS en temps reel
-   - Notifications automatiques aux gardiens
-   - Rapports de cloture d'intervention
-   - RECOMMANDE pour les personnes de +70 ans vivant seules
-
-3. BRACELET ELIO V6 (appareil principal):
-   - Bracelet connecte 4G
-   - Mesure: frequence cardiaque, HRV, SpO2, temperature, tension arterielle, pas, calories, sommeil
-   - Detection de chute automatique
-   - Bouton SOS (avec abonnement Chutex Care)
-
-4. BALANCE VITA (appareil complementaire):
-   - Balance connectee WiFi 8 electrodes
-   - Mesure: poids, IMC, masse grasse, masse musculaire, hydratation, masse osseuse, graisse viscerale, age corporel, proteines, muscle squelettique
-   - Multi-utilisateurs (une balance pour tout le foyer)
-   - Se connecte automatiquement a l'app via WiFi
-
-5. PROGRAMMES DE PREVENTION (gratuits avec abonnement):
-   - "21 jours pour prevenir les chutes" — Programme equilibre et renforcement en 3 phases
-   - "21 jours pour mieux dormir" — Programme sommeil progressif en 3 phases
-   - "14 jours pour stabiliser sa tension" — Programme cardiovasculaire
-   - "30 jours pour bouger plus" — Programme activite physique adaptee
-   - Check-ins quotidiens, badges, suivi de progression
-   - Possibilite de faire les programmes en equipe
-   - Jeux de rehabilitation (Dorsi pour le dos)
-
-6. NORA — Intelligence Artificielle Chutex:
-   - Analyse en temps reel des donnees de sante
-   - Recommandations personnalisees basees sur les donnees reelles
-   - Chat IA disponible 24/7
-   - Briefing matinal quotidien personnalise
-   - Estimation glycemie, age biologique, taux de vieillissement
-   - Correlations et alertes predictives
-
-7. BILAN LOMBAIRE DORSI:
-   - Evaluation de la mobilite lombaire (4 directions: avant, arriere, gauche, droite)
-   - Mesure de l'amplitude et de la douleur
-   - Generation de programme de reeducation adapte
-   - Suivi de progression dans le temps
-
-8. ESPACE GARDIEN:
-   - Suivi en temps reel de la sante du beneficiaire
-   - Reception des alertes SOS et chutes
-   - Coordination des interventions
-   - Notifications automatiques
-   - Possibilite de rattacher plusieurs beneficiaires
-
-9. ESPACE MINCEUR:
-   - Objectif poids avec suivi sur plusieurs semaines
-   - Suivi calories, hydratation
-   - Recommandations nutritionnelles
-   - Plans de repas personnalises
-
-10. TELEASSISTANCE:
-    - Plateforme d'alerte en temps reel pour les structures SAAD
-    - Gestion des interventions d'urgence
-    - Historique des alertes et rapports
-
-11. HEBERGEMENT ET SECURITE DES DONNEES:
-    - Les donnees de sante des utilisateurs Chutex sont hebergees sur des serveurs certifies HDS (Hebergeur de Donnees de Sante), classe 6
-    - Les serveurs sont localises en France, dans les locaux de Free (Groupe Iliad)
-    - Cette certification garantit la conformite avec les exigences legales francaises et europeennes en matiere de protection des donnees de sante
-    - Les donnees ne quittent jamais le territoire francais
-
-REGLES STRICTES:
-- Ne JAMAIS recommander au beneficiaire d'activer un espace ou role gardien. Le beneficiaire est un patient, pas un gardien.
-- Ne JAMAIS suggerer de "devenir gardien" ou "activer le role gardien" a un beneficiaire.
-- Ne JAMAIS dire "CareWatch", "Care Watch" ou "Chutex Care Watch" — ca n'existe pas. L'app s'appelle Chutex.
-- Les recommandations doivent porter uniquement sur: les dispositifs de sante, les programmes de prevention, l'abonnement, et le suivi medical.
+REGLES: Ne JAMAIS recommander a un beneficiaire de devenir gardien. Ne JAMAIS dire "CareWatch". Recommandations = dispositifs, programmes, abonnement, suivi medical uniquement.
 """
