@@ -12,7 +12,7 @@ import requests
 import os
 import time
 
-BASE_URL = "https://loader-standardize.preview.emergentagent.com"
+BASE_URL = "https://nora-navbar-fixes.preview.emergentagent.com"
 
 # Test credentials
 TEST_PHONE = "0651245918"

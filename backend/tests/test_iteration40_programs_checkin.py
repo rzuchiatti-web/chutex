@@ -12,7 +12,7 @@ import requests
 import os
 import time
 
-BASE_URL = os.environ.get('EXPO_PUBLIC_BACKEND_URL', 'https://loader-standardize.preview.emergentagent.com')
+BASE_URL = os.environ.get('EXPO_PUBLIC_BACKEND_URL', 'https://nora-navbar-fixes.preview.emergentagent.com')
 
 
 class TestProgramsBadgesWeeklyReport:

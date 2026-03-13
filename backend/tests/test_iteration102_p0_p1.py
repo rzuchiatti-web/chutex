@@ -22,7 +22,7 @@ import os
 
 BASE_URL = os.environ.get("EXPO_PUBLIC_BACKEND_URL", "").rstrip("/")
 if not BASE_URL:
-    BASE_URL = "https://loader-standardize.preview.emergentagent.com"
+    BASE_URL = "https://nora-navbar-fixes.preview.emergentagent.com"
 
 
 class TestP0MolliePayment:
