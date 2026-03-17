@@ -136,15 +136,21 @@ export default function ProgramDetailScreen() {
         {step === 0 && (
           <div data-testid="program-detail-step-0" style={{ animation: 'pd-fade-up 500ms ease both' } as any}>
             {/* Hero Section with Image */}
-            <div style={{ position: 'relative', width: '100%', height: 340, overflow: 'hidden' } as any}>
+            <div style={{ position: 'relative', width: '100%', height: 420, overflow: 'hidden' } as any}>
               {coverImage && (
-                <img src={coverImage} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' } as any} />
+                <img src={coverImage} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center 30%' } as any} />
+              )}
+              {!coverImage && (
+                <div style={{
+                  position: 'absolute', inset: 0,
+                  background: `radial-gradient(ellipse at 50% 30%, ${clr}20 0%, rgba(10,10,15,1) 70%)`,
+                } as any} />
               )}
               <div style={{
                 position: 'absolute', inset: 0,
                 background: coverImage
-                  ? `linear-gradient(180deg, rgba(10,10,15,0) 0%, rgba(10,10,15,0.35) 40%, rgba(10,10,15,0.85) 75%, rgba(10,10,15,1) 100%)`
-                  : `linear-gradient(135deg, ${clr}25 0%, rgba(10,10,15,1) 100%)`,
+                  ? `linear-gradient(180deg, rgba(10,10,15,0) 0%, rgba(10,10,15,0.15) 30%, rgba(10,10,15,0.6) 65%, rgba(10,10,15,0.95) 85%, rgba(10,10,15,1) 100%)`
+                  : 'transparent',
               } as any} />
 
               {/* Back button */}
@@ -158,18 +164,18 @@ export default function ProgramDetailScreen() {
               </div>
 
               {/* Hero Content */}
-              <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, padding: '0 24px 28px', zIndex: 5 } as any}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 16 } as any}>
+              <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, padding: '0 24px 24px', zIndex: 5 } as any}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 14 } as any}>
                   <div style={{
-                    width: 56, height: 56, borderRadius: 18,
-                    background: `${clr}20`, border: `1.5px solid ${clr}35`,
+                    width: 50, height: 50, borderRadius: 16,
+                    background: `${clr}25`, border: `1.5px solid ${clr}40`,
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)',
+                    backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)',
                   } as any}>
-                    <i className={program.icon} style={{ fontSize: 28, color: clr }} />
+                    <i className={program.icon} style={{ fontSize: 24, color: clr }} />
                   </div>
                   <div style={{ flex: 1 } as any}>
-                    <div style={{ fontSize: 24, fontWeight: 900, color: '#FFF', letterSpacing: -0.5, lineHeight: 1.2 }}>{program.title}</div>
+                    <div style={{ fontSize: 22, fontWeight: 900, color: '#FFF', letterSpacing: -0.5, lineHeight: 1.2, textShadow: '0 2px 8px rgba(0,0,0,0.5)' }}>{program.title}</div>
                   </div>
                 </div>
 

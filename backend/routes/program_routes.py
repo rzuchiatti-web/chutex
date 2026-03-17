@@ -825,7 +825,8 @@ async def get_active_program(user=Depends(get_current_user), day: int = 0):
         current_day = min(day, program["duration_days"])
     else:
         try:
-            started = datetime.fromisoformat(enrollment["started_at"].replace("Z", "+00:00"))
+            started_str = enrollment.get("started_at") or enrollment.get("start_date", "")
+            started = datetime.fromisoformat(started_str.replace("Z", "+00:00"))
             days_since = (datetime.now(timezone.utc) - started).days + 1
             current_day = min(days_since, program["duration_days"])
         except:
@@ -1018,7 +1019,7 @@ JSON: {{"focus": "...", "mission": "1-2 phrases contexte medical", "tasks": ["ta
         "task_progress": task_progress,
         "streak": streak,
         "progress_pct": round((current_day / program["duration_days"]) * 100),
-        "started_at": enrollment["started_at"],
+        "started_at": enrollment.get("started_at") or enrollment.get("start_date", ""),
         "team": team_info,
     }
 

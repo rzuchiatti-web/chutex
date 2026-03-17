@@ -33,7 +33,15 @@ Application de monitoring sante style "Whoop" avec interface premium dark mode. 
 ### Phase 4 - Coherence Dashboard + Taches In-App
 - [x] **Carte programme dashboard refonde**: Gradient, icone animee, dots progression, streak badge, pill "Continuer/Bilan fait"
 - [x] **Bouton gardien fixe**: Bordure violette visible (rgba(167,139,250,0.15)), fond teinte
-- [x] **transform_task_text()**: Transformation automatique de TOUTES les taches pour referencer l'app:
+- [x] **transform_task_text()**: Transformation automatique de TOUTES les taches pour referencer l'app
+
+### Phase 5 - Notification Sociale + Refonte Visuelle Programme (Session 2)
+- [x] **Toast notification social**: TeamActivityToast.tsx refait avec ReactDOM.createPortal, monte dans _layout.tsx via TeamActivityOverlay
+- [x] **Backend team feed**: /api/programs/team/feed operationnel + donnees simulees (Marie Dupont, Lucas Bernard)
+- [x] **Fix KeyError started_at**: Fallback started_at/start_date dans get_active_program
+- [x] **Refonte program-detail.tsx**: Hero image 420px avec cover_image Unsplash, gradient subtil, pills, stats, science box, benefits, metrics, phases
+- [x] **Cover images**: 10 programmes avec images Unsplash (sommeil, tension, activite, nutrition, equilibre, mental, memoire, cardio, posture, respiration)
+- [x] **Catalog updated**: chat.tsx utilise p.cover_image || PROG_IMAGES fallback:
   - "papier/carnet" → "dans l'app (onglet Sante)"
   - "programmez un rappel" → "activez rappel dans l'app (onglet Rappels)"
   - "notez l'heure" → "enregistrez dans l'app"
@@ -44,14 +52,17 @@ Application de monitoring sante style "Whoop" avec interface premium dark mode. 
 ## Backlog Prioritise
 ### P1 - Estimation ML de la glycemie (V3)
 ### P2 - Parrainage Gardien, Essai 7 jours, PDF contrat, Vivoo, Correlations sante, Brevet glucose
+### P3 - Refactoring WhoopTabBar.tsx (generique)
 
 ## Key Files
+- `/app/frontend/src/components/programs/TeamActivityToast.tsx` - Toast notification social (Portal)
+- `/app/frontend/app/program-detail.tsx` - Detail programme avec hero image
 - `/app/frontend/src/components/ProgramDailyView.tsx` - Vue quotidienne interactive
 - `/app/frontend/src/components/programs/BreathingTimer.tsx` - Timer respiration
 - `/app/frontend/app/(tabs)/index.tsx` - Dashboard avec carte programme
-- `/app/frontend/app/(tabs)/chat.tsx` - Page programmes
-- `/app/frontend/app/program-detail.tsx` - Detail programme
-- `/app/backend/routes/program_routes.py` - API programmes + transform_task_text
+- `/app/frontend/app/(tabs)/chat.tsx` - Page programmes avec catalog
+- `/app/frontend/app/_layout.tsx` - Layout racine avec TeamActivityOverlay
+- `/app/backend/routes/program_routes.py` - API programmes + team feed + transform_task_text
 
 ## Test Credentials
 | Beneficiaire | 0651245918 | test123 |
