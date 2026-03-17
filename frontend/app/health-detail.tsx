@@ -234,14 +234,7 @@ export default function HealthDetailScreen() {
                 </div>
               </div>
               <div style={{ padding: '0 16px 8px' } as any}>
-                <SleepHypnogram session={sleepSession} width={700} height={180} showLabels={true} timeLabelCount={5} />
-              </div>
-              <div style={{ padding: '4px 16px 8px' } as any}>
-                <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.2)', textAlign: 'center', marginBottom: 3 }}>Mouvements</div>
-                <svg width="100%" viewBox="0 0 635 14" style={{ display: 'block' }}>
-                  {Array.from({ length: 80 }).map((_, i) => { const h = Math.random() > 0.55 ? 2 + Math.random() * 9 : 1; return <rect key={i} x={i * 7.9} y={7 - h / 2} width={1.5} height={h} rx="0.5" fill="rgba(255,255,255,0.3)" />; })}
-                  <line x1="0" y1="7" x2="635" y2="7" stroke="rgba(255,255,255,0.04)" />
-                </svg>
+                <SleepHypnogram session={sleepSession} width={700} height={280} showLabels={true} timeLabelCount={5} />
               </div>
               <div style={{ padding: '8px 16px', display: 'flex', flexDirection: 'column', gap: 6 } as any}>
                 {[
