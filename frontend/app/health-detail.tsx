@@ -280,43 +280,95 @@ export default function HealthDetailScreen() {
               </div>
             </div>
 
-            {/* Sleep Debt Card */}
+            {/* Sleep Debt Card — calculated from 7-day history */}
             {(() => {
-              const needMin = 7 * 60 + 30; // 7h30 recommandé pour personne agée
-              const sleptMin = nightDuration - nightAwakeMin;
-              const debtMin = Math.max(0, needMin - sleptMin);
-              const debtH = Math.floor(debtMin / 60);
-              const debtM = debtMin % 60;
-              const sleptH = Math.floor(sleptMin / 60);
-              const sleptM = sleptMin % 60;
-              const pct = Math.min(100, Math.round((sleptMin / needMin) * 100));
-              const isGood = pct >= 90;
-              const color = isGood ? '#10B981' : pct >= 75 ? '#F59E0B' : '#EF4444';
+              const NEED_MIN = 7 * 60 + 30; // 7h30 recommandé senior
+              // Tonight's effective sleep
+              const tonightEffective = nightDuration - nightAwakeMin;
+              const tonightDebtMin = Math.max(0, NEED_MIN - tonightEffective);
+              // 7-day cumulative debt from history
+              let weekDebtMin = 0;
+              let weekDays = 0;
+              let weekAvgQuality = 0;
+              let weekAvgDeep = 0;
+              if (sleepData && Array.isArray(sleepData)) {
+                for (const day of sleepData) {
+                  const dur = day.duration || 0;
+                  const aw = day.awake || 0;
+                  const eff = dur - aw;
+                  weekDebtMin += Math.max(0, NEED_MIN - eff);
+                  weekAvgQuality += (day.quality || 0);
+                  weekAvgDeep += (day.deep || 0);
+                  weekDays++;
+                }
+                if (weekDays > 0) { weekAvgQuality = Math.round(weekAvgQuality / weekDays); weekAvgDeep = Math.round(weekAvgDeep / weekDays); }
+              }
+              const weekDebtH = Math.floor(weekDebtMin / 60);
+              const weekDebtM = weekDebtMin % 60;
+              const tonightPct = Math.min(100, Math.round((tonightEffective / NEED_MIN) * 100));
+              const tonightColor = tonightPct >= 90 ? '#10B981' : tonightPct >= 75 ? '#F59E0B' : '#EF4444';
+              const weekColor = weekDebtMin <= 60 ? '#10B981' : weekDebtMin <= 180 ? '#F59E0B' : '#EF4444';
+              const deepRatio = nightTotalSleep > 0 ? Math.round(nightDeepMin / nightTotalSleep * 100) : 0;
+              const remRatio = nightTotalSleep > 0 ? Math.round(nightRemMin / nightTotalSleep * 100) : 0;
+              const recoveryScore = Math.min(100, Math.round(tonightPct * 0.4 + nightQuality * 0.3 + Math.min(deepRatio * 3, 30) + Math.min(remRatio * 1.5, 15)));
+              const recoveryColor = recoveryScore >= 80 ? '#10B981' : recoveryScore >= 60 ? '#F59E0B' : '#EF4444';
+              const effH = Math.floor(tonightEffective / 60);
+              const effM = tonightEffective % 60;
+
               return (
-              <div style={{ borderRadius: 18, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', padding: '16px 18px', marginBottom: 14 } as any}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 14 } as any}>
-                  <i className="ri-battery-charge-line" style={{ fontSize: 16, color }} />
-                  <span style={{ fontSize: 14, fontWeight: 800, color: '#FFF' }}>Dette de sommeil</span>
-                  <span style={{ marginLeft: 'auto', padding: '3px 10px', borderRadius: 999, background: `${color}18`, fontSize: 10, fontWeight: 700, color }}>{isGood ? 'Reposee' : debtH > 0 ? `${debtH}h${String(debtM).padStart(2, '0')} de dette` : `${debtM}min de dette`}</span>
+              <div style={{ borderRadius: 18, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', padding: '18px', marginBottom: 14 } as any}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 16 } as any}>
+                  <i className="ri-battery-charge-line" style={{ fontSize: 16, color: tonightColor }} />
+                  <span style={{ fontSize: 14, fontWeight: 800, color: '#FFF' }}>Bilan du sommeil</span>
                 </div>
-                {/* Visual bar: slept vs needed */}
-                <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 12 } as any}>
-                  <div style={{ flex: 1 } as any}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6 } as any}>
-                      <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)' }}>Dormi</span>
-                      <span style={{ fontSize: 13, fontWeight: 800, color: '#FFF' }}>{sleptH}h{String(sleptM).padStart(2, '0')}</span>
-                    </div>
-                    <div style={{ height: 10, borderRadius: 5, background: 'rgba(255,255,255,0.06)', overflow: 'hidden', position: 'relative' } as any}>
-                      <div style={{ height: 10, borderRadius: 5, width: `${pct}%`, background: color, transition: 'width 1s ease', boxShadow: `0 0 10px ${color}55` } as any} />
-                    </div>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 4 } as any}>
-                      <span style={{ fontSize: 9, color: 'rgba(255,255,255,0.25)' }}>0h</span>
-                      <span style={{ fontSize: 9, color: 'rgba(255,255,255,0.35)', fontWeight: 700 }}>Besoin: 7h30</span>
-                    </div>
+
+                {/* Tonight: effective vs needed */}
+                <div style={{ marginBottom: 16 } as any}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 6 } as any}>
+                    <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)' }}>Sommeil effectif cette nuit</span>
+                    <span style={{ fontSize: 15, fontWeight: 900, color: '#FFF' }}>{effH}h{String(effM).padStart(2, '0')} <span style={{ fontSize: 11, fontWeight: 600, color: 'rgba(255,255,255,0.3)' }}>/ 7h30</span></span>
                   </div>
-                  <div style={{ textAlign: 'center', minWidth: 50 } as any}>
-                    <div style={{ fontSize: 28, fontWeight: 900, color }}>{pct}%</div>
-                    <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.3)' }}>atteint</div>
+                  <div style={{ height: 10, borderRadius: 5, background: 'rgba(255,255,255,0.06)', overflow: 'hidden', position: 'relative' } as any}>
+                    <div style={{ height: 10, borderRadius: 5, width: `${tonightPct}%`, background: tonightColor, transition: 'width 1s ease', boxShadow: `0 0 10px ${tonightColor}55` } as any} />
+                  </div>
+                  <div style={{ fontSize: 10, color: tonightColor, fontWeight: 700, marginTop: 4 }}>{tonightDebtMin > 0 ? `${Math.floor(tonightDebtMin / 60) > 0 ? Math.floor(tonightDebtMin / 60) + 'h' : ''}${tonightDebtMin % 60}min de dette cette nuit` : 'Objectif atteint !'}</div>
+                </div>
+
+                {/* 7-day cumulative debt */}
+                {weekDays > 1 && (
+                <div style={{ padding: '14px 0', borderTop: '1px solid rgba(255,255,255,0.04)', marginBottom: 14 } as any}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 6 } as any}>
+                    <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)' }}>Dette cumulee sur {weekDays} jours</span>
+                    <span style={{ fontSize: 15, fontWeight: 900, color: weekColor }}>{weekDebtH > 0 ? `${weekDebtH}h${String(weekDebtM).padStart(2, '0')}` : `${weekDebtM}min`}</span>
+                  </div>
+                  <div style={{ height: 8, borderRadius: 4, background: 'rgba(255,255,255,0.06)', overflow: 'hidden' } as any}>
+                    <div style={{ height: 8, borderRadius: 4, width: `${Math.min(100, Math.round(weekDebtMin / (NEED_MIN * weekDays) * 100))}%`, background: weekColor, boxShadow: `0 0 8px ${weekColor}44` } as any} />
+                  </div>
+                </div>
+                )}
+
+                {/* Correlation: Recovery Score */}
+                <div style={{ padding: '14px 0', borderTop: '1px solid rgba(255,255,255,0.04)' } as any}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 } as any}>
+                    <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)' }}>Score de recuperation</span>
+                    <span style={{ padding: '3px 10px', borderRadius: 999, background: `${recoveryColor}18`, fontSize: 11, fontWeight: 700, color: recoveryColor }}>{recoveryScore}/100</span>
+                  </div>
+                  <div style={{ display: 'flex', gap: 8 } as any}>
+                    {[
+                      { label: 'Duree', val: `${tonightPct}%`, sub: 'vs besoin', c: tonightColor },
+                      { label: 'Qualite', val: `${nightQuality}%`, sub: 'bracelet', c: nightQuality >= 70 ? '#818CF8' : '#F59E0B' },
+                      { label: 'Profond', val: `${deepRatio}%`, sub: `${nightDeepMin}min`, c: deepRatio >= 15 ? '#4338CA' : '#F59E0B' },
+                      { label: 'REM', val: `${remRatio}%`, sub: `${nightRemMin}min`, c: remRatio >= 20 ? '#C4B5FD' : '#F59E0B' },
+                    ].map((m, i) => (
+                      <div key={i} style={{ flex: 1, padding: '10px 6px', borderRadius: 12, background: 'rgba(255,255,255,0.03)', textAlign: 'center' } as any}>
+                        <div style={{ fontSize: 16, fontWeight: 900, color: m.c }}>{m.val}</div>
+                        <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.5)', marginTop: 2 }}>{m.label}</div>
+                        <div style={{ fontSize: 8, color: 'rgba(255,255,255,0.25)', marginTop: 1 }}>{m.sub}</div>
+                      </div>
+                    ))}
+                  </div>
+                  <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.25)', marginTop: 8, lineHeight: 1.5 }}>
+                    Calcul : 40% duree + 30% qualite + 20% profond + 10% REM.{weekDays > 1 ? ` Qualite moy. 7j: ${weekAvgQuality}%, profond moy: ${weekAvgDeep}min.` : ''}
                   </div>
                 </div>
               </div>
