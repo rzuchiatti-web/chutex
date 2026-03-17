@@ -23,28 +23,33 @@ Application de monitoring sante style "Whoop" avec interface premium dark mode. 
 - Onboarding multi-etapes
 - Sleep detail page avancee (hypnogramme V3, gauge radiale, bilan correle)
 
-## Completed (Session Courante - 17 Mars 2026)
-### Bug Fix P0 - Navigation Programme
+## Completed (Session 17 Mars 2026)
+
+### Phase 1 - Bug Fix P0
 - [x] Correction erreur "Rendered more hooks" sur program-detail.tsx
 - [x] Ajout Loader standard sur pages Programme
-- [x] Suppression fichier deprecie programs.tsx + nettoyage routes
+- [x] Suppression fichier deprecie programs.tsx
 
-### Ameliorations Programme - Responsivite, Prefix, Equipe
-- [x] Fix responsivite: overflowX hidden, boxSizing, width 100% sur conteneurs
-- [x] Ajout PrefixPicker (identique au login) sur le champ telephone d'invitation equipe
-- [x] Correction inviteFriend() pour prepend prefix automatiquement
-- [x] Simulation programme en equipe: 2 amis (Marie Dupont, Pierre Martin) ajoutes au team
-- [x] Section "Votre equipe" dans ProgramDailyView avec:
-  - Initiales avatar, statut check-in, nombre d'actions validees, indicateur humeur
-  - Code equipe affiche
-  - Badge "Vous" pour l'utilisateur courant
-- [x] "Voir tous les programmes" corrige: toggle catalogue inline au lieu de /programs (404)
-- [x] Bouton "Retour au programme actif" dans la vue catalogue
+### Phase 2 - Responsivite + Prefix + Equipe
+- [x] Fix responsivite programme detail
+- [x] PrefixPicker telephone invitation equipe
+- [x] Simulation programme equipe (3 membres)
+- [x] Section "Votre equipe" dans ProgramDailyView
+
+### Phase 3 - REFONTE COMPLETE PROGRAMMES
+- [x] **Backend: enrich_tasks_interactive()** - Auto-detection types interactifs (breathing, timer, counter, data_input, rating, action) a partir du texte des taches. Fonctionne pour les 5 programmes automatiquement.
+- [x] **Backend: /api/programs/apply-onboarding** - Cree des rappels et objectifs a partir des reponses onboarding (heure coucher → rappel, heure reveil → rappel, baseline sante)
+- [x] **Backend: /api/programs/team/leaderboard** - Classement equipe avec scores (checkins x10 + tasks x5 + streak x15)
+- [x] **Frontend: BreathingTimer** - Exercice respiration plein ecran avec cercle anime, phases inspir/retenir/expir, compteur de cycles, barre de progression
+- [x] **Frontend: CountdownTimer** - Chronometre avec play/pause, barre de progression, icone animee
+- [x] **Frontend: RepCounter** - Compteur de repetitions avec cercle interactif et points de progression
+- [x] **Frontend: RatingInput** - Evaluation par etoiles avec animation
+- [x] **Frontend: ProgramDailyView refonte** - Header avec jour/streak/progression, Mission du jour, Actions interactives expandables, Tip du jour, Conseil Nora, Equipe, Classement, Check-in repositionne
+- [x] **Onboarding connecte** - Les reponses onboarding creent des rappels dans l'app via apply-onboarding API
+- [x] **Check-in repositionne** - Deplace SOUS les taches/equipe/leaderboard, affiche un resume et feedback
+- [x] **Catalogue inline** - "Voir tous les programmes" toggle le catalogue sans navigation 404
 
 ## Backlog Prioritise
-### P0 (Critique)
-- (Aucun bug critique en cours)
-
 ### P1 (Important)
 - Estimation ML de la glycemie (V3)
 
@@ -58,13 +63,11 @@ Application de monitoring sante style "Whoop" avec interface premium dark mode. 
 - Refactoring WhoopTabBar.tsx
 
 ## Key Files
-- `/app/frontend/app/(tabs)/chat.tsx` - Liste des programmes + catalogue toggle
-- `/app/frontend/app/program-detail.tsx` - Detail programme avec PrefixPicker
-- `/app/frontend/app/(tabs)/index.tsx` - Dashboard beneficiaire
-- `/app/frontend/app/health-detail/[metric].tsx` - Detail sante/sommeil
-- `/app/frontend/src/components/ProgramDailyView.tsx` - Vue quotidienne programme + section equipe
-- `/app/frontend/src/components/Loader.tsx` - Composant loader standard
-- `/app/backend/routes/program_routes.py` - API programmes + equipes
+- `/app/frontend/src/components/ProgramDailyView.tsx` - Vue quotidienne programme interactive
+- `/app/frontend/src/components/programs/BreathingTimer.tsx` - Timer de respiration anime
+- `/app/frontend/app/(tabs)/chat.tsx` - Page programmes
+- `/app/frontend/app/program-detail.tsx` - Detail et onboarding programme
+- `/app/backend/routes/program_routes.py` - API programmes enrichie
 
 ## Test Credentials
 | Role | Identifiant | Mot de passe |
@@ -74,10 +77,11 @@ Application de monitoring sante style "Whoop" avec interface premium dark mode. 
 
 ## Simulated Data
 - Donnees sommeil: simulees dans MongoDB (7 jours)
-- Programme equipe: Team C2CABC3A avec Josette (user), Marie Dupont (checked in), Pierre Martin (en attente)
+- Programme equipe: Team C2CABC3A avec Josette, Marie Dupont, Pierre Martin
 - Age biologique et glycemie: donnees mockees
 
 ## Notes Techniques
-- Le Metro bundler cache agressivement: `rm -rf /app/frontend/.metro-cache` puis `supervisorctl restart expo`
-- La page Programmes est `(tabs)/chat.tsx`, PAS `programs.tsx` (supprime)
-- Login API utilise le champ 'email' avec le numero de telephone
+- Metro cache: `rm -rf /app/frontend/.metro-cache` puis `supervisorctl restart expo`
+- Page Programmes = `(tabs)/chat.tsx`
+- Login API utilise champ 'email' avec numero de telephone
+- enrich_tasks_interactive() detecte automatiquement les types via regex sur le texte des taches
