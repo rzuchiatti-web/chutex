@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import FullScreenLoader from '../src/components/FullScreenLoader';
 import SleepHypnogram, { fromBraceletStages } from '../src/components/health/SleepHypnogram';
+import AnimatedDarkBg from '../src/components/AnimatedDarkBg';
 import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator, Platform } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useAuth } from '../src/context/AuthContext';
@@ -180,8 +181,7 @@ export default function HealthDetailScreen() {
 
   return (
     <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, display: 'flex', flexDirection: 'column', fontFamily: "'Inter', system-ui, sans-serif", overflow: 'hidden' } as any}>
-      <img src={bgUrl} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 } as any} />
-      <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.25)', zIndex: 1 } as any} />
+      <AnimatedDarkBg />
 
       <div style={{ flex: 1, overflowY: 'auto', position: 'relative', zIndex: 5, padding: '20px 20px 100px', WebkitOverflowScrolling: 'touch' } as any}>
 
@@ -205,7 +205,7 @@ export default function HealthDetailScreen() {
         {/* Sleep section: Hypnogram hero + apnea risk */}
         {metricId === 'sleep' && (() => {
           if (!sleepNightData) return (
-            <div style={{ borderRadius: 22, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', marginBottom: 14, padding: 24, textAlign: 'center' } as any}>
+            <div style={{ borderRadius: 22, background: '#272a30', border: '1.5px solid rgba(255,255,255,0.25)', boxShadow: '0 0 30px rgba(255,255,255,0.08), 0 0 60px rgba(167,139,250,0.06), 0 8px 40px rgba(0,0,0,0.5)', marginBottom: 14, padding: 24, textAlign: 'center' } as any}>
               <i className="ri-moon-line" style={{ fontSize: 36, color: 'rgba(255,255,255,0.2)', marginBottom: 12, display: 'block' }} />
               <div style={{ fontSize: 15, fontWeight: 700, color: 'rgba(255,255,255,0.5)', marginBottom: 6 }}>Aucune donnee de sommeil</div>
               <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.3)', lineHeight: 1.5 }}>Portez votre bracelet Elio pendant la nuit pour obtenir une analyse detaillee de votre sommeil.</div>
@@ -216,7 +216,7 @@ export default function HealthDetailScreen() {
           return (
             <div key={`sleep-${selectedDate.getTime()}`}>
             {/* Hypnogram card with blur — image overlaps into this card */}
-            <div style={{ borderRadius: 22, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', marginBottom: 14, overflow: 'hidden', position: 'relative', paddingTop: 56 } as any}>
+            <div style={{ borderRadius: 22, background: '#272a30', border: '1.5px solid rgba(255,255,255,0.25)', boxShadow: '0 0 30px rgba(255,255,255,0.08), 0 0 60px rgba(167,139,250,0.06), 0 8px 40px rgba(0,0,0,0.5)', marginBottom: 14, overflow: 'hidden', position: 'relative', paddingTop: 56 } as any}>
               {/* Duration header + date selector */}
               <div style={{ padding: '0 16px 12px', display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between' } as any}>
                 <div>
@@ -284,7 +284,7 @@ export default function HealthDetailScreen() {
             {/* Apnea risk — separate card with Nora analysis */}
             {(() => {
               return (
-            <div style={{ borderRadius: 18, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', padding: '16px 18px', marginBottom: 14 } as any}>
+            <div style={{ borderRadius: 18, background: '#272a30', border: '1.5px solid rgba(255,255,255,0.25)', boxShadow: '0 0 30px rgba(255,255,255,0.08), 0 0 60px rgba(167,139,250,0.06), 0 8px 40px rgba(0,0,0,0.5)', padding: '16px 18px', marginBottom: 14 } as any}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 } as any}>
                 <i className="ri-lungs-line" style={{ fontSize: 16, color: nightApnea < 30 ? '#10B981' : nightApnea < 60 ? '#F59E0B' : '#EF4444' }} />
                 <span style={{ fontSize: 14, fontWeight: 800, color: '#FFF' }}>Risque d'apnee du sommeil</span>
@@ -331,7 +331,7 @@ export default function HealthDetailScreen() {
           const recommendation = ai?.recommendation || '';
 
           return (
-          <div style={{ borderRadius: 22, background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', padding: '20px', paddingTop: metricId !== 'sleep' ? 60 : 20, marginBottom: 16, position: 'relative', zIndex: 1 } as any}>
+          <div style={{ borderRadius: 22, background: '#272a30', border: '1.5px solid rgba(255,255,255,0.25)', boxShadow: '0 0 30px rgba(255,255,255,0.08), 0 0 60px rgba(167,139,250,0.06), 0 8px 40px rgba(0,0,0,0.5)', padding: '20px', paddingTop: metricId !== 'sleep' ? 60 : 20, marginBottom: 16, position: 'relative', zIndex: 1 } as any}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16 } as any}>
               <div style={{ width: 36, height: 36, borderRadius: 12, background: 'rgba(167,139,250,0.2)', border: '1px solid rgba(167,139,250,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}><span style={{ fontSize: 14, fontWeight: 900, color: '#A78BFA' }}>N</span></div>
               <div>
@@ -440,7 +440,7 @@ export default function HealthDetailScreen() {
           const normalStart = z ? ((z.normal[0] - z.low) / (z.high - z.low)) * 100 : 0;
           const normalWidth = z ? ((z.normal[1] - z.normal[0]) / (z.high - z.low)) * 100 : 100;
           return (
-            <div key={m.key} onClick={() => router.push({ pathname: '/metric-detail' as any, params: { key: m.key === 'bp_display' ? 'blood_pressure' : m.key } })} style={{ borderRadius: 20, background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.1)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', marginBottom: 10, overflow: 'hidden', cursor: 'pointer', transition: 'transform 0.15s' } as any}
+            <div key={m.key} onClick={() => router.push({ pathname: '/metric-detail' as any, params: { key: m.key === 'bp_display' ? 'blood_pressure' : m.key } })} style={{ borderRadius: 20, background: '#272a30', border: '1.5px solid rgba(255,255,255,0.15)', boxShadow: '0 4px 20px rgba(0,0,0,0.3)', marginBottom: 10, overflow: 'hidden', cursor: 'pointer', transition: 'transform 0.15s' } as any}
               onMouseEnter={(e: any) => { e.currentTarget.style.transform = 'translateY(-1px)'; }}
               onMouseLeave={(e: any) => { e.currentTarget.style.transform = ''; }}>
               <div style={{ padding: '18px 20px' } as any}>
