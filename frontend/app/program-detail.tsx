@@ -4,7 +4,7 @@ import { useAuth } from '../src/context/AuthContext';
 import { apiFetch } from '../src/services/api';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import NativePageView from '../src/components/NativePageView';
-import Loader from '../src/components/Loader';
+import FullScreenLoader from '../src/components/FullScreenLoader';
 import { PrefixPicker } from '../src/components/GlassPickers';
 import { PREFIXES } from '../src/components/register/RegisterUI';
 
@@ -42,7 +42,7 @@ export default function ProgramDetailScreen() {
   }, [programId, token]);
 
   if (Platform.OS !== 'web') return <NativePageView path={`/program-detail?id=${id}`} />;
-  if (loading || !program) return <Loader />;
+  if (loading || !program) return <FullScreenLoader />;
 
   const clr = program.color || '#FFF';
   const hasOnboarding = (program.onboarding_fields || []).length > 0;

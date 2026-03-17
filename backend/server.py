@@ -9,7 +9,6 @@ from auth import hash_password
 # Import all route modules
 from routes.auth_routes import router as auth_router
 from routes.device_routes import router as device_router
-from routes.health_routes import router as health_router
 from routes.alert_routes import router as alert_router
 from routes.guardian_routes import router as guardian_router
 from routes.admin_routes import router as admin_router
@@ -42,7 +41,6 @@ api_router = APIRouter(prefix="/api")
 # Include all route modules
 api_router.include_router(auth_router)
 api_router.include_router(device_router)
-api_router.include_router(health_router)
 api_router.include_router(alert_router)
 api_router.include_router(guardian_router)
 api_router.include_router(admin_router)

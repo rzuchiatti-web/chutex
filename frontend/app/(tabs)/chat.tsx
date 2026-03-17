@@ -6,7 +6,7 @@ import NativePageView from '../../src/components/NativePageView';
 import ProgramDailyView from '../../src/components/ProgramDailyView';
 import { useRouter } from 'expo-router';
 import { BG_IMAGES } from '../../src/components/dashboard/constants';
-import Loader from '../../src/components/Loader';
+import FullScreenLoader from '../../src/components/FullScreenLoader';
 import AnimatedDarkBg from '../../src/components/AnimatedDarkBg';
 
 const PROG_IMAGES: Record<string, string> = {
@@ -65,7 +65,7 @@ export default function ProgramsTab() {
   if (loading) return (
     <div data-testid="programs-loading" style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, fontFamily: "'Inter', system-ui, sans-serif", overflow: 'hidden' } as any}>
       <AnimatedDarkBg />
-      <Loader />
+      <FullScreenLoader />
     </div>
   );
 

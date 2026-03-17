@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Platform, View, Text } from 'react-native';
-import Loader from '../src/components/Loader';
+import FullScreenLoader from '../src/components/FullScreenLoader';
 
 const API = process.env.EXPO_PUBLIC_BACKEND_URL || '';
 const IMG_BRACELET = 'https://customer-assets.emergentagent.com/job_8afdc991-0ab2-4687-a2a5-438b9a5f0711/artifacts/2fto1qw7_bracelet_sante_connecte_elio_chutex_care_teleassistance_telealarme%281%29.svg';

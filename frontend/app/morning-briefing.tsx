@@ -3,7 +3,7 @@ import { View, Text, Platform } from 'react-native';
 import { useAuth } from '../src/context/AuthContext';
 import { apiFetch } from '../src/services/api';
 import NativePageView from '../src/components/NativePageView';
-import Loader from '../src/components/Loader';
+import FullScreenLoader from '../src/components/FullScreenLoader';
 
 const NORA_VIDEO = 'https://customer-assets.emergentagent.com/job_ba3a5789-c8f1-4b12-b5d8-478a7f99aaea/artifacts/b6eh1r76_Nora_video.mp4';
 

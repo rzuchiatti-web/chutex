@@ -1,5 +1,5 @@
 import React, { useRef, useEffect, useState } from 'react';
-import Loader from '../src/components/Loader';
+import FullScreenLoader from '../src/components/FullScreenLoader';
 import { Platform } from 'react-native';
 import { useRouter } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -63,7 +63,7 @@ export default function AuthScreen() {
   };
 
   if (loading || user || !ready) {
-    if (Platform.OS === 'web') return <div style={{ display: 'flex', height: '100vh', alignItems: 'center', justifyContent: 'center', background: '#050510' } as any}><Loader /></div>;
+    if (Platform.OS === 'web') return <div style={{ display: 'flex', height: '100vh', alignItems: 'center', justifyContent: 'center', background: '#050510' } as any}><FullScreenLoader /></div>;
     const { View, ActivityIndicator } = require('react-native');
     return <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#050510' }}><ActivityIndicator size="large" color="#FFF" /></View>;
   }

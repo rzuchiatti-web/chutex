@@ -1,34 +1,45 @@
 # Chutex Care — Changelog
 
+## 2026-03-17 — Code Audit & Cleanup
+
+### Fichiers supprimes (dead code)
+- `frontend/src/components/ClinicCard.tsx` — jamais importe
+- `frontend/src/components/FloatingNav.tsx` — jamais importe
+- `frontend/src/components/PageTitle.tsx` — jamais importe
+- `frontend/src/components/dashboard/ActivitySleep.tsx` — jamais importe
+- `frontend/src/components/Loader.tsx` — doublon de FullScreenLoader.tsx
+- `backend/routes/health_routes.py` — fusionne dans health_report_routes.py
+- `backend/tests/test_iteration*.py` x47 — vieux tests d'iterations
+- `backend/tests/test_*` x17 — vieux tests eparpilles
+
+### Fusion / Deduplication
+- **Loader.tsx → FullScreenLoader.tsx** : 6 fichiers mis a jour (program-detail, subscription, index, chat, root index, morning-briefing)
+- **health_routes.py → health_report_routes.py** : 8 endpoints migres (history, thresholds CRUD, sleep, sleep/history), import supprime de server.py
+
+### Extraction de composants
+- **WeightGoalDashCard** extrait de index.tsx → `src/components/dashboard/WeightGoalDashCard.tsx`
+
+### Bilan
+| Avant | Apres | Reduit |
+|-------|-------|--------|
+| 86 composants | 82 composants | -4 |
+| 71 tests backend | 7 tests | -64 |
+| health_routes + health_report_routes (2 fichiers) | 1 fichier fusionne | -1 |
+| index.tsx 1122 lignes | 1072 lignes | -50 |
+
+## 2026-03-17 — Performance Optimization
+- API cache layer in api.ts (TTL 30-300s, dedup in-flight)
+- Backend batch endpoint /api/dashboard/batch (8 queries en parallele)
+- Polling reduit 60s
+
 ## 2026-03-17 — Join Team Code Feature
-
-### Completed
-1. **Bouton "Rejoindre une equipe"** — Bouton avec icone equipe (ri-team-line) en haut a droite de la page Programmes, a cote du bouton guide (?). Visible uniquement quand il n'y a pas de programme actif.
-2. **Popup glass "Code equipe"** — Popup glassmorphism (backdrop-filter blur(32px)) avec champ de saisie code equipe (auto-uppercase, monospace, lettre espacement). Gestion d'erreur + succes + loading state. Appel backend `POST /api/programs/team/join`.
-3. **Backend existant** — L'endpoint `/api/programs/team/join` etait deja en place. Valide le code, verifie les limites d'equipe (5 max), et demarre le programme pour le nouvel utilisateur.
-
-### Files Modified
-- `frontend/app/(tabs)/chat.tsx` — Ajout du bouton join-team-btn + popup join-team-popup + handler handleJoinTeam
+- Bouton + popup glass pour code equipe
 
 ## 2026-03-17 — Objective Cards Redesign + Sleep/Bio Age Fixes
-
-### Completed
-1. **Objectifs journaliers refonte** — Grille 2x2, filtre stress/respiration, 4 cartes uniquement
-2. **Carte sommeil bordure + ombre** — Border+shadow sur SleepCard avec donnees
-3. **Pillule age biologique** — Card wrapper supprime, pill seule stylee
+- Grille 2x2, filtre stress, SleepCard border, Bio age pill styled
 
 ## 2026-03-17 — UI/UX Fixes Batch + Toast Fix
-
-### Completed
-1. Header teleconsult supprime
-2. NoraPill border + shadow
-3. Health no-data: AnimatedDarkBg + cartes promotionnelles devices
-4. Care subscription card border + shadow
-5. Health data re-seeded (14 jours)
-6. Social notification toast corrige (z-index max)
+- Header teleconsult, NoraPill, Health no-data promo cards, Care card, Data seed, Toast fix
 
 ## 2026-03-17 — Previous Session
-- Program detail page redesign
-- Backend bug fix: /api/programs/active
-- Program cover images
-- Toast structural fix
+- Program detail redesign, Backend crash fix, Cover images, Toast structural fix

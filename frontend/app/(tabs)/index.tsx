@@ -4,7 +4,7 @@ import VitalsRow from '../../src/components/dashboard/VitalsRow';
 import ActivityCard from '../../src/components/dashboard/ActivityCard';
 import CopilotCard from '../../src/components/dashboard/CopilotCard';
 import DeviceCards from '../../src/components/dashboard/DeviceCards';
-import Loader from '../../src/components/Loader';
+import FullScreenLoader from '../../src/components/FullScreenLoader';
 import WeighingFlow from '../../src/components/dashboard/WeighingFlow';
 import GuardianHome from '../../src/components/dashboard/GuardianHome';
 import TeleassistanceHome from '../../src/components/dashboard/TeleassistanceHome';
@@ -26,11 +26,7 @@ import { apiFetch } from '../../src/services/api';
 import { requestNotificationPermission, startReminderChecker, notifyAlert } from '../../src/services/notifications';
 import { SubscriptionBanner, SubscriptionGate } from '../../src/components/SubscriptionGate';
 
-/* ═══════════════════════════════════════════════════════ */
-/*              WEIGHT GOAL CARD ON DASHBOARD              */
-/* ═══════════════════════════════════════════════════════ */
-const WEIGHT_BG = 'https://customer-assets.emergentagent.com/job_443c9c6e-0feb-4920-a358-fe7cc1a6289b/artifacts/v5t9l2mb_ChatGPT%20Image%2017%20f%C3%A9vr.%202026%2C%2014_10_07.png';
-const TAPE_MEASURE_IMG = 'https://customer-assets.emergentagent.com/job_e5e873d0-c3a6-4073-8807-5b369c712c84/artifacts/d7demq52_img_objectif_poids.png';
+import WeightGoalDashCard from '../../src/components/dashboard/WeightGoalDashCard';
 const NORA_VIDEO_URL = 'https://customer-assets.emergentagent.com/job_ba3a5789-c8f1-4b12-b5d8-478a7f99aaea/artifacts/b6eh1r76_Nora_video.mp4';
 const IMG_KCAL = 'https://customer-assets.emergentagent.com/job_ba3a5789-c8f1-4b12-b5d8-478a7f99aaea/artifacts/385muol8_img_kcal.png';
 const IMG_GUARDIANS = 'https://customer-assets.emergentagent.com/job_ba3a5789-c8f1-4b12-b5d8-478a7f99aaea/artifacts/ashlkedd_img_gardians.png';
@@ -42,52 +38,6 @@ const OBJ_IMAGES: Record<string, string> = {
   steps: HEALTH_IMAGES.physical,
   sleep: HEALTH_IMAGES.sleep,
 };
-
-function WeightGoalDashCard({ token }: { token: string }) {
-  const router = useRouter();
-  const [goal, setGoal] = React.useState<any>(null);
-  React.useEffect(() => {
-    // Use lightweight DB queries, not the heavy weight-details endpoint
-    Promise.all([
-      apiFetch('/api/minceur/weight-goal-status', {}, token).catch(() => null),
-    ]).then(([g]) => { if (g && g.target_kg) setGoal(g); });
-  }, [token]);
-
-  if (!goal) return null;
-
-  const diff = (goal.current || 0) - goal.target_kg;
-  const remaining = Math.abs(diff).toFixed(1);
-  const progressPct = diff > 0 ? Math.max(5, Math.min(95, 100 - (diff / (diff + 2)) * 100)) : 50;
-
-  return (
-    <div data-testid="weight-goal-dash-card" className="dash-slide-up cl-press" onClick={() => router.push('/minceur' as any)}
-      style={{ borderRadius: 18, overflow: 'hidden', marginBottom: 14, cursor: 'pointer', position: 'relative', height: 100, transition: 'transform 0.15s', border: '1.5px solid rgba(255,255,255,0.25)', boxShadow: '0 0 30px rgba(255,255,255,0.08), 0 0 60px rgba(167,139,250,0.06), 0 8px 40px rgba(0,0,0,0.5)' } as any}
-      onMouseEnter={(e: any) => { e.currentTarget.style.transform = 'translateY(-1px)'; }}
-      onMouseLeave={(e: any) => { e.currentTarget.style.transform = ''; }}>
-      <img src={WEIGHT_BG} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 } as any} />
-      <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.3)', zIndex: 1 } as any} />
-      {/* Tape measure — natural colors, no filter, centered-right */}
-      <img src={TAPE_MEASURE_IMG} alt="" style={{ position: 'absolute', right: 16, top: '50%', transform: 'translateY(-50%)', width: 80, height: 80, objectFit: 'contain', zIndex: 2 } as any} />
-      <div style={{ position: 'relative', zIndex: 3, padding: '16px 18px', height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'center' } as any}>
-        <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.7)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 6 }}>Objectif poids en cours</div>
-        <div style={{ display: 'flex', alignItems: 'baseline', gap: 6, marginBottom: 6 } as any}>
-          <span style={{ fontSize: 26, fontWeight: 900, color: '#FFF' }}>{goal.current > 0 ? goal.current : '--'}</span>
-          <i className="ri-arrow-right-line" style={{ fontSize: 14, color: '#60A5FA' }} />
-          <span style={{ fontSize: 26, fontWeight: 900, color: '#60A5FA' }}>{goal.target_kg}</span>
-          <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.6)' }}>kg</span>
-          <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.6)', marginLeft: 4 }}>· {goal.weeks} sem</span>
-        </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 3, maxWidth: 200 } as any}>
-          {Array.from({ length: 12 }, (_, i) => {
-            const filled = i < Math.round(progressPct / 100 * 12);
-            return <div key={i} style={{ width: 6, height: 6, borderRadius: 3, background: filled ? '#60A5FA' : 'rgba(255,255,255,0.1)', transition: 'background 0.3s' } as any} />;
-          })}
-          <span style={{ fontSize: 9, fontWeight: 700, color: '#60A5FA', marginLeft: 6 }}>{diff > 0 ? `-${remaining}` : `+${remaining}`}kg</span>
-        </div>
-      </div>
-    </div>
-  );
-}
 
 /* ═══════════════════════════════════════════════════════ */
 /*               NORA PILL BADGE + TYPEWRITER TITLE        */
@@ -439,7 +389,7 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
     } catch (e: any) { Alert.alert('Erreur', e.message); } finally { setActivatingGuardian(false); }
   };
 
-  if (loading) return Platform.OS === 'web' ? <Loader /> : <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#F2F2F7' }}><ActivityIndicator size="large" color="#111" /></View>;
+  if (loading) return Platform.OS === 'web' ? <FullScreenLoader /> : <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#F2F2F7' }}><ActivityIndicator size="large" color="#111" /></View>;
 
   const br = dashData?.bracelet || { heart_rate: 0, spo2: 0, steps: 0, blood_pressure: { systolic: 0, diastolic: 0 }, temperature: 0, battery: 0, connected: false, calories: 0, distance_km: 0, heart_rate_history: [], paired: false };
   const sc = dashData?.scale || { weight: 0, bmi: 0, body_fat: 0, muscle_mass: 0, water_pct: 0, battery: 0, connected: false, paired: false };
