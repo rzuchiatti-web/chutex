@@ -128,51 +128,55 @@ function DailyObjectivesOnDashboard({ token }: { token: string }) {
   if (loading) return <div style={{ padding: '12px 0', textAlign: 'center' } as any}><div style={{ width: 20, height: 20, borderRadius: '50%', border: '2px solid rgba(0,0,0,0.04)', borderTopColor: '#0F766E', animation: 'spin 0.8s linear infinite', margin: '0 auto' } as any} /></div>;
   if (!plan.length) return null;
 
-  const items = plan.filter((p: any) => p.key !== 'connect');
+  const items = plan.filter((p: any) => p.key !== 'connect' && p.key !== 'stress');
   return (
     <div data-testid="dashboard-objectives" style={{ marginBottom: 20 } as any}>
       <NoraPill />
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 12 } as any}>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 } as any}>
         {items.map((p: any, idx: number) => {
           const objImg = OBJ_IMAGES[p.key];
-          // Custom labels per card
           const isHydration = p.key === 'hydration';
           const isCalories = p.key === 'calories_intake';
           const isSteps = p.key === 'steps';
+          const isSleep = p.key === 'sleep';
           const displayValue = isHydration ? String(p.value).replace(/L$/i, '').trim() : p.value;
-          const displayUnit = isHydration ? 'Litre' : p.unit;
-          const displayLabel = isCalories ? 'Apport calorique' : isHydration ? 'Hydratation minimum' : isSteps ? null : p.label;
+          const displayUnit = isHydration ? 'L' : isCalories ? 'kcal' : isSleep ? '' : p.unit;
+          const displayLabel = isCalories ? 'Calories' : isHydration ? 'Hydratation' : isSteps ? 'Pas' : isSleep ? 'Coucher' : p.label;
+          const accentColor = isSteps ? '#10B981' : isCalories ? '#F59E0B' : isHydration ? '#22D3EE' : isSleep ? '#A78BFA' : (p.color || '#888');
           return (
-            <div key={p.key} className="dash-slide-up" onClick={() => {
+            <div key={p.key} data-testid={`objective-card-${p.key}`} className="dash-slide-up" onClick={() => {
               if (p.key === 'steps') router.push({ pathname: '/metric-detail' as any, params: { key: 'steps' } });
               else if (p.key === 'sleep') router.push('/sleep' as any);
               else if (p.key === 'calories_intake') router.push('/minceur' as any);
               else if (p.key === 'hydration') router.push('/minceur' as any);
             }} style={{
-              padding: '16px 18px', borderRadius: 18,
+              padding: '14px 14px 12px', borderRadius: 18,
               background: 'var(--card-bg, #EDEDF0)',
               backdropFilter: 'var(--card-blur, none)', WebkitBackdropFilter: 'var(--card-blur, none)', border: 'var(--card-border, none)',
               cursor: 'pointer', transition: 'transform 0.18s',
-              animationDelay: `${idx * 0.1}s`,
-              display: 'flex', alignItems: 'center', gap: 16,
+              animationDelay: `${idx * 0.08}s`,
+              display: 'flex', flexDirection: 'column', gap: 10, position: 'relative', overflow: 'hidden',
             } as any}
               onMouseEnter={(e: any) => { e.currentTarget.style.transform = 'translateY(-2px)'; }}
               onMouseLeave={(e: any) => { e.currentTarget.style.transform = ''; }}>
-              {objImg && <img src={objImg} alt="" style={{ width: 64, height: 64, objectFit: 'contain', flexShrink: 0 } as any} />}
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' } as any}>
+                <div style={{ width: 6, height: 6, borderRadius: 3, background: accentColor, opacity: 0.7 } as any} />
+                <div style={{ fontSize: 9, fontWeight: 700, color: 'var(--card-sub, rgba(0,0,0,0.3))', textTransform: 'uppercase', letterSpacing: 0.8 }}>{displayLabel}</div>
+              </div>
+              {objImg && <img src={objImg} alt="" style={{ width: 44, height: 44, objectFit: 'contain', alignSelf: 'center' } as any} />}
               {!objImg && (
-                <div style={{ width: 64, height: 64, borderRadius: 16, background: 'rgba(0,0,0,0.04)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}>
-                  <i className={p.icon} style={{ fontSize: 28, color: p.color }} />
+                <div style={{ width: 44, height: 44, borderRadius: 12, background: 'rgba(0,0,0,0.04)', display: 'flex', alignItems: 'center', justifyContent: 'center', alignSelf: 'center' } as any}>
+                  <i className={p.icon} style={{ fontSize: 22, color: accentColor }} />
                 </div>
               )}
-              <div style={{ flex: 1 } as any}>
-                {displayLabel && <div style={{ fontSize: 11, color: 'var(--card-sub, rgba(0,0,0,0.4))', fontWeight: 600, marginBottom: 2 }}>{displayLabel}</div>}
-                <div style={{ display: 'flex', alignItems: 'baseline', gap: 4 } as any}>
-                  <span style={{ fontSize: 28, fontWeight: 900, color: 'var(--card-text, #111)', letterSpacing: -1 }}>{displayValue}</span>
-                  <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--card-sub, rgba(0,0,0,0.4))' }}>{displayUnit}</span>
+              <div style={{ textAlign: 'center' } as any}>
+                <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'center', gap: 3 } as any}>
+                  <span style={{ fontSize: 24, fontWeight: 900, color: 'var(--card-text, #111)', letterSpacing: -0.5 }}>{displayValue}</span>
+                  {displayUnit && <span style={{ fontSize: 10, fontWeight: 600, color: 'var(--card-sub, rgba(0,0,0,0.35))' }}>{displayUnit}</span>}
                 </div>
                 {isSteps && p.progress != null && (
-                  <div style={{ width: '100%', height: 5, borderRadius: 3, background: 'rgba(0,0,0,0.06)', marginTop: 4, overflow: 'hidden' } as any}>
-                    <div style={{ height: 5, borderRadius: 3, width: `${Math.min(100, p.progress)}%`, background: p.color || '#10B981', transition: 'width 1s ease' } as any} />
+                  <div style={{ width: '80%', height: 4, borderRadius: 2, background: 'rgba(0,0,0,0.06)', marginTop: 6, overflow: 'hidden', margin: '6px auto 0' } as any}>
+                    <div style={{ height: 4, borderRadius: 2, width: `${Math.min(100, p.progress)}%`, background: accentColor, transition: 'width 1s ease' } as any} />
                   </div>
                 )}
               </div>

@@ -25,8 +25,8 @@ export default function HeroScore({ bioAge, realAge, status, statusColor, ai, su
   return (
     <>
       {/* ═══ BIO AGE ═══ */}
-      <div data-testid="bio-age-card" style={{ textAlign: 'center', padding: '24px 20px 8px', borderRadius: 20, border: '1.5px solid rgba(255,255,255,0.15)', boxShadow: '0 4px 24px rgba(0,0,0,0.4), 0 0 0 1px rgba(255,255,255,0.06)', background: 'rgba(255,255,255,0.03)', marginBottom: 8 } as any}>
-        <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '6px 16px 6px 6px', borderRadius: 999, background: '#000', marginBottom: 14 } as any}>
+      <div data-testid="bio-age-section" style={{ textAlign: 'center', padding: '24px 20px 8px' } as any}>
+        <div data-testid="bio-age-pill" style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '6px 16px 6px 6px', borderRadius: 999, background: '#000', marginBottom: 14, border: '1.5px solid rgba(255,255,255,0.18)', boxShadow: '0 4px 20px rgba(0,0,0,0.35), 0 0 0 1px rgba(255,255,255,0.12)' } as any}>
           <video autoPlay loop muted playsInline src="https://customer-assets.emergentagent.com/job_ba3a5789-c8f1-4b12-b5d8-478a7f99aaea/artifacts/b6eh1r76_Nora_video.mp4" style={{ width: 26, height: 26, borderRadius: 13, objectFit: 'cover', flexShrink: 0 } as any} />
           <span style={{ fontSize: 10, fontWeight: 800, color: '#FFF', letterSpacing: 1.2 }}>Age biologique</span>
         </div>
