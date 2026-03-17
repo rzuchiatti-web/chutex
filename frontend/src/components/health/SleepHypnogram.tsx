@@ -1,9 +1,9 @@
 import React from 'react';
 
 /* ══════════════════════════════════════════════════════
-   SleepHypnogram — Dynamic sleep stage visualization
-   Renders a step-chart hypnogram from bracelet sleep data.
-   Designed for dark backgrounds (CARE WATCH app).
+   SleepHypnogram V2 — Premium Whoop-style sleep visualization
+   Renders a filled area step-chart with gradient fills,
+   smooth transitions, and animated entrance.
    ══════════════════════════════════════════════════════ */
 
 type SleepStage = 'awake' | 'rem' | 'light' | 'deep' | 'unknown';
@@ -20,7 +20,7 @@ type SleepSession = {
 };
 
 type Segment = {
-  start: number; // ms since epoch
+  start: number;
   end: number;
   stage: SleepStage;
 };
@@ -33,48 +33,49 @@ type SleepHypnogramProps = {
   timeLabelCount?: number;
   smoothShortSpikes?: boolean;
   minStageDurationMinutes?: number;
-  /** Compact mode for card preview (no Y labels, less padding) */
   compact?: boolean;
 };
 
-/* ── Stage colors (dark theme optimized) ── */
 const STAGE_COLORS: Record<SleepStage, string> = {
-  awake: '#E87C8A',
-  rem: '#A8B4F0',
-  light: '#6B7BD9',
-  deep: '#3A4099',
+  awake: '#F87171',
+  rem: '#C4B5FD',
+  light: '#818CF8',
+  deep: '#4338CA',
   unknown: 'rgba(255,255,255,0.06)',
 };
 
-/* ── Stage Y levels (0 = top, 1 = bottom) ── */
+const STAGE_GLOW: Record<SleepStage, string> = {
+  awake: 'rgba(248,113,113,0.5)',
+  rem: 'rgba(196,181,253,0.4)',
+  light: 'rgba(129,140,248,0.35)',
+  deep: 'rgba(67,56,202,0.5)',
+  unknown: 'transparent',
+};
+
 const STAGE_Y: Record<SleepStage, number> = {
-  awake: 0,
-  rem: 0.28,
+  awake: 0.04,
+  rem: 0.30,
   light: 0.58,
-  deep: 0.92,
+  deep: 0.88,
   unknown: 0.58,
 };
 
 const STAGE_ORDER: SleepStage[] = ['awake', 'rem', 'light', 'deep'];
+const STAGE_LABELS: Record<SleepStage, string> = { awake: 'Eveil', rem: 'REM', light: 'Leger', deep: 'Profond', unknown: '' };
 
-/* ── Helper: parse and validate ISO date ── */
 function safeParseDate(s: string): number {
   const d = new Date(s);
   return isNaN(d.getTime()) ? 0 : d.getTime();
 }
 
-/* ── Parse raw points into sorted, valid points ── */
 function parseAndNormalizePoints(session: SleepSession): { ts: number; stage: SleepStage }[] {
   const start = safeParseDate(session.startTime);
   const end = safeParseDate(session.endTime);
   if (!start || !end || end <= start) return [];
-
   const valid = session.points
     .map(p => ({ ts: safeParseDate(p.timestamp), stage: p.stage }))
-    .filter(p => p.ts > 0 && p.ts >= start && p.ts <= end && STAGE_ORDER.includes(p.stage) || p.stage === 'unknown')
+    .filter(p => p.ts > 0 && p.ts >= start && p.ts <= end && (STAGE_ORDER.includes(p.stage) || p.stage === 'unknown'))
     .sort((a, b) => a.ts - b.ts);
-
-  // Deduplicate: keep last point per timestamp
   const deduped: typeof valid = [];
   for (const p of valid) {
     if (deduped.length > 0 && deduped[deduped.length - 1].ts === p.ts) {
@@ -86,7 +87,6 @@ function parseAndNormalizePoints(session: SleepSession): { ts: number; stage: Sl
   return deduped;
 }
 
-/* ── Build segments from points ── */
 function buildSegments(points: { ts: number; stage: SleepStage }[], startMs: number, endMs: number): Segment[] {
   if (points.length === 0) return [];
   const segments: Segment[] = [];
@@ -97,7 +97,6 @@ function buildSegments(points: { ts: number; stage: SleepStage }[], startMs: num
   return segments;
 }
 
-/* ── Merge consecutive same-stage segments ── */
 function mergeConsecutiveSegments(segments: Segment[]): Segment[] {
   if (segments.length === 0) return [];
   const merged: Segment[] = [{ ...segments[0] }];
@@ -112,7 +111,6 @@ function mergeConsecutiveSegments(segments: Segment[]): Segment[] {
   return merged;
 }
 
-/* ── Smooth short spikes ── */
 function smoothSegments(segments: Segment[], minMs: number): Segment[] {
   if (segments.length <= 2) return segments;
   const result = [...segments];
@@ -124,7 +122,6 @@ function smoothSegments(segments: Segment[], minMs: number): Segment[] {
     for (let i = 1; i < result.length - 1; i++) {
       const dur = result[i].end - result[i].start;
       if (dur < minMs && result[i].stage !== 'unknown') {
-        // Merge with neighbor that has same stage, or with longer neighbor
         const prev = result[i - 1];
         const next = result[i + 1];
         if (prev.stage === next.stage) {
@@ -151,27 +148,21 @@ function smoothSegments(segments: Segment[], minMs: number): Segment[] {
   return mergeConsecutiveSegments(result);
 }
 
-/* ── Time to X coordinate ── */
 function timeToX(ts: number, startMs: number, endMs: number, innerWidth: number): number {
   const range = endMs - startMs;
   if (range <= 0) return 0;
   return ((ts - startMs) / range) * innerWidth;
 }
 
-/* ── Stage to Y coordinate ── */
 function stageToY(stage: SleepStage, graphTop: number, graphHeight: number): number {
   return graphTop + STAGE_Y[stage] * graphHeight;
 }
 
-/* ── Format time label ── */
 function formatTimeLabel(ms: number): string {
   const d = new Date(ms);
-  const h = d.getHours();
-  const m = d.getMinutes();
-  return `${h}:${String(m).padStart(2, '0')}`;
+  return `${d.getHours()}:${String(d.getMinutes()).padStart(2, '0')}`;
 }
 
-/* ── Generate evenly spaced time labels ── */
 function generateTimeLabels(startMs: number, endMs: number, count: number): { ts: number; label: string }[] {
   if (count < 2) count = 2;
   const labels: { ts: number; label: string }[] = [];
@@ -182,7 +173,6 @@ function generateTimeLabels(startMs: number, endMs: number, count: number): { ts
   return labels;
 }
 
-/* ── Transform bracelet raw stages to SleepSession ── */
 export function fromBraceletStages(
   stages: number[],
   startHour = 22,
@@ -197,28 +187,22 @@ export function fromBraceletStages(
   const start = new Date(now);
   start.setHours(startHour, startMin, 0, 0);
   if (start.getTime() > now.getTime()) start.setDate(start.getDate() - 1);
-
   const points: SleepPoint[] = [];
   for (let i = 0; i < stages.length; i++) {
     const ts = new Date(start.getTime() + i * 60 * 1000);
     const stage = stageMap[stages[i]] || 'unknown';
     points.push({ timestamp: ts.toISOString(), stage });
   }
-
   const endTime = new Date(start.getTime() + stages.length * 60 * 1000);
   return { startTime: start.toISOString(), endTime: endTime.toISOString(), points };
 }
 
-/* ══════════════════════════════════════════════════════
-   Main Component
-   ══════════════════════════════════════════════════════ */
-
 export default function SleepHypnogram({
   session,
   width = 640,
-  height = 180,
+  height = 200,
   showLabels = true,
-  timeLabelCount = 4,
+  timeLabelCount = 5,
   smoothShortSpikes = true,
   minStageDurationMinutes = 3,
   compact = false,
@@ -227,7 +211,6 @@ export default function SleepHypnogram({
   const startMs = safeParseDate(session.startTime);
   const endMs = safeParseDate(session.endTime);
 
-  // Empty state
   if (!startMs || !endMs || endMs <= startMs || session.points.length === 0) {
     return (
       <svg width="100%" viewBox={`0 0 ${width} ${height}`} style={{ display: 'block' }}>
@@ -238,145 +221,155 @@ export default function SleepHypnogram({
     );
   }
 
-  // Layout constants
-  const labelAreaWidth = compact ? 0 : 50;
-  const labelAreaBottom = 20;
-  const graphTop = 6;
-  const graphHeight = height - graphTop - labelAreaBottom - 10;
-  const innerWidth = width - labelAreaWidth - 10;
-  const barThickness = compact ? 3 : 4;
-  const connectorWidth = compact ? 2 : 3;
+  const labelW = compact ? 0 : 54;
+  const padRight = 8;
+  const graphTop = compact ? 4 : 8;
+  const graphBottom = compact ? 4 : 24;
+  const graphHeight = height - graphTop - graphBottom;
+  const innerWidth = width - labelW - padRight;
 
-  // Process data
   const rawPoints = parseAndNormalizePoints(session);
   const rawSegments = buildSegments(rawPoints, startMs, endMs);
   const merged = mergeConsecutiveSegments(rawSegments);
-  const segments = smoothShortSpikes
-    ? smoothSegments(merged, minStageDurationMinutes * 60 * 1000)
-    : merged;
-
-  // Time labels
+  const segments = smoothShortSpikes ? smoothSegments(merged, minStageDurationMinutes * 60 * 1000) : merged;
   const timeLabels = generateTimeLabels(startMs, endMs, timeLabelCount);
 
-  // Render segments
-  const renderSegments = () => {
-    const els: React.ReactElement[] = [];
+  // Build SVG path: filled area from stage level down to bottom
+  const buildAreaPath = (): string => {
+    if (segments.length === 0) return '';
+    let d = '';
+    const bottom = graphTop + graphHeight;
+    const firstX = labelW + timeToX(segments[0].start, startMs, endMs, innerWidth);
+    d += `M ${firstX} ${bottom} `;
 
     for (let i = 0; i < segments.length; i++) {
       const seg = segments[i];
       if (seg.stage === 'unknown') continue;
-
-      const x1 = labelAreaWidth + timeToX(seg.start, startMs, endMs, innerWidth);
-      const x2 = labelAreaWidth + timeToX(seg.end, startMs, endMs, innerWidth);
+      const x1 = labelW + timeToX(seg.start, startMs, endMs, innerWidth);
+      const x2 = labelW + timeToX(seg.end, startMs, endMs, innerWidth);
       const y = stageToY(seg.stage, graphTop, graphHeight);
-      const segWidth = Math.max(1, x2 - x1);
-      const color = STAGE_COLORS[seg.stage];
-      const fillHeight = graphTop + graphHeight - y;
-
-      // Filled area from stage level to bottom
-      els.push(
-        <rect
-          key={`fill-${i}`}
-          x={x1}
-          y={y}
-          width={segWidth}
-          height={Math.max(0, fillHeight)}
-          fill={color}
-          opacity={seg.stage === 'awake' ? 0.25 : 0.2}
-          rx={1}
-        />
-      );
-
-      // Horizontal step bar
-      els.push(
-        <rect
-          key={`bar-${i}`}
-          x={x1}
-          y={y - barThickness / 2}
-          width={segWidth}
-          height={barThickness}
-          fill={color}
-          rx={barThickness / 2}
-        />
-      );
-
-      // Vertical connector to next segment
-      if (i < segments.length - 1) {
-        const nextSeg = segments[i + 1];
-        if (nextSeg.stage !== 'unknown') {
-          const ny = stageToY(nextSeg.stage, graphTop, graphHeight);
-          const cy = Math.min(y, ny);
-          const ch = Math.abs(ny - y);
-          if (ch > 1) {
-            // Gradient connector: blend from current to next color
-            const nextColor = STAGE_COLORS[nextSeg.stage];
-            const connX = x2 - connectorWidth / 2;
-            els.push(
-              <rect
-                key={`conn-${i}`}
-                x={connX}
-                y={cy - barThickness / 2}
-                width={connectorWidth}
-                height={ch + barThickness}
-                fill={ny > y ? nextColor : color}
-                rx={connectorWidth / 2}
-                opacity={0.7}
-              />
-            );
-          }
-        }
-      }
+      d += `L ${x1} ${y} L ${x2} ${y} `;
     }
 
-    return els;
+    const lastSeg = segments[segments.length - 1];
+    const lastX = labelW + timeToX(lastSeg.end, startMs, endMs, innerWidth);
+    d += `L ${lastX} ${bottom} Z`;
+    return d;
+  };
+
+  // Build the step line path (top edge only)
+  const buildLinePath = (): string => {
+    if (segments.length === 0) return '';
+    let d = '';
+    for (let i = 0; i < segments.length; i++) {
+      const seg = segments[i];
+      if (seg.stage === 'unknown') continue;
+      const x1 = labelW + timeToX(seg.start, startMs, endMs, innerWidth);
+      const x2 = labelW + timeToX(seg.end, startMs, endMs, innerWidth);
+      const y = stageToY(seg.stage, graphTop, graphHeight);
+      d += i === 0 ? `M ${x1} ${y}` : `L ${x1} ${y}`;
+      d += ` L ${x2} ${y}`;
+    }
+    return d;
   };
 
   return (
     <svg width="100%" viewBox={`0 0 ${width} ${height}`} style={{ display: 'block' }}>
+      <defs>
+        <linearGradient id="sleepAreaGrad" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor="#C4B5FD" stopOpacity="0.35" />
+          <stop offset="40%" stopColor="#818CF8" stopOpacity="0.25" />
+          <stop offset="75%" stopColor="#4338CA" stopOpacity="0.35" />
+          <stop offset="100%" stopColor="#4338CA" stopOpacity="0.15" />
+        </linearGradient>
+        <linearGradient id="sleepLineGrad" x1="0" y1="0" x2="1" y2="0">
+          <stop offset="0%" stopColor="#C4B5FD" />
+          <stop offset="50%" stopColor="#818CF8" />
+          <stop offset="100%" stopColor="#6366F1" />
+        </linearGradient>
+        <filter id="sleepGlow">
+          <feGaussianBlur stdDeviation="3" result="blur" />
+          <feMerge>
+            <feMergeNode in="blur" />
+            <feMergeNode in="SourceGraphic" />
+          </feMerge>
+        </filter>
+      </defs>
 
-      {/* Y-axis labels (non-compact) */}
-      {showLabels && !compact && (
-        <>
-          <text x="0" y={stageToY('awake', graphTop, graphHeight) + 4} fill="rgba(255,255,255,0.25)" fontSize="9">Eveil</text>
-          <text x="0" y={stageToY('rem', graphTop, graphHeight) + 4} fill="rgba(255,255,255,0.25)" fontSize="9">REM</text>
-          <text x="0" y={stageToY('light', graphTop, graphHeight) + 4} fill="rgba(255,255,255,0.25)" fontSize="9">Leger</text>
-          <text x="0" y={stageToY('deep', graphTop, graphHeight) + 4} fill="rgba(255,255,255,0.25)" fontSize="9">Profond</text>
-        </>
-      )}
+      {/* Horizontal grid lines with stage labels */}
+      {STAGE_ORDER.map(stage => {
+        const y = stageToY(stage, graphTop, graphHeight);
+        return (
+          <g key={stage}>
+            <line x1={labelW} y1={y} x2={width - padRight} y2={y} stroke="rgba(255,255,255,0.05)" strokeDasharray="4,6" />
+            {showLabels && !compact && (
+              <text x={labelW - 8} y={y + 4} textAnchor="end" fill={STAGE_COLORS[stage]} fontSize="9" fontWeight="600" opacity="0.7">
+                {STAGE_LABELS[stage]}
+              </text>
+            )}
+          </g>
+        );
+      })}
 
-      {/* Horizontal grid lines */}
-      {STAGE_ORDER.map(stage => (
-        <line
-          key={stage}
-          x1={labelAreaWidth}
-          y1={stageToY(stage, graphTop, graphHeight)}
-          x2={width - 5}
-          y2={stageToY(stage, graphTop, graphHeight)}
-          stroke="rgba(255,255,255,0.04)"
-        />
-      ))}
+      {/* Filled area */}
+      <path d={buildAreaPath()} fill="url(#sleepAreaGrad)" />
 
-      {/* Segments */}
-      {renderSegments()}
+      {/* Colored segment bars */}
+      {segments.map((seg, i) => {
+        if (seg.stage === 'unknown') return null;
+        const x1 = labelW + timeToX(seg.start, startMs, endMs, innerWidth);
+        const x2 = labelW + timeToX(seg.end, startMs, endMs, innerWidth);
+        const y = stageToY(seg.stage, graphTop, graphHeight);
+        const w = Math.max(1, x2 - x1);
+        const color = STAGE_COLORS[seg.stage];
+        return (
+          <g key={`seg-${i}`}>
+            {/* Glow bar */}
+            <rect x={x1} y={y - 2.5} width={w} height={5} rx={2.5} fill={STAGE_GLOW[seg.stage]} filter="url(#sleepGlow)" />
+            {/* Solid bar */}
+            <rect x={x1} y={y - 2} width={w} height={4} rx={2} fill={color} opacity={0.9} />
+          </g>
+        );
+      })}
+
+      {/* Top edge glow line */}
+      <path d={buildLinePath()} fill="none" stroke="url(#sleepLineGrad)" strokeWidth="1.5" opacity="0.5" />
+
+      {/* Vertical connectors between stages */}
+      {segments.map((seg, i) => {
+        if (i >= segments.length - 1 || seg.stage === 'unknown') return null;
+        const next = segments[i + 1];
+        if (next.stage === 'unknown') return null;
+        const x = labelW + timeToX(seg.end, startMs, endMs, innerWidth);
+        const y1 = stageToY(seg.stage, graphTop, graphHeight);
+        const y2 = stageToY(next.stage, graphTop, graphHeight);
+        if (Math.abs(y2 - y1) < 2) return null;
+        return (
+          <line key={`conn-${i}`} x1={x} y1={y1} x2={x} y2={y2} stroke="rgba(255,255,255,0.12)" strokeWidth="1" strokeLinecap="round" />
+        );
+      })}
 
       {/* X-axis time labels */}
-      {showLabels && timeLabels.map((tl, i) => {
-        const x = labelAreaWidth + timeToX(tl.ts, startMs, endMs, innerWidth);
-        const isEdge = i === 0 || i === timeLabels.length - 1;
+      {showLabels && !compact && timeLabels.map((tl, i) => {
+        const x = labelW + timeToX(tl.ts, startMs, endMs, innerWidth);
         return (
           <text
             key={i}
-            x={Math.max(labelAreaWidth, Math.min(width - 20, x))}
+            x={Math.max(labelW, Math.min(width - padRight - 10, x))}
             y={height - 4}
-            fill={isEdge ? 'rgba(255,255,255,0.35)' : 'rgba(255,255,255,0.2)'}
+            fill="rgba(255,255,255,0.3)"
             fontSize="9"
-            fontWeight={isEdge ? '700' : '400'}
+            fontWeight={i === 0 || i === timeLabels.length - 1 ? '700' : '400'}
             textAnchor={i === 0 ? 'start' : i === timeLabels.length - 1 ? 'end' : 'middle'}
           >
             {tl.label}
           </text>
         );
       })}
+
+      <style dangerouslySetInnerHTML={{ __html: `
+        @keyframes sleepFadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+      `}} />
     </svg>
   );
 }
