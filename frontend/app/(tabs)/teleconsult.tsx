@@ -94,23 +94,15 @@ function BeneficiaryTeleconsult({ token }: { token: string }) {
         <img src={BG_BLUE} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 } as any} />
         <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.3)', zIndex: 1 } as any} />
 
-        {/* Header */}
-        <div style={{ position: 'relative', padding: '20px 20px 16px', zIndex: 5, textAlign: 'center' } as any}>
-          <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '7px 16px', borderRadius: 999, background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)', marginBottom: 12, transition: 'all 0.3s ease' } as any}>
-            <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#10B981' } as any} />
-            <span style={{ fontSize: 12, fontWeight: 600, color: '#FFF' }}>Medecin disponible 24/7</span>
+        {/* Question content — no fixed header */}
+        <div style={{ flex: 1, overflowY: 'auto', position: 'relative', zIndex: 5, padding: '24px 20px 100px', WebkitOverflowScrolling: 'touch' } as any}>
+          {/* Progress dots + step label inline */}
+          <div style={{ textAlign: 'center', marginBottom: 18 } as any}>
+            <div style={{ display: 'flex', justifyContent: 'center', gap: 6, marginBottom: 6 } as any}>
+              {questions.map((_, i) => <div key={i} style={{ width: i <= step ? 20 : 6, height: 6, borderRadius: 3, backgroundColor: i <= step ? '#FFF' : 'rgba(255,255,255,0.2)', transition: 'all 0.3s' }} />)}
+            </div>
+            <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)' }}>Etape {step + 1} / {questions.length}</div>
           </div>
-          <div style={{ fontSize: 24, fontWeight: 800, color: '#FFF', marginBottom: 6 }}>Teleconsultation</div>
-          <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.55)' }}>Questionnaire pre-consultation</div>
-          {/* Progress dots */}
-          <div style={{ display: 'flex', justifyContent: 'center', gap: 6, marginTop: 14 } as any}>
-            {questions.map((_, i) => <div key={i} style={{ width: i <= step ? 20 : 6, height: 6, borderRadius: 3, backgroundColor: i <= step ? '#FFF' : 'rgba(255,255,255,0.2)', transition: 'all 0.3s' }} />)}
-          </div>
-          <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', marginTop: 6 }}>Etape {step + 1} / {questions.length}</div>
-        </div>
-
-        {/* Question content */}
-        <div style={{ flex: 1, overflowY: 'auto', position: 'relative', zIndex: 5, padding: '8px 20px 100px', WebkitOverflowScrolling: 'touch' } as any}>
           {q && (
             <>
               <div style={{ padding: '18px 20px', borderRadius: 20, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', marginBottom: 14 } as any}>

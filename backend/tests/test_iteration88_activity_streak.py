@@ -9,7 +9,7 @@ import requests
 import os
 from datetime import datetime, timedelta
 
-BASE_URL = os.environ.get('EXPO_PUBLIC_BACKEND_URL') or 'https://program-social-feed.preview.emergentagent.com'
+BASE_URL = os.environ.get('EXPO_PUBLIC_BACKEND_URL') or 'https://card-shadows-border.preview.emergentagent.com'
 BASE_URL = BASE_URL.rstrip('/')
 
 class TestActivityStreak:

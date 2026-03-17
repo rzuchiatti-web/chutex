@@ -12,7 +12,7 @@ import requests
 import os
 import time
 
-BASE_URL = "https://program-social-feed.preview.emergentagent.com"
+BASE_URL = "https://card-shadows-border.preview.emergentagent.com"
 
 # Test credentials
 TEST_PHONE = "0651245918"

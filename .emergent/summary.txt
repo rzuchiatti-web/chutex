@@ -1,247 +1,56 @@
 <analysis>**original_problem_statement:**
-The user's initial goal was to continue refining the application's UI/UX to match the Whoop application's premium dark-mode aesthetic. This session involved a significant number of iterative visual enhancements.
+The user's initial goal was to fix a critical navigation bug and add loaders. This evolved into a major overhaul of the program system to make it interactive, a redesign of the program detail page to be more visual, and the implementation of a social notification system.
 
-The most recent user requests are:
-1.  **Fix a critical bug**: An error occurs when clicking on a program from the newly redesigned program list page.
-2.  **UI Consistency**: Implement the application's standard loading animation on all pages, specifically the program list and program detail pages, where it is currently missing.
-3.  Continue applying a consistent border and shadow style to various cards.
-4.  Refine the sleep detail page by redesigning the sleep graph, adding new data visualizations (sleep debt, interruptions), and improving data correlation.
-5.  Redesign the program list and detail pages with a more clinical and premium feel, using new imagery and allowing access to program details even without a configured device.
+Most recently, the user has requested a new batch of specific UI/UX fixes:
+1.  Remove the fixed header on the teleconsultation page.
+2.  Add a border and shadow to the Nora pill on the daily objectives dashboard and to the biological age card on the health page.
+3.  Unify the background style for the no device connected state across all pages.
+4.  When no device is connected, replace Nora's recommendation with two promotional cards for the Elio bracelet and the scale, including a button to the devices page.
+5.  Re-seed all simulated data for the health page and its detailed sections so the user can perform a full review.
+6.  On the beneficiary profile page, add a border and shadow to the card if a contrat care is active.
 
 **User's preferred language**: French
 
 **what currently exists?**
-The application is a full-stack health monitoring platform with separate UIs for Beneficiaries and Guardians. The entire app is hardcoded to a Whoop-style dark mode, featuring a custom animated mesh gradient background.
+The application is a full-stack health monitoring platform. A major refactor of the program feature is complete, with an interactive mission control UI and a backend that supports it. The program detail page () has been completely redesigned with hero images, pill-shaped elements, and a more modern visual layout. A critical backend bug causing a 500 error on the  endpoint has been fixed.
 
-In this session, the UI was significantly enhanced. A consistent border/shadow style was applied to dozens of cards across the beneficiary dashboard, guardian dashboard, and health page. The sleep detail page () was completely overhauled with a new, more readable V3 hypnogram chart, a radial gauge for interruptions, gradient progress bars, a comprehensive Sleep Bilan card that correlates multiple data points, and an explanatory popup for sleep metrics.
-
-The program discovery flow was also redesigned. The main program list () now features a clinical design with high-quality images. The program detail page () was updated to allow users to view program information even without the required hardware, prompting them to configure devices instead of blocking access. A critical routing issue was identified and fixed, where modifications were being made to a deprecated/unlinked programs page instead of the correct one.
+The backend for a global social notification system is functional, and test data has been seeded. The frontend toast component () is now correctly integrated into the app's layout and is successfully polling the  endpoint, but the toast itself is not yet visually appearing. The agent was about to finalize this when it received a new set of UI requests from the user.
 
 **Last working item**:
--   **Last item agent was working**: The user reported two new issues after the program page redesign:
-    1.  A critical error occurs when clicking on any program from the list.
-    2.  The standard loading animation is missing from the program list and detail pages, creating an inconsistent user experience.
-    The agent acknowledged the request and was about to begin debugging.
--   **Status**: NOT STARTED
--   **Agent Testing Done**: N
--   **Which testing method agent to use?**: both. The backend should be checked for API errors upon program click (using  on the relevant endpoint). The frontend should be tested to verify the loader is implemented correctly and the navigation error is resolved. The  tool will be needed to verify the loader's appearance.
--   **User Testing Done**: N
+-   Last item agent was working: The agent received a new, large list of specific UI change requests from the user. It had just begun exploring the relevant files (, , ) to understand the scope of these changes.
+-   Status: NOT STARTED
+-   Agent Testing Done: N
+-   Which testing method agent to use? Frontend testing agent. After implementing all the UI changes, use the testing agent to verify each point requested by the user across the different pages. Use screenshots for specific component verifications.
+-   User Testing Done: N
 
 **All Pending/In progress Issue list**:
--   **Issue 1: (P0) Error on Program Click & Missing Loader**
-    -   **Description**: Clicking a program card on the  page triggers an unhandled error, blocking access to program details. Additionally, the standard app-wide loading component is not present on the program list () or program detail () pages.
-    -   **Attempted fixes**: None. The agent was just about to investigate.
+-   **Issue 1: (P0) Implement New Batch of UI/UX Fixes**
+    -   **Description**: The user has requested a list of 6 specific UI changes related to headers, card styling, no device states, and data seeding for verification. This is the new highest priority.
+    -   **Attempted fixes**: None. The agent was in the initial exploration phase.
     -   **Next debug checklist**:
-        1.  Examine  to find the  handler for the program cards and trace the navigation logic. The error likely stems from how the program ID is passed to the dynamic route .
-        2.  Check backend logs (==> /var/log/supervisor/backend.err.log <==
-INFO:LiteLLM:
-LiteLLM completion() model= gpt-5.2; provider = openai
-[92m11:30:49 - LiteLLM:INFO[0m: utils.py:1307 - Wrapper: Completed Call, calling success_handler
-INFO:LiteLLM:Wrapper: Completed Call, calling success_handler
-[92m11:30:49 - LiteLLM:INFO[0m: utils.py:3427 - 
-LiteLLM completion() model= gpt-5.2; provider = openai
-INFO:LiteLLM:
-LiteLLM completion() model= gpt-5.2; provider = openai
-[92m11:30:53 - LiteLLM:INFO[0m: utils.py:1307 - Wrapper: Completed Call, calling success_handler
-INFO:LiteLLM:Wrapper: Completed Call, calling success_handler
-WARNING:  WatchFiles detected changes in 'routes/health_routes.py'. Reloading...
-INFO:     Shutting down
-INFO:     Waiting for application shutdown.
-INFO:     Application shutdown complete.
-INFO:     Finished server process [156]
-INFO:     Started server process [5630]
-INFO:     Waiting for application startup.
-INFO:server:Seed disabled - base propre
-INFO:     Application startup complete.
-[92m11:33:20 - LiteLLM:INFO[0m: utils.py:3427 - 
-LiteLLM completion() model= gpt-5.2; provider = openai
-INFO:LiteLLM:
-LiteLLM completion() model= gpt-5.2; provider = openai
-[92m11:33:27 - LiteLLM:INFO[0m: utils.py:1307 - Wrapper: Completed Call, calling success_handler
-INFO:LiteLLM:Wrapper: Completed Call, calling success_handler
-[92m11:33:28 - LiteLLM:INFO[0m: utils.py:3427 - 
-LiteLLM completion() model= gpt-5.2; provider = openai
-INFO:LiteLLM:
-LiteLLM completion() model= gpt-5.2; provider = openai
-[92m11:33:31 - LiteLLM:INFO[0m: utils.py:1307 - Wrapper: Completed Call, calling success_handler
-INFO:LiteLLM:Wrapper: Completed Call, calling success_handler
-[92m11:40:00 - LiteLLM:INFO[0m: utils.py:3427 - 
-LiteLLM completion() model= gpt-5.2; provider = openai
-INFO:LiteLLM:
-LiteLLM completion() model= gpt-5.2; provider = openai
-[92m11:40:05 - LiteLLM:INFO[0m: utils.py:1307 - Wrapper: Completed Call, calling success_handler
-INFO:LiteLLM:Wrapper: Completed Call, calling success_handler
-[92m11:40:05 - LiteLLM:INFO[0m: utils.py:3427 - 
-LiteLLM completion() model= gpt-5.2; provider = openai
-INFO:LiteLLM:
-LiteLLM completion() model= gpt-5.2; provider = openai
-[92m11:40:09 - LiteLLM:INFO[0m: utils.py:1307 - Wrapper: Completed Call, calling success_handler
-INFO:LiteLLM:Wrapper: Completed Call, calling success_handler
-[92m11:46:02 - LiteLLM:INFO[0m: utils.py:3427 - 
-LiteLLM completion() model= gpt-5.2; provider = openai
-INFO:LiteLLM:
-LiteLLM completion() model= gpt-5.2; provider = openai
-[92m11:46:08 - LiteLLM:INFO[0m: utils.py:1307 - Wrapper: Completed Call, calling success_handler
-INFO:LiteLLM:Wrapper: Completed Call, calling success_handler
-[92m11:46:09 - LiteLLM:INFO[0m: utils.py:3427 - 
-LiteLLM completion() model= gpt-5.2; provider = openai
-INFO:LiteLLM:
-LiteLLM completion() model= gpt-5.2; provider = openai
-[92m11:46:14 - LiteLLM:INFO[0m: utils.py:1307 - Wrapper: Completed Call, calling success_handler
-INFO:LiteLLM:Wrapper: Completed Call, calling success_handler
-[92m11:46:30 - LiteLLM:INFO[0m: utils.py:3427 - 
-LiteLLM completion() model= gpt-5.2; provider = openai
-INFO:LiteLLM:
-LiteLLM completion() model= gpt-5.2; provider = openai
-[92m11:46:38 - LiteLLM:INFO[0m: utils.py:1307 - Wrapper: Completed Call, calling success_handler
-INFO:LiteLLM:Wrapper: Completed Call, calling success_handler
-[92m11:58:10 - LiteLLM:INFO[0m: utils.py:3427 - 
-LiteLLM completion() model= gpt-5.2; provider = openai
-INFO:LiteLLM:
-LiteLLM completion() model= gpt-5.2; provider = openai
-[92m11:58:12 - LiteLLM:INFO[0m: utils.py:1307 - Wrapper: Completed Call, calling success_handler
-INFO:LiteLLM:Wrapper: Completed Call, calling success_handler
-[92m11:58:12 - LiteLLM:INFO[0m: utils.py:3427 - 
-LiteLLM completion() model= gpt-5.2; provider = openai
-INFO:LiteLLM:
-LiteLLM completion() model= gpt-5.2; provider = openai
-[92m11:58:17 - LiteLLM:INFO[0m: utils.py:1307 - Wrapper: Completed Call, calling success_handler
-INFO:LiteLLM:Wrapper: Completed Call, calling success_handler
-[92m11:58:17 - LiteLLM:INFO[0m: utils.py:3427 - 
-LiteLLM completion() model= gpt-5.2; provider = openai
-INFO:LiteLLM:
-LiteLLM completion() model= gpt-5.2; provider = openai
-[92m11:58:22 - LiteLLM:INFO[0m: utils.py:1307 - Wrapper: Completed Call, calling success_handler
-INFO:LiteLLM:Wrapper: Completed Call, calling success_handler
-[92m11:58:23 - LiteLLM:INFO[0m: utils.py:3427 - 
-LiteLLM completion() model= gpt-5.2; provider = openai
-INFO:LiteLLM:
-LiteLLM completion() model= gpt-5.2; provider = openai
-[92m11:58:28 - LiteLLM:INFO[0m: utils.py:1307 - Wrapper: Completed Call, calling success_handler
-INFO:LiteLLM:Wrapper: Completed Call, calling success_handler
-[92m12:01:49 - LiteLLM:INFO[0m: utils.py:3427 - 
-LiteLLM completion() model= gpt-5.2; provider = openai
-INFO:LiteLLM:
-LiteLLM completion() model= gpt-5.2; provider = openai
-[92m12:01:56 - LiteLLM:INFO[0m: utils.py:1307 - Wrapper: Completed Call, calling success_handler
-INFO:LiteLLM:Wrapper: Completed Call, calling success_handler
-[92m12:01:56 - LiteLLM:INFO[0m: utils.py:3427 - 
-LiteLLM completion() model= gpt-5.2; provider = openai
-INFO:LiteLLM:
-LiteLLM completion() model= gpt-5.2; provider = openai
-[92m12:02:01 - LiteLLM:INFO[0m: utils.py:1307 - Wrapper: Completed Call, calling success_handler
-INFO:LiteLLM:Wrapper: Completed Call, calling success_handler
-INFO:     Will watch for changes in these directories: ['/app/backend']
-INFO:     Uvicorn running on http://0.0.0.0:8001 (Press CTRL+C to quit)
-INFO:     Started reloader process [121] using WatchFiles
-
-==> /var/log/supervisor/backend.out.log <==
-INFO:     10.208.130.199:37426 - "GET /api/subscriptions/my HTTP/1.1" 200 OK
-INFO:     10.208.130.199:37426 - "GET /api/programs/team/invitations HTTP/1.1" 200 OK
-INFO:     10.208.130.194:53912 - "GET /api/alerts/active-with-interventions HTTP/1.1" 200 OK
-INFO:     10.208.130.199:37408 - "POST /api/nora/checkin-daily HTTP/1.1" 200 OK
-INFO:     10.208.130.199:37430 - "GET /api/health/activity-streak HTTP/1.1" 200 OK
-INFO:     10.208.130.194:53906 - "GET /api/nora/predictive-check HTTP/1.1" 200 OK
-INFO:     10.208.130.199:56958 - "GET /api/devices/scale/history HTTP/1.1" 200 OK
-INFO:     10.208.130.199:56976 - "GET /api/beneficiary/guardian-requests HTTP/1.1" 200 OK
-INFO:     10.208.130.199:56988 - "GET /api/reminders HTTP/1.1" 200 OK
-INFO:     10.208.130.199:56952 - "GET /api/devices/dashboard-summary HTTP/1.1" 200 OK
-INFO:     10.208.130.199:56976 - "GET /api/health/summary HTTP/1.1" 200 OK
-INFO:     10.208.130.199:56962 - "GET /api/guardians/my HTTP/1.1" 200 OK
-INFO:     10.208.130.199:56952 - "GET /api/subscriptions/my HTTP/1.1" 200 OK
-INFO:     10.208.130.199:56952 - "GET /api/programs/active HTTP/1.1" 200 OK
-INFO:     10.208.130.194:34448 - "GET /api/programs/catalog HTTP/1.1" 200 OK
-INFO:     10.208.130.199:56952 - "GET /api/nora/predictive-check HTTP/1.1" 200 OK
-INFO:     10.208.130.199:56952 - "GET /api/health/activity-streak HTTP/1.1" 200 OK
-INFO:     10.208.130.199:56958 - "GET /api/programs/team/invitations HTTP/1.1" 200 OK
-INFO:     10.208.130.199:57002 - "GET /api/alerts/active-with-interventions HTTP/1.1" 200 OK
-INFO:     10.208.130.194:34448 - "POST /api/nora/checkin-daily HTTP/1.1" 200 OK
-INFO:     10.208.130.194:43914 - "GET /api/beneficiary/guardian-requests HTTP/1.1" 200 OK
-INFO:     10.208.130.194:43914 - "GET /api/reminders HTTP/1.1" 200 OK
-INFO:     10.208.130.194:43930 - "GET /api/health/summary HTTP/1.1" 200 OK
-INFO:     10.208.130.194:43938 - "GET /api/devices/scale/history HTTP/1.1" 200 OK
-INFO:     10.208.130.199:53802 - "GET /api/devices/dashboard-summary HTTP/1.1" 200 OK
-INFO:     10.208.130.199:53792 - "GET /api/guardians/my HTTP/1.1" 200 OK
-INFO:     10.208.130.194:43938 - "GET /api/programs/active HTTP/1.1" 200 OK
-INFO:     10.208.130.199:53802 - "GET /api/subscriptions/my HTTP/1.1" 200 OK
-INFO:     10.208.130.199:53792 - "GET /api/programs/catalog HTTP/1.1" 200 OK
-INFO:     10.208.130.199:53792 - "POST /api/nora/checkin-daily HTTP/1.1" 200 OK
-INFO:     10.208.130.199:53802 - "GET /api/health/activity-streak HTTP/1.1" 200 OK
-INFO:     10.208.130.194:43938 - "GET /api/alerts/active-with-interventions HTTP/1.1" 200 OK
-INFO:     10.208.130.199:53816 - "GET /api/programs/team/invitations HTTP/1.1" 200 OK
-INFO:     10.208.130.194:43930 - "GET /api/nora/predictive-check HTTP/1.1" 200 OK
-INFO:     10.208.130.194:60904 - "GET /api/devices/dashboard-summary HTTP/1.1" 200 OK
-INFO:     10.208.130.194:60904 - "GET /api/devices/scale/history HTTP/1.1" 200 OK
-INFO:     10.208.130.194:60908 - "GET /api/health/summary HTTP/1.1" 200 OK
-INFO:     10.208.130.194:60904 - "GET /api/beneficiary/guardian-requests HTTP/1.1" 200 OK
-INFO:     10.208.130.199:44436 - "GET /api/guardians/my HTTP/1.1" 200 OK
-INFO:     10.208.130.194:60908 - "GET /api/reminders HTTP/1.1" 200 OK
-INFO:     10.208.130.199:44436 - "GET /api/programs/active HTTP/1.1" 200 OK
-INFO:     10.208.130.194:60908 - "GET /api/programs/catalog HTTP/1.1" 200 OK
-INFO:     10.208.130.199:44436 - "GET /api/subscriptions/my HTTP/1.1" 200 OK
-INFO:     10.208.130.194:60908 - "GET /api/programs/team/invitations HTTP/1.1" 200 OK
-INFO:     10.208.130.194:60904 - "POST /api/nora/checkin-daily HTTP/1.1" 200 OK
-INFO:     10.208.130.199:44436 - "GET /api/nora/predictive-check HTTP/1.1" 200 OK
-INFO:     10.208.130.194:60908 - "GET /api/health/activity-streak HTTP/1.1" 200 OK
-INFO:     10.208.130.194:60918 - "GET /api/alerts/active-with-interventions HTTP/1.1" 200 OK
-INFO:     10.208.130.194:60910 - "GET /api/devices/scale/history HTTP/1.1" 200 OK
-INFO:     10.208.130.199:59120 - "GET /api/health/summary HTTP/1.1" 200 OK
-INFO:     10.208.130.194:60910 - "GET /api/beneficiary/guardian-requests HTTP/1.1" 200 OK
-INFO:     10.208.130.194:57894 - "GET /api/devices/dashboard-summary HTTP/1.1" 200 OK
-INFO:     10.208.130.199:59120 - "GET /api/reminders HTTP/1.1" 200 OK
-INFO:     10.208.130.199:59132 - "GET /api/guardians/my HTTP/1.1" 200 OK
-INFO:     10.208.130.194:60910 - "GET /api/programs/active HTTP/1.1" 200 OK
-INFO:     10.208.130.194:57894 - "GET /api/programs/catalog HTTP/1.1" 200 OK
-INFO:     10.208.130.194:60910 - "GET /api/subscriptions/my HTTP/1.1" 200 OK
-INFO:     10.208.130.199:59120 - "GET /api/programs/team/invitations HTTP/1.1" 200 OK
-INFO:     10.208.130.194:57894 - "GET /api/nora/predictive-check HTTP/1.1" 200 OK
-INFO:     10.208.130.194:57894 - "GET /api/alerts/active-with-interventions HTTP/1.1" 200 OK
-INFO:     10.208.130.199:59120 - "POST /api/nora/checkin-daily HTTP/1.1" 200 OK
-INFO:     10.208.130.199:59132 - "GET /api/health/activity-streak HTTP/1.1" 200 OK
-INFO:     10.208.130.194:57904 - "GET /api/health/summary HTTP/1.1" 200 OK
-INFO:     10.208.130.199:33314 - "GET /api/devices/scale/history HTTP/1.1" 200 OK
-INFO:     10.208.130.194:57904 - "GET /api/reminders HTTP/1.1" 200 OK
-INFO:     10.208.130.199:33334 - "GET /api/beneficiary/guardian-requests HTTP/1.1" 200 OK
-INFO:     10.208.130.199:33312 - "GET /api/devices/dashboard-summary HTTP/1.1" 200 OK
-INFO:     10.208.130.199:33322 - "GET /api/guardians/my HTTP/1.1" 200 OK
-INFO:     10.208.130.194:57904 - "GET /api/subscriptions/my HTTP/1.1" 200 OK
-INFO:     10.208.130.199:33334 - "GET /api/programs/active HTTP/1.1" 200 OK
-INFO:     10.208.130.194:57904 - "GET /api/programs/catalog HTTP/1.1" 200 OK
-INFO:     10.208.130.199:33334 - "POST /api/nora/checkin-daily HTTP/1.1" 200 OK
-INFO:     10.208.130.194:57904 - "GET /api/health/activity-streak HTTP/1.1" 200 OK
-INFO:     10.208.130.199:33314 - "GET /api/alerts/active-with-interventions HTTP/1.1" 200 OK
-INFO:     10.208.130.199:33346 - "GET /api/programs/team/invitations HTTP/1.1" 200 OK
-INFO:     10.208.130.194:43390 - "GET /api/nora/predictive-check HTTP/1.1" 200 OK
-INFO:     10.208.130.194:60366 - "GET /api/reminders HTTP/1.1" 200 OK
-INFO:     10.208.130.199:54036 - "GET /api/health/summary HTTP/1.1" 200 OK
-INFO:     10.208.130.199:54038 - "GET /api/devices/scale/history HTTP/1.1" 200 OK
-INFO:     10.208.130.199:54042 - "GET /api/beneficiary/guardian-requests HTTP/1.1" 200 OK
-INFO:     10.208.130.194:60372 - "GET /api/devices/dashboard-summary HTTP/1.1" 200 OK
-INFO:     10.208.130.199:54056 - "GET /api/guardians/my HTTP/1.1" 200 OK
-INFO:     10.208.130.199:54038 - "GET /api/programs/catalog HTTP/1.1" 200 OK
-INFO:     10.208.130.199:54038 - "GET /api/programs/active HTTP/1.1" 200 OK
-INFO:     10.208.130.194:60372 - "GET /api/subscriptions/my HTTP/1.1" 200 OK
-INFO:     10.208.130.194:60372 - "POST /api/nora/checkin-daily HTTP/1.1" 200 OK
-INFO:     10.208.130.194:60366 - "GET /api/programs/team/invitations HTTP/1.1" 200 OK
-INFO:     10.208.130.194:60388 - "GET /api/health/activity-streak HTTP/1.1" 200 OK
-INFO:     10.208.130.199:54038 - "GET /api/alerts/active-with-interventions HTTP/1.1" 200 OK
-INFO:     10.208.130.194:60384 - "GET /api/nora/predictive-check HTTP/1.1" 200 OK
-INFO:     10.208.130.194:51988 - "GET /api/auth/me HTTP/1.1" 200 OK
-INFO:     10.208.130.194:51994 - "GET /api/programs/active HTTP/1.1" 200 OK
-INFO:     10.208.130.194:52006 - "GET /api/programs/catalog HTTP/1.1" 200 OK
-INFO:     10.208.130.194:51988 - "GET /api/devices/dashboard-summary HTTP/1.1" 200 OK
-INFO:     10.208.130.199:48970 - "GET /api/programs/detail/prog-sleep-21 HTTP/1.1" 200 OK
-INFO:     10.208.130.199:48970 - "GET /api/programs/active HTTP/1.1" 200 OK
-INFO:     10.208.130.199:39914 - "GET /api/auth/me HTTP/1.1" 200 OK
-INFO:     10.208.130.194:52624 - "GET /api/programs/active HTTP/1.1" 200 OK
-INFO:     10.208.130.199:39914 - "GET /api/devices/dashboard-summary HTTP/1.1" 200 OK
-INFO:     10.208.130.194:52624 - "GET /api/programs/catalog HTTP/1.1" 200 OK) and the browser console at the moment of the click to identify the root cause (e.g., malformed URL, API error, frontend exception).
-        3.  To add the loader, find the existing implementation in  (Dashboard) or .
-        4.  Replicate the loader component and its associated loading state logic in  and .
-    -   **Why fix this issue and what will be achieved with the fix?**: This is a critical bug blocking a core user flow. Fixing it will restore the ability for users to view and start programs. Adding the loader will improve UI consistency and perceived performance.
+        1.  Address each of the 6 points from the user's last message sequentially.
+        2.  For styling changes (borders, shadows), locate the components (, , etc.) and apply the necessary Tailwind CSS classes.
+        3.  For the no device state, create a single, reusable component for the empty state and use it on both the dashboard () and the health page (). This component should contain the new promotional cards for devices.
+        4.  For data seeding, re-run all necessary data simulation scripts to repopulate the database.
+        5.  For the teleconsultation page header, modify the layout file for that screen to remove the fixed header.
+    -   **Why fix this issue and what will be achieved with the fix?**: To address the user's direct feedback and improve UI consistency and user experience.
     -   **Status**: NOT STARTED
     -   **Is recurring issue?**: N
-    -   **Should Test frontend/backend/both after fix?**: both
+    -   **Should Test frontend/backend/both after fix?**: Frontend
+    -   **Blocked on other issue**: None
+
+-   **Issue 2: (P1) Global Social Notification Toast is Not Visually Appearing**
+    -   **Description**: The  component is fetching data correctly from the backend API, but no toast notification is visible on the screen. The problem is likely related to styling (e.g., z-index, position, opacity, or colors).
+    -   **Attempted fixes**: The structural issues were fixed by correctly placing the  in . The data flow has been confirmed via backend logs showing successful API calls.
+    -   **Next debug checklist**:
+        1.  Inspect the  component.
+        2.  Temporarily give it a bright, solid background color and a fixed  to ensure it's not hidden or transparent.
+        3.  Check the browser developer console for any CSS-related errors.
+        4.  Simplify the component to render a static, always-visible box before re-introducing the data and animation logic.
+    -   **Why fix this issue and what will be achieved with the fix?**: This is the last part of a major feature. Fixing it will complete the social engagement loop for team programs.
+    -   **Status**: IN PROGRESS
+    -   **Is recurring issue?**: N
+    -   **Should Test frontend/backend/both after fix?**: Frontend
     -   **Blocked on other issue**: None
 
 **In progress Task List**:
@@ -259,30 +68,18 @@ INFO:     10.208.130.194:52624 - "GET /api/programs/catalog HTTP/1.1" 200 OK) an
 -   Vivoo Urine Test Integration.
 -   Health Correlations UI.
 -   Prepare technical documentation for the glucose algorithm for a patent application.
+-   Refactor  to be more generic.
 
 **Completed work in this session**
--   **Sleep Detail Page Overhaul ()**:
-    -   Redesigned the sleep hypnogram chart into a V3 version with larger, more readable labels, thicker bars with glow effects, and a responsive layout ().
-    -   Simulated 7 days of sleep data directly in MongoDB to populate the new UI components.
-    -   Fixed the  endpoint to correctly return .
-    -   Created a comprehensive Bilan du sommeil card that calculates and correlates sleep debt, recovery score, and sleep structure (deep, light, paradoxical).
-    -   Replaced a bar chart for interruptions with a visually appealing radial gauge ().
-    -   Upgraded all progress bars (quality, sleep debt) on the page to use premium gradient styling.
-    -   Added a glass-style popup to explain different sleep metrics, and renamed REM to Paradoxal for clarity in French.
-    -   Standardized the Nora AI analysis card to use the shared  component, ensuring consistent styling and animations.
--   **Program Flow Redesign & Fix**:
-    -   Diagnosed and fixed a major routing issue where the wrong, unlinked programs page () was being modified. All changes were correctly migrated to .
-    -   Completely redesigned the program list () with a premium, clinical aesthetic, using new AI-generated images, dark cards, and info pills.
-    -   Modified the program detail page () to allow access without a configured device, instead showing a popup to prompt device setup.
-    -   Applied the standard animated background () to the devices, program list, and program detail pages.
--   **UI Consistency Polish**:
-    -   Applied a consistent white border and shadow effect to numerous cards across the Guardian Dashboard (), Beneficiary Dashboard (Weight Objective, Teleconsultation, Alerts), and Health page (Activity, Sleep, Weight, Nutrition, Glycemia).
-    -   Fixed invisible separators on the beneficiary dashboard cards (Reminders, Guardians, Devices) by changing their color to be visible on the dark background.
--   **System Maintenance**:
-    -   Frequently cleared the Metro bundler cache and restarted the frontend to apply visual changes correctly.
+-   **Program Detail Page Redesign**: Completely overhauled  with a modern, visual design including hero images, stats, and pill-shaped elements.
+-   **Backend Bug Fix**: Fixed a  crash in the  endpoint in .
+-   **Program Data Enhancement**: Added a  field to programs in the backend () and updated the program catalog () to display these images.
+-   **Toast Notification Progress**:
+    -   Created a  script to seed test data for team activities.
+    -   Fixed the component hierarchy by correctly rendering the  in , which resolved the structural bug and enabled API calls.
 
 **Earlier issues found/mentioned but not fixed**
--   None.
+-   The refactoring of  to be more generic remains a low-priority pending task.
 
 **Known issue recurrence from previous fork**
 -   None.
@@ -291,64 +88,54 @@ INFO:     10.208.130.194:52624 - "GET /api/programs/catalog HTTP/1.1" 200 OK) an
 
 
 **Key Technical Concepts**
--   **Iterative UI Refinement**: The session was characterized by rapid, feedback-driven UI changes, especially on the sleep detail and program pages.
--   **Complex SVG Charting**: Created advanced, custom data visualizations from scratch using , including a multi-layered hypnogram () and a radial gauge ().
--   **Data Simulation for UI Dev**: Manually inserted mock sleep data into the MongoDB database via a  script to facilitate frontend development and testing in the absence of real device data.
--   **Routing & File Structure Debugging**: Identified and resolved a critical issue where development was being done on a deprecated, unlinked file () instead of the correct, active file (), highlighting the importance of verifying navigation paths.
--   **Conditional Logic for UX**: Modified the program detail page to show a device configuration popup instead of blocking access, improving the user onboarding flow.
--   **Cache Invalidation**: Regularly used  and Error: restart requires a process name
-restart <name>		Restart a process
-restart <gname>:*	Restart all processes in a group
-restart <name> <name>	Restart multiple processes or groups
-restart all		Restart all processes
-Note: restart does not reread config files. For that, see reread and update. to overcome aggressive caching and force UI updates.
+-   **Backend-Driven UI**: The program experience is controlled by the backend, which now also provides  URLs for a richer frontend.
+-   **Proactive UI Consistency**: The agent improved consistency by updating the program catalog cards to use the new  field, even though it wasn't explicitly asked for.
+-   **Iterative Debugging**: The agent successfully diagnosed and fixed a complex frontend issue by first resolving the structural/data-flow problem (component not rendering, no API calls) and then isolating the remaining visual/styling bug.
+-   **Data Seeding for Development**: Created dedicated scripts (, ) to populate the database with necessary data for developing and testing new features.
 
 **key DB schema**
--   **sleep_data**: Interacted with this collection to read and write test data. Key fields used: , Tue Mar 17 12:11:49 UTC 2026, , , , , , , , and .
+-   : NEW collection, renamed from . Populated with test data.
+-   : MODIFIED (in seed data) to include a  field.
 
 **changes in tech stack**
 -   None.
 
 **All files of reference**
--   : The main program list page. **This is the file to edit for program list changes.**
--   : The sleep detail page.
--   : The program detail page.
--   : The custom sleep chart component.
--   : Contains the backend API logic.
+-   : User dashboard, needs UI changes.
+-   : Health page, needs UI changes.
+-   : Profile page, needs UI changes.
+-   : The social notification component (styling bug).
+-   : The newly redesigned program presentation page.
+-   : Contains the recently fixed  endpoint.
 
 **Areas that need refactoring**:
--   The file structure for programs is confusing. There is an unused page at  and a route folder at . The actual program list is . This should be cleaned up to avoid future errors. The file  should be deleted.
--   The  component could still benefit from being refactored to be more generic, as mentioned in the previous handoff.
+-   : The styling needs to be fixed to make the component visible.
+-   : Recurring low-priority task to make the component more generic.
 
 **key api endpoints**
--   : Modified to include the  field.
--   : Used to fetch 7-day sleep history for cumulative calculations.
+-   : **FIXED**. No longer returns a 500 error.
+-   : Confirmed to be working and polled by the frontend.
 
 **Critical Info for New Agent**
--   **Routing Alert**: The main Programs page linked in the navbar is . **DO NOT** edit  as it is an unlinked, deprecated page that caused significant confusion in the last session.
--   **User is Highly Visual**: The user provides rapid, iterative feedback based on what they see. Use screenshots frequently to confirm changes. The desired aesthetic is premium, clinical, Whoop-style dark mode.
--   **Aggressive Caching**: The Metro bundler cache is very aggressive. If a UI change does not appear after saving, your first step should be to clear the cache () and restart the frontend (frontend: ERROR (no such process)
-frontend: ERROR (no such process)).
--   **Data is Simulated**: Much of the data, especially for sleep, is manually seeded into the database for testing. Do not assume data is coming from a live device.
+-   **New User Request is Priority #1**: Your immediate focus must be the list of 6 UI/UX changes from the user's latest message. Do not work on the notification toast until this list is complete.
+-   **Data Seeding is Required**: Part of the user's request is to re-seed all health data for their review. Make sure to run the appropriate scripts.
+-   **Toast is Almost Done**: The notification toast issue is no longer a structural or data-flow problem. It's a visual/CSS bug. The backend API is being called successfully. Once you finish the user's UI list, this should be a straightforward styling fix.
 
 **documents and test reports created in this job**
--   None.
+-   : Updated with the completion of the program page redesign.
+-   : Test report from the testing agent that identified the backend crash.
 
 **Last 10 User Messages and any pending HUMAN messages**
-1.  **User [457]**: Reports an error when clicking on a program and requests the standard app loader be added to all pages. (Status: **NOT STARTED**)
-2.  **User [426]**: Asked if there were duplicate pages, as their requested changes to the programs page weren't showing up. (Status: **RESOLVED**)
-3.  **User [422]**: clear the cache (Status: Completed)
-4.  **User [369]**: Requested a major refactor of the devices and programs pages (new backgrounds, clinical images for programs, non-blocking access to program details). (Status: **RESOLVED**, but introduced the bug from message 457)
-5.  **User [350]**: Requested white separator lines inside dashboard cards. (Status: **RESOLVED**)
-6.  **User [333]**: Disliked the interruptions bar chart and asked for something better, and requested premium gradients for all progress bars. (Status: **RESOLVED**)
-7.  **User [318]**: clear the cache and put interruptions in the simulation so I can see the result (Status: **RESOLVED**)
-8.  **User [291]**: Asked what REM means and requested an explanatory glass-style popup on the sleep page. (Status: **RESOLVED**)
-9.  **User [284]**: Requested a visual graph for sleep interruptions. (Status: **RESOLVED**, then superseded by message 333)
-10. **User [263]**: Asked how sleep debt is calculated and requested that all sleep data be properly correlated. (Status: **RESOLVED**)
+1.  **User [148]**: **(PENDING - HIGHEST PRIORITY)** Provided a detailed list of 6 new UI/UX change requests concerning headers, card styles, empty states, and data seeding.
+2.  **User [5]**: Gave the Go! signal and requested a visual redesign of the program presentation pages with images, white text, and pill shapes. (Status: **RESOLVED**)
+... (previous messages are resolved or superseded)
 
 **Project Health Check:**
--   **Broken**: The program navigation is broken. Clicking a program card from the list results in an error, which is a critical regression.
--   **Mocked**: Sleep data is entirely simulated by inserting records directly into MongoDB. Biological Age and Glycemia Estimation are also likely still using mocked data.
+-   **Broken**:
+    -   UI inconsistencies as reported by the user (mismatched backgrounds, missing card styles).
+    -   The no device connected state provides a poor user experience.
+    -   The Social Notification Toast is not visually rendering.
+-   **Mocked**: All data related to team programs, user progress, leaderboards, health metrics, and social activities is simulated via backend scripts.
 
 **3rd Party Integrations**
 -   OpenAI GPT-5.2 (via Emergent LLM Key)
@@ -357,10 +144,10 @@ frontend: ERROR (no such process)).
 -   V6 Bracelet Manufacturer (Pending)
 
 **Testing status**
--   **Testing agent used after significant changes**: NO
+-   **Testing agent used after significant changes**: YES
 -   **Troubleshoot agent used after agent stuck in loop**: NO
 -   **Test files created**: None
--   **Known regressions**: Yes, the ability to navigate from the program list to the program detail page is broken.
+-   **Known regressions**: None.
 
 **Credentials to test flow:**
 | Role | Email / Phone | Password |
@@ -369,5 +156,4 @@ frontend: ERROR (no such process)).
 | **Guardian (Marie)** |  |  |
 
 **What agent forgot to execute**
--   The agent was interrupted before it could begin working on the user's latest request to fix the program-click error and add loaders.
--   The suggested refactoring of  from the previous fork's summary has not been addressed.</analysis>
+-   The agent was interrupted by the user's new request before it could fully test and verify the visual appearance of the social notification toast. The task is not forgotten, but its priority was superseded.</analysis>

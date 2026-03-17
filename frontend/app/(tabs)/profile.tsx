@@ -353,7 +353,7 @@ const BG_PROFILE = 'https://customer-assets.emergentagent.com/job_9950a869-9328-
 
           {/* Subscription card — beneficiary only */}
           {isBen && subData?.has_subscription && subData?.subscription_type === 'care' && (
-            <div onClick={() => setShowCareDetail(true)} data-testid="care-subscription-card" style={{ position: 'relative', overflow: 'hidden', borderRadius: 22, height: 90, marginBottom: 14, cursor: 'pointer', transition: 'transform 0.15s' } as any}
+            <div onClick={() => setShowCareDetail(true)} data-testid="care-subscription-card" style={{ position: 'relative', overflow: 'hidden', borderRadius: 22, height: 90, marginBottom: 14, cursor: 'pointer', transition: 'transform 0.15s', border: '1.5px solid rgba(255,255,255,0.18)', boxShadow: '0 4px 24px rgba(0,0,0,0.4), 0 0 0 1px rgba(255,255,255,0.08)' } as any}
               onMouseEnter={(e: any) => { e.currentTarget.style.transform = 'scale(1.01)'; }}
               onMouseLeave={(e: any) => { e.currentTarget.style.transform = 'scale(1)'; }}>
               <img src="https://customer-assets.emergentagent.com/job_8afdc991-0ab2-4687-a2a5-438b9a5f0711/artifacts/v6obzpez_ChatGPT%20Image%2018%20f%C3%A9vr.%202026%2C%2012_28_20.png" alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', borderRadius: 22 } as any} />
