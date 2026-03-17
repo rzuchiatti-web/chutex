@@ -12,11 +12,12 @@ export function DoctorCard({ onPress }: { onPress: () => void }) {
         borderRadius: 22, overflow: 'hidden', position: 'relative', cursor: 'pointer',
         minHeight: 170, display: 'flex', alignItems: 'flex-end',
         marginBottom: 14,
-        boxShadow: '0 12px 28px rgba(0,0,0,.22)',
+        border: '1.5px solid rgba(255,255,255,0.25)',
+        boxShadow: '0 0 30px rgba(255,255,255,0.08), 0 0 60px rgba(167,139,250,0.06), 0 8px 40px rgba(0,0,0,0.5)',
         transition: 'transform 0.28s cubic-bezier(.22,.61,.36,1), box-shadow 0.28s cubic-bezier(.22,.61,.36,1)',
       } as any}
-        onMouseEnter={(e: any) => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 18px 36px rgba(0,0,0,.30)'; }}
-        onMouseLeave={(e: any) => { e.currentTarget.style.transform = ''; e.currentTarget.style.boxShadow = '0 12px 28px rgba(0,0,0,.22)'; }}
+        onMouseEnter={(e: any) => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 0 36px rgba(255,255,255,0.1), 0 0 70px rgba(167,139,250,0.08), 0 12px 48px rgba(0,0,0,0.6)'; }}
+        onMouseLeave={(e: any) => { e.currentTarget.style.transform = ''; e.currentTarget.style.boxShadow = '0 0 30px rgba(255,255,255,0.08), 0 0 60px rgba(167,139,250,0.06), 0 8px 40px rgba(0,0,0,0.5)'; }}
       >
         {/* Blue background image */}
         <img src={BG_BLUE} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 } as any} />
