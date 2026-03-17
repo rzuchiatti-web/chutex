@@ -9,6 +9,14 @@ import { BG_IMAGES } from '../../src/components/dashboard/constants';
 import Loader from '../../src/components/Loader';
 import AnimatedDarkBg from '../../src/components/AnimatedDarkBg';
 
+const PROG_IMAGES: Record<string, string> = {
+  sommeil: 'https://static.prod-images.emergentagent.com/jobs/2f205700-5cab-4634-9bb6-d20327bb5e5e/images/70f74062050eb73f37e4af1bc825ec64a37ff59e36dbd21dddaad395538ae8c2.png',
+  cardiovasculaire: 'https://static.prod-images.emergentagent.com/jobs/2f205700-5cab-4634-9bb6-d20327bb5e5e/images/d66cc24bb801dd5a49a3b5c1b9c86a9907b695f586fe2fe988aec823410f86d8.png',
+  nutrition: 'https://static.prod-images.emergentagent.com/jobs/2f205700-5cab-4634-9bb6-d20327bb5e5e/images/e4a68ff7d7a65b968fac91bde8737ab89ce4e0a2a9c049a00137f9978bb7b4c3.png',
+  mobilite: 'https://static.prod-images.emergentagent.com/jobs/2f205700-5cab-4634-9bb6-d20327bb5e5e/images/a82a3cb593d5dd34df75877948b00f683eb3753126a74b7a620bff3ac8dff8ae.png',
+  stress: 'https://static.prod-images.emergentagent.com/jobs/2f205700-5cab-4634-9bb6-d20327bb5e5e/images/a82a3cb593d5dd34df75877948b00f683eb3753126a74b7a620bff3ac8dff8ae.png',
+};
+
 export default function ProgramsTab() {
   const { token } = useAuth();
   const router = useRouter();
@@ -72,47 +80,39 @@ export default function ProgramsTab() {
           {/* CATALOGUE */}
           {!singleProgramLock ? (
             <>
-              {!hasDevices.any && (
-                <div style={{ padding: '14px 16px', borderRadius: 16, background: 'rgba(245,158,11,0.06)', border: '1px solid rgba(245,158,11,0.15)', marginBottom: 14, display: 'flex', alignItems: 'center', gap: 12, ...glass } as any}>
-                  <i className="ri-bluetooth-connect-line" style={{ fontSize: 18, color: '#F59E0B' }} />
-                  <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', lineHeight: 1.4 }}>Connectez un appareil pour demarrer un programme.</div>
-                </div>
-              )}
-
+              <style dangerouslySetInnerHTML={{ __html: `@keyframes progSlideUp { from { opacity:0; transform:translateY(16px); } to { opacity:1; transform:translateY(0); } }` }} />
               {loading && <Loader />}
 
-              {remainingPrograms.map((p: any) => {
-                const req = p.requires || 'any';
-                const hasRequired = req === 'any' ? hasDevices.any : req === 'bracelet' ? hasDevices.bracelet : req === 'scale' ? hasDevices.scale : hasDevices.any;
-                const deviceMissing = !hasRequired;
+              {remainingPrograms.map((p: any, idx: number) => {
+                const img = PROG_IMAGES[p.category] || PROG_IMAGES.mobilite;
                 return (
                   <div key={p.id} data-testid={`catalog-${p.id}`}
-                    onClick={() => {
-                      if (deviceMissing) { router.push('/(tabs)/devices' as any); return; }
-                      router.push({ pathname: '/program-detail' as any, params: { id: p.id } });
-                    }}
-                    style={{ padding: '18px 20px', borderRadius: 22, position: 'relative', marginBottom: 10, cursor: 'pointer', opacity: deviceMissing ? 0.6 : 1, border: `1px solid ${p.color}15`, background: 'rgba(255,255,255,0.04)', ...glass, transition: 'transform 180ms' } as any}
-                    onMouseEnter={(e: any) => { e.currentTarget.style.transform = 'translateY(-2px)'; }}
-                    onMouseLeave={(e: any) => { e.currentTarget.style.transform = ''; }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 10 } as any}>
-                      <div style={{ width: 48, height: 48, borderRadius: 16, background: `${p.color}12`, border: `1px solid ${p.color}22`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}>
-                        <i className={p.icon} style={{ fontSize: 24, color: p.color }} />
+                    onClick={() => router.push({ pathname: '/program-detail' as any, params: { id: p.id } })}
+                    style={{ borderRadius: 22, overflow: 'hidden', marginBottom: 14, cursor: 'pointer', border: '1.5px solid rgba(255,255,255,0.12)', background: '#1a1a1e', transition: 'transform 200ms, box-shadow 200ms', animation: `progSlideUp 400ms ease ${idx * 60}ms both` } as any}
+                    onMouseEnter={(e: any) => { e.currentTarget.style.transform = 'translateY(-3px)'; e.currentTarget.style.boxShadow = '0 0 30px rgba(255,255,255,0.1), 0 12px 40px rgba(0,0,0,0.5)'; }}
+                    onMouseLeave={(e: any) => { e.currentTarget.style.transform = ''; e.currentTarget.style.boxShadow = ''; }}>
+                    {/* Image banner */}
+                    <div style={{ position: 'relative', height: 120, overflow: 'hidden' } as any}>
+                      <img src={img} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' } as any} />
+                      <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(180deg, transparent 30%, rgba(26,26,30,0.85) 80%, #1a1a1e 100%)' } as any} />
+                      <div style={{ position: 'absolute', top: 12, left: 12, padding: '5px 12px', borderRadius: 999, background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)', border: '1px solid rgba(255,255,255,0.1)', fontSize: 10, fontWeight: 700, color: p.color || '#A78BFA', textTransform: 'uppercase', letterSpacing: 0.5 } as any}>
+                        <i className={p.icon} style={{ fontSize: 11, marginRight: 5 }} />{p.category || 'Sante'}
                       </div>
-                      <div style={{ flex: 1 } as any}>
-                        <div style={{ fontSize: 15, fontWeight: 800, color: '#FFF', marginBottom: 2 }}>{p.title}</div>
-                        <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)' }}>{p.subtitle}</div>
+                      <div style={{ position: 'absolute', top: 12, right: 12, padding: '5px 10px', borderRadius: 999, background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)', border: '1px solid rgba(255,255,255,0.1)', fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.6)' } as any}>
+                        {p.duration_days}j
                       </div>
-                      <i className="ri-arrow-right-s-line" style={{ fontSize: 20, color: 'rgba(255,255,255,0.15)' }} />
                     </div>
-                    <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' } as any}>
-                      <span style={{ padding: '4px 10px', borderRadius: 99, background: `${p.color}10`, border: `1px solid ${p.color}18`, fontSize: 10, fontWeight: 700, color: p.color }}>{p.duration_days}j</span>
-                      {p.difficulty && <span style={{ padding: '4px 10px', borderRadius: 99, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', fontSize: 10, fontWeight: 600, color: 'rgba(255,255,255,0.4)' }}>{p.difficulty}</span>}
-                      {p.category && <span style={{ padding: '4px 10px', borderRadius: 99, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.06)', fontSize: 10, fontWeight: 600, color: 'rgba(255,255,255,0.35)', textTransform: 'capitalize' }}>{p.category}</span>}
-                      {deviceMissing && (
-                        <span style={{ padding: '4px 10px', borderRadius: 99, background: 'rgba(245,158,11,0.08)', border: '1px solid rgba(245,158,11,0.2)', fontSize: 10, fontWeight: 700, color: '#F59E0B', display: 'flex', alignItems: 'center', gap: 4 } as any}>
-                          <i className="ri-bluetooth-connect-line" style={{ fontSize: 10 }} />{p.requires_label || 'Appareil requis'}
-                        </span>
-                      )}
+                    {/* Content */}
+                    <div style={{ padding: '14px 18px 18px' } as any}>
+                      <div style={{ fontSize: 16, fontWeight: 900, color: '#FFF', marginBottom: 4, letterSpacing: -0.3 }}>{p.title}</div>
+                      <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.35)', lineHeight: 1.5, marginBottom: 12 }}>{p.subtitle}</div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 8 } as any}>
+                        {p.difficulty && <span style={{ padding: '4px 10px', borderRadius: 99, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', fontSize: 10, fontWeight: 600, color: 'rgba(255,255,255,0.35)' }}>{p.difficulty}</span>}
+                        {(p.tracked_metrics || []).slice(0, 2).map((m: string, i: number) => (
+                          <span key={i} style={{ padding: '4px 8px', borderRadius: 99, background: `${p.color || '#A78BFA'}08`, border: `1px solid ${p.color || '#A78BFA'}18`, fontSize: 9, fontWeight: 600, color: p.color || '#A78BFA' }}>{m.replace(/_/g, ' ')}</span>
+                        ))}
+                        <i className="ri-arrow-right-s-line" style={{ marginLeft: 'auto', fontSize: 18, color: 'rgba(255,255,255,0.12)' }} />
+                      </div>
                     </div>
                   </div>
                 );
