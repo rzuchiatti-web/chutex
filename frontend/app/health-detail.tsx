@@ -259,47 +259,56 @@ export default function HealthDetailScreen() {
                   <span style={{ fontSize: 14, fontWeight: 800, color: '#FFF' }}>Qualite du sommeil</span>
                   <span style={{ marginLeft: 'auto', padding: '3px 10px', borderRadius: 999, background: nightQuality >= 80 ? 'rgba(16,185,129,0.12)' : nightQuality >= 60 ? 'rgba(245,158,11,0.12)' : 'rgba(239,68,68,0.12)', fontSize: 10, fontWeight: 700, color: nightQuality >= 80 ? '#10B981' : nightQuality >= 60 ? '#F59E0B' : '#EF4444' }}>{nightQuality}%</span>
                 </div>
-                <div style={{ height: 10, borderRadius: 5, background: 'rgba(255,255,255,0.06)', overflow: 'hidden', position: 'relative', marginBottom: 6 } as any}>
-                  <div style={{ position: 'absolute', inset: 0, borderRadius: 5, background: 'linear-gradient(90deg, #EF4444 0%, #F59E0B 50%, #10B981 100%)', opacity: 0.12 } as any} />
-                  <div style={{ height: 10, borderRadius: 5, width: `${nightQuality}%`, background: nightQuality >= 80 ? '#10B981' : nightQuality >= 60 ? 'linear-gradient(90deg, #F59E0B, #10B981)' : 'linear-gradient(90deg, #EF4444, #F59E0B)', transition: 'width 1s ease', boxShadow: `0 0 12px ${nightQuality >= 80 ? 'rgba(16,185,129,0.4)' : nightQuality >= 60 ? 'rgba(245,158,11,0.4)' : 'rgba(239,68,68,0.4)'}` } as any} />
+                <div style={{ height: 12, borderRadius: 6, background: 'rgba(255,255,255,0.04)', overflow: 'hidden', position: 'relative', marginBottom: 6 } as any}>
+                  <div style={{ position: 'absolute', inset: 0, borderRadius: 6, background: 'linear-gradient(90deg, rgba(239,68,68,0.06) 0%, rgba(245,158,11,0.06) 50%, rgba(16,185,129,0.06) 100%)' } as any} />
+                  <div style={{ height: 12, borderRadius: 6, width: `${nightQuality}%`, background: 'linear-gradient(90deg, #EF4444, #F59E0B 40%, #10B981 80%)', transition: 'width 1.2s cubic-bezier(.22,.61,.36,1)', boxShadow: '0 0 16px rgba(16,185,129,0.3), inset 0 1px 0 rgba(255,255,255,0.15)' } as any} />
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between' } as any}>
-                  <span style={{ fontSize: 9, color: 'rgba(239,68,68,0.5)' }}>Mauvais</span>
-                  <span style={{ fontSize: 9, color: 'rgba(245,158,11,0.5)' }}>Correct</span>
-                  <span style={{ fontSize: 9, color: 'rgba(16,185,129,0.5)' }}>Excellent</span>
+                  <span style={{ fontSize: 9, color: 'rgba(239,68,68,0.4)' }}>Mauvais</span>
+                  <span style={{ fontSize: 9, color: 'rgba(245,158,11,0.4)' }}>Correct</span>
+                  <span style={{ fontSize: 9, color: 'rgba(16,185,129,0.4)' }}>Excellent</span>
                 </div>
               </div>
-              {/* Interruptions — mini bar chart from 7-day history */}
+              {/* Interruptions — radial gauge */}
               <div style={{ padding: '14px 16px', borderTop: '1px solid rgba(255,255,255,0.04)' } as any}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 } as any}>
-                  <i className="ri-alarm-line" style={{ fontSize: 16, color: nightInterruptions <= 2 ? '#10B981' : '#F59E0B' }} />
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 14 } as any}>
+                  <i className="ri-alarm-line" style={{ fontSize: 16, color: nightInterruptions <= 2 ? '#10B981' : nightInterruptions <= 4 ? '#F59E0B' : '#EF4444' }} />
                   <span style={{ fontSize: 14, fontWeight: 800, color: '#FFF' }}>Interruptions</span>
-                  <span style={{ marginLeft: 'auto', padding: '3px 10px', borderRadius: 999, background: nightInterruptions <= 2 ? 'rgba(16,185,129,0.12)' : 'rgba(245,158,11,0.12)', fontSize: 11, fontWeight: 700, color: nightInterruptions <= 2 ? '#10B981' : '#F59E0B' }}>{nightInterruptions}</span>
                 </div>
-                {/* 7-day mini bar chart */}
-                {sleepData && Array.isArray(sleepData) && sleepData.length > 1 && (() => {
-                  const days = sleepData.slice(-7).map((d: any) => ({
-                    label: new Date(d.date).toLocaleDateString('fr-FR', { weekday: 'short' }).slice(0, 2),
-                    val: d.sleep_interruptions || d.interruptions || 0,
-                    isToday: new Date(d.date).toDateString() === selectedDate.toDateString(),
-                  }));
-                  const maxVal = Math.max(5, ...days.map((d: any) => d.val));
-                  return (
-                    <div style={{ display: 'flex', alignItems: 'flex-end', gap: 6, height: 60 } as any}>
-                      {days.map((d: any, i: number) => {
-                        const h = Math.max(4, (d.val / maxVal) * 48);
-                        const color = d.val <= 1 ? '#10B981' : d.val <= 3 ? '#F59E0B' : '#EF4444';
-                        return (
-                          <div key={i} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 } as any}>
-                            <span style={{ fontSize: 10, fontWeight: 800, color: d.isToday ? '#FFF' : 'rgba(255,255,255,0.35)' }}>{d.val}</span>
-                            <div style={{ width: '100%', height: h, borderRadius: 4, background: d.isToday ? color : `${color}55`, boxShadow: d.isToday ? `0 0 8px ${color}44` : 'none', transition: 'height 0.6s ease' } as any} />
-                            <span style={{ fontSize: 9, color: d.isToday ? 'rgba(255,255,255,0.6)' : 'rgba(255,255,255,0.2)', fontWeight: d.isToday ? 700 : 400 }}>{d.label}</span>
-                          </div>
-                        );
-                      })}
+                <div style={{ display: 'flex', alignItems: 'center', gap: 20 } as any}>
+                  {/* Arc gauge */}
+                  <div style={{ position: 'relative', width: 80, height: 50, flexShrink: 0 } as any}>
+                    <svg width="80" height="50" viewBox="0 0 80 50">
+                      <defs>
+                        <linearGradient id="intGrad" x1="0" y1="0" x2="1" y2="0">
+                          <stop offset="0%" stopColor="#10B981" />
+                          <stop offset="50%" stopColor="#F59E0B" />
+                          <stop offset="100%" stopColor="#EF4444" />
+                        </linearGradient>
+                      </defs>
+                      <path d="M 8 46 A 32 32 0 0 1 72 46" fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth="6" strokeLinecap="round" />
+                      <path d="M 8 46 A 32 32 0 0 1 72 46" fill="none" stroke="url(#intGrad)" strokeWidth="6" strokeLinecap="round"
+                        strokeDasharray={`${Math.min(1, nightInterruptions / 8) * 100} 100`} />
+                    </svg>
+                    <div style={{ position: 'absolute', bottom: 2, left: 0, right: 0, textAlign: 'center' } as any}>
+                      <span style={{ fontSize: 20, fontWeight: 900, color: nightInterruptions <= 2 ? '#10B981' : nightInterruptions <= 4 ? '#F59E0B' : '#EF4444' }}>{nightInterruptions}</span>
                     </div>
-                  );
-                })()}
+                  </div>
+                  {/* Legend */}
+                  <div style={{ flex: 1 } as any}>
+                    <div style={{ fontSize: 12, color: nightInterruptions <= 2 ? '#10B981' : nightInterruptions <= 4 ? '#F59E0B' : '#EF4444', fontWeight: 800, marginBottom: 4 }}>
+                      {nightInterruptions <= 1 ? 'Excellent' : nightInterruptions <= 2 ? 'Bon' : nightInterruptions <= 4 ? 'Modere' : 'Eleve'}
+                    </div>
+                    <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)', lineHeight: 1.5 }}>
+                      {nightInterruptions <= 2 ? 'Sommeil continu, bonne recuperation.' : nightInterruptions <= 4 ? 'Quelques reveils, recuperation correcte.' : 'Trop de reveils, sommeil fragmente.'}
+                    </div>
+                    {sleepData && Array.isArray(sleepData) && sleepData.length > 1 && (
+                      <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.2)', marginTop: 4 }}>
+                        Moy. 7j : {Math.round(sleepData.reduce((a: number, d: any) => a + (d.interruptions || 0), 0) / sleepData.length)}
+                      </div>
+                    )}
+                  </div>
+                </div>
               </div>
             </div>
 
@@ -354,8 +363,8 @@ export default function HealthDetailScreen() {
                     <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)' }}>Sommeil effectif cette nuit</span>
                     <span style={{ fontSize: 15, fontWeight: 900, color: '#FFF' }}>{effH}h{String(effM).padStart(2, '0')} <span style={{ fontSize: 11, fontWeight: 600, color: 'rgba(255,255,255,0.3)' }}>/ 7h30</span></span>
                   </div>
-                  <div style={{ height: 10, borderRadius: 5, background: 'rgba(255,255,255,0.06)', overflow: 'hidden', position: 'relative' } as any}>
-                    <div style={{ height: 10, borderRadius: 5, width: `${tonightPct}%`, background: tonightColor, transition: 'width 1s ease', boxShadow: `0 0 10px ${tonightColor}55` } as any} />
+                  <div style={{ height: 12, borderRadius: 6, background: 'rgba(255,255,255,0.04)', overflow: 'hidden', position: 'relative' } as any}>
+                    <div style={{ height: 12, borderRadius: 6, width: `${tonightPct}%`, background: tonightPct >= 90 ? 'linear-gradient(90deg, #059669, #10B981, #34D399)' : tonightPct >= 75 ? 'linear-gradient(90deg, #D97706, #F59E0B, #FBBF24)' : 'linear-gradient(90deg, #DC2626, #EF4444, #F87171)', transition: 'width 1.2s cubic-bezier(.22,.61,.36,1)', boxShadow: `0 0 16px ${tonightColor}33, inset 0 1px 0 rgba(255,255,255,0.15)` } as any} />
                   </div>
                   <div style={{ fontSize: 10, color: tonightColor, fontWeight: 700, marginTop: 4 }}>{tonightDebtMin > 0 ? `${Math.floor(tonightDebtMin / 60) > 0 ? Math.floor(tonightDebtMin / 60) + 'h' : ''}${tonightDebtMin % 60}min de dette cette nuit` : 'Objectif atteint !'}</div>
                 </div>
@@ -367,8 +376,8 @@ export default function HealthDetailScreen() {
                     <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)' }}>Dette cumulee sur {weekDays} jours</span>
                     <span style={{ fontSize: 15, fontWeight: 900, color: weekColor }}>{weekDebtH > 0 ? `${weekDebtH}h${String(weekDebtM).padStart(2, '0')}` : `${weekDebtM}min`}</span>
                   </div>
-                  <div style={{ height: 8, borderRadius: 4, background: 'rgba(255,255,255,0.06)', overflow: 'hidden' } as any}>
-                    <div style={{ height: 8, borderRadius: 4, width: `${Math.min(100, Math.round(weekDebtMin / (NEED_MIN * weekDays) * 100))}%`, background: weekColor, boxShadow: `0 0 8px ${weekColor}44` } as any} />
+                  <div style={{ height: 10, borderRadius: 5, background: 'rgba(255,255,255,0.04)', overflow: 'hidden' } as any}>
+                    <div style={{ height: 10, borderRadius: 5, width: `${Math.min(100, Math.round(weekDebtMin / (NEED_MIN * weekDays) * 100))}%`, background: weekDebtMin <= 60 ? 'linear-gradient(90deg, #059669, #10B981, #34D399)' : weekDebtMin <= 180 ? 'linear-gradient(90deg, #D97706, #F59E0B, #FBBF24)' : 'linear-gradient(90deg, #DC2626, #EF4444, #F87171)', boxShadow: `0 0 12px ${weekColor}33, inset 0 1px 0 rgba(255,255,255,0.15)` } as any} />
                   </div>
                 </div>
                 )}
