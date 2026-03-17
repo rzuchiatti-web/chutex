@@ -268,15 +268,37 @@ export default function HealthDetailScreen() {
                   <span style={{ fontSize: 9, color: 'rgba(16,185,129,0.5)' }}>Excellent</span>
                 </div>
               </div>
-              {/* Interruptions */}
-              <div style={{ padding: '12px 16px', borderTop: '1px solid rgba(255,255,255,0.04)', display: 'flex', alignItems: 'center', gap: 12 } as any}>
-                <div style={{ width: 40, height: 40, borderRadius: 12, background: nightInterruptions <= 2 ? 'rgba(16,185,129,0.1)' : 'rgba(245,158,11,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}>
-                  <i className="ri-alarm-line" style={{ fontSize: 18, color: nightInterruptions <= 2 ? '#10B981' : '#F59E0B' }} />
+              {/* Interruptions — mini bar chart from 7-day history */}
+              <div style={{ padding: '14px 16px', borderTop: '1px solid rgba(255,255,255,0.04)' } as any}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 } as any}>
+                  <i className="ri-alarm-line" style={{ fontSize: 16, color: nightInterruptions <= 2 ? '#10B981' : '#F59E0B' }} />
+                  <span style={{ fontSize: 14, fontWeight: 800, color: '#FFF' }}>Interruptions</span>
+                  <span style={{ marginLeft: 'auto', padding: '3px 10px', borderRadius: 999, background: nightInterruptions <= 2 ? 'rgba(16,185,129,0.12)' : 'rgba(245,158,11,0.12)', fontSize: 11, fontWeight: 700, color: nightInterruptions <= 2 ? '#10B981' : '#F59E0B' }}>{nightInterruptions}</span>
                 </div>
-                <div>
-                  <div style={{ fontSize: 20, fontWeight: 900, color: '#FFF' }}>{nightInterruptions}</div>
-                  <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.3)' }}>Interruptions</div>
-                </div>
+                {/* 7-day mini bar chart */}
+                {sleepData && Array.isArray(sleepData) && sleepData.length > 1 && (() => {
+                  const days = sleepData.slice(-7).map((d: any) => ({
+                    label: new Date(d.date).toLocaleDateString('fr-FR', { weekday: 'short' }).slice(0, 2),
+                    val: d.sleep_interruptions || d.interruptions || 0,
+                    isToday: new Date(d.date).toDateString() === selectedDate.toDateString(),
+                  }));
+                  const maxVal = Math.max(5, ...days.map((d: any) => d.val));
+                  return (
+                    <div style={{ display: 'flex', alignItems: 'flex-end', gap: 6, height: 60 } as any}>
+                      {days.map((d: any, i: number) => {
+                        const h = Math.max(4, (d.val / maxVal) * 48);
+                        const color = d.val <= 1 ? '#10B981' : d.val <= 3 ? '#F59E0B' : '#EF4444';
+                        return (
+                          <div key={i} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 } as any}>
+                            <span style={{ fontSize: 10, fontWeight: 800, color: d.isToday ? '#FFF' : 'rgba(255,255,255,0.35)' }}>{d.val}</span>
+                            <div style={{ width: '100%', height: h, borderRadius: 4, background: d.isToday ? color : `${color}55`, boxShadow: d.isToday ? `0 0 8px ${color}44` : 'none', transition: 'height 0.6s ease' } as any} />
+                            <span style={{ fontSize: 9, color: d.isToday ? 'rgba(255,255,255,0.6)' : 'rgba(255,255,255,0.2)', fontWeight: d.isToday ? 700 : 400 }}>{d.label}</span>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  );
+                })()}
               </div>
             </div>
 
