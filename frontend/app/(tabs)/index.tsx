@@ -640,7 +640,7 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
               const activeCount = catRems.filter((r: any) => r.active).length;
               const nextTime = activeCount > 0 ? getNextReminderTime(catRems.find((r: any) => r.active)) : '';
               return (
-                <div key={cat.type} data-testid={`reminder-cat-${cat.type}`} onClick={() => { setEditReminder({ _type: cat.type }); setShowReminderCRUD(true); }} style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '12px 0', borderTop: idx > 0 ? '1px solid rgba(0,0,0,0.06)' : 'none', cursor: 'pointer' } as any}>
+                <div key={cat.type} data-testid={`reminder-cat-${cat.type}`} onClick={() => { setEditReminder({ _type: cat.type }); setShowReminderCRUD(true); }} style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '12px 0', borderTop: idx > 0 ? '1px solid rgba(255,255,255,0.08)' : 'none', cursor: 'pointer' } as any}>
                   <img src={cat.img} alt={cat.label} style={{ width: 44, height: 44, objectFit: 'contain', flexShrink: 0 } as any} />
                   <div style={{ flex: 1 } as any}>
                     <div style={{ fontSize: 14, fontWeight: 800, color: C.text }}>{cat.label}</div>
@@ -661,7 +661,7 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
               <img src={IMG_GUARDIANS} alt="" style={{ width: 100, height: 50, objectFit: 'contain' } as any} />
             </div>
             {guardians.map((g: any, i: number) => (
-              <div key={g.id || i} onClick={() => router.push({ pathname: '/guardian-detail', params: { guardianId: g.id } })} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 0', borderTop: i > 0 ? '1px solid rgba(0,0,0,0.06)' : 'none', cursor: 'pointer' } as any}>
+              <div key={g.id || i} onClick={() => router.push({ pathname: '/guardian-detail', params: { guardianId: g.id } })} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 0', borderTop: i > 0 ? '1px solid rgba(255,255,255,0.08)' : 'none', cursor: 'pointer' } as any}>
                 <div style={{ width: 44, height: 44, borderRadius: 12, background: isDark ? 'rgba(255,255,255,0.1)' : '#FFF', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', flexShrink: 0 } as any}>
                   {g.avatar_url ? <img src={g.avatar_url} style={{ width: 44, height: 44, objectFit: 'cover' } as any} /> : <span style={{ fontSize: 18, fontWeight: 800, color: '#C7C7CC' }}>{g.name?.charAt(0)}</span>}
                 </div>
@@ -670,7 +670,7 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
               </div>
             ))}
             {guardians.length === 0 && <div style={{ fontSize: 11, color: C.sub, textAlign: 'center', padding: '6px 0' }}>Aucun gardien</div>}
-            <div data-testid="add-guardian-btn" onClick={() => setShowAddGuardianPopup(true)} style={{ marginTop: 12, padding: '14px', borderRadius: 14, background: C.card, border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10, transition: 'background 0.15s' } as any}
+            <div data-testid="add-guardian-btn" onClick={() => setShowAddGuardianPopup(true)} style={{ marginTop: 12, padding: '14px', borderRadius: 14, borderTop: '1px solid rgba(255,255,255,0.08)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10, transition: 'background 0.15s' } as any}
               onMouseEnter={(e: any) => { e.currentTarget.style.background = 'rgba(0,0,0,0.06)'; }}
               onMouseLeave={(e: any) => { e.currentTarget.style.background = 'rgba(0,0,0,0.03)'; }}>
               <i className="ri-heart-add-line" style={{ fontSize: 18, color: '#A78BFA' }} />

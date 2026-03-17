@@ -184,7 +184,7 @@ export default function DeviceCards({ br, sc, vs, onStartWeighing, weighings = [
         </div>
       </div>
       {connectedDevices.map((d, idx) => (
-        <div key={d.id} data-testid={`device-card-${d.id}`} onClick={() => router.push('/(tabs)/devices' as any)} style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '12px 0', borderTop: idx > 0 ? '1px solid rgba(0,0,0,0.06)' : 'none', cursor: 'pointer' } as any}>
+        <div key={d.id} data-testid={`device-card-${d.id}`} onClick={() => router.push('/(tabs)/devices' as any)} style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '12px 0', borderTop: idx > 0 ? '1px solid rgba(255,255,255,0.08)' : 'none', cursor: 'pointer' } as any}>
           <img src={d.img} alt="" style={{ width: 48, height: 48, objectFit: 'contain', flexShrink: 0 } as any} />
           <div style={{ flex: 1, minWidth: 0 } as any}>
             <div style={{ fontSize: 14, fontWeight: 800, color: 'var(--card-text, #111)', marginBottom: 3 }}>{d.name}</div>
