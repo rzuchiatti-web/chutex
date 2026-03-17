@@ -80,6 +80,7 @@ export default function HealthDetailScreen() {
   const [loading, setLoading] = useState(true);
   const [expanded, setExpanded] = useState<string | null>(null);
   const [selectedDate, setSelectedDate] = useState(new Date());
+  const [showSleepInfo, setShowSleepInfo] = useState(false);
 
   /* ── Per-night sleep data: uses REAL bracelet data only ── */
   const [sleepData, setSleepData] = useState<any>(null);
@@ -342,6 +343,9 @@ export default function HealthDetailScreen() {
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 16 } as any}>
                   <i className="ri-battery-charge-line" style={{ fontSize: 16, color: tonightColor }} />
                   <span style={{ fontSize: 14, fontWeight: 800, color: '#FFF' }}>Bilan du sommeil</span>
+                  <div onClick={() => setShowSleepInfo(true)} style={{ marginLeft: 'auto', width: 26, height: 26, borderRadius: 999, background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}>
+                    <i className="ri-question-line" style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)' }} />
+                  </div>
                 </div>
 
                 {/* Tonight: effective vs needed */}
@@ -380,7 +384,7 @@ export default function HealthDetailScreen() {
                       { label: 'Duree', val: `${tonightPct}%`, sub: 'vs besoin', c: tonightColor },
                       { label: 'Qualite', val: `${nightQuality}%`, sub: 'bracelet', c: nightQuality >= 70 ? '#818CF8' : '#F59E0B' },
                       { label: 'Profond', val: `${deepRatio}%`, sub: `${nightDeepMin}min`, c: deepRatio >= 15 ? '#4338CA' : '#F59E0B' },
-                      { label: 'REM', val: `${remRatio}%`, sub: `${nightRemMin}min`, c: remRatio >= 20 ? '#C4B5FD' : '#F59E0B' },
+                      { label: 'Paradoxal', val: `${remRatio}%`, sub: `${nightRemMin}min`, c: remRatio >= 20 ? '#C4B5FD' : '#F59E0B' },
                     ].map((m, i) => (
                       <div key={i} style={{ flex: 1, padding: '10px 6px', borderRadius: 12, background: 'rgba(255,255,255,0.03)', textAlign: 'center' } as any}>
                         <div style={{ fontSize: 16, fontWeight: 900, color: m.c }}>{m.val}</div>
@@ -548,6 +552,41 @@ export default function HealthDetailScreen() {
         })}
 
       </div>
+
+      {/* Sleep Info Glass Popup */}
+      {showSleepInfo && (
+        <div onClick={() => setShowSleepInfo(false)} style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 9999, backdropFilter: 'blur(32px)', WebkitBackdropFilter: 'blur(32px)', background: 'rgba(0,0,0,0.2)', overflowY: 'scroll', WebkitOverflowScrolling: 'touch' } as any}>
+          <div onClick={(e: any) => e.stopPropagation()} style={{ width: '100%', maxWidth: 400, margin: '0 auto', padding: '40px 28px 120px', boxSizing: 'border-box' } as any}>
+            <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 20 } as any}>
+              <div onClick={() => setShowSleepInfo(false)} style={{ width: 38, height: 38, borderRadius: 999, background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}><i className="ri-close-line" style={{ fontSize: 18, color: 'rgba(255,255,255,0.8)' }} /></div>
+            </div>
+
+            <div style={{ fontSize: 22, fontWeight: 900, color: '#FFF', marginBottom: 6 }}>Comprendre votre sommeil</div>
+            <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.4)', marginBottom: 24, lineHeight: 1.5 }}>Votre bracelet Elio mesure chaque phase de sommeil. Voici ce que signifie chaque indicateur.</div>
+
+            {[
+              { icon: 'ri-moon-line', color: '#818CF8', title: 'Sommeil Leger', text: 'Phase de transition entre l\'eveil et le sommeil profond. Votre corps se detend, la respiration ralentit. Represente environ 50% d\'une nuit normale.' },
+              { icon: 'ri-moon-fill', color: '#4338CA', title: 'Sommeil Profond', text: 'Phase la plus reparatrice. Le corps se regenere, les muscles se reparent, le systeme immunitaire se renforce. Objectif : au moins 15-20% de la nuit.' },
+              { icon: 'ri-eye-line', color: '#C4B5FD', title: 'Sommeil REM (Paradoxal)', text: 'REM signifie "Rapid Eye Movement" (mouvements oculaires rapides). C\'est la phase des reves. Le cerveau est tres actif : il consolide la memoire, traite les emotions et favorise l\'apprentissage. Objectif : 20-25% de la nuit.' },
+              { icon: 'ri-alarm-line', color: '#F87171', title: 'Phases d\'eveil', text: 'Micro-reveils naturels entre les cycles de sommeil. Quelques reveils courts sont normaux (2-4 par nuit). Trop d\'interruptions reduisent la qualite du sommeil.' },
+              { icon: 'ri-star-line', color: '#F59E0B', title: 'Qualite du sommeil', text: 'Score calcule par le bracelet a partir de la duree, la proportion de sommeil profond et REM, et le nombre d\'interruptions. Au-dessus de 80% : excellent.' },
+              { icon: 'ri-battery-charge-line', color: '#10B981', title: 'Dette de sommeil', text: 'Difference entre le sommeil effectif (duree - temps eveille) et le besoin recommande (7h30 pour les seniors). La dette se cumule sur 7 jours et impacte la sante globale.' },
+              { icon: 'ri-heart-pulse-line', color: '#A78BFA', title: 'Score de recuperation', text: 'Indicateur global calcule a partir de la duree (40%), qualite bracelet (30%), sommeil profond (20%) et REM (10%). Au-dessus de 80 : bonne recuperation.' },
+              { icon: 'ri-lungs-line', color: '#60A5FA', title: 'Risque d\'apnee', text: 'Estimation basee sur les interruptions et la qualite du sommeil. Un score eleve peut indiquer des pauses respiratoires pendant le sommeil. Consultez un medecin si le risque est eleve.' },
+            ].map((item, i) => (
+              <div key={i} style={{ borderRadius: 18, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', padding: '16px', marginBottom: 10 } as any}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8 } as any}>
+                  <div style={{ width: 32, height: 32, borderRadius: 10, background: `${item.color}18`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}>
+                    <i className={item.icon} style={{ fontSize: 16, color: item.color }} />
+                  </div>
+                  <span style={{ fontSize: 14, fontWeight: 800, color: '#FFF' }}>{item.title}</span>
+                </div>
+                <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.6)', lineHeight: 1.6 }}>{item.text}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
