@@ -8,6 +8,68 @@ from auth import get_current_user
 
 router = APIRouter()
 
+import re
+
+def enrich_tasks_interactive(tasks: list, program_category: str = "") -> list:
+    """Auto-detect interactive types for each task based on text patterns.
+    Returns a list of interactive configs parallel to the tasks list."""
+    interactive = []
+    for i, task in enumerate(tasks):
+        t = task.lower() if isinstance(task, str) else ""
+
+        # Breathing exercises
+        if re.search(r'(coherence cardiaque|respir.*(4.?7.?8|5.?5|profonde)|body scan|relaxation progressive|pleine conscience)', t):
+            pattern = "4-7-8" if "4" in t and "7" in t and "8" in t else "5-5"
+            dur = 300
+            m = re.search(r'(\d+)\s*min', t)
+            if m: dur = int(m.group(1)) * 60
+            interactive.append({"type": "breathing", "pattern": pattern, "duration_sec": dur, "icon": "ri-lungs-line", "label": "Exercice de respiration"})
+
+        # Timer exercises (walking, stretching, yoga, etc.)
+        elif re.search(r'(\d+)\s*min.*?(marche|etir|yoga|tai.?chi|circuit|exercice|meditation|natation|velo|nage)', t) or \
+             re.search(r'(marche|etir|yoga|tai.?chi|circuit|exercice|meditation|natation|velo|nage).*?(\d+)\s*min', t):
+            dur = 0
+            m = re.search(r'(\d+)\s*min', t)
+            if m: dur = int(m.group(1)) * 60
+            is_physical = re.search(r'(marche|squat|circuit|genoux|talons|pompe|lever|escalier)', t)
+            icon = "ri-footprint-line" if is_physical else "ri-timer-line"
+            label = "Chronometre"
+            interactive.append({"type": "timer", "duration_sec": dur, "icon": icon, "label": label})
+
+        # Data input (measurements, ratings, logging)
+        elif re.search(r'(heure.*(coucher|reveil|lever)|mesurez.*tension|pesez.vous|notez.*(heure|valeur|poids|tension)|dans l.app)', t):
+            field = "generic"
+            input_type = "text"
+            if "coucher" in t: field, input_type = "bedtime", "time"
+            elif "reveil" in t or "lever" in t: field, input_type = "wake_time", "time"
+            elif "tension" in t: field, input_type = "blood_pressure", "text"
+            elif "poids" in t or "pesez" in t: field, input_type = "weight", "number"
+            interactive.append({"type": "data_input", "field": field, "input_type": input_type, "icon": "ri-edit-line", "label": "Enregistrer"})
+
+        # Quiz / knowledge questions (evaluation days, bilan)
+        elif re.search(r'(evaluez|comparez.*jour.*vs|bilan|noter.*sur 5|notez.*impact)', t):
+            interactive.append({"type": "rating", "max": 5, "icon": "ri-star-line", "label": "Evaluer"})
+
+        # Physical reps (squats, push-ups, etc.)
+        elif re.search(r'(\d+)\s*(squats?|pompes?|lever|montee|flexion|repet|serie)', t):
+            reps = 0
+            m = re.search(r'(\d+)', t)
+            if m: reps = int(m.group(1))
+            interactive.append({"type": "counter", "target": reps, "icon": "ri-repeat-line", "label": f"{reps} repetitions"})
+
+        # Balance exercises
+        elif re.search(r'(tenez.*pied|equilibre|talon.pointe|proprioception)', t):
+            dur = 30
+            m = re.search(r'(\d+)\s*seconde', t)
+            if m: dur = int(m.group(1))
+            interactive.append({"type": "timer", "duration_sec": dur, "icon": "ri-walk-line", "label": "Exercice d'equilibre"})
+
+        # Default: simple action
+        else:
+            interactive.append({"type": "action", "icon": "ri-check-line", "label": "Valider"})
+
+    return interactive
+
 # ─── Seed programs on import ───
 SEED_PROGRAMS = [
     {
@@ -878,6 +940,10 @@ JSON: {{"focus": "...", "mission": "1-2 phrases contexte medical", "tasks": ["ta
             "members_count": len(team_members),
         }
 
+    # Enrich tasks with interactive types
+    task_list = today_tasks.get("tasks", [])
+    today_tasks["interactive"] = enrich_tasks_interactive(task_list, program.get("category", ""))
+
     # Load saved task progress for today (auto-saved tasks)
     today_str_prog = datetime.now(timezone.utc).strftime("%Y-%m-%d")
     task_progress = await db.program_task_progress.find_one(
@@ -953,7 +1019,122 @@ async def save_task_progress(data: dict, user=Depends(get_current_user)):
     return {"status": "saved"}
 
 
-@router.post("/programs/checkin")
+@router.post("/programs/apply-onboarding")
+async def apply_onboarding_to_app(data: dict, user=Depends(get_current_user)):
+    """Apply onboarding answers to app features (reminders, objectives, health data)."""
+    onboarding = data.get("onboarding", {})
+    program_id = data.get("program_id", "")
+    actions_done = []
+
+    # Bedtime → create reminder
+    if onboarding.get("bedtime_current"):
+        bedtime = onboarding["bedtime_current"]
+        await db.reminders.update_one(
+            {"user_id": user['id'], "type": "programme_coucher"},
+            {"$set": {
+                "id": str(uuid.uuid4()),
+                "user_id": user['id'],
+                "type": "programme_coucher",
+                "title": "Heure de coucher programme",
+                "message": f"Il est temps de commencer votre rituel du soir",
+                "time": bedtime,
+                "enabled": True,
+                "days": ["lundi", "mardi", "mercredi", "jeudi", "vendredi", "samedi", "dimanche"],
+                "created_at": datetime.now(timezone.utc).isoformat(),
+                "source": "programme",
+                "program_id": program_id,
+            }},
+            upsert=True,
+        )
+        actions_done.append({"type": "reminder", "label": f"Rappel coucher a {bedtime}"})
+
+    # Wake time → create wake reminder
+    if onboarding.get("wake_time"):
+        wake = onboarding["wake_time"]
+        await db.reminders.update_one(
+            {"user_id": user['id'], "type": "programme_reveil"},
+            {"$set": {
+                "id": str(uuid.uuid4()),
+                "user_id": user['id'],
+                "type": "programme_reveil",
+                "title": "Reveil programme",
+                "message": "Bonjour ! Pensez a vous exposer a la lumiere naturelle dans les 30 prochaines minutes",
+                "time": wake,
+                "enabled": True,
+                "days": ["lundi", "mardi", "mercredi", "jeudi", "vendredi", "samedi", "dimanche"],
+                "created_at": datetime.now(timezone.utc).isoformat(),
+                "source": "programme",
+                "program_id": program_id,
+            }},
+            upsert=True,
+        )
+        actions_done.append({"type": "reminder", "label": f"Rappel reveil a {wake}"})
+
+    # Save onboarding data as health baseline
+    if onboarding.get("sleep_quality") or onboarding.get("diet_quality"):
+        await db.program_health_baselines.update_one(
+            {"user_id": user['id'], "program_id": program_id},
+            {"$set": {
+                "user_id": user['id'],
+                "program_id": program_id,
+                "onboarding": onboarding,
+                "captured_at": datetime.now(timezone.utc).isoformat(),
+            }},
+            upsert=True,
+        )
+        actions_done.append({"type": "baseline", "label": "Donnees initiales enregistrees"})
+
+    return {"status": "ok", "actions": actions_done}
+
+
+@router.get("/programs/team/leaderboard")
+async def team_leaderboard(user=Depends(get_current_user)):
+    """Get team leaderboard for active program."""
+    enrollment = await db.program_enrollments.find_one(
+        {"user_id": user['id'], "status": "active"}, {"_id": 0}
+    )
+    if not enrollment:
+        return {"leaderboard": []}
+
+    team = await db.team_programs.find_one(
+        {"members.user_id": user['id'], "program_id": enrollment["program_id"], "status": {"$in": ["waiting", "active"]}}, {"_id": 0}
+    )
+    if not team:
+        return {"leaderboard": []}
+
+    leaderboard = []
+    for m in team.get("members", []):
+        # Count total checkins for this member
+        checkins = await db.program_checkins.count_documents({"user_id": m["user_id"], "program_id": enrollment["program_id"]})
+        # Count total tasks done
+        task_docs = await db.program_task_progress.find({"user_id": m["user_id"]}).to_list(100)
+        total_tasks = sum(len(d.get("tasks_done_indices", [])) for d in task_docs)
+        # Calculate streak (consecutive days)
+        streak = 0
+        today = datetime.now(timezone.utc).date()
+        for d in range(30):
+            check_date = (today - timedelta(days=d)).isoformat()
+            has = await db.program_checkins.find_one({"user_id": m["user_id"], "date": check_date})
+            if has:
+                streak += 1
+            else:
+                if d > 0: break
+
+        leaderboard.append({
+            "name": m["name"],
+            "user_id": m["user_id"],
+            "is_me": m["user_id"] == user['id'],
+            "checkins": checkins,
+            "tasks_done": total_tasks,
+            "streak": streak,
+            "score": checkins * 10 + total_tasks * 5 + streak * 15,
+        })
+
+    leaderboard.sort(key=lambda x: x["score"], reverse=True)
+    for i, m in enumerate(leaderboard):
+        m["rank"] = i + 1
+
+    return {"leaderboard": leaderboard, "team_id": team["id"], "invite_code": team["invite_code"]}
 async def program_checkin(data: dict, user=Depends(get_current_user)):
     """Submit daily check-in for active program"""
     enrollment = await db.program_enrollments.find_one(

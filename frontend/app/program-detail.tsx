@@ -66,6 +66,12 @@ export default function ProgramDetailScreen() {
     weight: 'Poids', body_fat_pct: 'Masse grasse', muscle_pct: 'Masse musculaire', recovery_score: 'Recuperation',
   };
 
+  const applyOnboarding = async () => {
+    try {
+      await apiFetch('/api/programs/apply-onboarding', { method: 'POST', body: JSON.stringify({ onboarding, program_id: programId }) }, token);
+    } catch {}
+  };
+
   const createTeamAndStart = async () => {
     if (hasActiveConflict) { setError('Vous avez deja un programme actif. Terminez-le avant d en lancer un nouveau.'); return; }
     setStarting(true); setError('');
@@ -74,6 +80,7 @@ export default function ProgramDetailScreen() {
       const teamRes = await apiFetch(`/api/programs/team/create`, { method: 'POST', body: JSON.stringify({ program_id: programId, start_date: startDate }) }, token);
       setTeamId(teamRes.team_id); setInviteCode(teamRes.invite_code);
       await apiFetch(`/api/programs/start/${programId}`, { method: 'POST', body: JSON.stringify({ mode, onboarding }) }, token);
+      await applyOnboarding();
       setStep(2);
     } catch (e: any) { setError(e.message || 'Erreur'); } finally { setStarting(false); }
   };
@@ -83,6 +90,7 @@ export default function ProgramDetailScreen() {
     setStarting(true); setError('');
     try {
       await apiFetch(`/api/programs/start/${programId}`, { method: 'POST', body: JSON.stringify({ mode: 'solo', onboarding }) }, token);
+      await applyOnboarding();
       router.replace('/(tabs)/chat' as any);
     } catch (e: any) { setError(e.message || 'Erreur'); } finally { setStarting(false); }
   };
