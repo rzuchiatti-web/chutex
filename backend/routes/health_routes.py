@@ -125,7 +125,7 @@ async def get_sleep_history(user=Depends(get_current_user)):
     history = []
     for r in reversed(readings):
         s = r['data']['sleep']
-        history.append({"date": r['timestamp'], "duration": s.get('sleep_duration', 0), "quality": s.get('sleep_quality', 0), "deep": s.get('deep_minutes', 0), "light": s.get('light_minutes', 0), "rem": s.get('rem_minutes', 0), "awake": s.get('awake_minutes', 0)})
+        history.append({"date": r['timestamp'], "duration": s.get('sleep_duration', 0), "quality": s.get('sleep_quality', 0), "deep": s.get('deep_minutes', 0), "light": s.get('light_minutes', 0), "rem": s.get('rem_minutes', 0), "awake": s.get('awake_minutes', 0), "interruptions": s.get('sleep_interruptions', 0)})
 
     # If not enough, also fetch from sleep_duration_min fields
     if len(history) < 7:
