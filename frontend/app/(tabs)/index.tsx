@@ -131,7 +131,7 @@ function DailyObjectivesOnDashboard({ token }: { token: string }) {
   return (
     <div data-testid="dashboard-objectives" style={{ marginBottom: 20 } as any}>
       <NoraPill />
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 } as any}>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 12 } as any}>
         {items.map((p: any, idx: number) => {
           const objImg = OBJ_IMAGES[p.key];
           // Custom labels per card
@@ -148,31 +148,33 @@ function DailyObjectivesOnDashboard({ token }: { token: string }) {
               else if (p.key === 'calories_intake') router.push('/minceur' as any);
               else if (p.key === 'hydration') router.push('/minceur' as any);
             }} style={{
-              padding: '16px 12px', borderRadius: 18,
+              padding: '16px 18px', borderRadius: 18,
               background: 'var(--card-bg, #EDEDF0)',
               backdropFilter: 'var(--card-blur, none)', WebkitBackdropFilter: 'var(--card-blur, none)', border: 'var(--card-border, none)',
               cursor: 'pointer', transition: 'transform 0.18s',
               animationDelay: `${idx * 0.1}s`,
-              display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center',
+              display: 'flex', alignItems: 'center', gap: 16,
             } as any}
               onMouseEnter={(e: any) => { e.currentTarget.style.transform = 'translateY(-2px)'; }}
               onMouseLeave={(e: any) => { e.currentTarget.style.transform = ''; }}>
-              {objImg && <img src={objImg} alt="" style={{ width: 56, height: 56, objectFit: 'contain', marginBottom: 10 } as any} />}
+              {objImg && <img src={objImg} alt="" style={{ width: 64, height: 64, objectFit: 'contain', flexShrink: 0 } as any} />}
               {!objImg && (
-                <div style={{ width: 56, height: 56, borderRadius: 16, background: 'rgba(0,0,0,0.04)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 10 } as any}>
-                  <i className={p.icon} style={{ fontSize: 24, color: p.color }} />
+                <div style={{ width: 64, height: 64, borderRadius: 16, background: 'rgba(0,0,0,0.04)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}>
+                  <i className={p.icon} style={{ fontSize: 28, color: p.color }} />
                 </div>
               )}
-              <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'center', gap: 3 } as any}>
-                <span style={{ fontSize: 26, fontWeight: 900, color: 'var(--card-text, #111)', letterSpacing: -1 }}>{displayValue}</span>
-                <span style={{ fontSize: 11, fontWeight: 600, color: 'var(--card-sub, rgba(0,0,0,0.4))' }}>{displayUnit}</span>
+              <div style={{ flex: 1 } as any}>
+                {displayLabel && <div style={{ fontSize: 11, color: 'var(--card-sub, rgba(0,0,0,0.4))', fontWeight: 600, marginBottom: 2 }}>{displayLabel}</div>}
+                <div style={{ display: 'flex', alignItems: 'baseline', gap: 4 } as any}>
+                  <span style={{ fontSize: 28, fontWeight: 900, color: 'var(--card-text, #111)', letterSpacing: -1 }}>{displayValue}</span>
+                  <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--card-sub, rgba(0,0,0,0.4))' }}>{displayUnit}</span>
+                </div>
+                {isSteps && p.progress != null && (
+                  <div style={{ width: '100%', height: 5, borderRadius: 3, background: 'rgba(0,0,0,0.06)', marginTop: 4, overflow: 'hidden' } as any}>
+                    <div style={{ height: 5, borderRadius: 3, width: `${Math.min(100, p.progress)}%`, background: p.color || '#10B981', transition: 'width 1s ease' } as any} />
+                  </div>
+                )}
               </div>
-              {isSteps && p.progress != null && (
-                <div style={{ width: '100%', height: 5, borderRadius: 3, background: 'rgba(0,0,0,0.06)', marginTop: 6, overflow: 'hidden' } as any}>
-                  <div style={{ height: 5, borderRadius: 3, width: `${Math.min(100, p.progress)}%`, background: p.color || '#10B981', transition: 'width 1s ease' } as any} />
-                </div>
-              )}
-              {displayLabel && <div style={{ fontSize: 10, color: 'var(--card-sub, rgba(0,0,0,0.4))', fontWeight: 500, lineHeight: 1.3, marginTop: 4 }}>{displayLabel}</div>}
             </div>
           );
         })}
@@ -187,8 +189,8 @@ function DailyObjectivesOnDashboard({ token }: { token: string }) {
 function BeneficiaryHome({ token, user }: { token: string; user: any }) {
   const router = useRouter();
   const { t, lang, setLang, flags: langFlags } = useI18n();
-  const [isDark, setIsDark] = useState(false);
-  useEffect(() => { if (typeof localStorage !== 'undefined' && localStorage.getItem('chutex_dark') === '1') setIsDark(true); }, []);
+  const [isDark, setIsDark] = useState(true);
+  useEffect(() => {}, []);
   const [dashData, setDashData] = useState<any>(null);
   const [langOpen, setLangOpen] = useState(false);
   const [guardians, setGuardians] = useState<any[]>([]);
@@ -495,9 +497,6 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
                 <div data-testid="notif-bell" onClick={() => setShowNotifs(!showNotifs)} style={{ width: 36, height: 36, borderRadius: 18, background: C.btnBg, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', position: 'relative' } as any}>
                   <i className="ri-notification-4-line" style={{ fontSize: 18, color: C.sub }} />
                   {(guardianRequests.length > 0 || activeAlerts.length > 0 || predictiveAlerts.length > 0) && <div style={{ position: 'absolute', top: -1, right: -1, width: 9, height: 9, borderRadius: 5, background: '#EF4444', border: `2px solid ${C.headerBg}` } as any} />}
-                </div>
-                <div data-testid="dark-mode-toggle" onClick={toggleDark} style={{ width: 36, height: 36, borderRadius: 18, background: C.btnBg, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}>
-                  <i className={isDark ? 'ri-sun-line' : 'ri-moon-line'} style={{ fontSize: 16, color: C.sub }} />
                 </div>
               </div>
             </div>

@@ -18,7 +18,10 @@ Health monitoring and care application for elderly beneficiaries ("Chutex Care")
 4. **Dashboard Dispositifs Button** — Moved the "add device" action into the Dispositifs card header as a round white `+` button. Removed the separate "Mes dispositifs" card from the dashboard.
 5. **Programs Page Cleanup** — Removed category filter pills, added a glass `?` guide button in the header with a glassmorphism popup explaining how programs work (4 steps: choose, follow daily, check-in, earn badges).
 6. **Dashboard Dark Mode Whoop Style** — Redesigned dark mode to match Whoop app aesthetic: solid `#1a1d20` background (removed mountain SVG), solid `#272a30` card backgrounds (removed glassmorphism blur and borders), cleaner spacing. Light mode unchanged.
-7. **Animated Dark Background** — Created `AnimatedDarkBg.tsx` reusable component with 3 violet/purple glow orbs with filter blur, slowly floating and pulsing (20-28s cycles) + vignette overlay. Applied to ALL 4 beneficiary pages: Dashboard, Health, Programs, Profile.
+7. **Animated Dark Background** — Created `AnimatedDarkBg.tsx` reusable component with 3 violet/purple glow orbs with filter blur, slowly floating and pulsing (20-28s cycles) + vignette overlay. Applied to ALL pages: Dashboard, Health, Programs, Profile (both beneficiary and guardian).
+8. **Guardian Dashboard** — Applied AnimatedDarkBg, changed alert card to show green background when no active alerts (matching beneficiary AlertBanner behavior).
+9. **Force Dark Mode** — Removed light mode toggle, forced `isDark = true` by default on beneficiary dashboard.
+10. **Daily Objectives Layout** — Changed from 2x2 grid to single column layout with larger images (64x64) and horizontal card design (image left, text right).
 
 ### Session - March 12, 2026 (Batch 5)
 1. **Whoop-style Navbar** — Glassmorphism floating tab bar (`WhoopTabBar` inline in `_layout.tsx`) for both beneficiary and guardian spaces

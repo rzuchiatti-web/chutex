@@ -12,6 +12,7 @@ import { Icon } from '../WebIcon';
 import { ContextualTip, MiniTuto } from '../HelpSystem';
 import { PhoneInputWithPrefix } from '../PhoneInputWithPrefix';
 import { CHX, isDarkMode, webShadow, BG_IMAGES } from './constants';
+import AnimatedDarkBg from '../AnimatedDarkBg';
 
 export default function GuardianHome({ token, user }: { token: string; user: any }) {
   const router = useRouter();
@@ -82,12 +83,12 @@ export default function GuardianHome({ token, user }: { token: string; user: any
   const activeAlerts = alerts.filter((a: any) => a.status === 'active');
   const BG_GUARD = BG_IMAGES.beneficiary;
   const BG_RED_G = BG_IMAGES.red;
+  const BG_GREEN_G = 'https://customer-assets.emergentagent.com/job_8afdc991-0ab2-4687-a2a5-438b9a5f0711/artifacts/uvntv6me_ChatGPT%20Image%2018%20f%C3%A9vr.%202026%2C%2008_31_33.png';
 
   if (Platform.OS === 'web') {
     return (
       <div data-testid="guardian-dashboard" style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, display: 'flex', flexDirection: 'column', fontFamily: 'Inter, system-ui, sans-serif', overflow: 'hidden' } as any}>
-        <img src={BG_GUARD} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 } as any} />
-        <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.08)', zIndex: 1 } as any} />
+        <AnimatedDarkBg />
         <div style={{ flex: 1, overflowY: 'auto', position: 'relative', zIndex: 5, padding: '20px 20px 100px', WebkitOverflowScrolling: 'touch' } as any} data-animate>
           {/* Header */}
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 } as any}>
@@ -192,7 +193,7 @@ export default function GuardianHome({ token, user }: { token: string; user: any
 
           {/* Alert card */}
           <div onClick={() => router.push('/(tabs)/alerts' as any)} style={{ borderRadius: 20, overflow: 'hidden', position: 'relative', padding: '16px 18px', marginBottom: 14, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'space-between' } as any}>
-            <img src={BG_RED_G} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 } as any} />
+            <img src={activeAlerts.length > 0 ? BG_RED_G : BG_GREEN_G} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 } as any} />
             <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.25)', zIndex: 1 } as any} />
             <div style={{ position: 'relative', zIndex: 2, display: 'flex', alignItems: 'center', gap: 14, flex: 1 } as any}>
               <div style={{ fontSize: 32, fontWeight: 900, color: '#FFF' }}>{activeAlerts.length}</div>
