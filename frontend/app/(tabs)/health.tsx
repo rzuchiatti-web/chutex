@@ -35,7 +35,7 @@ function GlycemiaCard({ token }: { token: string | null }) {
   const BG_RED = 'https://customer-assets.emergentagent.com/job_443c9c6e-0feb-4920-a358-fe7cc1a6289b/artifacts/mhh7xwy3_ChatGPT%20Image%2017%20f%C3%A9vr.%202026%2C%2014_08_43.png';
   return (
     <div data-testid="glycemia-card" onClick={() => router.push('/glycemia-detail' as any)}
-      style={{ borderRadius: 18, overflow: 'hidden', marginBottom: 14, cursor: 'pointer', position: 'relative', transition: 'transform 0.15s' } as any}
+      style={{ borderRadius: 18, overflow: 'hidden', marginBottom: 14, cursor: 'pointer', position: 'relative', transition: 'transform 0.15s', border: '1.5px solid rgba(255,255,255,0.25)', boxShadow: '0 0 30px rgba(255,255,255,0.08), 0 0 60px rgba(167,139,250,0.06), 0 8px 40px rgba(0,0,0,0.5)' } as any}
       onMouseEnter={(e: any) => { e.currentTarget.style.transform = 'translateY(-1px)'; }}
       onMouseLeave={(e: any) => { e.currentTarget.style.transform = ''; }}>
       <img src={BG_RED} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 } as any} />
@@ -283,7 +283,7 @@ export default function HealthScreen() {
 
           {/* Poids & Nutrition — style page detail with blue bg */}
           <div data-testid="weight-nutrition-card" onClick={() => router.push('/minceur' as any)}
-            style={{ borderRadius: 18, overflow: 'hidden', marginBottom: 14, cursor: 'pointer', position: 'relative', transition: 'transform 0.15s' } as any}
+            style={{ borderRadius: 18, overflow: 'hidden', marginBottom: 14, cursor: 'pointer', position: 'relative', transition: 'transform 0.15s', border: '1.5px solid rgba(255,255,255,0.25)', boxShadow: '0 0 30px rgba(255,255,255,0.08), 0 0 60px rgba(167,139,250,0.06), 0 8px 40px rgba(0,0,0,0.5)' } as any}
             onMouseEnter={(e: any) => { e.currentTarget.style.transform = 'translateY(-1px)'; }}
             onMouseLeave={(e: any) => { e.currentTarget.style.transform = ''; }}>
             <img src="https://customer-assets.emergentagent.com/job_443c9c6e-0feb-4920-a358-fe7cc1a6289b/artifacts/v5t9l2mb_ChatGPT%20Image%2017%20f%C3%A9vr.%202026%2C%2014_10_07.png" alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 } as any} />
