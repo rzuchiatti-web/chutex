@@ -7,6 +7,8 @@ import NativePageView from '../src/components/NativePageView';
 import AnimatedDarkBg from '../src/components/AnimatedDarkBg';
 import Loader from '../src/components/Loader';
 import NoraCard from '../src/components/shared/NoraCard';
+import { PrefixPicker } from '../src/components/GlassPickers';
+import { PREFIXES } from '../src/components/register/RegisterUI';
 
 export default function ProgramDetailScreen() {
   const { token } = useAuth();
@@ -28,6 +30,7 @@ export default function ProgramDetailScreen() {
   const [invitedFriends, setInvitedFriends] = useState<any[]>([]);
   const [showDeviceSetup, setShowDeviceSetup] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [invitePrefix, setInvitePrefix] = useState('+33');
 
   useEffect(() => {
     if (!programId) return;
@@ -88,9 +91,12 @@ export default function ProgramDetailScreen() {
     if (!invitePhone.trim() || !teamId) return;
     setInviteLoading(true); setInviteMsg('');
     try {
-      const res = await apiFetch('/api/programs/team/invite-by-phone', { method: 'POST', body: JSON.stringify({ phone: invitePhone.trim(), team_id: teamId }) }, token);
+      let phone = invitePhone.trim().replace(/\s/g, '');
+      if (phone.startsWith('0') && phone.length >= 9) phone = invitePrefix + phone.substring(1);
+      else if (!phone.startsWith('+')) phone = invitePrefix + phone;
+      const res = await apiFetch('/api/programs/team/invite-by-phone', { method: 'POST', body: JSON.stringify({ phone, team_id: teamId }) }, token);
       setInviteMsg(res.message || 'Invitation envoyee');
-      setInvitedFriends(prev => [...prev, { phone: invitePhone.trim(), status: res.status, name: res.invitee_name || invitePhone.trim() }]);
+      setInvitedFriends(prev => [...prev, { phone, status: res.status, name: res.invitee_name || phone }]);
       setInvitePhone('');
     } catch (e: any) { setInviteMsg(e.message || 'Erreur'); } finally { setInviteLoading(false); }
   };
@@ -107,11 +113,11 @@ export default function ProgramDetailScreen() {
         @keyframes detail-fade-in { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }
       `}</style>
 
-      <div style={{ position: 'relative', zIndex: 5, height: '100%', overflowY: 'auto', WebkitOverflowScrolling: 'touch' } as any}>
-      <div style={{ maxWidth: 480, margin: '0 auto', padding: 'calc(env(safe-area-inset-top, 44px) + 10px) 20px 100px' } as any}>
+      <div style={{ position: 'relative', zIndex: 5, height: '100%', overflowY: 'auto', overflowX: 'hidden', WebkitOverflowScrolling: 'touch' } as any}>
+      <div style={{ maxWidth: 480, margin: '0 auto', padding: 'calc(env(safe-area-inset-top, 44px) + 10px) 20px 100px', boxSizing: 'border-box', width: '100%' } as any}>
 
         {/* Back */}
-        <div data-testid="program-detail-back-button" onClick={() => step > 0 && step !== 2 ? setStep(step - 1) : step === 2 ? router.replace('/programs' as any) : router.back()} style={{ width: 42, height: 42, borderRadius: 14, background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', marginBottom: 20 } as any}>
+        <div data-testid="program-detail-back-button" onClick={() => step > 0 && step !== 2 ? setStep(step - 1) : step === 2 ? router.replace('/(tabs)/chat' as any) : router.back()} style={{ width: 42, height: 42, borderRadius: 14, background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', marginBottom: 20 } as any}>
           <i className={step === 2 ? "ri-close-line" : "ri-arrow-left-line"} style={{ fontSize: 18, color: 'rgba(255,255,255,0.6)' }} />
         </div>
 
@@ -302,10 +308,15 @@ export default function ProgramDetailScreen() {
             </GlassBox>
 
             <div style={{ fontSize: 12, fontWeight: 700, color: 'rgba(255,255,255,0.4)', marginBottom: 8 }}>Inviter par telephone</div>
-            <div style={{ display: 'flex', gap: 8, marginBottom: 12 } as any}>
-              <input data-testid="invite-phone-input" value={invitePhone} onChange={(e: any) => setInvitePhone(e.target.value)} placeholder="06 12 34 56 78"
-                style={{ flex: 1, padding: '14px 16px', borderRadius: 14, background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.1)', color: '#FFF', fontSize: 15, fontFamily: 'inherit', boxSizing: 'border-box', outline: 'none' , backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)' } as any} />
-              <div data-testid="invite-send-btn" onClick={inviteFriend} style={{ padding: '14px 18px', borderRadius: 14, background: invitePhone.trim() ? 'rgba(167,139,250,0.12)' : 'rgba(255,255,255,0.03)', border: `1px solid ${invitePhone.trim() ? 'rgba(167,139,250,0.25)' : 'rgba(255,255,255,0.06)'}`, cursor: invitePhone.trim() && !inviteLoading ? 'pointer' : 'not-allowed', display: 'flex', alignItems: 'center' } as any}>
+            <div style={{ display: 'flex', gap: 8, marginBottom: 12, width: '100%', boxSizing: 'border-box' } as any}>
+              <div style={{ display: 'flex', alignItems: 'center', flex: 1, minWidth: 0, borderRadius: 14, background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.1)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', overflow: 'hidden' } as any}>
+                <div style={{ borderRight: '1px solid rgba(255,255,255,0.08)', flexShrink: 0 } as any}>
+                  <PrefixPicker value={invitePrefix} onChange={setInvitePrefix} />
+                </div>
+                <input data-testid="invite-phone-input" value={invitePhone} onChange={(e: any) => setInvitePhone(e.target.value)} placeholder="06 12 34 56 78"
+                  style={{ flex: 1, minWidth: 0, padding: '13px 14px', background: 'transparent', border: 'none', color: '#FFF', fontSize: 15, fontFamily: 'inherit', boxSizing: 'border-box', outline: 'none' } as any} />
+              </div>
+              <div data-testid="invite-send-btn" onClick={inviteFriend} style={{ padding: '14px 16px', borderRadius: 14, background: invitePhone.trim() ? 'rgba(167,139,250,0.12)' : 'rgba(255,255,255,0.03)', border: `1px solid ${invitePhone.trim() ? 'rgba(167,139,250,0.25)' : 'rgba(255,255,255,0.06)'}`, cursor: invitePhone.trim() && !inviteLoading ? 'pointer' : 'not-allowed', display: 'flex', alignItems: 'center', flexShrink: 0 } as any}>
                 <i className={inviteLoading ? "ri-loader-4-line" : "ri-send-plane-2-line"} style={{ fontSize: 18, color: invitePhone.trim() ? '#A78BFA' : 'rgba(255,255,255,0.2)' }} />
               </div>
             </div>
@@ -331,7 +342,7 @@ export default function ProgramDetailScreen() {
               </div>
             )}
 
-            <div onClick={() => router.replace('/programs' as any)} style={{ padding: '16px', borderRadius: 18, textAlign: 'center', cursor: 'pointer', background: `linear-gradient(135deg, ${clr}35, ${clr}15)`, border: `1px solid ${clr}40`, fontSize: 15, fontWeight: 900, color: '#FFF', marginTop: 10 } as any}>
+            <div onClick={() => router.replace('/(tabs)/chat' as any)} style={{ padding: '16px', borderRadius: 18, textAlign: 'center', cursor: 'pointer', background: `linear-gradient(135deg, ${clr}35, ${clr}15)`, border: `1px solid ${clr}40`, fontSize: 15, fontWeight: 900, color: '#FFF', marginTop: 10 } as any}>
               {invitedFriends.length > 0 ? 'Commencer le programme' : 'Continuer sans inviter'}
             </div>
           </div>

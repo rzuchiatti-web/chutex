@@ -330,6 +330,65 @@ export default function ProgramDailyView({ token, onStop }: Props) {
       {/* ═══ CONSEIL NORA ═══ */}
       {tt.tip && <NoraCard title="Conseil de Nora" text={tt.tip} />}
 
+      {/* ═══ EQUIPE ═══ */}
+      {data.team && data.team.members && data.team.members.length > 1 && (
+        <div data-testid="team-progress-section" style={{ padding: '18px', borderRadius: 22, background: 'rgba(167,139,250,0.04)', border: '1px solid rgba(167,139,250,0.12)', marginBottom: 14, animation: 'pdv-fade 400ms ease 350ms both', ...g } as any}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 } as any}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8 } as any}>
+              <div style={{ width: 24, height: 24, borderRadius: 8, background: 'rgba(167,139,250,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}>
+                <i className="ri-team-line" style={{ fontSize: 13, color: '#A78BFA' }} />
+              </div>
+              <span style={{ fontSize: 13, fontWeight: 900, color: '#FFF' }}>Votre equipe</span>
+            </div>
+            <span style={{ fontSize: 10, fontWeight: 700, color: 'rgba(167,139,250,0.6)', padding: '3px 10px', borderRadius: 99, background: 'rgba(167,139,250,0.08)', border: '1px solid rgba(167,139,250,0.15)' }}>
+              {data.team.members.filter((m: any) => m.checked_in_today).length}/{data.team.members.length} check-ins
+            </span>
+          </div>
+          {data.team.members.map((m: any, i: number) => {
+            const initials = m.name.split(' ').map((w: string) => w[0]).join('').toUpperCase().slice(0, 2);
+            const moodObj = m.mood_today ? MOOD.find(mo => mo.val === m.mood_today) : null;
+            return (
+              <div key={i} data-testid={`team-member-${i}`} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 14px', borderRadius: 16, background: m.is_me ? 'rgba(167,139,250,0.06)' : 'rgba(255,255,255,0.02)', border: `1px solid ${m.is_me ? 'rgba(167,139,250,0.12)' : 'rgba(255,255,255,0.04)'}`, marginBottom: i < data.team.members.length - 1 ? 6 : 0 } as any}>
+                <div style={{ width: 38, height: 38, borderRadius: 12, background: m.checked_in_today ? 'rgba(16,185,129,0.12)' : 'rgba(255,255,255,0.06)', border: `1.5px solid ${m.checked_in_today ? 'rgba(16,185,129,0.25)' : 'rgba(255,255,255,0.08)'}`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, fontSize: 13, fontWeight: 900, color: m.checked_in_today ? '#10B981' : 'rgba(255,255,255,0.3)' } as any}>
+                  {initials}
+                </div>
+                <div style={{ flex: 1, minWidth: 0 } as any}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 6 } as any}>
+                    <span style={{ fontSize: 13, fontWeight: 700, color: '#FFF', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' } as any}>{m.name}</span>
+                    {m.is_me && <span style={{ fontSize: 8, fontWeight: 800, color: '#A78BFA', padding: '1px 6px', borderRadius: 99, background: 'rgba(167,139,250,0.12)', border: '1px solid rgba(167,139,250,0.2)' }}>Vous</span>}
+                  </div>
+                  <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.35)', marginTop: 2 } as any}>
+                    {m.checked_in_today
+                      ? <span style={{ color: 'rgba(16,185,129,0.7)' }}>{m.tasks_done_today} action{m.tasks_done_today !== 1 ? 's' : ''} validee{m.tasks_done_today !== 1 ? 's' : ''}</span>
+                      : 'Pas encore fait aujourd\'hui'}
+                  </div>
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexShrink: 0 } as any}>
+                  {moodObj && (
+                    <div style={{ width: 28, height: 28, borderRadius: 8, background: `${moodObj.color}12`, border: `1px solid ${moodObj.color}20`, display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}>
+                      <i className={moodObj.icon} style={{ fontSize: 16, color: moodObj.color }} />
+                    </div>
+                  )}
+                  {m.checked_in_today ? (
+                    <div style={{ width: 22, height: 22, borderRadius: 7, background: 'rgba(16,185,129,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}>
+                      <i className="ri-check-line" style={{ fontSize: 13, color: '#10B981' }} />
+                    </div>
+                  ) : (
+                    <div style={{ width: 22, height: 22, borderRadius: 7, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}>
+                      <i className="ri-time-line" style={{ fontSize: 12, color: 'rgba(255,255,255,0.2)' }} />
+                    </div>
+                  )}
+                </div>
+              </div>
+            );
+          })}
+          <div style={{ marginTop: 12, padding: '8px 12px', borderRadius: 10, background: 'rgba(167,139,250,0.04)', border: '1px solid rgba(167,139,250,0.08)', display: 'flex', alignItems: 'center', gap: 6 } as any}>
+            <i className="ri-key-2-line" style={{ fontSize: 12, color: 'rgba(167,139,250,0.5)' }} />
+            <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.3)' }}>Code equipe: <strong style={{ color: '#A78BFA', letterSpacing: 1 }}>{data.team.invite_code}</strong></span>
+          </div>
+        </div>
+      )}
+
       {/* ═══ CHECK-IN — Données utiles pour adapter le programme ═══ */}
       {!checkedIn ? (
         <div style={{ padding: '20px', borderRadius: 22, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', marginBottom: 14, animation: 'pdv-fade 400ms ease 400ms both', ...g } as any}>

@@ -25,6 +25,7 @@ export default function ProgramsTab() {
   const [loading, setLoading] = useState(true);
   const [hasDevices, setHasDevices] = useState<any>({ bracelet: false, scale: false, any: false });
   const [showGuide, setShowGuide] = useState(false);
+  const [showCatalog, setShowCatalog] = useState(false);
 
   const loadData = async () => {
     setLoading(true);
@@ -85,9 +86,15 @@ export default function ProgramsTab() {
           )}
 
           {/* CATALOGUE */}
-          {!singleProgramLock ? (
+          {(!singleProgramLock || showCatalog) ? (
             <>
               <style dangerouslySetInnerHTML={{ __html: `@keyframes progSlideUp { from { opacity:0; transform:translateY(16px); } to { opacity:1; transform:translateY(0); } }` }} />
+              {showCatalog && singleProgramLock && (
+                <div onClick={() => setShowCatalog(false)} style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 14, cursor: 'pointer', padding: '8px 0' } as any}>
+                  <i className="ri-arrow-left-line" style={{ fontSize: 16, color: 'rgba(255,255,255,0.4)' }} />
+                  <span style={{ fontSize: 12, fontWeight: 700, color: 'rgba(255,255,255,0.4)' }}>Retour au programme actif</span>
+                </div>
+              )}
 
               {remainingPrograms.map((p: any, idx: number) => {
                 const img = PROG_IMAGES[p.category] || PROG_IMAGES.mobilite;
@@ -132,7 +139,7 @@ export default function ProgramsTab() {
               )}
             </>
           ) : (
-            <div onClick={() => router.push('/programs' as any)} style={{ padding: '14px 18px', borderRadius: 16, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', ...glass, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 12, transition: 'background 0.2s' } as any}
+            <div onClick={() => setShowCatalog(true)} style={{ padding: '14px 18px', borderRadius: 16, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', ...glass, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 12, transition: 'background 0.2s' } as any}
               onMouseEnter={(e: any) => { e.currentTarget.style.background = 'rgba(255,255,255,0.08)'; }}
               onMouseLeave={(e: any) => { e.currentTarget.style.background = 'rgba(255,255,255,0.04)'; }}>
               <i className="ri-layout-grid-line" style={{ fontSize: 18, color: 'rgba(255,255,255,0.3)' }} />
