@@ -16,7 +16,7 @@ import requests
 import os
 import uuid
 
-BASE_URL = os.environ.get('EXPO_PUBLIC_BACKEND_URL', 'https://nora-navbar-fixes.preview.emergentagent.com')
+BASE_URL = os.environ.get('EXPO_PUBLIC_BACKEND_URL', 'https://whoop-dashboard.preview.emergentagent.com')
 
 # Test credentials
 ADMIN_EMAIL = "admin@chutex.fr"

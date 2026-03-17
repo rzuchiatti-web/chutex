@@ -192,6 +192,7 @@ export default function GuardianHome({ token, user }: { token: string; user: any
           )}
 
           {/* Alert card */}
+          <div style={{ height: 1, background: 'rgba(255,255,255,0.08)', margin: '4px 0 14px' } as any} />
           <div onClick={() => router.push('/(tabs)/alerts' as any)} style={{ borderRadius: 20, overflow: 'hidden', position: 'relative', padding: '16px 18px', marginBottom: 14, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'space-between' } as any}>
             <img src={activeAlerts.length > 0 ? BG_RED_G : BG_GREEN_G} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 } as any} />
             <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.25)', zIndex: 1 } as any} />
@@ -204,6 +205,7 @@ export default function GuardianHome({ token, user }: { token: string; user: any
               <i className="ri-arrow-right-s-line" style={{ fontSize: 18, color: 'rgba(255,255,255,0.5)' }} />
             </div>
           </div>
+          <div style={{ height: 1, background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.08), transparent)', margin: '6px 20px 14px' } as any} />
           <div style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.35)', letterSpacing: 1.2, textTransform: 'uppercase', marginBottom: 10 }}>Mes beneficiaires</div>
 
           {/* Beneficiaries list */}
@@ -365,7 +367,7 @@ export default function GuardianHome({ token, user }: { token: string; user: any
           <div onClick={() => setShowAddBenPopup(true)} style={{ padding: '16px', borderRadius: 999, textAlign: 'center', cursor: 'pointer', background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10, backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)' } as any}><i className="ri-heart-line" style={{ fontSize: 16, color: '#FFF' }} /><span style={{ fontSize: 14, fontWeight: 700, color: '#FFF' }}>{t('add_beneficiary')}</span></div>
 
           {/* Nora IA card */}
-          <div style={{ height: 1, background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.06), transparent)', margin: '16px 20px' } as any} />
+          <div style={{ height: 1, background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent)', margin: '18px 16px' } as any} />
           <CopilotCard subtitle={"Un accompagnement intelligent pour comprendre la sant\u00e9 de vos b\u00e9n\u00e9ficiaires et agir au quotidien."} />
         </div>
         {/* POPUP AJOUTER BENEFICIAIRE */}

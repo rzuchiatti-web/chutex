@@ -10,7 +10,7 @@ export default function CopilotCard({ subtitle }: { subtitle?: string }) {
   return (
     <div data-testid="copilot-ia-card" onClick={() => router.push('/chat-ia' as any)}
       className="dash-slide-up"
-      style={{ borderRadius: 20, overflow: 'hidden', position: 'relative', height: 150, marginBottom: 20, cursor: 'pointer', transition: 'transform 0.18s', background: '#000', display: 'flex', alignItems: 'center' } as any}
+      style={{ borderRadius: 20, overflow: 'hidden', position: 'relative', height: 150, marginBottom: 20, cursor: 'pointer', transition: 'transform 0.18s', background: '#000', display: 'flex', alignItems: 'center', border: '1.5px solid rgba(255,255,255,0.25)', boxShadow: '0 0 30px rgba(255,255,255,0.08), 0 0 60px rgba(167,139,250,0.06), 0 8px 40px rgba(0,0,0,0.5)' } as any}
       onMouseEnter={(e: any) => { e.currentTarget.style.transform = 'translateY(-2px) scale(1.005)'; }}
       onMouseLeave={(e: any) => { e.currentTarget.style.transform = ''; }}>
       {/* Nora Video — right side, bigger */}
