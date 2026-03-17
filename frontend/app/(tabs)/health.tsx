@@ -18,6 +18,7 @@ import { useAuth } from '../../src/context/AuthContext';
 import { useTheme } from '../../src/context/ThemeContext';
 import { apiFetch } from '../../src/services/api';
 import FullScreenLoader from '../../src/components/FullScreenLoader';
+import AnimatedDarkBg from '../../src/components/AnimatedDarkBg';
 import CompanyAgencyScreen from '../company-agency';
 
 const glass = Platform.OS === 'web' ? { backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)', boxShadow: '0 14px 40px rgba(0,0,0,0.35)' } : {};
@@ -179,7 +180,8 @@ export default function HealthScreen() {
     }
 
     return (
-      <div data-testid="health-screen" style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, display: 'flex', flexDirection: 'column', fontFamily: "'Inter', system-ui, sans-serif", overflow: 'hidden', background: 'linear-gradient(180deg, #141618 0%, #1a1e22 30%, #1f2429 60%, #252b31 100%)' } as any}>
+      <div data-testid="health-screen" style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, display: 'flex', flexDirection: 'column', fontFamily: "'Inter', system-ui, sans-serif", overflow: 'hidden' } as any}>
+        <AnimatedDarkBg />
 
         <div style={{ flex: 1, overflowY: 'auto', position: 'relative', zIndex: 5, padding: '20px 20px 120px', WebkitOverflowScrolling: 'touch' } as any}>
 
