@@ -443,6 +443,61 @@ export default function ProgramDailyView({ token, onStop }: Props) {
         })}
       </div>
 
+      {/* ═══ CHECK-IN / BILAN (just below actions) ═══ */}
+      {!checkin ? (
+        <div data-testid="checkin-section" style={{ padding: '20px', borderRadius: 22, background: allTasksDone ? `linear-gradient(135deg, ${clr}08, ${clr}03)` : 'rgba(255,255,255,0.02)', border: `1px solid ${allTasksDone ? `${clr}20` : 'rgba(255,255,255,0.06)'}`, ...g, marginBottom: 14, animation: 'pdv-fade 400ms ease 450ms both' } as any}>
+          {!showCheckin ? (
+            <div onClick={() => setShowCheckin(true)} style={{ display: 'flex', alignItems: 'center', gap: 14, cursor: 'pointer' } as any}>
+              <div style={{ width: 48, height: 48, borderRadius: 16, background: allTasksDone ? `${clr}12` : 'rgba(255,255,255,0.04)', border: `1.5px solid ${allTasksDone ? `${clr}25` : 'rgba(255,255,255,0.08)'}`, display: 'flex', alignItems: 'center', justifyContent: 'center', animation: allTasksDone ? 'pdv-pulse 2s ease-in-out infinite' : 'none' } as any}>
+                <i className="ri-checkbox-circle-line" style={{ fontSize: 24, color: allTasksDone ? clr : 'rgba(255,255,255,0.2)' }} />
+              </div>
+              <div style={{ flex: 1 } as any}>
+                <div style={{ fontSize: 14, fontWeight: 800, color: allTasksDone ? '#FFF' : 'rgba(255,255,255,0.5)' }}>Bilan du jour</div>
+                <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)', marginTop: 2 }}>
+                  {allTasksDone ? 'Toutes les actions sont faites ! Faites votre bilan' : `${doneIndices.length}/${tasks.length} actions faites — completez pour debloquer`}
+                </div>
+              </div>
+              <i className="ri-arrow-right-s-line" style={{ fontSize: 20, color: allTasksDone ? clr : 'rgba(255,255,255,0.1)' }} />
+            </div>
+          ) : (
+            <div style={{ animation: 'pdv-fade 300ms ease' } as any}>
+              <div style={{ fontSize: 14, fontWeight: 800, color: '#FFF', marginBottom: 14, textAlign: 'center' }}>Comment vous sentez-vous ?</div>
+              <div style={{ display: 'flex', justifyContent: 'center', gap: 8, marginBottom: 16 } as any}>
+                {MOOD.map(m => (
+                  <div key={m.val} onClick={() => setMood(m.val)}
+                    style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6, cursor: 'pointer', padding: '12px 8px', borderRadius: 16, background: mood === m.val ? `${m.color}15` : 'rgba(255,255,255,0.03)', border: `1.5px solid ${mood === m.val ? m.color : 'rgba(255,255,255,0.06)'}`, transition: 'all 200ms', minWidth: 52 } as any}>
+                    <i className={m.icon} style={{ fontSize: 24, color: mood === m.val ? m.color : 'rgba(255,255,255,0.15)', transition: 'color 200ms' }} />
+                    <span style={{ fontSize: 9, fontWeight: 700, color: mood === m.val ? m.color : 'rgba(255,255,255,0.2)' }}>{m.label}</span>
+                  </div>
+                ))}
+              </div>
+              <textarea data-testid="checkin-note" value={checkinNote} onChange={(e: any) => setCheckinNote(e.target.value)}
+                placeholder="Une note sur votre journee ? (optionnel)"
+                style={{ width: '100%', minHeight: 60, padding: '12px 14px', borderRadius: 14, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', color: '#FFF', fontSize: 13, fontFamily: 'inherit', resize: 'vertical', outline: 'none', boxSizing: 'border-box', marginBottom: 12 } as any} />
+              <div style={{ display: 'flex', gap: 8 } as any}>
+                <div onClick={() => setShowCheckin(false)} style={{ flex: 1, padding: '14px', borderRadius: 14, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', textAlign: 'center', cursor: 'pointer', fontSize: 13, fontWeight: 700, color: 'rgba(255,255,255,0.4)' } as any}>Annuler</div>
+                <div data-testid="checkin-submit" onClick={submitCheckin}
+                  style={{ flex: 2, padding: '14px', borderRadius: 14, background: mood ? `linear-gradient(135deg, ${clr}35, ${clr}15)` : 'rgba(255,255,255,0.03)', border: `1px solid ${mood ? `${clr}40` : 'rgba(255,255,255,0.06)'}`, textAlign: 'center', cursor: mood ? 'pointer' : 'not-allowed', fontSize: 14, fontWeight: 900, color: mood ? '#FFF' : 'rgba(255,255,255,0.2)', opacity: submittingCheckin ? 0.6 : 1 } as any}>
+                  {submittingCheckin ? 'Envoi...' : 'Valider le bilan'}
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      ) : (
+        <div data-testid="checkin-done" style={{ padding: '16px', borderRadius: 18, background: 'rgba(16,185,129,0.04)', border: '1px solid rgba(16,185,129,0.12)', ...g, marginBottom: 14, display: 'flex', alignItems: 'center', gap: 12, animation: 'pdv-fade 400ms ease 450ms both' } as any}>
+          <div style={{ width: 40, height: 40, borderRadius: 12, background: 'rgba(16,185,129,0.1)', border: '1px solid rgba(16,185,129,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}>
+            <i className="ri-checkbox-circle-fill" style={{ fontSize: 20, color: '#10B981' }} />
+          </div>
+          <div style={{ flex: 1 } as any}>
+            <div style={{ fontSize: 13, fontWeight: 700, color: '#10B981' }}>Bilan du jour valide</div>
+            <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.25)', marginTop: 2 }}>
+              Humeur : {MOOD.find(m => m.val === checkin.mood)?.label || '?'} • {doneIndices.length} actions
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* ═══ TIP DU JOUR ═══ */}
       {tt?.tip && (
         <div style={{ padding: '14px 16px', borderRadius: 16, background: 'rgba(251,191,36,0.04)', border: '1px solid rgba(251,191,36,0.1)', marginBottom: 14, display: 'flex', gap: 10, animation: 'pdv-fade 400ms ease 300ms both' } as any}>
@@ -537,61 +592,6 @@ export default function ProgramDailyView({ token, onStop }: Props) {
               </div>
             );
           })}
-        </div>
-      )}
-
-      {/* ═══ CHECK-IN (below tasks) ═══ */}
-      {!checkin ? (
-        <div data-testid="checkin-section" style={{ padding: '20px', borderRadius: 22, background: allTasksDone ? `linear-gradient(135deg, ${clr}08, ${clr}03)` : 'rgba(255,255,255,0.02)', border: `1px solid ${allTasksDone ? `${clr}20` : 'rgba(255,255,255,0.06)'}`, ...g, marginBottom: 14, animation: 'pdv-fade 400ms ease 450ms both' } as any}>
-          {!showCheckin ? (
-            <div onClick={() => setShowCheckin(true)} style={{ display: 'flex', alignItems: 'center', gap: 14, cursor: 'pointer' } as any}>
-              <div style={{ width: 48, height: 48, borderRadius: 16, background: allTasksDone ? `${clr}12` : 'rgba(255,255,255,0.04)', border: `1.5px solid ${allTasksDone ? `${clr}25` : 'rgba(255,255,255,0.08)'}`, display: 'flex', alignItems: 'center', justifyContent: 'center', animation: allTasksDone ? 'pdv-pulse 2s ease-in-out infinite' : 'none' } as any}>
-                <i className="ri-checkbox-circle-line" style={{ fontSize: 24, color: allTasksDone ? clr : 'rgba(255,255,255,0.2)' }} />
-              </div>
-              <div style={{ flex: 1 } as any}>
-                <div style={{ fontSize: 14, fontWeight: 800, color: allTasksDone ? '#FFF' : 'rgba(255,255,255,0.5)' }}>Bilan du jour</div>
-                <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)', marginTop: 2 }}>
-                  {allTasksDone ? 'Toutes les actions sont faites ! Faites votre bilan' : `${doneIndices.length}/${tasks.length} actions faites — completez pour debloquer`}
-                </div>
-              </div>
-              <i className="ri-arrow-right-s-line" style={{ fontSize: 20, color: allTasksDone ? clr : 'rgba(255,255,255,0.1)' }} />
-            </div>
-          ) : (
-            <div style={{ animation: 'pdv-fade 300ms ease' } as any}>
-              <div style={{ fontSize: 14, fontWeight: 800, color: '#FFF', marginBottom: 14, textAlign: 'center' }}>Comment vous sentez-vous ?</div>
-              <div style={{ display: 'flex', justifyContent: 'center', gap: 8, marginBottom: 16 } as any}>
-                {MOOD.map(m => (
-                  <div key={m.val} onClick={() => setMood(m.val)}
-                    style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6, cursor: 'pointer', padding: '12px 8px', borderRadius: 16, background: mood === m.val ? `${m.color}15` : 'rgba(255,255,255,0.03)', border: `1.5px solid ${mood === m.val ? m.color : 'rgba(255,255,255,0.06)'}`, transition: 'all 200ms', minWidth: 52 } as any}>
-                    <i className={m.icon} style={{ fontSize: 24, color: mood === m.val ? m.color : 'rgba(255,255,255,0.15)', transition: 'color 200ms' }} />
-                    <span style={{ fontSize: 9, fontWeight: 700, color: mood === m.val ? m.color : 'rgba(255,255,255,0.2)' }}>{m.label}</span>
-                  </div>
-                ))}
-              </div>
-              <textarea data-testid="checkin-note" value={checkinNote} onChange={(e: any) => setCheckinNote(e.target.value)}
-                placeholder="Une note sur votre journee ? (optionnel)"
-                style={{ width: '100%', minHeight: 60, padding: '12px 14px', borderRadius: 14, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', color: '#FFF', fontSize: 13, fontFamily: 'inherit', resize: 'vertical', outline: 'none', boxSizing: 'border-box', marginBottom: 12 } as any} />
-              <div style={{ display: 'flex', gap: 8 } as any}>
-                <div onClick={() => setShowCheckin(false)} style={{ flex: 1, padding: '14px', borderRadius: 14, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', textAlign: 'center', cursor: 'pointer', fontSize: 13, fontWeight: 700, color: 'rgba(255,255,255,0.4)' } as any}>Annuler</div>
-                <div data-testid="checkin-submit" onClick={submitCheckin}
-                  style={{ flex: 2, padding: '14px', borderRadius: 14, background: mood ? `linear-gradient(135deg, ${clr}35, ${clr}15)` : 'rgba(255,255,255,0.03)', border: `1px solid ${mood ? `${clr}40` : 'rgba(255,255,255,0.06)'}`, textAlign: 'center', cursor: mood ? 'pointer' : 'not-allowed', fontSize: 14, fontWeight: 900, color: mood ? '#FFF' : 'rgba(255,255,255,0.2)', opacity: submittingCheckin ? 0.6 : 1 } as any}>
-                  {submittingCheckin ? 'Envoi...' : 'Valider le bilan'}
-                </div>
-              </div>
-            </div>
-          )}
-        </div>
-      ) : (
-        <div data-testid="checkin-done" style={{ padding: '16px', borderRadius: 18, background: 'rgba(16,185,129,0.04)', border: '1px solid rgba(16,185,129,0.12)', ...g, marginBottom: 14, display: 'flex', alignItems: 'center', gap: 12, animation: 'pdv-fade 400ms ease 450ms both' } as any}>
-          <div style={{ width: 40, height: 40, borderRadius: 12, background: 'rgba(16,185,129,0.1)', border: '1px solid rgba(16,185,129,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}>
-            <i className="ri-checkbox-circle-fill" style={{ fontSize: 20, color: '#10B981' }} />
-          </div>
-          <div style={{ flex: 1 } as any}>
-            <div style={{ fontSize: 13, fontWeight: 700, color: '#10B981' }}>Bilan du jour valide</div>
-            <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.25)', marginTop: 2 }}>
-              Humeur : {MOOD.find(m => m.val === checkin.mood)?.label || '?'} • {doneIndices.length} actions
-            </div>
-          </div>
         </div>
       )}
 
