@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { API_URL } from '../services/api';
+import { API_URL, clearApiCache } from '../services/api';
 
 interface User {
   id: string;
@@ -122,6 +122,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     try {
       await AsyncStorage.removeItem('vl_token');
     } catch (e) {}
+    clearApiCache();
     setUser(null);
     setToken(null);
     if (typeof window !== 'undefined') {

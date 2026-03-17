@@ -279,71 +279,54 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
 
   const fetchData = useCallback(async () => {
     try {
-      const [dd, rem, guards, greqs, hs, scaleHistory] = await Promise.all([
-        apiFetch('/api/devices/dashboard-summary', {}, token).catch(() => null),
-        apiFetch('/api/reminders', {}, token).catch(() => []),
-        apiFetch('/api/guardians/my', {}, token).catch(() => []),
-        apiFetch('/api/beneficiary/guardian-requests', {}, token).catch(() => []),
-        apiFetch('/api/health/summary', {}, token).catch(() => null),
-        apiFetch('/api/devices/scale/history', {}, token).catch(() => []),
-      ]);
-      setDashData(dd);
-      setReminders(rem);
-      setGuardians(Array.isArray(guards) ? guards : []);
-      setGuardianRequests(Array.isArray(greqs) ? greqs : []);
-      if (hs) setHealthSummary(hs);
-      apiFetch('/api/subscriptions/my', {}, token).then(setSubscription).catch(() => {});
-      if (Array.isArray(scaleHistory)) {
-        const mapped = scaleHistory
-          .map((r: any) => {
-            const data = r?.data || r;
-            return {
-              id: r?.id || '',
-              date: r?.timestamp || r?.date || r?.created_at || '',
-              weight: data?.weight || 0,
-              bmi: data?.bmi || 0,
-              body_fat_pct: data?.body_fat_pct || 0,
-              muscle_pct: data?.muscle_pct || 0,
-              water_pct: data?.water_pct || 0,
-              status: data?.health_evaluation || '--',
-            };
-          })
-          .filter((w: any) => w.weight > 0)
-          .slice(0, 20);
-        setWeighings(mapped);
-      }
-      try {
-        const [prog, cat] = await Promise.all([
-          apiFetch('/api/programs/active', {}, token).catch(() => null),
-          apiFetch('/api/programs/catalog', {}, token).catch(() => null),
-        ]);
-        if (prog) {
-          setActiveProgram(prog);
-          if (prog.active && !prog.today_checkin) {
-            // Don't show popup — checkin is done inside the program page
-          }
+      // Single batch call replaces 8 separate API calls
+      const batch = await apiFetch('/api/dashboard/batch', {}, token).catch(() => null);
+      if (batch) {
+        setDashData(batch.dashboard_summary);
+        setReminders(Array.isArray(batch.reminders) ? batch.reminders : []);
+        setGuardians(Array.isArray(batch.guardians) ? batch.guardians : []);
+        setGuardianRequests(Array.isArray(batch.guardian_requests) ? batch.guardian_requests : []);
+        if (batch.subscription) setSubscription(batch.subscription);
+        if (batch.health_summary) setHealthSummary(batch.health_summary);
+        setActiveAlerts(Array.isArray(batch.active_alerts) ? batch.active_alerts : []);
+        if (Array.isArray(batch.scale_history)) {
+          const mapped = batch.scale_history
+            .map((r: any) => {
+              const data = r?.data || r;
+              return {
+                id: r?.id || '',
+                date: r?.timestamp || r?.date || r?.created_at || '',
+                weight: data?.weight || 0,
+                bmi: data?.bmi || 0,
+                body_fat_pct: data?.body_fat_pct || 0,
+                muscle_pct: data?.muscle_pct || 0,
+                water_pct: data?.water_pct || 0,
+                status: data?.health_evaluation || '--',
+              };
+            })
+            .filter((w: any) => w.weight > 0)
+            .slice(0, 20);
+          setWeighings(mapped);
         }
-        if (cat?.programs) setProgramCatalog(cat.programs);
-        // Fetch team invitations
-        apiFetch('/api/programs/team/invitations', {}, token).then(inv => { if (Array.isArray(inv)) setTeamInvitations(inv); }).catch(() => {});
-        // Daily checkin + streak + predictive alerts + activity streak
-        apiFetch('/api/nora/checkin-daily', { method: 'POST' }, token).then(s => { if (s) setStreakData(s); }).catch(() => {});
-        apiFetch('/api/nora/predictive-check', {}, token).then(p => {
-          if (p?.alerts) {
-            setPredictiveAlerts(p.alerts);
-          }
-        }).catch(() => {});
-        apiFetch('/api/health/activity-streak', {}, token).then(s => { if (s) setActivityStreakData(s); }).catch(() => {});
-      } catch {}
+      }
+      // Secondary calls (complex queries) — in parallel, non-blocking
+      const [prog, cat] = await Promise.all([
+        apiFetch('/api/programs/active', {}, token).catch(() => null),
+        apiFetch('/api/programs/catalog', {}, token).catch(() => null),
+      ]);
+      if (prog) {
+        setActiveProgram(prog);
+      }
+      if (cat?.programs) setProgramCatalog(cat.programs);
+      // Fire-and-forget calls (low priority)
+      apiFetch('/api/programs/team/invitations', {}, token).then(inv => { if (Array.isArray(inv)) setTeamInvitations(inv); }).catch(() => {});
+      apiFetch('/api/nora/checkin-daily', { method: 'POST' }, token).then(s => { if (s) setStreakData(s); }).catch(() => {});
+      apiFetch('/api/nora/predictive-check', {}, token).then(p => { if (p?.alerts) setPredictiveAlerts(p.alerts); }).catch(() => {});
+      apiFetch('/api/health/activity-streak', {}, token).then(s => { if (s) setActivityStreakData(s); }).catch(() => {});
     } catch {} finally { setLoading(false); setRefreshing(false); }
-    // Fetch alerts separately to ensure it always runs
-    try {
-      const aa = await apiFetch('/api/alerts/active-with-interventions', {}, token);
-      setActiveAlerts(Array.isArray(aa) ? aa : []);
-    } catch { setActiveAlerts([]); }
   }, [token]);
 
-  useEffect(() => { fetchData(); const iv = setInterval(fetchData, 30000); return () => clearInterval(iv); }, [fetchData]);
+  useEffect(() => { fetchData(); const iv = setInterval(fetchData, 60000); return () => clearInterval(iv); }, [fetchData]);
   useEffect(() => { requestNotificationPermission(); }, []);
   // Morning briefing — only once per day
   useEffect(() => {
