@@ -173,7 +173,7 @@ export default function DeviceCards({ br, sc, vs, onStartWeighing, weighings = [
 
   return (
     <>
-      <div style={{ padding: '16px', borderRadius: 20, background: 'var(--card-bg, #EDEDF0)', marginBottom: 20, backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' } as any}>
+      <div style={{ padding: '16px', borderRadius: 20, background: 'var(--card-bg, #EDEDF0)', marginBottom: 20 } as any}>
       <div style={{ display: 'flex', alignItems: 'center', marginBottom: 12 } as any}>
         <div style={{ fontSize: 16, fontWeight: 900, color: 'var(--card-text, #111)', flex: 1 }}>Dispositifs</div>
         <div data-testid="add-device-btn" onClick={() => router.push('/(tabs)/devices' as any)}

@@ -459,8 +459,8 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
   if (Platform.OS === 'web') {
     const BG_IMG = 'https://customer-assets.emergentagent.com/job_9950a869-9328-4a4b-abf4-a6fb213a3b47/artifacts/iklovqya_background_beneficiary.svg';
     const toggleDark = () => { const next = !isDark; setIsDark(next); localStorage.setItem('chutex_dark', next ? '1' : '0'); };
-    const C = isDark ? { bg: '#000', card: 'rgba(255,255,255,0.06)', text: '#FFF', sub: 'rgba(255,255,255,0.4)', headerBg: 'rgba(255,255,255,0.06)', btnBg: 'rgba(255,255,255,0.08)', arrow: 'rgba(255,255,255,0.2)' } : { bg: '#FFF', card: '#EDEDF0', text: '#111', sub: 'rgba(0,0,0,0.4)', headerBg: '#EDEDF0', btnBg: '#FFF', arrow: 'rgba(0,0,0,0.2)' };
-    const glass = isDark ? { backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1px solid rgba(255,255,255,0.08)' } : {};
+    const C = isDark ? { bg: '#1a1d20', card: '#272a30', text: '#FFF', sub: 'rgba(255,255,255,0.45)', headerBg: '#272a30', btnBg: 'rgba(255,255,255,0.06)', arrow: 'rgba(255,255,255,0.2)' } : { bg: '#FFF', card: '#EDEDF0', text: '#111', sub: 'rgba(0,0,0,0.4)', headerBg: '#EDEDF0', btnBg: '#FFF', arrow: 'rgba(0,0,0,0.2)' };
+    const glass = isDark ? {} : {};
 
     /* Card helper — adapts to dark/light */
     const GC = ({ children, style, onClick, testId }: any) => (
@@ -471,14 +471,11 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
       </div>
     );
     return (
-      <div data-testid="beneficiary-dashboard" style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, display: 'flex', flexDirection: 'column', fontFamily: "'Inter', system-ui, -apple-system, sans-serif", overflow: 'hidden', background: C.bg, '--card-bg': C.card, '--card-text': C.text, '--card-sub': C.sub, '--card-arrow': C.arrow, '--card-sep': isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.06)', '--card-blur': isDark ? 'blur(20px)' : 'none', '--card-border': isDark ? '1px solid rgba(255,255,255,0.08)' : 'none' } as any}>
-        {isDark && <img src={BG_IMG} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 } as any} />}
-        {isDark && <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.35)', zIndex: 1 } as any} />}
-
+      <div data-testid="beneficiary-dashboard" style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, display: 'flex', flexDirection: 'column', fontFamily: "'Inter', system-ui, -apple-system, sans-serif", overflow: 'hidden', background: C.bg, '--card-bg': C.card, '--card-text': C.text, '--card-sub': C.sub, '--card-arrow': C.arrow, '--card-sep': isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.06)', '--card-blur': 'none', '--card-border': 'none' } as any}>
         <div style={{ flex: 1, overflowY: 'auto', position: 'relative', zIndex: 5, padding: '0 0 100px', WebkitOverflowScrolling: 'touch' } as any}>
 
           {/* ══════ HEADER — Full width gray rounded ══════ */}
-          <div data-testid="dashboard-header" className="dash-slide-up" style={{ padding: '16px 20px', margin: '8px 16px 0', borderRadius: 22, background: C.headerBg, backdropFilter: isDark ? 'blur(20px)' : 'none', WebkitBackdropFilter: isDark ? 'blur(20px)' : 'none', border: isDark ? '1px solid rgba(255,255,255,0.08)' : 'none' } as any}>
+          <div data-testid="dashboard-header" className="dash-slide-up" style={{ padding: '16px 20px', margin: '8px 16px 0', borderRadius: 22, background: C.headerBg } as any}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' } as any}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 12 } as any}>
                 <div onClick={() => router.push('/(tabs)/profile' as any)} style={{ width: 44, height: 44, borderRadius: 22, background: isDark ? 'rgba(255,255,255,0.1)' : '#D8D8DC', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, cursor: 'pointer', overflow: 'hidden' } as any}>

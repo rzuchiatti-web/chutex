@@ -17,6 +17,7 @@ Health monitoring and care application for elderly beneficiaries ("Chutex Care")
 3. **Beneficiary Profile Card Redesign** — Restructured the main profile card with clear separated sections: Identite (age, genre, date naissance, telephone), Adresse, Physique (taille, poids, IMC), Dossier Medical (groupe sanguin, pathologies, allergies). Each section has an icon header and grid-based InfoCell components.
 4. **Dashboard Dispositifs Button** — Moved the "add device" action into the Dispositifs card header as a round white `+` button. Removed the separate "Mes dispositifs" card from the dashboard.
 5. **Programs Page Cleanup** — Removed category filter pills, added a glass `?` guide button in the header with a glassmorphism popup explaining how programs work (4 steps: choose, follow daily, check-in, earn badges).
+6. **Dashboard Dark Mode Whoop Style** — Redesigned dark mode to match Whoop app aesthetic: solid `#1a1d20` background (removed mountain SVG), solid `#272a30` card backgrounds (removed glassmorphism blur and borders), cleaner spacing. Light mode unchanged.
 
 ### Session - March 12, 2026 (Batch 5)
 1. **Whoop-style Navbar** — Glassmorphism floating tab bar (`WhoopTabBar` inline in `_layout.tsx`) for both beneficiary and guardian spaces
