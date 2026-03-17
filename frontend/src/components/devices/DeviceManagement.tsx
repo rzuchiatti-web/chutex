@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, Platform, StyleSheet } from 'react-native';
 import { useRouter } from 'expo-router';
 import FullScreenLoader from '../FullScreenLoader';
+import AnimatedDarkBg from '../AnimatedDarkBg';
 import { Icon, MCIcon } from '../WebIcon';
 import WeighingFlow from '../dashboard/WeighingFlow';
 import { Colors } from '../../constants/colors';
@@ -50,8 +51,7 @@ export function DeviceManagement({ token }: { token: string }) {
   if (Platform.OS === 'web') {
     return (
       <div data-testid="devices-page" style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, display: 'flex', flexDirection: 'column', fontFamily: 'Inter, system-ui, sans-serif', overflow: 'hidden' } as any}>
-        <img src={BG_BLACK} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 } as any} />
-        <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.35)', zIndex: 1 } as any} />
+        <AnimatedDarkBg />
         <div style={{ flex: 1, overflowY: 'auto', position: 'relative', zIndex: 5, padding: '0 20px 100px', WebkitOverflowScrolling: 'touch' } as any}>
           <div style={{ padding: '28px 0 16px', textAlign: 'center' } as any}>
             <div style={{ fontSize: 26, fontWeight: 800, color: '#FFF', marginBottom: 4 }}>Dispositifs connectes</div>

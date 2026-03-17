@@ -4,7 +4,7 @@ import { useAuth } from '../src/context/AuthContext';
 import { apiFetch } from '../src/services/api';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import NativePageView from '../src/components/NativePageView';
-import { BG_IMAGES } from '../src/components/dashboard/constants';
+import AnimatedDarkBg from '../src/components/AnimatedDarkBg';
 import Loader from '../src/components/Loader';
 import NoraCard from '../src/components/shared/NoraCard';
 
@@ -92,14 +92,15 @@ export default function ProgramDetailScreen() {
     } catch (e: any) { setInviteMsg(e.message || 'Erreur'); } finally { setInviteLoading(false); }
   };
 
+  const [showDeviceSetup, setShowDeviceSetup] = useState(false);
+
   const GlassBox = ({ children, style }: any) => (
-    <div style={{ padding: '16px', borderRadius: 20, background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.14)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', ...style } as any}>{children}</div>
+    <div style={{ padding: '16px', borderRadius: 20, background: '#1a1a1e', border: '1.5px solid rgba(255,255,255,0.12)', ...style } as any}>{children}</div>
   );
 
   return (
     <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, fontFamily: "'Inter', system-ui, sans-serif", overflow: 'hidden' } as any}>
-      <img src={BG_IMAGES.beneficiary} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 } as any} />
-      <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.55)', zIndex: 1 } as any} />
+      <AnimatedDarkBg />
       <div style={{ position: 'absolute', top: -100, right: -60, width: 260, height: 260, borderRadius: 999, background: `radial-gradient(circle, ${clr}25, transparent 70%)`, zIndex: 2 } as any} />
       <style>{`
         @keyframes detail-fade-in { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }
@@ -374,6 +375,39 @@ export default function ProgramDetailScreen() {
 
       </div>
       </div>
+
+      {/* Device Setup Popup */}
+      {showDeviceSetup && (
+        <div onClick={() => setShowDeviceSetup(false)} style={{ position: 'fixed', inset: 0, zIndex: 9999, backdropFilter: 'blur(32px)', WebkitBackdropFilter: 'blur(32px)', background: 'rgba(0,0,0,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 } as any}>
+          <div onClick={(e: any) => e.stopPropagation()} style={{ width: '100%', maxWidth: 380, borderRadius: 24, background: '#1a1a1e', border: '1.5px solid rgba(255,255,255,0.15)', padding: 28, animation: 'detail-fade-in 300ms ease' } as any}>
+            <div style={{ textAlign: 'center', marginBottom: 20 } as any}>
+              <div style={{ width: 56, height: 56, borderRadius: 18, background: `${clr}12`, display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 14px' } as any}>
+                <i className="ri-bluetooth-connect-line" style={{ fontSize: 26, color: clr }} />
+              </div>
+              <div style={{ fontSize: 18, fontWeight: 900, color: '#FFF', marginBottom: 6 }}>Appareils requis</div>
+              <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', lineHeight: 1.5 }}>Ce programme necessite des appareils connectes pour suivre vos metriques. Configurez-les depuis la page Dispositifs.</div>
+            </div>
+            {(program.required_devices || ['bracelet']).map((d: string, i: number) => (
+              <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '14px', borderRadius: 14, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.06)', marginBottom: 8 } as any}>
+                <i className={d === 'scale' ? 'ri-scales-3-line' : 'ri-device-line'} style={{ fontSize: 20, color: clr }} />
+                <div style={{ flex: 1 } as any}>
+                  <div style={{ fontSize: 13, fontWeight: 700, color: '#FFF' }}>{d === 'scale' ? 'Balance connectee' : 'Bracelet Elio'}</div>
+                  <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.3)' }}>Non configure</div>
+                </div>
+                <i className="ri-error-warning-line" style={{ fontSize: 16, color: '#F59E0B' }} />
+              </div>
+            ))}
+            <div onClick={() => { setShowDeviceSetup(false); router.push('/(tabs)/devices' as any); }}
+              style={{ padding: '14px', borderRadius: 16, textAlign: 'center', cursor: 'pointer', background: `linear-gradient(135deg, ${clr}35, ${clr}15)`, border: `1px solid ${clr}40`, fontSize: 14, fontWeight: 800, color: '#FFF', marginTop: 16, marginBottom: 8 } as any}>
+              <i className="ri-bluetooth-connect-line" style={{ marginRight: 8 }} />Configurer mes appareils
+            </div>
+            <div onClick={() => setShowDeviceSetup(false)}
+              style={{ padding: '12px', borderRadius: 14, textAlign: 'center', cursor: 'pointer', fontSize: 12, fontWeight: 600, color: 'rgba(255,255,255,0.35)' } as any}>
+              Plus tard
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
