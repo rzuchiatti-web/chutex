@@ -11,6 +11,7 @@ import { useTheme } from '../../src/context/ThemeContext';
 import { apiFetch, API_URL } from '../../src/services/api';
 import { useI18n } from '../../src/context/I18nContext';
 import { HelpCenter } from '../../src/components/HelpSystem';
+import AnimatedDarkBg from '../../src/components/AnimatedDarkBg';
 
 const glass = Platform.OS === 'web' ? { backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)', boxShadow: '0 2px 20px rgba(0,0,0,0.05)' } : {};
 const GlassCard = ({ children, style }: any) => (
@@ -286,8 +287,7 @@ const BG_PROFILE = 'https://customer-assets.emergentagent.com/job_9950a869-9328-
 
     return (
       <div data-testid="profile-screen" style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, display: 'flex', flexDirection: 'column', fontFamily: 'Inter, system-ui, sans-serif', overflow: 'hidden' } as any}>
-        <img src={BG_DARK} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 } as any} />
-        <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.35)', zIndex: 1 } as any} />
+        <AnimatedDarkBg />
 
         <div style={{ flex: 1, overflowY: 'auto', position: 'relative', zIndex: 5, padding: '24px 20px 100px', WebkitOverflowScrolling: 'touch' } as any} data-animate>
 

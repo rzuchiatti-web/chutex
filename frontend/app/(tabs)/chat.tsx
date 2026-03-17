@@ -7,6 +7,7 @@ import ProgramDailyView from '../../src/components/ProgramDailyView';
 import { useRouter } from 'expo-router';
 import { BG_IMAGES } from '../../src/components/dashboard/constants';
 import Loader from '../../src/components/Loader';
+import AnimatedDarkBg from '../../src/components/AnimatedDarkBg';
 
 export default function ProgramsTab() {
   const { token } = useAuth();
@@ -42,8 +43,7 @@ export default function ProgramsTab() {
 
   return (
     <div data-testid="programs-tab" style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, fontFamily: "'Inter', system-ui, sans-serif", overflow: 'hidden' } as any}>
-      <img src={BG_IMAGES.beneficiary} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 } as any} />
-      <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.55)', zIndex: 1 } as any} />
+      <AnimatedDarkBg />
 
       <div style={{ position: 'relative', zIndex: 5, height: '100%', overflowY: 'auto', WebkitOverflowScrolling: 'touch' } as any}>
         <div style={{ maxWidth: 480, margin: '0 auto', padding: '24px 20px 120px' } as any}>
