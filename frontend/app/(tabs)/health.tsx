@@ -179,7 +179,7 @@ export default function HealthScreen() {
     }
 
     return (
-      <div data-testid="health-screen" style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, display: 'flex', flexDirection: 'column', fontFamily: "'Inter', system-ui, sans-serif", overflow: 'hidden', background: 'linear-gradient(180deg, #1a1d20 0%, #1f2328 40%, #22272c 100%)' } as any}>
+      <div data-testid="health-screen" style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, display: 'flex', flexDirection: 'column', fontFamily: "'Inter', system-ui, sans-serif", overflow: 'hidden', background: 'linear-gradient(180deg, #141618 0%, #1a1e22 30%, #1f2429 60%, #252b31 100%)' } as any}>
 
         <div style={{ flex: 1, overflowY: 'auto', position: 'relative', zIndex: 5, padding: '20px 20px 120px', WebkitOverflowScrolling: 'touch' } as any}>
 
@@ -199,7 +199,7 @@ export default function HealthScreen() {
             </div>
           )}
 
-          <div style={{ height: 1, background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.06), transparent)', margin: '4px 20px 16px' } as any} />
+          <div style={{ height: 1, background: 'rgba(255,255,255,0.08)', margin: '12px 0 16px' } as any} />
 
           {/* 2. (Objectifs journaliers retires — affiches sur le dashboard) */}
 
@@ -265,6 +265,8 @@ export default function HealthScreen() {
             ))}
           </div>
 
+          <div style={{ height: 1, background: 'rgba(255,255,255,0.08)', margin: '12px 0 16px' } as any} />
+
           {/* 4b. Activity Card — uses same goals as daily objectives */}
           {(() => {
             const stepPlan = filteredPlan.find((p: any) => p.key === 'steps');
@@ -272,8 +274,10 @@ export default function HealthScreen() {
             return <ActivityCard steps={d.steps || 0} calories={d.calories || 0} distance={d.distance_km || 0} recovery={d.recovery_score || 0} stress={d.stress_level || 0} sleepQuality={d.sleep_quality || 0} heartRate={d.heart_rate || 0} streak={activityStreak} stepGoal={sGoal} />;
           })()}
 
-          <div style={{ height: 1, background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.06), transparent)', margin: '16px 20px 16px' } as any} />
+          <div style={{ height: 1, background: 'rgba(255,255,255,0.08)', margin: '12px 0 16px' } as any} />
           <SleepCard d={d} />
+
+          <div style={{ height: 1, background: 'rgba(255,255,255,0.08)', margin: '12px 0 16px' } as any} />
 
           {/* Poids & Nutrition — style page detail with blue bg */}
           <div data-testid="weight-nutrition-card" onClick={() => router.push('/minceur' as any)}
@@ -313,13 +317,17 @@ export default function HealthScreen() {
             </div>
           </div>
 
-          <div style={{ height: 1, background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.06), transparent)', margin: '4px 20px 16px' } as any} />
+          <div style={{ height: 1, background: 'rgba(255,255,255,0.08)', margin: '12px 0 16px' } as any} />
 
           {/* Glycemia Estimation Card */}
           <GlycemiaCard token={token} />
 
+          <div style={{ height: 1, background: 'rgba(255,255,255,0.08)', margin: '12px 0 16px' } as any} />
+
           {/* 6. Health Sections */}
           <HealthSections d={d} subs={subs} />
+
+          <div style={{ height: 1, background: 'rgba(255,255,255,0.08)', margin: '12px 0 16px' } as any} />
 
           {/* 7. Pesee card — button + history */}
           <div style={{ borderRadius: 18, background: '#272a30', marginBottom: 14, overflow: 'hidden' } as any}>
@@ -340,6 +348,8 @@ export default function HealthScreen() {
             </div>
           </div>
 
+          <div style={{ height: 1, background: 'rgba(255,255,255,0.08)', margin: '12px 0 16px' } as any} />
+
           {/* 8. ECG card — button + history */}
           <div style={{ borderRadius: 18, background: '#272a30', marginBottom: 14, overflow: 'hidden' } as any}>
             <div data-testid="action-ecg" onClick={() => router.push('/ecg' as any)} style={{ padding: '12px 16px', display: 'flex', alignItems: 'center', gap: 14, cursor: 'pointer', borderBottom: '1px solid rgba(255,255,255,0.04)' } as any}>
@@ -359,7 +369,7 @@ export default function HealthScreen() {
             </div>
           </div>
 
-          <div style={{ height: 1, background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.06), transparent)', margin: '4px 20px 16px' } as any} />
+          <div style={{ height: 1, background: 'rgba(255,255,255,0.08)', margin: '12px 0 16px' } as any} />
 
           {ai.motivation && <div style={{ textAlign: 'center', padding: '16px 0', fontSize: 13, color: 'rgba(255,255,255,0.25)', fontStyle: 'italic' }}>{ai.motivation}</div>}
 
