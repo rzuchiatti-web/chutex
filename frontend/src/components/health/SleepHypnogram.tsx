@@ -1,182 +1,67 @@
 import React from 'react';
 
 /* ══════════════════════════════════════════════════════
-   SleepHypnogram V2 — Premium Whoop-style sleep visualization
-   Renders a filled area step-chart with gradient fills,
-   smooth transitions, and animated entrance.
+   SleepHypnogram V3 — Refonte complète, labels lisibles
    ══════════════════════════════════════════════════════ */
 
 type SleepStage = 'awake' | 'rem' | 'light' | 'deep' | 'unknown';
+type SleepPoint = { timestamp: string; stage: SleepStage };
+type SleepSession = { startTime: string; endTime: string; points: SleepPoint[] };
+type Segment = { start: number; end: number; stage: SleepStage };
 
-type SleepPoint = {
-  timestamp: string;
-  stage: SleepStage;
+const COLORS: Record<SleepStage, string> = {
+  awake: '#F87171', rem: '#C4B5FD', light: '#818CF8', deep: '#4338CA', unknown: 'rgba(255,255,255,0.06)',
 };
-
-type SleepSession = {
-  startTime: string;
-  endTime: string;
-  points: SleepPoint[];
+const GLOW: Record<SleepStage, string> = {
+  awake: 'rgba(248,113,113,0.45)', rem: 'rgba(196,181,253,0.35)', light: 'rgba(129,140,248,0.3)', deep: 'rgba(67,56,202,0.45)', unknown: 'transparent',
 };
+const Y_POS: Record<SleepStage, number> = { awake: 0.06, rem: 0.32, light: 0.58, deep: 0.88, unknown: 0.58 };
+const STAGES: SleepStage[] = ['awake', 'rem', 'light', 'deep'];
+const LABELS: Record<SleepStage, string> = { awake: 'Eveil', rem: 'REM', light: 'Leger', deep: 'Profond', unknown: '' };
 
-type Segment = {
-  start: number;
-  end: number;
-  stage: SleepStage;
-};
+function parseDate(s: string): number { const d = new Date(s); return isNaN(d.getTime()) ? 0 : d.getTime(); }
 
-type SleepHypnogramProps = {
-  session: SleepSession;
-  width?: number;
-  height?: number;
-  showLabels?: boolean;
-  timeLabelCount?: number;
-  smoothShortSpikes?: boolean;
-  minStageDurationMinutes?: number;
-  compact?: boolean;
-};
-
-const STAGE_COLORS: Record<SleepStage, string> = {
-  awake: '#F87171',
-  rem: '#C4B5FD',
-  light: '#818CF8',
-  deep: '#4338CA',
-  unknown: 'rgba(255,255,255,0.06)',
-};
-
-const STAGE_GLOW: Record<SleepStage, string> = {
-  awake: 'rgba(248,113,113,0.5)',
-  rem: 'rgba(196,181,253,0.4)',
-  light: 'rgba(129,140,248,0.35)',
-  deep: 'rgba(67,56,202,0.5)',
-  unknown: 'transparent',
-};
-
-const STAGE_Y: Record<SleepStage, number> = {
-  awake: 0.04,
-  rem: 0.30,
-  light: 0.58,
-  deep: 0.88,
-  unknown: 0.58,
-};
-
-const STAGE_ORDER: SleepStage[] = ['awake', 'rem', 'light', 'deep'];
-const STAGE_LABELS: Record<SleepStage, string> = { awake: 'Eveil', rem: 'REM', light: 'Leger', deep: 'Profond', unknown: '' };
-
-function safeParseDate(s: string): number {
-  const d = new Date(s);
-  return isNaN(d.getTime()) ? 0 : d.getTime();
-}
-
-function parseAndNormalizePoints(session: SleepSession): { ts: number; stage: SleepStage }[] {
-  const start = safeParseDate(session.startTime);
-  const end = safeParseDate(session.endTime);
+function buildSegments(session: SleepSession): Segment[] {
+  const start = parseDate(session.startTime);
+  const end = parseDate(session.endTime);
   if (!start || !end || end <= start) return [];
-  const valid = session.points
-    .map(p => ({ ts: safeParseDate(p.timestamp), stage: p.stage }))
-    .filter(p => p.ts > 0 && p.ts >= start && p.ts <= end && (STAGE_ORDER.includes(p.stage) || p.stage === 'unknown'))
+  const pts = session.points
+    .map(p => ({ ts: parseDate(p.timestamp), stage: p.stage }))
+    .filter(p => p.ts >= start && p.ts <= end)
     .sort((a, b) => a.ts - b.ts);
-  const deduped: typeof valid = [];
-  for (const p of valid) {
-    if (deduped.length > 0 && deduped[deduped.length - 1].ts === p.ts) {
-      deduped[deduped.length - 1] = p;
+  if (pts.length === 0) return [];
+  const segs: Segment[] = [];
+  for (let i = 0; i < pts.length; i++) {
+    const segEnd = i < pts.length - 1 ? pts[i + 1].ts : end;
+    if (segs.length > 0 && segs[segs.length - 1].stage === pts[i].stage) {
+      segs[segs.length - 1].end = segEnd;
     } else {
-      deduped.push(p);
+      segs.push({ start: pts[i].ts, end: segEnd, stage: pts[i].stage });
     }
   }
-  return deduped;
-}
-
-function buildSegments(points: { ts: number; stage: SleepStage }[], startMs: number, endMs: number): Segment[] {
-  if (points.length === 0) return [];
-  const segments: Segment[] = [];
-  for (let i = 0; i < points.length; i++) {
-    const segEnd = i < points.length - 1 ? points[i + 1].ts : endMs;
-    segments.push({ start: points[i].ts, end: segEnd, stage: points[i].stage });
-  }
-  return segments;
-}
-
-function mergeConsecutiveSegments(segments: Segment[]): Segment[] {
-  if (segments.length === 0) return [];
-  const merged: Segment[] = [{ ...segments[0] }];
-  for (let i = 1; i < segments.length; i++) {
-    const last = merged[merged.length - 1];
-    if (segments[i].stage === last.stage) {
-      last.end = segments[i].end;
-    } else {
-      merged.push({ ...segments[i] });
-    }
-  }
-  return merged;
-}
-
-function smoothSegments(segments: Segment[], minMs: number): Segment[] {
-  if (segments.length <= 2) return segments;
-  const result = [...segments];
+  // Smooth out very short spikes
   let changed = true;
-  let passes = 0;
-  while (changed && passes < 3) {
+  while (changed) {
     changed = false;
-    passes++;
-    for (let i = 1; i < result.length - 1; i++) {
-      const dur = result[i].end - result[i].start;
-      if (dur < minMs && result[i].stage !== 'unknown') {
-        const prev = result[i - 1];
-        const next = result[i + 1];
-        if (prev.stage === next.stage) {
-          prev.end = next.end;
-          result.splice(i, 2);
-          changed = true;
-          i--;
-        } else {
-          const prevDur = prev.end - prev.start;
-          const nextDur = next.end - next.start;
-          if (prevDur >= nextDur) {
-            prev.end = result[i].end;
-            result.splice(i, 1);
-          } else {
-            next.start = result[i].start;
-            result.splice(i, 1);
-          }
-          changed = true;
-          i--;
-        }
+    for (let i = 1; i < segs.length - 1; i++) {
+      if (segs[i].end - segs[i].start < 3 * 60000) {
+        const prev = segs[i - 1];
+        prev.end = segs[i + 1]?.stage === prev.stage ? segs[i + 1].end : segs[i].end;
+        if (segs[i + 1]?.stage === prev.stage) segs.splice(i, 2); else segs.splice(i, 1);
+        changed = true; break;
       }
     }
   }
-  return mergeConsecutiveSegments(result);
+  return segs;
 }
 
-function timeToX(ts: number, startMs: number, endMs: number, innerWidth: number): number {
-  const range = endMs - startMs;
-  if (range <= 0) return 0;
-  return ((ts - startMs) / range) * innerWidth;
-}
-
-function stageToY(stage: SleepStage, graphTop: number, graphHeight: number): number {
-  return graphTop + STAGE_Y[stage] * graphHeight;
-}
-
-function formatTimeLabel(ms: number): string {
+function formatTime(ms: number): string {
   const d = new Date(ms);
-  return `${d.getHours()}:${String(d.getMinutes()).padStart(2, '0')}`;
-}
-
-function generateTimeLabels(startMs: number, endMs: number, count: number): { ts: number; label: string }[] {
-  if (count < 2) count = 2;
-  const labels: { ts: number; label: string }[] = [];
-  for (let i = 0; i < count; i++) {
-    const ts = startMs + (i / (count - 1)) * (endMs - startMs);
-    labels.push({ ts, label: formatTimeLabel(ts) });
-  }
-  return labels;
+  return `${d.getHours()}h${String(d.getMinutes()).padStart(2, '0')}`;
 }
 
 export function fromBraceletStages(
-  stages: number[],
-  startHour = 22,
-  startMin = 30,
+  stages: number[], startHour = 22, startMin = 30,
   stageMap: Record<number, SleepStage> = { 0: 'awake', 1: 'deep', 2: 'light', 3: 'rem' }
 ): SleepSession {
   if (!stages || stages.length === 0) {
@@ -187,189 +72,163 @@ export function fromBraceletStages(
   const start = new Date(now);
   start.setHours(startHour, startMin, 0, 0);
   if (start.getTime() > now.getTime()) start.setDate(start.getDate() - 1);
-  const points: SleepPoint[] = [];
-  for (let i = 0; i < stages.length; i++) {
-    const ts = new Date(start.getTime() + i * 60 * 1000);
-    const stage = stageMap[stages[i]] || 'unknown';
-    points.push({ timestamp: ts.toISOString(), stage });
-  }
-  const endTime = new Date(start.getTime() + stages.length * 60 * 1000);
-  return { startTime: start.toISOString(), endTime: endTime.toISOString(), points };
+  const points: SleepPoint[] = stages.map((s, i) => ({
+    timestamp: new Date(start.getTime() + i * 60000).toISOString(),
+    stage: stageMap[s] || 'unknown',
+  }));
+  return { startTime: start.toISOString(), endTime: new Date(start.getTime() + stages.length * 60000).toISOString(), points };
 }
 
-export default function SleepHypnogram({
-  session,
-  width = 640,
-  height = 200,
-  showLabels = true,
-  timeLabelCount = 5,
-  smoothShortSpikes = true,
-  minStageDurationMinutes = 3,
-  compact = false,
-}: SleepHypnogramProps) {
+type Props = {
+  session: SleepSession;
+  width?: number;
+  height?: number;
+  showLabels?: boolean;
+  timeLabelCount?: number;
+  smoothShortSpikes?: boolean;
+  minStageDurationMinutes?: number;
+  compact?: boolean;
+};
 
-  const startMs = safeParseDate(session.startTime);
-  const endMs = safeParseDate(session.endTime);
+export default function SleepHypnogram({ session, compact = false }: Props) {
+  const W = 500;
+  const H = compact ? 160 : 340;
+  const LEFT = compact ? 0 : 80;
+  const RIGHT = 16;
+  const TOP = 24;
+  const BOTTOM = compact ? 8 : 50;
+  const GH = H - TOP - BOTTOM;
+  const GW = W - LEFT - RIGHT;
+
+  const startMs = parseDate(session.startTime);
+  const endMs = parseDate(session.endTime);
 
   if (!startMs || !endMs || endMs <= startMs || session.points.length === 0) {
     return (
-      <svg width="100%" viewBox={`0 0 ${width} ${height}`} style={{ display: 'block' }}>
-        <text x={width / 2} y={height / 2} textAnchor="middle" fill="rgba(255,255,255,0.15)" fontSize="11">
-          Aucune donnee de sommeil
+      <svg width="100%" viewBox={`0 0 ${W} ${H}`} style={{ display: 'block' }}>
+        <text x={W / 2} y={H / 2} textAnchor="middle" fill="rgba(255,255,255,0.2)" fontSize="16" fontFamily="Inter, system-ui, sans-serif">
+          Aucune donnee
         </text>
       </svg>
     );
   }
 
-  const labelW = compact ? 0 : 54;
-  const padRight = 8;
-  const graphTop = compact ? 4 : 8;
-  const graphBottom = compact ? 4 : 24;
-  const graphHeight = height - graphTop - graphBottom;
-  const innerWidth = width - labelW - padRight;
+  const segments = buildSegments(session);
+  const toX = (ts: number) => LEFT + ((ts - startMs) / (endMs - startMs)) * GW;
+  const toY = (stage: SleepStage) => TOP + Y_POS[stage] * GH;
 
-  const rawPoints = parseAndNormalizePoints(session);
-  const rawSegments = buildSegments(rawPoints, startMs, endMs);
-  const merged = mergeConsecutiveSegments(rawSegments);
-  const segments = smoothShortSpikes ? smoothSegments(merged, minStageDurationMinutes * 60 * 1000) : merged;
-  const timeLabels = generateTimeLabels(startMs, endMs, timeLabelCount);
+  // Time labels
+  const labelCount = compact ? 3 : 6;
+  const timeLabels = Array.from({ length: labelCount }, (_, i) => {
+    const ts = startMs + (i / (labelCount - 1)) * (endMs - startMs);
+    return { ts, label: formatTime(ts) };
+  });
 
-  // Build SVG path: filled area from stage level down to bottom
-  const buildAreaPath = (): string => {
-    if (segments.length === 0) return '';
-    let d = '';
-    const bottom = graphTop + graphHeight;
-    const firstX = labelW + timeToX(segments[0].start, startMs, endMs, innerWidth);
-    d += `M ${firstX} ${bottom} `;
+  // Area path
+  let area = `M ${toX(segments[0].start)} ${TOP + GH} `;
+  for (const seg of segments) {
+    if (seg.stage === 'unknown') continue;
+    area += `L ${toX(seg.start)} ${toY(seg.stage)} L ${toX(seg.end)} ${toY(seg.stage)} `;
+  }
+  area += `L ${toX(segments[segments.length - 1].end)} ${TOP + GH} Z`;
 
-    for (let i = 0; i < segments.length; i++) {
-      const seg = segments[i];
-      if (seg.stage === 'unknown') continue;
-      const x1 = labelW + timeToX(seg.start, startMs, endMs, innerWidth);
-      const x2 = labelW + timeToX(seg.end, startMs, endMs, innerWidth);
-      const y = stageToY(seg.stage, graphTop, graphHeight);
-      d += `L ${x1} ${y} L ${x2} ${y} `;
-    }
-
-    const lastSeg = segments[segments.length - 1];
-    const lastX = labelW + timeToX(lastSeg.end, startMs, endMs, innerWidth);
-    d += `L ${lastX} ${bottom} Z`;
-    return d;
-  };
-
-  // Build the step line path (top edge only)
-  const buildLinePath = (): string => {
-    if (segments.length === 0) return '';
-    let d = '';
-    for (let i = 0; i < segments.length; i++) {
-      const seg = segments[i];
-      if (seg.stage === 'unknown') continue;
-      const x1 = labelW + timeToX(seg.start, startMs, endMs, innerWidth);
-      const x2 = labelW + timeToX(seg.end, startMs, endMs, innerWidth);
-      const y = stageToY(seg.stage, graphTop, graphHeight);
-      d += i === 0 ? `M ${x1} ${y}` : `L ${x1} ${y}`;
-      d += ` L ${x2} ${y}`;
-    }
-    return d;
-  };
+  // Line path
+  let line = '';
+  segments.forEach((seg, i) => {
+    if (seg.stage === 'unknown') return;
+    const cmd = i === 0 ? 'M' : 'L';
+    line += `${cmd} ${toX(seg.start)} ${toY(seg.stage)} L ${toX(seg.end)} ${toY(seg.stage)} `;
+  });
 
   return (
-    <svg width="100%" viewBox={`0 0 ${width} ${height}`} style={{ display: 'block' }}>
+    <svg width="100%" viewBox={`0 0 ${W} ${H}`} style={{ display: 'block' }}>
       <defs>
-        <linearGradient id="sleepAreaGrad" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor="#C4B5FD" stopOpacity="0.35" />
-          <stop offset="40%" stopColor="#818CF8" stopOpacity="0.25" />
-          <stop offset="75%" stopColor="#4338CA" stopOpacity="0.35" />
-          <stop offset="100%" stopColor="#4338CA" stopOpacity="0.15" />
+        <linearGradient id="areaFill" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor="#C4B5FD" stopOpacity="0.3" />
+          <stop offset="45%" stopColor="#818CF8" stopOpacity="0.2" />
+          <stop offset="100%" stopColor="#4338CA" stopOpacity="0.12" />
         </linearGradient>
-        <linearGradient id="sleepLineGrad" x1="0" y1="0" x2="1" y2="0">
+        <linearGradient id="lineStroke" x1="0" y1="0" x2="1" y2="0">
           <stop offset="0%" stopColor="#C4B5FD" />
-          <stop offset="50%" stopColor="#818CF8" />
           <stop offset="100%" stopColor="#6366F1" />
         </linearGradient>
-        <filter id="sleepGlow">
-          <feGaussianBlur stdDeviation="3" result="blur" />
-          <feMerge>
-            <feMergeNode in="blur" />
-            <feMergeNode in="SourceGraphic" />
-          </feMerge>
+        <filter id="glow3">
+          <feGaussianBlur stdDeviation="4" result="b" />
+          <feMerge><feMergeNode in="b" /><feMergeNode in="SourceGraphic" /></feMerge>
         </filter>
       </defs>
 
-      {/* Horizontal grid lines with stage labels */}
-      {STAGE_ORDER.map(stage => {
-        const y = stageToY(stage, graphTop, graphHeight);
+      {/* Y-axis labels + grid */}
+      {!compact && STAGES.map(stage => {
+        const y = toY(stage);
         return (
           <g key={stage}>
-            <line x1={labelW} y1={y} x2={width - padRight} y2={y} stroke="rgba(255,255,255,0.05)" strokeDasharray="4,6" />
-            {showLabels && !compact && (
-              <text x={labelW - 8} y={y + 4} textAnchor="end" fill={STAGE_COLORS[stage]} fontSize="9" fontWeight="600" opacity="0.7">
-                {STAGE_LABELS[stage]}
-              </text>
-            )}
+            <line x1={LEFT} y1={y} x2={W - RIGHT} y2={y} stroke="rgba(255,255,255,0.06)" strokeDasharray="3,5" />
+            <text x={LEFT - 12} y={y + 5} textAnchor="end" fill={COLORS[stage]} fontSize="14" fontWeight="700" fontFamily="Inter, system-ui, sans-serif">
+              {LABELS[stage]}
+            </text>
           </g>
         );
       })}
 
       {/* Filled area */}
-      <path d={buildAreaPath()} fill="url(#sleepAreaGrad)" />
+      <path d={area} fill="url(#areaFill)" />
 
-      {/* Colored segment bars */}
+      {/* Stage bars with glow */}
       {segments.map((seg, i) => {
         if (seg.stage === 'unknown') return null;
-        const x1 = labelW + timeToX(seg.start, startMs, endMs, innerWidth);
-        const x2 = labelW + timeToX(seg.end, startMs, endMs, innerWidth);
-        const y = stageToY(seg.stage, graphTop, graphHeight);
-        const w = Math.max(1, x2 - x1);
-        const color = STAGE_COLORS[seg.stage];
+        const x1 = toX(seg.start);
+        const x2 = toX(seg.end);
+        const y = toY(seg.stage);
+        const w = Math.max(2, x2 - x1);
         return (
-          <g key={`seg-${i}`}>
-            {/* Glow bar */}
-            <rect x={x1} y={y - 2.5} width={w} height={5} rx={2.5} fill={STAGE_GLOW[seg.stage]} filter="url(#sleepGlow)" />
-            {/* Solid bar */}
-            <rect x={x1} y={y - 2} width={w} height={4} rx={2} fill={color} opacity={0.9} />
+          <g key={`s${i}`}>
+            <rect x={x1} y={y - 4} width={w} height={8} rx={4} fill={GLOW[seg.stage]} filter="url(#glow3)" />
+            <rect x={x1} y={y - 3} width={w} height={6} rx={3} fill={COLORS[seg.stage]} opacity={0.85} />
           </g>
         );
       })}
 
-      {/* Top edge glow line */}
-      <path d={buildLinePath()} fill="none" stroke="url(#sleepLineGrad)" strokeWidth="1.5" opacity="0.5" />
+      {/* Edge line */}
+      <path d={line} fill="none" stroke="url(#lineStroke)" strokeWidth="2" opacity="0.4" />
 
-      {/* Vertical connectors between stages */}
+      {/* Vertical connectors */}
       {segments.map((seg, i) => {
         if (i >= segments.length - 1 || seg.stage === 'unknown') return null;
         const next = segments[i + 1];
         if (next.stage === 'unknown') return null;
-        const x = labelW + timeToX(seg.end, startMs, endMs, innerWidth);
-        const y1 = stageToY(seg.stage, graphTop, graphHeight);
-        const y2 = stageToY(next.stage, graphTop, graphHeight);
-        if (Math.abs(y2 - y1) < 2) return null;
-        return (
-          <line key={`conn-${i}`} x1={x} y1={y1} x2={x} y2={y2} stroke="rgba(255,255,255,0.12)" strokeWidth="1" strokeLinecap="round" />
-        );
+        const x = toX(seg.end);
+        const y1 = toY(seg.stage);
+        const y2 = toY(next.stage);
+        if (Math.abs(y2 - y1) < 4) return null;
+        return <line key={`c${i}`} x1={x} y1={y1} x2={x} y2={y2} stroke="rgba(255,255,255,0.1)" strokeWidth="1.5" strokeLinecap="round" />;
       })}
 
       {/* X-axis time labels */}
-      {showLabels && !compact && timeLabels.map((tl, i) => {
-        const x = labelW + timeToX(tl.ts, startMs, endMs, innerWidth);
+      {!compact && timeLabels.map((tl, i) => {
+        const x = toX(tl.ts);
         return (
-          <text
-            key={i}
-            x={Math.max(labelW, Math.min(width - padRight - 10, x))}
-            y={height - 4}
-            fill="rgba(255,255,255,0.3)"
-            fontSize="9"
-            fontWeight={i === 0 || i === timeLabels.length - 1 ? '700' : '400'}
-            textAnchor={i === 0 ? 'start' : i === timeLabels.length - 1 ? 'end' : 'middle'}
-          >
-            {tl.label}
-          </text>
+          <g key={`t${i}`}>
+            <line x1={x} y1={TOP + GH} x2={x} y2={TOP + GH + 6} stroke="rgba(255,255,255,0.08)" strokeWidth="1" />
+            <text
+              x={x}
+              y={H - 10}
+              fill="rgba(255,255,255,0.45)"
+              fontSize="14"
+              fontWeight="600"
+              fontFamily="Inter, system-ui, sans-serif"
+              textAnchor="middle"
+            >
+              {tl.label}
+            </text>
+          </g>
         );
       })}
 
-      <style dangerouslySetInnerHTML={{ __html: `
-        @keyframes sleepFadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
-      `}} />
+      {/* Left axis line */}
+      {!compact && <line x1={LEFT} y1={TOP} x2={LEFT} y2={TOP + GH} stroke="rgba(255,255,255,0.06)" strokeWidth="1" />}
+      {/* Bottom axis line */}
+      {!compact && <line x1={LEFT} y1={TOP + GH} x2={W - RIGHT} y2={TOP + GH} stroke="rgba(255,255,255,0.06)" strokeWidth="1" />}
     </svg>
   );
 }

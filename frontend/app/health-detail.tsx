@@ -251,29 +251,77 @@ export default function HealthDetailScreen() {
                   </div>
                 ))}
               </div>
-              {/* Quality + Interruptions */}
-              <div style={{ padding: '14px 16px', borderTop: '1px solid rgba(255,255,255,0.04)', display: 'flex', gap: 16 } as any}>
-                <div style={{ flex: 1, display: 'flex', alignItems: 'center', gap: 12 } as any}>
-                  <div style={{ width: 44, height: 44, borderRadius: 14, background: nightQuality >= 80 ? 'rgba(16,185,129,0.1)' : 'rgba(245,158,11,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}>
-                    <i className="ri-star-line" style={{ fontSize: 20, color: nightQuality >= 80 ? '#10B981' : '#F59E0B' }} />
-                  </div>
-                  <div>
-                    <div style={{ fontSize: 24, fontWeight: 900, color: '#FFF' }}>{nightQuality}%</div>
-                    <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.3)' }}>Qualite du sommeil</div>
-                  </div>
+              {/* Quality progress bar */}
+              <div style={{ padding: '14px 16px', borderTop: '1px solid rgba(255,255,255,0.04)' } as any}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 } as any}>
+                  <i className="ri-star-line" style={{ fontSize: 16, color: nightQuality >= 80 ? '#10B981' : nightQuality >= 60 ? '#F59E0B' : '#EF4444' }} />
+                  <span style={{ fontSize: 14, fontWeight: 800, color: '#FFF' }}>Qualite du sommeil</span>
+                  <span style={{ marginLeft: 'auto', padding: '3px 10px', borderRadius: 999, background: nightQuality >= 80 ? 'rgba(16,185,129,0.12)' : nightQuality >= 60 ? 'rgba(245,158,11,0.12)' : 'rgba(239,68,68,0.12)', fontSize: 10, fontWeight: 700, color: nightQuality >= 80 ? '#10B981' : nightQuality >= 60 ? '#F59E0B' : '#EF4444' }}>{nightQuality}%</span>
                 </div>
-                <div style={{ width: 1, background: 'rgba(255,255,255,0.06)' }}></div>
-                <div style={{ flex: 1, display: 'flex', alignItems: 'center', gap: 12 } as any}>
-                  <div style={{ width: 44, height: 44, borderRadius: 14, background: nightInterruptions <= 2 ? 'rgba(16,185,129,0.1)' : 'rgba(245,158,11,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}>
-                    <i className="ri-alarm-line" style={{ fontSize: 20, color: nightInterruptions <= 2 ? '#10B981' : '#F59E0B' }} />
-                  </div>
-                  <div>
-                    <div style={{ fontSize: 24, fontWeight: 900, color: '#FFF' }}>{nightInterruptions}</div>
-                    <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.3)' }}>Interruptions</div>
-                  </div>
+                <div style={{ height: 10, borderRadius: 5, background: 'rgba(255,255,255,0.06)', overflow: 'hidden', position: 'relative', marginBottom: 6 } as any}>
+                  <div style={{ position: 'absolute', inset: 0, borderRadius: 5, background: 'linear-gradient(90deg, #EF4444 0%, #F59E0B 50%, #10B981 100%)', opacity: 0.12 } as any} />
+                  <div style={{ height: 10, borderRadius: 5, width: `${nightQuality}%`, background: nightQuality >= 80 ? '#10B981' : nightQuality >= 60 ? 'linear-gradient(90deg, #F59E0B, #10B981)' : 'linear-gradient(90deg, #EF4444, #F59E0B)', transition: 'width 1s ease', boxShadow: `0 0 12px ${nightQuality >= 80 ? 'rgba(16,185,129,0.4)' : nightQuality >= 60 ? 'rgba(245,158,11,0.4)' : 'rgba(239,68,68,0.4)'}` } as any} />
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'space-between' } as any}>
+                  <span style={{ fontSize: 9, color: 'rgba(239,68,68,0.5)' }}>Mauvais</span>
+                  <span style={{ fontSize: 9, color: 'rgba(245,158,11,0.5)' }}>Correct</span>
+                  <span style={{ fontSize: 9, color: 'rgba(16,185,129,0.5)' }}>Excellent</span>
+                </div>
+              </div>
+              {/* Interruptions */}
+              <div style={{ padding: '12px 16px', borderTop: '1px solid rgba(255,255,255,0.04)', display: 'flex', alignItems: 'center', gap: 12 } as any}>
+                <div style={{ width: 40, height: 40, borderRadius: 12, background: nightInterruptions <= 2 ? 'rgba(16,185,129,0.1)' : 'rgba(245,158,11,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}>
+                  <i className="ri-alarm-line" style={{ fontSize: 18, color: nightInterruptions <= 2 ? '#10B981' : '#F59E0B' }} />
+                </div>
+                <div>
+                  <div style={{ fontSize: 20, fontWeight: 900, color: '#FFF' }}>{nightInterruptions}</div>
+                  <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.3)' }}>Interruptions</div>
                 </div>
               </div>
             </div>
+
+            {/* Sleep Debt Card */}
+            {(() => {
+              const needMin = 7 * 60 + 30; // 7h30 recommandé pour personne agée
+              const sleptMin = nightDuration - nightAwakeMin;
+              const debtMin = Math.max(0, needMin - sleptMin);
+              const debtH = Math.floor(debtMin / 60);
+              const debtM = debtMin % 60;
+              const sleptH = Math.floor(sleptMin / 60);
+              const sleptM = sleptMin % 60;
+              const pct = Math.min(100, Math.round((sleptMin / needMin) * 100));
+              const isGood = pct >= 90;
+              const color = isGood ? '#10B981' : pct >= 75 ? '#F59E0B' : '#EF4444';
+              return (
+              <div style={{ borderRadius: 18, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', padding: '16px 18px', marginBottom: 14 } as any}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 14 } as any}>
+                  <i className="ri-battery-charge-line" style={{ fontSize: 16, color }} />
+                  <span style={{ fontSize: 14, fontWeight: 800, color: '#FFF' }}>Dette de sommeil</span>
+                  <span style={{ marginLeft: 'auto', padding: '3px 10px', borderRadius: 999, background: `${color}18`, fontSize: 10, fontWeight: 700, color }}>{isGood ? 'Reposee' : debtH > 0 ? `${debtH}h${String(debtM).padStart(2, '0')} de dette` : `${debtM}min de dette`}</span>
+                </div>
+                {/* Visual bar: slept vs needed */}
+                <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 12 } as any}>
+                  <div style={{ flex: 1 } as any}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6 } as any}>
+                      <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)' }}>Dormi</span>
+                      <span style={{ fontSize: 13, fontWeight: 800, color: '#FFF' }}>{sleptH}h{String(sleptM).padStart(2, '0')}</span>
+                    </div>
+                    <div style={{ height: 10, borderRadius: 5, background: 'rgba(255,255,255,0.06)', overflow: 'hidden', position: 'relative' } as any}>
+                      <div style={{ height: 10, borderRadius: 5, width: `${pct}%`, background: color, transition: 'width 1s ease', boxShadow: `0 0 10px ${color}55` } as any} />
+                    </div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 4 } as any}>
+                      <span style={{ fontSize: 9, color: 'rgba(255,255,255,0.25)' }}>0h</span>
+                      <span style={{ fontSize: 9, color: 'rgba(255,255,255,0.35)', fontWeight: 700 }}>Besoin: 7h30</span>
+                    </div>
+                  </div>
+                  <div style={{ textAlign: 'center', minWidth: 50 } as any}>
+                    <div style={{ fontSize: 28, fontWeight: 900, color }}>{pct}%</div>
+                    <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.3)' }}>atteint</div>
+                  </div>
+                </div>
+              </div>
+              );
+            })()}
 
             {/* Apnea risk — separate card with Nora analysis */}
             {(() => {
