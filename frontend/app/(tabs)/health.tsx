@@ -160,9 +160,7 @@ export default function HealthScreen() {
       const noDataAi = report?.ai;
       const noDataRecs = noDataAi?.secondary_recs || [];
       return (
-        <div data-testid="health-no-data" style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, display: 'flex', flexDirection: 'column', fontFamily: "'Inter', system-ui, sans-serif", overflow: 'auto' } as any}>
-          <img src={BG_DARK} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 } as any} />
-          <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.45)', zIndex: 1 } as any} />
+        <div data-testid="health-no-data" style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, display: 'flex', flexDirection: 'column', fontFamily: "'Inter', system-ui, sans-serif", overflow: 'auto', background: 'linear-gradient(180deg, #1a1d20 0%, #1f2328 40%, #22272c 100%)' } as any}>
           <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', position: 'relative', zIndex: 5, padding: '0 28px', textAlign: 'center', overflowY: 'auto', WebkitOverflowScrolling: 'touch', paddingTop: 'env(safe-area-inset-top, 60px)', paddingBottom: 100 } as any}>
             <div style={{ fontSize: 24, fontWeight: 900, color: '#FFF', marginBottom: 10 }}>{noDataAi?.hero_line || 'Aucune donnee de sante'}</div>
             <div style={{ fontSize: 14, color: 'rgba(255,255,255,0.5)', lineHeight: 1.6, maxWidth: 320, marginBottom: 20 }}>{noDataAi?.priority || 'Connectez vos dispositifs pour commencer a suivre votre sante et recevoir des analyses personnalisees de Nora.'}</div>
@@ -181,9 +179,7 @@ export default function HealthScreen() {
     }
 
     return (
-      <div data-testid="health-screen" style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, display: 'flex', flexDirection: 'column', fontFamily: "'Inter', system-ui, sans-serif", overflow: 'hidden' } as any}>
-        <img src={BG_DARK} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 } as any} />
-        <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.35)', zIndex: 1 } as any} />
+      <div data-testid="health-screen" style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, display: 'flex', flexDirection: 'column', fontFamily: "'Inter', system-ui, sans-serif", overflow: 'hidden', background: 'linear-gradient(180deg, #1a1d20 0%, #1f2328 40%, #22272c 100%)' } as any}>
 
         <div style={{ flex: 1, overflowY: 'auto', position: 'relative', zIndex: 5, padding: '20px 20px 120px', WebkitOverflowScrolling: 'touch' } as any}>
 
@@ -195,7 +191,7 @@ export default function HealthScreen() {
             <HeroScore bioAge={agingRate?.bio_age || noraBodyAge || d.body_age || 0} realAge={agingRate?.real_age || (user?.date_of_birth ? Math.floor((Date.now() - new Date(user.date_of_birth).getTime()) / 31557600000) : 0)} status={status} statusColor={statusColor} ai={ai} subs={subs} showDetail={showScoreDetail} setShowDetail={setShowScoreDetail} d={d} bodyAgeNora={bodyAgeNora} agingRate={agingRate} />
           )}
           {!analysisPhase && !hasMeaningfulVitals && !hasBodyAge && !(agingRate && agingRate.rate > 0) && (
-            <div data-testid="health-score-unavailable" style={{ padding: '18px 16px', borderRadius: 16, marginBottom: 8, background: 'rgba(245,158,11,0.08)', border: '1px solid rgba(245,158,11,0.22)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)' } as any}>
+            <div data-testid="health-score-unavailable" style={{ padding: '18px 16px', borderRadius: 16, marginBottom: 8, background: '#272a30' } as any}>
               <div style={{ fontSize: 13, fontWeight: 800, color: '#FCD34D', marginBottom: 6 }}>Score Nora indisponible</div>
               <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.55)', lineHeight: 1.55 }}>
                 Nous avons besoin de mesures physiologiques valides (bracelet Elio) pour calculer un score fiable.
@@ -249,9 +245,9 @@ export default function HealthScreen() {
                 key: 'temperature',
               },
             ].map((v, i) => (
-              <div key={i} onClick={() => router.push({ pathname: '/metric-detail' as any, params: { key: v.key } })} style={{ padding: '12px 14px 10px', borderRadius: 18, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)', cursor: 'pointer', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', transition: 'transform 0.15s, background 0.15s' } as any}
-                onMouseEnter={(e: any) => { e.currentTarget.style.background = 'rgba(255,255,255,0.10)'; e.currentTarget.style.transform = 'translateY(-2px)'; }}
-                onMouseLeave={(e: any) => { e.currentTarget.style.background = 'rgba(255,255,255,0.06)'; e.currentTarget.style.transform = ''; }}
+              <div key={i} onClick={() => router.push({ pathname: '/metric-detail' as any, params: { key: v.key } })} style={{ padding: '12px 14px 10px', borderRadius: 18, background: '#272a30', cursor: 'pointer', transition: 'transform 0.15s, background 0.15s' } as any}
+                onMouseEnter={(e: any) => { e.currentTarget.style.background = '#2e3238'; e.currentTarget.style.transform = 'translateY(-2px)'; }}
+                onMouseLeave={(e: any) => { e.currentTarget.style.background = '#272a30'; e.currentTarget.style.transform = ''; }}
               >
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 } as any}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 6 } as any}>
@@ -326,7 +322,7 @@ export default function HealthScreen() {
           <HealthSections d={d} subs={subs} />
 
           {/* 7. Pesee card — button + history */}
-          <div style={{ borderRadius: 18, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', marginBottom: 14, overflow: 'hidden' } as any}>
+          <div style={{ borderRadius: 18, background: '#272a30', marginBottom: 14, overflow: 'hidden' } as any}>
             <div data-testid="action-weighing" onClick={() => setWeighingStep(1)} style={{ padding: '12px 16px', display: 'flex', alignItems: 'center', gap: 14, cursor: 'pointer', borderBottom: '1px solid rgba(255,255,255,0.04)' } as any}>
               <img src="https://customer-assets.emergentagent.com/job_8afdc991-0ab2-4687-a2a5-438b9a5f0711/artifacts/dwmw2i8r_Balance_connecte_Vita_chutex.svg" alt="Balance" style={{ height: 40, objectFit: 'contain', filter: 'drop-shadow(0 4px 12px rgba(0,0,0,0.3))', flexShrink: 0 } as any} />
               <div style={{ flex: 1 } as any}><div style={{ fontSize: 14, fontWeight: 800, color: '#FFF' }}>Nouvelle pesee</div><div style={{ fontSize: 10, color: 'rgba(255,255,255,0.3)' }}>Balance 8 electrodes</div></div>
@@ -345,7 +341,7 @@ export default function HealthScreen() {
           </div>
 
           {/* 8. ECG card — button + history */}
-          <div style={{ borderRadius: 18, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', marginBottom: 14, overflow: 'hidden' } as any}>
+          <div style={{ borderRadius: 18, background: '#272a30', marginBottom: 14, overflow: 'hidden' } as any}>
             <div data-testid="action-ecg" onClick={() => router.push('/ecg' as any)} style={{ padding: '12px 16px', display: 'flex', alignItems: 'center', gap: 14, cursor: 'pointer', borderBottom: '1px solid rgba(255,255,255,0.04)' } as any}>
               <img src="https://customer-assets.emergentagent.com/job_8afdc991-0ab2-4687-a2a5-438b9a5f0711/artifacts/2fto1qw7_bracelet_sante_connecte_elio_chutex_care_teleassistance_telealarme%281%29.svg" alt="Bracelet" style={{ height: 40, objectFit: 'contain', filter: 'drop-shadow(0 4px 12px rgba(0,0,0,0.3))', flexShrink: 0 } as any} />
               <div style={{ flex: 1 } as any}><div style={{ fontSize: 14, fontWeight: 800, color: '#FFF' }}>Realiser un ECG</div><div style={{ fontSize: 10, color: 'rgba(255,255,255,0.3)' }}>Electrocardiogramme</div></div>
