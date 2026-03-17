@@ -1,54 +1,65 @@
-# ChuteX - PRD (Product Requirements Document)
+# CHUTEX - Plateforme de Monitoring Sante
 
-## Original Problem Statement
-Application de monitoring de santé full-stack avec espaces séparés pour "Bénéficiaires" et "Gardiens". L'application utilise un style premium dark mode inspiré de Whoop, avec un fond animé mesh gradient et des cartes sombres solides.
+## Problem Statement
+Application de monitoring sante style "Whoop" avec interface premium dark mode. Plateforme full-stack avec UI separees pour "Beneficiaires" et "Gardiens".
 
 ## Architecture
-- **Frontend**: React Native / Expo (web + mobile)
-- **Backend**: FastAPI + MongoDB
-- **Style**: Dark mode Whoop-style forcé, fond animé, cartes solides
-- **3rd Party**: OpenAI GPT-5.2 (Emergent LLM Key), Lefu Cloud API, Mollie, VAPI.ai, Mailjet, SMSMode
+- **Frontend**: React (Expo Router v6) + TypeScript
+- **Backend**: FastAPI + Python
+- **Database**: MongoDB
+- **AI**: OpenAI GPT-5.2 via Emergent LLM Key
+- **Integrations**: Lefu Cloud API, Mollie, VAPI.ai, Mailjet, SMSMode
 
-## What's Been Implemented
+## Core Features Implemented
+- Dashboard beneficiaire/gardien avec objectifs quotidiens
+- Systeme d'alerte SOS + gardiens
+- Suivi sante (sommeil, activite, poids, glycemie)
+- Programmes de prevention personnalises (catalogue, detail, inscription)
+- IA Nora (copilot sante)
+- Rappels (hydratation, traitement, alarmes)
+- Teleconsultation
+- Objectif poids (minceur)
+- Morning briefing quotidien
+- Onboarding multi-etapes
+- Sleep detail page avancee (hypnogramme V3, gauge radiale, bilan correle)
 
-### Session actuelle (17 mars 2026)
-- **P0 Guardian Dashboard UI** : COMPLETE
-  - Ajout de séparateurs visuels entre sections (alertes -> bénéficiaires, bénéficiaires -> Nora)
-  - Mise en valeur de la carte Nora (CopilotCard) avec bordure 1.5px blanche et ombre renforcée
-  - Fichiers modifiés: `GuardianHome.tsx`, `CopilotCard.tsx`
+## Completed (Session Courante - 17 Mars 2026)
+- [x] **Bug Fix P0**: Correction erreur "Rendered more hooks" sur program-detail.tsx (useState declare apres retours conditionnels)
+- [x] **Loader standard**: Ajout animation de chargement coherente sur pages Programmes et Detail Programme
+- [x] **Cleanup**: Suppression fichier deprecie programs.tsx + nettoyage routes _layout.tsx
+- [x] **Fix routing**: router.replace('/programs') → router.replace('/(tabs)/chat') dans program-detail.tsx
 
-### Sessions précédentes
-- **"Whoop-Style" Dark Mode Overhaul**: AnimatedDarkBg, cartes solides sombres, dark mode forcé
-- **Navbar Fixes**: Liens corrigés dans WhoopTabBar
-- **Guardian Page Crash Fix**: `glass is not defined` résolu
-- **Beneficiary Detail Card**: Restructurée (Identity, Address, Physical, Medical)
-- **Dashboard Layout**: Objectifs quotidiens en colonne unique, bouton "Add Device" dans header
-- **Program Page**: Filtres supprimés, popup instructionnel ajouté
-- **CAHIER_DES_CHARGES.md**: Résumé complet des fonctionnalités
+## Backlog Prioritise
+### P0 (Critique)
+- (Aucun bug critique en cours)
 
-## Prioritized Backlog
+### P1 (Important)
+- Estimation ML de la glycemie (V3)
 
-### P1
-- True ML pour l'estimation de la glycémie (V3)
+### P2 (Futur)
+- Systeme de parrainage Gardien
+- Essai gratuit 7 jours
+- Visualisation PDF du contrat
+- Integration test urinaire Vivoo
+- Correlations sante (UI)
+- Documentation technique algo glucose (brevet)
+- Refactoring WhoopTabBar.tsx
 
-### P2
-- Système de parrainage Guardian
-- Essai gratuit de 7 jours
-- Visualisation du contrat PDF
-- Intégration test urinaire Vivoo
-- UI des corrélations de santé
-- Documentation technique brevet algorithme glucose
-
-### Refactoring
-- Simplification de WhoopTabBar.tsx (gère 2 rôles)
-
-## Mocked Data
-- Biological Age (simulé)
-- Glycemia Estimation (simulé)
-- Sleep Data (simulé)
+## Key Files
+- `/app/frontend/app/(tabs)/chat.tsx` - Liste des programmes
+- `/app/frontend/app/program-detail.tsx` - Detail programme
+- `/app/frontend/app/(tabs)/index.tsx` - Dashboard beneficiaire
+- `/app/frontend/app/health-detail/[metric].tsx` - Detail sante/sommeil
+- `/app/frontend/src/components/Loader.tsx` - Composant loader standard
+- `/app/backend/main.py` - API backend
 
 ## Test Credentials
-| Role | Phone | Password |
-|---|---|---|
-| Beneficiary | 0651245918 | test123 |
-| Guardian (Marie) | +33699887766 | test123 |
+| Role | Identifiant | Mot de passe |
+|------|------------|--------------|
+| Beneficiaire | 0651245918 | test123 |
+| Gardien (Marie) | +33699887766 | test123 |
+
+## Notes Techniques
+- Le Metro bundler cache agressivement — nettoyer avec `rm -rf /app/frontend/.metro-cache` puis `supervisorctl restart expo`
+- Les donnees sommeil sont simulees dans MongoDB
+- La page Programmes est `(tabs)/chat.tsx`, PAS `programs.tsx` (supprime)
