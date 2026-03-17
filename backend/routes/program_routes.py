@@ -10,6 +10,38 @@ router = APIRouter()
 
 import re
 
+def transform_task_text(text: str) -> str:
+    """Transform task texts to reference in-app features instead of paper/external apps."""
+    t = text
+    # Paper/notebook references → app
+    t = re.sub(r'(?i)sur (un |votre )?(papier|carnet|cahier|feuille)', "dans l'app (onglet Sante)", t)
+    t = re.sub(r'(?i)[eéEÉ]crivez (vos |les |toutes )?(pens[eé]es|pr[eé]occupations|ruminations?)(.*?)dans un (carnet|journal)', r"Notez vos \2 dans l'app via le check-in du jour", t)
+    t = re.sub(r'(?i)[eéEÉ]crivez (.*?)dans un (carnet|journal)', r"Notez \1 dans le check-in de l'app", t)
+    # "notez l'heure réelle/de/du" → record in app
+    t = re.sub(r"(?i)notez l['\u2019]heure (r[eé]elle |de |du |)", r"enregistrez l'heure dans l'app (onglet Sante) ", t)
+    t = re.sub(r"(?i)(?<!\w)notez (votre |la |le |les |l['\u2019]|vos )", r"enregistrez dans l'app : ", t)
+    t = re.sub(r"(?i)(?<!\w)notez ", r"enregistrez dans l'app : ", t)
+    # "Programmez un rappel" → use app reminder
+    t = re.sub(r"(?i)programmez un rappel (\d+) ?minutes?( avant)", r"activez un rappel dans l'app (onglet Rappels) \1 min\2", t)
+    t = re.sub(r"(?i)programmez (une alarme|un rappel)", r"creez un rappel dans l'app (onglet Rappels)", t)
+    t = re.sub(r"(?i)mettez (une |un )(alarme|rappel|minuteur)( sur votre t[eé]l[eé]phone| de votre t[eé]l[eé]phone)?", r"activez un rappel dans l'app (onglet Rappels)", t)
+    # "ouvrez une app" references
+    t = re.sub(r"(?i)(ouvrez|utilisez|t[eé]l[eé]char\w+) (une |l['\u2019])?(app|application|appli)\b[^.]*", r"utilisez la fonctionnalite dans l'app", t)
+    t = re.sub(r"(?i)apps? de (flashcards?|m[eé]ditation|respiration|sport|fitness)", "exercices integres dans l'app", t)
+    # Phone alarm references
+    t = re.sub(r"(?i)(alarme|r[eé]veil|minuteur) (de |du |sur )(votre |le |son )?(t[eé]l[eé]phone|portable|smartphone)", r"rappel dans l'app", t)
+    # "pesez-vous" → in-app weight tracking
+    t = re.sub(r"(?i)pesez.vous et notez", r"pesez-vous et enregistrez dans l'app (onglet Sante > Poids)", t)
+    # "mesurez votre tension" → in-app
+    t = re.sub(r"(?i)mesurez (votre |la )?tension et notez", r"mesurez votre tension et enregistrez dans l'app (onglet Sante)", t)
+    # "flashcards papier" and remaining paper references
+    t = re.sub(r"(?i)des cartes papier\b[^.]*", r"le systeme de rappels de l'app", t)
+    t = re.sub(r"(?i)lecture papier", "lecture", t)
+    # Clean up double spaces and escaped quotes
+    t = re.sub(r'  +', ' ', t)
+    t = t.replace("\\'", "'")
+    return t
+
 def enrich_tasks_interactive(tasks: list, program_category: str = "") -> list:
     """Auto-detect interactive types for each task based on text patterns.
     Returns a list of interactive configs parallel to the tasks list."""
@@ -940,9 +972,17 @@ JSON: {{"focus": "...", "mission": "1-2 phrases contexte medical", "tasks": ["ta
             "members_count": len(team_members),
         }
 
-    # Enrich tasks with interactive types
+    # Enrich tasks with interactive types AND transform text to reference in-app features
     task_list = today_tasks.get("tasks", [])
-    today_tasks["interactive"] = enrich_tasks_interactive(task_list, program.get("category", ""))
+    today_tasks["tasks"] = [transform_task_text(t) for t in task_list]
+    today_tasks["interactive"] = enrich_tasks_interactive(today_tasks["tasks"], program.get("category", ""))
+    # Also transform focus/mission
+    if today_tasks.get("focus"):
+        today_tasks["focus"] = transform_task_text(today_tasks["focus"])
+    if today_tasks.get("mission"):
+        today_tasks["mission"] = transform_task_text(today_tasks["mission"])
+    if today_tasks.get("tip"):
+        today_tasks["tip"] = transform_task_text(today_tasks["tip"])
 
     # Load saved task progress for today (auto-saved tasks)
     today_str_prog = datetime.now(timezone.utc).strftime("%Y-%m-%d")

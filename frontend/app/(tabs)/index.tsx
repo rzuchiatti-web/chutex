@@ -578,31 +578,66 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
           ))}
 
           {/* ── 4. PROGRAMME EN COURS ── */}
-          {activeProgram?.active && (
-            <div data-testid="active-program-card" className="dash-slide-up cl-press" onClick={() => router.push('/(tabs)/chat' as any)} style={{ borderRadius: 18, background: C.card, padding: '16px', marginBottom: 20, cursor: 'pointer', transition: 'transform 0.18s', ...glass } as any}
-              onMouseEnter={(e: any) => { e.currentTarget.style.transform = 'translateY(-2px)'; }}
-              onMouseLeave={(e: any) => { e.currentTarget.style.transform = ''; }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 12 } as any}>
-                <div style={{ width: 52, height: 52, borderRadius: 14, background: '#FFF', display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}>
-                  <i className={activeProgram.program.icon} style={{ fontSize: 26, color: activeProgram.program.color }} />
+          {activeProgram?.active && (() => {
+            const ap = activeProgram;
+            const clr = ap.program?.color || '#A78BFA';
+            const tasks = ap.today_tasks?.tasks || [];
+            const doneCount = ap.task_progress?.tasks_done_indices?.length || 0;
+            const totalTasks = tasks.length;
+            const allDone = totalTasks > 0 && doneCount >= totalTasks;
+            return (
+              <div data-testid="active-program-card" className="dash-slide-up cl-press" onClick={() => router.push('/(tabs)/chat' as any)}
+                style={{ borderRadius: 22, background: `linear-gradient(135deg, ${clr}10, ${clr}05)`, border: `1px solid ${clr}20`, padding: '18px', marginBottom: 20, cursor: 'pointer', transition: 'transform 0.18s', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', position: 'relative', overflow: 'hidden' } as any}
+                onMouseEnter={(e: any) => { e.currentTarget.style.transform = 'translateY(-2px)'; }}
+                onMouseLeave={(e: any) => { e.currentTarget.style.transform = ''; }}>
+                <style dangerouslySetInnerHTML={{ __html: `@keyframes dash-prog-glow { 0%,100% { box-shadow: 0 0 20px ${clr}10; } 50% { box-shadow: 0 0 40px ${clr}25; } }` }} />
+                {/* Decorative gradient */}
+                <div style={{ position: 'absolute', top: -40, right: -40, width: 120, height: 120, borderRadius: '50%', background: `radial-gradient(circle, ${clr}08 0%, transparent 70%)` } as any} />
+                
+                <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 14 } as any}>
+                  <div style={{ width: 48, height: 48, borderRadius: 16, background: `${clr}12`, border: `1.5px solid ${clr}25`, display: 'flex', alignItems: 'center', justifyContent: 'center', animation: 'dash-prog-glow 3s ease-in-out infinite', flexShrink: 0 } as any}>
+                    <i className={ap.program.icon} style={{ fontSize: 22, color: clr }} />
+                  </div>
+                  <div style={{ flex: 1, minWidth: 0 } as any}>
+                    <div style={{ fontSize: 15, fontWeight: 900, color: '#FFF', marginBottom: 2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' } as any}>{ap.program.title}</div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 6 } as any}>
+                      <span style={{ fontSize: 11, fontWeight: 800, color: clr }}>Jour {ap.current_day}/{ap.program.duration_days}</span>
+                      {ap.streak > 0 && (
+                        <span style={{ display: 'inline-flex', alignItems: 'center', gap: 3, fontSize: 10, fontWeight: 800, color: '#FBBF24', padding: '1px 6px', borderRadius: 6, background: 'rgba(251,191,36,0.08)' }}>
+                          <i className="ri-fire-fill" style={{ fontSize: 10 }} />{ap.streak}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                  <div style={{ fontSize: 22, fontWeight: 900, color: clr }}>{ap.progress_pct}%</div>
                 </div>
-                <div style={{ flex: 1 } as any}>
-                  <div style={{ fontSize: 15, fontWeight: 900, color: C.text }}>{activeProgram.program.title}</div>
-                  <div style={{ fontSize: 12, color: activeProgram.program.color, fontWeight: 700 }}>{activeProgram.current_phase?.name || 'Phase en cours'} · Jour {activeProgram.current_day}/{activeProgram.program.duration_days}</div>
+
+                {/* Progress bar */}
+                <div style={{ height: 5, borderRadius: 3, background: 'rgba(255,255,255,0.04)', overflow: 'hidden', marginBottom: 14 } as any}>
+                  <div style={{ height: '100%', borderRadius: 3, width: `${ap.progress_pct}%`, background: `linear-gradient(90deg, ${clr}, ${clr}80)`, transition: 'width 0.8s ease', boxShadow: `0 0 12px ${clr}40` } as any} />
                 </div>
-                <div style={{ fontSize: 28, fontWeight: 900, color: C.text }}>{activeProgram.progress_pct}%</div>
+
+                {/* Tasks mini list */}
+                {ap.today_tasks && (
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' } as any}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8 } as any}>
+                      <div style={{ display: 'flex', gap: 3 } as any}>
+                        {tasks.slice(0, 5).map((_: any, ti: number) => (
+                          <div key={ti} style={{ width: 8, height: 8, borderRadius: 4, background: ti < doneCount ? '#10B981' : 'rgba(255,255,255,0.08)', transition: 'background 0.3s' }} />
+                        ))}
+                      </div>
+                      <span style={{ fontSize: 11, fontWeight: 700, color: allDone ? '#10B981' : 'rgba(255,255,255,0.35)' }}>
+                        {allDone ? 'Tout fait !' : `${doneCount}/${totalTasks} actions`}
+                      </span>
+                    </div>
+                    <div style={{ padding: '4px 10px', borderRadius: 8, background: ap.today_checkin ? 'rgba(16,185,129,0.08)' : `${clr}08`, border: `1px solid ${ap.today_checkin ? 'rgba(16,185,129,0.15)' : `${clr}12`}`, fontSize: 10, fontWeight: 700, color: ap.today_checkin ? '#10B981' : clr }}>
+                      {ap.today_checkin ? 'Bilan fait' : 'Continuer'}
+                    </div>
+                  </div>
+                )}
               </div>
-              <div style={{ height: 8, borderRadius: 4, background: isDark ? 'rgba(255,255,255,0.08)' : '#FFF', overflow: 'hidden', marginBottom: 14 } as any}>
-                <div style={{ height: 8, borderRadius: 4, width: `${activeProgram.progress_pct}%`, background: activeProgram.program.color, transition: 'width 0.5s' } as any} />
-              </div>
-              {activeProgram.today_tasks && (
-                <div>
-                  <div style={{ fontSize: 13, fontWeight: 800, color: C.text, marginBottom: 2 }}>{activeProgram.today_tasks.focus}</div>
-                  <div style={{ fontSize: 11, color: activeProgram.program.color, fontWeight: 700 }}>{activeProgram.today_tasks.tasks?.length || 0} taches · {activeProgram.today_checkin ? 'Check-in fait' : 'A valider aujourd\'hui'}</div>
-                </div>
-              )}
-            </div>
-          )}
+            );
+          })()}
 
           {/* ── WEIGHT GOAL CARD (si objectif en cours) ── */}
           <WeightGoalDashCard token={token} />
@@ -670,9 +705,9 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
               </div>
             ))}
             {guardians.length === 0 && <div style={{ fontSize: 11, color: C.sub, textAlign: 'center', padding: '6px 0' }}>Aucun gardien</div>}
-            <div data-testid="add-guardian-btn" onClick={() => setShowAddGuardianPopup(true)} style={{ marginTop: 12, padding: '14px', borderRadius: 14, borderTop: '1px solid rgba(255,255,255,0.08)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10, transition: 'background 0.15s' } as any}
-              onMouseEnter={(e: any) => { e.currentTarget.style.background = 'rgba(0,0,0,0.06)'; }}
-              onMouseLeave={(e: any) => { e.currentTarget.style.background = 'rgba(0,0,0,0.03)'; }}>
+            <div data-testid="add-guardian-btn" onClick={() => setShowAddGuardianPopup(true)} style={{ marginTop: 12, padding: '14px', borderRadius: 14, background: 'rgba(167,139,250,0.04)', border: '1px solid rgba(167,139,250,0.15)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10, transition: 'background 0.15s' } as any}
+              onMouseEnter={(e: any) => { e.currentTarget.style.background = 'rgba(167,139,250,0.08)'; }}
+              onMouseLeave={(e: any) => { e.currentTarget.style.background = 'rgba(167,139,250,0.04)'; }}>
               <i className="ri-heart-add-line" style={{ fontSize: 18, color: '#A78BFA' }} />
               <span style={{ fontSize: 14, fontWeight: 700, color: C.text }}>Ajouter un gardien</span>
             </div>
