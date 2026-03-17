@@ -8,6 +8,7 @@ import { DorsiBLEProvider } from '../src/context/DorsiBLEContext';
 import { View, ActivityIndicator, StyleSheet, Platform, Image, Text, TouchableOpacity } from 'react-native';
 import { PastelMistBackground } from '../src/components/PastelMistBackground';
 import { ensureFirstLaunchLocationPermission, openSystemLocationSettings, requestLocationPermission } from '../src/services/locationPermissions';
+import TeamActivityToast from '../src/components/programs/TeamActivityToast';
 
 /**
  * On iOS: render the entire app as a single full-screen WebView
@@ -262,6 +263,7 @@ function RootNav() {
         <Stack.Screen name="company-agency" options={{ presentation: 'card' }} />
         <Stack.Screen name="register" options={{ animation: 'none' }} />
       </Stack>
+      <TeamActivityOverlay />
     </>
   );
 }
@@ -284,6 +286,12 @@ export default function RootLayout() {
       </I18nProvider>
     </ThemeProvider>
   );
+}
+
+function TeamActivityOverlay() {
+  const { token, user } = useAuth();
+  if (!token || !user) return null;
+  return <TeamActivityToast token={token} />;
 }
 
 const st = StyleSheet.create({

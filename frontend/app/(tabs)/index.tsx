@@ -13,6 +13,7 @@ import CompanyHome from '../../src/components/dashboard/CompanyHome';
 import { Card, HeroCard, StatusBadge, PillButton, IconBtn, QuickAction, SectionHeader, LanguageFlagButton } from '../../src/components/dashboard/SharedUI';
 import { HEALTH_IMAGES, REMINDER_IMAGES, isDarkMode, CHX, webShadow, webGlass, BG_IMAGES } from '../../src/components/dashboard/constants';
 import AnimatedDarkBg from '../../src/components/AnimatedDarkBg';
+import TeamActivityToast from '../../src/components/programs/TeamActivityToast';
 import { NotificationsPopup, LanguagePopup, ReminderCRUDPopup, ReminderNotifPopup, AddGuardianPopup, CheckinPopup, GuardianActivationPopup } from '../../src/components/dashboard/BeneficiaryPopups';
 import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator, RefreshControl, Alert, Animated, Platform, Image, TextInput } from 'react-native';
 import { ContextualTip, OnboardingChecklist, MiniTuto } from '../../src/components/HelpSystem';
@@ -476,6 +477,7 @@ function BeneficiaryHome({ token, user }: { token: string; user: any }) {
     return (
       <div data-testid="beneficiary-dashboard" style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, display: 'flex', flexDirection: 'column', fontFamily: "'Inter', system-ui, -apple-system, sans-serif", overflow: 'hidden', '--card-bg': C.card, '--card-text': C.text, '--card-sub': C.sub, '--card-arrow': C.arrow, '--card-sep': isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.06)', '--card-blur': 'none', '--card-border': 'none', ...(!isDark ? { background: C.bg } : {}) } as any}>
         {isDark && <AnimatedDarkBg />}
+        {Platform.OS === 'web' && <TeamActivityToast token={token} />}
         <div style={{ flex: 1, overflowY: 'auto', position: 'relative', zIndex: 5, padding: '0 0 100px', WebkitOverflowScrolling: 'touch' } as any}>
 
           {/* ══════ HEADER — Full width gray rounded ══════ */}

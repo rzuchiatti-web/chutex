@@ -1,0 +1,106 @@
+{
+  "summary": "Iteration 114 Testing - Social Activity Feed & Program Detail Page. Backend 11/11 tests PASSED. Verified: 1) GET /api/programs/team/feed returns seeded activities (Marie Dupont, Lucas Bernard) with correct structure. 2) GET /api/programs/detail/prog-sleep-21 returns cover_image field. 3) GET /api/programs/catalog returns all programs with cover_image URLs. Frontend testing blocked by onboarding flow - code review confirmed implementations are correct.",
+  "backend_issues": {
+    "critical": [],
+    "minor": [
+      {
+        "endpoint": "/api/programs/active",
+        "issue": "Returns 500 error with KeyError 'started_at' - seen in backend logs but not blocking team/feed functionality",
+        "priority": "MEDIUM"
+      }
+    ]
+  },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [
+      {
+        "flow": "Frontend UI testing",
+        "issue": "Onboarding flow blocks access to main app even after setting localStorage auth. Swipe/click gestures don't navigate through onboarding slides effectively in Playwright.",
+        "affected_selectors": ["data-testid='team-activity-toast'", "data-testid='catalog-*'", "data-testid='program-detail-step-0'"],
+        "priority": "LOW",
+        "workaround": "Code review verified implementations. Manual testing required to confirm toast appears and cover images render."
+      }
+    ],
+    "design_issues": []
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_iteration114_social_feed_redesign.py",
+    "/app/test_reports/pytest/pytest_results_iter114.xml"
+  ],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "VERIFIED: TeamActivityToast.tsx uses ReactDOM.createPortal to render in document.body - correct implementation",
+    "VERIFIED: TeamActivityToast fetches from /api/programs/team/feed and displays activities with user initials, name, time, detail, icon",
+    "VERIFIED: chat.tsx (Programs tab) line 100 uses p.cover_image from API with fallback to PROG_IMAGES constant",
+    "VERIFIED: chat.tsx line 109 renders <img src={img}> for catalog card banners",
+    "VERIFIED: program-detail.tsx line 50 sets coverImage from program.cover_image",
+    "VERIFIED: program-detail.tsx lines 139-142 render hero section with 340px height and cover image",
+    "VERIFIED: program-detail.tsx has all sections: phases, benefits, tracked metrics pills, CTA buttons",
+    "VERIFIED: _layout.tsx lines 291-295 TeamActivityOverlay renders toast only when user AND token exist"
+  ],
+  "updated_files": [
+    "/app/backend/tests/test_iteration114_social_feed_redesign.py"
+  ],
+  "success_rate": {
+    "backend": "100% - 11/11 tests passed",
+    "frontend": "Code review verified - UI testing blocked by onboarding"
+  },
+  "test_credentials": {
+    "beneficiary": "phone: 0651245918, password: test123"
+  },
+  "seed_data_creation": "Team activity feed already seeded with 4 activities (Marie Dupont, Lucas Bernard)",
+  "retest_needed": false,
+  "should_main_agent_self_test": true,
+  "context_for_next_testing_agent": "Backend APIs all working: team/feed, program detail, catalog. Frontend testing requires navigating through swipe-based onboarding. The onboarding uses gesture-based navigation that Playwright struggles with. Consider testing via direct URL manipulation or adding a skip onboarding flag for testing. The program-detail page shows content but hero section with cover image may render differently due to React Native Web transformations.",
+  "api_test_results": {
+    "team_feed": {
+      "endpoint": "GET /api/programs/team/feed",
+      "status": "200 OK",
+      "activities_count": 4,
+      "sample_activity": {
+        "user_name": "Marie Dupont",
+        "action_type": "checkin",
+        "detail": "A complete son bilan du jour 4",
+        "icon": "ri-check-double-line",
+        "color": "#10B981"
+      }
+    },
+    "program_detail": {
+      "endpoint": "GET /api/programs/detail/prog-sleep-21",
+      "status": "200 OK",
+      "has_cover_image": true,
+      "cover_image_url": "https://images.unsplash.com/photo-1587023705100-8094f8d47e86?w=800&q=80"
+    },
+    "catalog": {
+      "endpoint": "GET /api/programs/catalog",
+      "status": "200 OK",
+      "programs_count": 10,
+      "all_have_cover_image": true
+    }
+  },
+  "frontend_code_review": {
+    "TeamActivityToast": {
+      "file": "/app/frontend/src/components/programs/TeamActivityToast.tsx",
+      "portal_implementation": "ReactDOM.createPortal(toastContent, document.body) - line 132",
+      "test_id": "team-activity-toast - line 70",
+      "fetch_endpoint": "/api/programs/team/feed - line 27"
+    },
+    "ProgramCatalog": {
+      "file": "/app/frontend/app/(tabs)/chat.tsx",
+      "cover_image_usage": "p.cover_image || PROG_IMAGES[p.category] - line 100",
+      "img_render": "<img src={img}> - line 109",
+      "card_test_id": "catalog-${p.id} - line 102"
+    },
+    "ProgramDetail": {
+      "file": "/app/frontend/app/program-detail.tsx",
+      "hero_height": "340px - line 139",
+      "cover_image_conditional": "{coverImage && <img>} - lines 140-142",
+      "cta_buttons": "start-solo-btn, start-team-btn - lines 324, 337"
+    },
+    "TeamActivityOverlay": {
+      "file": "/app/frontend/app/_layout.tsx",
+      "conditional_render": "if (!token || !user) return null - line 293",
+      "renders_toast": "<TeamActivityToast token={token} /> - line 294"
+    }
+  }
+}

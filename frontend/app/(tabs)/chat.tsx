@@ -97,7 +97,7 @@ export default function ProgramsTab() {
               )}
 
               {remainingPrograms.map((p: any, idx: number) => {
-                const img = PROG_IMAGES[p.category] || PROG_IMAGES.mobilite;
+                const img = p.cover_image || PROG_IMAGES[p.category] || PROG_IMAGES.mobilite;
                 return (
                   <div key={p.id} data-testid={`catalog-${p.id}`}
                     onClick={() => router.push({ pathname: '/program-detail' as any, params: { id: p.id } })}

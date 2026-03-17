@@ -110,6 +110,7 @@ SEED_PROGRAMS = [
         "subtitle": "Programme scientifique pour transformer vos nuits",
         "icon": "ri-moon-line",
         "color": "#A78BFA",
+        "cover_image": "https://images.unsplash.com/photo-1587023705100-8094f8d47e86?w=800&q=80",
         "duration_days": 21,
         "category": "sommeil",
         "difficulty": "facile",
@@ -168,6 +169,7 @@ SEED_PROGRAMS = [
         "subtitle": "Programme scientifique pour votre tension arterielle",
         "icon": "ri-heart-pulse-line",
         "color": "#EF4444",
+        "cover_image": "https://images.unsplash.com/photo-1682706841291-d4aadc6fde6c?w=800&q=80",
         "duration_days": 14,
         "category": "cardiovasculaire",
         "difficulty": "moyen",
@@ -213,6 +215,7 @@ SEED_PROGRAMS = [
         "subtitle": "Programme progressif d'activite physique adaptee",
         "icon": "ri-footprint-line",
         "color": "#10B981",
+        "cover_image": "https://images.unsplash.com/photo-1760879946121-893199733851?w=800&q=80",
         "duration_days": 30,
         "category": "activite",
         "difficulty": "progressif",
@@ -276,6 +279,7 @@ SEED_PROGRAMS = [
         "subtitle": "Nutrition anti-inflammatoire et hydratation optimale",
         "icon": "ri-restaurant-line",
         "color": "#F97316",
+        "cover_image": "https://images.unsplash.com/photo-1757332051150-a5b3c4510af8?w=800&q=80",
         "duration_days": 21,
         "category": "nutrition",
         "difficulty": "facile",
@@ -332,6 +336,7 @@ SEED_PROGRAMS = [
         "subtitle": "Equilibre, proprioception et renforcement adapte",
         "icon": "ri-walk-line",
         "color": "#06B6D4",
+        "cover_image": "https://images.unsplash.com/photo-1574310094148-ca48ab86734c?w=800&q=80",
         "duration_days": 21,
         "category": "equilibre",
         "difficulty": "progressif",
@@ -387,6 +392,7 @@ SEED_PROGRAMS = [
         "subtitle": "Coherence cardiaque, meditation et sante cognitive",
         "icon": "ri-mental-health-line",
         "color": "#8B5CF6",
+        "cover_image": "https://images.unsplash.com/photo-1758607234692-51ac051a2a4d?w=800&q=80",
         "duration_days": 21,
         "category": "bien-etre",
         "difficulty": "facile",
@@ -442,6 +448,7 @@ SEED_PROGRAMS = [
         "subtitle": "Exercices cognitifs et neuroprotection au quotidien",
         "icon": "ri-brain-line",
         "color": "#EC4899",
+        "cover_image": "https://images.unsplash.com/photo-1740908900846-271f4f021b6a?w=800&q=80",
         "duration_days": 14,
         "category": "cognitif",
         "difficulty": "facile",
@@ -490,6 +497,7 @@ SEED_PROGRAMS = [
         "subtitle": "Endurance cardiovasculaire progressive et adaptee",
         "icon": "ri-heart-3-line",
         "color": "#E11D48",
+        "cover_image": "https://images.unsplash.com/photo-1773399452188-a42e29543bf2?w=800&q=80",
         "duration_days": 21,
         "category": "cardio-endurance",
         "difficulty": "progressif",
@@ -546,6 +554,7 @@ SEED_PROGRAMS = [
         "subtitle": "Dos, epaules, cou — exercices correctifs quotidiens",
         "icon": "ri-body-scan-line",
         "color": "#0EA5E9",
+        "cover_image": "https://images.unsplash.com/photo-1767611116690-713538b6a04d?w=800&q=80",
         "duration_days": 14,
         "category": "posture",
         "difficulty": "facile",
@@ -593,6 +602,7 @@ SEED_PROGRAMS = [
         "subtitle": "Capacite pulmonaire, souffle et respiration therapeutique",
         "icon": "ri-lungs-line",
         "color": "#14B8A6",
+        "cover_image": "https://images.unsplash.com/photo-1502139214982-d0ad755818d8?w=800&q=80",
         "duration_days": 14,
         "category": "respiratoire",
         "difficulty": "facile",
@@ -1056,10 +1066,56 @@ async def save_task_progress(data: dict, user=Depends(get_current_user)):
             "created_at": datetime.now(timezone.utc).isoformat(),
         })
 
+    # Emit team activity
+    task_detail = f"Action {task_index + 1} validee"
+    await _emit_team_activity(user['id'], user.get('name', 'Membre'), enrollment["program_id"], "task_done", task_detail, "ri-check-line", "#10B981")
+
     return {"status": "saved"}
 
 
-@router.post("/programs/apply-onboarding")
+async def _emit_team_activity(user_id: str, user_name: str, program_id: str, action_type: str, detail: str = "", icon: str = "ri-check-line", color: str = "#10B981"):
+    """Record a team activity event for the social feed."""
+    team = await db.team_programs.find_one(
+        {"members.user_id": user_id, "program_id": program_id, "status": {"$in": ["waiting", "active"]}}, {"_id": 0, "id": 1, "members": 1}
+    )
+    if not team or len(team.get("members", [])) < 2:
+        return
+    await db.team_activity_feed.insert_one({
+        "id": str(uuid.uuid4()),
+        "team_id": team["id"],
+        "user_id": user_id,
+        "user_name": user_name,
+        "program_id": program_id,
+        "action_type": action_type,
+        "detail": detail,
+        "icon": icon,
+        "color": color,
+        "created_at": datetime.now(timezone.utc).isoformat(),
+    })
+
+
+@router.get("/programs/team/feed")
+async def team_activity_feed(user=Depends(get_current_user)):
+    """Get recent team activity feed for social notifications."""
+    enrollment = await db.program_enrollments.find_one(
+        {"user_id": user['id'], "status": "active"}, {"_id": 0}
+    )
+    if not enrollment:
+        return {"feed": []}
+
+    team = await db.team_programs.find_one(
+        {"members.user_id": user['id'], "program_id": enrollment["program_id"], "status": {"$in": ["waiting", "active"]}}, {"_id": 0}
+    )
+    if not team:
+        return {"feed": []}
+
+    # Get last 20 activities from team (excluding the current user)
+    activities = await db.team_activity_feed.find(
+        {"team_id": team["id"], "user_id": {"$ne": user['id']}},
+        {"_id": 0}
+    ).sort("created_at", -1).to_list(20)
+
+    return {"feed": activities}
 async def apply_onboarding_to_app(data: dict, user=Depends(get_current_user)):
     """Apply onboarding answers to app features (reminders, objectives, health data)."""
     onboarding = data.get("onboarding", {})
@@ -1246,6 +1302,13 @@ Genere UNE phrase factuelle et medicalement pertinente (max 20 mots). Vouvoyez l
 
     if not feedback:
         feedback = "Votre regularite est un facteur cle pour l'efficacite du programme."
+
+    # Emit team activity for checkin
+    mood_labels = {1: "Difficile", 2: "Bof", 3: "OK", 4: "Bien", 5: "Super"}
+    mood_icons = {1: "ri-emotion-sad-line", 2: "ri-emotion-unhappy-line", 3: "ri-emotion-normal-line", 4: "ri-emotion-line", 5: "ri-emotion-happy-line"}
+    mood_colors = {1: "#EF4444", 2: "#F59E0B", 3: "#FCD34D", 4: "#34D399", 5: "#10B981"}
+    m = data.get("mood", 3)
+    await _emit_team_activity(user['id'], user.get('name', 'Membre'), enrollment["program_id"], "checkin", f"Bilan du jour — Humeur : {mood_labels.get(m, 'OK')}", mood_icons.get(m, "ri-emotion-normal-line"), mood_colors.get(m, "#FCD34D"))
 
     return {"status": "created", "feedback": feedback}
 
