@@ -26,6 +26,23 @@ export default function ProgramsTab() {
   const [hasDevices, setHasDevices] = useState<any>({ bracelet: false, scale: false, any: false });
   const [showGuide, setShowGuide] = useState(false);
   const [showCatalog, setShowCatalog] = useState(false);
+  const [showJoinPopup, setShowJoinPopup] = useState(false);
+  const [joinCode, setJoinCode] = useState('');
+  const [joinLoading, setJoinLoading] = useState(false);
+  const [joinError, setJoinError] = useState('');
+  const [joinSuccess, setJoinSuccess] = useState('');
+
+  const handleJoinTeam = async () => {
+    if (!joinCode.trim()) { setJoinError('Entrez un code equipe'); return; }
+    setJoinLoading(true); setJoinError(''); setJoinSuccess('');
+    try {
+      const res = await apiFetch('/api/programs/team/join', { method: 'POST', body: JSON.stringify({ invite_code: joinCode.trim() }) }, token);
+      setJoinSuccess(res?.message || 'Vous avez rejoint l\'equipe !');
+      setTimeout(() => { setShowJoinPopup(false); setJoinCode(''); setJoinSuccess(''); setJoinError(''); loadData(); }, 1500);
+    } catch (e: any) {
+      setJoinError(e?.message || e?.detail || 'Code invalide ou equipe introuvable');
+    } finally { setJoinLoading(false); }
+  };
 
   const loadData = async () => {
     setLoading(true);
@@ -70,11 +87,21 @@ export default function ProgramsTab() {
               <div style={{ fontSize: 24, fontWeight: 900, color: '#FFF', letterSpacing: -0.5 }}>Programmes</div>
               <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', marginTop: 4 }}>Parcours prevention personnalises</div>
             </div>
-            <div data-testid="programs-guide-btn" onClick={() => setShowGuide(true)}
-              style={{ width: 40, height: 40, borderRadius: 14, background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', ...glass, transition: 'transform 0.15s, background 0.15s' } as any}
-              onMouseEnter={(e: any) => { e.currentTarget.style.background = 'rgba(255,255,255,0.14)'; e.currentTarget.style.transform = 'scale(1.06)'; }}
-              onMouseLeave={(e: any) => { e.currentTarget.style.background = 'rgba(255,255,255,0.08)'; e.currentTarget.style.transform = ''; }}>
-              <i className="ri-question-line" style={{ fontSize: 20, color: 'rgba(255,255,255,0.6)' }} />
+            <div style={{ display: 'flex', gap: 8 } as any}>
+              {!activeProgram?.active && (
+                <div data-testid="join-team-btn" onClick={() => { setShowJoinPopup(true); setJoinCode(''); setJoinError(''); setJoinSuccess(''); }}
+                  style={{ width: 40, height: 40, borderRadius: 14, background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', ...glass, transition: 'transform 0.15s, background 0.15s' } as any}
+                  onMouseEnter={(e: any) => { e.currentTarget.style.background = 'rgba(255,255,255,0.14)'; e.currentTarget.style.transform = 'scale(1.06)'; }}
+                  onMouseLeave={(e: any) => { e.currentTarget.style.background = 'rgba(255,255,255,0.08)'; e.currentTarget.style.transform = ''; }}>
+                  <i className="ri-team-line" style={{ fontSize: 20, color: 'rgba(255,255,255,0.6)' }} />
+                </div>
+              )}
+              <div data-testid="programs-guide-btn" onClick={() => setShowGuide(true)}
+                style={{ width: 40, height: 40, borderRadius: 14, background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', ...glass, transition: 'transform 0.15s, background 0.15s' } as any}
+                onMouseEnter={(e: any) => { e.currentTarget.style.background = 'rgba(255,255,255,0.14)'; e.currentTarget.style.transform = 'scale(1.06)'; }}
+                onMouseLeave={(e: any) => { e.currentTarget.style.background = 'rgba(255,255,255,0.08)'; e.currentTarget.style.transform = ''; }}>
+                <i className="ri-question-line" style={{ fontSize: 20, color: 'rgba(255,255,255,0.6)' }} />
+              </div>
             </div>
           </div>
 
@@ -198,6 +225,63 @@ export default function ProgramsTab() {
               onMouseEnter={(e: any) => { e.currentTarget.style.background = 'rgba(16,185,129,0.2)'; }}
               onMouseLeave={(e: any) => { e.currentTarget.style.background = 'rgba(16,185,129,0.12)'; }}>
               <span style={{ fontSize: 13, fontWeight: 800, color: '#34D399' }}>C'est parti !</span>
+            </div>
+          </div>
+        </div>
+      )}
+      {/* ═══ JOIN TEAM POPUP ═══ */}
+      {showJoinPopup && (
+        <div data-testid="join-team-popup" onClick={() => setShowJoinPopup(false)} style={{ position: 'fixed', inset: 0, zIndex: 9999, backdropFilter: 'blur(32px)', WebkitBackdropFilter: 'blur(32px)', background: 'rgba(0,0,0,0.2)', overflowY: 'scroll', WebkitOverflowScrolling: 'touch', display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}>
+          <div onClick={(e: any) => e.stopPropagation()}
+            style={{ width: '90%', maxWidth: 380, borderRadius: 28, background: 'rgba(20,20,30,0.85)', border: '1px solid rgba(255,255,255,0.1)', padding: '28px 24px', ...glass, boxShadow: '0 24px 64px rgba(0,0,0,0.5)', animation: 'pgSlideUp 300ms ease' } as any}>
+            <style>{`@keyframes pgSlideUp{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:translateY(0)}}`}</style>
+
+            {/* Close */}
+            <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 8 } as any}>
+              <div data-testid="join-team-close" onClick={() => setShowJoinPopup(false)}
+                style={{ width: 32, height: 32, borderRadius: 10, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}>
+                <i className="ri-close-line" style={{ fontSize: 16, color: 'rgba(255,255,255,0.5)' }} />
+              </div>
+            </div>
+
+            {/* Title */}
+            <div style={{ textAlign: 'center', marginBottom: 24 } as any}>
+              <div style={{ width: 56, height: 56, borderRadius: 18, background: 'rgba(167,139,250,0.1)', border: '1px solid rgba(167,139,250,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px' } as any}>
+                <i className="ri-team-line" style={{ fontSize: 28, color: '#A78BFA' }} />
+              </div>
+              <div style={{ fontSize: 20, fontWeight: 900, color: '#FFF', letterSpacing: -0.3, marginBottom: 6 }}>Rejoindre une equipe</div>
+              <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', lineHeight: 1.5 }}>Entrez le code equipe partage par un ami pour rejoindre son programme.</div>
+            </div>
+
+            {/* Input */}
+            <div style={{ marginBottom: 16 } as any}>
+              <input
+                data-testid="join-team-input"
+                type="text"
+                value={joinCode}
+                onChange={(e: any) => { setJoinCode(e.target.value.toUpperCase()); setJoinError(''); }}
+                onKeyDown={(e: any) => { if (e.key === 'Enter') handleJoinTeam(); }}
+                placeholder="Ex: A3F8B2C1"
+                style={{ width: '100%', padding: '14px 16px', borderRadius: 14, background: 'rgba(255,255,255,0.06)', border: `1.5px solid ${joinError ? 'rgba(239,68,68,0.4)' : 'rgba(255,255,255,0.12)'}`, color: '#FFF', fontSize: 18, fontWeight: 800, textAlign: 'center', letterSpacing: 4, outline: 'none', boxSizing: 'border-box', fontFamily: 'monospace', transition: 'border-color 0.2s' } as any}
+              />
+            </div>
+
+            {/* Error */}
+            {joinError && (
+              <div data-testid="join-team-error" style={{ textAlign: 'center', fontSize: 12, color: '#EF4444', marginBottom: 12 }}>{joinError}</div>
+            )}
+
+            {/* Success */}
+            {joinSuccess && (
+              <div data-testid="join-team-success" style={{ textAlign: 'center', fontSize: 12, color: '#10B981', marginBottom: 12, fontWeight: 700 }}>{joinSuccess}</div>
+            )}
+
+            {/* Submit */}
+            <div data-testid="join-team-submit" onClick={!joinLoading ? handleJoinTeam : undefined}
+              style={{ padding: '14px', borderRadius: 16, background: joinLoading ? 'rgba(167,139,250,0.08)' : 'rgba(167,139,250,0.15)', border: '1px solid rgba(167,139,250,0.3)', textAlign: 'center', cursor: joinLoading ? 'default' : 'pointer', transition: 'background 0.15s', opacity: joinLoading ? 0.6 : 1 } as any}
+              onMouseEnter={(e: any) => { if (!joinLoading) e.currentTarget.style.background = 'rgba(167,139,250,0.25)'; }}
+              onMouseLeave={(e: any) => { if (!joinLoading) e.currentTarget.style.background = 'rgba(167,139,250,0.15)'; }}>
+              <span style={{ fontSize: 13, fontWeight: 800, color: '#A78BFA' }}>{joinLoading ? 'Verification...' : 'Rejoindre l\'equipe'}</span>
             </div>
           </div>
         </div>
