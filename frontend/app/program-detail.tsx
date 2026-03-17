@@ -26,20 +26,23 @@ export default function ProgramDetailScreen() {
   const [teamId, setTeamId] = useState('');
   const [inviteCode, setInviteCode] = useState('');
   const [invitedFriends, setInvitedFriends] = useState<any[]>([]);
+  const [showDeviceSetup, setShowDeviceSetup] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (!programId) return;
+    setLoading(true);
     Promise.all([
       apiFetch(`/api/programs/detail/${programId}`, {}, token).catch(() => null),
       apiFetch('/api/programs/active', {}, token).catch(() => null),
     ]).then(([detail, active]) => {
       if (detail) setProgram(detail);
       if (active) setActiveProgram(active);
-    });
+    }).finally(() => setLoading(false));
   }, [programId, token]);
 
   if (Platform.OS !== 'web') return <NativePageView path={`/program-detail?id=${id}`} />;
-  if (!program) return <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#000' }}><Text style={{ color: '#FFF' }}>Chargement...</Text></View>;
+  if (loading || !program) return <Loader />;
 
   const clr = program.color || '#FFF';
   const hasOnboarding = (program.onboarding_fields || []).length > 0;
@@ -77,7 +80,7 @@ export default function ProgramDetailScreen() {
     setStarting(true); setError('');
     try {
       await apiFetch(`/api/programs/start/${programId}`, { method: 'POST', body: JSON.stringify({ mode: 'solo', onboarding }) }, token);
-      router.replace('/programs' as any);
+      router.replace('/(tabs)/chat' as any);
     } catch (e: any) { setError(e.message || 'Erreur'); } finally { setStarting(false); }
   };
 
@@ -91,8 +94,6 @@ export default function ProgramDetailScreen() {
       setInvitePhone('');
     } catch (e: any) { setInviteMsg(e.message || 'Erreur'); } finally { setInviteLoading(false); }
   };
-
-  const [showDeviceSetup, setShowDeviceSetup] = useState(false);
 
   const GlassBox = ({ children, style }: any) => (
     <div style={{ padding: '16px', borderRadius: 20, background: '#1a1a1e', border: '1.5px solid rgba(255,255,255,0.12)', ...style } as any}>{children}</div>

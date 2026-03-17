@@ -7,9 +7,9 @@ import pytest
 import requests
 import os
 
-BASE_URL = os.environ.get('EXPO_PUBLIC_BACKEND_URL', 'https://whoop-dashboard.preview.emergentagent.com')
+BASE_URL = os.environ.get('EXPO_PUBLIC_BACKEND_URL', 'https://whoop-clone-4.preview.emergentagent.com')
 if not BASE_URL.startswith('http'):
-    BASE_URL = 'https://whoop-dashboard.preview.emergentagent.com'
+    BASE_URL = 'https://whoop-clone-4.preview.emergentagent.com'
 
 # Test credentials
 BENEFICIARY_EMAIL = "robert.martin@email.fr"

@@ -12,7 +12,7 @@ import requests
 import os
 import time
 
-BASE_URL = "https://whoop-dashboard.preview.emergentagent.com"
+BASE_URL = "https://whoop-clone-4.preview.emergentagent.com"
 
 # Test credentials
 TEST_PHONE = "0651245918"

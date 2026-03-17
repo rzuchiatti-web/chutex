@@ -18,7 +18,7 @@ import json
 # Base URL from environment
 BASE_URL = os.environ.get('EXPO_PUBLIC_BACKEND_URL', '').rstrip('/')
 if not BASE_URL:
-    BASE_URL = "https://whoop-dashboard.preview.emergentagent.com"
+    BASE_URL = "https://whoop-clone-4.preview.emergentagent.com"
 
 # MongoDB connection
 MONGO_URL = os.environ.get('MONGO_URL', 'mongodb://localhost:27017')

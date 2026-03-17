@@ -1,0 +1,69 @@
+{
+  "summary": "Completed testing of bug fixes for Programs feature. Both critical bugs FIXED: 1) Clicking on program from list no longer throws 'Rendered more hooks than during the previous render' error 2) Loader component is properly integrated in both pages. All 10 backend API tests pass. Full e2e flow works: login → programs list → click program → detail page → back button → programs list.",
+  "backend_issues": {
+    "critical": [],
+    "minor": []
+  },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_iteration110_programs.py",
+    "/app/test_reports/pytest/pytest_results_iter110.xml"
+  ],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "VERIFIED FIX: useState(false) for showDeviceSetup moved from line 95 to line 29 in program-detail.tsx - above all conditional returns. This fixes the React hooks order issue.",
+    "VERIFIED: Loader component properly added to chat.tsx (lines 47-52) with data-testid='programs-loading'",
+    "VERIFIED: Loader component used in program-detail.tsx (line 45) when loading state is true",
+    "Minor note: Back button throws development-only warning 'GO_BACK was not handled' when navigating directly to detail page without history - this is expected Expo Router behavior"
+  ],
+  "updated_files": [
+    "/app/backend/tests/test_iteration110_programs.py"
+  ],
+  "success_rate": {
+    "backend": "100% - All 10 tests passed",
+    "frontend": "100% - All critical flows working"
+  },
+  "test_credentials": {
+    "beneficiary": "phone: 0651245918, password: test123"
+  },
+  "seed_data_creation": "None - used existing test user",
+  "retest_needed": false,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "Iteration 110 verified both program bugs are fixed. Test user (0651245918 - Josette Zuchiatti) can login, navigate to Programs tab, click on any program card, view detail page, and use back button to return. The 'Rendered more hooks' error was caused by useState declared after conditional returns - now fixed.",
+  "features_tested": {
+    "backend_api_tests": [
+      {"endpoint": "POST /api/auth/login", "status": "PASS", "details": "Login with 0651245918/test123 returns 200 with valid token"},
+      {"endpoint": "GET /api/programs/catalog (no auth)", "status": "PASS", "details": "Returns 401/error without token - authentication required"},
+      {"endpoint": "GET /api/programs/catalog (with auth)", "status": "PASS", "details": "Returns 200 with programs array containing 10+ programs"},
+      {"endpoint": "GET /api/programs/detail/prog-sleep-21", "status": "PASS", "details": "Returns 200 with full program details (public endpoint)"},
+      {"endpoint": "GET /api/programs/detail/prog-tension-14", "status": "PASS", "details": "Returns 200 with 14-day cardiovascular program"},
+      {"endpoint": "GET /api/programs/detail/prog-activity-30", "status": "PASS", "details": "Returns 200 with 30-day activity program"},
+      {"endpoint": "GET /api/programs/detail/prog-nutrition-21", "status": "PASS", "details": "Returns 200 with nutrition program"},
+      {"endpoint": "GET /api/programs/detail/invalid-id", "status": "PASS", "details": "Returns 404 for non-existent program"}
+    ],
+    "frontend_ui_tests": [
+      {"flow": "Programs list loading", "status": "PASS", "details": "10 catalog items displayed with category badges"},
+      {"flow": "Click program card", "status": "PASS", "details": "Navigates to /program-detail?id=prog-xxx without React error"},
+      {"flow": "Program detail page", "status": "PASS", "details": "Shows title, duration, phases, benefits, tracked metrics"},
+      {"flow": "Back button from detail", "status": "PASS", "details": "Returns to programs list when navigating from list"}
+    ]
+  },
+  "bugs_verified_fixed": {
+    "bug_1": {
+      "description": "Error when clicking on a program from programs list page",
+      "error_message": "Rendered more hooks than during the previous render",
+      "root_cause": "useState(false) for showDeviceSetup was declared at line 95 AFTER conditional early returns on lines 41-42",
+      "fix_applied": "Moved showDeviceSetup useState to line 29 with other state declarations",
+      "status": "FIXED - Verified working"
+    },
+    "bug_2": {
+      "description": "Standard loading animation missing from program list and program detail pages",
+      "fix_applied": "Loader component added to chat.tsx (programs list) and program-detail.tsx",
+      "status": "FIXED - Loader component integrated, shows 'Analyse en cours...' with animated dots"
+    }
+  }
+}
