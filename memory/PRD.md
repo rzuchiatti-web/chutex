@@ -24,10 +24,22 @@ Application de monitoring sante style "Whoop" avec interface premium dark mode. 
 - Sleep detail page avancee (hypnogramme V3, gauge radiale, bilan correle)
 
 ## Completed (Session Courante - 17 Mars 2026)
-- [x] **Bug Fix P0**: Correction erreur "Rendered more hooks" sur program-detail.tsx (useState declare apres retours conditionnels)
-- [x] **Loader standard**: Ajout animation de chargement coherente sur pages Programmes et Detail Programme
-- [x] **Cleanup**: Suppression fichier deprecie programs.tsx + nettoyage routes _layout.tsx
-- [x] **Fix routing**: router.replace('/programs') → router.replace('/(tabs)/chat') dans program-detail.tsx
+### Bug Fix P0 - Navigation Programme
+- [x] Correction erreur "Rendered more hooks" sur program-detail.tsx
+- [x] Ajout Loader standard sur pages Programme
+- [x] Suppression fichier deprecie programs.tsx + nettoyage routes
+
+### Ameliorations Programme - Responsivite, Prefix, Equipe
+- [x] Fix responsivite: overflowX hidden, boxSizing, width 100% sur conteneurs
+- [x] Ajout PrefixPicker (identique au login) sur le champ telephone d'invitation equipe
+- [x] Correction inviteFriend() pour prepend prefix automatiquement
+- [x] Simulation programme en equipe: 2 amis (Marie Dupont, Pierre Martin) ajoutes au team
+- [x] Section "Votre equipe" dans ProgramDailyView avec:
+  - Initiales avatar, statut check-in, nombre d'actions validees, indicateur humeur
+  - Code equipe affiche
+  - Badge "Vous" pour l'utilisateur courant
+- [x] "Voir tous les programmes" corrige: toggle catalogue inline au lieu de /programs (404)
+- [x] Bouton "Retour au programme actif" dans la vue catalogue
 
 ## Backlog Prioritise
 ### P0 (Critique)
@@ -46,12 +58,13 @@ Application de monitoring sante style "Whoop" avec interface premium dark mode. 
 - Refactoring WhoopTabBar.tsx
 
 ## Key Files
-- `/app/frontend/app/(tabs)/chat.tsx` - Liste des programmes
-- `/app/frontend/app/program-detail.tsx` - Detail programme
+- `/app/frontend/app/(tabs)/chat.tsx` - Liste des programmes + catalogue toggle
+- `/app/frontend/app/program-detail.tsx` - Detail programme avec PrefixPicker
 - `/app/frontend/app/(tabs)/index.tsx` - Dashboard beneficiaire
 - `/app/frontend/app/health-detail/[metric].tsx` - Detail sante/sommeil
+- `/app/frontend/src/components/ProgramDailyView.tsx` - Vue quotidienne programme + section equipe
 - `/app/frontend/src/components/Loader.tsx` - Composant loader standard
-- `/app/backend/main.py` - API backend
+- `/app/backend/routes/program_routes.py` - API programmes + equipes
 
 ## Test Credentials
 | Role | Identifiant | Mot de passe |
@@ -59,7 +72,12 @@ Application de monitoring sante style "Whoop" avec interface premium dark mode. 
 | Beneficiaire | 0651245918 | test123 |
 | Gardien (Marie) | +33699887766 | test123 |
 
+## Simulated Data
+- Donnees sommeil: simulees dans MongoDB (7 jours)
+- Programme equipe: Team C2CABC3A avec Josette (user), Marie Dupont (checked in), Pierre Martin (en attente)
+- Age biologique et glycemie: donnees mockees
+
 ## Notes Techniques
-- Le Metro bundler cache agressivement — nettoyer avec `rm -rf /app/frontend/.metro-cache` puis `supervisorctl restart expo`
-- Les donnees sommeil sont simulees dans MongoDB
+- Le Metro bundler cache agressivement: `rm -rf /app/frontend/.metro-cache` puis `supervisorctl restart expo`
 - La page Programmes est `(tabs)/chat.tsx`, PAS `programs.tsx` (supprime)
+- Login API utilise le champ 'email' avec le numero de telephone
