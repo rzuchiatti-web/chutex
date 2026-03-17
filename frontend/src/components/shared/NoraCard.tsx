@@ -24,7 +24,7 @@ export default function NoraCard({ title, text, items }: { title?: string; text:
   }, [showText, text]);
 
   return (
-    <div style={{ borderRadius: 20, background: '#000', padding: '20px', marginBottom: 14, position: 'relative', overflow: 'hidden', minHeight: 90 } as any}>
+    <div style={{ borderRadius: 20, background: '#000', padding: '20px', marginBottom: 14, position: 'relative', overflow: 'hidden', minHeight: 90, border: '1.5px solid rgba(255,255,255,0.25)', boxShadow: '0 0 30px rgba(255,255,255,0.08), 0 0 60px rgba(167,139,250,0.06), 0 8px 40px rgba(0,0,0,0.5)' } as any}>
       <video autoPlay loop muted playsInline style={{
         position: 'absolute',
         left: showText ? '14px' : '50%',
