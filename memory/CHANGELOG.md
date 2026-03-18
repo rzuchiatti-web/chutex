@@ -11,13 +11,14 @@
 - **UI CorrelationsCard**: Composant integre sur la page sante avec barres visuelles, insights AI, expand/collapse
 
 - **Endpoint `/api/health/correlations/trends`**: Evolution hebdomadaire sur 8 semaines glissantes
-- **Direction tendances**: Renforce (>+10%), Stable, Affaibli (<-10%) avec delta %
-- **UI CorrelationsCard**: Onglets Actuelles/Tendances, sparklines SVG, badges direction, legende
+- **Direction tendances**: Renforce (>+10%), Stable, Affaibli (<-10%) avec sparklines inline
+- **UI CorrelationsCard**: Design simplifie pour le grand public — phrases en francais simple ("Bien dormir calme votre coeur"), icones 38x38 comme HeroScore, tendances inline, sans termes techniques
 
 ### Tests
 - iteration_130.json: 18/18 backend tests PASS (correlations + regression)
-- iteration_131.json: 11/11 frontend tests PASS (CorrelationsCard + page sante)
+- iteration_131.json: 11/11 frontend tests PASS (CorrelationsCard v1)
 - iteration_132.json: 18/18 backend+frontend tests PASS (trends endpoint + tabs UI)
+- iteration_133.json: 7/7 frontend tests PASS (redesign simplifie)
 
 ---
 
