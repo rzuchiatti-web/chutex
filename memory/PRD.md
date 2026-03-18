@@ -36,43 +36,40 @@ Chutex Care est une plateforme de teleassistance et de sante connectee pour les 
 - Escalade automatique: Patient → Gardiens → SAAD
 - Gestion des interventions
 
-### Live Activity (Notifications temps reel) — NOUVEAU (Mars 2026)
-- **Backend**: Systeme de suivi live status avec 6 etapes (alert_triggered → notifying_guardians → ai_calling → guardian_responding → intervention_active → resolved)
-- **Frontend In-App**: Composant LiveAlertBanner style Uber Eats avec barre de progression, timeline, boutons d'action (Suivre, Intervenir, Appeler)
-- **iOS Native**: Configuration ActivityKit (ChutexAlertLiveActivity.swift + LiveActivityModule.swift) pour Dynamic Island et Lock Screen
-- **Push enrichies**: Payloads push avec flag live_activity et donnees beneficiaire
+### Live Activity + Carte temps reel (Mars 2026)
+- **Backend Live Status**: Tracking en 6 etapes (alert_triggered → notifying_guardians → ai_calling → guardian_responding → intervention_active → resolved)
+- **In-App Live Activity**: Composant LiveAlertBanner style Uber Eats avec glassmorphism, barre de progression, timeline, stage chips, boutons d'action
+- **Carte de localisation**: CartoDB dark tiles 3x3, marqueur beneficiaire avec coordonnees GPS, marqueur intervenant (quand disponible), ligne en pointilles de route
+- **iOS Native Live Activities**: Configuration ActivityKit (ChutexAlertLiveActivity.swift + LiveActivityModule.swift) pour Dynamic Island et Lock Screen
+- **Push enrichies**: Payloads avec flag live_activity, donnees beneficiaire
 - **Endpoints**: GET /api/alerts/live-active, GET /api/alerts/{id}/live-status, POST /api/push/live-activity-token
-- Auto-polling toutes les 5 secondes pour mises a jour temps reel
+- Hooks automatiques dans alert_routes, vapi_engine, carewatch_engine
+- Auto-polling toutes les 5 secondes
 
 ### Admin Dashboard
-- Backoffice complet avec 9 modules (Utilisateurs, Alertes, Abonnements, Appareils, Sante, Programmes, Systeme, Documents)
-- KPIs et graphiques en temps reel
-- Alertes WebSocket temps reel (/ws/admin-alerts)
-- Export PDF de documents techniques
+- Backoffice complet avec 9 modules
+- KPIs et graphiques temps reel
+- Alertes WebSocket (/ws/admin-alerts)
+- Export PDF documents techniques
 - Interface sidebar professionnelle
-
-### Documents et Brevets
-- Brevet V3 Glycemia ML Algorithm (complet)
-- Navigateur de documents avec export PDF
 
 ## Endpoints API cles
 | Endpoint | Methode | Description |
 |---|---|---|
 | /api/auth/login | POST | Connexion |
-| /api/alerts | POST/GET | Gestion des alertes |
-| /api/alerts/live-active | GET | Statuts live actifs |
+| /api/alerts | POST/GET | Gestion alertes |
+| /api/alerts/live-active | GET | Statuts live actifs avec locations |
 | /api/alerts/{id}/live-status | GET | Statut live specifique |
+| /api/alerts/{id}/tracking | GET | Positions beneficiaire + intervenant |
 | /api/push/live-activity-token | POST | Token APNs iOS |
 | /ws/admin-alerts | WS | Alertes admin temps reel |
-| /api/admin/* | GET | Endpoints admin dashboard |
 
-## Schema DB principal
-- `users`: Utilisateurs (beneficiaire, gardien, admin)
-- `alerts`: Alertes SOS/chute/anomalie
-- `alert_live_status`: Suivi temps reel des etapes d'alerte (NOUVEAU)
-- `incidents`: Incidents teleassistance
-- `interventions`: Interventions gardien/SAAD
-- `live_activity_tokens`: Tokens APNs pour Live Activities iOS (NOUVEAU)
+## Schema DB
+- `users`, `alerts`, `incidents`, `interventions`
+- `alert_live_status`: Suivi temps reel des etapes d'alerte
+- `alert_tracking`, `intervention_tracking`: Positions GPS
+- `live_activity_tokens`: Tokens APNs pour Live Activities iOS
+- `locations`: Derniere position connue par utilisateur
 
 ## Backlog
 Voir ROADMAP.md pour les fonctionnalites prioritaires.
