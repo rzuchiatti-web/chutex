@@ -1,24 +1,35 @@
-# Chutex Care — Changelog
+# Chutex Care — CHANGELOG
 
-## 2026-03-18 — ML V3 Glycemia Estimation
-- Built GradientBoostingRegressor model pre-trained on 6000 synthetic samples
-- Medical literature correlations: HRV, visceral fat, SpO2, sleep, activity, BMI, etc.
-- 3-tier architecture: Population (day 1) → Personal (5+ calibrations) → Calibration (optional)
-- Top features: hrv_norm (27.2%), has_diabetes_risk (24.7%), visceral_fat (17.7%)
-- Prediction intervals with confidence bounds (tree variance)
-- New endpoints: /api/glycemia/estimate (V3), /api/glycemia/ml-status
-- All 20 tests passed (iteration 120)
+## [Mars 2026] — Live Activity Push Notifications
 
-## 2026-03-18 — SOS Call Fix
-- Updated VAPI_API_KEY, assistant IDs, phone number ID with valid credentials
-- Patient call + 5 guardian calls launched in parallel successfully
+### Ajout
+- **Systeme Live Status Backend** (`live_status_routes.py`): Tracking en 6 etapes des alertes avec creation automatique, avancement, et completion
+- **Composant LiveAlertBanner** (`LiveAlertBanner.tsx`): Widget in-app style Uber Eats avec glassmorphism, barre de progression, timeline chronologique, boutons d'action (Suivre, Intervenir, Appeler)
+- **iOS ActivityKit** (`ChutexAlertLiveActivity.swift`, `LiveActivityModule.swift`): Widget Lock Screen + Dynamic Island pour iOS 16.1+
+- **Service liveActivity.ts**: Bridge React Native vers module natif iOS ActivityKit
+- **Endpoint POST /api/push/live-activity-token**: Enregistrement tokens APNs pour mises a jour push Live Activity
+- **Hooks dans alert_routes.py, vapi_engine.py, carewatch_engine.py**: Integration automatique du live status a chaque etape du processus d'alerte
 
-## 2026-03-18 — Complete Code Refactoring
-- teleconsult.tsx: 1942 → 104 lines (95%)
-- index.tsx: 1073 → 23 lines (98%)
-- health.tsx: 433 → 386 lines (GlycemiaCard extracted)
-- All tests passed (iterations 118 & 119)
+### Modifie
+- `alert_routes.py`: Ajout creation live status a la creation d'alerte, completion a la resolution
+- `push_routes.py`: Payloads push enrichis avec flag live_activity et donnees beneficiaire
+- `GuardianHome.tsx`: Integration du LiveAlertBanner en haut du dashboard gardien
+- `vapi_engine.py`: Hooks advance_live_status aux transitions d'etat
+- `carewatch_engine.py`: Hook advance_live_status au demarrage appel patient
 
-## Earlier
-- Full auth, dashboard, SOS, interventions Care, programmes, Chat IA
-- Performance optimisations, UI premium, bracelets connectes
+### Tests
+- iteration_125.json: 11/11 tests backend passes, frontend 100% (Live Activity)
+- pytest: test_live_activity_status.py
+
+---
+
+## [Mars 2026] — Admin Dashboard Overhaul + WebSocket Alerts
+
+### Ajout
+- Dashboard admin complet avec 9 modules
+- Alertes WebSocket temps reel (/ws/admin-alerts)
+- Onglet Documents avec export PDF
+- Brevet V3 Glycemia ML Algorithm
+
+### Tests
+- iteration_121 à 124: Admin dashboard, WebSocket, Documents

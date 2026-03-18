@@ -1,78 +1,78 @@
-# Chutex Care — PRD
+# Chutex Care — PRD (Product Requirements Document)
 
-## Problem Statement
-Application mobile & web de monitoring sante pour seniors, avec teleassistance, gestion de gardiens, interventions Care, programmes de sante, et suivi de donnees biometriques.
+## Enonce du probleme
+Chutex Care est une plateforme de teleassistance et de sante connectee pour les personnes agees et dependantes. Elle permet le suivi de sante, la detection de chutes, les alertes SOS, et la coordination entre beneficiaires, gardiens, et agences SAAD.
 
-## Core Requirements
-- Authentication multi-role (beneficiaire, gardien, admin, teleassistance, company)
-- Dashboard sante (poids, glycemie, activite, ECG)
-- Alertes SOS + teleassistance IA (VAPI.ai)
-- Gestion des interventions Care (intervenants)
-- Programmes de sante en equipe
-- Chat IA (GPT-5.2)
-- Bracelets connectes (Lefu Cloud, V6)
-- Prescriptions et abonnements (Mollie)
+## Personas
+- **Beneficiaire**: Personne agee portant un bracelet connecte, surveillee par l'application
+- **Gardien**: Proche ou aidant, recevant les alertes et pouvant intervenir
+- **Admin**: Gestionnaire de la plateforme, acces au backoffice complet
+- **Teleassistance (Nora IA)**: Systeme automatise de gestion des alertes
 
-## Architecture
-- Frontend: Expo / React Native Web
-- Backend: FastAPI + MongoDB
-- ML: scikit-learn GradientBoostingRegressor (glycemia V3)
-- Integrations: OpenAI (Emergent LLM), VAPI.ai, Twilio, Mollie, Mailjet, SMSMode
+## Architecture technique
+- **Frontend**: React Native (Expo) - Web + Mobile
+- **Backend**: FastAPI (Python) 
+- **Base de donnees**: MongoDB
+- **Integrations**: VAPI.ai, Twilio, ElevenLabs, Mollie, Mailjet, SMSMode, Lefu Cloud
 
-## What's Been Implemented
-- Full auth system (multi-role, switch role)
-- Dashboard sante complet
-- Alertes SOS + teleassistance IA (VAPI.ai FONCTIONNEL)
-- Gestion interventions Care
-- Programmes de sante en equipe (join via invite code)
-- Chat IA (GPT-5.2)
-- UI premium (images IA, glassmorphism)
-- Performance optimisations (batch API, caching)
-- Code refactoring complet (teleconsult, index, health, program-detail)
-- **ML V3 Glycemia Estimation** — Gradient Boosting pre-trained on 6000 synthetic samples
-- **Patent Documentation V3** — Complete 742-line technical patent specification
+## Fonctionnalites implementees
 
-## ML V3 Glycemia Architecture
-- **Level 1 (Population)**: Pre-trained model on medical literature (6000 samples). Works day 1 for all users.
-- **Level 2 (Personal)**: Per-user adaptation when 5+ calibrations with sensor snapshots exist.
-- **Level 3 (Calibration)**: Optional finger-prick boost for maximum precision.
-- **Top features**: HRV normalise (27.2%), risque diabete (24.7%), graisse viscerale (17.7%), ratio muscle/graisse (8.9%)
-- **Model**: GradientBoostingRegressor, 300 trees, depth=5, saved at /app/backend/models/
+### Infrastructure et Auth
+- Authentification JWT (login/register/refresh)
+- Gestion des roles (beneficiaire, gardien, admin, teleassistance)
+- Systeme d'invitations gardien-beneficiaire
 
-## Refactoring Status
-- teleconsult.tsx: DONE (1942 -> 104 lines, 7 sub-components)
-- index.tsx: DONE (1073 -> 23 lines, DailyObjectives + BeneficiaryHome)
-- sante.tsx: DONE (GlycemiaCard extracted)
-- program-detail.tsx: DONE (605 -> 154 lines, 5 sub-components: ProgramPresentation, ProgramOnboarding, ProgramInvite, ProgramReady, ProgramPill)
-- WhoopTabBar.tsx: PENDING (low priority)
+### Sante et Monitoring
+- Suivi glycemie avec ML V3 (random forest + gradient boosting)
+- Balance connectee (Lefu Cloud)
+- Gilet connecte avec capteurs
+- Programme de sante personnalise
+- Rapports de pesee
 
-## Current Status
-- SOS phone call: WORKING (VAPI.ai keys configured)
-- ML Glycemia V3: WORKING (population model, all endpoints tested 100%)
-- Sante data: MOCKED (donnees simulees)
-- Patent V3: COMPLETE (742 lines, /app/memory/PATENT_GLYCEMIA_V3.md)
+### Alertes et Teleassistance
+- Systeme d'alertes SOS / Chute / Anomalie sante
+- Moteur VAPI (appels IA vocaux)
+- Moteur CareWatch (Twilio + ElevenLabs)
+- Escalade automatique: Patient → Gardiens → SAAD
+- Gestion des interventions
 
-## Admin Dashboard Full Overhaul (March 2026)
-Complete rebuild of admin backoffice with sidebar navigation and 9 modules:
-1. **Tableau de bord** — KPI cards (users, alerts, subs, interventions), charts (alerts 7j, interventions 6 mois), role distribution, alert types
-2. **Utilisateurs** — Search bar, 5 role filters, 18-user table, detailed user modal (contact, medical, devices, alerts, guardians)
-3. **Alertes & SOS** — 4 KPIs, 3 views (active/history/interventions), timeline, status badges
-4. **Appareils** — 5 KPIs (total/bracelets/scales/connected/low battery), device cards per type
-5. **Sante** — Beneficiary health table (FC, HRV, SpO2, Pas, Glycemie, Zone, Confiance)
-6. **Contrats** — 5 sub-tabs (Abonnements, Prescriptions, SAAD, RGPD, Emails), CRUD
-7. **Programmes** — Enrollment table with progress bars, status, mode
-8. **Documents** — Patent docs (V1/V2/V3 with FINAL badge), PDF export, other tech docs
-9. **Configuration** — Activation/intervention codes, Shopify sync, system info
-- Admin credentials: phone 0600000001, password admin123
-- Backend: /api/admin/devices-overview, /api/admin/health-overview (new endpoints)
+### Live Activity (Notifications temps reel) — NOUVEAU (Mars 2026)
+- **Backend**: Systeme de suivi live status avec 6 etapes (alert_triggered → notifying_guardians → ai_calling → guardian_responding → intervention_active → resolved)
+- **Frontend In-App**: Composant LiveAlertBanner style Uber Eats avec barre de progression, timeline, boutons d'action (Suivre, Intervenir, Appeler)
+- **iOS Native**: Configuration ActivityKit (ChutexAlertLiveActivity.swift + LiveActivityModule.swift) pour Dynamic Island et Lock Screen
+- **Push enrichies**: Payloads push avec flag live_activity et donnees beneficiaire
+- **Endpoints**: GET /api/alerts/live-active, GET /api/alerts/{id}/live-status, POST /api/push/live-activity-token
+- Auto-polling toutes les 5 secondes pour mises a jour temps reel
 
-## Real-Time WebSocket Alerts (March 2026)
-- WebSocket endpoint: /api/ws/admin-alerts?token=JWT
-- AdminWSManager: manages connections, broadcasts new alerts
-- Frontend: auto-connects on admin login, green dot status indicator
-- Live alert toasts: shake animation, auto-dismiss 12s, click to navigate to alerts page
-- Broadcast hook: asyncio.create_task(admin_ws.broadcast_alert(alert)) in alert creation
-- Fully tested: JWT validation, non-admin rejection (4003), broadcast delivery
+### Admin Dashboard
+- Backoffice complet avec 9 modules (Utilisateurs, Alertes, Abonnements, Appareils, Sante, Programmes, Systeme, Documents)
+- KPIs et graphiques en temps reel
+- Alertes WebSocket temps reel (/ws/admin-alerts)
+- Export PDF de documents techniques
+- Interface sidebar professionnelle
+
+### Documents et Brevets
+- Brevet V3 Glycemia ML Algorithm (complet)
+- Navigateur de documents avec export PDF
+
+## Endpoints API cles
+| Endpoint | Methode | Description |
+|---|---|---|
+| /api/auth/login | POST | Connexion |
+| /api/alerts | POST/GET | Gestion des alertes |
+| /api/alerts/live-active | GET | Statuts live actifs |
+| /api/alerts/{id}/live-status | GET | Statut live specifique |
+| /api/push/live-activity-token | POST | Token APNs iOS |
+| /ws/admin-alerts | WS | Alertes admin temps reel |
+| /api/admin/* | GET | Endpoints admin dashboard |
+
+## Schema DB principal
+- `users`: Utilisateurs (beneficiaire, gardien, admin)
+- `alerts`: Alertes SOS/chute/anomalie
+- `alert_live_status`: Suivi temps reel des etapes d'alerte (NOUVEAU)
+- `incidents`: Incidents teleassistance
+- `interventions`: Interventions gardien/SAAD
+- `live_activity_tokens`: Tokens APNs pour Live Activities iOS (NOUVEAU)
 
 ## Backlog
-See ROADMAP.md for prioritized features.
+Voir ROADMAP.md pour les fonctionnalites prioritaires.

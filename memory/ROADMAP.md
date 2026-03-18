@@ -1,19 +1,17 @@
-# Chutex Care — Roadmap
+# Chutex Care — ROADMAP
 
-## P0 — Complete
-- [x] Code refactoring (teleconsult, index, health, program-detail)
-- [x] Fix SOS Call (VAPI.ai)
-- [x] ML V3 Glycemia Estimation (population model, 3-tier architecture)
-- [x] Documentation brevet V3 (742 lignes, specification technique complete)
+## P0 — Priorite haute
+- ~~Notifications Live Activity style Uber Eats~~ (FAIT)
 
-## P1 — Upcoming
-- [ ] Systeme parrainage gardien
-- [ ] Essai gratuit 7 jours
+## P1 — Priorite moyenne
+- Signature electronique dans onglet Documents admin
+- Refactoring WhoopTabBar.tsx (generique)
+- Integration V6 Bracelet (donnees capteurs temps reel)
+- Entrainement modele personnel ML avec donnees V6
 
-## P2 — Backlog
-- [ ] Visualisation PDF contrat
-- [ ] Integration test urinaire Vivoo
-- [ ] UI correlations sante
-- [ ] Refactoring WhoopTabBar.tsx (generique)
-- [ ] Integration V6 Bracelet Manufacturer
-- [ ] Entrainement modele personnel quand donnees V6 reelles disponibles
+## P2 — Priorite basse
+- Systeme parrainage gardien
+- Essai gratuit 7 jours
+- Visualisation PDF contrat
+- Integration Vivoo (test urinaire)
+- UI correlations sante
