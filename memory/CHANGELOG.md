@@ -10,9 +10,14 @@
 - **Fallback**: Insights generes automatiquement si API AI indisponible
 - **UI CorrelationsCard**: Composant integre sur la page sante avec barres visuelles, insights AI, expand/collapse
 
+- **Endpoint `/api/health/correlations/trends`**: Evolution hebdomadaire sur 8 semaines glissantes
+- **Direction tendances**: Renforce (>+10%), Stable, Affaibli (<-10%) avec delta %
+- **UI CorrelationsCard**: Onglets Actuelles/Tendances, sparklines SVG, badges direction, legende
+
 ### Tests
 - iteration_130.json: 18/18 backend tests PASS (correlations + regression)
 - iteration_131.json: 11/11 frontend tests PASS (CorrelationsCard + page sante)
+- iteration_132.json: 18/18 backend+frontend tests PASS (trends endpoint + tabs UI)
 
 ---
 

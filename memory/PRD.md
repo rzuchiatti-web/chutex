@@ -12,13 +12,14 @@ Chutex Care est une plateforme de teleassistance et de sante connectee pour les 
 
 ### Correlations Sante (Fevrier 2026)
 - Endpoint `/api/health/correlations` — Calcul Pearson sur 90 jours entre metriques
+- Endpoint `/api/health/correlations/trends` — Evolution hebdomadaire des correlations (8 semaines glissantes)
 - 19 paires de metriques (cardio, sommeil, activite, composition, metabolisme)
 - Agregation quotidienne des lectures bracelet + balance
 - Filtrage correlations faibles (|r| < 0.15), tri par force decroissante
 - 4 niveaux de force: faible, moderee, forte, tres_forte
+- Tendances: Renforce/Stable/Affaibli avec delta % et sparklines SVG
 - Insights AI personnalises via GPT-5.2 (Nora IA)
-- Fallback automatique si API AI indisponible
-- UI: CorrelationsCard.tsx sur la page sante avec barres visuelles, insights AI, expand/collapse
+- UI: CorrelationsCard.tsx avec onglets Actuelles/Tendances, sparklines, badges direction
 
 ### Age Biologique V2 (Mars 2026)
 - Algorithme 3 niveaux: Bracelet seul (L1), Bracelet+Balance (L2), Tendances temporelles (L3)
@@ -48,6 +49,7 @@ Chutex Care est une plateforme de teleassistance et de sante connectee pour les 
 | Endpoint | Description |
 |---|---|
 | /api/health/correlations | Correlations Pearson entre metriques sante + insights AI |
+| /api/health/correlations/trends | Evolution hebdomadaire des correlations (sparklines) |
 | /api/health/aging-rate | Algorithme V2 age bio + rythme vieillissement |
 | /api/health/body-age | Age biologique (Nora AI ou fallback) |
 | /api/health/summary | Resume sante quotidien AI |
