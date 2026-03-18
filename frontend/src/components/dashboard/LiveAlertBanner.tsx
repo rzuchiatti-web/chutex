@@ -41,6 +41,7 @@ interface LiveStatus {
   stages_completed: string[];
   timeline: Array<{ stage: string; timestamp: string; detail: string }>;
   eta_minutes?: number;
+  distance_km?: number;
   intervenant_name?: string;
   intervenant_phone?: string;
   beneficiary_location?: { lat: number; lng: number } | null;
@@ -48,11 +49,13 @@ interface LiveStatus {
 }
 
 // Mini-map using static OpenStreetMap tiles
-function LiveTrackingMap({ alertId, benLoc, ivLoc, stageColor }: {
+function LiveTrackingMap({ alertId, benLoc, ivLoc, stageColor, etaMinutes, distanceKm }: {
   alertId: string;
   benLoc?: { lat: number; lng: number } | null;
   ivLoc?: { lat: number; lng: number } | null;
   stageColor: string;
+  etaMinutes?: number;
+  distanceKm?: number;
 }) {
   if (!benLoc) return null;
 
@@ -152,6 +155,19 @@ function LiveTrackingMap({ alertId, benLoc, ivLoc, stageColor }: {
             {benLoc.lat.toFixed(4)}, {benLoc.lng.toFixed(4)}
           </span>
         </div>
+        {/* ETA badge on map */}
+        {etaMinutes && (
+          <div data-testid={`map-eta-${alertId}`} style={{
+            position: 'absolute', top: 8, right: 8,
+            padding: '5px 10px', borderRadius: 10,
+            background: 'rgba(10,10,20,0.9)', border: '1px solid rgba(56,189,248,0.3)',
+            display: 'flex', alignItems: 'center', gap: 5,
+          } as any}>
+            <i className="ri-time-line" style={{ fontSize: 12, color: '#38BDF8' }} />
+            <span style={{ fontSize: 13, fontWeight: 800, color: '#FFF' }}>{etaMinutes} min</span>
+            {distanceKm && <span style={{ fontSize: 9, color: 'rgba(255,255,255,0.4)' }}>{distanceKm}km</span>}
+          </div>
+        )}
       </div>
     </div>
   );
@@ -262,8 +278,21 @@ export default function LiveAlertBanner({ token }: { token: string }) {
                 </div>
               </div>
 
-              {/* Right side: ETA or arrow */}
+              {/* Right side: ETA + intervenant + arrow */}
               <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 4, flexShrink: 0 } as any}>
+                {ls.eta_minutes && (
+                  <div data-testid={`live-eta-${ls.alert_id}`} style={{
+                    padding: '4px 10px', borderRadius: 99,
+                    background: 'rgba(56,189,248,0.12)', border: '1px solid rgba(56,189,248,0.25)',
+                    display: 'flex', alignItems: 'center', gap: 4,
+                  } as any}>
+                    <i className="ri-time-line" style={{ fontSize: 10, color: '#38BDF8' }} />
+                    <span style={{ fontSize: 11, fontWeight: 800, color: '#38BDF8' }}>{ls.eta_minutes} min</span>
+                    {ls.distance_km && (
+                      <span style={{ fontSize: 8, color: 'rgba(56,189,248,0.6)' }}>{ls.distance_km}km</span>
+                    )}
+                  </div>
+                )}
                 {ls.intervenant_name && (
                   <div style={{ padding: '3px 8px', borderRadius: 99, background: 'rgba(16,185,129,0.15)', border: '1px solid rgba(16,185,129,0.25)' } as any}>
                     <span style={{ fontSize: 9, fontWeight: 700, color: '#10B981' }}>{ls.intervenant_name}</span>
@@ -341,6 +370,8 @@ export default function LiveAlertBanner({ token }: { token: string }) {
                   benLoc={ls.beneficiary_location}
                   ivLoc={ls.intervenant_location}
                   stageColor={stageColor}
+                  etaMinutes={ls.eta_minutes}
+                  distanceKm={ls.distance_km}
                 />
 
                 {/* Action buttons */}

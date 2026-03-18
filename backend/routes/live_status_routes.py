@@ -2,10 +2,31 @@ from fastapi import APIRouter, Depends, HTTPException
 from database import db
 from auth import get_current_user, get_effective_role
 from datetime import datetime, timezone
+from math import radians, sin, cos, sqrt, atan2
 import logging
 
 router = APIRouter()
 logger = logging.getLogger(__name__)
+
+
+def haversine_km(lat1: float, lng1: float, lat2: float, lng2: float) -> float:
+    """Calculate distance in km between two GPS points."""
+    R = 6371.0
+    la1, lo1, la2, lo2 = radians(lat1), radians(lng1), radians(lat2), radians(lng2)
+    dlat, dlon = la2 - la1, lo2 - lo1
+    a = sin(dlat / 2) ** 2 + cos(la1) * cos(la2) * sin(dlon / 2) ** 2
+    return R * 2 * atan2(sqrt(a), sqrt(1 - a))
+
+
+def estimate_eta(distance_km: float) -> dict:
+    """Estimate arrival time based on distance. Returns dict with minutes and distance_km."""
+    if distance_km < 0.5:
+        minutes = max(1, round(distance_km * 4))  # walking ~15km/h
+    elif distance_km < 5:
+        minutes = max(2, round(distance_km * 3))  # urban driving ~20km/h avg
+    else:
+        minutes = max(5, round(distance_km * 1.5))  # ~40km/h avg
+    return {"eta_minutes": minutes, "distance_km": round(distance_km, 2)}
 
 # Live Activity stages in order
 STAGES = [
@@ -123,20 +144,30 @@ async def get_all_live_statuses(user=Depends(get_current_user)):
 
     for s in statuses:
         s["stages_definition"] = STAGES
-        # Enrich with latest tracking positions
+        # Enrich with latest tracking positions + ETA
         try:
+            ben_loc = None
+            iv_loc = None
             ben_tracking = await db.alert_tracking.find_one({"alert_id": s["alert_id"]}, {"_id": 0})
             if ben_tracking and ben_tracking.get("positions"):
                 last_pos = ben_tracking["positions"][-1]
                 if last_pos.get("latitude") and last_pos.get("longitude"):
-                    s["beneficiary_location"] = {"lat": last_pos["latitude"], "lng": last_pos["longitude"]}
+                    ben_loc = {"lat": last_pos["latitude"], "lng": last_pos["longitude"]}
+                    s["beneficiary_location"] = ben_loc
             iv = await db.interventions.find_one({"alert_id": s["alert_id"]}, {"_id": 0, "id": 1})
             if iv:
                 iv_tracking = await db.intervention_tracking.find_one({"intervention_id": iv["id"]}, {"_id": 0})
                 if iv_tracking and iv_tracking.get("positions"):
                     last_iv = iv_tracking["positions"][-1]
                     if last_iv.get("latitude") and last_iv.get("longitude"):
-                        s["intervenant_location"] = {"lat": last_iv["latitude"], "lng": last_iv["longitude"]}
+                        iv_loc = {"lat": last_iv["latitude"], "lng": last_iv["longitude"]}
+                        s["intervenant_location"] = iv_loc
+            # Calculate ETA if both locations exist
+            if ben_loc and iv_loc:
+                dist = haversine_km(ben_loc["lat"], ben_loc["lng"], iv_loc["lat"], iv_loc["lng"])
+                eta_data = estimate_eta(dist)
+                s["eta_minutes"] = eta_data["eta_minutes"]
+                s["distance_km"] = eta_data["distance_km"]
         except Exception:
             pass
     return statuses

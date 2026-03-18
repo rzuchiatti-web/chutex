@@ -1,0 +1,103 @@
+{
+  "summary": "Iteration 127 - Live Activity ETA Calculation Feature Testing Complete. All 8 backend tests passed (100%). Backend correctly calculates and returns eta_minutes and distance_km using Haversine formula when both beneficiary and intervenant locations exist. Josette Zuchiatti has exactly 3 guardians (Clement and Julianne removed as specified). Frontend code review confirms ETA badges properly implemented in LiveAlertBanner header and map. Frontend UI testing blocked by onboarding touch gesture requirement.",
+  "backend_issues": {
+    "critical": [],
+    "minor": []
+  },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [
+      {
+        "flow": "Onboarding bypass",
+        "issue": "Playwright cannot automate swipe gesture required to skip onboarding on web. Previous iteration 126 also faced this issue.",
+        "affected_selectors": ["Glisser pour commencer"],
+        "priority": "LOW - Manual testing required for UI"
+      }
+    ],
+    "design_issues": []
+  },
+  "test_results": {
+    "backend_api_tests": {
+      "total_tests": 8,
+      "passed": 8,
+      "failed": 0,
+      "endpoints_verified": [
+        "GET /api/alerts/live-active - Returns eta_minutes and distance_km when both locations exist",
+        "GET /api/alerts/live-active - ETA is null when intervenant_location is missing",
+        "GET /api/alerts/live-active - Haversine formula verified accurate (2.43km ~7min)",
+        "GET /api/alerts/live-active - ETA ranges reasonable by distance",
+        "Alert 71f6654e - Returns ETA=7min, Distance=2.43km with intervenant tracking",
+        "GET /api/backoffice/users - Josette has exactly 3 guardians",
+        "POST /api/interventions/accept-as-guardian - Endpoint exists and functional",
+        "GET /api/alerts/live-active - Returns intervenant_location from intervention_tracking"
+      ]
+    },
+    "frontend_code_review": {
+      "status": "PASS",
+      "LiveTrackingMap_component": {
+        "eta_badge_on_map": "IMPLEMENTED - data-testid='map-eta-{alertId}' with etaMinutes and distanceKm",
+        "intervenant_marker": "IMPLEMENTED - Green pin at position 35%/35% when ivLoc exists",
+        "cartodb_dark_tiles": "IMPLEMENTED - 3x3 grid from basemaps.cartocdn.com/dark_all",
+        "beneficiary_marker": "IMPLEMENTED - Purple pin centered with 'Beneficiaire' label"
+      },
+      "LiveAlertBanner_header": {
+        "eta_badge_in_header": "IMPLEMENTED - data-testid='live-eta-{alert_id}' with eta_minutes and distance_km",
+        "blue_styling": "IMPLEMENTED - rgba(56,189,248) color scheme"
+      },
+      "action_buttons": {
+        "suivre": "IMPLEMENTED - data-testid='live-alert-follow-{alert_id}'",
+        "appeler": "IMPLEMENTED - data-testid='live-alert-call-{alert_id}'",
+        "intervenir": "IMPLEMENTED - data-testid='live-alert-accept-{alert_id}'"
+      }
+    }
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_live_activity_eta.py",
+    "/app/test_reports/pytest/pytest_results_iter127_eta.xml"
+  ],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "Haversine formula implementation verified accurate - calculates GPS distance correctly",
+    "ETA estimation uses tiered approach: <0.5km walking, <5km urban driving, >5km highway speeds",
+    "Backend enriches live-active response with intervention_tracking positions",
+    "Frontend LiveAlertBanner correctly displays ETA badge in both header and map when data exists"
+  ],
+  "updated_files": [
+    "/app/backend/tests/test_live_activity_eta.py"
+  ],
+  "success_rate": {
+    "backend": "100% (8/8 tests passed)",
+    "frontend": "Code review PASS (UI blocked by onboarding)"
+  },
+  "test_credentials": {
+    "guardian": {"phone": "+33699887766", "password": "test123", "name": "Marie Dupont"},
+    "beneficiary": {"phone": "0651245918", "password": "test123", "name": "Josette Zuchiatti"},
+    "admin": {"phone": "0600000001", "password": "admin123"}
+  },
+  "seed_data_creation": "None - used existing alert 71f6654e with intervention tracking data",
+  "retest_needed": false,
+  "should_main_agent_self_test": true,
+  "context_for_next_testing_agent": "ETA calculation feature fully working. Backend returns eta_minutes and distance_km in live-active when intervention has tracking positions. Alert 71f6654e has intervention by Marie Dupont with tracking (guardian at 45.458/4.492, beneficiary at 45.4733/4.5143, ~2.43km apart, ETA ~7min). Josette has 3 guardians (Clement and Julianne removed). Frontend UI testing requires manual verification due to onboarding swipe gesture. To test UI: use mobile device or native app which can inject localStorage to bypass onboarding.",
+  "mocked_apis": {
+    "has_mocked_apis": false,
+    "mocked_apis_list": []
+  },
+  "feature_verification": {
+    "backend_eta_calculation": {
+      "haversine_formula": "PASS - Accurate GPS distance calculation",
+      "eta_when_both_locations": "PASS - Returns eta_minutes and distance_km",
+      "eta_null_without_intervenant": "PASS - Correctly returns null when missing",
+      "intervention_tracking_enrichment": "PASS - Uses intervention_tracking positions"
+    },
+    "guardian_removal": {
+      "josette_guardian_count": "PASS - Exactly 3 guardians",
+      "clement_removed": "PASS - ID not in guardians list",
+      "julianne_removed": "PASS - ID not in guardians list"
+    },
+    "frontend_eta_display": {
+      "header_eta_badge": "IMPLEMENTED - Blue pill with time icon, minutes, and km",
+      "map_eta_badge": "IMPLEMENTED - Top-right corner of map",
+      "intervenant_marker": "IMPLEMENTED - Green pin when ivLoc exists"
+    }
+  }
+}
