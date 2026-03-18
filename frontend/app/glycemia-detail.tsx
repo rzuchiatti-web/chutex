@@ -27,6 +27,7 @@ export default function GlycemiaDetailPage() {
   const [calibContext, setCalibContext] = useState('random');
   const [saving, setSaving] = useState(false);
   const [showHistory, setShowHistory] = useState(false);
+  const [mlStatus, setMlStatus] = useState<any>(null);
 
   const fetchAll = () => {
     if (!token) return;
@@ -35,6 +36,7 @@ export default function GlycemiaDetailPage() {
       apiFetch('/api/glycemia/calibrations', {}, token),
     ]).then(([est, cal]) => { setData(est); setCalibrations(cal?.calibrations || []); })
       .catch(() => {}).finally(() => setLoading(false));
+    apiFetch('/api/glycemia/ml-status', {}, token).then(ml => setMlStatus(ml)).catch(() => {});
   };
   useEffect(fetchAll, [token]);
 
@@ -294,6 +296,143 @@ export default function GlycemiaDetailPage() {
                   })}
                 </div>
               </div>
+            </div>
+          )}
+
+          {/* ═══════ ML DASHBOARD ═══════ */}
+          {mlStatus && (
+            <div data-testid="ml-dashboard" style={{ padding: '28px 20px 120px' } as any}>
+              <div style={{ textAlign: 'center', marginBottom: 20 } as any}>
+                <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '6px 14px', borderRadius: 999, background: 'rgba(167,139,250,0.1)', border: '1px solid rgba(167,139,250,0.2)', marginBottom: 12 } as any}>
+                  <span style={{ width: 7, height: 7, borderRadius: 4, background: P } as any} />
+                  <span style={{ fontSize: 11, fontWeight: 700, color: P }}>Machine Learning</span>
+                </div>
+                <div style={{ fontSize: 22, fontWeight: 900, color: '#FFF' }}>Moteur d'estimation IA</div>
+                <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', marginTop: 4 }}>{mlStatus.architecture}</div>
+              </div>
+
+              {/* Model Status */}
+              <div data-testid="ml-model-status" style={{ ...GL, padding: '18px', marginBottom: 12 } as any}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 14 } as any}>
+                  <div style={{ width: 40, height: 40, borderRadius: 12, background: 'rgba(167,139,250,0.12)', border: '1px solid rgba(167,139,250,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}>
+                    <i className="ri-brain-line" style={{ fontSize: 20, color: P }} />
+                  </div>
+                  <div style={{ flex: 1 } as any}>
+                    <div style={{ fontSize: 14, fontWeight: 800, color: '#FFF' }}>Modele {mlStatus.population_model?.version}</div>
+                    <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)' }}>Entraine sur {mlStatus.population_model?.training_samples?.toLocaleString()} echantillons</div>
+                  </div>
+                  <div style={{ width: 10, height: 10, borderRadius: 5, background: mlStatus.population_model?.trained ? G : R, boxShadow: mlStatus.population_model?.trained ? `0 0 8px ${G}60` : 'none' } as any} />
+                </div>
+
+                {/* 3 Levels */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 8 } as any}>
+                  {mlStatus.levels?.map((level: any, i: number) => {
+                    const isActive = level.status === 'active';
+                    const levelColors = [P, B, G];
+                    const lc = levelColors[i] || P;
+                    return (
+                      <div key={i} data-testid={`ml-level-${level.level}`} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 12px', borderRadius: 14, background: isActive ? `${lc}08` : 'rgba(255,255,255,0.02)', border: `1px solid ${isActive ? `${lc}20` : 'rgba(255,255,255,0.04)'}`, transition: 'all 0.3s' } as any}>
+                        <div style={{ width: 28, height: 28, borderRadius: 8, background: isActive ? `${lc}15` : 'rgba(255,255,255,0.04)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}>
+                          <span style={{ fontSize: 12, fontWeight: 900, color: isActive ? lc : 'rgba(255,255,255,0.2)' }}>{level.level}</span>
+                        </div>
+                        <div style={{ flex: 1, minWidth: 0 } as any}>
+                          <div style={{ fontSize: 12, fontWeight: 700, color: isActive ? '#FFF' : 'rgba(255,255,255,0.3)' }}>{level.name}</div>
+                          <div style={{ fontSize: 10, color: isActive ? 'rgba(255,255,255,0.45)' : 'rgba(255,255,255,0.15)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' } as any}>{level.description}</div>
+                        </div>
+                        <div style={{ padding: '3px 10px', borderRadius: 999, background: isActive ? `${lc}15` : 'rgba(255,255,255,0.04)', border: `1px solid ${isActive ? `${lc}25` : 'rgba(255,255,255,0.06)'}`, flexShrink: 0 } as any}>
+                          <span style={{ fontSize: 9, fontWeight: 700, color: isActive ? lc : 'rgba(255,255,255,0.2)', textTransform: 'uppercase' }}>{level.status}</span>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Feature Importances */}
+              {mlStatus.feature_importances?.length > 0 && (
+                <div data-testid="ml-feature-importances" style={{ ...GL, padding: '18px', marginBottom: 12 } as any}>
+                  <div style={{ fontSize: 10, fontWeight: 600, color: 'rgba(255,255,255,0.3)', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 14 }}>Importance des facteurs</div>
+                  {mlStatus.feature_importances.map((f: any, i: number) => {
+                    const LABELS: Record<string, string> = {
+                      hrv_norm: 'HRV normalise', has_diabetes_risk: 'Risque diabete', visceral_fat: 'Graisse viscerale',
+                      muscle_fat_ratio: 'Ratio muscle/graisse', stress_level: 'Stress', bmi: 'IMC',
+                      spo2: 'SpO2', hour_of_day: 'Heure', sleep_quality: 'Sommeil', heart_rate: 'Freq. cardiaque',
+                      hrv: 'HRV', body_fat_pct: 'Masse grasse', muscle_pct: 'Masse musculaire',
+                      water_pct: 'Hydratation', temperature: 'Temperature', activity_level: 'Activite',
+                    };
+                    const barColors = [P, '#818CF8', '#6366F1', '#4F46E5', '#4338CA', '#3730A3', '#312E81', '#1E1B4B', '#A78BFA', '#C4B5FD'];
+                    const bc = barColors[i] || P;
+                    const maxImportance = mlStatus.feature_importances[0]?.importance || 30;
+                    const pct = Math.max(4, (f.importance / maxImportance) * 100);
+                    return (
+                      <div key={f.feature} style={{ marginBottom: i < mlStatus.feature_importances.length - 1 ? 10 : 0 } as any}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 } as any}>
+                          <span style={{ fontSize: 11, fontWeight: 600, color: 'rgba(255,255,255,0.6)' }}>{LABELS[f.feature] || f.feature}</span>
+                          <span style={{ fontSize: 11, fontWeight: 800, color: bc }}>{f.importance}%</span>
+                        </div>
+                        <div style={{ height: 6, borderRadius: 3, background: 'rgba(255,255,255,0.04)', overflow: 'hidden' } as any}>
+                          <div style={{ height: '100%', borderRadius: 3, width: `${pct}%`, background: `linear-gradient(90deg, ${bc}, ${bc}80)`, transition: 'width 0.8s ease', boxShadow: `0 0 8px ${bc}30` } as any} />
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+
+              {/* Personal Model Status */}
+              <div data-testid="ml-personal-status" style={{ ...GL, padding: '18px', marginBottom: 12 } as any}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12 } as any}>
+                  <div style={{ width: 36, height: 36, borderRadius: 10, background: mlStatus.personal_model?.available ? 'rgba(16,185,129,0.12)' : 'rgba(96,165,250,0.12)', border: `1px solid ${mlStatus.personal_model?.available ? 'rgba(16,185,129,0.2)' : 'rgba(96,165,250,0.2)'}`, display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}>
+                    <i className={mlStatus.personal_model?.available ? 'ri-user-star-line' : 'ri-user-add-line'} style={{ fontSize: 18, color: mlStatus.personal_model?.available ? G : B }} />
+                  </div>
+                  <div style={{ flex: 1 } as any}>
+                    <div style={{ fontSize: 13, fontWeight: 800, color: '#FFF' }}>Modele personnel</div>
+                    <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)' }}>
+                      {mlStatus.personal_model?.available
+                        ? 'Actif — adapte a votre profil'
+                        : mlStatus.personal_model?.calibrations_needed > 0
+                          ? `${mlStatus.personal_model.calibrations_needed} calibration${mlStatus.personal_model.calibrations_needed > 1 ? 's' : ''} restante${mlStatus.personal_model.calibrations_needed > 1 ? 's' : ''} pour activer`
+                          : 'Pret a etre entraine'}
+                    </div>
+                  </div>
+                </div>
+                {/* Calibration progress */}
+                <div style={{ marginBottom: 8 } as any}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 } as any}>
+                    <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.3)' }}>Calibrations</span>
+                    <span style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.5)' }}>{mlStatus.personal_model?.calibrations_count || 0} / 5 minimum</span>
+                  </div>
+                  <div style={{ height: 5, borderRadius: 3, background: 'rgba(255,255,255,0.04)', overflow: 'hidden' } as any}>
+                    <div style={{ height: '100%', borderRadius: 3, width: `${Math.min(100, ((mlStatus.personal_model?.calibrations_count || 0) / 5) * 100)}%`, background: mlStatus.personal_model?.available ? `linear-gradient(90deg, ${G}, ${G}80)` : `linear-gradient(90deg, ${B}, ${B}80)`, transition: 'width 0.8s ease' } as any} />
+                  </div>
+                </div>
+                <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.25)', lineHeight: 1.5 }}>
+                  Le modele personnel s'adapte a votre metabolisme unique. Plus vous calibrez, plus l'estimation est precise.
+                  {!mlStatus.personal_model?.available && ' Les calibrations capillaires (piqure au doigt) sont optionnelles mais ameliorent la precision.'}
+                </div>
+              </div>
+
+              {/* Data quality indicator */}
+              {data && (
+                <div data-testid="ml-data-quality" style={{ ...GL, padding: '18px' } as any}>
+                  <div style={{ fontSize: 10, fontWeight: 600, color: 'rgba(255,255,255,0.3)', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 12 }}>Qualite des donnees</div>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 10 } as any}>
+                    {[
+                      { label: 'Capteurs', value: `${data.data_points_used || 0}/12`, pct: ((data.data_points_used || 0) / 12) * 100, color: data.data_points_used >= 10 ? G : data.data_points_used >= 6 ? A : R },
+                      { label: 'Confiance', value: `${data.confidence_pct || 0}%`, pct: data.confidence_pct || 0, color: (data.confidence_pct || 0) >= 70 ? G : (data.confidence_pct || 0) >= 50 ? A : R },
+                      { label: 'Precision', value: data.prediction_interval ? `${((data.prediction_interval.upper - data.prediction_interval.lower) * 1000).toFixed(0)} mg` : '--', pct: data.prediction_interval ? Math.max(0, 100 - (data.prediction_interval.upper - data.prediction_interval.lower) * 500) : 0, color: data.prediction_interval && (data.prediction_interval.upper - data.prediction_interval.lower) < 0.15 ? G : A },
+                    ].map((q, i) => (
+                      <div key={i} style={{ textAlign: 'center' } as any}>
+                        <div style={{ fontSize: 18, fontWeight: 900, color: q.color, marginBottom: 4 }}>{q.value}</div>
+                        <div style={{ height: 3, borderRadius: 2, background: 'rgba(255,255,255,0.04)', overflow: 'hidden', marginBottom: 4 } as any}>
+                          <div style={{ height: '100%', borderRadius: 2, width: `${Math.min(100, q.pct)}%`, background: q.color, transition: 'width 0.8s ease' } as any} />
+                        </div>
+                        <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.3)', fontWeight: 600 }}>{q.label}</div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
           )}
         </div>
