@@ -1,0 +1,125 @@
+{
+  "summary": "Iteration 128 - V2 Biological Age & Aging Rate Algorithm Testing Complete. All 15 backend tests passed (100%). Backend correctly returns all new V2 fields: level, level_label, confidence, composite_score, biomarkers, trends, trend_summary, reference_norms, data_sources, weights_used. Frontend HeroScore.tsx code review confirms proper implementation of 3 new badges (aging-level-badge, aging-confidence-badge, aging-trend-badge). Frontend UI testing blocked by onboarding swipe gesture (same as iteration 127).",
+  "backend_issues": {
+    "critical": [],
+    "minor": []
+  },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [
+      {
+        "flow": "Onboarding bypass",
+        "issue": "Playwright cannot automate swipe gesture required to skip onboarding on web. This blocks UI testing of HeroScore badges.",
+        "affected_selectors": ["Glisser pour commencer"],
+        "priority": "LOW - Manual testing required for UI"
+      }
+    ],
+    "design_issues": []
+  },
+  "test_results": {
+    "backend_api_tests": {
+      "total_tests": 15,
+      "passed": 15,
+      "failed": 0,
+      "endpoints_verified": [
+        "GET /api/health/aging-rate - Returns all V2 fields correctly",
+        "Level 1 bracelet-only weights verified (HRV dominant at 0.30)",
+        "Level 2 bracelet+balance weights verified (HRV=0.20, visceral_fat=0.20, muscle=0.15)",
+        "Biomarker scores are 0-100 with value, norm, direction",
+        "Composite score correctly maps to bio_age offset (50=exact age, ±10=±2 years)",
+        "Confidence levels assigned correctly (haute >60 readings + >=6 biomarkers)",
+        "Reference norms returned for correct age bracket (70-79) and gender (F)",
+        "Temporal trends compute change_pct and improving/degrading direction",
+        "data_sources contains bracelet_readings, scale_readings, biomarkers_scored",
+        "weights_used reflects actual weights applied",
+        "level_label returns correct French labels",
+        "body_age_cache updated with algorithm_version v2",
+        "Nora AI bio_age blended 60/40 with algorithm",
+        "Frontend interface compatibility verified"
+      ]
+    },
+    "actual_api_response": {
+      "josette_77yo_female": {
+        "rate": 0.95,
+        "label": "Normal",
+        "bio_age": 73,
+        "real_age": 77,
+        "diff": 4,
+        "level": 2,
+        "level_label": "Bracelet + Balance",
+        "confidence": "moyenne",
+        "composite_score": 74,
+        "biomarkers_scored": 11,
+        "bracelet_readings": 14,
+        "scale_readings": 14,
+        "trends_count": 5,
+        "reference_norms": {
+          "age_bracket": "70-79",
+          "gender": "F",
+          "hrv_norm": 20,
+          "hr_norm": 75,
+          "body_fat_norm": 31,
+          "muscle_norm": 25
+        }
+      }
+    },
+    "frontend_code_review": {
+      "status": "PASS",
+      "HeroScore_component": {
+        "aging_level_badge": "IMPLEMENTED - data-testid='aging-level-badge', icon changes by level, shows level_label",
+        "aging_confidence_badge": "IMPLEMENTED - data-testid='aging-confidence-badge', color by confidence level, shows 'Confiance {confidence}'",
+        "aging_trend_badge": "IMPLEMENTED - data-testid='aging-trend-badge', arrow by improving/degrading, uses trend_summary color/label",
+        "interface_props": "CORRECT - Includes level, level_label, confidence, composite_score, trend_summary, data_sources"
+      }
+    }
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_aging_rate_v2.py",
+    "/app/test_reports/pytest/pytest_results_iter128_aging_v2.xml"
+  ],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "V2 algorithm uses weighted biomarker scoring (0-100) normalized against clinical reference norms by age/sex",
+    "Reference norms based on WHO, AHA, ACE (HRV: Shaffer & Ginsberg 2017, Body composition: Janssen 2000)",
+    "Temporal trends use first-half vs second-half average comparison for direction determination",
+    "Confidence levels: haute (>60 readings + >=6 biomarkers), moyenne (>20 + >=3), basse otherwise",
+    "Bio age calculation: composite_score 50 = exact age, each 10 points = ±2 years offset",
+    "Nora AI body_age blended 60/40 with algorithm when available (higher confidence override)"
+  ],
+  "updated_files": [
+    "/app/backend/tests/test_aging_rate_v2.py"
+  ],
+  "success_rate": {
+    "backend": "100% (15/15 tests passed)",
+    "frontend": "Code review PASS (UI blocked by onboarding)"
+  },
+  "test_credentials": {
+    "beneficiary": {"email": "0651245918", "password": "test123", "name": "Josette Zuchiatti", "age": 77, "gender": "F"}
+  },
+  "seed_data_creation": "None - used existing Josette account with 14 bracelet + 14 scale readings",
+  "retest_needed": false,
+  "should_main_agent_self_test": true,
+  "context_for_next_testing_agent": "V2 aging rate algorithm fully working. Josette (77yo female) returns Level 2, composite_score 74, confidence moyenne, 11 biomarkers scored. API response includes all V2 fields: level, level_label, confidence, composite_score, biomarkers (with value/norm/score/direction), trends (with change_pct/improving), trend_summary, reference_norms, data_sources, weights_used. Frontend HeroScore.tsx correctly implements 3 badges with data-testids. UI testing requires manual verification due to onboarding swipe gesture.",
+  "mocked_apis": {
+    "has_mocked_apis": false,
+    "mocked_apis_list": [],
+    "note": "Health data is programmatically generated but the V2 algorithm scoring is real"
+  },
+  "feature_verification": {
+    "backend_v2_algorithm": {
+      "level_detection": "PASS - Level 2 when both bracelet and scale data exist",
+      "biomarker_scoring": "PASS - 11 biomarkers scored 0-100 with direction",
+      "composite_score": "PASS - 74 (weighted average of biomarker scores)",
+      "bio_age_calculation": "PASS - 73 years (4 years younger than real age 77)",
+      "reference_norms": "PASS - Correct 70-79 age bracket, female norms",
+      "temporal_trends": "PASS - 5 trends with change_pct and improving flag",
+      "confidence_level": "PASS - moyenne (28 readings, 11 biomarkers)",
+      "cache_update": "PASS - algorithm_version v2 in body_age_cache"
+    },
+    "frontend_badges": {
+      "aging_level_badge": "IMPLEMENTED - data-testid present, correct icons by level",
+      "aging_confidence_badge": "IMPLEMENTED - data-testid present, correct color by confidence",
+      "aging_trend_badge": "IMPLEMENTED - data-testid present, correct arrow by improving/degrading"
+    }
+  }
+}

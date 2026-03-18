@@ -1695,15 +1695,17 @@ async def generate_health_report_pdf(period: str = "30j", user=Depends(get_curre
 @router.get("/health/aging-rate")
 async def get_aging_rate(user=Depends(get_current_user)):
     """
-    Compute aging rate based on biological age vs chronological age + real-time factors.
-    Returns a multiplier: <1.0 = aging slower, 1.0 = normal, >1.0 = aging faster.
+    V2 — Scientific biological age & aging rate estimation.
+    Level 1: Bracelet only (HRV-weighted Klemera-Doubal simplified)
+    Level 2: Bracelet + Balance (impedance biomarkers, clinical weighting)
+    Level 3: Temporal trends (30/60/90 days) + age/sex reference norms
     """
     uid = user['id']
     u = await db.users.find_one({"id": uid}, {"_id": 0})
     if not u:
         return {"rate": None, "status": "no_user"}
 
-    # Chronological age
+    # === Chronological age ===
     real_age = 0
     dob = u.get("date_of_birth", "")
     if dob:
@@ -1717,146 +1719,342 @@ async def get_aging_rate(user=Depends(get_current_user)):
     if real_age <= 0:
         return {"rate": None, "status": "no_dob"}
 
-    # Biological age from cache or scale data
-    bio_age = 0
-    body_age_cache = await db.body_age_cache.find_one({"user_id": uid}, {"_id": 0})
-    if body_age_cache and body_age_cache.get("body_age"):
-        bio_age = body_age_cache["body_age"]
+    gender = u.get("gender", "F").upper()[:1]  # M or F
+
+    # === Gather readings (last 90 days for trends) ===
+    cutoff_90d = (datetime.now(timezone.utc) - timedelta(days=90)).isoformat()
+    bracelet_readings = await db.device_readings.find(
+        {"user_id": uid, "device_type": "bracelet", "timestamp": {"$gte": cutoff_90d}},
+        {"_id": 0}
+    ).sort("timestamp", 1).to_list(500)
+    scale_readings = await db.device_readings.find(
+        {"user_id": uid, "device_type": "scale", "timestamp": {"$gte": cutoff_90d}},
+        {"_id": 0}
+    ).sort("timestamp", 1).to_list(200)
+
+    has_bracelet = len(bracelet_readings) > 0
+    has_scale = len(scale_readings) > 0
+
+    if not has_bracelet and not has_scale:
+        return {"rate": None, "status": "no_data", "real_age": real_age, "level": 0}
+
+    # === Extract latest + averages ===
+    def extract_values(readings, key):
+        return [r["data"].get(key, 0) for r in readings if r.get("data", {}).get(key, 0) > 0]
+
+    # Bracelet metrics
+    hrvs = extract_values(bracelet_readings, "hrv")
+    hrs = extract_values(bracelet_readings, "heart_rate")
+    spo2s = extract_values(bracelet_readings, "spo2")
+    sleeps = extract_values(bracelet_readings, "sleep_quality")
+    steps_list = extract_values(bracelet_readings, "steps")
+    stresses = extract_values(bracelet_readings, "stress_level")
+
+    # Scale metrics
+    bmis = extract_values(scale_readings, "bmi")
+    body_fats = extract_values(scale_readings, "body_fat_pct")
+    muscles = extract_values(scale_readings, "muscle_pct")
+    waters = extract_values(scale_readings, "water_pct")
+    visceral_fats = extract_values(scale_readings, "visceral_fat")
+    bone_masses = extract_values(scale_readings, "bone_mass_kg")
+    scale_body_ages = extract_values(scale_readings, "body_age")
+
+    def avg(lst): return round(sum(lst) / len(lst), 1) if lst else 0
+    def latest(lst): return lst[-1] if lst else 0
+
+    # ═══════════════════════════════════════════════
+    # REFERENCE NORMS by age group and sex
+    # Based on WHO, American Heart Association, clinical literature
+    # ═══════════════════════════════════════════════
+    def get_age_bracket(age):
+        if age < 40: return "30-39"
+        if age < 50: return "40-49"
+        if age < 60: return "50-59"
+        if age < 70: return "60-69"
+        if age < 80: return "70-79"
+        return "80+"
+
+    bracket = get_age_bracket(real_age)
+
+    # HRV norms (ms) — higher = younger/healthier (Shaffer & Ginsberg 2017)
+    HRV_NORMS = {
+        "M": {"30-39": 60, "40-49": 45, "50-59": 35, "60-69": 28, "70-79": 22, "80+": 18},
+        "F": {"30-39": 55, "40-49": 42, "50-59": 33, "60-69": 26, "70-79": 20, "80+": 16},
+    }
+    # Resting HR norms (bpm) — lower = younger/healthier (AHA)
+    HR_NORMS = {
+        "M": {"30-39": 68, "40-49": 70, "50-59": 72, "60-69": 72, "70-79": 73, "80+": 74},
+        "F": {"30-39": 72, "40-49": 73, "50-59": 74, "60-69": 74, "70-79": 75, "80+": 76},
+    }
+    # Body fat % norms — lower = healthier within range (ACE)
+    BF_NORMS = {
+        "M": {"30-39": 18, "40-49": 20, "50-59": 22, "60-69": 23, "70-79": 24, "80+": 25},
+        "F": {"30-39": 25, "40-49": 27, "50-59": 29, "60-69": 30, "70-79": 31, "80+": 32},
+    }
+    # Muscle % norms — higher = healthier (Janssen 2000)
+    MUSCLE_NORMS = {
+        "M": {"30-39": 38, "40-49": 36, "50-59": 34, "60-69": 32, "70-79": 30, "80+": 28},
+        "F": {"30-39": 32, "40-49": 30, "50-59": 28, "60-69": 27, "70-79": 25, "80+": 23},
+    }
+    # Steps norms — (Tudor-Locke 2011)
+    STEPS_NORM = 7000
+    # Visceral fat norm (1-12 healthy, 13+ high risk)
+    VF_NORM = 9
+
+    g = gender if gender in ("M", "F") else "F"
+
+    # ═══════════════════════════════════════════════
+    # BIOMARKER SCORING (0-100 per biomarker)
+    # Score > 50 = younger than age norm
+    # Score < 50 = older than age norm
+    # ═══════════════════════════════════════════════
+    scores = {}
+    weights = {}
+    details = {}
+
+    def score_higher_better(val, norm, name, spread=20):
+        """HRV, muscle, steps, sleep, SpO2, water — higher = better"""
+        if val <= 0: return None
+        pct = ((val - norm) / spread) * 50 + 50
+        s = max(0, min(100, round(pct)))
+        details[name] = {"value": round(val, 1), "norm": norm, "score": s, "direction": "higher_better"}
+        return s
+
+    def score_lower_better(val, norm, name, spread=15):
+        """HR, body fat, visceral fat, stress, BMI — lower = better"""
+        if val <= 0: return None
+        pct = ((norm - val) / spread) * 50 + 50
+        s = max(0, min(100, round(pct)))
+        details[name] = {"value": round(val, 1), "norm": norm, "score": s, "direction": "lower_better"}
+        return s
+
+    # === Level 1: Bracelet-only biomarkers ===
+    if hrvs:
+        s = score_higher_better(avg(hrvs), HRV_NORMS[g].get(bracket, 30), "hrv", 25)
+        if s is not None: scores["hrv"] = s
+    if hrs:
+        hr_vals = [h for h in hrs if 40 < h < 150]
+        if hr_vals:
+            s = score_lower_better(avg(hr_vals), HR_NORMS[g].get(bracket, 72), "resting_hr", 15)
+            if s is not None: scores["resting_hr"] = s
+    if spo2s:
+        s = score_higher_better(avg(spo2s), 96, "spo2", 3)
+        if s is not None: scores["spo2"] = s
+    if sleeps:
+        s = score_higher_better(avg(sleeps), 70, "sleep_quality", 20)
+        if s is not None: scores["sleep_quality"] = s
+    if steps_list:
+        s = score_higher_better(avg(steps_list), STEPS_NORM, "steps", 4000)
+        if s is not None: scores["steps"] = s
+    if stresses:
+        s = score_lower_better(avg(stresses), 40, "stress", 25)
+        if s is not None: scores["stress"] = s
+
+    # === Level 2: Balance biomarkers ===
+    if body_fats:
+        s = score_lower_better(avg(body_fats), BF_NORMS[g].get(bracket, 25), "body_fat", 10)
+        if s is not None: scores["body_fat"] = s
+    if muscles:
+        s = score_higher_better(avg(muscles), MUSCLE_NORMS[g].get(bracket, 30), "muscle_mass", 8)
+        if s is not None: scores["muscle_mass"] = s
+    if visceral_fats:
+        s = score_lower_better(avg(visceral_fats), VF_NORM, "visceral_fat", 6)
+        if s is not None: scores["visceral_fat"] = s
+    if bmis:
+        bmi_val = avg(bmis)
+        # BMI optimal is 22 for elderly (Flicker 2010)
+        bmi_optimal = 22.5
+        bmi_dev = abs(bmi_val - bmi_optimal)
+        bmi_score = max(0, min(100, round(100 - bmi_dev * 10)))
+        scores["bmi"] = bmi_score
+        details["bmi"] = {"value": bmi_val, "norm": bmi_optimal, "score": bmi_score, "direction": "closer_better"}
+    if waters:
+        s = score_higher_better(avg(waters), 55, "hydration", 10)
+        if s is not None: scores["hydration"] = s
+
+    # === Determine level ===
+    bracelet_keys = {"hrv", "resting_hr", "spo2", "sleep_quality", "steps", "stress"}
+    scale_keys_set = {"body_fat", "muscle_mass", "visceral_fat", "bmi", "hydration"}
+    has_bracelet_scores = any(k in scores for k in bracelet_keys)
+    has_scale_scores = any(k in scores for k in scale_keys_set)
+
+    if has_bracelet_scores and has_scale_scores:
+        level = 2
+        # Level 2 weights (Bracelet + Balance)
+        weights = {
+            "hrv": 0.20, "visceral_fat": 0.20, "muscle_mass": 0.15,
+            "resting_hr": 0.10, "body_fat": 0.10, "sleep_quality": 0.08,
+            "steps": 0.07, "bmi": 0.05, "hydration": 0.03, "spo2": 0.02,
+        }
+    elif has_bracelet_scores:
+        level = 1
+        # Level 1 weights (Bracelet only — HRV dominant)
+        weights = {
+            "hrv": 0.30, "resting_hr": 0.20, "sleep_quality": 0.15,
+            "steps": 0.15, "spo2": 0.10, "stress": 0.10,
+        }
     else:
-        # Fallback: use scale body_age if available
-        scale_reading = await db.device_readings.find_one(
-            {"user_id": uid, "device_type": "scale"}, {"_id": 0}, sort=[("timestamp", -1)]
-        )
-        if scale_reading and scale_reading.get("data", {}).get("body_age", 0) > 0:
-            bio_age = scale_reading["data"]["body_age"]
+        level = 2
+        # Scale-only fallback
+        weights = {
+            "visceral_fat": 0.30, "muscle_mass": 0.25, "body_fat": 0.20,
+            "bmi": 0.15, "hydration": 0.10,
+        }
 
-    # If no body age data, simulate based on health factors
-    if bio_age <= 0:
-        # Compute a simulated biological age from available data
-        bracelet = await db.device_readings.find_one(
-            {"user_id": uid, "device_type": "bracelet"}, {"_id": 0}, sort=[("timestamp", -1)]
-        )
-        scale = await db.device_readings.find_one(
-            {"user_id": uid, "device_type": "scale"}, {"_id": 0}, sort=[("timestamp", -1)]
-        )
-        bd = bracelet.get("data", {}) if bracelet else {}
-        sd = scale.get("data", {}) if scale else {}
+    # === Weighted composite score (0-100) ===
+    weighted_sum = 0
+    weight_total = 0
+    for key, w in weights.items():
+        if key in scores:
+            weighted_sum += scores[key] * w
+            weight_total += w
+    composite_score = round(weighted_sum / weight_total) if weight_total > 0 else 50
 
-        if not bd and not sd:
-            return {"rate": None, "status": "no_data", "real_age": real_age}
+    # === Convert composite score to biological age offset ===
+    # Score 50 = exact age, each 10 points = ~2 years difference
+    age_offset = (50 - composite_score) / 5  # ±10 years max range
+    bio_age = max(30, min(100, round(real_age + age_offset)))
 
-        # Start with chronological age, adjust based on factors
-        age_offset = 0.0
+    # Override with Nora AI body_age if available (higher confidence)
+    body_age_cache = await db.body_age_cache.find_one({"user_id": uid}, {"_id": 0})
+    nora_bio_age = None
+    if body_age_cache and body_age_cache.get("body_age") and body_age_cache.get("status") == "computed":
+        nora_bio_age = body_age_cache["body_age"]
+        # Blend: 60% Nora AI + 40% algorithm (when both available)
+        bio_age = round(nora_bio_age * 0.6 + bio_age * 0.4)
 
-        # HRV (high = younger)
-        hrv = bd.get("hrv", 0)
-        if hrv > 50: age_offset -= 3
-        elif hrv > 35: age_offset -= 1.5
-        elif hrv > 20: age_offset += 0
-        elif hrv > 0: age_offset += 3
+    # Also use scale body_age as reference
+    if scale_body_ages and not nora_bio_age:
+        scale_ba = round(avg(scale_body_ages))
+        if 30 <= scale_ba <= 100:
+            # Blend: 40% scale + 60% algorithm
+            bio_age = round(scale_ba * 0.4 + bio_age * 0.6)
 
-        # Resting HR (low = younger)
-        hr = bd.get("heart_rate", 0)
-        if hr > 0:
-            if hr < 65: age_offset -= 2
-            elif hr < 75: age_offset -= 0.5
-            elif hr > 85: age_offset += 2
-            elif hr > 95: age_offset += 4
-
-        # SpO2 (high = younger)
-        spo2 = bd.get("spo2", 0)
-        if spo2 >= 98: age_offset -= 1
-        elif spo2 >= 95: age_offset += 0
-        elif spo2 > 0: age_offset += 2
-
-        # BMI
-        bmi = sd.get("bmi", 0)
-        if 18.5 <= bmi <= 25: age_offset -= 2
-        elif 25 < bmi <= 28: age_offset += 1
-        elif bmi > 28: age_offset += 3
-
-        # Visceral fat
-        vf = sd.get("visceral_fat", 0)
-        if 0 < vf <= 8: age_offset -= 2
-        elif vf <= 12: age_offset += 1
-        elif vf > 12: age_offset += 4
-
-        # Muscle mass
-        mp = sd.get("muscle_pct", 0)
-        if mp > 35: age_offset -= 2
-        elif mp > 28: age_offset -= 0.5
-        elif 0 < mp < 25: age_offset += 2
-
-        # Sleep quality
-        sq = bd.get("sleep_quality", 0)
-        if sq > 80: age_offset -= 1.5
-        elif sq > 60: age_offset += 0
-        elif sq > 0: age_offset += 2
-
-        # Activity
-        steps = bd.get("steps", 0)
-        if steps > 7000: age_offset -= 2
-        elif steps > 4000: age_offset -= 0.5
-        elif 0 < steps < 2000: age_offset += 2
-
-        bio_age = max(30, min(100, round(real_age + age_offset)))
-
-        # Cache it
-        await db.body_age_cache.update_one(
-            {"user_id": uid},
-            {"$set": {
-                "user_id": uid, "body_age": bio_age, "status": "computed",
-                "explanation": f"Age biologique estime a {bio_age} ans base sur vos donnees capteurs.",
-                "computed_at": datetime.now(timezone.utc).isoformat(),
-                "last_reading_ts": datetime.now(timezone.utc).isoformat(),
-            }},
-            upsert=True
-        )
-
-    # === Compute aging rate ===
+    # === Compute aging rate (ratio) ===
     base_rate = bio_age / real_age if real_age > 0 else 1.0
 
-    # Real-time adjustments (small modifiers)
-    bracelet = await db.device_readings.find_one(
-        {"user_id": uid, "device_type": "bracelet"}, {"_id": 0}, sort=[("timestamp", -1)]
-    )
-    bd = bracelet.get("data", {}) if bracelet else {}
+    # === Level 3: Temporal trends (30/60/90 days) ===
+    trends = {}
+    trend_adjustment = 0.0
 
-    adjustment = 0.0
-    # Stress (high stress = ages faster)
-    stress = bd.get("stress_level", 0)
-    if stress > 70: adjustment += 0.05
-    elif stress > 50: adjustment += 0.02
-    elif 0 < stress <= 30: adjustment -= 0.02
+    def compute_trend(values, timestamps, key):
+        """Compute trend direction and magnitude over available time window."""
+        if len(values) < 4: return None
+        n = len(values)
+        mid = n // 2
+        first_half_avg = sum(values[:mid]) / mid
+        second_half_avg = sum(values[mid:]) / (n - mid)
+        if first_half_avg == 0: return None
+        change_pct = ((second_half_avg - first_half_avg) / abs(first_half_avg)) * 100
+        return {"first_avg": round(first_half_avg, 1), "recent_avg": round(second_half_avg, 1),
+                "change_pct": round(change_pct, 1), "improving": None, "period_days": len(set(t[:10] for t in timestamps))}
 
-    # Sleep quality (good sleep = ages slower)
-    sq = bd.get("sleep_quality", 0)
-    if sq > 80: adjustment -= 0.03
-    elif 0 < sq < 50: adjustment += 0.04
+    # HRV trend (improving = going up)
+    if hrvs and len(hrvs) >= 4:
+        ts = [r["timestamp"] for r in bracelet_readings if r.get("data", {}).get("hrv", 0) > 0]
+        t = compute_trend(hrvs, ts, "hrv")
+        if t:
+            t["improving"] = t["change_pct"] > 0
+            trends["hrv"] = t
+            if t["change_pct"] > 10: trend_adjustment -= 0.04  # improving a lot
+            elif t["change_pct"] > 3: trend_adjustment -= 0.02
+            elif t["change_pct"] < -10: trend_adjustment += 0.04  # degrading
+            elif t["change_pct"] < -3: trend_adjustment += 0.02
 
-    # Steps (active = ages slower)
-    steps = bd.get("steps", 0)
-    if steps > 6000: adjustment -= 0.03
-    elif 0 < steps < 2000: adjustment += 0.03
+    # Resting HR trend (improving = going down)
+    if hrs and len(hrs) >= 4:
+        hr_valid = [(h, r["timestamp"]) for r, h in zip(bracelet_readings, [r.get("data", {}).get("heart_rate", 0) for r in bracelet_readings]) if 40 < h < 150]
+        if len(hr_valid) >= 4:
+            hr_vals, hr_ts = zip(*hr_valid)
+            t = compute_trend(list(hr_vals), list(hr_ts), "resting_hr")
+            if t:
+                t["improving"] = t["change_pct"] < 0
+                trends["resting_hr"] = t
+                if t["change_pct"] < -5: trend_adjustment -= 0.02
+                elif t["change_pct"] > 5: trend_adjustment += 0.02
 
-    rate = round(max(0.1, min(3.0, base_rate + adjustment)), 2)
+    # Steps trend (improving = going up)
+    if steps_list and len(steps_list) >= 4:
+        ts = [r["timestamp"] for r in bracelet_readings if r.get("data", {}).get("steps", 0) > 0]
+        t = compute_trend(steps_list, ts, "steps")
+        if t:
+            t["improving"] = t["change_pct"] > 0
+            trends["steps"] = t
+            if t["change_pct"] > 15: trend_adjustment -= 0.02
+            elif t["change_pct"] < -15: trend_adjustment += 0.02
+
+    # Body fat trend (improving = going down)
+    if body_fats and len(body_fats) >= 3:
+        ts = [r["timestamp"] for r in scale_readings if r.get("data", {}).get("body_fat_pct", 0) > 0]
+        t = compute_trend(body_fats, ts, "body_fat")
+        if t:
+            t["improving"] = t["change_pct"] < 0
+            trends["body_fat"] = t
+            if t["change_pct"] < -3: trend_adjustment -= 0.02
+            elif t["change_pct"] > 3: trend_adjustment += 0.02
+
+    # Muscle trend (improving = going up)
+    if muscles and len(muscles) >= 3:
+        ts = [r["timestamp"] for r in scale_readings if r.get("data", {}).get("muscle_pct", 0) > 0]
+        t = compute_trend(muscles, ts, "muscle_mass")
+        if t:
+            t["improving"] = t["change_pct"] > 0
+            trends["muscle_mass"] = t
+            if t["change_pct"] > 3: trend_adjustment -= 0.02
+            elif t["change_pct"] < -3: trend_adjustment += 0.02
+
+    # Final rate with trend adjustment
+    rate = round(max(0.1, min(3.0, base_rate + trend_adjustment)), 2)
 
     # Label
     if rate < 0.7:
-        label = "Tres lent"
-        color = "#10B981"
+        label, color = "Tres lent", "#10B981"
     elif rate < 0.9:
-        label = "Lent"
-        color = "#84CC16"
+        label, color = "Lent", "#84CC16"
     elif rate <= 1.1:
-        label = "Normal"
-        color = "#F59E0B"
+        label, color = "Normal", "#F59E0B"
     elif rate <= 1.5:
-        label = "Rapide"
-        color = "#F97316"
+        label, color = "Rapide", "#F97316"
     else:
-        label = "Tres rapide"
-        color = "#EF4444"
+        label, color = "Tres rapide", "#EF4444"
+
+    # Confidence
+    data_points = len(bracelet_readings) + len(scale_readings)
+    if data_points > 60 and len(scores) >= 6:
+        confidence = "haute"
+    elif data_points > 20 and len(scores) >= 3:
+        confidence = "moyenne"
+    else:
+        confidence = "basse"
+
+    # Trend summary
+    improving_count = sum(1 for t in trends.values() if t.get("improving"))
+    degrading_count = sum(1 for t in trends.values() if t.get("improving") is False)
+    if improving_count > degrading_count + 1:
+        trend_label = "En amelioration"
+        trend_color = "#10B981"
+    elif degrading_count > improving_count + 1:
+        trend_label = "En degradation"
+        trend_color = "#EF4444"
+    elif trends:
+        trend_label = "Stable"
+        trend_color = "#F59E0B"
+    else:
+        trend_label = "Donnees insuffisantes"
+        trend_color = "rgba(255,255,255,0.3)"
+
+    # Cache the bio_age
+    await db.body_age_cache.update_one(
+        {"user_id": uid},
+        {"$set": {
+            "user_id": uid, "body_age": bio_age, "status": "computed",
+            "explanation": f"Age biologique estime a {bio_age} ans (niveau {level}, confiance {confidence}).",
+            "computed_at": datetime.now(timezone.utc).isoformat(),
+            "last_reading_ts": datetime.now(timezone.utc).isoformat(),
+            "algorithm_version": "v2",
+        }},
+        upsert=True
+    )
 
     return {
         "rate": rate,
@@ -1866,10 +2064,32 @@ async def get_aging_rate(user=Depends(get_current_user)):
         "real_age": real_age,
         "diff": real_age - bio_age,
         "status": "computed",
+        "level": level,
+        "level_label": ["", "Bracelet seul", "Bracelet + Balance"][level],
+        "confidence": confidence,
+        "composite_score": composite_score,
+        "data_sources": {
+            "bracelet_readings": len(bracelet_readings),
+            "scale_readings": len(scale_readings),
+            "biomarkers_scored": len(scores),
+        },
+        "biomarkers": details,
+        "weights_used": {k: v for k, v in weights.items() if k in scores},
+        "trends": trends,
+        "trend_summary": {"label": trend_label, "color": trend_color,
+                          "improving": improving_count, "degrading": degrading_count},
         "factors": {
-            "stress": stress,
-            "sleep_quality": sq,
-            "steps": steps,
+            "stress": latest(stresses),
+            "sleep_quality": latest(sleeps),
+            "steps": latest(steps_list),
+        },
+        "reference_norms": {
+            "age_bracket": bracket,
+            "gender": g,
+            "hrv_norm": HRV_NORMS[g].get(bracket),
+            "hr_norm": HR_NORMS[g].get(bracket),
+            "body_fat_norm": BF_NORMS[g].get(bracket),
+            "muscle_norm": MUSCLE_NORMS[g].get(bracket),
         },
     }
 

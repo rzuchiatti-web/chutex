@@ -12,7 +12,11 @@ interface Props {
   setShowDetail: (v: boolean) => void;
   d: any;
   bodyAgeNora?: any;
-  agingRate?: { rate: number; label: string; color: string; bio_age?: number; real_age?: number; diff?: number } | null;
+  agingRate?: { rate: number; label: string; color: string; bio_age?: number; real_age?: number; diff?: number;
+    level?: number; level_label?: string; confidence?: string; composite_score?: number;
+    trend_summary?: { label: string; color: string; improving: number; degrading: number };
+    data_sources?: { bracelet_readings: number; scale_readings: number; biomarkers_scored: number };
+  } | null;
 }
 
 export default function HeroScore({ bioAge, realAge, status, statusColor, ai, subs, showDetail, setShowDetail, d, bodyAgeNora, agingRate }: Props) {
@@ -85,6 +89,28 @@ export default function HeroScore({ bioAge, realAge, status, statusColor, ai, su
               <span style={{ fontSize: 9, fontWeight: 700, color: 'rgba(255,255,255,0.3)' }}>1,0x</span>
               <span style={{ fontSize: 9, fontWeight: 700, color: 'rgba(255,255,255,0.15)' }}>3,0x</span>
             </div>
+          </div>
+
+          {/* Level + Confidence + Trend badges */}
+          <div style={{ display: 'flex', justifyContent: 'center', gap: 6, marginTop: 14, flexWrap: 'wrap' } as any}>
+            {ar.level_label && (
+              <div data-testid="aging-level-badge" style={{ padding: '4px 10px', borderRadius: 99, background: 'rgba(167,139,250,0.1)', border: '1px solid rgba(167,139,250,0.2)', display: 'flex', alignItems: 'center', gap: 4 } as any}>
+                <i className={ar.level === 2 ? 'ri-scales-3-line' : 'ri-heart-pulse-line'} style={{ fontSize: 10, color: '#A78BFA' }} />
+                <span style={{ fontSize: 9, fontWeight: 700, color: '#A78BFA' }}>{ar.level_label}</span>
+              </div>
+            )}
+            {ar.confidence && (
+              <div data-testid="aging-confidence-badge" style={{ padding: '4px 10px', borderRadius: 99, background: ar.confidence === 'haute' ? 'rgba(16,185,129,0.1)' : ar.confidence === 'moyenne' ? 'rgba(245,158,11,0.1)' : 'rgba(255,255,255,0.05)', border: `1px solid ${ar.confidence === 'haute' ? 'rgba(16,185,129,0.2)' : ar.confidence === 'moyenne' ? 'rgba(245,158,11,0.2)' : 'rgba(255,255,255,0.1)'}`, display: 'flex', alignItems: 'center', gap: 4 } as any}>
+                <i className="ri-shield-check-line" style={{ fontSize: 10, color: ar.confidence === 'haute' ? '#10B981' : ar.confidence === 'moyenne' ? '#F59E0B' : 'rgba(255,255,255,0.4)' }} />
+                <span style={{ fontSize: 9, fontWeight: 700, color: ar.confidence === 'haute' ? '#10B981' : ar.confidence === 'moyenne' ? '#F59E0B' : 'rgba(255,255,255,0.4)' }}>Confiance {ar.confidence}</span>
+              </div>
+            )}
+            {ar.trend_summary && (
+              <div data-testid="aging-trend-badge" style={{ padding: '4px 10px', borderRadius: 99, background: `${ar.trend_summary.color}10`, border: `1px solid ${ar.trend_summary.color}25`, display: 'flex', alignItems: 'center', gap: 4 } as any}>
+                <i className={ar.trend_summary.improving > ar.trend_summary.degrading ? 'ri-arrow-right-up-line' : ar.trend_summary.degrading > ar.trend_summary.improving ? 'ri-arrow-right-down-line' : 'ri-arrow-right-line'} style={{ fontSize: 10, color: ar.trend_summary.color }} />
+                <span style={{ fontSize: 9, fontWeight: 700, color: ar.trend_summary.color }}>{ar.trend_summary.label}</span>
+              </div>
+            )}
           </div>
         </div>
       )}
