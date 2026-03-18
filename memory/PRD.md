@@ -10,6 +10,15 @@ Chutex Care est une plateforme de teleassistance et de sante connectee pour les 
 
 ## Fonctionnalites implementees
 
+### Correlations Sante (Fevrier 2026)
+- Endpoint `/api/health/correlations` — Calcul Pearson sur 90 jours entre metriques
+- 19 paires de metriques (cardio, sommeil, activite, composition, metabolisme)
+- Agregation quotidienne des lectures bracelet + balance
+- Filtrage correlations faibles (|r| < 0.15), tri par force decroissante
+- 4 niveaux de force: faible, moderee, forte, tres_forte
+- Insights AI personnalises via GPT-5.2 (Nora IA)
+- Fallback automatique si API AI indisponible
+
 ### Age Biologique V2 (Mars 2026)
 - Algorithme 3 niveaux: Bracelet seul (L1), Bracelet+Balance (L2), Tendances temporelles (L3)
 - Scoring biomarqueur 0-100 normalise par normes cliniques OMS/AHA/ACE par age/sexe
@@ -37,10 +46,14 @@ Chutex Care est une plateforme de teleassistance et de sante connectee pour les 
 ## Endpoints API cles
 | Endpoint | Description |
 |---|---|
+| /api/health/correlations | Correlations Pearson entre metriques sante + insights AI |
 | /api/health/aging-rate | Algorithme V2 age bio + rythme vieillissement |
 | /api/health/body-age | Age biologique (Nora AI ou fallback) |
+| /api/health/summary | Resume sante quotidien AI |
+| /api/health/daily-report | Rapport complet avec subscores |
+| /api/health/sleep | Donnees sommeil bracelet |
+| /api/health/thresholds | CRUD seuils personnalises |
 | /api/alerts/live-active | Statuts live actifs avec locations + ETA |
-| /api/alerts/{id}/live-status | Statut live specifique |
 | /ws/admin-alerts | WebSocket admin temps reel |
 
 ## Backlog
