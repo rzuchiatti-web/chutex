@@ -33,6 +33,10 @@ def create_token(uid, role):
     )
 
 
+def decode_token(token_str):
+    return jwt.decode(token_str, JWT_SECRET, algorithms=[JWT_ALGORITHM])
+
+
 async def get_current_user(authorization: str = Header(None)):
     if not authorization or not authorization.startswith('Bearer '):
         raise HTTPException(status_code=401, detail="Token manquant")

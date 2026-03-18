@@ -1,10 +1,11 @@
-from fastapi import FastAPI, APIRouter
+from fastapi import FastAPI, APIRouter, WebSocket, WebSocketDisconnect, Query
 from starlette.middleware.cors import CORSMiddleware
 import logging, uuid, random
 from datetime import datetime, timezone
 
 from database import db, client
 from auth import hash_password
+from ws_manager import admin_ws
 
 # Import all route modules
 from routes.auth_routes import router as auth_router
@@ -66,6 +67,33 @@ api_router.include_router(batch_router)
 
 app.include_router(api_router)
 app.add_middleware(CORSMiddleware, allow_credentials=True, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
+
+
+# WebSocket endpoint for real-time admin alerts
+@app.websocket("/api/ws/admin-alerts")
+async def ws_admin_alerts(ws: WebSocket, token: str = Query(None)):
+    """WebSocket for real-time alert notifications to admin users."""
+    if not token:
+        await ws.close(code=4001, reason="Token requis")
+        return
+    from auth import decode_token
+    try:
+        payload = decode_token(token)
+        user_id = payload.get("user_id")
+        user = await db.users.find_one({"id": user_id}, {"_id": 0, "role": 1, "id": 1})
+        if not user or user.get("role") != "admin":
+            await ws.close(code=4003, reason="Admin uniquement")
+            return
+    except Exception:
+        await ws.close(code=4001, reason="Token invalide")
+        return
+
+    await admin_ws.connect(ws, user_id)
+    try:
+        while True:
+            await ws.receive_text()  # keep-alive
+    except WebSocketDisconnect:
+        admin_ws.disconnect(user_id)
 
 
 # Security headers middleware

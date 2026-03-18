@@ -34,12 +34,56 @@ export default function AdminHome({ token, user }: { token: string; user: any })
   const [d, setD] = useState<any>({});
   const [collapsed, setCollapsed] = useState(false);
   const [w, setW] = useState(typeof window !== 'undefined' ? window.innerWidth : 1200);
+  const [liveAlerts, setLiveAlerts] = useState<any[]>([]);
+  const [wsConnected, setWsConnected] = useState(false);
 
   useEffect(() => {
     const h = () => setW(window.innerWidth);
     window.addEventListener('resize', h);
     return () => window.removeEventListener('resize', h);
   }, []);
+
+  // WebSocket for real-time alerts
+  useEffect(() => {
+    if (!token) return;
+    const backendUrl = process.env.EXPO_PUBLIC_BACKEND_URL || process.env.REACT_APP_BACKEND_URL || '';
+    const wsBase = backendUrl.replace(/^https?:\/\//, '').replace(/\/$/, '');
+    const protocol = backendUrl.startsWith('https') ? 'wss' : 'ws';
+    const wsUrl = `${protocol}://${wsBase}/api/ws/admin-alerts?token=${token}`;
+
+    let ws: WebSocket | null = null;
+    let retryTimeout: any = null;
+
+    const connect = () => {
+      try {
+        ws = new WebSocket(wsUrl);
+        ws.onopen = () => { setWsConnected(true); };
+        ws.onclose = () => {
+          setWsConnected(false);
+          retryTimeout = setTimeout(connect, 5000);
+        };
+        ws.onerror = () => { ws?.close(); };
+        ws.onmessage = (event) => {
+          try {
+            const data = JSON.parse(event.data);
+            if (data.type === 'new_alert') {
+              const alert = data.alert;
+              setLiveAlerts(prev => [{ ...alert, _ts: Date.now() }, ...prev].slice(0, 10));
+              // Auto-dismiss after 12s
+              setTimeout(() => {
+                setLiveAlerts(prev => prev.filter(a => a._ts !== alert._ts));
+              }, 12000);
+            }
+          } catch {}
+        };
+      } catch {}
+    };
+
+    connect();
+    return () => { ws?.close(); clearTimeout(retryTimeout); };
+  }, [token]);
+
+  const dismissAlert = (ts: number) => setLiveAlerts(prev => prev.filter(a => a._ts !== ts));
 
   const mob = w < 768;
   const sideW = mob ? 0 : collapsed ? 64 : 220;
@@ -103,6 +147,8 @@ export default function AdminHome({ token, user }: { token: string; user: any })
         .adm-input:focus { border-color: #7C3AED; box-shadow: 0 0 0 3px rgba(124,58,237,0.1); }
         .adm-section-title { font-size: 11px; font-weight: 700; color: #94A3B8; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 12px; }
         @keyframes adm-fade { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes adm-shake { 0%,100% { transform: translateX(0); } 10%,30%,50% { transform: translateX(-4px); } 20%,40% { transform: translateX(4px); } 60% { transform: translateX(0); } }
+        @keyframes adm-pulse-ring { 0% { box-shadow: 0 0 0 0 rgba(239,68,68,0.3); } 70% { box-shadow: 0 0 0 8px rgba(239,68,68,0); } 100% { box-shadow: 0 0 0 0 rgba(239,68,68,0); } }
         .adm-animate { animation: adm-fade 0.3s ease both; }
       `}</style>
 
@@ -189,6 +235,13 @@ export default function AdminHome({ token, user }: { token: string; user: any })
             </div>
           )}
           <div style={{ display: 'flex', alignItems: 'center', gap: 8 } as any}>
+            {/* WS status */}
+            <div data-testid="ws-status" title={wsConnected ? 'Temps reel actif' : 'Reconnexion...'} style={{
+              width: 8, height: 8, borderRadius: 4,
+              background: wsConnected ? '#10B981' : '#F59E0B',
+              boxShadow: wsConnected ? '0 0 6px #10B981' : 'none',
+              transition: 'all 0.3s',
+            } as any} />
             {!mob && <span style={{ fontSize: 12, color: '#64748B', fontWeight: 500 }}>{user.name}</span>}
             <div data-testid="admin-refresh-btn" onClick={load} style={{ width: 36, height: 36, borderRadius: 10, border: '1.5px solid #E2E8F0', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', background: '#FFF' } as any}>
               <i className="ri-refresh-line" style={{ fontSize: 15, color: '#64748B' }} />
@@ -198,6 +251,48 @@ export default function AdminHome({ token, user }: { token: string; user: any })
             </div>
           </div>
         </div>
+
+        {/* Live Alert Notifications */}
+        {liveAlerts.length > 0 && (
+          <div data-testid="live-alerts-container" style={{
+            position: 'fixed', top: 12, right: 20, zIndex: 99999, display: 'flex', flexDirection: 'column', gap: 8, maxWidth: 380,
+          } as any}>
+            {liveAlerts.map((a, i) => {
+              const sevC: any = { critical: '#EF4444', high: '#F97316', medium: '#F59E0B', low: '#3B82F6' };
+              const typeI: any = { sos: 'ri-phone-fill', fall: 'ri-arrow-down-circle-fill', anomaly: 'ri-error-warning-fill', inactivity: 'ri-zzz-fill' };
+              const c = sevC[a.severity] || '#EF4444';
+              return (
+                <div key={a._ts} data-testid={`live-alert-${i}`} style={{
+                  display: 'flex', alignItems: 'center', gap: 12, padding: '14px 16px',
+                  background: '#FFFFFF', borderRadius: 14, boxShadow: '0 8px 32px rgba(0,0,0,0.12), 0 2px 8px rgba(0,0,0,0.06)',
+                  border: `2px solid ${c}40`, animation: 'adm-shake 0.5s ease, adm-fade 0.3s ease',
+                  cursor: 'pointer', transition: 'all 0.2s',
+                } as any} onClick={() => { dismissAlert(a._ts); setPage('alerts'); load(); }}>
+                  <div style={{
+                    width: 40, height: 40, borderRadius: 12, background: `${c}12`,
+                    display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
+                    animation: 'adm-pulse-ring 1.5s ease infinite',
+                  } as any}>
+                    <i className={typeI[a.alert_type] || 'ri-alarm-warning-fill'} style={{ fontSize: 20, color: c }} />
+                  </div>
+                  <div style={{ flex: 1, minWidth: 0 } as any}>
+                    <div style={{ fontSize: 11, fontWeight: 800, color: c, textTransform: 'uppercase', letterSpacing: 0.5 }}>
+                      {a.alert_type === 'sos' ? 'ALERTE SOS' : a.alert_type === 'fall' ? 'CHUTE DETECTEE' : 'NOUVELLE ALERTE'}
+                    </div>
+                    <div style={{ fontSize: 13, fontWeight: 600, color: '#1E293B', marginTop: 2 }}>{a.beneficiary_name}</div>
+                    {a.message && <div style={{ fontSize: 11, color: '#64748B', marginTop: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' } as any}>{a.message}</div>}
+                  </div>
+                  <div onClick={(e: any) => { e.stopPropagation(); dismissAlert(a._ts); }} style={{
+                    width: 24, height: 24, borderRadius: 8, background: '#F8FAFC',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, cursor: 'pointer',
+                  } as any}>
+                    <i className="ri-close-line" style={{ fontSize: 12, color: '#94A3B8' }} />
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
 
         {/* Page content */}
         <div style={{ flex: 1, overflowY: 'auto', padding: mob ? 12 : 24, WebkitOverflowScrolling: 'touch' } as any}>

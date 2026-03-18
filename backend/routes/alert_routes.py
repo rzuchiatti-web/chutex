@@ -46,7 +46,11 @@ async def create_alert(data: AlertCreate, user=Depends(get_current_user)):
     )
 
     await db.alerts.insert_one(alert)
-    
+
+    # Broadcast to connected admin WebSocket clients
+    from ws_manager import admin_ws
+    asyncio.create_task(admin_ws.broadcast_alert(alert))
+
     # Send push notifications to guardians
     guardian_ids = user.get('guardians', [])
     if not guardian_ids:
