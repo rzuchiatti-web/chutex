@@ -6,6 +6,7 @@ from database import db, twilio_client, TWILIO_NUMBER
 from auth import get_current_user, get_effective_role
 from models import AlertCreate
 from routes.push_routes import notify_sos_alert, notify_fall_detected
+from routes.live_status_routes import create_live_status, advance_live_status, complete_live_status
 
 logger = logging.getLogger(__name__)
 router = APIRouter()
@@ -47,6 +48,9 @@ async def create_alert(data: AlertCreate, user=Depends(get_current_user)):
 
     await db.alerts.insert_one(alert)
 
+    # Create live status for real-time tracking (await to ensure doc exists before advancing)
+    await create_live_status(alert['id'], user['id'], user['name'], data.alert_type)
+
     # Broadcast to connected admin WebSocket clients
     from ws_manager import admin_ws
     asyncio.create_task(admin_ws.broadcast_alert(alert))
@@ -57,6 +61,7 @@ async def create_alert(data: AlertCreate, user=Depends(get_current_user)):
         guardians = await db.users.find({"beneficiaries": user['id']}, {"_id": 0, "id": 1}).to_list(20)
         guardian_ids = [g['id'] for g in guardians]
     if guardian_ids:
+        asyncio.create_task(advance_live_status(alert['id'], "notifying_guardians", "Notification des gardiens en cours"))
         if data.alert_type == 'fall':
             asyncio.create_task(notify_fall_detected(user['name'], alert['id'], guardian_ids))
         else:
@@ -77,6 +82,7 @@ async def create_alert(data: AlertCreate, user=Depends(get_current_user)):
         has_care = True
 
     if has_care and twilio_client:
+        asyncio.create_task(advance_live_status(alert['id'], "ai_calling", "Appel IA au beneficiaire en cours"))
         from services.vapi_engine import vapi_orchestrate, VAPI_API_KEY
         if VAPI_API_KEY:
             asyncio.create_task(vapi_orchestrate(alert))
@@ -135,6 +141,7 @@ async def resolve_alert(alert_id: str, data: dict = None, user=Depends(get_curre
     if data and data.get('answers'):
         update['report'] = {"answers": data.get('answers', data.get('report', {})), "notes": data.get('notes', ''), "closed_by": user['id'], "closed_by_name": user['name'], "closed_at": now}
     await db.alerts.update_one({"id": alert_id}, {"$set": update})
+    asyncio.create_task(complete_live_status(alert_id))
     return {"status": "resolved"}
 
 
@@ -143,6 +150,7 @@ async def resolve_alert_with_report(alert_id: str, data: dict, user=Depends(get_
     now = datetime.now(timezone.utc).isoformat()
     report = {"answers": data.get('answers', []), "notes": data.get('notes', ''), "closed_by": user['id'], "closed_by_name": user['name'], "closed_at": now}
     await db.alerts.update_one({"id": alert_id}, {"$set": {"status": "resolved", "resolved_at": now, "resolved_by": user['id'], "resolved_by_name": user['name'], "report": report}})
+    asyncio.create_task(complete_live_status(alert_id))
     return {"status": "resolved", "report": report}
 
 
@@ -241,6 +249,10 @@ async def accept_intervention_as_guardian(data: dict, user=Depends(get_current_u
     
     # Update alert teleassistance status
     await db.alerts.update_one({"id": alert_id}, {"$set": {"teleassistance_status": "CARE_DISPATCHED"}})
+    
+    # Advance live status
+    asyncio.create_task(advance_live_status(alert_id, "guardian_responding", f"{user['name']} a accepte d'intervenir"))
+    asyncio.create_task(advance_live_status(alert_id, "intervention_active", f"Intervention de {user['name']} en cours", {"intervenant_name": user['name'], "intervenant_phone": user.get('phone', '')}))
     
     return {"status": "accepted", "intervention_id": iv_id}
 

@@ -85,11 +85,21 @@ async def send_push_to_users(user_ids: list, title: str, body: str, data: dict =
 
 
 async def notify_sos_alert(beneficiary_name: str, alert_id: str, guardian_ids: list):
-    await send_push_to_users(guardian_ids, "SOS - URGENCE", f"{beneficiary_name} a declenche une alerte SOS !", {"type": "sos", "alert_id": alert_id}, "sos", "sos_alerts")
+    await send_push_to_users(
+        guardian_ids, "SOS - URGENCE",
+        f"{beneficiary_name} a declenche une alerte SOS !",
+        {"type": "sos", "alert_id": alert_id, "beneficiary_name": beneficiary_name, "live_activity": True, "stage": "alert_triggered"},
+        "sos", "sos_alerts"
+    )
 
 
 async def notify_fall_detected(beneficiary_name: str, alert_id: str, guardian_ids: list):
-    await send_push_to_users(guardian_ids, "Chute detectee !", f"Une chute a ete detectee pour {beneficiary_name}.", {"type": "fall", "alert_id": alert_id}, "fall", "fall_detection")
+    await send_push_to_users(
+        guardian_ids, "Chute detectee !",
+        f"Une chute a ete detectee pour {beneficiary_name}.",
+        {"type": "fall", "alert_id": alert_id, "beneficiary_name": beneficiary_name, "live_activity": True, "stage": "alert_triggered"},
+        "fall", "fall_detection"
+    )
 
 
 async def notify_geofence_exit(beneficiary_name: str, zone_name: str, alert_id: str, guardian_ids: list):
@@ -119,6 +129,26 @@ async def notify_guardian_request(beneficiary_id: str, guardian_name: str):
 async def test_push(user=Depends(get_current_user)):
     await send_push_to_user(user["id"], "Test Notification CHUTEX", "Les notifications fonctionnent !", {"type": "test"}, "test")
     return {"status": "sent"}
+
+
+@router.post("/push/live-activity-token")
+async def register_live_activity_token(body: dict, user=Depends(get_current_user)):
+    """Register an APNs push token for iOS Live Activity updates."""
+    alert_id = body.get("alert_id")
+    apns_token = body.get("apns_token")
+    if not alert_id or not apns_token:
+        raise HTTPException(400, "alert_id and apns_token required")
+    await db.live_activity_tokens.update_one(
+        {"alert_id": alert_id, "user_id": user["id"]},
+        {"$set": {
+            "alert_id": alert_id,
+            "user_id": user["id"],
+            "apns_token": apns_token,
+            "updated_at": datetime.now(timezone.utc).isoformat(),
+        }},
+        upsert=True,
+    )
+    return {"status": "registered"}
 
 
 @router.get("/push/history")

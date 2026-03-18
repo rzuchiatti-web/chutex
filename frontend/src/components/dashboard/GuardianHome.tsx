@@ -13,6 +13,7 @@ import { ContextualTip, MiniTuto } from '../HelpSystem';
 import { PhoneInputWithPrefix } from '../PhoneInputWithPrefix';
 import { CHX, isDarkMode, webShadow, BG_IMAGES } from './constants';
 import AnimatedDarkBg from '../AnimatedDarkBg';
+import LiveAlertBanner from './LiveAlertBanner';
 
 export default function GuardianHome({ token, user }: { token: string; user: any }) {
   const router = useRouter();
@@ -111,6 +112,9 @@ export default function GuardianHome({ token, user }: { token: string; user: any
               </div>
             </div>
           </div>
+          {/* Live Activity Banners */}
+          <LiveAlertBanner token={token} />
+
           {/* Notifications popup (web) */}
           {showNotifsG && (
             <div onClick={() => setShowNotifsG(false)} style={{ position: 'fixed', inset: 0, zIndex: 9999, backdropFilter: 'blur(32px)', WebkitBackdropFilter: 'blur(32px)', background: 'rgba(0,0,0,0.4)', overflowY: 'auto' } as any}>

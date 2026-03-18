@@ -32,6 +32,7 @@ from routes.dorsi_routes import router as dorsi_router
 from routes.minceur_routes import router as minceur_router
 from routes.glycemia_routes import router as glycemia_router
 from routes.batch_routes import router as batch_router
+from routes.live_status_routes import router as live_status_router
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -64,6 +65,7 @@ api_router.include_router(dorsi_router)
 api_router.include_router(minceur_router)
 api_router.include_router(glycemia_router)
 api_router.include_router(batch_router)
+api_router.include_router(live_status_router)
 
 app.include_router(api_router)
 app.add_middleware(CORSMiddleware, allow_credentials=True, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])

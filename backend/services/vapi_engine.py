@@ -254,6 +254,13 @@ async def vapi_orchestrate(alert: dict):
             else:
                 await _log_event(iid, "PATIENT_NO_RESPONSE", f"Erreur Vapi: {result.get('error', 'inconnu')}")
 
+        # Update live status: AI is calling guardians
+        try:
+            from routes.live_status_routes import advance_live_status
+            await advance_live_status(alert['id'], "ai_calling", "Appel IA en cours - levee de doute")
+        except Exception:
+            pass
+
         # Immediately start calling guardians in parallel (don't wait for patient call to end)
         await db.alerts.update_one({"id": alert['id']}, {"$set": {"teleassistance_status": "CALLING_PARALLEL"}})
 
@@ -354,6 +361,13 @@ async def vapi_orchestrate(alert: dict):
                 await _log_event(iid, "GUARDIAN_INTERVENTION_ACCEPTED", f"Gardien {g['name']} accepte d'intervenir")
                 await db.incidents.update_one({"id": iid}, {"$set": {"assigned_guardian": g}})
                 await db.alerts.update_one({"id": alert['id']}, {"$set": {"teleassistance_status": "GUARDIAN_INTERVENTION_ACCEPTED"}})
+                # Update live status
+                try:
+                    from routes.live_status_routes import advance_live_status
+                    await advance_live_status(alert['id'], "guardian_responding", f"{g['name']} accepte d'intervenir")
+                    await advance_live_status(alert['id'], "intervention_active", f"Intervention de {g['name']} en cours", {"intervenant_name": g['name'], "intervenant_phone": g.get('phone', '')})
+                except Exception:
+                    pass
                 guardian_accepted = True
                 break
             elif isinstance(r, dict) and r.get("answered"):
@@ -493,3 +507,9 @@ async def _resolve_incident(iid: str, alert_id: str, resolution: str, detail: st
         "resolved_by_name": "Nora (IA Teleassistance)",
     }})
     await _log_event(iid, "RESOLVED", detail)
+    # Update live status
+    try:
+        from routes.live_status_routes import complete_live_status
+        await complete_live_status(alert_id)
+    except Exception:
+        pass

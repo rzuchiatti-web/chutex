@@ -234,6 +234,13 @@ async def carewatch_orchestrate(alert: dict):
             {"$set": {"teleassistance_status": "CALLING_PATIENT", "incident_id": iid}}
         )
 
+        # Update live status
+        try:
+            from routes.live_status_routes import advance_live_status
+            await advance_live_status(alert['id'], "ai_calling", "Appel IA en cours - levee de doute")
+        except Exception:
+            pass
+
         # ─── STEP 1: CALL PATIENT ───
         await _log_event(iid, "CALLING_PATIENT", f"Appel du beneficiaire {ben['name']} ({phone})")
 
