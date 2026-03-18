@@ -1394,5 +1394,306 @@ async def generate_health_report_pdf(period: str = "30j", user=Depends(get_curre
     )
 
 
+# ─── Health Correlations ───────────────────────────────────────────────
+
+CORRELATION_PAIRS = [
+    # (metric_a, metric_b, label_fr, category)
+    ("sleep_quality", "heart_rate", "Sommeil → Frequence cardiaque", "cardio-sommeil"),
+    ("sleep_quality", "hrv", "Sommeil → Variabilite cardiaque", "cardio-sommeil"),
+    ("sleep_quality", "stress", "Sommeil → Niveau de stress", "sommeil-stress"),
+    ("sleep_quality", "steps", "Sommeil → Activite physique", "sommeil-activite"),
+    ("steps", "heart_rate", "Activite → Frequence cardiaque", "activite-cardio"),
+    ("steps", "stress", "Activite → Stress", "activite-stress"),
+    ("steps", "calories", "Pas → Depense calorique", "activite"),
+    ("hrv", "stress", "Variabilite cardiaque → Stress", "cardio-stress"),
+    ("hrv", "spo2", "Variabilite cardiaque → Oxygenation", "cardio"),
+    ("weight", "heart_rate", "Poids → Frequence cardiaque", "composition-cardio"),
+    ("weight", "steps", "Poids → Activite physique", "composition-activite"),
+    ("body_fat_pct", "heart_rate", "Graisse corporelle → Frequence cardiaque", "composition-cardio"),
+    ("body_fat_pct", "muscle_pct", "Graisse → Masse musculaire", "composition"),
+    ("muscle_pct", "basal_metabolism", "Muscle → Metabolisme basal", "composition"),
+    ("visceral_fat", "heart_rate", "Graisse viscerale → Frequence cardiaque", "composition-cardio"),
+    ("water_pct", "weight", "Hydratation → Poids", "composition"),
+    ("deep_sleep_min", "recovery_score", "Sommeil profond → Recuperation", "sommeil"),
+    ("sleep_quality", "blood_glucose", "Sommeil → Glycemie", "sommeil-metabolisme"),
+    ("steps", "blood_glucose", "Activite → Glycemie", "activite-metabolisme"),
+]
+
+METRIC_LABELS = {
+    "heart_rate": "FC", "hrv": "VFC", "spo2": "SpO2", "stress": "Stress",
+    "steps": "Pas", "calories": "Calories", "blood_glucose": "Glycemie",
+    "sleep_quality": "Qualite sommeil", "sleep_duration_min": "Duree sommeil",
+    "deep_sleep_min": "Sommeil profond", "recovery_score": "Recuperation",
+    "weight": "Poids", "bmi": "IMC", "body_fat_pct": "Graisse corp.",
+    "muscle_pct": "Muscle", "visceral_fat": "Graisse visc.", "water_pct": "Hydratation",
+    "basal_metabolism": "Metab. basal", "temperature": "Temperature",
+    "blood_pressure_systolic": "Tension syst.",
+}
 
 
+def _pearson(x: list, y: list) -> float:
+    """Compute Pearson correlation coefficient. Returns 0 if insufficient data."""
+    n = len(x)
+    if n < 5:
+        return 0.0
+    mean_x = sum(x) / n
+    mean_y = sum(y) / n
+    num = sum((xi - mean_x) * (yi - mean_y) for xi, yi in zip(x, y))
+    den_x = sum((xi - mean_x) ** 2 for xi in x) ** 0.5
+    den_y = sum((yi - mean_y) ** 2 for yi in y) ** 0.5
+    if den_x == 0 or den_y == 0:
+        return 0.0
+    return round(num / (den_x * den_y), 3)
+
+
+def _extract_metric(reading_data: dict, key: str):
+    """Extract a metric value from a device reading data dict. Returns None if absent/zero."""
+    if key == "blood_glucose":
+        v = reading_data.get("blood_glucose") or reading_data.get("glycemia")
+    elif key == "stress":
+        v = reading_data.get("stress") or reading_data.get("stress_level")
+    elif key == "deep_sleep_min":
+        v = reading_data.get("deep_sleep_min")
+        if not v:
+            sleep = reading_data.get("sleep", {})
+            v = sleep.get("deep_minutes")
+    elif key == "sleep_quality":
+        v = reading_data.get("sleep_quality")
+        if not v:
+            sleep = reading_data.get("sleep", {})
+            v = sleep.get("sleep_quality")
+    elif key == "recovery_score":
+        v = reading_data.get("recovery_score")
+    elif key == "blood_pressure_systolic":
+        bp = reading_data.get("blood_pressure", {})
+        v = bp.get("systolic") if isinstance(bp, dict) else None
+    else:
+        v = reading_data.get(key)
+    if v is None or v == 0:
+        return None
+    return float(v)
+
+
+def _interpret_correlation(r: float, label: str, metric_a: str, metric_b: str) -> dict:
+    """Convert a Pearson r into a user-friendly insight."""
+    strength = abs(r)
+    if strength < 0.25:
+        level = "faible"
+        level_icon = "○"
+    elif strength < 0.50:
+        level = "moderee"
+        level_icon = "◐"
+    elif strength < 0.75:
+        level = "forte"
+        level_icon = "●"
+    else:
+        level = "tres_forte"
+        level_icon = "◉"
+
+    direction = "positive" if r > 0 else "negative"
+    impact_pct = round(strength * 100)
+
+    a_label = METRIC_LABELS.get(metric_a, metric_a)
+    b_label = METRIC_LABELS.get(metric_b, metric_b)
+
+    if r > 0:
+        insight = f"Quand votre {a_label.lower()} augmente, votre {b_label.lower()} tend a augmenter aussi ({impact_pct}%)"
+    else:
+        insight = f"Quand votre {a_label.lower()} augmente, votre {b_label.lower()} tend a diminuer ({impact_pct}%)"
+
+    return {
+        "metric_a": metric_a,
+        "metric_b": metric_b,
+        "label": label,
+        "r": r,
+        "strength": level,
+        "strength_icon": level_icon,
+        "direction": direction,
+        "impact_pct": impact_pct,
+        "insight": insight,
+    }
+
+
+@router.get("/health/correlations")
+async def get_health_correlations(user=Depends(get_current_user)):
+    """
+    Analyse les correlations entre metriques de sante sur les 30 derniers jours.
+    Retourne les correlations significatives triees par force, avec insights AI optionnels.
+    """
+    uid = user['id']
+
+    # Check devices
+    has_devices = await db.devices.find_one({"user_id": uid}, {"_id": 0})
+    if not has_devices:
+        return {
+            "correlations": [], "insights": [],
+            "data_points": 0, "period_days": 0,
+            "no_data": True,
+            "message": "Connectez un appareil pour decouvrir les correlations entre vos metriques de sante.",
+        }
+
+    # Fetch last 90 days of readings (need volume for correlations)
+    cutoff = (datetime.now(timezone.utc) - timedelta(days=90)).isoformat()
+    bracelet_readings = await db.device_readings.find(
+        {"user_id": uid, "device_type": "bracelet", "timestamp": {"$gte": cutoff}},
+        {"_id": 0}
+    ).sort("timestamp", 1).to_list(500)
+
+    scale_readings = await db.device_readings.find(
+        {"user_id": uid, "device_type": "scale", "timestamp": {"$gte": cutoff}},
+        {"_id": 0}
+    ).sort("timestamp", 1).to_list(500)
+
+    if not bracelet_readings and not scale_readings:
+        return {
+            "correlations": [], "insights": [],
+            "data_points": 0, "period_days": 0,
+            "no_data": True,
+            "message": "Pas assez de donnees. Portez vos appareils quelques jours pour obtenir des correlations.",
+        }
+
+    # Merge readings by date (day-level aggregation)
+    daily_data = {}
+    for r in bracelet_readings:
+        day = r.get("timestamp", "")[:10]
+        if not day:
+            continue
+        if day not in daily_data:
+            daily_data[day] = {}
+        data = r.get("data", {})
+        for key in ["heart_rate", "hrv", "spo2", "stress", "stress_level", "steps",
+                     "calories", "blood_glucose", "sleep_quality", "sleep_duration_min",
+                     "deep_sleep_min", "recovery_score", "temperature"]:
+            v = _extract_metric(data, key)
+            if v is not None:
+                daily_data[day][key] = v
+        # Extract nested sleep data
+        sleep = data.get("sleep", {})
+        if sleep:
+            for sk in ["sleep_quality", "deep_minutes"]:
+                mapped = "sleep_quality" if sk == "sleep_quality" else "deep_sleep_min"
+                sv = sleep.get(sk)
+                if sv and sv > 0 and mapped not in daily_data[day]:
+                    daily_data[day][mapped] = float(sv)
+        # Blood pressure
+        bp = data.get("blood_pressure", {})
+        if isinstance(bp, dict) and bp.get("systolic", 0) > 0:
+            daily_data[day]["blood_pressure_systolic"] = float(bp["systolic"])
+
+    for r in scale_readings:
+        day = r.get("timestamp", "")[:10]
+        if not day:
+            continue
+        if day not in daily_data:
+            daily_data[day] = {}
+        data = r.get("data", {})
+        for key in ["weight", "bmi", "body_fat_pct", "muscle_pct", "visceral_fat",
+                     "water_pct", "basal_metabolism", "bone_mass_kg"]:
+            v = _extract_metric(data, key)
+            if v is not None:
+                daily_data[day][key] = v
+
+    days_sorted = sorted(daily_data.keys())
+    period_days = len(days_sorted)
+
+    if period_days < 5:
+        return {
+            "correlations": [], "insights": [],
+            "data_points": period_days, "period_days": period_days,
+            "no_data": True,
+            "message": f"Seulement {period_days} jours de donnees. Minimum 5 jours requis pour les correlations.",
+        }
+
+    # Compute correlations
+    raw_correlations = []
+    for metric_a, metric_b, label, category in CORRELATION_PAIRS:
+        xs, ys = [], []
+        for day in days_sorted:
+            dd = daily_data[day]
+            va = dd.get(metric_a)
+            vb = dd.get(metric_b)
+            if va is not None and vb is not None:
+                xs.append(va)
+                ys.append(vb)
+        if len(xs) < 5:
+            continue
+        r = _pearson(xs, ys)
+        if abs(r) < 0.15:
+            continue
+        corr = _interpret_correlation(r, label, metric_a, metric_b)
+        corr["data_points"] = len(xs)
+        corr["category"] = category
+        raw_correlations.append(corr)
+
+    # Sort by absolute correlation strength (strongest first)
+    raw_correlations.sort(key=lambda c: abs(c["r"]), reverse=True)
+
+    # Keep top 10 most meaningful
+    top_correlations = raw_correlations[:10]
+
+    # Generate AI insights from top correlations
+    insights = []
+    api_key = os.environ.get("EMERGENT_LLM_KEY")
+    if api_key and top_correlations:
+        try:
+            from emergentintegrations.llm.chat import LlmChat, UserMessage
+            import json as json_mod
+
+            corr_summary = "\n".join(
+                f"- {c['label']}: r={c['r']} ({c['strength']}, {c['data_points']} pts)"
+                for c in top_correlations[:6]
+            )
+
+            user_doc = await db.users.find_one({"_id_str": uid}, {"_id": 0, "name": 1, "age": 1, "birth_date": 1})
+            age_str = ""
+            if user_doc:
+                age = user_doc.get("age")
+                if not age and user_doc.get("birth_date"):
+                    try:
+                        bd = datetime.fromisoformat(user_doc["birth_date"].replace("Z", "+00:00"))
+                        age = (datetime.now(timezone.utc) - bd).days // 365
+                    except:
+                        pass
+                if age:
+                    age_str = f"Patient de {age} ans. "
+
+            prompt = f"""{age_str}Voici les correlations sante sur {period_days} jours:
+{corr_summary}
+
+Genere EXACTEMENT 3 insights medicaux actionables en JSON. Chaque insight doit:
+- Etre une phrase courte et concrete (max 20 mots)
+- Donner un conseil medical pratique base sur la correlation
+- Vouvoyer le patient
+- Pas d'emoji
+
+JSON: {{"insights": ["phrase 1", "phrase 2", "phrase 3"]}}"""
+
+            chat = LlmChat(
+                api_key=api_key,
+                session_id=f"corr-{uuid.uuid4().hex[:8]}",
+                system_message="Nora, medecin IA. JSON uniquement. Correlations sante. Prevention et longevite."
+            ).with_model("openai", "gpt-5.2")
+            resp = await chat.send_message(UserMessage(text=prompt))
+            c = resp.strip()
+            if c.startswith("```"):
+                c = c.split("\n", 1)[1] if "\n" in c else c[3:]
+            if c.endswith("```"):
+                c = c[:-3]
+            parsed = json_mod.loads(c.strip())
+            insights = parsed.get("insights", [])[:3]
+        except Exception as e:
+            print(f"Correlations AI err: {e}")
+
+    # Fallback insights if AI failed
+    if not insights and top_correlations:
+        for c in top_correlations[:3]:
+            insights.append(c["insight"])
+
+    return {
+        "correlations": top_correlations,
+        "insights": insights,
+        "data_points": sum(c["data_points"] for c in top_correlations) if top_correlations else 0,
+        "period_days": period_days,
+        "total_readings": len(bracelet_readings) + len(scale_readings),
+        "no_data": False,
+    }
