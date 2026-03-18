@@ -22,6 +22,9 @@ from routes.carewatch_routes import router as carewatch_router
 from routes.company_routes import router as company_router
 from routes.push_routes import router as push_router
 from routes.health_report_routes import router as health_report_router
+from routes.health_aging_routes import router as health_aging_router
+from routes.health_sleep_routes import router as health_sleep_router
+from routes.health_thresholds_routes import router as health_thresholds_router
 from routes.chat_routes import router as chat_router
 from routes.program_routes import router as program_router
 from routes.rgpd_routes import router as rgpd_router
@@ -55,6 +58,9 @@ api_router.include_router(carewatch_router)
 api_router.include_router(company_router)
 api_router.include_router(push_router)
 api_router.include_router(health_report_router)
+api_router.include_router(health_aging_router)
+api_router.include_router(health_sleep_router)
+api_router.include_router(health_thresholds_router)
 api_router.include_router(chat_router)
 api_router.include_router(program_router)
 api_router.include_router(rgpd_router)
