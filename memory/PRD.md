@@ -52,14 +52,19 @@ Application mobile & web de monitoring sante pour seniors, avec teleassistance, 
 - Sante data: MOCKED (donnees simulees)
 - Patent V3: COMPLETE (742 lines, /app/memory/PATENT_GLYCEMIA_V3.md)
 
-## Admin Documents Feature (March 2026)
-- New "Documents" tab in admin dashboard
-- Lists 9 documents from /app/memory/
-- Patent docs highlighted (V1, V2, V3 with FINAL badge)
-- PDF export (markdown→HTML→print dialog)
-- Admin-only access (403 for non-admin)
-- Backend: /api/admin/documents, /api/admin/documents/{filename}
+## Admin Dashboard Full Overhaul (March 2026)
+Complete rebuild of admin backoffice with sidebar navigation and 9 modules:
+1. **Tableau de bord** — KPI cards (users, alerts, subs, interventions), charts (alerts 7j, interventions 6 mois), role distribution, alert types
+2. **Utilisateurs** — Search bar, 5 role filters, 18-user table, detailed user modal (contact, medical, devices, alerts, guardians)
+3. **Alertes & SOS** — 4 KPIs, 3 views (active/history/interventions), timeline, status badges
+4. **Appareils** — 5 KPIs (total/bracelets/scales/connected/low battery), device cards per type
+5. **Sante** — Beneficiary health table (FC, HRV, SpO2, Pas, Glycemie, Zone, Confiance)
+6. **Contrats** — 5 sub-tabs (Abonnements, Prescriptions, SAAD, RGPD, Emails), CRUD
+7. **Programmes** — Enrollment table with progress bars, status, mode
+8. **Documents** — Patent docs (V1/V2/V3 with FINAL badge), PDF export, other tech docs
+9. **Configuration** — Activation/intervention codes, Shopify sync, system info
 - Admin credentials: phone 0600000001, password admin123
+- Backend: /api/admin/devices-overview, /api/admin/health-overview (new endpoints)
 
 ## Backlog
 See ROADMAP.md for prioritized features.
