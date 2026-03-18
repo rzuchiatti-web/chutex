@@ -1,18 +1,14 @@
 """
-Chutex Care — Glycemia Estimation Algorithm V2
-Non-invasive blood glucose estimation with multi-calibration regression,
-trend analysis, and personalized thresholds.
+Chutex Care — Glycemia Estimation Algorithm V3 (ML)
+Non-invasive blood glucose estimation using Machine Learning.
 
-V2 improvements over V1:
-- Multi-calibration weighted regression (not just latest)
-- Time-of-day factor (postprandial vs fasting)
-- Trend analysis (worsening/improving over time)
-- Muscle-to-fat ratio as metabolic predictor
-- Temperature deviation from baseline
-- PPG-derived vascular compliance factor
-- Return estimated value in g/L (not just zone)
-- Personalized thresholds from calibration history
-- Confidence scoring based on calibration recency + data completeness
+V3 improvements:
+- ML model (Gradient Boosting) pre-trained on medical literature correlations
+- Works WITHOUT manual calibrations (calibrations boost precision)
+- Per-user personalized model when enough calibrations exist
+- Prediction intervals (confidence bounds)
+- Feature importance analysis
+- Keeps V2 rule-based as fallback
 """
 from fastapi import APIRouter, Depends, HTTPException
 from datetime import datetime, timezone, timedelta
@@ -20,6 +16,7 @@ import os, logging, math
 
 from database import db
 from auth import get_current_user
+from services.glycemia_ml import estimate_glycemia_ml, get_population_model
 
 logger = logging.getLogger(__name__)
 router = APIRouter()
@@ -357,7 +354,7 @@ def estimate_glycemia_v2(profile: dict, bracelet: dict, scale: dict, calibration
 
 @router.get("/glycemia/estimate")
 async def get_glycemia_estimate(user=Depends(get_current_user)):
-    """Get non-invasive glycemia estimation V2."""
+    """Get non-invasive glycemia estimation V3 (ML-powered)."""
     uid = user["id"]
     u = await db.users.find_one({"id": uid}, {"_id": 0})
     if not u:
@@ -377,11 +374,13 @@ async def get_glycemia_estimate(user=Depends(get_current_user)):
             pass
 
     is_male = u.get("gender", "").lower() in ("m", "male", "homme", "masculin")
+    has_diabetes_risk = any(c in (u.get("medical_conditions", "") or "").lower()
+                           for c in ["diabet", "glycem", "insuline", "sucre", "hba1c"])
 
     profile = {
         "age": age,
         "is_male": is_male,
-        "medical_conditions": u.get("medical_conditions", ""),
+        "has_diabetes_risk": has_diabetes_risk,
     }
 
     # Get latest bracelet data
@@ -417,7 +416,8 @@ async def get_glycemia_estimate(user=Depends(get_current_user)):
         {"_id": 0}
     ).sort("date", -1).to_list(14)
 
-    result = estimate_glycemia_v2(profile, bracelet, scale_data, calibrations, history)
+    # ─── ML V3 estimation ───
+    result = await estimate_glycemia_ml(uid, profile, bracelet, scale_data, calibrations, history, db)
 
     # Store estimation for future trend analysis
     if result.get("status") == "estimated":
@@ -427,11 +427,13 @@ async def get_glycemia_estimate(user=Depends(get_current_user)):
             {"$set": {
                 "user_id": uid,
                 "date": today_str,
-                "risk_score": result["risk_score"],
+                "risk_score": result.get("risk_score"),
                 "estimated_glycemia": result.get("estimated_glycemia"),
                 "zone": result["zone"],
-                "confidence_pct": result["confidence_pct"],
-                "data_points": result["data_points_used"],
+                "confidence_pct": result.get("confidence_pct"),
+                "data_points": result.get("data_points_used"),
+                "algorithm_version": result.get("algorithm_version"),
+                "ml_level": result.get("ml_level"),
                 "timestamp": datetime.now(timezone.utc).isoformat(),
             }},
             upsert=True
@@ -525,4 +527,40 @@ async def get_glycemia_trend(user=Depends(get_current_user)):
         "trend": direction,
         "history": history,
         "count": len(history),
+    }
+
+
+
+@router.get("/glycemia/ml-status")
+async def get_ml_status(user=Depends(get_current_user)):
+    """Get ML model status and info."""
+    uid = user["id"]
+    pop_model = get_population_model()
+    cal_count = await db.glycemia_calibrations.count_documents({"user_id": uid})
+    has_personal = os.path.exists(os.path.join("/app/backend/models", f"glycemia_personal_{uid}.pkl"))
+
+    feature_importances = []
+    if pop_model.is_trained:
+        from services.glycemia_ml import FEATURE_NAMES
+        for name, imp in sorted(zip(FEATURE_NAMES, pop_model.model.feature_importances_), key=lambda x: -x[1])[:10]:
+            feature_importances.append({"feature": name, "importance": round(float(imp) * 100, 1)})
+
+    return {
+        "population_model": {
+            "trained": pop_model.is_trained,
+            "version": pop_model.version,
+            "training_samples": pop_model.training_samples,
+        },
+        "personal_model": {
+            "available": has_personal,
+            "calibrations_count": cal_count,
+            "calibrations_needed": max(0, 5 - cal_count),
+        },
+        "feature_importances": feature_importances,
+        "architecture": "GradientBoostingRegressor (300 trees, depth=5)",
+        "levels": [
+            {"level": 1, "name": "Population", "status": "active", "description": "Pre-entraine sur correlations medicales (6000 echantillons)"},
+            {"level": 2, "name": "Personnel", "status": "active" if has_personal else "en attente", "description": f"Adaptation personnalisee ({cal_count}/5 calibrations)"},
+            {"level": 3, "name": "Calibration", "status": "active" if cal_count > 0 else "optionnel", "description": "Boost precision par piqure capillaire"},
+        ],
     }
