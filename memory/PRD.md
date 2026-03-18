@@ -52,5 +52,14 @@ Application mobile & web de monitoring sante pour seniors, avec teleassistance, 
 - Sante data: MOCKED (donnees simulees)
 - Patent V3: COMPLETE (742 lines, /app/memory/PATENT_GLYCEMIA_V3.md)
 
+## Admin Documents Feature (March 2026)
+- New "Documents" tab in admin dashboard
+- Lists 9 documents from /app/memory/
+- Patent docs highlighted (V1, V2, V3 with FINAL badge)
+- PDF export (markdown→HTML→print dialog)
+- Admin-only access (403 for non-admin)
+- Backend: /api/admin/documents, /api/admin/documents/{filename}
+- Admin credentials: phone 0600000001, password admin123
+
 ## Backlog
 See ROADMAP.md for prioritized features.
