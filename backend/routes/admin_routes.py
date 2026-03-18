@@ -469,3 +469,41 @@ async def admin_push_history(user=Depends(get_current_user)):
         raise HTTPException(status_code=403, detail="Admin uniquement")
     return await db.push_history.find({}, {"_id": 0}).sort("sent_at", -1).to_list(100)
 
+
+@router.get("/admin/documents")
+async def list_documents(user=Depends(get_current_user)):
+    """List available patent/technical documents."""
+    if user.get("role") != "admin":
+        raise HTTPException(status_code=403, detail="Admin uniquement")
+    import os
+    docs = []
+    memory_dir = "/app/memory"
+    for fname in sorted(os.listdir(memory_dir)):
+        if fname.endswith(".md"):
+            fpath = os.path.join(memory_dir, fname)
+            size = os.path.getsize(fpath)
+            with open(fpath, "r") as f:
+                first_line = f.readline().strip().lstrip("# ").strip()
+            docs.append({
+                "filename": fname,
+                "title": first_line or fname,
+                "size_kb": round(size / 1024, 1),
+                "path": fpath,
+            })
+    return {"documents": docs}
+
+
+@router.get("/admin/documents/{filename}")
+async def get_document_content(filename: str, user=Depends(get_current_user)):
+    """Get full content of a document for PDF export."""
+    if user.get("role") != "admin":
+        raise HTTPException(status_code=403, detail="Admin uniquement")
+    import os
+    safe_name = os.path.basename(filename)
+    fpath = os.path.join("/app/memory", safe_name)
+    if not os.path.exists(fpath) or not safe_name.endswith(".md"):
+        raise HTTPException(status_code=404, detail="Document introuvable")
+    with open(fpath, "r") as f:
+        content = f.read()
+    return {"filename": safe_name, "content": content}
+

@@ -8,9 +8,10 @@ import UsersTab from '../admin/UsersTab';
 import AlertsTab from '../admin/AlertsTab';
 import DataTab from '../admin/DataTab';
 import SystemTab from '../admin/SystemTab';
+import DocumentsTab from '../admin/DocumentsTab';
 import UserDetailModal from '../admin/UserDetailModal';
 
-type MainTab = 'dashboard' | 'users' | 'alerts' | 'data' | 'system';
+type MainTab = 'dashboard' | 'users' | 'alerts' | 'data' | 'system' | 'docs';
 type DataSub = 'subscriptions' | 'prescriptions' | 'saad' | 'rgpd' | 'emails';
 type SysSub = 'activation' | 'intervention' | 'shopify' | 'info';
 
@@ -69,6 +70,7 @@ export default function AdminHome({ token, user }: { token: string; user: any })
     { key: 'alerts', icon: 'ri-alarm-warning-line', label: 'Alertes' },
     { key: 'data', icon: 'ri-database-2-line', label: 'Donnees' },
     { key: 'system', icon: 'ri-settings-3-line', label: 'Systeme' },
+    { key: 'docs', icon: 'ri-file-text-line', label: 'Documents' },
   ];
 
   return (
@@ -100,6 +102,7 @@ export default function AdminHome({ token, user }: { token: string; user: any })
         {tab === 'alerts' && <AlertsTab alerts={alerts} active={active} ivs={ivs} mob={mob} />}
         {tab === 'data' && <DataTab dataSub={dataSub} setDataSub={setDataSub} subs={subs} prescs={prescs} invites={invites} rgpd={rgpd} emails={emails} token={token} load={load} mob={mob} />}
         {tab === 'system' && <SystemTab sysSub={sysSub} setSysSub={setSysSub} actC={actC} ivC={ivC} shop={shop} users={users} alerts={alerts} token={token} load={load} mob={mob} />}
+        {tab === 'docs' && <DocumentsTab token={token} mob={mob} />}
         <UserDetailModal sel={sel} detail={detail} detailLoad={detailLoad} token={token} load={load} onClose={closeDetail} mob={mob} />
       </div>
     </div>
