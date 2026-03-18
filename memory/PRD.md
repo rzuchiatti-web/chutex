@@ -18,6 +18,7 @@ Chutex Care est une plateforme de teleassistance et de sante connectee pour les 
 - 4 niveaux de force: faible, moderee, forte, tres_forte
 - Insights AI personnalises via GPT-5.2 (Nora IA)
 - Fallback automatique si API AI indisponible
+- UI: CorrelationsCard.tsx sur la page sante avec barres visuelles, insights AI, expand/collapse
 
 ### Age Biologique V2 (Mars 2026)
 - Algorithme 3 niveaux: Bracelet seul (L1), Bracelet+Balance (L2), Tendances temporelles (L3)

@@ -9,7 +9,7 @@
 - Signature electronique dans onglet Documents admin
 - Integration V6 Bracelet (donnees capteurs temps reel)
 - Entrainement modele personnel ML avec donnees V6
-- UI frontend correlations sante (page dediee avec graphiques)
+- ~~UI frontend correlations sante~~ (FAIT - integre sur page sante)
 
 ## P2 — Priorite basse
 - Systeme parrainage gardien

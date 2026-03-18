@@ -8,9 +8,11 @@
 - **4 niveaux de force**: faible (<0.25), moderee (<0.50), forte (<0.75), tres_forte (>=0.75)
 - **Insights AI**: 3 conseils medicaux personnalises via GPT-5.2 (Nora IA)
 - **Fallback**: Insights generes automatiquement si API AI indisponible
+- **UI CorrelationsCard**: Composant integre sur la page sante avec barres visuelles, insights AI, expand/collapse
 
 ### Tests
 - iteration_130.json: 18/18 backend tests PASS (correlations + regression)
+- iteration_131.json: 11/11 frontend tests PASS (CorrelationsCard + page sante)
 
 ---
 
