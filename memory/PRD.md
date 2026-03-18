@@ -66,5 +66,13 @@ Complete rebuild of admin backoffice with sidebar navigation and 9 modules:
 - Admin credentials: phone 0600000001, password admin123
 - Backend: /api/admin/devices-overview, /api/admin/health-overview (new endpoints)
 
+## Real-Time WebSocket Alerts (March 2026)
+- WebSocket endpoint: /api/ws/admin-alerts?token=JWT
+- AdminWSManager: manages connections, broadcasts new alerts
+- Frontend: auto-connects on admin login, green dot status indicator
+- Live alert toasts: shake animation, auto-dismiss 12s, click to navigate to alerts page
+- Broadcast hook: asyncio.create_task(admin_ws.broadcast_alert(alert)) in alert creation
+- Fully tested: JWT validation, non-admin rejection (4003), broadcast delivery
+
 ## Backlog
 See ROADMAP.md for prioritized features.
