@@ -507,3 +507,44 @@ async def get_document_content(filename: str, user=Depends(get_current_user)):
         content = f.read()
     return {"filename": safe_name, "content": content}
 
+
+
+@router.get("/admin/devices-overview")
+async def admin_devices_overview(user=Depends(get_current_user)):
+    if user.get("role") != "admin":
+        raise HTTPException(status_code=403, detail="Admin uniquement")
+    devices = await db.devices.find({}, {"_id": 0}).to_list(500)
+    users_map = {}
+    for d in devices:
+        uid = d.get("user_id")
+        if uid and uid not in users_map:
+            u = await db.users.find_one({"id": uid}, {"_id": 0, "name": 1, "phone": 1})
+            users_map[uid] = u or {"name": "Inconnu", "phone": ""}
+        d["user_name"] = users_map.get(uid, {}).get("name", "Inconnu")
+        d["user_phone"] = users_map.get(uid, {}).get("phone", "")
+    summary = {
+        "total": len(devices),
+        "bracelets": len([d for d in devices if d.get("device_type") == "bracelet"]),
+        "scales": len([d for d in devices if d.get("device_type") == "scale"]),
+        "connected": len([d for d in devices if d.get("connected")]),
+        "low_battery": len([d for d in devices if (d.get("battery") or 100) < 20]),
+    }
+    return {"devices": devices, "summary": summary}
+
+
+@router.get("/admin/health-overview")
+async def admin_health_overview(user=Depends(get_current_user)):
+    if user.get("role") != "admin":
+        raise HTTPException(status_code=403, detail="Admin uniquement")
+    beneficiaries = await db.users.find({"role": "beneficiary"}, {"_id": 0, "id": 1, "name": 1, "phone": 1}).to_list(100)
+    result = []
+    for b in beneficiaries:
+        uid = b["id"]
+        latest = await db.device_readings.find_one({"user_id": uid}, {"_id": 0}, sort=[("timestamp", -1)])
+        glycemia = await db.glycemia_history.find_one({"user_id": uid}, {"_id": 0}, sort=[("date", -1)])
+        result.append({
+            "user_id": uid, "name": b["name"], "phone": b.get("phone", ""),
+            "latest_reading": latest,
+            "latest_glycemia": glycemia,
+        })
+    return {"beneficiaries": result}
