@@ -1,13 +1,13 @@
 # Chutex Care — Roadmap
 
-## P0 — In Progress
+## P0 — Complete
 - [x] Refactoring `teleconsult.tsx` (1942 → 104 lines)
-- [ ] Refactoring `index.tsx` (~1072 lines) — Dashboard principal
-- [ ] Refactoring `program-detail.tsx` (~604 lines)
-- [ ] Refactoring `health.tsx` (~433 lines)
+- [x] Refactoring `index.tsx` (1073 → 23 lines)
+- [x] Refactoring `health.tsx` (433 → 386 lines, GlycemiaCard extracted)
+- [x] `program-detail.tsx` reviewed (604 lines — single-page wizard, no split needed)
 
 ## P1 — Upcoming
-- [ ] Fix SOS Call (VAPI.ai key invalide — bloque en attente cle)
+- [ ] Fix SOS Call (VAPI.ai key invalide — bloque en attente cle utilisateur)
 - [ ] ML avance estimation glycemie (V3)
 
 ## P2 — Backlog

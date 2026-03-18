@@ -27,11 +27,19 @@ Application mobile & web de monitoring sante pour seniors, avec teleassistance, 
 - Chat IA (GPT-5.2)
 - UI premium (images IA, glassmorphism)
 - Performance optimisations (batch API, caching)
-- Code refactoring (teleconsult.tsx decompose)
+- Code refactoring complete (teleconsult, index, health)
 
 ## Current Status
 - SOS phone call: BROKEN (VAPI key invalide)
 - Sante data: MOCKED (donnees simulees)
+
+## Refactoring Status
+| File | Before | After | Reduction |
+|------|--------|-------|-----------|
+| teleconsult.tsx | 1942 | 104 | 95% |
+| index.tsx | 1073 | 23 | 98% |
+| health.tsx | 433 | 386 | 11% |
+| program-detail.tsx | 604 | 604 | N/A (single-page wizard) |
 
 ## Backlog
 See ROADMAP.md for prioritized features.

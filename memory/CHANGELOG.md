@@ -1,19 +1,15 @@
 # Chutex Care — Changelog
 
-## 2026-03-18 — Teleconsult Page Refactoring Complete
-- Decomposed monolithic `teleconsult.tsx` (1942 lines) into 7 sub-components + 1 shared styles file
-- Main container file reduced to 104 lines (95% reduction)
-- Components extracted:
-  - `BeneficiaryTeleconsult.tsx` (160 lines) — QCM flow
-  - `TeleassistanceDashboard.tsx` (216 lines) — Care Watch
-  - `GuardianInterventions.tsx` (381 lines) — Guardian management
-  - `AdminIntervenants.tsx` (282 lines) — Admin panel
-  - `CompanyInterventionsTab.tsx` (269 lines) — Company interventions
-  - `CompanyIntervenants.tsx` (87 lines) — Company intervenants list
-  - `CompanyPrescriptions.tsx` (128 lines) — Company prescriptions
-  - `teleconsultStyles.ts` (136 lines) — Shared styles/constants
-- All backend APIs verified working (login, subscriptions, teleconsult questions, interventions)
-- No bundle errors or import issues
+## 2026-03-18 — Complete Code Refactoring
+- **teleconsult.tsx**: 1942 → 104 lines (95% reduction)
+  - Extracted 7 components: BeneficiaryTeleconsult, TeleassistanceDashboard, GuardianInterventions, AdminIntervenants, CompanyInterventionsTab, CompanyIntervenants, CompanyPrescriptions
+  - Shared styles in teleconsultStyles.ts
+- **index.tsx**: 1073 → 23 lines (98% reduction)
+  - Extracted BeneficiaryHome (499 lines) and DailyObjectives (99 lines)
+  - Dashboard is now a pure role-based router
+- **health.tsx**: 433 → 386 lines (11% reduction)
+  - Extracted GlycemiaCard to components/health/GlycemiaCard.tsx
+- All tests passed: 100% backend API success, no bundle errors, all imports verified
 
 ## 2026-03-17 — Component Extraction Phase 1
 - Created barrel file for dashboard components (index.ts)
