@@ -1,33 +1,29 @@
 # Chutex Care — Changelog
 
+## 2026-03-18 — SOS Call Fix + Refactoring Complete
+- **VAPI.ai SOS Call FIXED**: Updated VAPI_API_KEY, VAPI_PATIENT_ASSISTANT_ID, VAPI_GUARDIAN_ASSISTANT_ID, VAPI_PHONE_NUMBER_ID with valid credentials
+- Verified: patient call + 5 guardian calls launched in parallel successfully
+- Call analysis working (structuredData returned)
+
 ## 2026-03-18 — Complete Code Refactoring
-- **teleconsult.tsx**: 1942 → 104 lines (95% reduction)
-  - Extracted 7 components: BeneficiaryTeleconsult, TeleassistanceDashboard, GuardianInterventions, AdminIntervenants, CompanyInterventionsTab, CompanyIntervenants, CompanyPrescriptions
-  - Shared styles in teleconsultStyles.ts
-- **index.tsx**: 1073 → 23 lines (98% reduction)
-  - Extracted BeneficiaryHome (499 lines) and DailyObjectives (99 lines)
-  - Dashboard is now a pure role-based router
-- **health.tsx**: 433 → 386 lines (11% reduction)
-  - Extracted GlycemiaCard to components/health/GlycemiaCard.tsx
-- All tests passed: 100% backend API success, no bundle errors, all imports verified
+- **teleconsult.tsx**: 1942 → 104 lines (95%) — 7 components extracted
+- **index.tsx**: 1073 → 23 lines (98%) — BeneficiaryHome + DailyObjectives extracted
+- **health.tsx**: 433 → 386 lines — GlycemiaCard extracted
+- All tests passed (iterations 118 & 119): 100% backend APIs, zero bundle errors
 
 ## 2026-03-17 — Component Extraction Phase 1
-- Created barrel file for dashboard components (index.ts)
+- Created barrel file for dashboard components
 - Fixed WeightGoalDashCard import path
-- Started teleconsult component extraction (5 components)
 
 ## 2026-03-16 — Performance Optimization
-- Added batch endpoint `/api/dashboard/batch`
-- Frontend caching layer in `services/api.ts`
+- Added batch endpoint /api/dashboard/batch
+- Frontend caching layer in services/api.ts
 
 ## 2026-03-15 — UI/UX Overhaul
 - Premium program cover images (AI-generated)
 - Card styling, element positioning fixes
-- No device states, health data re-seeding
 - Join team program via invite code
-- Glassmorphism design, Toast structural fix
 
 ## Earlier
-- Full auth, dashboard sante, alertes SOS, interventions Care
+- Full auth, dashboard, alertes SOS, interventions Care
 - Programmes equipe, Chat IA, bracelets connectes
-- Prescriptions, abonnements Mollie

@@ -21,16 +21,16 @@ Application mobile & web de monitoring sante pour seniors, avec teleassistance, 
 ## What's Been Implemented
 - Full auth system (multi-role, switch role)
 - Dashboard sante complet
-- Alertes SOS + teleassistance IA
+- Alertes SOS + teleassistance IA (VAPI.ai FONCTIONNEL)
 - Gestion interventions Care
 - Programmes de sante en equipe (join via invite code)
 - Chat IA (GPT-5.2)
 - UI premium (images IA, glassmorphism)
 - Performance optimisations (batch API, caching)
-- Code refactoring complete (teleconsult, index, health)
+- Code refactoring complet (teleconsult, index, health)
 
 ## Current Status
-- SOS phone call: BROKEN (VAPI key invalide)
+- SOS phone call: WORKING (VAPI.ai keys configured)
 - Sante data: MOCKED (donnees simulees)
 
 ## Refactoring Status
@@ -39,7 +39,6 @@ Application mobile & web de monitoring sante pour seniors, avec teleassistance, 
 | teleconsult.tsx | 1942 | 104 | 95% |
 | index.tsx | 1073 | 23 | 98% |
 | health.tsx | 433 | 386 | 11% |
-| program-detail.tsx | 604 | 604 | N/A (single-page wizard) |
 
 ## Backlog
 See ROADMAP.md for prioritized features.
