@@ -1697,3 +1697,211 @@ JSON: {{"insights": ["phrase 1", "phrase 2", "phrase 3"]}}"""
         "total_readings": len(bracelet_readings) + len(scale_readings),
         "no_data": False,
     }
+
+
+# ─── Correlation Trends (weekly evolution) ─────────────────────────────
+
+def _compute_window_correlations(daily_data: dict, days: list) -> dict:
+    """Compute correlations for a specific window of days. Returns {pair_key: r}."""
+    results = {}
+    for metric_a, metric_b, label, category in CORRELATION_PAIRS:
+        xs, ys = [], []
+        for day in days:
+            dd = daily_data.get(day, {})
+            va = dd.get(metric_a)
+            vb = dd.get(metric_b)
+            if va is not None and vb is not None:
+                xs.append(va)
+                ys.append(vb)
+        if len(xs) >= 4:
+            r = _pearson(xs, ys)
+            if abs(r) >= 0.15:
+                results[f"{metric_a}|{metric_b}"] = r
+    return results
+
+
+@router.get("/health/correlations/trends")
+async def get_correlation_trends(user=Depends(get_current_user)):
+    """
+    Analyse l'evolution des correlations semaine par semaine sur les 8 dernieres semaines.
+    Retourne les tendances des top correlations avec sparklines et badges d'evolution.
+    """
+    uid = user['id']
+
+    has_devices = await db.devices.find_one({"user_id": uid}, {"_id": 0})
+    if not has_devices:
+        return {"trends": [], "weeks": 0, "no_data": True,
+                "message": "Connectez un appareil pour suivre l'evolution de vos correlations."}
+
+    # Fetch 8 weeks (56 days) of readings
+    cutoff = (datetime.now(timezone.utc) - timedelta(days=56)).isoformat()
+    bracelet_readings = await db.device_readings.find(
+        {"user_id": uid, "device_type": "bracelet", "timestamp": {"$gte": cutoff}},
+        {"_id": 0}
+    ).sort("timestamp", 1).to_list(800)
+
+    scale_readings = await db.device_readings.find(
+        {"user_id": uid, "device_type": "scale", "timestamp": {"$gte": cutoff}},
+        {"_id": 0}
+    ).sort("timestamp", 1).to_list(800)
+
+    if not bracelet_readings and not scale_readings:
+        return {"trends": [], "weeks": 0, "no_data": True,
+                "message": "Pas assez de donnees pour analyser les tendances."}
+
+    # Build daily data (same as correlations endpoint)
+    daily_data = {}
+    for r in bracelet_readings:
+        day = r.get("timestamp", "")[:10]
+        if not day:
+            continue
+        if day not in daily_data:
+            daily_data[day] = {}
+        data = r.get("data", {})
+        for key in ["heart_rate", "hrv", "spo2", "stress", "stress_level", "steps",
+                     "calories", "blood_glucose", "sleep_quality", "sleep_duration_min",
+                     "deep_sleep_min", "recovery_score", "temperature"]:
+            v = _extract_metric(data, key)
+            if v is not None:
+                daily_data[day][key] = v
+        sleep = data.get("sleep", {})
+        if sleep:
+            for sk in ["sleep_quality", "deep_minutes"]:
+                mapped = "sleep_quality" if sk == "sleep_quality" else "deep_sleep_min"
+                sv = sleep.get(sk)
+                if sv and sv > 0 and mapped not in daily_data[day]:
+                    daily_data[day][mapped] = float(sv)
+        bp = data.get("blood_pressure", {})
+        if isinstance(bp, dict) and bp.get("systolic", 0) > 0:
+            daily_data[day]["blood_pressure_systolic"] = float(bp["systolic"])
+
+    for r in scale_readings:
+        day = r.get("timestamp", "")[:10]
+        if not day:
+            continue
+        if day not in daily_data:
+            daily_data[day] = {}
+        data = r.get("data", {})
+        for key in ["weight", "bmi", "body_fat_pct", "muscle_pct", "visceral_fat",
+                     "water_pct", "basal_metabolism", "bone_mass_kg"]:
+            v = _extract_metric(data, key)
+            if v is not None:
+                daily_data[day][key] = v
+
+    all_days = sorted(daily_data.keys())
+    if len(all_days) < 7:
+        return {"trends": [], "weeks": 0, "no_data": True,
+                "message": f"Seulement {len(all_days)} jours de donnees. Minimum 7 jours requis."}
+
+    # Split into weekly windows (most recent first)
+    today = datetime.now(timezone.utc).date()
+    weeks = []
+    for w in range(8):
+        week_end = today - timedelta(days=w * 7)
+        week_start = week_end - timedelta(days=6)
+        week_days = [d for d in all_days if str(week_start) <= d <= str(week_end)]
+        if len(week_days) >= 3:
+            weeks.append({
+                "start": str(week_start),
+                "end": str(week_end),
+                "days": week_days,
+            })
+
+    if len(weeks) < 2:
+        return {"trends": [], "weeks": len(weeks), "no_data": True,
+                "message": "Minimum 2 semaines de donnees requises pour voir les tendances."}
+
+    weeks.reverse()  # oldest first for sparkline order
+
+    # Compute correlations per week
+    weekly_correlations = []
+    for w in weeks:
+        corrs = _compute_window_correlations(daily_data, w["days"])
+        weekly_correlations.append(corrs)
+
+    # Find pairs that appear in at least 2 weeks
+    pair_counts = {}
+    for wc in weekly_correlations:
+        for pair_key in wc:
+            pair_counts[pair_key] = pair_counts.get(pair_key, 0) + 1
+
+    trending_pairs = [k for k, v in pair_counts.items() if v >= 2]
+    if not trending_pairs:
+        return {"trends": [], "weeks": len(weeks), "no_data": True,
+                "message": "Pas assez de correlations stables pour calculer des tendances."}
+
+    # Build trend data for each pair
+    trends = []
+    for pair_key in trending_pairs:
+        metric_a, metric_b = pair_key.split("|")
+        # Find label & category
+        label = f"{METRIC_LABELS.get(metric_a, metric_a)} → {METRIC_LABELS.get(metric_b, metric_b)}"
+        category = ""
+        for pa, pb, lb, cat in CORRELATION_PAIRS:
+            if pa == metric_a and pb == metric_b:
+                label = lb
+                category = cat
+                break
+
+        sparkline = []
+        for wc in weekly_correlations:
+            r_val = wc.get(pair_key)
+            sparkline.append(round(abs(r_val), 2) if r_val is not None else None)
+
+        # Compute trend direction (compare last vs first available)
+        valid_points = [(i, v) for i, v in enumerate(sparkline) if v is not None]
+        if len(valid_points) < 2:
+            continue
+
+        first_val = valid_points[0][1]
+        last_val = valid_points[-1][1]
+        delta = last_val - first_val
+        delta_pct = round((delta / max(first_val, 0.01)) * 100)
+
+        if delta_pct > 10:
+            direction = "up"
+            direction_label = "Renforce"
+            direction_color = "#10B981"
+        elif delta_pct < -10:
+            direction = "down"
+            direction_label = "Affaibli"
+            direction_color = "#F59E0B"
+        else:
+            direction = "stable"
+            direction_label = "Stable"
+            direction_color = "#6B7280"
+
+        # Current strength
+        current_r = sparkline[-1] if sparkline[-1] is not None else (sparkline[-2] if len(sparkline) > 1 and sparkline[-2] is not None else 0)
+
+        trends.append({
+            "pair_key": pair_key,
+            "metric_a": metric_a,
+            "metric_b": metric_b,
+            "label": label,
+            "category": category,
+            "sparkline": sparkline,
+            "current_strength": current_r,
+            "delta_pct": delta_pct,
+            "direction": direction,
+            "direction_label": direction_label,
+            "direction_color": direction_color,
+            "weeks_tracked": len(valid_points),
+        })
+
+    # Sort by absolute delta (most changing first)
+    trends.sort(key=lambda t: abs(t["delta_pct"]), reverse=True)
+    trends = trends[:8]
+
+    # Week labels for sparkline x-axis
+    week_labels = []
+    for w in weeks:
+        d = datetime.strptime(w["start"], "%Y-%m-%d")
+        week_labels.append(f"S{d.isocalendar()[1]}")
+
+    return {
+        "trends": trends,
+        "weeks": len(weeks),
+        "week_labels": week_labels,
+        "no_data": False,
+    }
