@@ -16,6 +16,7 @@ Application mobile & web de monitoring sante pour seniors, avec teleassistance, 
 ## Architecture
 - Frontend: Expo / React Native Web
 - Backend: FastAPI + MongoDB
+- ML: scikit-learn GradientBoostingRegressor (glycemia V3)
 - Integrations: OpenAI (Emergent LLM), VAPI.ai, Twilio, Mollie, Mailjet, SMSMode
 
 ## What's Been Implemented
@@ -28,17 +29,19 @@ Application mobile & web de monitoring sante pour seniors, avec teleassistance, 
 - UI premium (images IA, glassmorphism)
 - Performance optimisations (batch API, caching)
 - Code refactoring complet (teleconsult, index, health)
+- **ML V3 Glycemia Estimation** — Gradient Boosting pre-trained on 6000 synthetic samples from medical literature
+
+## ML V3 Glycemia Architecture
+- **Level 1 (Population)**: Pre-trained model on medical literature (6000 samples). Works day 1 for all users.
+- **Level 2 (Personal)**: Per-user adaptation when 5+ calibrations with sensor snapshots exist.
+- **Level 3 (Calibration)**: Optional finger-prick boost for maximum precision.
+- **Top features**: HRV normalise (27.2%), risque diabete (24.7%), graisse viscerale (17.7%), ratio muscle/graisse (8.9%)
+- **Model**: GradientBoostingRegressor, 300 trees, depth=5, saved at /app/backend/models/
 
 ## Current Status
 - SOS phone call: WORKING (VAPI.ai keys configured)
+- ML Glycemia V3: WORKING (population model, all endpoints tested 100%)
 - Sante data: MOCKED (donnees simulees)
-
-## Refactoring Status
-| File | Before | After | Reduction |
-|------|--------|-------|-----------|
-| teleconsult.tsx | 1942 | 104 | 95% |
-| index.tsx | 1073 | 23 | 98% |
-| health.tsx | 433 | 386 | 11% |
 
 ## Backlog
 See ROADMAP.md for prioritized features.
