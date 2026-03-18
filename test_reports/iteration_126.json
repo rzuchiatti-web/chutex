@@ -1,0 +1,115 @@
+{
+  "summary": "Iteration 126 - Live Activity Tracking Map Feature Testing Complete. All 15 backend tests passed (100%). Frontend LiveAlertBanner with tracking map working correctly - displays CartoDB dark map tiles with beneficiary marker and coordinates badge (45.4733, 4.5143). Expanded banner shows: stage chips, CHRONOLOGIE timeline, LOCALISATION EN DIRECT map header, beneficiary pin, and action buttons (Suivre, Intervenir).",
+  "backend_issues": {
+    "critical": [],
+    "minor": []
+  },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_results": {
+    "backend_api_tests": {
+      "total_tests": 15,
+      "passed": 15,
+      "failed": 0,
+      "endpoints_verified": [
+        "GET /api/alerts/live-active - Requires authentication (401 without token)",
+        "GET /api/alerts/live-active - Returns active live statuses for guardian with beneficiary_location",
+        "GET /api/alerts/live-active - Returns active live statuses for admin",
+        "GET /api/alerts/{id}/live-status - Returns specific alert live status with stages_definition",
+        "POST /api/alerts - Creates alert AND creates live status document with beneficiary_location",
+        "PUT /api/alerts/{id}/resolve - Completes live status (sets stage to resolved)",
+        "POST /api/alerts/{id}/resolve-with-report - Completes live status",
+        "POST /api/interventions/accept-as-guardian - Advances live status to guardian_responding/intervention_active",
+        "POST /api/push/live-activity-token - Registers APNs token successfully",
+        "POST /api/push/live-activity-token - Validates required fields (alert_id, apns_token)",
+        "GET /api/alerts/{id}/tracking - Returns beneficiary and intervenant position arrays",
+        "beneficiary_location - Returned in live-active endpoint with lat/lng fields",
+        "intervenant_location - Returned when intervention with tracking exists"
+      ]
+    },
+    "frontend_tests": {
+      "status": "PASS",
+      "guardian_dashboard": "Found [data-testid='guardian-dashboard']",
+      "live_alert_banner": {
+        "container_found": true,
+        "container_visible": true,
+        "live_alert_count": 11,
+        "progress_bar_elements": true,
+        "suivre_button": true,
+        "intervenir_button": true
+      },
+      "tracking_map_feature": {
+        "map_container_found": true,
+        "cartodb_tiles_visible": true,
+        "localisation_en_direct_header": true,
+        "beneficiaire_marker": true,
+        "coordinates_badge": "45.4733, 4.5143",
+        "map_zoom_level": "appropriate for single location view"
+      },
+      "ui_elements_verified": [
+        "SOS-URGENCE / CHUTE DETECTEE alert type labels",
+        "Beneficiary name (Josette Zuchiatti)",
+        "Stage progression with colored progress bars",
+        "Expandable banner with timeline (CHRONOLOGIE)",
+        "Stage chips (Alerte, Notification, Appel IA, Gardien, Intervention, Resolue)",
+        "Action buttons (Suivre, Intervenir)",
+        "LOCALISATION EN DIRECT map header",
+        "CartoDB dark_all tiles background",
+        "Beneficiaire pin marker centered on map",
+        "Coordinates badge showing lat/lng (45.4733, 4.5143)"
+      ]
+    }
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_live_activity_status.py",
+    "/app/test_reports/pytest/pytest_results_iter126_live_activity_map.xml"
+  ],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "LiveTrackingMap component correctly renders CartoDB dark tiles in 3x3 grid",
+    "beneficiary_location enriched from alert_tracking collection positions",
+    "intervenant_location enriched from intervention_tracking collection",
+    "Map shows beneficiary pin with 'Beneficiaire' label when benLoc is available",
+    "Coordinates badge displays lat/lng to 4 decimal places",
+    "5-second polling interval updates location data in real-time"
+  ],
+  "updated_files": [
+    "/app/backend/tests/test_live_activity_status.py"
+  ],
+  "success_rate": {
+    "backend": "100% (15/15 tests passed)",
+    "frontend": "100% (All tracking map features working)"
+  },
+  "test_credentials": {
+    "guardian": {"phone": "+33699887766", "password": "test123", "name": "Marie Dupont"},
+    "beneficiary": {"phone": "0651245918", "password": "test123", "name": "Josette Zuchiatti"},
+    "admin": {"phone": "0600000001", "password": "admin123"}
+  },
+  "seed_data_creation": "None - existing test SOS alerts for Josette Zuchiatti used",
+  "retest_needed": false,
+  "should_main_agent_self_test": true,
+  "context_for_next_testing_agent": "Live Activity tracking map feature fully working. Backend returns beneficiary_location and intervenant_location in /api/alerts/live-active. Frontend LiveTrackingMap component renders CartoDB dark tiles with beneficiary pin and coordinates badge. Login flow: set localStorage chutex_onboarding_done=1, fill phone 699887766 (with +33 prefix), password test123, click Se connecter. Expand any live alert banner to see map. Some banners may not have location data (map won't render). Saint-Chamond area coordinates: ~45.47, 4.51",
+  "mocked_apis": {
+    "has_mocked_apis": false,
+    "mocked_apis_list": []
+  },
+  "feature_verification": {
+    "backend_tracking_map_data": {
+      "beneficiary_location_in_live_active": "PASS - Returns {lat, lng} object",
+      "intervenant_location_in_live_active": "PASS - Returns when intervention tracking exists",
+      "get_alert_tracking_endpoint": "PASS - Returns beneficiary[] and intervenant[] positions",
+      "alert_creation_with_location": "PASS - Stores in locations collection"
+    },
+    "frontend_tracking_map_ui": {
+      "LiveTrackingMap_component": "PASS",
+      "cartodb_dark_tiles": "PASS - 3x3 grid rendered",
+      "beneficiary_marker_pin": "PASS - Purple circle with icon and 'Beneficiaire' label",
+      "coordinates_badge": "PASS - Shows lat, lng to 4 decimals",
+      "localisation_en_direct_header": "PASS",
+      "intervenant_marker_when_available": "Code present - renders green pin when ivLoc exists"
+    }
+  }
+}

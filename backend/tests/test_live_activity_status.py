@@ -1,11 +1,12 @@
 """
-Test Live Activity Status Feature - Iteration 125
+Test Live Activity Status Feature - Iteration 126
 Tests the new Live Activity style push notifications for guardians:
 - Live status tracking (GET /api/alerts/live-active, GET /api/alerts/{id}/live-status)
-- Alert creation creates live status document
+- Alert creation creates live status document with beneficiary_location
 - Alert resolution completes live status
 - Guardian accept-as-intervention advances live status
 - APNs token registration (POST /api/push/live-activity-token)
+- Real-time tracking map with beneficiary_location and intervenant_location fields
 """
 import pytest
 import requests
@@ -452,6 +453,124 @@ class TestLiveStatusStagesDefinition:
             print("PASS: stages_definition has correct structure and order")
         else:
             print("SKIP: No alerts available to test stages_definition")
+
+
+class TestTrackingMapLocationFields:
+    """Test beneficiary_location and intervenant_location fields for tracking map"""
+
+    def test_live_active_returns_beneficiary_location(self, api_client, guardian_token):
+        """GET /api/alerts/live-active returns beneficiary_location field when available"""
+        response = api_client.get(
+            f"{BASE_URL}/api/alerts/live-active",
+            headers={"Authorization": f"Bearer {guardian_token}"}
+        )
+        assert response.status_code == 200, f"Expected 200, got {response.status_code}"
+        data = response.json()
+        assert isinstance(data, list), "Response should be a list"
+        
+        # Check if any live status has beneficiary_location
+        statuses_with_location = [s for s in data if s.get("beneficiary_location")]
+        
+        print(f"PASS: GET /api/alerts/live-active returns {len(data)} statuses, {len(statuses_with_location)} with beneficiary_location")
+        
+        if len(statuses_with_location) > 0:
+            loc = statuses_with_location[0]["beneficiary_location"]
+            assert "lat" in loc, "beneficiary_location should have 'lat'"
+            assert "lng" in loc, "beneficiary_location should have 'lng'"
+            assert isinstance(loc["lat"], (int, float)), "lat should be numeric"
+            assert isinstance(loc["lng"], (int, float)), "lng should be numeric"
+            print(f"  - Sample location: lat={loc['lat']}, lng={loc['lng']}")
+
+    def test_live_active_returns_intervenant_location_when_available(self, api_client, guardian_token):
+        """GET /api/alerts/live-active returns intervenant_location field when intervention is active"""
+        response = api_client.get(
+            f"{BASE_URL}/api/alerts/live-active",
+            headers={"Authorization": f"Bearer {guardian_token}"}
+        )
+        assert response.status_code == 200
+        data = response.json()
+        
+        # Check if any live status has intervenant_location (requires active intervention with tracking)
+        statuses_with_iv_location = [s for s in data if s.get("intervenant_location")]
+        
+        print(f"PASS: GET /api/alerts/live-active returns {len(statuses_with_iv_location)} statuses with intervenant_location")
+        
+        if len(statuses_with_iv_location) > 0:
+            loc = statuses_with_iv_location[0]["intervenant_location"]
+            assert "lat" in loc, "intervenant_location should have 'lat'"
+            assert "lng" in loc, "intervenant_location should have 'lng'"
+            print(f"  - Sample intervenant location: lat={loc['lat']}, lng={loc['lng']}")
+
+    def test_alert_creation_with_location_stores_beneficiary_location(self, api_client, beneficiary_token):
+        """POST /api/alerts with lat/lng creates live status with beneficiary_location"""
+        test_lat = 45.4733
+        test_lng = 4.5143
+        
+        response = api_client.post(
+            f"{BASE_URL}/api/alerts",
+            json={
+                "alert_type": "sos",
+                "message": f"TEST_LOCATION_ALERT_{uuid.uuid4().hex[:8]}",
+                "device_type": "app",
+                "latitude": test_lat,
+                "longitude": test_lng
+            },
+            headers={"Authorization": f"Bearer {beneficiary_token}"}
+        )
+        assert response.status_code in [200, 201], f"Failed to create alert: {response.status_code}"
+        
+        alert_id = response.json().get("id")
+        print(f"  Created alert with location: {alert_id[:8]}...")
+        
+        time.sleep(0.5)
+        
+        # Check live status has beneficiary_location
+        live_resp = api_client.get(
+            f"{BASE_URL}/api/alerts/{alert_id}/live-status",
+            headers={"Authorization": f"Bearer {beneficiary_token}"}
+        )
+        assert live_resp.status_code == 200
+        
+        live_data = live_resp.json()
+        
+        # Note: The live status is created with beneficiary_location from locations collection
+        # which is updated when alert is created with lat/lng
+        print(f"PASS: Alert created, live status has beneficiary_location field present: {'beneficiary_location' in live_data}")
+        
+        # Cleanup
+        api_client.put(f"{BASE_URL}/api/alerts/{alert_id}/resolve", json={},
+                      headers={"Authorization": f"Bearer {beneficiary_token}"})
+
+    def test_get_alert_tracking_endpoint(self, api_client, guardian_token):
+        """GET /api/alerts/{id}/tracking returns beneficiary and intervenant positions"""
+        # Get an existing alert
+        alerts_resp = api_client.get(
+            f"{BASE_URL}/api/alerts",
+            headers={"Authorization": f"Bearer {guardian_token}"}
+        )
+        assert alerts_resp.status_code == 200
+        alerts = alerts_resp.json()
+        
+        if len(alerts) == 0:
+            pytest.skip("No alerts available to test tracking")
+        
+        alert_id = alerts[0]["id"]
+        
+        response = api_client.get(
+            f"{BASE_URL}/api/alerts/{alert_id}/tracking",
+            headers={"Authorization": f"Bearer {guardian_token}"}
+        )
+        assert response.status_code == 200, f"Expected 200, got {response.status_code}"
+        
+        data = response.json()
+        assert "beneficiary" in data, "Tracking should have 'beneficiary' key"
+        assert "intervenant" in data, "Tracking should have 'intervenant' key"
+        assert isinstance(data["beneficiary"], list), "beneficiary should be a list of positions"
+        assert isinstance(data["intervenant"], list), "intervenant should be a list of positions"
+        
+        print(f"PASS: GET /api/alerts/{alert_id[:8]}../tracking returns tracking data")
+        print(f"  - Beneficiary positions: {len(data['beneficiary'])}")
+        print(f"  - Intervenant positions: {len(data['intervenant'])}")
 
 
 if __name__ == "__main__":

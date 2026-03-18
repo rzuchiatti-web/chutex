@@ -23,6 +23,11 @@ STAGE_KEYS = [s["key"] for s in STAGES]
 async def create_live_status(alert_id: str, beneficiary_id: str, beneficiary_name: str, alert_type: str):
     """Create initial live status when an alert is triggered."""
     now = datetime.now(timezone.utc).isoformat()
+    # Get beneficiary location
+    loc = await db.locations.find_one({"user_id": beneficiary_id}, {"_id": 0})
+    ben_location = None
+    if loc and loc.get("latitude") and loc.get("longitude"):
+        ben_location = {"lat": loc["latitude"], "lng": loc["longitude"]}
     doc = {
         "alert_id": alert_id,
         "beneficiary_id": beneficiary_id,
@@ -34,6 +39,8 @@ async def create_live_status(alert_id: str, beneficiary_id: str, beneficiary_nam
         "eta_minutes": None,
         "intervenant_name": None,
         "intervenant_phone": None,
+        "beneficiary_location": ben_location,
+        "intervenant_location": None,
         "created_at": now,
         "updated_at": now,
     }
@@ -116,4 +123,20 @@ async def get_all_live_statuses(user=Depends(get_current_user)):
 
     for s in statuses:
         s["stages_definition"] = STAGES
+        # Enrich with latest tracking positions
+        try:
+            ben_tracking = await db.alert_tracking.find_one({"alert_id": s["alert_id"]}, {"_id": 0})
+            if ben_tracking and ben_tracking.get("positions"):
+                last_pos = ben_tracking["positions"][-1]
+                if last_pos.get("latitude") and last_pos.get("longitude"):
+                    s["beneficiary_location"] = {"lat": last_pos["latitude"], "lng": last_pos["longitude"]}
+            iv = await db.interventions.find_one({"alert_id": s["alert_id"]}, {"_id": 0, "id": 1})
+            if iv:
+                iv_tracking = await db.intervention_tracking.find_one({"intervention_id": iv["id"]}, {"_id": 0})
+                if iv_tracking and iv_tracking.get("positions"):
+                    last_iv = iv_tracking["positions"][-1]
+                    if last_iv.get("latitude") and last_iv.get("longitude"):
+                        s["intervenant_location"] = {"lat": last_iv["latitude"], "lng": last_iv["longitude"]}
+        except Exception:
+            pass
     return statuses

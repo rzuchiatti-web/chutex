@@ -43,6 +43,118 @@ interface LiveStatus {
   eta_minutes?: number;
   intervenant_name?: string;
   intervenant_phone?: string;
+  beneficiary_location?: { lat: number; lng: number } | null;
+  intervenant_location?: { lat: number; lng: number } | null;
+}
+
+// Mini-map using static OpenStreetMap tiles
+function LiveTrackingMap({ alertId, benLoc, ivLoc, stageColor }: {
+  alertId: string;
+  benLoc?: { lat: number; lng: number } | null;
+  ivLoc?: { lat: number; lng: number } | null;
+  stageColor: string;
+}) {
+  if (!benLoc) return null;
+
+  // Use CartoDB dark tiles as static background
+  const tileZ = ivLoc ? 13 : 15;
+  const lon2tile = (lon: number, z: number) => Math.floor((lon + 180) / 360 * (1 << z));
+  const lat2tile = (lat: number, z: number) => Math.floor((1 - Math.log(Math.tan(lat * Math.PI / 180) + 1 / Math.cos(lat * Math.PI / 180)) / Math.PI) / 2 * (1 << z));
+  const tileX = lon2tile(benLoc.lng, tileZ);
+  const tileY = lat2tile(benLoc.lat, tileZ);
+  const tileUrl = `https://a.basemaps.cartocdn.com/dark_all/${tileZ}/${tileX}/${tileY}.png`;
+
+  return (
+    <div data-testid={`live-map-${alertId}`} style={{ marginBottom: 12 }}>
+      <div style={{ fontSize: 9, fontWeight: 700, color: 'rgba(255,255,255,0.25)', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 8 }}>
+        <i className="ri-map-pin-line" style={{ fontSize: 10, marginRight: 4 }} />
+        Localisation en direct
+      </div>
+      <div style={{
+        position: 'relative', width: '100%', height: 170, borderRadius: 14,
+        overflow: 'hidden', border: '1px solid rgba(255,255,255,0.08)',
+        background: '#0d1117',
+      } as any}>
+        {/* Map tile background - 3x3 grid */}
+        {[-1, 0, 1].flatMap(dy => [-1, 0, 1].map(dx => (
+          <img
+            key={`tile-${dx}-${dy}`}
+            src={`https://a.basemaps.cartocdn.com/dark_all/${tileZ}/${tileX + dx}/${tileY + dy}.png`}
+            alt=""
+            style={{
+              position: 'absolute' as const,
+              left: `${(dx + 1) * 33.33}%`, top: `${(dy + 1) * 33.33}%`,
+              width: '34%', height: '34%',
+              objectFit: 'cover' as const,
+              opacity: 0.7,
+            }}
+            onError={(e: any) => { e.target.style.opacity = '0'; }}
+          />
+        )))}
+        {/* Dark overlay for better contrast */}
+        <div style={{
+          position: 'absolute', inset: 0,
+          background: 'linear-gradient(to bottom, rgba(10,10,20,0.3) 0%, rgba(10,10,20,0.5) 100%)',
+          pointerEvents: 'none',
+        } as any} />
+        {/* Beneficiary pin overlay */}
+        <div style={{
+          position: 'absolute', top: '50%', left: '50%',
+          transform: 'translate(-50%, -100%)',
+          display: 'flex', flexDirection: 'column', alignItems: 'center',
+        } as any}>
+          <div style={{
+            width: 28, height: 28, borderRadius: 14,
+            background: stageColor, border: '3px solid #FFF',
+            boxShadow: `0 0 16px ${stageColor}66, 0 2px 8px rgba(0,0,0,0.5)`,
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+          } as any}>
+            <i className="ri-map-pin-user-fill" style={{ fontSize: 14, color: '#FFF' }} />
+          </div>
+          <div style={{
+            marginTop: 4, padding: '2px 8px', borderRadius: 6,
+            background: 'rgba(10,10,20,0.85)', border: '1px solid rgba(255,255,255,0.15)',
+          } as any}>
+            <span style={{ fontSize: 9, fontWeight: 700, color: '#FFF' }}>Beneficiaire</span>
+          </div>
+        </div>
+        {/* Intervenant indicator */}
+        {ivLoc && (
+          <div style={{
+            position: 'absolute', top: '35%', left: '35%',
+            display: 'flex', flexDirection: 'column', alignItems: 'center',
+          } as any}>
+            <div style={{
+              width: 30, height: 30, borderRadius: 15,
+              background: '#10B981', border: '3px solid #FFF',
+              boxShadow: '0 0 16px #10B98166, 0 2px 8px rgba(0,0,0,0.5)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+            } as any}>
+              <i className="ri-run-line" style={{ fontSize: 14, color: '#FFF' }} />
+            </div>
+            <div style={{
+              marginTop: 4, padding: '2px 8px', borderRadius: 6,
+              background: 'rgba(10,10,20,0.85)', border: '1px solid rgba(16,185,129,0.3)',
+            } as any}>
+              <span style={{ fontSize: 9, fontWeight: 700, color: '#10B981' }}>Intervenant</span>
+            </div>
+          </div>
+        )}
+        {/* Coordinates badge */}
+        <div style={{
+          position: 'absolute', bottom: 8, right: 8,
+          padding: '3px 8px', borderRadius: 8,
+          background: 'rgba(10,10,20,0.85)', border: '1px solid rgba(255,255,255,0.1)',
+          display: 'flex', alignItems: 'center', gap: 4,
+        } as any}>
+          <i className="ri-focus-3-line" style={{ fontSize: 10, color: stageColor }} />
+          <span style={{ fontSize: 8, fontWeight: 700, color: 'rgba(255,255,255,0.6)' }}>
+            {benLoc.lat.toFixed(4)}, {benLoc.lng.toFixed(4)}
+          </span>
+        </div>
+      </div>
+    </div>
+  );
 }
 
 export default function LiveAlertBanner({ token }: { token: string }) {
@@ -222,6 +334,14 @@ export default function LiveAlertBanner({ token }: { token: string }) {
                     ))}
                   </div>
                 )}
+
+                {/* Live Tracking Map */}
+                <LiveTrackingMap
+                  alertId={ls.alert_id}
+                  benLoc={ls.beneficiary_location}
+                  ivLoc={ls.intervenant_location}
+                  stageColor={stageColor}
+                />
 
                 {/* Action buttons */}
                 <div style={{ display: 'flex', gap: 8 } as any}>
