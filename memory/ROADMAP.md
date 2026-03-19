@@ -4,6 +4,7 @@
 - ~~Notifications Live Activity style Uber Eats~~ (FAIT)
 - ~~Correlations Sante endpoint~~ (FAIT)
 - ~~Refactoring backend health routes~~ (FAIT)
+- ~~Dashboard beneficiaire design clinique (myhealthprac.com)~~ (FAIT)
 
 ## P1 — Priorite moyenne
 - Signature electronique dans onglet Documents admin

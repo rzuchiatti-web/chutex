@@ -250,33 +250,31 @@ export function BeneficiaryHome({ token, user }: { token: string; user: any }) {
   const vs = dashData?.vest || { fall_detected: false, posture_score: 0, chest_temp: 0, battery: 0, connected: false, wearing_hours_today: 0, alerts_today: 0, paired: false };
   const sl = dashData?.sleep || null;
 
-  /* ─── WEB: Redesigned beneficiary dashboard ─── */
+  /* ─── WEB: Clinical dashboard — inspired by myhealthprac.com ─── */
   if (Platform.OS === 'web') {
-    const BG_IMG = 'https://customer-assets.emergentagent.com/job_9950a869-9328-4a4b-abf4-a6fb213a3b47/artifacts/iklovqya_background_beneficiary.svg';
-    const toggleDark = () => { const next = !isDark; setIsDark(next); localStorage.setItem('chutex_dark', next ? '1' : '0'); };
-    const C = isDark ? { bg: 'transparent', card: 'rgba(0,0,0,0.35)', text: '#FFF', sub: 'rgba(255,255,255,0.55)', headerBg: 'rgba(0,0,0,0.4)', btnBg: 'rgba(255,255,255,0.1)', arrow: 'rgba(255,255,255,0.3)' } : { bg: 'transparent', card: 'rgba(0,0,0,0.35)', text: '#FFF', sub: 'rgba(255,255,255,0.55)', headerBg: 'rgba(0,0,0,0.4)', btnBg: 'rgba(255,255,255,0.1)', arrow: 'rgba(255,255,255,0.3)' };
-    const glass = { backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1px solid rgba(255,255,255,0.08)' };
+    const C = { bg: 'transparent', card: 'rgba(8,8,16,0.6)', text: '#FAFAFA', sub: 'rgba(255,255,255,0.5)', headerBg: 'rgba(8,8,16,0.65)', btnBg: 'rgba(255,255,255,0.08)', arrow: 'rgba(255,255,255,0.35)', border: 'rgba(255,255,255,0.12)', sep: 'rgba(255,255,255,0.1)' };
+    const glass = { backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)', border: `1px solid ${C.border}` };
 
     const GC = ({ children, style, onClick, testId }: any) => (
-      <div data-testid={testId} onClick={onClick} className="dash-slide-up" style={{ padding: '20px', borderRadius: 20, background: C.card, marginBottom: 20, cursor: onClick ? 'pointer' : 'default', transition: 'transform 0.18s', ...glass, ...style } as any}
+      <div data-testid={testId} onClick={onClick} className="dash-slide-up" style={{ padding: '20px', borderRadius: 14, background: C.card, marginBottom: 20, cursor: onClick ? 'pointer' : 'default', transition: 'transform 0.18s', ...glass, ...style } as any}
         onMouseEnter={(e: any) => { if (onClick) e.currentTarget.style.transform = 'translateY(-2px)'; }}
         onMouseLeave={(e: any) => { e.currentTarget.style.transform = ''; }}>
         {children}
       </div>
     );
     return (
-      <div data-testid="beneficiary-dashboard" style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, display: 'flex', flexDirection: 'column', fontFamily: "'Inter', system-ui, -apple-system, sans-serif", overflow: 'hidden', '--card-bg': C.card, '--card-text': C.text, '--card-sub': C.sub, '--card-arrow': C.arrow, '--card-sep': isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.06)', '--card-blur': 'none', '--card-border': 'none' } as any}>
+      <div data-testid="beneficiary-dashboard" style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, display: 'flex', flexDirection: 'column', fontFamily: "'Inter', system-ui, -apple-system, sans-serif", overflow: 'hidden', '--card-bg': C.card, '--card-text': C.text, '--card-sub': C.sub, '--card-arrow': C.arrow, '--card-sep': C.sep, '--card-blur': 'none', '--card-border': 'none' } as any}>
         {/* Video Background */}
-        <video autoPlay muted loop playsInline style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 } as any} src="https://cdn.prod.website-files.com/679d8b01c23ed7847fc5108f/681a5d6a393040f8a64f2175_topaz_hero-transcode.mp4" />
-        <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.35)', zIndex: 1 } as any} />
+        <video autoPlay muted loop playsInline style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0, filter: 'brightness(0.75) saturate(0.85)' } as any} src="https://cdn.prod.website-files.com/679d8b01c23ed7847fc5108f/681a5d6a393040f8a64f2175_topaz_hero-transcode.mp4" />
+        <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, background: 'linear-gradient(180deg, rgba(2,2,8,0.4) 0%, rgba(2,2,8,0.55) 100%)', zIndex: 1 } as any} />
         {Platform.OS === 'web' && <TeamActivityToast token={token} />}
         <div style={{ flex: 1, overflowY: 'auto', position: 'relative', zIndex: 5, padding: '0 0 100px', WebkitOverflowScrolling: 'touch' } as any}>
 
           {/* ══════ HEADER ══════ */}
-          <div data-testid="dashboard-header" className="dash-slide-up" style={{ padding: '16px 20px', margin: '8px 16px 0', borderRadius: 22, background: C.headerBg, ...glass } as any}>
+          <div data-testid="dashboard-header" className="dash-slide-up" style={{ padding: '14px 20px', margin: '8px 16px 0', borderRadius: 14, background: C.headerBg, ...glass } as any}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' } as any}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 12 } as any}>
-                <div onClick={() => router.push('/(tabs)/profile' as any)} style={{ width: 44, height: 44, borderRadius: 22, background: isDark ? 'rgba(255,255,255,0.1)' : '#D8D8DC', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, cursor: 'pointer', overflow: 'hidden' } as any}>
+                <div onClick={() => router.push('/(tabs)/profile' as any)} style={{ width: 44, height: 44, borderRadius: 22, background: 'rgba(255,255,255,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, cursor: 'pointer', overflow: 'hidden' } as any}>
                   {user.avatar_url ? <img src={user.avatar_url} style={{ width: 44, height: 44, borderRadius: 22, objectFit: 'cover' } as any} /> : <span style={{ fontSize: 17, fontWeight: 800, color: C.text }}>{user.name?.charAt(0)?.toUpperCase()}</span>}
                 </div>
                 <div>
@@ -303,7 +301,7 @@ export function BeneficiaryHome({ token, user }: { token: string; user: any }) {
 
           {/* ── SOS Button ── */}
           <div data-testid="sos-button" className="dash-slide-up" onClick={handleSOS} style={{
-            padding: '16px 20px', borderRadius: 18, cursor: 'pointer', marginBottom: 20,
+            padding: '16px 20px', borderRadius: 14, cursor: 'pointer', marginBottom: 20,
             background: C.card, display: 'flex', alignItems: 'center', gap: 14,
             transition: 'transform 0.18s, box-shadow 0.18s', ...glass,
           } as any}
@@ -325,15 +323,15 @@ export function BeneficiaryHome({ token, user }: { token: string; user: any }) {
 
           <AlertBanner activeAlerts={activeAlerts} />
 
-          <div style={{ height: 1, background: isDark ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.06)", margin: "10px 0 24px" } as any} />
+          <div style={{ height: 1, background: C.sep, margin: "10px 0 24px" } as any} />
 
           <DailyObjectivesOnDashboard token={token} />
 
-          <div style={{ height: 1, background: isDark ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.06)", margin: "10px 0 24px" } as any} />
+          <div style={{ height: 1, background: C.sep, margin: "10px 0 24px" } as any} />
 
           {/* ── TEAM INVITATIONS ── */}
           {teamInvitations.length > 0 && teamInvitations.map((inv: any) => (
-            <div key={inv.id} data-testid={`team-invite-${inv.id}`} style={{ borderRadius: 18, background: '#FFF', border: '1px solid rgba(0,0,0,0.04)', padding: '16px 18px', marginBottom: 12, boxShadow: '0 2px 16px rgba(0,0,0,0.04)' } as any}>
+            <div key={inv.id} data-testid={`team-invite-${inv.id}`} style={{ borderRadius: 14, background: C.card, border: `1px solid ${C.border}`, padding: '16px 18px', marginBottom: 12, backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)' } as any}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12 } as any}>
                 <div style={{ width: 40, height: 40, borderRadius: 12, background: 'rgba(167,139,250,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}>
                   <i className="ri-team-line" style={{ fontSize: 20, color: '#A78BFA' }} />
@@ -346,10 +344,10 @@ export function BeneficiaryHome({ token, user }: { token: string; user: any }) {
               <div style={{ display: 'flex', gap: 8 } as any}>
                 <div data-testid={`accept-team-${inv.id}`} onClick={async () => {
                   try { await apiFetch(`/api/programs/team/invitations/${inv.id}/accept`, { method: 'POST' }, token); setTeamInvitations(prev => prev.filter(i => i.id !== inv.id)); fetchData(); } catch {}
-                }} style={{ flex: 1, padding: '12px', borderRadius: 12, background: 'rgba(16,185,129,0.08)', border: '1px solid rgba(16,185,129,0.15)', textAlign: 'center', cursor: 'pointer', fontSize: 13, fontWeight: 700, color: '#10B981' } as any}>Accepter</div>
+                }} style={{ flex: 1, padding: '12px', borderRadius: 10, background: 'rgba(16,185,129,0.08)', border: '1px solid rgba(16,185,129,0.15)', textAlign: 'center', cursor: 'pointer', fontSize: 13, fontWeight: 700, color: '#10B981' } as any}>Accepter</div>
                 <div data-testid={`reject-team-${inv.id}`} onClick={async () => {
                   try { await apiFetch(`/api/programs/team/invitations/${inv.id}/reject`, { method: 'POST' }, token); setTeamInvitations(prev => prev.filter(i => i.id !== inv.id)); } catch {}
-                }} style={{ flex: 1, padding: '12px', borderRadius: 12, background: C.card, border: '1px solid rgba(0,0,0,0.08)', textAlign: 'center', cursor: 'pointer', fontSize: 13, fontWeight: 600, color: C.sub } as any}>Refuser</div>
+                }} style={{ flex: 1, padding: '12px', borderRadius: 10, background: C.card, border: `1px solid ${C.border}`, textAlign: 'center', cursor: 'pointer', fontSize: 13, fontWeight: 600, color: C.sub } as any}>Refuser</div>
               </div>
             </div>
           ))}
@@ -364,7 +362,7 @@ export function BeneficiaryHome({ token, user }: { token: string; user: any }) {
             const allDone = totalTasks > 0 && doneCount >= totalTasks;
             return (
               <div data-testid="active-program-card" className="dash-slide-up cl-press" onClick={() => router.push('/(tabs)/chat' as any)}
-                style={{ borderRadius: 22, background: `linear-gradient(135deg, ${clr}10, ${clr}05)`, border: `1px solid ${clr}20`, padding: '18px', marginBottom: 20, cursor: 'pointer', transition: 'transform 0.18s', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', position: 'relative', overflow: 'hidden' } as any}
+                style={{ borderRadius: 14, background: `linear-gradient(135deg, ${clr}10, ${clr}05)`, border: `1px solid ${clr}20`, padding: '18px', marginBottom: 20, cursor: 'pointer', transition: 'transform 0.18s', backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)', position: 'relative', overflow: 'hidden' } as any}
                 onMouseEnter={(e: any) => { e.currentTarget.style.transform = 'translateY(-2px)'; }}
                 onMouseLeave={(e: any) => { e.currentTarget.style.transform = ''; }}>
                 <style dangerouslySetInnerHTML={{ __html: `@keyframes dash-prog-glow { 0%,100% { box-shadow: 0 0 20px ${clr}10; } 50% { box-shadow: 0 0 40px ${clr}25; } }` }} />
@@ -412,11 +410,11 @@ export function BeneficiaryHome({ token, user }: { token: string; user: any }) {
 
           <WeightGoalDashCard token={token} />
 
-          <div style={{ height: 1, background: isDark ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.06)", margin: "10px 0 24px" } as any} />
+          <div style={{ height: 1, background: C.sep, margin: "10px 0 24px" } as any} />
 
           <CopilotCard />
 
-          <div style={{ height: 1, background: isDark ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.06)", margin: "10px 0 24px" } as any} />
+          <div style={{ height: 1, background: C.sep, margin: "10px 0 24px" } as any} />
 
           {(br.connected || br.paired || ((sc.connected || sc.paired) && weighings.length > 0) || vs.connected || vs.paired) && (
             <DeviceCards br={br} sc={sc} vs={vs} weighings={weighings} onStartWeighing={() => setShowWeighing(true)} onRefresh={fetchData} subscription={subscription} />
@@ -424,10 +422,10 @@ export function BeneficiaryHome({ token, user }: { token: string; user: any }) {
 
           {showWeighing && <WeighingFlow onClose={() => setShowWeighing(false)} d={dashData?.scale || {}} weighings={weighings} />}
 
-          <div style={{ height: 1, background: isDark ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.06)", margin: "10px 0 24px" } as any} />
+          <div style={{ height: 1, background: C.sep, margin: "10px 0 24px" } as any} />
 
           {/* ── Rappels ── */}
-          <div data-testid="reminders-section" className="dash-slide-up" style={{ padding: '16px', borderRadius: 20, background: C.card, marginBottom: 20, ...glass } as any}>
+          <div data-testid="reminders-section" className="dash-slide-up" style={{ padding: '16px', borderRadius: 14, background: C.card, marginBottom: 20, ...glass } as any}>
             <div style={{ fontSize: 16, fontWeight: 900, color: C.text, marginBottom: 12 }}>Rappels</div>
             {[
               { type: 'hydration', label: 'Hydratation', img: REMINDER_IMAGES.hydration, color: '#38BDF8' },
@@ -460,7 +458,7 @@ export function BeneficiaryHome({ token, user }: { token: string; user: any }) {
             </div>
             {guardians.map((g: any, i: number) => (
               <div key={g.id || i} onClick={() => router.push({ pathname: '/guardian-detail', params: { guardianId: g.id } })} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 0', borderTop: i > 0 ? '1px solid rgba(255,255,255,0.08)' : 'none', cursor: 'pointer' } as any}>
-                <div style={{ width: 44, height: 44, borderRadius: 12, background: isDark ? 'rgba(255,255,255,0.1)' : '#FFF', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', flexShrink: 0 } as any}>
+                <div style={{ width: 44, height: 44, borderRadius: 12, background: 'rgba(255,255,255,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', flexShrink: 0 } as any}>
                   {g.avatar_url ? <img src={g.avatar_url} style={{ width: 44, height: 44, objectFit: 'cover' } as any} /> : <span style={{ fontSize: 18, fontWeight: 800, color: '#C7C7CC' }}>{g.name?.charAt(0)}</span>}
                 </div>
                 <div style={{ flex: 1 } as any}><div style={{ fontSize: 15, fontWeight: 700, color: C.text }}>{g.name}</div><div style={{ fontSize: 12, color: C.sub }}>{g.relationship || t('guardian')}</div></div>
@@ -468,7 +466,7 @@ export function BeneficiaryHome({ token, user }: { token: string; user: any }) {
               </div>
             ))}
             {guardians.length === 0 && <div style={{ fontSize: 11, color: C.sub, textAlign: 'center', padding: '6px 0' }}>Aucun gardien</div>}
-            <div data-testid="add-guardian-btn" onClick={() => setShowAddGuardianPopup(true)} style={{ marginTop: 12, padding: '14px', borderRadius: 14, background: 'rgba(167,139,250,0.04)', border: '1px solid rgba(167,139,250,0.15)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10, transition: 'background 0.15s' } as any}
+            <div data-testid="add-guardian-btn" onClick={() => setShowAddGuardianPopup(true)} style={{ marginTop: 12, padding: '14px', borderRadius: 10, background: 'rgba(167,139,250,0.04)', border: '1px solid rgba(167,139,250,0.15)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10, transition: 'background 0.15s' } as any}
               onMouseEnter={(e: any) => { e.currentTarget.style.background = 'rgba(167,139,250,0.08)'; }}
               onMouseLeave={(e: any) => { e.currentTarget.style.background = 'rgba(167,139,250,0.04)'; }}>
               <i className="ri-heart-add-line" style={{ fontSize: 18, color: '#A78BFA' }} />

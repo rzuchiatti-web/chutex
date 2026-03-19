@@ -1,5 +1,19 @@
 # Chutex Care — CHANGELOG
 
+## [Mars 2026] — Dashboard Beneficiaire Design Clinique
+
+### Modifie
+- **BeneficiaryHome.tsx**: Redesign complet inspire de myhealthprac.com
+- **Overlay sombre**: gradient rgba(2,2,8) de 0.4 a 0.55 pour contraste clinique
+- **Cartes glass**: rgba(8,8,16,0.6) — plus opaques et structurees
+- **Bordures blanches fines**: `rgba(255,255,255,0.12)` sur tous les elements
+- **Coins nets**: 14px border-radius (au lieu de 18-22px) pour esthetique clinique
+- **Blur renforce**: 24px backdrop-filter pour profondeur
+- **Video background**: filtre `brightness(0.75) saturate(0.85)`
+- **Nettoyage isDark**: suppression des ternaires isDark inutilises dans le web-block
+
+---
+
 ## [Fevrier 2026] — Correlations Sante
 
 ### Ajout
