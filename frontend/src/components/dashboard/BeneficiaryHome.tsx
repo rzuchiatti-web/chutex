@@ -29,49 +29,96 @@ export function BeneficiaryHome({ token, user }: { token: string; user: any }) {
   const [isDark, setIsDark] = useState(true);
   useEffect(() => {
     if (Platform.OS !== 'web' || typeof window === 'undefined' || typeof document === 'undefined') return;
-    // Animated particle background (tiwis.fr style)
     const existing = document.getElementById('chutex-particles');
     if (existing) return;
-      const wrap = document.createElement('div');
-      wrap.id = 'chutex-particles';
-      wrap.style.cssText = 'position:fixed;top:0;left:0;width:100vw;height:100vh;z-index:0;pointer-events:none;background:#070710;';
-      const cvs = document.createElement('canvas');
-      cvs.style.cssText = 'width:100%;height:100%;display:block;';
-      wrap.appendChild(cvs);
-      document.body.prepend(wrap);
-      const ctx = cvs.getContext('2d');
-      if (!ctx) return;
-      const resize = () => { cvs.width = window.innerWidth; cvs.height = window.innerHeight; };
-      resize();
-      window.addEventListener('resize', resize);
-      const dots: { x: number; y: number; vx: number; vy: number; r: number; a: number }[] = [];
-      const N = 90;
-      for (let i = 0; i < N; i++) dots.push({ x: Math.random() * cvs.width, y: Math.random() * cvs.height, vx: (Math.random() - 0.5) * 0.3, vy: (Math.random() - 0.5) * 0.3, r: Math.random() * 1.8 + 0.5, a: Math.random() * 0.35 + 0.08 });
-      let raf = 0;
-      const draw = () => {
-        ctx.clearRect(0, 0, cvs.width, cvs.height);
-        for (const d of dots) {
-          d.x += d.vx; d.y += d.vy;
-          if (d.x < 0) d.x = cvs.width; if (d.x > cvs.width) d.x = 0;
-          if (d.y < 0) d.y = cvs.height; if (d.y > cvs.height) d.y = 0;
-          ctx.beginPath(); ctx.arc(d.x, d.y, d.r, 0, Math.PI * 2);
-          ctx.fillStyle = `rgba(180,200,230,${d.a})`; ctx.fill();
-        }
-        // Draw subtle lines between nearby particles
-        for (let i = 0; i < dots.length; i++) {
-          for (let j = i + 1; j < dots.length; j++) {
-            const dx = dots[i].x - dots[j].x, dy = dots[i].y - dots[j].y;
-            const dist = Math.sqrt(dx * dx + dy * dy);
-            if (dist < 120) {
-              ctx.beginPath(); ctx.moveTo(dots[i].x, dots[i].y); ctx.lineTo(dots[j].x, dots[j].y);
-              ctx.strokeStyle = `rgba(140,160,200,${0.06 * (1 - dist / 120)})`; ctx.lineWidth = 0.5; ctx.stroke();
-            }
+    const wrap = document.createElement('div');
+    wrap.id = 'chutex-particles';
+    wrap.style.cssText = 'position:fixed;top:0;left:0;width:100vw;height:100vh;z-index:0;pointer-events:none;';
+    const cvs = document.createElement('canvas');
+    cvs.style.cssText = 'width:100%;height:100%;display:block;';
+    wrap.appendChild(cvs);
+    document.body.prepend(wrap);
+    const ctx = cvs.getContext('2d');
+    if (!ctx) return;
+    let W = 0, H = 0;
+    const resize = () => { W = cvs.width = window.innerWidth; H = cvs.height = window.innerHeight; };
+    resize(); window.addEventListener('resize', resize);
+
+    // Aurora orbs — large slow-moving glows
+    const orbs = Array.from({ length: 5 }, () => ({
+      x: Math.random() * W, y: Math.random() * H,
+      r: 180 + Math.random() * 250,
+      vx: (Math.random() - 0.5) * 0.15, vy: (Math.random() - 0.5) * 0.12,
+      hue: 200 + Math.random() * 60, a: 0.06 + Math.random() * 0.06,
+      phase: Math.random() * Math.PI * 2
+    }));
+
+    // Glowing particles
+    const pts = Array.from({ length: 70 }, () => ({
+      x: Math.random() * W, y: Math.random() * H,
+      r: 1.5 + Math.random() * 3,
+      vx: (Math.random() - 0.5) * 0.4, vy: (Math.random() - 0.5) * 0.35,
+      hue: 190 + Math.random() * 50,
+      a: 0.3 + Math.random() * 0.5,
+      phase: Math.random() * Math.PI * 2, freq: 0.003 + Math.random() * 0.006,
+      glowR: 8 + Math.random() * 18
+    }));
+
+    let t = 0, raf = 0;
+    const draw = () => {
+      t++;
+      // Dark gradient background
+      const bg = ctx.createLinearGradient(0, 0, 0, H);
+      bg.addColorStop(0, '#080812'); bg.addColorStop(0.5, '#0a0a18'); bg.addColorStop(1, '#060610');
+      ctx.fillStyle = bg; ctx.fillRect(0, 0, W, H);
+
+      // Draw aurora orbs
+      for (const o of orbs) {
+        o.x += o.vx + Math.sin(t * 0.002 + o.phase) * 0.3;
+        o.y += o.vy + Math.cos(t * 0.0015 + o.phase) * 0.25;
+        if (o.x < -o.r) o.x = W + o.r; if (o.x > W + o.r) o.x = -o.r;
+        if (o.y < -o.r) o.y = H + o.r; if (o.y > H + o.r) o.y = -o.r;
+        const pulse = 1 + Math.sin(t * 0.003 + o.phase) * 0.15;
+        const g = ctx.createRadialGradient(o.x, o.y, 0, o.x, o.y, o.r * pulse);
+        g.addColorStop(0, `hsla(${o.hue}, 70%, 55%, ${o.a * pulse})`);
+        g.addColorStop(0.4, `hsla(${o.hue}, 60%, 40%, ${o.a * 0.5})`);
+        g.addColorStop(1, 'transparent');
+        ctx.fillStyle = g; ctx.fillRect(o.x - o.r * pulse, o.y - o.r * pulse, o.r * 2 * pulse, o.r * 2 * pulse);
+      }
+
+      // Draw particles with glow
+      for (const p of pts) {
+        p.x += p.vx + Math.sin(t * p.freq + p.phase) * 0.6;
+        p.y += p.vy + Math.cos(t * p.freq * 0.8 + p.phase) * 0.5;
+        if (p.x < 0) p.x = W; if (p.x > W) p.x = 0;
+        if (p.y < 0) p.y = H; if (p.y > H) p.y = 0;
+        const flicker = 0.7 + Math.sin(t * 0.02 + p.phase) * 0.3;
+        // Glow
+        const glow = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.glowR);
+        glow.addColorStop(0, `hsla(${p.hue}, 80%, 70%, ${p.a * 0.25 * flicker})`);
+        glow.addColorStop(1, 'transparent');
+        ctx.fillStyle = glow; ctx.fillRect(p.x - p.glowR, p.y - p.glowR, p.glowR * 2, p.glowR * 2);
+        // Core
+        ctx.beginPath(); ctx.arc(p.x, p.y, p.r * flicker, 0, Math.PI * 2);
+        ctx.fillStyle = `hsla(${p.hue}, 80%, 80%, ${p.a * flicker})`; ctx.fill();
+      }
+
+      // Connecting lines
+      for (let i = 0; i < pts.length; i++) {
+        for (let j = i + 1; j < pts.length; j++) {
+          const dx = pts[i].x - pts[j].x, dy = pts[i].y - pts[j].y;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+          if (dist < 150) {
+            const lineA = 0.12 * (1 - dist / 150);
+            ctx.beginPath(); ctx.moveTo(pts[i].x, pts[i].y); ctx.lineTo(pts[j].x, pts[j].y);
+            ctx.strokeStyle = `hsla(210, 60%, 65%, ${lineA})`; ctx.lineWidth = 0.6; ctx.stroke();
           }
         }
-        raf = requestAnimationFrame(draw);
-      };
-      draw();
-      (window as any).__chutexParticlesCleanup = () => { cancelAnimationFrame(raf); window.removeEventListener('resize', resize); wrap.remove(); };
+      }
+      raf = requestAnimationFrame(draw);
+    };
+    draw();
+    (window as any).__chutexParticlesCleanup = () => { cancelAnimationFrame(raf); window.removeEventListener('resize', resize); wrap.remove(); };
     return () => { (window as any).__chutexParticlesCleanup?.(); delete (window as any).__chutexParticlesCleanup; };
   }, []);
   const [dashData, setDashData] = useState<any>(null);
