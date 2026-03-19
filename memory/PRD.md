@@ -12,7 +12,7 @@ Chutex Care est une plateforme de teleassistance et de sante connectee pour les 
 
 ### Dashboard Beneficiaire Design Clinique (Mars 2026)
 - Style inspire de myhealthprac.com: overlay sombre, bordures blanches fines, coins nets
-- Video background topaz_hero-transcode.mp4 avec filtre brightness/saturation
+- Video background Mixkit fractal tunnel geometrique (31562-720.mp4) — abstrait/minimaliste
 - Cartes glass rgba(8,8,16,0.6) avec bordures rgba(255,255,255,0.12)
 - Border-radius 14px (clinique), backdrop-filter blur(24px)
 - Variables CSS heritees par composants enfants (DailyObjectives, DeviceCards)

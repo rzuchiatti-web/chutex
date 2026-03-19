@@ -265,8 +265,8 @@ export function BeneficiaryHome({ token, user }: { token: string; user: any }) {
     return (
       <div data-testid="beneficiary-dashboard" style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, display: 'flex', flexDirection: 'column', fontFamily: "'Inter', system-ui, -apple-system, sans-serif", overflow: 'hidden', '--card-bg': C.card, '--card-text': C.text, '--card-sub': C.sub, '--card-arrow': C.arrow, '--card-sep': C.sep, '--card-blur': 'none', '--card-border': 'none' } as any}>
         {/* Video Background */}
-        <video autoPlay muted loop playsInline style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0, filter: 'brightness(0.75) saturate(0.85)' } as any} src="https://cdn.prod.website-files.com/679d8b01c23ed7847fc5108f/681a5d6a393040f8a64f2175_topaz_hero-transcode.mp4" />
-        <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, background: 'linear-gradient(180deg, rgba(2,2,8,0.4) 0%, rgba(2,2,8,0.55) 100%)', zIndex: 1 } as any} />
+        <video autoPlay muted loop playsInline style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0, filter: 'brightness(0.6) saturate(0.7)' } as any} src="https://assets.mixkit.co/videos/31562/31562-720.mp4" />
+        <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, background: 'linear-gradient(180deg, rgba(2,2,8,0.45) 0%, rgba(2,2,8,0.6) 100%)', zIndex: 1 } as any} />
         {Platform.OS === 'web' && <TeamActivityToast token={token} />}
         <div style={{ flex: 1, overflowY: 'auto', position: 'relative', zIndex: 5, padding: '0 0 100px', WebkitOverflowScrolling: 'touch' } as any}>
 
