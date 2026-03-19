@@ -27,7 +27,53 @@ export function BeneficiaryHome({ token, user }: { token: string; user: any }) {
   const router = useRouter();
   const { t, lang, setLang, flags: langFlags } = useI18n();
   const [isDark, setIsDark] = useState(true);
-  useEffect(() => {}, []);
+  useEffect(() => {
+    if (Platform.OS !== 'web' || typeof window === 'undefined' || typeof document === 'undefined') return;
+    // Animated particle background (tiwis.fr style)
+    const existing = document.getElementById('chutex-particles');
+    if (existing) return;
+      const wrap = document.createElement('div');
+      wrap.id = 'chutex-particles';
+      wrap.style.cssText = 'position:fixed;top:0;left:0;width:100vw;height:100vh;z-index:0;pointer-events:none;background:#070710;';
+      const cvs = document.createElement('canvas');
+      cvs.style.cssText = 'width:100%;height:100%;display:block;';
+      wrap.appendChild(cvs);
+      document.body.prepend(wrap);
+      const ctx = cvs.getContext('2d');
+      if (!ctx) return;
+      const resize = () => { cvs.width = window.innerWidth; cvs.height = window.innerHeight; };
+      resize();
+      window.addEventListener('resize', resize);
+      const dots: { x: number; y: number; vx: number; vy: number; r: number; a: number }[] = [];
+      const N = 90;
+      for (let i = 0; i < N; i++) dots.push({ x: Math.random() * cvs.width, y: Math.random() * cvs.height, vx: (Math.random() - 0.5) * 0.3, vy: (Math.random() - 0.5) * 0.3, r: Math.random() * 1.8 + 0.5, a: Math.random() * 0.35 + 0.08 });
+      let raf = 0;
+      const draw = () => {
+        ctx.clearRect(0, 0, cvs.width, cvs.height);
+        for (const d of dots) {
+          d.x += d.vx; d.y += d.vy;
+          if (d.x < 0) d.x = cvs.width; if (d.x > cvs.width) d.x = 0;
+          if (d.y < 0) d.y = cvs.height; if (d.y > cvs.height) d.y = 0;
+          ctx.beginPath(); ctx.arc(d.x, d.y, d.r, 0, Math.PI * 2);
+          ctx.fillStyle = `rgba(180,200,230,${d.a})`; ctx.fill();
+        }
+        // Draw subtle lines between nearby particles
+        for (let i = 0; i < dots.length; i++) {
+          for (let j = i + 1; j < dots.length; j++) {
+            const dx = dots[i].x - dots[j].x, dy = dots[i].y - dots[j].y;
+            const dist = Math.sqrt(dx * dx + dy * dy);
+            if (dist < 120) {
+              ctx.beginPath(); ctx.moveTo(dots[i].x, dots[i].y); ctx.lineTo(dots[j].x, dots[j].y);
+              ctx.strokeStyle = `rgba(140,160,200,${0.06 * (1 - dist / 120)})`; ctx.lineWidth = 0.5; ctx.stroke();
+            }
+          }
+        }
+        raf = requestAnimationFrame(draw);
+      };
+      draw();
+      (window as any).__chutexParticlesCleanup = () => { cancelAnimationFrame(raf); window.removeEventListener('resize', resize); wrap.remove(); };
+    return () => { (window as any).__chutexParticlesCleanup?.(); delete (window as any).__chutexParticlesCleanup; };
+  }, []);
   const [dashData, setDashData] = useState<any>(null);
   const [langOpen, setLangOpen] = useState(false);
   const [guardians, setGuardians] = useState<any[]>([]);
@@ -265,8 +311,7 @@ export function BeneficiaryHome({ token, user }: { token: string; user: any }) {
     return (
       <div data-testid="beneficiary-dashboard" style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, display: 'flex', flexDirection: 'column', fontFamily: "'Inter', system-ui, -apple-system, sans-serif", overflow: 'hidden', '--card-bg': C.card, '--card-text': C.text, '--card-sub': C.sub, '--card-arrow': C.arrow, '--card-sep': C.sep, '--card-blur': 'none', '--card-border': 'none' } as any}>
         {/* Video Background */}
-        <video autoPlay muted loop playsInline style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0, filter: 'brightness(0.6) saturate(0.7)' } as any} src="https://assets.mixkit.co/videos/31562/31562-720.mp4" />
-        <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, background: 'linear-gradient(180deg, rgba(2,2,8,0.45) 0%, rgba(2,2,8,0.6) 100%)', zIndex: 1 } as any} />
+        {/* Particle background injected via useEffect into document.body (tiwis.fr style) */}
         {Platform.OS === 'web' && <TeamActivityToast token={token} />}
         <div style={{ flex: 1, overflowY: 'auto', position: 'relative', zIndex: 5, padding: '0 0 100px', WebkitOverflowScrolling: 'touch' } as any}>
 

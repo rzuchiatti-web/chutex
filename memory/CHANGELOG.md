@@ -4,8 +4,8 @@
 
 ### Modifie
 - **BeneficiaryHome.tsx**: Redesign complet inspire de myhealthprac.com
-- **Video background**: Mixkit fractal tunnel geometrique (31562-720.mp4) — abstrait/minimaliste
-- **Overlay sombre**: gradient rgba(2,2,8) de 0.45 a 0.6 pour contraste clinique
+- **Fond anime**: Particules Canvas style tiwis.fr: 90 dots flottants + lignes de connexion sur fond #070710
+- **Overlay**: Supprime (fond particules suffit)
 - **Cartes glass**: rgba(8,8,16,0.6) — plus opaques et structurees
 - **Bordures blanches fines**: `rgba(255,255,255,0.12)` sur tous les elements
 - **Coins nets**: 14px border-radius (au lieu de 18-22px) pour esthetique clinique

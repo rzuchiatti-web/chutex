@@ -11,11 +11,12 @@ Chutex Care est une plateforme de teleassistance et de sante connectee pour les 
 ## Fonctionnalites implementees
 
 ### Dashboard Beneficiaire Design Clinique (Mars 2026)
-- Style inspire de myhealthprac.com: overlay sombre, bordures blanches fines, coins nets
-- Video background Mixkit fractal tunnel geometrique (31562-720.mp4) — abstrait/minimaliste
+- Fond anime particules Canvas identique a tiwis.fr: 90 dots flottants avec lignes de connexion subtiles
+- Fond sombre #070710, particules rgba(180,200,230), lignes rgba(140,160,200)
 - Cartes glass rgba(8,8,16,0.6) avec bordures rgba(255,255,255,0.12)
 - Border-radius 14px (clinique), backdrop-filter blur(24px)
 - Variables CSS heritees par composants enfants (DailyObjectives, DeviceCards)
+- Injection via useEffect + document.body.prepend (canvas plein ecran fixe, z-index 0)
 
 ### Bracelet V8 JStyle (Fevrier 2026)
 - Connexion BLE Web Bluetooth (JStyle SDK V8: 0xFFF0 service)
