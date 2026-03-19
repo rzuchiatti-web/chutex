@@ -44,76 +44,62 @@ export function BeneficiaryHome({ token, user }: { token: string; user: any }) {
     const resize = () => { W = cvs.width = window.innerWidth; H = cvs.height = window.innerHeight; };
     resize(); window.addEventListener('resize', resize);
 
-    // Aurora orbs — large slow-moving glows
-    const orbs = Array.from({ length: 5 }, () => ({
-      x: Math.random() * W, y: Math.random() * H,
-      r: 180 + Math.random() * 250,
-      vx: (Math.random() - 0.5) * 0.15, vy: (Math.random() - 0.5) * 0.12,
-      hue: 200 + Math.random() * 60, a: 0.06 + Math.random() * 0.06,
-      phase: Math.random() * Math.PI * 2
-    }));
+    // Purple aurora orbs — large, bright, moving
+    const orbs = [
+      { x: W * 0.3, y: H * 0.2, r: 280, vx: 0.25, vy: 0.15, hue: 270, sat: 65, a: 0.14, phase: 0 },
+      { x: W * 0.7, y: H * 0.6, r: 320, vx: -0.2, vy: 0.18, hue: 285, sat: 55, a: 0.12, phase: 2 },
+      { x: W * 0.5, y: H * 0.8, r: 250, vx: 0.15, vy: -0.12, hue: 260, sat: 70, a: 0.1, phase: 4 },
+      { x: W * 0.15, y: H * 0.7, r: 200, vx: 0.18, vy: 0.1, hue: 295, sat: 50, a: 0.09, phase: 1.5 },
+      { x: W * 0.85, y: H * 0.3, r: 230, vx: -0.15, vy: -0.13, hue: 275, sat: 60, a: 0.11, phase: 3.5 },
+    ];
 
-    // Glowing particles
-    const pts = Array.from({ length: 70 }, () => ({
+    // Small glowing particles (purple/violet tones)
+    const pts = Array.from({ length: 40 }, () => ({
       x: Math.random() * W, y: Math.random() * H,
-      r: 1.5 + Math.random() * 3,
-      vx: (Math.random() - 0.5) * 0.4, vy: (Math.random() - 0.5) * 0.35,
-      hue: 190 + Math.random() * 50,
-      a: 0.3 + Math.random() * 0.5,
-      phase: Math.random() * Math.PI * 2, freq: 0.003 + Math.random() * 0.006,
-      glowR: 8 + Math.random() * 18
+      r: 1 + Math.random() * 2.5,
+      vx: (Math.random() - 0.5) * 0.3, vy: (Math.random() - 0.5) * 0.25,
+      hue: 255 + Math.random() * 50, a: 0.25 + Math.random() * 0.4,
+      phase: Math.random() * Math.PI * 2, freq: 0.002 + Math.random() * 0.005,
+      glowR: 10 + Math.random() * 20
     }));
 
     let t = 0, raf = 0;
     const draw = () => {
       t++;
-      // Dark gradient background
-      const bg = ctx.createLinearGradient(0, 0, 0, H);
-      bg.addColorStop(0, '#080812'); bg.addColorStop(0.5, '#0a0a18'); bg.addColorStop(1, '#060610');
+      // Dark grey gradient background
+      const bg = ctx.createLinearGradient(0, 0, W * 0.3, H);
+      bg.addColorStop(0, '#1e1e30'); bg.addColorStop(0.5, '#1a1a2a'); bg.addColorStop(1, '#18182a');
       ctx.fillStyle = bg; ctx.fillRect(0, 0, W, H);
 
-      // Draw aurora orbs
+      // Draw purple aurora orbs (bright & visible)
       for (const o of orbs) {
-        o.x += o.vx + Math.sin(t * 0.002 + o.phase) * 0.3;
-        o.y += o.vy + Math.cos(t * 0.0015 + o.phase) * 0.25;
-        if (o.x < -o.r) o.x = W + o.r; if (o.x > W + o.r) o.x = -o.r;
-        if (o.y < -o.r) o.y = H + o.r; if (o.y > H + o.r) o.y = -o.r;
-        const pulse = 1 + Math.sin(t * 0.003 + o.phase) * 0.15;
-        const g = ctx.createRadialGradient(o.x, o.y, 0, o.x, o.y, o.r * pulse);
-        g.addColorStop(0, `hsla(${o.hue}, 70%, 55%, ${o.a * pulse})`);
-        g.addColorStop(0.4, `hsla(${o.hue}, 60%, 40%, ${o.a * 0.5})`);
+        o.x += o.vx + Math.sin(t * 0.0015 + o.phase) * 0.5;
+        o.y += o.vy + Math.cos(t * 0.001 + o.phase) * 0.4;
+        if (o.x < -o.r * 0.5) o.x = W + o.r * 0.3; if (o.x > W + o.r * 0.5) o.x = -o.r * 0.3;
+        if (o.y < -o.r * 0.5) o.y = H + o.r * 0.3; if (o.y > H + o.r * 0.5) o.y = -o.r * 0.3;
+        const pulse = 1 + Math.sin(t * 0.002 + o.phase) * 0.2;
+        const rr = o.r * pulse;
+        const g = ctx.createRadialGradient(o.x, o.y, 0, o.x, o.y, rr);
+        g.addColorStop(0, `hsla(${o.hue}, ${o.sat}%, 50%, ${o.a * pulse})`);
+        g.addColorStop(0.3, `hsla(${o.hue}, ${o.sat}%, 40%, ${o.a * 0.6})`);
+        g.addColorStop(0.7, `hsla(${o.hue}, ${o.sat - 10}%, 30%, ${o.a * 0.2})`);
         g.addColorStop(1, 'transparent');
-        ctx.fillStyle = g; ctx.fillRect(o.x - o.r * pulse, o.y - o.r * pulse, o.r * 2 * pulse, o.r * 2 * pulse);
+        ctx.fillStyle = g; ctx.beginPath(); ctx.arc(o.x, o.y, rr, 0, Math.PI * 2); ctx.fill();
       }
 
-      // Draw particles with glow
+      // Draw glowing particles
       for (const p of pts) {
-        p.x += p.vx + Math.sin(t * p.freq + p.phase) * 0.6;
-        p.y += p.vy + Math.cos(t * p.freq * 0.8 + p.phase) * 0.5;
+        p.x += p.vx + Math.sin(t * p.freq + p.phase) * 0.5;
+        p.y += p.vy + Math.cos(t * p.freq * 0.7 + p.phase) * 0.4;
         if (p.x < 0) p.x = W; if (p.x > W) p.x = 0;
         if (p.y < 0) p.y = H; if (p.y > H) p.y = 0;
-        const flicker = 0.7 + Math.sin(t * 0.02 + p.phase) * 0.3;
-        // Glow
+        const flicker = 0.7 + Math.sin(t * 0.015 + p.phase) * 0.3;
         const glow = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.glowR);
-        glow.addColorStop(0, `hsla(${p.hue}, 80%, 70%, ${p.a * 0.25 * flicker})`);
+        glow.addColorStop(0, `hsla(${p.hue}, 70%, 70%, ${p.a * 0.3 * flicker})`);
         glow.addColorStop(1, 'transparent');
-        ctx.fillStyle = glow; ctx.fillRect(p.x - p.glowR, p.y - p.glowR, p.glowR * 2, p.glowR * 2);
-        // Core
+        ctx.fillStyle = glow; ctx.beginPath(); ctx.arc(p.x, p.y, p.glowR, 0, Math.PI * 2); ctx.fill();
         ctx.beginPath(); ctx.arc(p.x, p.y, p.r * flicker, 0, Math.PI * 2);
-        ctx.fillStyle = `hsla(${p.hue}, 80%, 80%, ${p.a * flicker})`; ctx.fill();
-      }
-
-      // Connecting lines
-      for (let i = 0; i < pts.length; i++) {
-        for (let j = i + 1; j < pts.length; j++) {
-          const dx = pts[i].x - pts[j].x, dy = pts[i].y - pts[j].y;
-          const dist = Math.sqrt(dx * dx + dy * dy);
-          if (dist < 150) {
-            const lineA = 0.12 * (1 - dist / 150);
-            ctx.beginPath(); ctx.moveTo(pts[i].x, pts[i].y); ctx.lineTo(pts[j].x, pts[j].y);
-            ctx.strokeStyle = `hsla(210, 60%, 65%, ${lineA})`; ctx.lineWidth = 0.6; ctx.stroke();
-          }
-        }
+        ctx.fillStyle = `hsla(${p.hue}, 80%, 85%, ${p.a * flicker})`; ctx.fill();
       }
       raf = requestAnimationFrame(draw);
     };
