@@ -5,7 +5,6 @@ import DeviceCards from './DeviceCards';
 import FullScreenLoader from '../FullScreenLoader';
 import WeighingFlow from './WeighingFlow';
 import { HEALTH_IMAGES, REMINDER_IMAGES, isDarkMode, CHX, webShadow, webGlass } from './constants';
-import AnimatedDarkBg from '../AnimatedDarkBg';
 import TeamActivityToast from '../programs/TeamActivityToast';
 import { NotificationsPopup, LanguagePopup, ReminderCRUDPopup, ReminderNotifPopup, AddGuardianPopup, CheckinPopup, GuardianActivationPopup } from './BeneficiaryPopups';
 import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator, RefreshControl, Alert, Animated, Platform, Image, TextInput } from 'react-native';
@@ -255,8 +254,8 @@ export function BeneficiaryHome({ token, user }: { token: string; user: any }) {
   if (Platform.OS === 'web') {
     const BG_IMG = 'https://customer-assets.emergentagent.com/job_9950a869-9328-4a4b-abf4-a6fb213a3b47/artifacts/iklovqya_background_beneficiary.svg';
     const toggleDark = () => { const next = !isDark; setIsDark(next); localStorage.setItem('chutex_dark', next ? '1' : '0'); };
-    const C = isDark ? { bg: '#1a1d20', card: '#272a30', text: '#FFF', sub: 'rgba(255,255,255,0.45)', headerBg: '#272a30', btnBg: 'rgba(255,255,255,0.06)', arrow: 'rgba(255,255,255,0.2)' } : { bg: '#FFF', card: '#EDEDF0', text: '#111', sub: 'rgba(0,0,0,0.4)', headerBg: '#EDEDF0', btnBg: '#FFF', arrow: 'rgba(0,0,0,0.2)' };
-    const glass = isDark ? {} : {};
+    const C = isDark ? { bg: 'transparent', card: 'rgba(0,0,0,0.35)', text: '#FFF', sub: 'rgba(255,255,255,0.55)', headerBg: 'rgba(0,0,0,0.4)', btnBg: 'rgba(255,255,255,0.1)', arrow: 'rgba(255,255,255,0.3)' } : { bg: 'transparent', card: 'rgba(0,0,0,0.35)', text: '#FFF', sub: 'rgba(255,255,255,0.55)', headerBg: 'rgba(0,0,0,0.4)', btnBg: 'rgba(255,255,255,0.1)', arrow: 'rgba(255,255,255,0.3)' };
+    const glass = { backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1px solid rgba(255,255,255,0.08)' };
 
     const GC = ({ children, style, onClick, testId }: any) => (
       <div data-testid={testId} onClick={onClick} className="dash-slide-up" style={{ padding: '20px', borderRadius: 20, background: C.card, marginBottom: 20, cursor: onClick ? 'pointer' : 'default', transition: 'transform 0.18s', ...glass, ...style } as any}
@@ -266,13 +265,15 @@ export function BeneficiaryHome({ token, user }: { token: string; user: any }) {
       </div>
     );
     return (
-      <div data-testid="beneficiary-dashboard" style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, display: 'flex', flexDirection: 'column', fontFamily: "'Inter', system-ui, -apple-system, sans-serif", overflow: 'hidden', '--card-bg': C.card, '--card-text': C.text, '--card-sub': C.sub, '--card-arrow': C.arrow, '--card-sep': isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.06)', '--card-blur': 'none', '--card-border': 'none', ...(!isDark ? { background: C.bg } : {}) } as any}>
-        {isDark && <AnimatedDarkBg />}
+      <div data-testid="beneficiary-dashboard" style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, display: 'flex', flexDirection: 'column', fontFamily: "'Inter', system-ui, -apple-system, sans-serif", overflow: 'hidden', '--card-bg': C.card, '--card-text': C.text, '--card-sub': C.sub, '--card-arrow': C.arrow, '--card-sep': isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.06)', '--card-blur': 'none', '--card-border': 'none' } as any}>
+        {/* Video Background */}
+        <video autoPlay muted loop playsInline style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 } as any} src="https://cdn.prod.website-files.com/679d8b01c23ed7847fc5108f/681a5d6a393040f8a64f2175_topaz_hero-transcode.mp4" />
+        <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.35)', zIndex: 1 } as any} />
         {Platform.OS === 'web' && <TeamActivityToast token={token} />}
         <div style={{ flex: 1, overflowY: 'auto', position: 'relative', zIndex: 5, padding: '0 0 100px', WebkitOverflowScrolling: 'touch' } as any}>
 
           {/* ══════ HEADER ══════ */}
-          <div data-testid="dashboard-header" className="dash-slide-up" style={{ padding: '16px 20px', margin: '8px 16px 0', borderRadius: 22, background: C.headerBg } as any}>
+          <div data-testid="dashboard-header" className="dash-slide-up" style={{ padding: '16px 20px', margin: '8px 16px 0', borderRadius: 22, background: C.headerBg, ...glass } as any}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' } as any}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 12 } as any}>
                 <div onClick={() => router.push('/(tabs)/profile' as any)} style={{ width: 44, height: 44, borderRadius: 22, background: isDark ? 'rgba(255,255,255,0.1)' : '#D8D8DC', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, cursor: 'pointer', overflow: 'hidden' } as any}>
@@ -304,7 +305,7 @@ export function BeneficiaryHome({ token, user }: { token: string; user: any }) {
           <div data-testid="sos-button" className="dash-slide-up" onClick={handleSOS} style={{
             padding: '16px 20px', borderRadius: 18, cursor: 'pointer', marginBottom: 20,
             background: C.card, display: 'flex', alignItems: 'center', gap: 14,
-            transition: 'transform 0.18s, box-shadow 0.18s',
+            transition: 'transform 0.18s, box-shadow 0.18s', ...glass,
           } as any}
             onMouseEnter={(e: any) => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 4px 12px rgba(239,68,68,0.12)'; }}
             onMouseLeave={(e: any) => { e.currentTarget.style.transform = ''; e.currentTarget.style.boxShadow = '0 1px 4px rgba(0,0,0,0.04)'; }}>
