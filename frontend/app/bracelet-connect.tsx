@@ -29,6 +29,9 @@ const V6_SERVICES = {
 
 const V6_NAME_PREFIXES: string[] = []; // Not used — auto-detect by services
 
+// V8 Name prefixes for detection
+const V8_NAME_PREFIXES = ['V8', 'JCV8', 'Elio-V8', 'HB8', '2301'];
+
 function calcCrc(data: number[]) { return data.reduce((s, b) => s + b, 0) & 0xFF; }
 
 function buildCmd(cmd: number, payload: number[] = []) {
@@ -70,9 +73,12 @@ export default function BraceletConnectScreen() {
   const [vitals, setVitals] = useState({ battery: 0, heart_rate: 0, spo2: 0, temperature: 0, steps: 0, systolic: 0, diastolic: 0, stress: 0, hrv: 0 });
   const writeCharRef = useRef<any>(null);
   const pollRef = useRef<any>(null);
-  const [braceletModel, setBraceletModel] = useState<'2208a'|'v6'|null>(null);
+  const [braceletModel, setBraceletModel] = useState<'2208a'|'v6'|'v8'|null>(null);
 
   const [errorMsg, setErrorMsg] = useState('');
+  // V8-specific state
+  const [v8Vitals, setV8Vitals] = useState({ blood_glucose: 0, ecg_hr: 0, ecg_hrv: 0, ecg_breath_rate: 0, ecg_stress: 0, ecg_mood: 0, ecg_systolic: 0, ecg_diastolic: 0, ecg_vascular_aging: 0, vo2max: 0, vo2max_level: '' });
+  const [v8Measuring, setV8Measuring] = useState<string|null>(null);
 
   useEffect(() => {
     const loadStatus = () => {
@@ -108,6 +114,12 @@ export default function BraceletConnectScreen() {
   const sendV6ToBackend = useCallback(async (dataType: string, data: Record<string, any>) => {
     try {
       await apiFetch('/api/bracelet/v6/push', { method: 'POST', body: JSON.stringify({ data_type: dataType, data, device_id: device?.id || device?.name || '', source: 'ble' }) }, token);
+    } catch {}
+  }, [token, device]);
+
+  const sendV8ToBackend = useCallback(async (dataType: string, data: Record<string, any>) => {
+    try {
+      await apiFetch('/api/bracelet/v8/push', { method: 'POST', body: JSON.stringify({ data_type: dataType, data, device_id: device?.id || device?.name || 'v8-ble', source: 'ble' }) }, token);
     } catch {}
   }, [token, device]);
 
@@ -391,12 +403,12 @@ export default function BraceletConnectScreen() {
     }
   };
 
-  // Demo V6 simulation — pushes realistic data every 5s
+  // ══ V8 Simulation ══
   const [simulating, setSimulating] = useState(false);
   const simRef = useRef<any>(null);
-  const startSimulation = async () => {
+  const startSimulation = async (model: 'v6' | 'v8' = 'v8') => {
     setSimulating(true);
-    setBraceletModel('v6');
+    setBraceletModel(model);
     setBleStatus('connected');
     setErrorMsg('');
     const push = async () => {
@@ -406,15 +418,32 @@ export default function BraceletConnectScreen() {
       const temp = +(36.2 + Math.random() * 0.8).toFixed(1);
       const stepsVal = 3000 + Math.round(Math.random() * 5000);
       const bat = 70 + Math.round(Math.random() * 25);
-      setVitals({ battery: bat, heart_rate: hr, spo2: spo2Val, temperature: temp, steps: stepsVal, systolic: 120 + Math.round(Math.random() * 15), diastolic: 72 + Math.round(Math.random() * 10), stress: 20 + Math.round(Math.random() * 30), hrv });
+      const sys = 110 + Math.round(Math.random() * 20);
+      const dia = 68 + Math.round(Math.random() * 12);
+      const stress = 20 + Math.round(Math.random() * 30);
+      setVitals({ battery: bat, heart_rate: hr, spo2: spo2Val, temperature: temp, steps: stepsVal, systolic: sys, diastolic: dia, stress, hrv });
+      const pushFn = model === 'v8' ? sendV8ToBackend : sendV6ToBackend;
       try {
-        await apiFetch('/api/bracelet/v6/push', { method: 'POST', body: JSON.stringify({ data_type: 'heart_rate', data: { heart_rate: hr, hrv, rr_intervals: [800 + Math.round(Math.random()*100), 820 + Math.round(Math.random()*80)] }, device_id: 'demo-v6', source: 'ble' }) }, token);
-        await apiFetch('/api/bracelet/v6/push', { method: 'POST', body: JSON.stringify({ data_type: 'spo2', data: { spo2: spo2Val }, device_id: 'demo-v6', source: 'ble' }) }, token);
-        await apiFetch('/api/bracelet/v6/push', { method: 'POST', body: JSON.stringify({ data_type: 'temperature', data: { temperature: temp }, device_id: 'demo-v6', source: 'ble' }) }, token);
-        await apiFetch('/api/bracelet/v6/push', { method: 'POST', body: JSON.stringify({ data_type: 'steps', data: { steps: stepsVal, calories: Math.round(stepsVal * 0.04) }, device_id: 'demo-v6', source: 'ble' }) }, token);
-        await apiFetch('/api/bracelet/v6/push', { method: 'POST', body: JSON.stringify({ data_type: 'blood_pressure', data: { systolic: 120 + Math.round(Math.random()*15), diastolic: 72 + Math.round(Math.random()*10) }, device_id: 'demo-v6', source: 'ble' }) }, token);
-        await apiFetch('/api/bracelet/v6/push', { method: 'POST', body: JSON.stringify({ data_type: 'ppg', data: { samples: Array.from({length: 20}, () => 500 + Math.round(Math.random()*100)), timestamp: new Date().toISOString() }, device_id: 'demo-v6', source: 'ble' }) }, token);
+        await pushFn('heart_rate', { heart_rate: hr, hrv, rr_intervals: [800 + Math.round(Math.random()*100)] });
+        await pushFn('spo2', { spo2: spo2Val });
+        await pushFn('temperature', { temperature: temp, axillary_temperature: +(temp - 0.3).toFixed(1) });
+        await pushFn('steps', { steps: stepsVal, calories: Math.round(stepsVal * 0.04), distance: Math.round(stepsVal * 0.7) });
+        await pushFn('blood_pressure', { systolic: sys, diastolic: dia });
       } catch {}
+      if (model === 'v8') {
+        const glucose_mgdl = 85 + Math.round(Math.random() * 30);
+        const ecg_breath = 14 + Math.round(Math.random() * 6);
+        const ecg_mood = 60 + Math.round(Math.random() * 35);
+        const ecg_vasc = 38 + Math.round(Math.random() * 12);
+        setV8Vitals({ blood_glucose: glucose_mgdl, ecg_hr: hr, ecg_hrv: hrv, ecg_breath_rate: ecg_breath, ecg_stress: stress, ecg_mood, ecg_systolic: sys, ecg_diastolic: dia, ecg_vascular_aging: ecg_vasc, vo2max: 0, vo2max_level: '' });
+        try {
+          await sendV8ToBackend('blood_glucose', { blood_glucose_mmol: +(glucose_mgdl / 18).toFixed(1), blood_glucose_mgdl: glucose_mgdl, glucose_progress: 100 });
+          await sendV8ToBackend('ecg_result', { ecg_hr: hr, ecg_hrv: hrv, ecg_breath_rate: ecg_breath, ecg_stress: stress, ecg_mood, ecg_systolic: sys, ecg_diastolic: dia, ecg_vascular_aging: ecg_vasc });
+          await sendV8ToBackend('ppg', { samples: Array.from({length: 50}, () => 450 + Math.round(Math.random()*150)), timestamp: new Date().toISOString() });
+          const vo2 = await apiFetch('/api/bracelet/v8/vo2max', {}, token);
+          if (vo2?.vo2max) setV8Vitals(v => ({ ...v, vo2max: vo2.vo2max, vo2max_level: vo2.level }));
+        } catch {}
+      }
     };
     await push();
     simRef.current = setInterval(push, 8000);
@@ -463,8 +492,11 @@ export default function BraceletConnectScreen() {
         <TouchableOpacity style={s.pairBtn} onPress={connectBracelet}>
           <Icon name="bluetooth" size={20} color="#111827" /><Text style={s.pairBtnT}>Appairer le bracelet</Text>
         </TouchableOpacity>
-        <TouchableOpacity onPress={startSimulation} style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, paddingVertical: 12, paddingHorizontal: 28, borderRadius: 14, borderWidth: 1, borderColor: 'rgba(167,139,250,0.3)', backgroundColor: 'rgba(167,139,250,0.08)', marginTop: 14 }}>
-          <Icon name="pulse" size={18} color="#A78BFA" /><Text style={{ color: '#A78BFA', fontSize: 14, fontWeight: '600' }}>Mode demo (donnees simulees)</Text>
+        <TouchableOpacity onPress={() => startSimulation('v8')} style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, paddingVertical: 12, paddingHorizontal: 28, borderRadius: 14, borderWidth: 1, borderColor: 'rgba(167,139,250,0.3)', backgroundColor: 'rgba(167,139,250,0.08)', marginTop: 14 }}>
+          <Icon name="pulse" size={18} color="#A78BFA" /><Text style={{ color: '#A78BFA', fontSize: 14, fontWeight: '600' }}>Demo V8 (ECG + Glycemie + PPG)</Text>
+        </TouchableOpacity>
+        <TouchableOpacity onPress={() => startSimulation('v6')} style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, paddingVertical: 10, paddingHorizontal: 28, borderRadius: 14, marginTop: 8 }}>
+          <Text style={{ color: 'rgba(167,139,250,0.5)', fontSize: 12, fontWeight: '600' }}>Demo V6 (basique)</Text>
         </TouchableOpacity>
       </View>
     </SafeAreaView>
@@ -488,11 +520,12 @@ export default function BraceletConnectScreen() {
 
   // PAIRED
   const cardBg = isActive || bleStatus === 'connected' ? '#E8F5E9' : Colors.subtle;
+  const isV8 = braceletModel === 'v8';
   return (
     <SafeAreaView style={[s.safe, { backgroundColor: themeColors.background }]}>
       <View style={s.topBar}>
         <TouchableOpacity onPress={() => { try { router.back(); } catch { if (Platform.OS === 'web') window.location.href = '/'; } }} style={s.backBtn}><Icon name="chevron-back" size={22} color={Colors.textPrimary} /></TouchableOpacity>
-        <Text style={s.topTitle}>Bracelet Elio</Text>
+        <Text style={s.topTitle}>Bracelet Elio {isV8 ? 'V8' : braceletModel === 'v6' ? 'V6' : ''}</Text>
         <View style={[s.dot, { backgroundColor: stColor }]} />
       </View>
       <ScrollView contentContainerStyle={s.sc} showsVerticalScrollIndicator={false}>
@@ -501,8 +534,8 @@ export default function BraceletConnectScreen() {
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
             <Icon name="watch" size={32} color={stColor} />
             <View style={{ flex: 1 }}>
-              <Text style={s.cardTitle}>Bracelet Elio {braceletModel === 'v6' ? 'V6' : ''}</Text>
-              <Text style={[s.cardStatus, { color: stColor }]}>{isActive || bleStatus === 'connected' ? 'Actif' : 'Eteint'}{braceletModel === 'v6' ? ' — PPG + HRV' : ''}</Text>
+              <Text style={s.cardTitle}>Bracelet Elio {isV8 ? 'V8' : braceletModel === 'v6' ? 'V6' : ''}</Text>
+              <Text style={[s.cardStatus, { color: stColor }]}>{isActive || bleStatus === 'connected' ? 'Actif' : 'Eteint'}{isV8 ? ' — ECG + PPG + Glycemie' : braceletModel === 'v6' ? ' — PPG + HRV' : ''}</Text>
             </View>
             {vitals.battery > 0 && <View style={{ alignItems: 'center' }}>
               <Icon name={vitals.battery > 50 ? "battery-full" : vitals.battery > 20 ? "battery-half" : "battery-dead"} size={24} color={vitals.battery > 20 ? Colors.success : Colors.destructive} />
@@ -518,13 +551,73 @@ export default function BraceletConnectScreen() {
           </View>
           <View style={s.vitalsGrid}>
             <VitalCard icon="heart" label="Pouls" value={vitals.heart_rate || '-'} unit="bpm" color="#E53935" />
-            <VitalCard icon="thermometer" label="Temp." value={vitals.temperature || '-'} unit="°C" color="#FB8C00" />
+            <VitalCard icon="thermometer" label="Temp." value={vitals.temperature || '-'} unit="C" color="#FB8C00" />
             <VitalCard icon="footsteps" label="Pas" value={vitals.steps || '-'} unit="" color={Colors.success} />
             {vitals.hrv > 0 && <VitalCard icon="pulse" label="HRV" value={vitals.hrv} unit="ms" color="#A78BFA" />}
             {vitals.spo2 > 0 && <VitalCard icon="water" label="SpO2" value={vitals.spo2} unit="%" color="#38BDF8" />}
             {vitals.systolic > 0 && <VitalCard icon="pulse" label="Tension" value={`${vitals.systolic}/${vitals.diastolic}`} unit="mmHg" color="#8B5CF6" />}
           </View>
         </View>
+
+        {/* ══ V8-SPECIFIC: Blood Glucose ══ */}
+        {isV8 && v8Vitals.blood_glucose > 0 && (
+          <View style={[s.card, { borderLeftWidth: 3, borderLeftColor: '#F59E0B' }]}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 12 }}>
+              <MCIcon name="water" size={20} color="#F59E0B" />
+              <Text style={s.sectionTitle}>Glycemie estimee (PPG)</Text>
+            </View>
+            <View style={{ flexDirection: 'row', alignItems: 'flex-end', gap: 4 }}>
+              <Text style={{ fontSize: 36, fontWeight: '900', color: v8Vitals.blood_glucose > 140 ? Colors.destructive : v8Vitals.blood_glucose < 70 ? '#F59E0B' : Colors.success }}>{v8Vitals.blood_glucose}</Text>
+              <Text style={{ fontSize: 14, fontWeight: '600', color: Colors.textMuted, paddingBottom: 6 }}>mg/dL</Text>
+            </View>
+            <Text style={{ fontSize: 11, color: Colors.textMuted, marginTop: 4 }}>
+              {v8Vitals.blood_glucose > 140 ? 'Elevee — consultez votre medecin' : v8Vitals.blood_glucose < 70 ? 'Basse — prenez une collation' : 'Normale'}
+            </Text>
+          </View>
+        )}
+
+        {/* ══ V8-SPECIFIC: ECG Results ══ */}
+        {isV8 && v8Vitals.ecg_hr > 0 && (
+          <View style={[s.card, { borderLeftWidth: 3, borderLeftColor: '#EF4444' }]}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 12 }}>
+              <MCIcon name="heart-pulse" size={20} color="#EF4444" />
+              <Text style={s.sectionTitle}>Analyse ECG</Text>
+            </View>
+            <View style={s.vitalsGrid}>
+              <VitalCard icon="heart" label="FC ECG" value={v8Vitals.ecg_hr} unit="bpm" color="#EF4444" />
+              <VitalCard icon="pulse" label="HRV ECG" value={v8Vitals.ecg_hrv} unit="ms" color="#A78BFA" />
+              <VitalCard icon="cloud" label="Respir." value={v8Vitals.ecg_breath_rate} unit="/min" color="#38BDF8" />
+              <VitalCard icon="flash" label="Stress" value={v8Vitals.ecg_stress} unit="%" color="#F59E0B" />
+              <VitalCard icon="happy" label="Humeur" value={v8Vitals.ecg_mood} unit="%" color={Colors.success} />
+              <VitalCard icon="body" label="Age vasc." value={v8Vitals.ecg_vascular_aging} unit="ans" color="#8B5CF6" />
+            </View>
+            {v8Vitals.ecg_systolic > 0 && (
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 10, paddingTop: 10, borderTopWidth: 1, borderTopColor: 'rgba(0,0,0,0.06)' }}>
+                <MCIcon name="stethoscope" size={16} color="#8B5CF6" />
+                <Text style={{ fontSize: 13, fontWeight: '700', color: Colors.textPrimary }}>Tension ECG: {v8Vitals.ecg_systolic}/{v8Vitals.ecg_diastolic} mmHg</Text>
+              </View>
+            )}
+          </View>
+        )}
+
+        {/* ══ V8-SPECIFIC: VO2max ══ */}
+        {isV8 && v8Vitals.vo2max > 0 && (
+          <View style={[s.card, { borderLeftWidth: 3, borderLeftColor: Colors.success }]}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 8 }}>
+              <MCIcon name="run-fast" size={20} color={Colors.success} />
+              <Text style={s.sectionTitle}>VO2max</Text>
+            </View>
+            <View style={{ flexDirection: 'row', alignItems: 'flex-end', gap: 4 }}>
+              <Text style={{ fontSize: 36, fontWeight: '900', color: Colors.success }}>{v8Vitals.vo2max}</Text>
+              <Text style={{ fontSize: 14, fontWeight: '600', color: Colors.textMuted, paddingBottom: 6 }}>mL/kg/min</Text>
+            </View>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 4 }}>
+              <View style={{ paddingHorizontal: 8, paddingVertical: 2, borderRadius: 6, backgroundColor: v8Vitals.vo2max_level === 'excellent' ? '#D1FAE5' : v8Vitals.vo2max_level === 'bon' ? '#E0F2FE' : '#FEF3C7' }}>
+                <Text style={{ fontSize: 11, fontWeight: '700', color: v8Vitals.vo2max_level === 'excellent' ? Colors.success : v8Vitals.vo2max_level === 'bon' ? '#2563EB' : '#D97706', textTransform: 'capitalize' }}>{v8Vitals.vo2max_level}</Text>
+              </View>
+            </View>
+          </View>
+        )}
 
         {/* Sleep link */}
         <TouchableOpacity style={[s.card, { flexDirection: 'row', alignItems: 'center', gap: 10 }]} onPress={() => router.push('/sleep')}>
