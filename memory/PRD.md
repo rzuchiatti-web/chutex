@@ -10,6 +10,19 @@ Chutex Care est une plateforme de teleassistance et de sante connectee pour les 
 
 ## Fonctionnalites implementees
 
+### Bracelet V8 JStyle (Fevrier 2026)
+- Connexion BLE Web Bluetooth (JStyle SDK V8: 0xFFF0 service)
+- Push data types: heart_rate, spo2, temperature (3-NTC), steps, blood_pressure, ecg, ecg_result, blood_glucose, ppg
+- Glycemie estimee PPG multi-spectral (mg/dL + mmol/L)
+- Analyse ECG complete: FC, HRV, respiration, stress, humeur, age vasculaire, tension
+- VO2max calcul Uth-Sorensen-Overgaard-Pedersen (normes ACSM par age/sexe)
+- Detection anomalies: FC, SpO2, glycemie haute/basse → alertes auto
+- Consolidated readings pour compatibilite age bio + correlations + ML
+- Dashboard V8: vitals temps reel + glucose + ECG + VO2max
+- Historique ECG et glycemie
+- Mode simulation V8 complet (8s interval)
+- 15 modes sport
+
 ### Correlations Sante (Fevrier 2026)
 - Endpoint `/api/health/correlations` — Calcul Pearson sur 90 jours entre metriques
 - Endpoint `/api/health/correlations/trends` — Evolution hebdomadaire des correlations (8 semaines glissantes)
@@ -48,6 +61,12 @@ Chutex Care est une plateforme de teleassistance et de sante connectee pour les 
 ## Endpoints API cles
 | Endpoint | Description |
 |---|---|
+| /api/bracelet/v8/config | Config BLE V8 (UUIDs, commandes, modes sport) |
+| /api/bracelet/v8/push | Reception donnees V8 (FC, ECG, glycemie, PPG, temp) |
+| /api/bracelet/v8/dashboard | Dashboard vitals complet V8 |
+| /api/bracelet/v8/vo2max | Calcul VO2max (Uth-Sorensen + ACSM) |
+| /api/bracelet/v8/ecg-history | Historique ECG waveform + resultats |
+| /api/bracelet/v8/glucose-history | Historique glycemie estimee |
 | /api/health/correlations | Correlations Pearson entre metriques sante + insights AI |
 | /api/health/correlations/trends | Evolution hebdomadaire des correlations (sparklines) |
 | /api/health/aging-rate | Algorithme V2 age bio + rythme vieillissement |
