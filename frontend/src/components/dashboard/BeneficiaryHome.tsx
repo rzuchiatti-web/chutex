@@ -29,83 +29,9 @@ export function BeneficiaryHome({ token, user }: { token: string; user: any }) {
   const [isDark, setIsDark] = useState(true);
   useEffect(() => {
     if (Platform.OS !== 'web' || typeof window === 'undefined' || typeof document === 'undefined') return;
-    const existing = document.getElementById('chutex-particles');
-    if (existing) return;
-    const wrap = document.createElement('div');
-    wrap.id = 'chutex-particles';
-    wrap.style.cssText = 'position:fixed;top:0;left:0;width:100vw;height:100vh;z-index:0;pointer-events:none;';
-    const cvs = document.createElement('canvas');
-    cvs.style.cssText = 'width:100%;height:100%;display:block;';
-    wrap.appendChild(cvs);
-    document.body.prepend(wrap);
-    const ctx = cvs.getContext('2d');
-    if (!ctx) return;
-    let W = 0, H = 0;
-    const resize = () => { W = cvs.width = window.innerWidth; H = cvs.height = window.innerHeight; };
-    resize(); window.addEventListener('resize', resize);
-
-    // Purple aurora orbs — large, bright, moving
-    const orbs = [
-      { x: W * 0.3, y: H * 0.2, r: 280, vx: 0.25, vy: 0.15, hue: 270, sat: 65, a: 0.14, phase: 0 },
-      { x: W * 0.7, y: H * 0.6, r: 320, vx: -0.2, vy: 0.18, hue: 285, sat: 55, a: 0.12, phase: 2 },
-      { x: W * 0.5, y: H * 0.8, r: 250, vx: 0.15, vy: -0.12, hue: 260, sat: 70, a: 0.1, phase: 4 },
-      { x: W * 0.15, y: H * 0.7, r: 200, vx: 0.18, vy: 0.1, hue: 295, sat: 50, a: 0.09, phase: 1.5 },
-      { x: W * 0.85, y: H * 0.3, r: 230, vx: -0.15, vy: -0.13, hue: 275, sat: 60, a: 0.11, phase: 3.5 },
-    ];
-
-    // Small glowing particles (purple/violet tones)
-    const pts = Array.from({ length: 40 }, () => ({
-      x: Math.random() * W, y: Math.random() * H,
-      r: 1 + Math.random() * 2.5,
-      vx: (Math.random() - 0.5) * 0.3, vy: (Math.random() - 0.5) * 0.25,
-      hue: 255 + Math.random() * 50, a: 0.25 + Math.random() * 0.4,
-      phase: Math.random() * Math.PI * 2, freq: 0.002 + Math.random() * 0.005,
-      glowR: 10 + Math.random() * 20
-    }));
-
-    let t = 0, raf = 0;
-    const draw = () => {
-      t++;
-      // Dark grey gradient background
-      const bg = ctx.createLinearGradient(0, 0, W * 0.3, H);
-      bg.addColorStop(0, '#1e1e30'); bg.addColorStop(0.5, '#1a1a2a'); bg.addColorStop(1, '#18182a');
-      ctx.fillStyle = bg; ctx.fillRect(0, 0, W, H);
-
-      // Draw purple aurora orbs (bright & visible)
-      for (const o of orbs) {
-        o.x += o.vx + Math.sin(t * 0.0015 + o.phase) * 0.5;
-        o.y += o.vy + Math.cos(t * 0.001 + o.phase) * 0.4;
-        if (o.x < -o.r * 0.5) o.x = W + o.r * 0.3; if (o.x > W + o.r * 0.5) o.x = -o.r * 0.3;
-        if (o.y < -o.r * 0.5) o.y = H + o.r * 0.3; if (o.y > H + o.r * 0.5) o.y = -o.r * 0.3;
-        const pulse = 1 + Math.sin(t * 0.002 + o.phase) * 0.2;
-        const rr = o.r * pulse;
-        const g = ctx.createRadialGradient(o.x, o.y, 0, o.x, o.y, rr);
-        g.addColorStop(0, `hsla(${o.hue}, ${o.sat}%, 50%, ${o.a * pulse})`);
-        g.addColorStop(0.3, `hsla(${o.hue}, ${o.sat}%, 40%, ${o.a * 0.6})`);
-        g.addColorStop(0.7, `hsla(${o.hue}, ${o.sat - 10}%, 30%, ${o.a * 0.2})`);
-        g.addColorStop(1, 'transparent');
-        ctx.fillStyle = g; ctx.beginPath(); ctx.arc(o.x, o.y, rr, 0, Math.PI * 2); ctx.fill();
-      }
-
-      // Draw glowing particles
-      for (const p of pts) {
-        p.x += p.vx + Math.sin(t * p.freq + p.phase) * 0.5;
-        p.y += p.vy + Math.cos(t * p.freq * 0.7 + p.phase) * 0.4;
-        if (p.x < 0) p.x = W; if (p.x > W) p.x = 0;
-        if (p.y < 0) p.y = H; if (p.y > H) p.y = 0;
-        const flicker = 0.7 + Math.sin(t * 0.015 + p.phase) * 0.3;
-        const glow = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.glowR);
-        glow.addColorStop(0, `hsla(${p.hue}, 70%, 70%, ${p.a * 0.3 * flicker})`);
-        glow.addColorStop(1, 'transparent');
-        ctx.fillStyle = glow; ctx.beginPath(); ctx.arc(p.x, p.y, p.glowR, 0, Math.PI * 2); ctx.fill();
-        ctx.beginPath(); ctx.arc(p.x, p.y, p.r * flicker, 0, Math.PI * 2);
-        ctx.fillStyle = `hsla(${p.hue}, 80%, 85%, ${p.a * flicker})`; ctx.fill();
-      }
-      raf = requestAnimationFrame(draw);
-    };
-    draw();
-    (window as any).__chutexParticlesCleanup = () => { cancelAnimationFrame(raf); window.removeEventListener('resize', resize); wrap.remove(); };
-    return () => { (window as any).__chutexParticlesCleanup?.(); delete (window as any).__chutexParticlesCleanup; };
+    // Clean up any old canvas particles
+    const old = document.getElementById('chutex-particles');
+    if (old) old.remove();
   }, []);
   const [dashData, setDashData] = useState<any>(null);
   const [langOpen, setLangOpen] = useState(false);
@@ -344,7 +270,12 @@ export function BeneficiaryHome({ token, user }: { token: string; user: any }) {
     return (
       <div data-testid="beneficiary-dashboard" style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, display: 'flex', flexDirection: 'column', fontFamily: "'Inter', system-ui, -apple-system, sans-serif", overflow: 'hidden', '--card-bg': C.card, '--card-text': C.text, '--card-sub': C.sub, '--card-arrow': C.arrow, '--card-sep': C.sep, '--card-blur': 'none', '--card-border': 'none' } as any}>
         {/* Video Background */}
-        {/* Particle background injected via useEffect into document.body (tiwis.fr style) */}
+        {/* Gradient background: purple glow → black */}
+        <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, zIndex: 0, background: '#0a0a0f' } as any}>
+          <div style={{ position: 'absolute', top: '-20%', left: '-10%', width: '70%', height: '70%', borderRadius: '50%', background: 'radial-gradient(circle, rgba(120,60,200,0.25) 0%, rgba(80,30,160,0.12) 40%, transparent 70%)', filter: 'blur(60px)' } as any} />
+          <div style={{ position: 'absolute', bottom: '-10%', right: '-15%', width: '65%', height: '65%', borderRadius: '50%', background: 'radial-gradient(circle, rgba(140,50,220,0.18) 0%, rgba(100,30,180,0.08) 40%, transparent 70%)', filter: 'blur(80px)' } as any} />
+          <div style={{ position: 'absolute', top: '30%', right: '10%', width: '40%', height: '40%', borderRadius: '50%', background: 'radial-gradient(circle, rgba(100,40,190,0.12) 0%, transparent 60%)', filter: 'blur(50px)' } as any} />
+        </div>
         {Platform.OS === 'web' && <TeamActivityToast token={token} />}
         <div style={{ flex: 1, overflowY: 'auto', position: 'relative', zIndex: 5, padding: '0 0 100px', WebkitOverflowScrolling: 'touch' } as any}>
 
