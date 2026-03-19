@@ -182,79 +182,58 @@ export default function ProgramsTab() {
 
       {/* ═══ GUIDE POPUP ═══ */}
       {showGuide && (
-        <div data-testid="programs-guide-popup" onClick={() => setShowGuide(false)} style={{ position: 'fixed', inset: 0, zIndex: 100, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(0,0,0,0.6)', animation: 'pgFadeIn 250ms ease' } as any}>
-          <style>{`@keyframes pgFadeIn{from{opacity:0}to{opacity:1}} @keyframes pgSlideUp{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:translateY(0)}}`}</style>
-          <div onClick={(e) => e.stopPropagation()}
-            style={{ width: '90%', maxWidth: 420, maxHeight: '80vh', overflowY: 'auto', borderRadius: 28, background: 'rgba(20,20,30,0.85)', border: '1px solid rgba(255,255,255,0.1)', padding: '28px 24px', ...glass, boxShadow: '0 24px 64px rgba(0,0,0,0.5)', animation: 'pgSlideUp 300ms ease' } as any}>
-
-            {/* Close button */}
-            <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 8 } as any}>
-              <div data-testid="programs-guide-close" onClick={() => setShowGuide(false)}
-                style={{ width: 32, height: 32, borderRadius: 10, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}>
-                <i className="ri-close-line" style={{ fontSize: 16, color: 'rgba(255,255,255,0.5)' }} />
+        <div data-testid="programs-guide-popup" style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 9999, backdropFilter: 'blur(32px)', WebkitBackdropFilter: 'blur(32px)', background: 'rgba(0,0,0,0.2)', overflowY: 'scroll', WebkitOverflowScrolling: 'touch' } as any}>
+          <div onClick={(e: any) => e.stopPropagation()} style={{ width: '100%', maxWidth: 400, margin: '0 auto', padding: '40px 28px 120px', boxSizing: 'border-box' } as any}>
+            <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 20 } as any}>
+              <div data-testid="programs-guide-close" onClick={() => setShowGuide(false)} style={{ width: 38, height: 38, borderRadius: 999, background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}>
+                <i className="ri-close-line" style={{ fontSize: 18, color: 'rgba(255,255,255,0.8)' }} />
               </div>
             </div>
 
-            {/* Title */}
-            <div style={{ textAlign: 'center', marginBottom: 24 } as any}>
-              <div style={{ fontSize: 20, fontWeight: 900, color: '#FFF', letterSpacing: -0.3, marginBottom: 6 }}>Comment ca marche ?</div>
-              <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', lineHeight: 1.5 }}>Nos programmes de prevention sont conçus pour ameliorer votre sante au quotidien.</div>
-            </div>
+            <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.35)', letterSpacing: 2, textTransform: 'uppercase', marginBottom: 8 } as any}>Guide</div>
+            <div style={{ fontSize: 22, fontWeight: 800, color: '#FFF', marginBottom: 6 }}>Comment ca marche ?</div>
+            <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', lineHeight: 1.5, marginBottom: 28 }}>Nos programmes de prevention sont conçus pour ameliorer votre sante au quotidien.</div>
 
-            {/* Steps */}
             {[
-              { icon: 'ri-search-line', color: '#60A5FA', title: '1. Choisissez un programme', desc: 'Parcourez le catalogue et selectionnez le programme adapte a vos besoins : equilibre, sommeil, nutrition, mobilite...' },
-              { icon: 'ri-play-circle-line', color: '#10B981', title: '2. Suivez jour par jour', desc: 'Chaque programme propose des activites quotidiennes : exercices, conseils, meditations. Avancez a votre rythme.' },
-              { icon: 'ri-checkbox-circle-line', color: '#F59E0B', title: '3. Check-in quotidien', desc: 'Evaluez votre humeur, fatigue et douleur chaque jour. Nora adapte ses conseils selon vos retours.' },
-              { icon: 'ri-trophy-line', color: '#A78BFA', title: '4. Gagnez des badges', desc: 'Completez des etapes pour debloquer des badges. Partagez vos rapports hebdomadaires avec vos proches.' },
-            ].map((step, i) => (
+              { icon: 'ri-search-line', color: '#60A5FA', title: '1. Choisissez un programme', desc: 'Parcourez le catalogue et selectionnez le programme adapte a vos besoins.' },
+              { icon: 'ri-play-circle-line', color: '#10B981', title: '2. Suivez jour par jour', desc: 'Activites quotidiennes : exercices, conseils, meditations. A votre rythme.' },
+              { icon: 'ri-checkbox-circle-line', color: '#F59E0B', title: '3. Check-in quotidien', desc: 'Evaluez votre humeur chaque jour. Nora adapte ses conseils.' },
+              { icon: 'ri-trophy-line', color: '#A78BFA', title: '4. Gagnez des badges', desc: 'Completez des etapes pour debloquer des badges et rapports.' },
+            ].map((s, i) => (
               <div key={i} style={{ display: 'flex', gap: 14, marginBottom: 16, alignItems: 'flex-start' } as any}>
-                <div style={{ width: 40, height: 40, borderRadius: 14, background: `${step.color}12`, border: `1px solid ${step.color}20`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}>
-                  <i className={step.icon} style={{ fontSize: 18, color: step.color }} />
+                <div style={{ width: 38, height: 38, borderRadius: 12, background: `${s.color}12`, border: `1px solid ${s.color}20`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}>
+                  <i className={s.icon} style={{ fontSize: 17, color: s.color }} />
                 </div>
                 <div style={{ flex: 1 } as any}>
-                  <div style={{ fontSize: 13, fontWeight: 800, color: '#FFF', marginBottom: 3 }}>{step.title}</div>
-                  <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', lineHeight: 1.5 }}>{step.desc}</div>
+                  <div style={{ fontSize: 13, fontWeight: 800, color: '#FFF', marginBottom: 3 }}>{s.title}</div>
+                  <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', lineHeight: 1.5 }}>{s.desc}</div>
                 </div>
               </div>
             ))}
 
-            {/* CTA */}
-            <div data-testid="programs-guide-cta" onClick={() => setShowGuide(false)}
-              style={{ marginTop: 8, padding: '14px', borderRadius: 16, background: 'rgba(16,185,129,0.12)', border: '1px solid rgba(16,185,129,0.25)', textAlign: 'center', cursor: 'pointer', transition: 'background 0.15s' } as any}
-              onMouseEnter={(e: any) => { e.currentTarget.style.background = 'rgba(16,185,129,0.2)'; }}
-              onMouseLeave={(e: any) => { e.currentTarget.style.background = 'rgba(16,185,129,0.12)'; }}>
-              <span style={{ fontSize: 13, fontWeight: 800, color: '#34D399' }}>C'est parti !</span>
+            <div style={{ display: 'flex', gap: 10, marginTop: 16 } as any}>
+              <div onClick={() => setShowGuide(false)} style={{ flex: 1, padding: '14px', borderRadius: 999, textAlign: 'center', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', color: 'rgba(255,255,255,0.6)', fontWeight: 700, cursor: 'pointer' } as any}>Fermer</div>
+              <div data-testid="programs-guide-cta" onClick={() => setShowGuide(false)} style={{ flex: 1, padding: '14px', borderRadius: 999, textAlign: 'center', background: 'rgba(255,255,255,0.15)', border: '1px solid rgba(255,255,255,0.2)', color: '#FFF', fontWeight: 700, cursor: 'pointer' } as any}>C'est parti !</div>
             </div>
           </div>
         </div>
       )}
       {/* ═══ JOIN TEAM POPUP ═══ */}
       {showJoinPopup && (
-        <div data-testid="join-team-popup" onClick={() => setShowJoinPopup(false)} style={{ position: 'fixed', inset: 0, zIndex: 9999, backdropFilter: 'blur(32px)', WebkitBackdropFilter: 'blur(32px)', background: 'rgba(0,0,0,0.2)', overflowY: 'scroll', WebkitOverflowScrolling: 'touch', display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}>
-          <div onClick={(e: any) => e.stopPropagation()}
-            style={{ width: '90%', maxWidth: 380, borderRadius: 28, background: 'rgba(20,20,30,0.85)', border: '1px solid rgba(255,255,255,0.1)', padding: '28px 24px', ...glass, boxShadow: '0 24px 64px rgba(0,0,0,0.5)', animation: 'pgSlideUp 300ms ease' } as any}>
-            <style>{`@keyframes pgSlideUp{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:translateY(0)}}`}</style>
-
-            {/* Close */}
-            <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 8 } as any}>
-              <div data-testid="join-team-close" onClick={() => setShowJoinPopup(false)}
-                style={{ width: 32, height: 32, borderRadius: 10, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}>
-                <i className="ri-close-line" style={{ fontSize: 16, color: 'rgba(255,255,255,0.5)' }} />
+        <div data-testid="join-team-popup" style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 9999, backdropFilter: 'blur(32px)', WebkitBackdropFilter: 'blur(32px)', background: 'rgba(0,0,0,0.2)', overflowY: 'scroll', WebkitOverflowScrolling: 'touch' } as any}>
+          <div onClick={(e: any) => e.stopPropagation()} style={{ width: '100%', maxWidth: 400, margin: '0 auto', padding: '40px 28px 120px', boxSizing: 'border-box' } as any}>
+            <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 20 } as any}>
+              <div data-testid="join-team-close" onClick={() => setShowJoinPopup(false)} style={{ width: 38, height: 38, borderRadius: 999, background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}>
+                <i className="ri-close-line" style={{ fontSize: 18, color: 'rgba(255,255,255,0.8)' }} />
               </div>
             </div>
 
-            {/* Title */}
-            <div style={{ textAlign: 'center', marginBottom: 24 } as any}>
-              <div style={{ width: 56, height: 56, borderRadius: 18, background: 'rgba(167,139,250,0.1)', border: '1px solid rgba(167,139,250,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px' } as any}>
-                <i className="ri-team-line" style={{ fontSize: 28, color: '#A78BFA' }} />
-              </div>
-              <div style={{ fontSize: 20, fontWeight: 900, color: '#FFF', letterSpacing: -0.3, marginBottom: 6 }}>Rejoindre une equipe</div>
-              <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', lineHeight: 1.5 }}>Entrez le code equipe partage par un ami pour rejoindre son programme.</div>
-            </div>
+            <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.35)', letterSpacing: 2, textTransform: 'uppercase', marginBottom: 8 } as any}>Equipe</div>
+            <div style={{ fontSize: 22, fontWeight: 800, color: '#FFF', marginBottom: 6 }}>Rejoindre une equipe</div>
+            <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', lineHeight: 1.5, marginBottom: 28 }}>Entrez le code equipe partage par un ami pour rejoindre son programme.</div>
 
-            {/* Input */}
-            <div style={{ marginBottom: 16 } as any}>
+            <div style={{ marginBottom: 12 } as any}>
+              <div style={{ fontSize: 9, fontWeight: 600, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 4 }}>Code equipe</div>
               <input
                 data-testid="join-team-input"
                 type="text"
@@ -262,26 +241,23 @@ export default function ProgramsTab() {
                 onChange={(e: any) => { setJoinCode(e.target.value.toUpperCase()); setJoinError(''); }}
                 onKeyDown={(e: any) => { if (e.key === 'Enter') handleJoinTeam(); }}
                 placeholder="Ex: A3F8B2C1"
-                style={{ width: '100%', padding: '14px 16px', borderRadius: 14, background: 'rgba(255,255,255,0.06)', border: `1.5px solid ${joinError ? 'rgba(239,68,68,0.4)' : 'rgba(255,255,255,0.12)'}`, color: '#FFF', fontSize: 18, fontWeight: 800, textAlign: 'center', letterSpacing: 4, outline: 'none', boxSizing: 'border-box', fontFamily: 'monospace', transition: 'border-color 0.2s' } as any}
+                style={{ width: '100%', fontSize: 18, fontWeight: 800, padding: '14px 16px', borderRadius: 14, border: `1px solid ${joinError ? 'rgba(239,68,68,0.4)' : 'rgba(255,255,255,0.1)'}`, background: 'rgba(255,255,255,0.06)', color: '#FFF', textAlign: 'center', letterSpacing: 4, fontFamily: 'monospace', boxSizing: 'border-box', outline: 'none', transition: 'border-color 0.2s' } as any}
               />
             </div>
 
-            {/* Error */}
             {joinError && (
-              <div data-testid="join-team-error" style={{ textAlign: 'center', fontSize: 12, color: '#EF4444', marginBottom: 12 }}>{joinError}</div>
+              <div data-testid="join-team-error" style={{ fontSize: 12, color: '#EF4444', marginBottom: 12 }}>{joinError}</div>
             )}
-
-            {/* Success */}
             {joinSuccess && (
-              <div data-testid="join-team-success" style={{ textAlign: 'center', fontSize: 12, color: '#10B981', marginBottom: 12, fontWeight: 700 }}>{joinSuccess}</div>
+              <div data-testid="join-team-success" style={{ fontSize: 12, color: '#10B981', marginBottom: 12, fontWeight: 700 }}>{joinSuccess}</div>
             )}
 
-            {/* Submit */}
-            <div data-testid="join-team-submit" onClick={!joinLoading ? handleJoinTeam : undefined}
-              style={{ padding: '14px', borderRadius: 16, background: joinLoading ? 'rgba(167,139,250,0.08)' : 'rgba(167,139,250,0.15)', border: '1px solid rgba(167,139,250,0.3)', textAlign: 'center', cursor: joinLoading ? 'default' : 'pointer', transition: 'background 0.15s', opacity: joinLoading ? 0.6 : 1 } as any}
-              onMouseEnter={(e: any) => { if (!joinLoading) e.currentTarget.style.background = 'rgba(167,139,250,0.25)'; }}
-              onMouseLeave={(e: any) => { if (!joinLoading) e.currentTarget.style.background = 'rgba(167,139,250,0.15)'; }}>
-              <span style={{ fontSize: 13, fontWeight: 800, color: '#A78BFA' }}>{joinLoading ? 'Verification...' : 'Rejoindre l\'equipe'}</span>
+            <div style={{ display: 'flex', gap: 10, marginTop: 16 } as any}>
+              <div onClick={() => setShowJoinPopup(false)} style={{ flex: 1, padding: '14px', borderRadius: 999, textAlign: 'center', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', color: 'rgba(255,255,255,0.6)', fontWeight: 700, cursor: 'pointer' } as any}>Annuler</div>
+              <div data-testid="join-team-submit" onClick={!joinLoading ? handleJoinTeam : undefined}
+                style={{ flex: 1, padding: '14px', borderRadius: 999, textAlign: 'center', background: 'rgba(255,255,255,0.15)', border: '1px solid rgba(255,255,255,0.2)', color: '#FFF', fontWeight: 700, cursor: joinLoading ? 'default' : 'pointer', opacity: joinLoading ? 0.6 : 1 } as any}>
+                {joinLoading ? 'Verification...' : 'Rejoindre'}
+              </div>
             </div>
           </div>
         </div>
