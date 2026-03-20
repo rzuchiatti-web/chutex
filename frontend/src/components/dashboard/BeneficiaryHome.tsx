@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import AlertBanner from './AlertBanner';
-import CopilotCard from './CopilotCard';
+// CopilotCard removed per user request
 import DeviceCards from './DeviceCards';
 import FullScreenLoader from '../FullScreenLoader';
 import WeighingFlow from './WeighingFlow';
@@ -26,7 +26,21 @@ const IMG_GUARDIANS = 'https://customer-assets.emergentagent.com/job_ba3a5789-c8
 export function BeneficiaryHome({ token, user }: { token: string; user: any }) {
   const router = useRouter();
   const { t, lang, setLang, flags: langFlags } = useI18n();
-  const [isDark, setIsDark] = useState(true);
+  const [isDark, setIsDark] = useState(() => {
+    if (typeof localStorage !== 'undefined') {
+      return localStorage.getItem('chutex_dark') !== '0';
+    }
+    return true;
+  });
+  const toggleTheme = useCallback(() => {
+    setIsDark(prev => {
+      const next = !prev;
+      if (typeof localStorage !== 'undefined') {
+        localStorage.setItem('chutex_dark', next ? '1' : '0');
+      }
+      return next;
+    });
+  }, []);
   useEffect(() => {
     if (Platform.OS !== 'web' || typeof window === 'undefined' || typeof document === 'undefined') return;
     // Clean up any old canvas particles
@@ -255,9 +269,11 @@ export function BeneficiaryHome({ token, user }: { token: string; user: any }) {
   const vs = dashData?.vest || { fall_detected: false, posture_score: 0, chest_temp: 0, battery: 0, connected: false, wearing_hours_today: 0, alerts_today: 0, paired: false };
   const sl = dashData?.sleep || null;
 
-  /* ─── WEB: Clinical dashboard — inspired by myhealthprac.com ─── */
+  /* ─── WEB: Dashboard with light/dark mode ─── */
   if (Platform.OS === 'web') {
-    const C = { bg: 'transparent', card: 'rgba(8,8,16,0.6)', text: '#FAFAFA', sub: 'rgba(255,255,255,0.5)', headerBg: 'rgba(8,8,16,0.65)', btnBg: 'rgba(255,255,255,0.08)', arrow: 'rgba(255,255,255,0.35)', border: 'rgba(255,255,255,0.12)', sep: 'rgba(255,255,255,0.1)' };
+    const C = isDark
+      ? { bg: 'transparent', card: 'rgba(8,8,16,0.6)', text: '#FAFAFA', sub: 'rgba(255,255,255,0.5)', headerBg: 'rgba(8,8,16,0.65)', btnBg: 'rgba(255,255,255,0.08)', arrow: 'rgba(255,255,255,0.35)', border: 'rgba(255,255,255,0.12)', sep: 'rgba(255,255,255,0.1)' }
+      : { bg: 'transparent', card: 'rgba(255,255,255,0.75)', text: '#1A1A2E', sub: 'rgba(0,0,0,0.5)', headerBg: 'rgba(255,255,255,0.65)', btnBg: 'rgba(0,0,0,0.06)', arrow: 'rgba(0,0,0,0.3)', border: 'rgba(0,0,0,0.08)', sep: 'rgba(0,0,0,0.08)' };
     const glass = { backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)', border: `1px solid ${C.border}` };
 
     const GC = ({ children, style, onClick, testId }: any) => (
@@ -269,12 +285,20 @@ export function BeneficiaryHome({ token, user }: { token: string; user: any }) {
     );
     return (
       <div data-testid="beneficiary-dashboard" style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, display: 'flex', flexDirection: 'column', fontFamily: "'Inter', system-ui, -apple-system, sans-serif", overflow: 'hidden', '--card-bg': C.card, '--card-text': C.text, '--card-sub': C.sub, '--card-arrow': C.arrow, '--card-sep': C.sep, '--card-blur': 'none', '--card-border': 'none' } as any}>
-        {/* Video Background */}
-        {/* Gradient background: purple glow → black */}
-        <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, zIndex: 0, background: '#0a0a0f' } as any}>
-          <div style={{ position: 'absolute', top: '-20%', left: '-10%', width: '70%', height: '70%', borderRadius: '50%', background: 'radial-gradient(circle, rgba(120,60,200,0.25) 0%, rgba(80,30,160,0.12) 40%, transparent 70%)', filter: 'blur(60px)' } as any} />
-          <div style={{ position: 'absolute', bottom: '-10%', right: '-15%', width: '65%', height: '65%', borderRadius: '50%', background: 'radial-gradient(circle, rgba(140,50,220,0.18) 0%, rgba(100,30,180,0.08) 40%, transparent 70%)', filter: 'blur(80px)' } as any} />
-          <div style={{ position: 'absolute', top: '30%', right: '10%', width: '40%', height: '40%', borderRadius: '50%', background: 'radial-gradient(circle, rgba(100,40,190,0.12) 0%, transparent 60%)', filter: 'blur(50px)' } as any} />
+        {/* Background */}
+        <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, zIndex: 0, background: isDark ? '#0a0a0f' : '#F0EDE8', transition: 'background 0.4s ease' } as any}>
+          {isDark ? (
+            <>
+              <div style={{ position: 'absolute', top: '-20%', left: '-10%', width: '70%', height: '70%', borderRadius: '50%', background: 'radial-gradient(circle, rgba(120,60,200,0.25) 0%, rgba(80,30,160,0.12) 40%, transparent 70%)', filter: 'blur(60px)' } as any} />
+              <div style={{ position: 'absolute', bottom: '-10%', right: '-15%', width: '65%', height: '65%', borderRadius: '50%', background: 'radial-gradient(circle, rgba(140,50,220,0.18) 0%, rgba(100,30,180,0.08) 40%, transparent 70%)', filter: 'blur(80px)' } as any} />
+              <div style={{ position: 'absolute', top: '30%', right: '10%', width: '40%', height: '40%', borderRadius: '50%', background: 'radial-gradient(circle, rgba(100,40,190,0.12) 0%, transparent 60%)', filter: 'blur(50px)' } as any} />
+            </>
+          ) : (
+            <>
+              <div style={{ position: 'absolute', top: '-20%', left: '-10%', width: '70%', height: '70%', borderRadius: '50%', background: 'radial-gradient(circle, rgba(200,180,160,0.3) 0%, rgba(180,160,140,0.1) 40%, transparent 70%)', filter: 'blur(60px)' } as any} />
+              <div style={{ position: 'absolute', bottom: '-10%', right: '-15%', width: '65%', height: '65%', borderRadius: '50%', background: 'radial-gradient(circle, rgba(180,160,140,0.2) 0%, rgba(160,140,120,0.08) 40%, transparent 70%)', filter: 'blur(80px)' } as any} />
+            </>
+          )}
         </div>
         {Platform.OS === 'web' && <TeamActivityToast token={token} />}
         <div style={{ flex: 1, overflowY: 'auto', position: 'relative', zIndex: 5, padding: '0 0 100px', WebkitOverflowScrolling: 'touch' } as any}>
@@ -292,6 +316,9 @@ export function BeneficiaryHome({ token, user }: { token: string; user: any }) {
                 </div>
               </div>
               <div style={{ display: 'flex', gap: 8, alignItems: 'center' } as any}>
+                <div data-testid="theme-toggle-btn" onClick={toggleTheme} style={{ width: 36, height: 36, borderRadius: 18, background: C.btnBg, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', transition: 'background 0.2s' } as any}>
+                  <i className={isDark ? 'ri-sun-line' : 'ri-moon-line'} style={{ fontSize: 18, color: isDark ? '#FBBF24' : '#6366F1' }} />
+                </div>
                 <div data-testid="lang-picker-btn" onClick={() => setLangOpen(!langOpen)} style={{ width: 36, height: 36, borderRadius: 18, background: C.btnBg, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', fontSize: 18, lineHeight: 1 } as any}>
                   {lang === 'FR' ? '\u{1F1EB}\u{1F1F7}' : lang === 'EN' ? '\u{1F1EC}\u{1F1E7}' : lang === 'ES' ? '\u{1F1EA}\u{1F1F8}' : lang === 'DE' ? '\u{1F1E9}\u{1F1EA}' : lang === 'IT' ? '\u{1F1EE}\u{1F1F9}' : lang === 'PT' ? '\u{1F1F5}\u{1F1F9}' : lang === 'NL' ? '\u{1F1F3}\u{1F1F1}' : '\u{1F30D}'}
                 </div>
@@ -334,7 +361,7 @@ export function BeneficiaryHome({ token, user }: { token: string; user: any }) {
 
           <div style={{ height: 1, background: C.sep, margin: "10px 0 24px" } as any} />
 
-          <DailyObjectivesOnDashboard token={token} />
+          <DailyObjectivesOnDashboard token={token} isDark={isDark} />
 
           <div style={{ height: 1, background: C.sep, margin: "10px 0 24px" } as any} />
 
@@ -421,10 +448,6 @@ export function BeneficiaryHome({ token, user }: { token: string; user: any }) {
 
           <div style={{ height: 1, background: C.sep, margin: "10px 0 24px" } as any} />
 
-          <CopilotCard />
-
-          <div style={{ height: 1, background: C.sep, margin: "10px 0 24px" } as any} />
-
           {(br.connected || br.paired || ((sc.connected || sc.paired) && weighings.length > 0) || vs.connected || vs.paired) && (
             <DeviceCards br={br} sc={sc} vs={vs} weighings={weighings} onStartWeighing={() => setShowWeighing(true)} onRefresh={fetchData} subscription={subscription} />
           )}
@@ -445,11 +468,11 @@ export function BeneficiaryHome({ token, user }: { token: string; user: any }) {
               const activeCount = catRems.filter((r: any) => r.active).length;
               const nextTime = activeCount > 0 ? getNextReminderTime(catRems.find((r: any) => r.active)) : '';
               return (
-                <div key={cat.type} data-testid={`reminder-cat-${cat.type}`} onClick={() => { setEditReminder({ _type: cat.type }); setShowReminderCRUD(true); }} style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '12px 0', borderTop: idx > 0 ? '1px solid rgba(255,255,255,0.08)' : 'none', cursor: 'pointer' } as any}>
+                <div key={cat.type} data-testid={`reminder-cat-${cat.type}`} onClick={() => { setEditReminder({ _type: cat.type }); setShowReminderCRUD(true); }} style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '12px 0', borderTop: idx > 0 ? `1px solid ${C.border}` : 'none', cursor: 'pointer' } as any}>
                   <img src={cat.img} alt={cat.label} style={{ width: 44, height: 44, objectFit: 'contain', flexShrink: 0 } as any} />
                   <div style={{ flex: 1 } as any}>
                     <div style={{ fontSize: 14, fontWeight: 800, color: C.text }}>{cat.label}</div>
-                    <div style={{ fontSize: 11, color: activeCount > 0 ? cat.color : 'rgba(0,0,0,0.35)', fontWeight: 600 }}>
+                    <div style={{ fontSize: 11, color: activeCount > 0 ? cat.color : C.sub, fontWeight: 600 }}>
                       {activeCount > 0 ? `${activeCount} rappel${activeCount > 1 ? 's' : ''} actif${activeCount > 1 ? 's' : ''}${nextTime ? ` · dans ${nextTime}` : ''}` : 'Non configure'}
                     </div>
                   </div>
@@ -466,8 +489,8 @@ export function BeneficiaryHome({ token, user }: { token: string; user: any }) {
               <img src={IMG_GUARDIANS} alt="" style={{ width: 100, height: 50, objectFit: 'contain' } as any} />
             </div>
             {guardians.map((g: any, i: number) => (
-              <div key={g.id || i} onClick={() => router.push({ pathname: '/guardian-detail', params: { guardianId: g.id } })} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 0', borderTop: i > 0 ? '1px solid rgba(255,255,255,0.08)' : 'none', cursor: 'pointer' } as any}>
-                <div style={{ width: 44, height: 44, borderRadius: 12, background: 'rgba(255,255,255,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', flexShrink: 0 } as any}>
+              <div key={g.id || i} onClick={() => router.push({ pathname: '/guardian-detail', params: { guardianId: g.id } })} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 0', borderTop: i > 0 ? `1px solid ${C.border}` : 'none', cursor: 'pointer' } as any}>
+                <div style={{ width: 44, height: 44, borderRadius: 12, background: isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.05)', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', flexShrink: 0 } as any}>
                   {g.avatar_url ? <img src={g.avatar_url} style={{ width: 44, height: 44, objectFit: 'cover' } as any} /> : <span style={{ fontSize: 18, fontWeight: 800, color: '#C7C7CC' }}>{g.name?.charAt(0)}</span>}
                 </div>
                 <div style={{ flex: 1 } as any}><div style={{ fontSize: 15, fontWeight: 700, color: C.text }}>{g.name}</div><div style={{ fontSize: 12, color: C.sub }}>{g.relationship || t('guardian')}</div></div>

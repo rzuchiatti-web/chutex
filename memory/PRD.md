@@ -10,13 +10,17 @@ Chutex Care est une plateforme de teleassistance et de sante connectee pour les 
 
 ## Fonctionnalites implementees
 
-### Dashboard Beneficiaire Design (Mars 2026)
-- Fond gradient CSS: noir (#0a0a0f) avec 3 lueurs violettes radiales (radial-gradient + blur 50-80px)
-- Objectifs journaliers redesignes:
-  - Carte Pas (pleine largeur): cercle progression SVG, badge "MESURE", mini barre segmentee, gradient vert
-  - 3 cartes recommandations (Calories/Hydratation/Coucher): icones, valeurs grandes, badge "RECOMMANDE"
-  - Separation claire mesure bracelet vs recommandations Nora
-- Cartes glass backdrop-blur(24px), border-radius 18-24px, bordures rgba(255,255,255,0.06-0.15)
+### Dashboard Beneficiaire - Mode Light/Dark (Mars 2026)
+- Toggle theme light/dark dans le header (icone soleil/lune)
+- Persistance du choix via localStorage (`chutex_dark`)
+- Mode Dark: fond #0a0a0f + glow violet, cartes glass sombres, texte blanc
+- Mode Light: fond #F0EDE8 beige/creme, cartes blanches translucides, texte sombre
+- GlassTabBar s'adapte automatiquement au theme
+- Carte CopilotCard (Nora) supprimee du dashboard
+- NoraPill supprime des objectifs journaliers
+- Toutes les couleurs (cartes, bordures, texte, separateurs) adaptees au theme
+- 4 cartes objectifs: Apport calorique, Hydratation, Activite physique, Endormissement
+- Rappels, gardiens, alertes adaptees au mode choisi
 
 ### Bracelet V8 JStyle (Fevrier 2026)
 - Connexion BLE Web Bluetooth (JStyle SDK V8: 0xFFF0 service)
@@ -48,43 +52,38 @@ Chutex Care est une plateforme de teleassistance et de sante connectee pour les 
 - Ponderation scientifique: HRV 20-30%, graisse viscerale 20%, masse musculaire 15%, etc.
 - Tendances 90 jours avec detection amelioration/degradation
 - Fusion Nora IA (60%) + algorithme (40%) quand les deux disponibles
-- Badges frontend: Niveau, Confiance, Tendance
 
-### Live Activity + Carte GPS (Mars 2026)
-- LiveAlertBanner style Uber Eats avec polling 5s, barre progression 6 etapes
-- Carte CartoDB dark tiles avec marqueurs beneficiaire/intervenant
-- ETA temps reel (Haversine + estimation arrivee)
-- iOS ActivityKit (Dynamic Island + Lock Screen)
-- Backend live_status_routes avec hooks dans alert_routes, vapi_engine, carewatch_engine
+### Teleassistance
+- SOS, alertes automatiques, GPS, interventions
+- Alertes actives et historique
+- Gardiens avec notifications SMS/push
 
-### Admin Dashboard (Mars 2026)
-- Backoffice 9 modules, WebSocket alertes temps reel, Documents PDF
+## Backlog (a venir)
 
-### Sante et Monitoring
-- Glycemie ML V3, Balance Lefu, Gilet capteurs, Programme sante
+### P0
+- Finaliser integration Balance & Vest (verification flux donnees combine)
 
-### Alertes et Teleassistance
-- SOS/Chute/Anomalie, VAPI IA, CareWatch, Escalade automatique
+### P1
+- Systeme de signature electronique (onglet Documents admin)
 
-## Endpoints API cles
-| Endpoint | Description |
-|---|---|
-| /api/bracelet/v8/config | Config BLE V8 (UUIDs, commandes, modes sport) |
-| /api/bracelet/v8/push | Reception donnees V8 (FC, ECG, glycemie, PPG, temp) |
-| /api/bracelet/v8/dashboard | Dashboard vitals complet V8 |
-| /api/bracelet/v8/vo2max | Calcul VO2max (Uth-Sorensen + ACSM) |
-| /api/bracelet/v8/ecg-history | Historique ECG waveform + resultats |
-| /api/bracelet/v8/glucose-history | Historique glycemie estimee |
-| /api/health/correlations | Correlations Pearson entre metriques sante + insights AI |
-| /api/health/correlations/trends | Evolution hebdomadaire des correlations (sparklines) |
-| /api/health/aging-rate | Algorithme V2 age bio + rythme vieillissement |
-| /api/health/body-age | Age biologique (Nora AI ou fallback) |
-| /api/health/summary | Resume sante quotidien AI |
-| /api/health/daily-report | Rapport complet avec subscores |
-| /api/health/sleep | Donnees sommeil bracelet |
-| /api/health/thresholds | CRUD seuils personnalises |
-| /api/alerts/live-active | Statuts live actifs avec locations + ETA |
-| /ws/admin-alerts | WebSocket admin temps reel |
+### P2
+- Systeme de parrainage Guardian
+- Essai gratuit 7 jours
+- Visualisation PDF des contrats
+- Integration test urinaire Vivoo
+- Refactoring: program_routes.py (1866 lignes), teleassistance_routes.py (1131 lignes)
 
-## Backlog
-Voir ROADMAP.md
+## Fichiers cles
+- `/app/frontend/src/components/dashboard/BeneficiaryHome.tsx` — Dashboard beneficiaire principal
+- `/app/frontend/src/components/dashboard/DailyObjectives.tsx` — Cartes objectifs journaliers
+- `/app/frontend/src/components/dashboard/constants.ts` — Constantes design et images
+- `/app/frontend/src/components/GlassTabBar.tsx` — Barre de navigation adaptive
+- `/app/frontend/src/components/dashboard/AlertBanner.tsx` — Banniere alertes
+- `/app/frontend/src/components/dashboard/SharedUI.tsx` — Composants UI partages
+
+## Credentials de test
+| Role | Email / Phone | Password |
+| :--- | :--- | :--- |
+| **Admin** | `0600000001` | `admin123` |
+| **Beneficiaire (Josette)** | `0651245918` | `test123` |
+| **Gardien (Marie)** | `+33699887766` | `test123` |
