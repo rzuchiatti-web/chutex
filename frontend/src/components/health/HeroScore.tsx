@@ -1,5 +1,14 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { Platform } from 'react-native';
 import NoraCard from '../../components/shared/NoraCard';
+
+const portalMount = (node: React.ReactNode) => {
+  if (Platform.OS === 'web' && typeof document !== 'undefined') {
+    const ReactDOM = require('react-dom');
+    return ReactDOM.createPortal(node, document.body);
+  }
+  return node;
+};
 
 interface Props {
   bioAge?: number;
@@ -104,8 +113,8 @@ export default function HeroScore({ bioAge, realAge, status, statusColor, ai, su
       </div>
 
       {/* ═══ POPUP "Comprendre mon corps" — refonte ═══ */}
-      {showDetail && (
-        <div onClick={() => setShowDetail(false)} style={{ position: 'fixed', inset: 0, zIndex: 9999, backdropFilter: 'blur(32px)', WebkitBackdropFilter: 'blur(32px)', background: 'rgba(0,0,0,0.5)', overflowY: 'auto' } as any}>
+      {showDetail && portalMount(
+        <div onClick={() => setShowDetail(false)} style={{ position: 'fixed', inset: 0, zIndex: 99990, backdropFilter: 'blur(32px)', WebkitBackdropFilter: 'blur(32px)', background: 'rgba(0,0,0,0.55)', overflowY: 'auto' } as any}>
           <div onClick={(e: any) => e.stopPropagation()} style={{ width: '100%', maxWidth: 420, margin: '0 auto', padding: '40px 24px 120px', boxSizing: 'border-box' } as any}>
             {/* Close */}
             <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 16 } as any}>

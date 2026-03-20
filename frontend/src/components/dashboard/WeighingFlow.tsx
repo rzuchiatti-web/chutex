@@ -1,8 +1,17 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { Platform } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useI18n } from '../../context/I18nContext';
 import { useAuth } from '../../context/AuthContext';
 import { apiFetch } from '../../services/api';
+
+const portalMount = (node: React.ReactNode) => {
+  if (Platform.OS === 'web' && typeof document !== 'undefined') {
+    const ReactDOM = require('react-dom');
+    return ReactDOM.createPortal(node, document.body);
+  }
+  return node;
+};
 
 interface Props { onClose: () => void; d?: any; weighings?: any[]; }
 
@@ -268,8 +277,8 @@ export default function WeighingFlow({ onClose, d = {}, weighings = [] }: Props)
     onClose();
   };
 
-  return (
-    <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 99999, overflow: 'hidden' } as any}>
+  return portalMount(
+    <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 99990, overflow: 'hidden' } as any}>
       <img src={BG_VIOLET} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 } as any} />
       <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.25)', zIndex: 1 } as any} />
       <div style={{ position: 'relative', zIndex: 5, width: '100%', height: '100%', overflowY: 'scroll', WebkitOverflowScrolling: 'touch' } as any}>

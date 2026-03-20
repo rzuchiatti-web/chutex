@@ -7,7 +7,15 @@ import ProgramDailyView from '../../src/components/ProgramDailyView';
 import { useRouter } from 'expo-router';
 import { BG_IMAGES } from '../../src/components/dashboard/constants';
 import FullScreenLoader from '../../src/components/FullScreenLoader';
-import AnimatedDarkBg from '../../src/components/AnimatedDarkBg';
+
+const portalMount = (node: React.ReactNode) => {
+  if (Platform.OS === 'web' && typeof document !== 'undefined') {
+    const ReactDOM = require('react-dom');
+    return ReactDOM.createPortal(node, document.body);
+  }
+  return node;
+};
+const POP: any = { position: 'fixed', inset: 0, zIndex: 99990, backdropFilter: 'blur(32px)', WebkitBackdropFilter: 'blur(32px)', background: 'rgba(0,0,0,0.55)', overflowY: 'scroll', WebkitOverflowScrolling: 'touch' };
 
 const PROG_IMAGES: Record<string, string> = {
   sommeil: 'https://static.prod-images.emergentagent.com/jobs/2f205700-5cab-4634-9bb6-d20327bb5e5e/images/70f74062050eb73f37e4af1bc825ec64a37ff59e36dbd21dddaad395538ae8c2.png',
@@ -199,8 +207,8 @@ export default function ProgramsTab() {
       </div>
 
       {/* ═══ GUIDE POPUP ═══ */}
-      {showGuide && (
-        <div data-testid="programs-guide-popup" style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 9999, backdropFilter: 'blur(32px)', WebkitBackdropFilter: 'blur(32px)', background: 'rgba(0,0,0,0.2)', overflowY: 'scroll', WebkitOverflowScrolling: 'touch' } as any}>
+      {showGuide && portalMount(
+        <div data-testid="programs-guide-popup" style={POP as any}>
           <div onClick={(e: any) => e.stopPropagation()} style={{ width: '100%', maxWidth: 400, margin: '0 auto', padding: '40px 28px 120px', boxSizing: 'border-box' } as any}>
             <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 20 } as any}>
               <div data-testid="programs-guide-close" onClick={() => setShowGuide(false)} style={{ width: 38, height: 38, borderRadius: 999, background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}>
@@ -237,8 +245,8 @@ export default function ProgramsTab() {
         </div>
       )}
       {/* ═══ JOIN TEAM POPUP ═══ */}
-      {showJoinPopup && (
-        <div data-testid="join-team-popup" style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 9999, backdropFilter: 'blur(32px)', WebkitBackdropFilter: 'blur(32px)', background: 'rgba(0,0,0,0.2)', overflowY: 'scroll', WebkitOverflowScrolling: 'touch' } as any}>
+      {showJoinPopup && portalMount(
+        <div data-testid="join-team-popup" style={POP as any}>
           <div onClick={(e: any) => e.stopPropagation()} style={{ width: '100%', maxWidth: 400, margin: '0 auto', padding: '40px 28px 120px', boxSizing: 'border-box' } as any}>
             <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 20 } as any}>
               <div data-testid="join-team-close" onClick={() => setShowJoinPopup(false)} style={{ width: 38, height: 38, borderRadius: 999, background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}>
