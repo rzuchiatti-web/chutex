@@ -65,7 +65,7 @@ export default function GlassTabBar({ state, navigation, role, showNora = true }
   const currentRoute = state?.routes?.[state.index]?.name || '';
 
   return (
-    <div style={{ position: 'fixed', bottom: 16, left: 16, right: 16, zIndex: 999, display: 'flex', alignItems: 'center', gap: 12, pointerEvents: 'auto' } as any}>
+    <div className="glass-tab-bar-root" style={{ position: 'fixed', bottom: 16, left: 16, right: 16, zIndex: 999, display: 'flex', alignItems: 'center', gap: 12, pointerEvents: 'auto' } as any}>
       <div style={{
         flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'space-around',
         height: 62, borderRadius: 22, padding: '0 8px',
