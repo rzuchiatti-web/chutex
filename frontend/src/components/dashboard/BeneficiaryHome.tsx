@@ -334,6 +334,7 @@ export function BeneficiaryHome({ token, user }: { token: string; user: any }) {
             background: isDark ? 'linear-gradient(to bottom, #000 0%, #3A3A3C 100%)' : '#FFF',
             transition: 'background 0.4s ease',
             position: 'relative', zIndex: 10,
+            borderTop: isDark ? '1px solid rgba(255,255,255,0.1)' : '1px solid rgba(0,0,0,0.08)',
           } as any}>
 
           <DailyObjectivesOnDashboard token={token} isDark={isDark} />

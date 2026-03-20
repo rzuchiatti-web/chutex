@@ -188,6 +188,7 @@ export default function HealthScreen() {
             borderRadius: '24px 24px 0 0',
             background: contentBg,
             position: 'relative', zIndex: 10,
+            borderTop: isDark ? '1px solid rgba(255,255,255,0.1)' : '1px solid rgba(0,0,0,0.08)',
           } as any}>
 
           {/* Vitals Row */}

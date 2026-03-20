@@ -30,17 +30,17 @@ export default function HeroScore({ bioAge, realAge, status, statusColor, ai, su
     <>
       {/* ═══ BIO AGE ═══ */}
       <div data-testid="bio-age-section" style={{ textAlign: 'center', padding: '24px 20px 8px' } as any}>
-        <div data-testid="bio-age-pill" style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '6px 16px 6px 6px', borderRadius: 999, background: '#000', marginBottom: 14, border: '1.5px solid rgba(255,255,255,0.18)', boxShadow: '0 4px 20px rgba(0,0,0,0.35), 0 0 0 1px rgba(255,255,255,0.12)' } as any}>
+        <div data-testid="bio-age-pill" style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '6px 16px 6px 6px', borderRadius: 999, background: 'rgba(0,0,0,0.4)', marginBottom: 14, border: '1.5px solid rgba(255,255,255,0.25)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' } as any}>
           <video autoPlay loop muted playsInline src="https://customer-assets.emergentagent.com/job_ba3a5789-c8f1-4b12-b5d8-478a7f99aaea/artifacts/b6eh1r76_Nora_video.mp4" style={{ width: 26, height: 26, borderRadius: 13, objectFit: 'cover', flexShrink: 0 } as any} />
           <span style={{ fontSize: 10, fontWeight: 800, color: '#FFF', letterSpacing: 1.2 }}>Age biologique</span>
         </div>
         {ba > 0 ? (
-          <div style={{ fontSize: 64, fontWeight: 900, color: '#FFF', lineHeight: 1 }}>{ba}<span style={{ fontSize: 18, color: 'rgba(255,255,255,0.3)', marginLeft: 4 }}>ans</span></div>
+          <div style={{ fontSize: 64, fontWeight: 900, color: '#FFF', lineHeight: 1, textShadow: '0 2px 12px rgba(0,0,0,0.4)' }}>{ba}<span style={{ fontSize: 18, color: 'rgba(255,255,255,0.7)', marginLeft: 4 }}>ans</span></div>
         ) : (
-          <div style={{ fontSize: 18, fontWeight: 700, color: 'rgba(255,255,255,0.3)', lineHeight: 1.4 }}>En cours d'analyse...</div>
+          <div style={{ fontSize: 18, fontWeight: 700, color: 'rgba(255,255,255,0.6)', lineHeight: 1.4, textShadow: '0 2px 8px rgba(0,0,0,0.3)' }}>En cours d'analyse...</div>
         )}
         {diff !== 0 && ba > 0 && (
-          <div style={{ display: 'inline-flex', alignItems: 'center', gap: 4, padding: '5px 14px', borderRadius: 999, background: diff > 0 ? 'rgba(16,185,129,0.12)' : 'rgba(239,68,68,0.12)', border: `1px solid ${diff > 0 ? 'rgba(16,185,129,0.2)' : 'rgba(239,68,68,0.2)'}`, marginTop: 10 } as any}>
+          <div style={{ display: 'inline-flex', alignItems: 'center', gap: 4, padding: '5px 14px', borderRadius: 999, background: diff > 0 ? 'rgba(16,185,129,0.2)' : 'rgba(239,68,68,0.2)', border: `1px solid ${diff > 0 ? 'rgba(16,185,129,0.3)' : 'rgba(239,68,68,0.3)'}`, marginTop: 10, backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)' } as any}>
             <i className={diff > 0 ? 'ri-arrow-down-line' : 'ri-arrow-up-line'} style={{ fontSize: 12, color: diff > 0 ? '#10B981' : '#EF4444' }} />
             <span style={{ fontSize: 11, fontWeight: 700, color: diff > 0 ? '#10B981' : '#EF4444' }}>{Math.abs(diff)} ans {diff > 0 ? 'de moins' : 'de plus'}</span>
           </div>
@@ -51,18 +51,18 @@ export default function HeroScore({ bioAge, realAge, status, statusColor, ai, su
       {ar && ar.rate > 0 && (
         <div style={{ padding: '20px 24px 16px' } as any}>
           <div style={{ textAlign: 'center', marginBottom: 14 } as any}>
-            <div style={{ fontSize: 9, fontWeight: 700, color: 'rgba(255,255,255,0.25)', textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 8 }}>Rythme de vieillissement</div>
-            <div style={{ fontSize: 36, fontWeight: 900, color: '#FFF', lineHeight: 1 }}>{ar.rate.toFixed(1).replace('.', ',')}x</div>
+            <div style={{ fontSize: 9, fontWeight: 700, color: 'rgba(255,255,255,0.5)', textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 8, textShadow: '0 1px 4px rgba(0,0,0,0.3)' }}>Rythme de vieillissement</div>
+            <div style={{ fontSize: 36, fontWeight: 900, color: '#FFF', lineHeight: 1, textShadow: '0 2px 8px rgba(0,0,0,0.3)' }}>{ar.rate.toFixed(1).replace('.', ',')}x</div>
           </div>
           <div style={{ position: 'relative', margin: '0 6px' } as any}>
             {/* Labels */}
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 } as any}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 5 } as any}>
                 <div style={{ width: 8, height: 8, borderRadius: '50%', border: '1.5px solid rgba(255,255,255,0.25)' } as any} />
-                <span style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.45)' }}>Lent</span>
+                <span style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.7)', textShadow: '0 1px 4px rgba(0,0,0,0.3)' }}>Lent</span>
               </div>
               <div style={{ display: 'flex', alignItems: 'center', gap: 5 } as any}>
-                <span style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.45)' }}>Rapide</span>
+                <span style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.7)', textShadow: '0 1px 4px rgba(0,0,0,0.3)' }}>Rapide</span>
                 <div style={{ width: 8, height: 8, borderRadius: '50%', background: 'rgba(255,255,255,0.25)' } as any} />
               </div>
             </div>
@@ -94,19 +94,19 @@ export default function HeroScore({ bioAge, realAge, status, statusColor, ai, su
           {/* Level + Confidence + Trend badges */}
           <div style={{ display: 'flex', justifyContent: 'center', gap: 6, marginTop: 14, flexWrap: 'wrap' } as any}>
             {ar.level_label && (
-              <div data-testid="aging-level-badge" style={{ padding: '4px 10px', borderRadius: 99, background: 'rgba(167,139,250,0.1)', border: '1px solid rgba(167,139,250,0.2)', display: 'flex', alignItems: 'center', gap: 4 } as any}>
-                <i className={ar.level === 2 ? 'ri-scales-3-line' : 'ri-heart-pulse-line'} style={{ fontSize: 10, color: '#A78BFA' }} />
-                <span style={{ fontSize: 9, fontWeight: 700, color: '#A78BFA' }}>{ar.level_label}</span>
+              <div data-testid="aging-level-badge" style={{ padding: '4px 10px', borderRadius: 99, background: 'rgba(167,139,250,0.15)', border: '1px solid rgba(167,139,250,0.25)', display: 'flex', alignItems: 'center', gap: 4, backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)' } as any}>
+                <i className={ar.level === 2 ? 'ri-scales-3-line' : 'ri-heart-pulse-line'} style={{ fontSize: 10, color: '#C4B5FD' }} />
+                <span style={{ fontSize: 9, fontWeight: 700, color: '#C4B5FD' }}>{ar.level_label}</span>
               </div>
             )}
             {ar.confidence && (
-              <div data-testid="aging-confidence-badge" style={{ padding: '4px 10px', borderRadius: 99, background: ar.confidence === 'haute' ? 'rgba(16,185,129,0.1)' : ar.confidence === 'moyenne' ? 'rgba(245,158,11,0.1)' : 'rgba(255,255,255,0.05)', border: `1px solid ${ar.confidence === 'haute' ? 'rgba(16,185,129,0.2)' : ar.confidence === 'moyenne' ? 'rgba(245,158,11,0.2)' : 'rgba(255,255,255,0.1)'}`, display: 'flex', alignItems: 'center', gap: 4 } as any}>
+              <div data-testid="aging-confidence-badge" style={{ padding: '4px 10px', borderRadius: 99, background: ar.confidence === 'haute' ? 'rgba(16,185,129,0.15)' : ar.confidence === 'moyenne' ? 'rgba(245,158,11,0.15)' : 'rgba(255,255,255,0.08)', border: `1px solid ${ar.confidence === 'haute' ? 'rgba(16,185,129,0.3)' : ar.confidence === 'moyenne' ? 'rgba(245,158,11,0.3)' : 'rgba(255,255,255,0.15)'}`, display: 'flex', alignItems: 'center', gap: 4, backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)' } as any}>
                 <i className="ri-shield-check-line" style={{ fontSize: 10, color: ar.confidence === 'haute' ? '#10B981' : ar.confidence === 'moyenne' ? '#F59E0B' : 'rgba(255,255,255,0.4)' }} />
                 <span style={{ fontSize: 9, fontWeight: 700, color: ar.confidence === 'haute' ? '#10B981' : ar.confidence === 'moyenne' ? '#F59E0B' : 'rgba(255,255,255,0.4)' }}>Confiance {ar.confidence}</span>
               </div>
             )}
             {ar.trend_summary && (
-              <div data-testid="aging-trend-badge" style={{ padding: '4px 10px', borderRadius: 99, background: `${ar.trend_summary.color}10`, border: `1px solid ${ar.trend_summary.color}25`, display: 'flex', alignItems: 'center', gap: 4 } as any}>
+              <div data-testid="aging-trend-badge" style={{ padding: '4px 10px', borderRadius: 99, background: `${ar.trend_summary.color}15`, border: `1px solid ${ar.trend_summary.color}30`, display: 'flex', alignItems: 'center', gap: 4, backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)' } as any}>
                 <i className={ar.trend_summary.improving > ar.trend_summary.degrading ? 'ri-arrow-right-up-line' : ar.trend_summary.degrading > ar.trend_summary.improving ? 'ri-arrow-right-down-line' : 'ri-arrow-right-line'} style={{ fontSize: 10, color: ar.trend_summary.color }} />
                 <span style={{ fontSize: 9, fontWeight: 700, color: ar.trend_summary.color }}>{ar.trend_summary.label}</span>
               </div>
