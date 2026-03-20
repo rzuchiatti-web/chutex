@@ -997,10 +997,11 @@ const BG_PROFILE = 'https://customer-assets.emergentagent.com/job_9950a869-9328-
             </div>
           )}
 
-          <GuardianActivationPopup show={showGuardianActivation} onClose={() => setShowGuardianActivation(false)} step={guardianActivationStep} setStep={setGuardianActivationStep} alertSms={alertSms} setAlertSms={setAlertSms} alertEmail={alertEmail} setAlertEmail={setAlertEmail} activating={activatingGuardian} onActivate={activateGuardianMode} />
+        </div>
+        </div>
 
-        </div>
-        </div>
+      {/* Popups outside stacking context */}
+      <GuardianActivationPopup show={showGuardianActivation} onClose={() => setShowGuardianActivation(false)} step={guardianActivationStep} setStep={setGuardianActivationStep} alertSms={alertSms} setAlertSms={setAlertSms} alertEmail={alertEmail} setAlertEmail={setAlertEmail} activating={activatingGuardian} onActivate={activateGuardianMode} />
       </div>
     );
   }

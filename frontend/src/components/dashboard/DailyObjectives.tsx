@@ -34,11 +34,6 @@ function ObjectivesHeader({ isDark }: { isDark: boolean }) {
       <div style={{ width: 90, height: 90, flexShrink: 0, borderRadius: 16, overflow: 'hidden', position: 'relative', zIndex: 2 } as any}>
         <video src={NORA_VIDEO} autoPlay loop muted playsInline
           style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: 16 } as any} />
-        <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}>
-          <div style={{ width: 28, height: 28, borderRadius: 14, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}>
-            <i className="ri-play-fill" style={{ fontSize: 14, color: '#FFF', marginLeft: 2 }} />
-          </div>
-        </div>
       </div>
     </div>
   );

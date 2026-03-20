@@ -331,9 +331,11 @@ export default function HealthScreen() {
 
           {ai.motivation && <div style={{ textAlign: 'center', padding: '16px 0', fontSize: 13, color: subColor, fontStyle: 'italic' }}>{ai.motivation}</div>}
 
-          {weighingStep > 0 && <WeighingFlow onClose={() => setWeighingStep(0)} d={d} weighings={weighings} />}
       </div>
       </div>
+
+      {/* Popups outside stacking context */}
+      {weighingStep > 0 && <WeighingFlow onClose={() => setWeighingStep(0)} d={d} weighings={weighings} />}
     </div>
     );
   }
