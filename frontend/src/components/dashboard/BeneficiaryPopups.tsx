@@ -1,8 +1,20 @@
 import React, { useState } from 'react';
+import { Platform } from 'react-native';
 import { useRouter } from 'expo-router';
 import { apiFetch } from '../../services/api';
 import { REMINDER_IMAGES } from './constants';
 import { PhoneInputWithPrefix } from '../PhoneInputWithPrefix';
+
+const portalMount = (node: React.ReactNode) => {
+  if (Platform.OS === 'web' && typeof document !== 'undefined') {
+    const ReactDOM = require('react-dom');
+    return ReactDOM.createPortal(node, document.body);
+  }
+  return node;
+};
+
+const OVERLAY: any = { position: 'fixed', inset: 0, zIndex: 99990, backdropFilter: 'blur(32px)', WebkitBackdropFilter: 'blur(32px)', background: 'rgba(0,0,0,0.55)', overflowY: 'auto' };
+const OVERLAY_CENTER: any = { ...OVERLAY, display: 'flex', alignItems: 'center', justifyContent: 'center' };
 
 /* ─── NOTIFICATIONS POPUP ─── */
 export function NotificationsPopup({ show, onClose, activeAlerts, guardianRequests, predictiveAlerts, token, onRefresh }: any) {
@@ -27,8 +39,8 @@ export function NotificationsPopup({ show, onClose, activeAlerts, guardianReques
 
   const pAlerts = predictiveAlerts || [];
 
-  return (
-    <div onClick={onClose} style={{ position: 'fixed', inset: 0, zIndex: 9999, backdropFilter: 'blur(32px)', WebkitBackdropFilter: 'blur(32px)', background: 'rgba(0,0,0,0.3)', overflowY: 'auto' } as any}>
+  return portalMount(
+    <div onClick={onClose} style={OVERLAY as any}>
       <div onClick={(e: any) => e.stopPropagation()} style={{ width: '100%', maxWidth: 420, margin: '0 auto', padding: '40px 24px 120px', boxSizing: 'border-box' } as any}>
         <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 20 } as any}>
           <div onClick={onClose} style={{ width: 36, height: 36, borderRadius: 999, background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}><i className="ri-close-line" style={{ fontSize: 18, color: 'rgba(255,255,255,0.8)' }} /></div>
@@ -97,8 +109,8 @@ export function LanguagePopup({ show, onClose, lang, setLang }: any) {
     { code: 'PT', flag: '\u{1F1F5}\u{1F1F9}', name: 'Portugues' },
     { code: 'NL', flag: '\u{1F1F3}\u{1F1F1}', name: 'Nederlands' },
   ];
-  return (
-    <div onClick={onClose} style={{ position: 'fixed', inset: 0, zIndex: 9999, backdropFilter: 'blur(32px)', WebkitBackdropFilter: 'blur(32px)', background: 'rgba(0,0,0,0.4)', overflowY: 'auto' } as any}>
+  return portalMount(
+    <div onClick={onClose} style={OVERLAY as any}>
       <div onClick={(e: any) => e.stopPropagation()} style={{ width: '100%', maxWidth: 420, margin: '0 auto', padding: '40px 24px 120px', boxSizing: 'border-box' } as any}>
         <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 20 } as any}>
           <div onClick={onClose} style={{ width: 36, height: 36, borderRadius: 999, background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}><i className="ri-close-line" style={{ fontSize: 18, color: 'rgba(255,255,255,0.8)' }} /></div>
@@ -137,8 +149,8 @@ export function ReminderCRUDPopup({ show, editReminder, setEditReminder, onClose
   const hr = editingData ? parseInt((editingData.time || '08:00').split(':')[0]) || 8 : 8;
   const mn = editingData ? parseInt((editingData.time || '08:00').split(':')[1]) || 0 : 0;
 
-  return (
-    <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 9999, backdropFilter: 'blur(32px)', WebkitBackdropFilter: 'blur(32px)', background: 'rgba(0,0,0,0.3)', overflowY: 'scroll', WebkitOverflowScrolling: 'touch' } as any}>
+  return portalMount(
+    <div style={{ ...OVERLAY, overflowY: 'scroll', WebkitOverflowScrolling: 'touch' } as any}>
       <div style={{ width: '100%', maxWidth: 400, margin: '0 auto', padding: '24px 20px 120px', boxSizing: 'border-box' } as any}>
 
         {/* Close button */}
@@ -264,8 +276,8 @@ export function ReminderCRUDPopup({ show, editReminder, setEditReminder, onClose
 export function ReminderNotifPopup({ reminderNotif, setReminderNotif, reminderMeta, token, fetchData }: any) {
   if (!reminderNotif) return null;
   const meta = reminderMeta[reminderNotif.reminder_type] || reminderMeta.hydration;
-  return (
-    <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 10000, backdropFilter: 'blur(40px)', WebkitBackdropFilter: 'blur(40px)', background: 'rgba(0,0,0,0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}>
+  return portalMount(
+    <div style={OVERLAY_CENTER as any}>
       <div style={{ width: '100%', maxWidth: 340, padding: '0 20px', boxSizing: 'border-box' } as any}>
         <div style={{ borderRadius: 24, background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', padding: '28px 24px', textAlign: 'center' } as any}>
           <img src={meta.img} alt="" style={{ width: 80, height: 80, objectFit: 'contain', margin: '0 auto 16px', display: 'block' } as any} />
@@ -291,8 +303,8 @@ export function AddGuardianPopup({ show, onClose, phone, setPhone, relationship,
   const PERSO_G = ['Mere', 'Pere', 'Fils', 'Fille', 'Petit-enfant', 'Conjoint(e)', 'Frere', 'Soeur', 'Ami(e)', 'Voisin(e)', 'Autre'];
   const isPro = PROS_G.includes(relationship);
   const isPerso = PERSO_G.includes(relationship);
-  return (
-    <div onClick={onClose} style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 9999, backdropFilter: 'blur(32px)', WebkitBackdropFilter: 'blur(32px)', background: 'rgba(4,14,26,0.6)', overflowY: 'auto' } as any}>
+  return portalMount(
+    <div onClick={onClose} style={OVERLAY as any}>
       <div onClick={(e: any) => e.stopPropagation()} style={{ width: '100%', maxWidth: 420, margin: '0 auto', padding: '40px 28px 120px', boxSizing: 'border-box' } as any}>
         <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 20 } as any}>
           <div onClick={onClose} style={{ width: 36, height: 36, borderRadius: 10, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}><i className="ri-close-line" style={{ fontSize: 18, color: 'rgba(255,255,255,0.6)' }} /></div>
@@ -350,8 +362,8 @@ export function AddGuardianPopup({ show, onClose, phone, setPhone, relationship,
 /* ─── DAILY CHECK-IN POPUP ─── */
 export function CheckinPopup({ show, onClose, activeProgram, mood, setMood, note, setNote, sending, setSending, feedback, setFeedback, token, fetchData }: any) {
   if (!show || !activeProgram?.active) return null;
-  return (
-    <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 10002, backdropFilter: 'blur(32px)', WebkitBackdropFilter: 'blur(32px)', background: 'rgba(4,14,26,0.7)', display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}>
+  return portalMount(
+    <div style={OVERLAY_CENTER as any}>
       <div onClick={(e: any) => e.stopPropagation()} style={{ width: '100%', maxWidth: 380, padding: '28px 24px', boxSizing: 'border-box' } as any}>
         <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 12 } as any}>
           <div data-testid="close-checkin" onClick={onClose} style={{ width: 32, height: 32, borderRadius: 8, background: 'rgba(255,255,255,0.06)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}>
@@ -402,8 +414,8 @@ export function CheckinPopup({ show, onClose, activeProgram, mood, setMood, note
 /* ─── GUARDIAN ACTIVATION POPUP ─── */
 export function GuardianActivationPopup({ show, onClose, step, setStep, alertSms, setAlertSms, alertEmail, setAlertEmail, activating, onActivate }: any) {
   if (!show) return null;
-  return (
-    <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 10001, backdropFilter: 'blur(32px)', WebkitBackdropFilter: 'blur(32px)', background: 'rgba(4,14,26,0.7)', overflowY: 'auto', display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}>
+  return portalMount(
+    <div style={{ ...OVERLAY_CENTER, overflowY: 'auto' } as any}>
       <div onClick={(e: any) => e.stopPropagation()} style={{ width: '100%', maxWidth: 400, padding: '32px 24px', boxSizing: 'border-box' } as any}>
         <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 16 } as any}>
           <div data-testid="close-guardian-activation" onClick={onClose} style={{ width: 36, height: 36, borderRadius: 10, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}>
