@@ -132,23 +132,27 @@ export default function ProgramsTab() {
               <style dangerouslySetInnerHTML={{ __html: `@keyframes progSlideUp { from { opacity:0; transform:translateY(16px); } to { opacity:1; transform:translateY(0); } }` }} />
               {showCatalog && singleProgramLock && (
                 <div onClick={() => setShowCatalog(false)} style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 14, cursor: 'pointer', padding: '8px 0' } as any}>
-                  <i className="ri-arrow-left-line" style={{ fontSize: 16, color: 'rgba(255,255,255,0.4)' }} />
-                  <span style={{ fontSize: 12, fontWeight: 700, color: 'rgba(255,255,255,0.4)' }}>Retour au programme actif</span>
+                  <i className="ri-arrow-left-line" style={{ fontSize: 16, color: subColor }} />
+                  <span style={{ fontSize: 12, fontWeight: 700, color: subColor }}>Retour au programme actif</span>
                 </div>
               )}
 
               {remainingPrograms.map((p: any, idx: number) => {
                 const img = p.cover_image || PROG_IMAGES[p.category] || PROG_IMAGES.mobilite;
+                const cBg = isDark ? '#1a1a1e' : '#E8E8EA';
+                const cBorder = isDark ? '1.5px solid rgba(255,255,255,0.12)' : '1.5px solid rgba(0,0,0,0.06)';
+                const gradEnd = isDark ? 'rgba(26,26,30,0.85)' : 'rgba(232,232,234,0.85)';
+                const gradFull = isDark ? '#1a1a1e' : '#E8E8EA';
                 return (
                   <div key={p.id} data-testid={`catalog-${p.id}`}
                     onClick={() => router.push({ pathname: '/program-detail' as any, params: { id: p.id } })}
-                    style={{ borderRadius: 22, overflow: 'hidden', marginBottom: 14, cursor: 'pointer', border: '1.5px solid rgba(255,255,255,0.12)', background: '#1a1a1e', transition: 'transform 200ms, box-shadow 200ms', animation: `progSlideUp 400ms ease ${idx * 60}ms both` } as any}
-                    onMouseEnter={(e: any) => { e.currentTarget.style.transform = 'translateY(-3px)'; e.currentTarget.style.boxShadow = '0 0 30px rgba(255,255,255,0.1), 0 12px 40px rgba(0,0,0,0.5)'; }}
-                    onMouseLeave={(e: any) => { e.currentTarget.style.transform = ''; e.currentTarget.style.boxShadow = ''; }}>
+                    style={{ borderRadius: 22, overflow: 'hidden', marginBottom: 14, cursor: 'pointer', border: cBorder, background: cBg, transition: 'transform 200ms, box-shadow 200ms', animation: `progSlideUp 400ms ease ${idx * 60}ms both` } as any}
+                    onMouseEnter={(e: any) => { e.currentTarget.style.transform = 'translateY(-3px)'; }}
+                    onMouseLeave={(e: any) => { e.currentTarget.style.transform = ''; }}>
                     {/* Image banner */}
                     <div style={{ position: 'relative', height: 120, overflow: 'hidden' } as any}>
                       <img src={img} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' } as any} />
-                      <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(180deg, transparent 30%, rgba(26,26,30,0.85) 80%, #1a1a1e 100%)' } as any} />
+                      <div style={{ position: 'absolute', inset: 0, background: `linear-gradient(180deg, transparent 30%, ${gradEnd} 80%, ${gradFull} 100%)` } as any} />
                       <div style={{ position: 'absolute', top: 12, left: 12, padding: '5px 12px', borderRadius: 999, background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)', border: '1px solid rgba(255,255,255,0.1)', fontSize: 10, fontWeight: 700, color: p.color || '#A78BFA', textTransform: 'uppercase', letterSpacing: 0.5 } as any}>
                         <i className={p.icon} style={{ fontSize: 11, marginRight: 5 }} />{p.category || 'Sante'}
                       </div>
@@ -158,14 +162,14 @@ export default function ProgramsTab() {
                     </div>
                     {/* Content */}
                     <div style={{ padding: '14px 18px 18px' } as any}>
-                      <div style={{ fontSize: 16, fontWeight: 900, color: '#FFF', marginBottom: 4, letterSpacing: -0.3 }}>{p.title}</div>
-                      <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.35)', lineHeight: 1.5, marginBottom: 12 }}>{p.subtitle}</div>
+                      <div style={{ fontSize: 16, fontWeight: 900, color: textColor, marginBottom: 4, letterSpacing: -0.3 }}>{p.title}</div>
+                      <div style={{ fontSize: 12, color: subColor, lineHeight: 1.5, marginBottom: 12 }}>{p.subtitle}</div>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 8 } as any}>
-                        {p.difficulty && <span style={{ padding: '4px 10px', borderRadius: 99, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', fontSize: 10, fontWeight: 600, color: 'rgba(255,255,255,0.35)' }}>{p.difficulty}</span>}
+                        {p.difficulty && <span style={{ padding: '4px 10px', borderRadius: 99, background: isDark ? 'rgba(255,255,255,0.04)' : 'rgba(0,0,0,0.04)', border: isDark ? '1px solid rgba(255,255,255,0.08)' : '1px solid rgba(0,0,0,0.08)', fontSize: 10, fontWeight: 600, color: subColor }}>{p.difficulty}</span>}
                         {(p.tracked_metrics || []).slice(0, 2).map((m: string, i: number) => (
                           <span key={i} style={{ padding: '4px 8px', borderRadius: 99, background: `${p.color || '#A78BFA'}08`, border: `1px solid ${p.color || '#A78BFA'}18`, fontSize: 9, fontWeight: 600, color: p.color || '#A78BFA' }}>{m.replace(/_/g, ' ')}</span>
                         ))}
-                        <i className="ri-arrow-right-s-line" style={{ marginLeft: 'auto', fontSize: 18, color: 'rgba(255,255,255,0.12)' }} />
+                        <i className="ri-arrow-right-s-line" style={{ marginLeft: 'auto', fontSize: 18, color: isDark ? 'rgba(255,255,255,0.12)' : 'rgba(0,0,0,0.12)' }} />
                       </div>
                     </div>
                   </div>
@@ -173,22 +177,22 @@ export default function ProgramsTab() {
               })}
 
               {!loading && remainingPrograms.length === 0 && (
-                <div style={{ padding: '28px', borderRadius: 18, background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)', textAlign: 'center', ...glass } as any}>
-                  <i className="ri-search-line" style={{ fontSize: 24, color: 'rgba(255,255,255,0.15)', marginBottom: 8, display: 'block' }} />
-                  <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.4)' }}>Aucun programme disponible.</div>
+                <div style={{ padding: '28px', borderRadius: 18, background: cardBg, textAlign: 'center' } as any}>
+                  <i className="ri-search-line" style={{ fontSize: 24, color: subColor, marginBottom: 8, display: 'block' }} />
+                  <div style={{ fontSize: 13, color: subColor }}>Aucun programme disponible.</div>
                 </div>
               )}
             </>
           ) : (
-            <div onClick={() => setShowCatalog(true)} style={{ padding: '14px 18px', borderRadius: 16, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', ...glass, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 12, transition: 'background 0.2s' } as any}
-              onMouseEnter={(e: any) => { e.currentTarget.style.background = 'rgba(255,255,255,0.08)'; }}
-              onMouseLeave={(e: any) => { e.currentTarget.style.background = 'rgba(255,255,255,0.04)'; }}>
-              <i className="ri-layout-grid-line" style={{ fontSize: 18, color: 'rgba(255,255,255,0.3)' }} />
+            <div onClick={() => setShowCatalog(true)} style={{ padding: '14px 18px', borderRadius: 16, background: cardBg, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 12, transition: 'transform 0.2s' } as any}
+              onMouseEnter={(e: any) => { e.currentTarget.style.transform = 'translateY(-1px)'; }}
+              onMouseLeave={(e: any) => { e.currentTarget.style.transform = ''; }}>
+              <i className="ri-layout-grid-line" style={{ fontSize: 18, color: subColor }} />
               <div style={{ flex: 1 } as any}>
-                <div style={{ fontSize: 13, fontWeight: 700, color: 'rgba(255,255,255,0.5)' }}>Voir tous les programmes</div>
-                <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.25)' }}>{catalog.length} programmes disponibles</div>
+                <div style={{ fontSize: 13, fontWeight: 700, color: textColor }}>Voir tous les programmes</div>
+                <div style={{ fontSize: 10, color: subColor }}>{catalog.length} programmes disponibles</div>
               </div>
-              <i className="ri-arrow-right-s-line" style={{ fontSize: 18, color: 'rgba(255,255,255,0.15)' }} />
+              <i className="ri-arrow-right-s-line" style={{ fontSize: 18, color: isDark ? 'rgba(255,255,255,0.15)' : 'rgba(0,0,0,0.12)' }} />
             </div>
           )}
         </div>
