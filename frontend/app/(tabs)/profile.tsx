@@ -48,13 +48,14 @@ const LANGUAGES = [
 
 function ProfileMenuItem({ icon, label, onPress, danger, testID }: any) {
   if (Platform.OS === 'web') {
+    const dk = typeof localStorage !== 'undefined' ? localStorage.getItem('chutex_dark') !== '0' : true;
     return (
-      <div data-testid={testID} onClick={onPress} style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '14px 0', borderBottom: '1px solid rgba(255,255,255,0.06)', cursor: 'pointer' } as any}>
-        <div style={{ width: 38, height: 38, borderRadius: 12, background: danger ? 'rgba(239,68,68,0.12)' : 'rgba(255,255,255,0.06)', border: `1px solid ${danger ? 'rgba(239,68,68,0.2)' : 'rgba(255,255,255,0.08)'}`, display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}>
-          <i className={danger ? 'ri-logout-box-r-line' : icon} style={{ fontSize: 16, color: danger ? '#EF4444' : 'rgba(255,255,255,0.6)' }} />
+      <div data-testid={testID} onClick={onPress} style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '14px 0', borderBottom: `1px solid ${dk ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.06)'}`, cursor: 'pointer' } as any}>
+        <div style={{ width: 38, height: 38, borderRadius: 12, background: danger ? 'rgba(239,68,68,0.12)' : (dk ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.05)'), border: `1px solid ${danger ? 'rgba(239,68,68,0.2)' : (dk ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.06)')}`, display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}>
+          <i className={danger ? 'ri-logout-box-r-line' : icon} style={{ fontSize: 16, color: danger ? '#EF4444' : (dk ? 'rgba(255,255,255,0.6)' : 'rgba(0,0,0,0.5)') }} />
         </div>
-        <span style={{ flex: 1, fontSize: 14, fontWeight: 600, color: danger ? '#EF4444' : '#FFF' }}>{label}</span>
-        <i className="ri-arrow-right-s-line" style={{ fontSize: 16, color: 'rgba(255,255,255,0.15)' }} />
+        <span style={{ flex: 1, fontSize: 14, fontWeight: 600, color: danger ? '#EF4444' : (dk ? '#FFF' : '#1A1A2E') }}>{label}</span>
+        <i className="ri-arrow-right-s-line" style={{ fontSize: 16, color: dk ? 'rgba(255,255,255,0.15)' : 'rgba(0,0,0,0.12)' }} />
       </div>
     );
   }
@@ -285,14 +286,23 @@ const BG_PROFILE = 'https://customer-assets.emergentagent.com/job_9950a869-9328-
   if (Platform.OS === 'web') {
     const BG_DARK = 'https://customer-assets.emergentagent.com/job_9950a869-9328-4a4b-abf4-a6fb213a3b47/artifacts/iklovqya_background_beneficiary.svg';
 
+    const isDark = typeof localStorage !== 'undefined' ? localStorage.getItem('chutex_dark') !== '0' : true;
+    const textColor = isDark ? '#FFF' : '#1A1A2E';
+    const subColor = isDark ? 'rgba(255,255,255,0.5)' : 'rgba(0,0,0,0.45)';
+    const cardBg = isDark ? 'rgba(70,70,78,0.85)' : '#E8E8EA';
+    const contentBg = isDark ? 'linear-gradient(to bottom, #000 0%, #3A3A3C 100%)' : '#FFF';
+    const sepColor = isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.06)';
+    const BG_RED = 'https://customer-assets.emergentagent.com/job_443c9c6e-0feb-4920-a358-fe7cc1a6289b/artifacts/mhh7xwy3_ChatGPT%20Image%2017%20f%C3%A9vr.%202026%2C%2014_08_43.png';
+
     return (
       <div data-testid="profile-screen" style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, display: 'flex', flexDirection: 'column', fontFamily: 'Inter, system-ui, sans-serif', overflow: 'hidden' } as any}>
-        <AnimatedDarkBg />
 
-        <div style={{ flex: 1, overflowY: 'auto', position: 'relative', zIndex: 5, padding: '24px 20px 100px', WebkitOverflowScrolling: 'touch' } as any} data-animate>
+        <div style={{ flex: 1, overflowY: 'auto', WebkitOverflowScrolling: 'touch' } as any}>
 
-          {/* Avatar + Name + Role pills */}
-          <div style={{ textAlign: 'center', marginBottom: 24 } as any}>
+          {/* ═══ RED BG HEADER — Avatar + Name ═══ */}
+          <div style={{ position: 'relative', zIndex: 1 } as any}>
+            <img src={BG_RED} alt="" style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 } as any} />
+            <div style={{ position: 'relative', zIndex: 2, padding: '24px 20px 36px' } as any}>
             <div onClick={handleAvatarUpload} data-testid="avatar-upload-btn" style={{ position: 'relative', display: 'inline-block', cursor: 'pointer', marginBottom: 12 } as any}>
               <div style={{ width: 80, height: 80, borderRadius: 999, background: 'linear-gradient(135deg, #D4845A, #E8A87C)', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', border: '3px solid rgba(255,255,255,0.2)', boxShadow: '0 8px 24px rgba(0,0,0,0.3)' } as any}>
                 {user.avatar_url ? <img src={user.avatar_url} style={{ width: 80, height: 80, objectFit: 'cover' } as any} /> : <span style={{ fontSize: 32, fontWeight: 800, color: '#FFF' }}>{user.name?.charAt(0)?.toUpperCase()}</span>}
@@ -349,7 +359,11 @@ const BG_PROFILE = 'https://customer-assets.emergentagent.com/job_9950a869-9328-
                 </div>
               )}
             </div>
-          </div>
+          </div>{/* end header inner padding */}
+          </div>{/* end RED BG header */}
+
+          {/* ═══ THEMED CONTENT CARD ═══ */}
+          <div style={{ padding: '24px 20px 120px', marginTop: -16, borderRadius: '24px 24px 0 0', background: contentBg, position: 'relative', zIndex: 10, borderTop: isDark ? '1px solid rgba(255,255,255,0.1)' : '1px solid rgba(0,0,0,0.08)' } as any}>
 
           {/* Subscription card — beneficiary only */}
           {isBen && subData?.has_subscription && subData?.subscription_type === 'care' && (
@@ -985,6 +999,7 @@ const BG_PROFILE = 'https://customer-assets.emergentagent.com/job_9950a869-9328-
 
           <GuardianActivationPopup show={showGuardianActivation} onClose={() => setShowGuardianActivation(false)} step={guardianActivationStep} setStep={setGuardianActivationStep} alertSms={alertSms} setAlertSms={setAlertSms} alertEmail={alertEmail} setAlertEmail={setAlertEmail} activating={activatingGuardian} onActivate={activateGuardianMode} />
 
+        </div>
         </div>
       </div>
     );

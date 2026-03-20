@@ -74,36 +74,50 @@ export default function ProgramsTab() {
 
   const glass = { backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)' };
 
+  const isDark = typeof localStorage !== 'undefined' ? localStorage.getItem('chutex_dark') !== '0' : true;
+  const BG_RED = 'https://customer-assets.emergentagent.com/job_443c9c6e-0feb-4920-a358-fe7cc1a6289b/artifacts/mhh7xwy3_ChatGPT%20Image%2017%20f%C3%A9vr.%202026%2C%2014_08_43.png';
+  const cardBg = isDark ? 'rgba(70,70,78,0.85)' : '#E8E8EA';
+  const textColor = isDark ? '#FFF' : '#1A1A2E';
+  const subColor = isDark ? 'rgba(255,255,255,0.4)' : 'rgba(0,0,0,0.45)';
+  const contentBg = isDark ? 'linear-gradient(to bottom, #000 0%, #3A3A3C 100%)' : '#FFF';
+  const sepColor = isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.06)';
+
   return (
     <div data-testid="programs-tab" style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, fontFamily: "'Inter', system-ui, sans-serif", overflow: 'hidden' } as any}>
-      <AnimatedDarkBg />
 
-      <div style={{ position: 'relative', zIndex: 5, height: '100%', overflowY: 'auto', WebkitOverflowScrolling: 'touch' } as any}>
-        <div style={{ maxWidth: 480, margin: '0 auto', padding: '24px 20px 120px' } as any}>
+      <div style={{ height: '100%', overflowY: 'auto', WebkitOverflowScrolling: 'touch' } as any}>
 
-          {/* Header */}
-          <div style={{ display: 'flex', alignItems: 'center', marginBottom: 24 } as any}>
-            <div style={{ flex: 1 } as any}>
-              <div style={{ fontSize: 24, fontWeight: 900, color: '#FFF', letterSpacing: -0.5 }}>Programmes</div>
-              <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', marginTop: 4 }}>Parcours prevention personnalises</div>
-            </div>
-            <div style={{ display: 'flex', gap: 8 } as any}>
-              {!activeProgram?.active && (
-                <div data-testid="join-team-btn" onClick={() => { setShowJoinPopup(true); setJoinCode(''); setJoinError(''); setJoinSuccess(''); }}
-                  style={{ width: 40, height: 40, borderRadius: 14, background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', ...glass, transition: 'transform 0.15s, background 0.15s' } as any}
-                  onMouseEnter={(e: any) => { e.currentTarget.style.background = 'rgba(255,255,255,0.14)'; e.currentTarget.style.transform = 'scale(1.06)'; }}
-                  onMouseLeave={(e: any) => { e.currentTarget.style.background = 'rgba(255,255,255,0.08)'; e.currentTarget.style.transform = ''; }}>
-                  <i className="ri-team-line" style={{ fontSize: 20, color: 'rgba(255,255,255,0.6)' }} />
+        {/* ═══ RED BG HEADER ═══ */}
+        <div style={{ position: 'relative', zIndex: 1 } as any}>
+          <img src={BG_RED} alt="" style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 } as any} />
+          <div style={{ position: 'relative', zIndex: 2, padding: '24px 20px 32px' } as any}>
+            <div style={{ display: 'flex', alignItems: 'center', marginBottom: 10 } as any}>
+              <div style={{ flex: 1 } as any}>
+                <div style={{ fontSize: 24, fontWeight: 900, color: '#FFF', letterSpacing: -0.5, textShadow: '0 2px 8px rgba(0,0,0,0.3)' }}>Programmes</div>
+              </div>
+              <div style={{ display: 'flex', gap: 8 } as any}>
+                {!activeProgram?.active && (
+                  <div data-testid="join-team-btn" onClick={() => { setShowJoinPopup(true); setJoinCode(''); setJoinError(''); setJoinSuccess(''); }}
+                    style={{ width: 40, height: 40, borderRadius: 14, background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(255,255,255,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', transition: 'transform 0.15s' } as any}
+                    onMouseEnter={(e: any) => { e.currentTarget.style.transform = 'scale(1.06)'; }}
+                    onMouseLeave={(e: any) => { e.currentTarget.style.transform = ''; }}>
+                    <i className="ri-team-line" style={{ fontSize: 20, color: '#FFF' }} />
+                  </div>
+                )}
+                <div data-testid="programs-guide-btn" onClick={() => setShowGuide(true)}
+                  style={{ width: 40, height: 40, borderRadius: 14, background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(255,255,255,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', transition: 'transform 0.15s' } as any}
+                  onMouseEnter={(e: any) => { e.currentTarget.style.transform = 'scale(1.06)'; }}
+                  onMouseLeave={(e: any) => { e.currentTarget.style.transform = ''; }}>
+                  <i className="ri-question-line" style={{ fontSize: 20, color: '#FFF' }} />
                 </div>
-              )}
-              <div data-testid="programs-guide-btn" onClick={() => setShowGuide(true)}
-                style={{ width: 40, height: 40, borderRadius: 14, background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', ...glass, transition: 'transform 0.15s, background 0.15s' } as any}
-                onMouseEnter={(e: any) => { e.currentTarget.style.background = 'rgba(255,255,255,0.14)'; e.currentTarget.style.transform = 'scale(1.06)'; }}
-                onMouseLeave={(e: any) => { e.currentTarget.style.background = 'rgba(255,255,255,0.08)'; e.currentTarget.style.transform = ''; }}>
-                <i className="ri-question-line" style={{ fontSize: 20, color: 'rgba(255,255,255,0.6)' }} />
               </div>
             </div>
+            <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.7)', lineHeight: 1.5, textShadow: '0 1px 4px rgba(0,0,0,0.3)' }}>Parcours de prevention personnalises pour ameliorer votre sante au quotidien.</div>
           </div>
+        </div>
+
+        {/* ═══ THEMED CONTENT CARD ═══ */}
+        <div style={{ padding: '24px 20px 120px', marginTop: -16, borderRadius: '24px 24px 0 0', background: contentBg, position: 'relative', zIndex: 10, borderTop: isDark ? '1px solid rgba(255,255,255,0.1)' : '1px solid rgba(0,0,0,0.08)' } as any}>
 
           {/* PROGRAMME ACTIF */}
           {activeProgram?.active && token && (
