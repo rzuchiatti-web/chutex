@@ -271,9 +271,10 @@ export function BeneficiaryHome({ token, user }: { token: string; user: any }) {
 
   /* ─── WEB: Dashboard with light/dark mode ─── */
   if (Platform.OS === 'web') {
+    const BG_RED = 'https://customer-assets.emergentagent.com/job_443c9c6e-0feb-4920-a358-fe7cc1a6289b/artifacts/mhh7xwy3_ChatGPT%20Image%2017%20f%C3%A9vr.%202026%2C%2014_08_43.png';
     const C = isDark
-      ? { bg: 'transparent', card: 'rgba(8,8,16,0.6)', text: '#FAFAFA', sub: 'rgba(255,255,255,0.5)', headerBg: 'rgba(8,8,16,0.65)', btnBg: 'rgba(255,255,255,0.08)', arrow: 'rgba(255,255,255,0.35)', border: 'rgba(255,255,255,0.12)', sep: 'rgba(255,255,255,0.1)' }
-      : { bg: 'transparent', card: 'rgba(255,255,255,0.75)', text: '#1A1A2E', sub: 'rgba(0,0,0,0.5)', headerBg: 'rgba(255,255,255,0.65)', btnBg: 'rgba(0,0,0,0.06)', arrow: 'rgba(0,0,0,0.3)', border: 'rgba(0,0,0,0.08)', sep: 'rgba(0,0,0,0.08)' };
+      ? { bg: '#2C2C2E', card: 'rgba(70,70,78,0.85)', text: '#FFF', sub: 'rgba(255,255,255,0.55)', headerBg: 'transparent', btnBg: 'rgba(255,255,255,0.15)', arrow: 'rgba(255,255,255,0.4)', border: 'rgba(255,255,255,0.1)', sep: 'rgba(255,255,255,0.08)' }
+      : { bg: '#F5F2EE', card: 'rgba(255,255,255,0.88)', text: '#1A1A2E', sub: 'rgba(0,0,0,0.45)', headerBg: 'transparent', btnBg: 'rgba(255,255,255,0.3)', arrow: 'rgba(0,0,0,0.3)', border: 'rgba(0,0,0,0.06)', sep: 'rgba(0,0,0,0.06)' };
     const glass = { backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)', border: `1px solid ${C.border}` };
 
     const GC = ({ children, style, onClick, testId }: any) => (
@@ -284,82 +285,49 @@ export function BeneficiaryHome({ token, user }: { token: string; user: any }) {
       </div>
     );
     return (
-      <div data-testid="beneficiary-dashboard" style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, display: 'flex', flexDirection: 'column', fontFamily: "'Inter', system-ui, -apple-system, sans-serif", overflow: 'hidden', '--card-bg': C.card, '--card-text': C.text, '--card-sub': C.sub, '--card-arrow': C.arrow, '--card-sep': C.sep, '--card-blur': 'none', '--card-border': 'none' } as any}>
-        {/* Background */}
-        <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, zIndex: 0, background: isDark ? '#0a0a0f' : '#F0EDE8', transition: 'background 0.4s ease' } as any}>
-          {isDark ? (
-            <>
-              <div style={{ position: 'absolute', top: '-20%', left: '-10%', width: '70%', height: '70%', borderRadius: '50%', background: 'radial-gradient(circle, rgba(120,60,200,0.25) 0%, rgba(80,30,160,0.12) 40%, transparent 70%)', filter: 'blur(60px)' } as any} />
-              <div style={{ position: 'absolute', bottom: '-10%', right: '-15%', width: '65%', height: '65%', borderRadius: '50%', background: 'radial-gradient(circle, rgba(140,50,220,0.18) 0%, rgba(100,30,180,0.08) 40%, transparent 70%)', filter: 'blur(80px)' } as any} />
-              <div style={{ position: 'absolute', top: '30%', right: '10%', width: '40%', height: '40%', borderRadius: '50%', background: 'radial-gradient(circle, rgba(100,40,190,0.12) 0%, transparent 60%)', filter: 'blur(50px)' } as any} />
-            </>
-          ) : (
-            <>
-              <div style={{ position: 'absolute', top: '-20%', left: '-10%', width: '70%', height: '70%', borderRadius: '50%', background: 'radial-gradient(circle, rgba(200,180,160,0.3) 0%, rgba(180,160,140,0.1) 40%, transparent 70%)', filter: 'blur(60px)' } as any} />
-              <div style={{ position: 'absolute', bottom: '-10%', right: '-15%', width: '65%', height: '65%', borderRadius: '50%', background: 'radial-gradient(circle, rgba(180,160,140,0.2) 0%, rgba(160,140,120,0.08) 40%, transparent 70%)', filter: 'blur(80px)' } as any} />
-            </>
-          )}
+      <div data-testid="beneficiary-dashboard" style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, display: 'flex', flexDirection: 'column', fontFamily: "'Inter', system-ui, -apple-system, sans-serif", overflow: 'hidden' } as any}>
+        {/* Background: Red image at top, solid color below */}
+        <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, zIndex: 0, background: C.bg, transition: 'background 0.4s ease' } as any}>
+          <img src={BG_RED} alt="" style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: 280, objectFit: 'cover', zIndex: 1 } as any} />
+          <div style={{ position: 'absolute', top: 220, left: 0, right: 0, height: 80, background: `linear-gradient(to bottom, transparent, ${C.bg})`, zIndex: 2 } as any} />
         </div>
         {Platform.OS === 'web' && <TeamActivityToast token={token} />}
         <div style={{ flex: 1, overflowY: 'auto', position: 'relative', zIndex: 5, padding: '0 0 100px', WebkitOverflowScrolling: 'touch' } as any}>
 
-          {/* ══════ HEADER ══════ */}
-          <div data-testid="dashboard-header" className="dash-slide-up" style={{ padding: '14px 20px', margin: '8px 16px 0', borderRadius: 14, background: C.headerBg, ...glass } as any}>
+          {/* ══════ HEADER — directly on red background ══════ */}
+          <div data-testid="dashboard-header" className="dash-slide-up" style={{ padding: '18px 20px 10px', position: 'relative', zIndex: 10 } as any}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' } as any}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 12 } as any}>
-                <div onClick={() => router.push('/(tabs)/profile' as any)} style={{ width: 44, height: 44, borderRadius: 22, background: 'rgba(255,255,255,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, cursor: 'pointer', overflow: 'hidden' } as any}>
-                  {user.avatar_url ? <img src={user.avatar_url} style={{ width: 44, height: 44, borderRadius: 22, objectFit: 'cover' } as any} /> : <span style={{ fontSize: 17, fontWeight: 800, color: C.text }}>{user.name?.charAt(0)?.toUpperCase()}</span>}
+                <div onClick={() => router.push('/(tabs)/profile' as any)} style={{ width: 44, height: 44, borderRadius: 22, background: 'rgba(255,255,255,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, cursor: 'pointer', overflow: 'hidden' } as any}>
+                  {user.avatar_url ? <img src={user.avatar_url} style={{ width: 44, height: 44, borderRadius: 22, objectFit: 'cover' } as any} /> : <span style={{ fontSize: 17, fontWeight: 800, color: '#FFF' }}>{user.name?.charAt(0)?.toUpperCase()}</span>}
                 </div>
                 <div>
-                  <div style={{ fontSize: 18, fontWeight: 800, color: C.text, letterSpacing: -0.5 }}>{user.name}</div>
-                  <div style={{ fontSize: 11, color: C.sub, fontWeight: 500 }}>{activeTab === 'beneficiary' ? t('space_beneficiary') : t('space_guardian')}</div>
+                  <div style={{ fontSize: 18, fontWeight: 800, color: '#FFF', letterSpacing: -0.5 }}>{user.name}</div>
+                  <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.6)', fontWeight: 500 }}>{activeTab === 'beneficiary' ? t('space_beneficiary') : t('space_guardian')}</div>
                 </div>
               </div>
               <div style={{ display: 'flex', gap: 8, alignItems: 'center' } as any}>
-                <div data-testid="theme-toggle-btn" onClick={toggleTheme} style={{ width: 36, height: 36, borderRadius: 18, background: C.btnBg, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', transition: 'background 0.2s' } as any}>
-                  <i className={isDark ? 'ri-sun-line' : 'ri-moon-line'} style={{ fontSize: 18, color: isDark ? '#FBBF24' : '#6366F1' }} />
+                <div data-testid="theme-toggle-btn" onClick={toggleTheme} style={{ width: 36, height: 36, borderRadius: 18, background: 'rgba(255,255,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}>
+                  <i className={isDark ? 'ri-sun-line' : 'ri-moon-line'} style={{ fontSize: 18, color: '#FFF' }} />
                 </div>
-                <div data-testid="lang-picker-btn" onClick={() => setLangOpen(!langOpen)} style={{ width: 36, height: 36, borderRadius: 18, background: C.btnBg, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', fontSize: 18, lineHeight: 1 } as any}>
+                <div data-testid="notif-bell" onClick={() => setShowNotifs(!showNotifs)} style={{ width: 36, height: 36, borderRadius: 18, background: 'rgba(255,255,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', position: 'relative' } as any}>
+                  <i className="ri-notification-4-line" style={{ fontSize: 18, color: '#FFF' }} />
+                  {(guardianRequests.length > 0 || activeAlerts.length > 0 || predictiveAlerts.length > 0) && <div style={{ position: 'absolute', top: -1, right: -1, width: 9, height: 9, borderRadius: 5, background: '#EF4444', border: '2px solid rgba(0,0,0,0.3)' } as any} />}
+                </div>
+                <div data-testid="lang-picker-btn" onClick={() => setLangOpen(!langOpen)} style={{ width: 36, height: 36, borderRadius: 18, background: 'rgba(255,255,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', fontSize: 18, lineHeight: 1 } as any}>
                   {lang === 'FR' ? '\u{1F1EB}\u{1F1F7}' : lang === 'EN' ? '\u{1F1EC}\u{1F1E7}' : lang === 'ES' ? '\u{1F1EA}\u{1F1F8}' : lang === 'DE' ? '\u{1F1E9}\u{1F1EA}' : lang === 'IT' ? '\u{1F1EE}\u{1F1F9}' : lang === 'PT' ? '\u{1F1F5}\u{1F1F9}' : lang === 'NL' ? '\u{1F1F3}\u{1F1F1}' : '\u{1F30D}'}
-                </div>
-                <div data-testid="notif-bell" onClick={() => setShowNotifs(!showNotifs)} style={{ width: 36, height: 36, borderRadius: 18, background: C.btnBg, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', position: 'relative' } as any}>
-                  <i className="ri-notification-4-line" style={{ fontSize: 18, color: C.sub }} />
-                  {(guardianRequests.length > 0 || activeAlerts.length > 0 || predictiveAlerts.length > 0) && <div style={{ position: 'absolute', top: -1, right: -1, width: 9, height: 9, borderRadius: 5, background: '#EF4444', border: `2px solid ${C.headerBg}` } as any} />}
                 </div>
               </div>
             </div>
           </div>
 
-          <div style={{ padding: '0 20px', marginTop: 16 } as any}>
+          <div style={{ padding: '0 16px', position: 'relative', zIndex: 10 } as any}>
 
           <NotificationsPopup show={showNotifs} onClose={() => setShowNotifs(false)} activeAlerts={activeAlerts} guardianRequests={guardianRequests} predictiveAlerts={predictiveAlerts} token={token} onRefresh={fetchData} />
           <LanguagePopup show={langOpen} onClose={() => setLangOpen(false)} lang={lang} setLang={setLang} />
 
-          {/* ── SOS Button ── */}
-          <div data-testid="sos-button" className="dash-slide-up" onClick={handleSOS} style={{
-            padding: '16px 20px', borderRadius: 14, cursor: 'pointer', marginBottom: 20,
-            background: C.card, display: 'flex', alignItems: 'center', gap: 14,
-            transition: 'transform 0.18s, box-shadow 0.18s', ...glass,
-          } as any}
-            onMouseEnter={(e: any) => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 4px 12px rgba(239,68,68,0.12)'; }}
-            onMouseLeave={(e: any) => { e.currentTarget.style.transform = ''; e.currentTarget.style.boxShadow = '0 1px 4px rgba(0,0,0,0.04)'; }}>
-            {sosLoading ? <div style={{ color: '#EF4444', fontSize: 14, flex: 1, textAlign: 'center' }}>Envoi en cours...</div> : (
-              <>
-                <div style={{ width: 48, height: 48, borderRadius: 14, background: '#EF4444', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}>
-                  <i className="ri-alarm-warning-line" style={{ fontSize: 24, color: '#FFF' }} />
-                </div>
-                <div style={{ flex: 1 } as any}>
-                  <div style={{ fontSize: 18, fontWeight: 900, color: C.text, letterSpacing: 2 }}>SOS</div>
-                  <div style={{ fontSize: 11, color: C.sub }}>{t('sos_sub')}</div>
-                </div>
-                <i className="ri-arrow-right-s-line" style={{ fontSize: 20, color: C.arrow }} />
-              </>
-            )}
-          </div>
-
-          <AlertBanner activeAlerts={activeAlerts} />
-
-          <div style={{ height: 1, background: C.sep, margin: "10px 0 24px" } as any} />
+          {/* ── Alert Banner on red background ── */}
+          <AlertBanner activeAlerts={activeAlerts} isDark={isDark} />
 
           <DailyObjectivesOnDashboard token={token} isDark={isDark} />
 

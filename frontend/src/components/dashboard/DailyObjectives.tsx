@@ -2,74 +2,117 @@ import React from 'react';
 import { useRouter } from 'expo-router';
 import { apiFetch } from '../../services/api';
 
+const NORA_VIDEO = 'https://customer-assets.emergentagent.com/job_ba3a5789-c8f1-4b12-b5d8-478a7f99aaea/artifacts/b6eh1r76_Nora_video.mp4';
+
 const OBJECTIVE_IMAGES: Record<string, string> = {
-  steps: 'https://customer-assets.emergentagent.com/job_1026023a-fd73-4c44-a002-9618d437c4c8/artifacts/h37k6apj_physical%20health%20analys%20app%20health%20Chutex.png',
+  steps: 'https://customer-assets.emergentagent.com/job_92308143-f99e-4bad-8264-e3775a214313/artifacts/75gbxosw_physique.png',
   hydration: 'https://customer-assets.emergentagent.com/job_1026023a-fd73-4c44-a002-9618d437c4c8/artifacts/7s8stuxi_hydratation.png',
-  sleep: 'https://customer-assets.emergentagent.com/job_1026023a-fd73-4c44-a002-9618d437c4c8/artifacts/tide9bdl_Moon%20sleep%20analys%20app%20health%20Chutex.png',
-  calories_intake: 'https://customer-assets.emergentagent.com/job_1026023a-fd73-4c44-a002-9618d437c4c8/artifacts/y3xje768_traitement.png',
+  sleep: 'https://customer-assets.emergentagent.com/job_92308143-f99e-4bad-8264-e3775a214313/artifacts/xtzgjs5s_sommeil.png',
+  calories_intake: 'https://customer-assets.emergentagent.com/job_f20b5ded-706f-42e2-b747-5a8188991e2d/artifacts/93sgbdqq_kcal_icon.svg',
 };
 
-interface ObjectiveCardProps {
-  objKey: string;
-  value: string;
-  unit: string;
-  label: string;
-  pct?: number;
-  isDark: boolean;
-  onClick: () => void;
-}
-
-function ObjectiveCard({ objKey, value, unit, label, pct, isDark, onClick }: ObjectiveCardProps) {
-  const cardBg = isDark ? 'rgba(60,60,70,0.7)' : 'rgba(255,255,255,0.82)';
-  const cardBorder = isDark ? '1px solid rgba(255,255,255,0.08)' : '1px solid rgba(0,0,0,0.06)';
-  const textColor = isDark ? '#FFF' : '#1A1A2E';
-  const subColor = isDark ? 'rgba(255,255,255,0.55)' : 'rgba(0,0,0,0.5)';
-  const sepColor = isDark ? 'rgba(255,255,255,0.12)' : 'rgba(0,0,0,0.1)';
-  const imgSrc = OBJECTIVE_IMAGES[objKey];
-
+/* ════════ Objectifs journalier header card ════════ */
+function ObjectivesHeader({ isDark }: { isDark: boolean }) {
   return (
-    <div data-testid={`objective-card-${objKey}`} className="dash-slide-up" onClick={onClick}
-      style={{
-        padding: '18px 20px', borderRadius: 18, cursor: 'pointer',
-        background: cardBg,
-        border: cardBorder,
-        backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)',
-        display: 'flex', alignItems: 'center', gap: 16,
-        transition: 'transform 0.2s, background 0.3s',
-        marginBottom: 10,
-        position: 'relative',
-      } as any}
-      onMouseEnter={(e: any) => { e.currentTarget.style.transform = 'translateY(-1px)'; }}
-      onMouseLeave={(e: any) => { e.currentTarget.style.transform = ''; }}>
-
-      {imgSrc && (
-        <img src={imgSrc} alt="" style={{ width: 44, height: 44, objectFit: 'contain', flexShrink: 0 } as any} />
-      )}
-
-      <div style={{ display: 'flex', alignItems: 'center', gap: 4 } as any}>
-        <span style={{ fontSize: 26, fontWeight: 900, color: textColor, letterSpacing: -0.5, lineHeight: 1 }}>{value}</span>
-        {unit && <span style={{ fontSize: 13, fontWeight: 600, color: subColor, marginTop: 4 }}>{unit}</span>}
-      </div>
-
-      <div style={{ width: 1, height: 32, background: sepColor, flexShrink: 0 } as any} />
-
-      <div style={{ flex: 1, textAlign: 'right' } as any}>
-        <div style={{ fontSize: 15, fontWeight: 700, color: textColor }}>{label}</div>
-        {typeof pct === 'number' && (
-          <div style={{ fontSize: 22, fontWeight: 900, color: textColor, marginTop: 2 }}>{Math.round(pct)}%</div>
-        )}
-      </div>
-
-      {typeof pct === 'number' && (
-        <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 3, borderRadius: '0 0 18px 18px', overflow: 'hidden' } as any}>
-          <div style={{ height: '100%', width: `${pct}%`, background: isDark ? 'rgba(255,255,255,0.15)' : 'rgba(0,0,0,0.12)', transition: 'width 1s ease' } as any} />
+    <div data-testid="objectives-header-card" className="dash-slide-up" style={{
+      padding: '20px', borderRadius: 20, marginBottom: 12,
+      background: isDark ? '#111' : '#1A1A2E',
+      border: isDark ? '1px solid rgba(255,255,255,0.1)' : '1.5px solid rgba(255,255,255,0.15)',
+      display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+      boxShadow: '0 8px 32px rgba(0,0,0,0.3)',
+      overflow: 'hidden', position: 'relative',
+    } as any}>
+      <div style={{ flex: 1, zIndex: 2 } as any}>
+        <div style={{ fontSize: 18, fontWeight: 900, color: '#FFF', marginBottom: 6 }}>Objectifs journalier</div>
+        <div style={{ width: 40, height: 2, background: 'rgba(255,255,255,0.3)', marginBottom: 10, borderRadius: 1 } as any} />
+        <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.55)', lineHeight: 1.5 }}>
+          Vous etes en excellente sante aujourd'hui, voici vos objectifs journalier.
         </div>
-      )}
+      </div>
+      <div style={{ width: 90, height: 90, flexShrink: 0, borderRadius: 16, overflow: 'hidden', position: 'relative', zIndex: 2 } as any}>
+        <video src={NORA_VIDEO} autoPlay loop muted playsInline
+          style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: 16 } as any} />
+        <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}>
+          <div style={{ width: 28, height: 28, borderRadius: 14, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}>
+            <i className="ri-play-fill" style={{ fontSize: 14, color: '#FFF', marginLeft: 2 }} />
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
 
-/* Main export */
+/* ════════ Segmented progress bar for steps ════════ */
+function SegmentedBar({ pct, isDark }: { pct: number; isDark: boolean }) {
+  const segments = 4;
+  const filledSegments = Math.ceil((pct / 100) * segments);
+  const filledColor = isDark ? 'rgba(255,255,255,0.6)' : 'rgba(0,0,0,0.5)';
+  const emptyColor = isDark ? 'rgba(255,255,255,0.12)' : 'rgba(0,0,0,0.08)';
+
+  return (
+    <div style={{ display: 'flex', gap: 4, marginTop: 8 } as any}>
+      {Array.from({ length: segments }).map((_, i) => (
+        <div key={i} style={{
+          flex: 1, height: 4, borderRadius: 2,
+          background: i < filledSegments ? filledColor : emptyColor,
+          transition: 'background 0.3s',
+        } as any} />
+      ))}
+    </div>
+  );
+}
+
+/* ════════ Single objective card ════════ */
+function ObjectiveCard({ objKey, value, unit, label, pct, isDark, onClick }: {
+  objKey: string; value: string; unit: string; label: string; pct?: number; isDark: boolean; onClick: () => void;
+}) {
+  const cardBg = isDark ? 'rgba(70,70,78,0.85)' : 'rgba(255,255,255,0.88)';
+  const cardBorder = isDark ? '1px solid rgba(255,255,255,0.06)' : '1px solid rgba(0,0,0,0.04)';
+  const textColor = isDark ? '#FFF' : '#1A1A2E';
+  const subColor = isDark ? 'rgba(255,255,255,0.45)' : 'rgba(0,0,0,0.4)';
+  const sepColor = isDark ? 'rgba(255,255,255,0.15)' : 'rgba(0,0,0,0.1)';
+  const imgSrc = OBJECTIVE_IMAGES[objKey];
+  const hasProgress = objKey === 'steps' && typeof pct === 'number';
+
+  return (
+    <div data-testid={`objective-card-${objKey}`} className="dash-slide-up" onClick={onClick}
+      style={{
+        padding: '16px 18px', borderRadius: 16, cursor: 'pointer',
+        background: cardBg,
+        border: cardBorder,
+        display: 'flex', flexDirection: 'column',
+        transition: 'transform 0.2s, background 0.3s',
+        marginBottom: 8,
+      } as any}
+      onMouseEnter={(e: any) => { e.currentTarget.style.transform = 'translateY(-1px)'; }}
+      onMouseLeave={(e: any) => { e.currentTarget.style.transform = ''; }}>
+
+      <div style={{ display: 'flex', alignItems: 'center' } as any}>
+        {imgSrc && (
+          <img src={imgSrc} alt="" style={{ width: 48, height: 48, objectFit: 'contain', flexShrink: 0, marginRight: 14 } as any} />
+        )}
+
+        <div style={{ display: 'flex', flexDirection: 'column' } as any}>
+          <span style={{ fontSize: 28, fontWeight: 900, color: textColor, letterSpacing: -0.5, lineHeight: 1 }}>{value}</span>
+          <span style={{ fontSize: 12, fontWeight: 600, color: subColor, marginTop: 2 }}>{unit}</span>
+        </div>
+
+        <div style={{ width: 1, height: 36, background: sepColor, flexShrink: 0, margin: '0 16px' } as any} />
+
+        <div style={{ flex: 1, textAlign: 'right' } as any}>
+          <div style={{ fontSize: 15, fontWeight: 700, color: textColor }}>{label}</div>
+          {hasProgress && (
+            <div style={{ fontSize: 20, fontWeight: 900, color: textColor, marginTop: 2 }}>{Math.round(pct)}%</div>
+          )}
+        </div>
+      </div>
+
+      {hasProgress && <SegmentedBar pct={pct} isDark={isDark} />}
+    </div>
+  );
+}
+
+/* ════════ Main export ════════ */
 export function DailyObjectivesOnDashboard({ token, isDark = true }: { token: string; isDark?: boolean }) {
   const router = useRouter();
   const [plan, setPlan] = React.useState<any[]>([]);
@@ -90,9 +133,6 @@ export function DailyObjectivesOnDashboard({ token, isDark = true }: { token: st
   );
   if (!plan.length) return null;
 
-  const titleColor = isDark ? '#FFF' : '#1A1A2E';
-  const subTitleColor = isDark ? 'rgba(255,255,255,0.5)' : 'rgba(0,0,0,0.45)';
-
   const objectiveConfigs: Record<string, { label: string; unit: string; route: string }> = {
     steps: { label: 'Activite physique', unit: 'Pas', route: '/metric-detail' },
     hydration: { label: 'Hydratation', unit: 'Litre', route: '/minceur' },
@@ -101,13 +141,15 @@ export function DailyObjectivesOnDashboard({ token, isDark = true }: { token: st
   };
 
   return (
-    <div data-testid="dashboard-objectives" style={{ marginBottom: 20 } as any}>
-      <div className="dash-slide-up" style={{ marginBottom: 16 } as any}>
-        <div style={{ fontSize: 18, fontWeight: 900, color: titleColor, letterSpacing: -0.3, transition: 'color 0.3s' }}>Objectifs journalier</div>
-        <div style={{ fontSize: 12, color: subTitleColor, marginTop: 4, transition: 'color 0.3s' }}>Voici vos objectifs du jour</div>
-      </div>
+    <div data-testid="dashboard-objectives" style={{ marginBottom: 16 } as any}>
+      <ObjectivesHeader isDark={isDark} />
 
-      {plan.filter(p => p.key !== 'connect' && p.key !== 'stress').map((p, i) => {
+      {plan.filter(p => p.key !== 'connect' && p.key !== 'stress')
+        .sort((a, b) => {
+          const order: Record<string, number> = { steps: 0, hydration: 1, sleep: 2, calories_intake: 3 };
+          return (order[a.key] ?? 99) - (order[b.key] ?? 99);
+        })
+        .map((p) => {
         const cfg = objectiveConfigs[p.key];
         if (!cfg) return null;
 
@@ -117,7 +159,7 @@ export function DailyObjectivesOnDashboard({ token, isDark = true }: { token: st
         if (p.key === 'steps') {
           const target = parseInt(p.value) || 6000;
           displayValue = String(measuredSteps > 0 ? measuredSteps.toLocaleString('fr-FR') : p.value);
-          pct = target > 0 ? Math.min(100, (measuredSteps / target) * 100) : undefined;
+          pct = target > 0 ? Math.min(100, (measuredSteps / target) * 100) : 0;
         } else if (p.key === 'hydration') {
           displayValue = String(p.value).replace(/L$/i, '').trim();
         }
