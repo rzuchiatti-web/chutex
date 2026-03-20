@@ -71,7 +71,7 @@ function SegmentedBar({ pct, isDark }: { pct: number; isDark: boolean }) {
 function ObjectiveCard({ objKey, value, unit, label, pct, isDark, onClick }: {
   objKey: string; value: string; unit: string; label: string; pct?: number; isDark: boolean; onClick: () => void;
 }) {
-  const cardBg = isDark ? 'rgba(70,70,78,0.85)' : '#F5F5F5';
+  const cardBg = isDark ? 'rgba(70,70,78,0.85)' : '#E8E8EA';
   const cardBorder = isDark ? '1px solid rgba(255,255,255,0.06)' : '1px solid rgba(0,0,0,0.04)';
   const textColor = isDark ? '#FFF' : '#1A1A2E';
   const subColor = isDark ? 'rgba(255,255,255,0.45)' : 'rgba(0,0,0,0.4)';

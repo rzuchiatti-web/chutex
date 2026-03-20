@@ -274,7 +274,7 @@ export function BeneficiaryHome({ token, user }: { token: string; user: any }) {
     const BG_RED = 'https://customer-assets.emergentagent.com/job_443c9c6e-0feb-4920-a358-fe7cc1a6289b/artifacts/mhh7xwy3_ChatGPT%20Image%2017%20f%C3%A9vr.%202026%2C%2014_08_43.png';
     const C = isDark
       ? { card: 'rgba(70,70,78,0.85)', text: '#FFF', sub: 'rgba(255,255,255,0.55)', arrow: 'rgba(255,255,255,0.4)', border: 'rgba(255,255,255,0.1)', sep: 'rgba(255,255,255,0.08)' }
-      : { card: '#F5F5F5', text: '#1A1A2E', sub: 'rgba(0,0,0,0.45)', arrow: 'rgba(0,0,0,0.3)', border: 'rgba(0,0,0,0.06)', sep: 'rgba(0,0,0,0.06)' };
+      : { card: '#E8E8EA', text: '#1A1A2E', sub: 'rgba(0,0,0,0.45)', arrow: 'rgba(0,0,0,0.3)', border: 'rgba(0,0,0,0.04)', sep: 'rgba(0,0,0,0.06)' };
     const glass = { backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)', border: `1px solid ${C.border}` };
 
     const GC = ({ children, style, onClick, testId }: any) => (
@@ -290,8 +290,8 @@ export function BeneficiaryHome({ token, user }: { token: string; user: any }) {
         {/* ═══ FULL SCROLL CONTAINER ═══ */}
         <div style={{ flex: 1, overflowY: 'auto', position: 'relative', zIndex: 5, WebkitOverflowScrolling: 'touch' } as any}>
 
-          {/* ═══ HEADER with red BG — scrolls with content, rounded bottom corners ═══ */}
-          <div style={{ position: 'relative', zIndex: 20, borderRadius: '0 0 24px 24px', overflow: 'hidden' } as any}>
+          {/* ═══ HEADER with red BG — scrolls, rounded bottom, BEHIND content card ═══ */}
+          <div style={{ position: 'relative', zIndex: 1, borderRadius: '0 0 24px 24px', overflow: 'hidden' } as any}>
             <img src={BG_RED} alt="" style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 } as any} />
             <div style={{ position: 'relative', zIndex: 2, padding: '18px 20px 14px' } as any}>
               {/* Header row */}
@@ -327,13 +327,13 @@ export function BeneficiaryHome({ token, user }: { token: string; user: any }) {
 
           {Platform.OS === 'web' && <TeamActivityToast token={token} />}
 
-          {/* ═══ CONTENT CARD — overlaps header ═══ */}
+          {/* ═══ CONTENT CARD — overlaps header, IN FRONT ═══ */}
           <div style={{
             padding: '24px 16px 120px', marginTop: -16,
             borderRadius: '24px 24px 0 0',
-            background: isDark ? 'linear-gradient(to bottom, #000 0%, #3A3A3C 100%)' : '#D8D5D0',
+            background: isDark ? 'linear-gradient(to bottom, #000 0%, #3A3A3C 100%)' : '#FFF',
             transition: 'background 0.4s ease',
-            position: 'relative', zIndex: 25,
+            position: 'relative', zIndex: 10,
           } as any}>
 
           <DailyObjectivesOnDashboard token={token} isDark={isDark} />
