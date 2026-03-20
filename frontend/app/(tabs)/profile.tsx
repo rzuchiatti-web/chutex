@@ -84,12 +84,11 @@ function ProfileMenuItem({ icon, label, onPress, danger, testID }: any) {
 
 function ProfileGlassPopup({ visible, onClose, children }: any) {
   if (!visible) return null;
-  return (
-    portalMount(
-<div style={POP as any}>
+  return portalMount(
+    <div style={POP as any}>
       <div onClick={(e: any) => e.stopPropagation()} style={{ width: '100%', maxWidth: 400, margin: '0 auto', padding: '40px 28px 120px', boxSizing: 'border-box' } as any}>
         <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 20 } as any}>
-          <div onClick={onClose} style={{ width: 38, height: 38, borderRadius: 999, background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}><i className="ri-close-line" style={{ fontSize: 18, color: 'rgba(255,255,255,0.8)' }} /></div>
+          <div onClick={onClose} style={{ width: 38, height: 38, borderRadius: 999, background: 'rgba(255,255,255,0.12)', border: '1px solid rgba(255,255,255,0.18)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}><i className="ri-close-line" style={{ fontSize: 18, color: '#FFF' }} /></div>
         </div>
         {children}
       </div>
@@ -426,9 +425,8 @@ const BG_PROFILE = 'https://customer-assets.emergentagent.com/job_9950a869-9328-
           )}
 
           {/* Stripe Config Popup */}
-          {showStripeConfig && (
-            portalMount(
-<div style={POP as any}>
+          {showStripeConfig && portalMount(
+            <div style={POP as any}>
               <div onClick={(e: any) => e.stopPropagation()} style={{ width: '100%', maxWidth: 420, margin: '0 auto', padding: '40px 28px 120px', boxSizing: 'border-box' } as any}>
                 <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 20 } as any}>
                   <div onClick={() => setShowStripeConfig(false)} style={{ width: 38, height: 38, borderRadius: 999, background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}><i className="ri-close-line" style={{ fontSize: 18, color: 'rgba(255,255,255,0.8)' }} /></div>
@@ -643,9 +641,8 @@ const BG_PROFILE = 'https://customer-assets.emergentagent.com/job_9950a869-9328-
           <SubscriptionManagePopup show={showCareDetail} onClose={() => setShowCareDetail(false)} subData={subData} onRefresh={() => apiFetch('/api/subscriptions/my', {}, token).then(setSubData).catch(() => {})} />
 
           {/* Face ID Popup */}
-          {showFaceId && Platform.OS === 'web' && (
-            portalMount(
-<div style={POP_CENTER as any}>
+          {showFaceId && Platform.OS === 'web' && portalMount(
+            <div style={POP_CENTER as any}>
               <div style={{ width: '100%', maxWidth: 380, padding: '32px 28px', boxSizing: 'border-box' } as any}>
                 <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 16 } as any}>
                   <div onClick={() => setShowFaceId(false)} style={{ width: 38, height: 38, borderRadius: 999, background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}><i className="ri-close-line" style={{ fontSize: 18, color: 'rgba(255,255,255,0.8)' }} /></div>
@@ -669,9 +666,8 @@ const BG_PROFILE = 'https://customer-assets.emergentagent.com/job_9950a869-9328-
           )}
 
           {/* Medical Record Popup */}
-          {showMedical && Platform.OS === 'web' && (
-            portalMount(
-<div style={POP as any}>
+          {showMedical && Platform.OS === 'web' && portalMount(
+            <div style={POP as any}>
               <div style={{ width: '100%', maxWidth: 400, margin: '0 auto', padding: '40px 28px 120px', boxSizing: 'border-box' } as any}>
                 <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 20 } as any}>
                   <div onClick={() => setShowMedical(false)} style={{ width: 38, height: 38, borderRadius: 999, background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}><i className="ri-close-line" style={{ fontSize: 18, color: 'rgba(255,255,255,0.8)' }} /></div>
@@ -884,8 +880,7 @@ const BG_PROFILE = 'https://customer-assets.emergentagent.com/job_9950a869-9328-
           )}
 
           {/* Language popup glass */}
-          {showLangPicker && (
-            {portalMount(<div onClick={() => setShowLangPicker(false)} style={POP as any}>
+          {showLangPicker && portalMount(<div onClick={() => setShowLangPicker(false)} style={POP as any}>
               <div onClick={(e: any) => e.stopPropagation()} style={{ width: '100%', maxWidth: 420, margin: '0 auto', padding: '40px 24px 120px', boxSizing: 'border-box' } as any}>
                 <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 20 } as any}><div onClick={() => setShowLangPicker(false)} style={{ width: 36, height: 36, borderRadius: 999, background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}><i className="ri-close-line" style={{ fontSize: 18, color: 'rgba(255,255,255,0.8)' }} /></div></div>
                 <div style={{ textAlign: 'center', marginBottom: 28 } as any}>
@@ -914,9 +909,8 @@ const BG_PROFILE = 'https://customer-assets.emergentagent.com/job_9950a869-9328-
           )}
 
           {/* Activate Beneficiary Space Popup — full 3-step registration */}
-          {showActivateBenPopup && (
-            portalMount(
-<div style={POP as any}>
+          {showActivateBenPopup && portalMount(
+            <div style={POP as any}>
               <div onClick={(e: any) => e.stopPropagation()} style={{ width: '100%', maxWidth: 420, margin: '0 auto', padding: '40px 28px 120px', boxSizing: 'border-box' } as any}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 } as any}>
                   {benStep > 1 ? <div onClick={() => { setBenStep(benStep - 1); setBenError(''); }} style={{ width: 38, height: 38, borderRadius: 999, background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}><i className="ri-arrow-left-s-line" style={{ fontSize: 18, color: '#FFF' }} /></div> : <div />}
