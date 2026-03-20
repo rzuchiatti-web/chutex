@@ -82,301 +82,118 @@ export default function GuardianHome({ token, user }: { token: string; user: any
 
   if (loading) return <FullScreenLoader />;
   const activeAlerts = alerts.filter((a: any) => a.status === 'active');
-  const BG_GUARD = BG_IMAGES.beneficiary;
-  const BG_RED_G = BG_IMAGES.red;
-  const BG_GREEN_G = 'https://customer-assets.emergentagent.com/job_8afdc991-0ab2-4687-a2a5-438b9a5f0711/artifacts/uvntv6me_ChatGPT%20Image%2018%20f%C3%A9vr.%202026%2C%2008_31_33.png';
+  const BG_RED = 'https://customer-assets.emergentagent.com/job_443c9c6e-0feb-4920-a358-fe7cc1a6289b/artifacts/mhh7xwy3_ChatGPT%20Image%2017%20f%C3%A9vr.%202026%2C%2014_08_43.png';
+
+  const portalMount = (node: React.ReactNode) => {
+    if (Platform.OS === 'web' && typeof document !== 'undefined') {
+      const ReactDOM = require('react-dom');
+      return ReactDOM.createPortal(node, document.body);
+    }
+    return node;
+  };
+  const POP: any = { position: 'fixed', inset: 0, zIndex: 99990, backdropFilter: 'blur(32px)', WebkitBackdropFilter: 'blur(32px)', background: 'rgba(0,0,0,0.55)', overflowY: 'scroll', WebkitOverflowScrolling: 'touch' };
 
   if (Platform.OS === 'web') {
+    const isDark = typeof localStorage !== 'undefined' ? localStorage.getItem('chutex_dark') !== '0' : true;
+    const cardBg = isDark ? 'rgba(70,70,78,0.85)' : '#E8E8EA';
+    const textColor = isDark ? '#FFF' : '#1A1A2E';
+    const subColor = isDark ? 'rgba(255,255,255,0.5)' : 'rgba(0,0,0,0.45)';
+    const contentBg = isDark ? 'linear-gradient(to bottom, #000 0%, #3A3A3C 100%)' : '#FFF';
+    const sepColor = isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.06)';
+
     return (
       <div data-testid="guardian-dashboard" style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, display: 'flex', flexDirection: 'column', fontFamily: 'Inter, system-ui, sans-serif', overflow: 'hidden' } as any}>
-        <AnimatedDarkBg />
-        <div style={{ flex: 1, overflowY: 'auto', position: 'relative', zIndex: 5, padding: '20px 20px 100px', WebkitOverflowScrolling: 'touch' } as any} data-animate>
-          {/* Header */}
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 } as any}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 12 } as any}>
-              <div onClick={() => router.push('/(tabs)/profile' as any)} style={{ width: 46, height: 46, borderRadius: 14, background: 'linear-gradient(135deg, #A78BFA, #7C3AED)', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '2px solid rgba(167,139,250,0.4)', cursor: 'pointer', flexShrink: 0 } as any}>
-                <span style={{ fontSize: 18, fontWeight: 800, color: '#FFF' }}>{user.name?.charAt(0)?.toUpperCase()}</span>
+
+        <div style={{ flex: 1, overflowY: 'auto', WebkitOverflowScrolling: 'touch' } as any}>
+
+          {/* ═══ RED BG HEADER ═══ */}
+          <div style={{ position: 'relative', zIndex: 1 } as any}>
+            <img src={BG_RED} alt="" style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 } as any} />
+            <div style={{ position: 'relative', zIndex: 2, padding: '22px 20px 28px' } as any}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 18 } as any}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 12 } as any}>
+                  <div onClick={() => router.push('/(tabs)/profile' as any)} style={{ width: 44, height: 44, borderRadius: 22, background: 'rgba(255,255,255,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, cursor: 'pointer', overflow: 'hidden' } as any}>
+                    {user.avatar_url ? <img src={user.avatar_url} style={{ width: 44, height: 44, borderRadius: 22, objectFit: 'cover' } as any} /> : <span style={{ fontSize: 17, fontWeight: 800, color: '#FFF' }}>{user.name?.charAt(0)?.toUpperCase()}</span>}
+                  </div>
+                  <div>
+                    <div style={{ fontSize: 18, fontWeight: 800, color: '#FFF', letterSpacing: -0.5 }}>{user.name}</div>
+                    <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.6)', fontWeight: 500 }}>{t('space_guardian')}</div>
+                  </div>
+                </div>
+                <div style={{ display: 'flex', gap: 8, alignItems: 'center' } as any}>
+                  <div onClick={() => setShowNotifsG(!showNotifsG)} style={{ width: 36, height: 36, borderRadius: 18, background: 'rgba(255,255,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', position: 'relative' } as any}>
+                    <i className="ri-notification-4-line" style={{ fontSize: 18, color: '#FFF' }} />
+                    {(invitations.length > 0 || activeAlertsG.length > 0) && <div style={{ position: 'absolute', top: -1, right: -1, width: 9, height: 9, borderRadius: 5, background: '#EF4444', border: '2px solid rgba(0,0,0,0.3)' } as any} />}
+                  </div>
+                  <div onClick={() => setLangOpenG(!langOpenG)} style={{ width: 36, height: 36, borderRadius: 18, background: 'rgba(255,255,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', fontSize: 18, lineHeight: 1 } as any}>
+                    {lang === 'FR' ? '\u{1F1EB}\u{1F1F7}' : lang === 'EN' ? '\u{1F1EC}\u{1F1E7}' : '\u{1F30D}'}
+                  </div>
+                </div>
               </div>
-              <div>
-                <div style={{ fontSize: 16, fontWeight: 800, color: '#FFF', letterSpacing: -0.3, marginBottom: 2 }}>{user.name}</div>
-                <div style={{ fontSize: 10, color: 'rgba(167,139,250,0.8)', fontWeight: 600, letterSpacing: 0.5, textTransform: 'uppercase' }}>{t('space_guardian')}{user.is_prescriber ? ' | Prescripteur' : ''}</div>
-              </div>
-            </div>
-            <div style={{ display: 'flex', gap: 8, alignItems: 'center' } as any}>
-              <div onClick={() => setLangOpenG(!langOpenG)} style={{ width: 34, height: 34, borderRadius: 10, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', fontSize: 20, lineHeight: 1 } as any}>
-                {lang === 'FR' ? '\u{1F1EB}\u{1F1F7}' : lang === 'EN' ? '\u{1F1EC}\u{1F1E7}' : lang === 'ES' ? '\u{1F1EA}\u{1F1F8}' : lang === 'DE' ? '\u{1F1E9}\u{1F1EA}' : lang === 'IT' ? '\u{1F1EE}\u{1F1F9}' : lang === 'PT' ? '\u{1F1F5}\u{1F1F9}' : lang === 'NL' ? '\u{1F1F3}\u{1F1F1}' : '\u{1F30D}'}
-              </div>
-              <div onClick={() => setShowNotifsG(!showNotifsG)} style={{ width: 38, height: 38, borderRadius: 12, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', position: 'relative' } as any}>
-                <i className="ri-notification-3-line" style={{ fontSize: 17, color: 'rgba(255,255,255,0.65)' }} />
-                {(invitations.length > 0 || activeAlertsG.length > 0) && <div style={{ position: 'absolute', top: -3, right: -3, width: 9, height: 9, borderRadius: 5, background: '#EF4444', border: '2px solid rgba(4,14,26,0.8)' } as any} />}
+              {/* Alert banner */}
+              <div onClick={() => router.push('/(tabs)/alerts' as any)} style={{ borderRadius: 16, padding: '14px 16px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: 'rgba(255,255,255,0.12)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1px solid rgba(255,255,255,0.15)' } as any}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 14, flex: 1 } as any}>
+                  <div style={{ fontSize: 32, fontWeight: 900, color: '#FFF' }}>{activeAlerts.length}</div>
+                  <div style={{ width: 1, height: 32, background: 'rgba(255,255,255,0.2)', flexShrink: 0 } as any} />
+                  <div><div style={{ fontSize: 14, fontWeight: 700, color: '#FFF' }}>Alerte{activeAlerts.length !== 1 ? 's' : ''}</div><div style={{ fontSize: 11, color: 'rgba(255,255,255,0.6)' }}>{activeAlerts.length > 0 ? `${activeAlerts.length} en cours` : 'Aucune alerte'}</div></div>
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 6 } as any}>
+                  {activeAlerts.length > 0 ? <div style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '4px 10px', borderRadius: 999, background: 'rgba(239,68,68,0.3)' } as any}><span style={{ width: 6, height: 6, borderRadius: 3, background: '#EF4444' } as any} /><span style={{ fontSize: 10, fontWeight: 600, color: '#FFF' }}>Active</span></div> : <div style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '4px 10px', borderRadius: 999, background: 'rgba(16,185,129,0.2)' } as any}><span style={{ width: 6, height: 6, borderRadius: 3, background: '#10B981' } as any} /><span style={{ fontSize: 10, fontWeight: 600, color: '#10B981' }}>OK</span></div>}
+                  <i className="ri-arrow-right-s-line" style={{ fontSize: 18, color: 'rgba(255,255,255,0.5)' }} />
+                </div>
               </div>
             </div>
           </div>
+
           {/* Live Activity Banners */}
           <LiveAlertBanner token={token} />
 
-          {/* Notifications popup (web) */}
-          {showNotifsG && (
-            <div onClick={() => setShowNotifsG(false)} style={{ position: 'fixed', inset: 0, zIndex: 9999, backdropFilter: 'blur(32px)', WebkitBackdropFilter: 'blur(32px)', background: 'rgba(0,0,0,0.4)', overflowY: 'auto' } as any}>
-              <div onClick={(e: any) => e.stopPropagation()} style={{ width: '100%', maxWidth: 420, margin: '0 auto', padding: '40px 24px 120px', boxSizing: 'border-box' } as any}>
-                <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 20 } as any}>
-                  <div onClick={() => setShowNotifsG(false)} style={{ width: 36, height: 36, borderRadius: 999, background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}><i className="ri-close-line" style={{ fontSize: 18, color: 'rgba(255,255,255,0.8)' }} /></div>
-                </div>
-                <div style={{ textAlign: 'center', marginBottom: 24 } as any}>
-                  <div style={{ width: 56, height: 56, borderRadius: 16, background: 'rgba(239,68,68,0.12)', border: '1px solid rgba(239,68,68,0.2)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', marginBottom: 12 } as any}><i className="ri-notification-3-line" style={{ fontSize: 26, color: '#EF4444' }} /></div>
-                  <div style={{ fontSize: 22, fontWeight: 900, color: '#FFF' }}>Notifications</div>
-                  <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.45)', marginTop: 4 }}>{activeAlertsG.length + invitations.length + pendingInterventions.length} notification{(activeAlertsG.length + invitations.length + pendingInterventions.length) !== 1 ? 's' : ''}</div>
-                </div>
+          {/* ═══ CONTENT CARD ═══ */}
+          <div style={{ padding: '24px 16px 120px', marginTop: -16, borderRadius: '24px 24px 0 0', background: contentBg, position: 'relative', zIndex: 10, borderTop: isDark ? '1px solid rgba(255,255,255,0.1)' : '1px solid rgba(0,0,0,0.08)' } as any}>
 
-                {activeAlertsG.length === 0 && invitations.length === 0 && pendingInterventions.length === 0 && (
-                  <div style={{ textAlign: 'center', padding: '32px 20px', borderRadius: 20, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)' } as any}>
-                    <i className="ri-notification-off-line" style={{ fontSize: 32, color: 'rgba(255,255,255,0.15)', display: 'block', marginBottom: 8 }} />
-                    <div style={{ fontSize: 14, fontWeight: 700, color: 'rgba(255,255,255,0.4)' }}>Aucune notification</div>
+            <div style={{ fontSize: 13, fontWeight: 700, color: subColor, letterSpacing: 1, textTransform: 'uppercase', marginBottom: 12 }}>Mes beneficiaires</div>
+
+            {/* Beneficiary cards */}
+            {bens.map((b: any) => (
+              <div key={b.id} onClick={() => router.push({ pathname: '/beneficiary-detail', params: { beneficiaryId: b.id } })} style={{ borderRadius: 18, background: cardBg, marginBottom: 10, cursor: 'pointer', overflow: 'hidden' } as any}>
+                <div style={{ padding: '14px 16px 12px', display: 'flex', alignItems: 'center', gap: 14 } as any}>
+                  <div style={{ width: 52, height: 52, borderRadius: 16, background: 'linear-gradient(135deg, #D4845A, #E8A87C)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, border: '2px solid rgba(255,255,255,0.15)' } as any}><span style={{ fontSize: 22, fontWeight: 900, color: '#FFF' }}>{b.name?.charAt(0)}</span></div>
+                  <div style={{ flex: 1 } as any}>
+                    <div style={{ fontSize: 17, fontWeight: 800, color: textColor, marginBottom: 2 }}>{b.name}</div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 6 } as any}>
+                      {b.date_of_birth && !isNaN(new Date(b.date_of_birth).getTime()) && <span style={{ fontSize: 10, color: subColor }}>{Math.floor((Date.now() - new Date(b.date_of_birth).getTime()) / (1000 * 60 * 60 * 24 * 365))} ans</span>}
+                    </div>
+                  </div>
+                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 4 } as any}>
+                    {b.active_alerts > 0 && <div style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '4px 8px', borderRadius: 99, background: 'rgba(239,68,68,0.2)' } as any}><span style={{ width: 5, height: 5, borderRadius: 99, background: '#EF4444' } as any} /><span style={{ fontSize: 10, fontWeight: 700, color: '#EF4444' }}>{b.active_alerts}</span></div>}
+                    <i className="ri-arrow-right-s-line" style={{ fontSize: 16, color: isDark ? 'rgba(255,255,255,0.25)' : 'rgba(0,0,0,0.2)' }} />
+                  </div>
+                </div>
+                {b.latest_vitals && (
+                  <div style={{ display: 'flex', borderTop: `1px solid ${sepColor}`, padding: '10px 16px 12px', gap: 6 } as any}>
+                    {[
+                      { val: b.latest_vitals.heart_rate, unit: 'bpm', color: '#EF4444' },
+                      { val: b.latest_vitals.spo2, unit: '%', color: '#60A5FA' },
+                      { val: b.latest_vitals.blood_pressure_systolic ? `${b.latest_vitals.blood_pressure_systolic}/${b.latest_vitals.blood_pressure_diastolic}` : null, unit: 'mmHg', color: '#C084FC' },
+                      { val: b.latest_vitals.temperature, unit: '°C', color: '#FB923C' },
+                    ].map((s: any, i: number) => (
+                      <div key={i} style={{ flex: 1, padding: '6px 4px', borderRadius: 10, background: s.val ? `${s.color}15` : (isDark ? 'rgba(255,255,255,0.03)' : 'rgba(0,0,0,0.03)'), textAlign: 'center' } as any}>
+                        <div style={{ fontSize: 14, fontWeight: 900, color: s.val ? s.color : (isDark ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.15)'), lineHeight: 1 }}>{s.val || '--'}</div>
+                        <div style={{ fontSize: 8, color: subColor, textTransform: 'uppercase', letterSpacing: 0.3, marginTop: 2 }}>{s.unit}</div>
+                      </div>
+                    ))}
                   </div>
                 )}
-
-                {activeAlertsG.map((a: any) => (
-                  <div key={a.id} data-testid={`notif-alert-${a.id}`} onClick={() => { setShowNotifsG(false); router.push({ pathname: '/alert-detail', params: { alertId: a.id } }); }} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '14px 16px', borderRadius: 18, background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.18)', marginBottom: 8, cursor: 'pointer' } as any}>
-                    <div style={{ width: 38, height: 38, borderRadius: 12, background: 'rgba(239,68,68,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}><i className="ri-alarm-warning-line" style={{ fontSize: 18, color: '#EF4444' }} /></div>
-                    <div style={{ flex: 1 } as any}>
-                      <div style={{ fontSize: 13, fontWeight: 700, color: '#FFF' }}>{a.beneficiary_name}</div>
-                      <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.5)' }}>{a.message || 'Alerte active'}</div>
-                    </div>
-                    <div style={{ padding: '3px 10px', borderRadius: 999, background: 'rgba(239,68,68,0.2)' } as any}><span style={{ fontSize: 9, fontWeight: 700, color: '#EF4444' }}>URGENT</span></div>
-                  </div>
-                ))}
-
-                {pendingInterventions.map((p: any) => (
-                  <div key={p.id} data-testid={`notif-intervention-${p.id}`} onClick={() => { setShowNotifsG(false); router.push({ pathname: '/intervention-detail', params: { interventionId: p.id } }); }} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '14px 16px', borderRadius: 18, background: 'rgba(245,158,11,0.08)', border: '1px solid rgba(245,158,11,0.18)', marginBottom: 8, cursor: 'pointer' } as any}>
-                    <div style={{ width: 38, height: 38, borderRadius: 12, background: 'rgba(245,158,11,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}><i className="ri-run-line" style={{ fontSize: 18, color: '#F59E0B' }} /></div>
-                    <div style={{ flex: 1 } as any}>
-                      <div style={{ fontSize: 13, fontWeight: 700, color: '#FFF' }}>Intervention demandee</div>
-                      <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.5)' }}>{p.beneficiary_name}{p.distance_km ? ` - ${p.distance_km}km` : ''}</div>
-                    </div>
-                    <i className="ri-arrow-right-s-line" style={{ fontSize: 16, color: 'rgba(255,255,255,0.3)' }} />
-                  </div>
-                ))}
-
-                {invitations.map((inv: any) => (
-                  <div key={inv.id} data-testid={`notif-invitation-${inv.id}`} style={{ padding: '14px 16px', borderRadius: 18, background: 'rgba(167,139,250,0.08)', border: '1px solid rgba(167,139,250,0.18)', marginBottom: 8 } as any}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 10 } as any}>
-                      <div style={{ width: 38, height: 38, borderRadius: 12, background: 'rgba(167,139,250,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}><i className="ri-user-heart-line" style={{ fontSize: 18, color: '#A78BFA' }} /></div>
-                      <div style={{ flex: 1 } as any}>
-                        <div style={{ fontSize: 13, fontWeight: 700, color: '#FFF' }}>Invitation gardien</div>
-                        <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.5)' }}>{inv.beneficiary_name} vous invite</div>
-                      </div>
-                    </div>
-                    <div style={{ display: 'flex', gap: 8 } as any}>
-                      <div onClick={async () => { try { await apiFetch(`/api/guardian/invitations/${inv.id}/accept`, { method: 'POST' }, token); setShowNotifsG(false); fetchData(); } catch {} }} style={{ flex: 1, padding: '10px', borderRadius: 999, textAlign: 'center', cursor: 'pointer', background: 'rgba(16,185,129,0.2)', border: '1px solid rgba(16,185,129,0.3)', fontSize: 12, fontWeight: 700, color: '#10B981' } as any}>Accepter</div>
-                      <div onClick={async () => { try { await apiFetch(`/api/guardian/invitations/${inv.id}/reject`, { method: 'POST' }, token); fetchData(); } catch {} }} style={{ flex: 1, padding: '10px', borderRadius: 999, textAlign: 'center', cursor: 'pointer', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', fontSize: 12, fontWeight: 700, color: 'rgba(255,255,255,0.4)' } as any}>Refuser</div>
-                    </div>
-                  </div>
-                ))}
               </div>
-            </div>
-          )}
+            ))}
+            {bens.length === 0 && <div style={{ textAlign: 'center', padding: '30px', borderRadius: 20, background: cardBg, marginBottom: 10 } as any}><i className="ri-group-line" style={{ fontSize: 36, color: subColor }} /><div style={{ fontSize: 15, fontWeight: 700, color: textColor, marginTop: 10 }}>Aucun beneficiaire</div></div>}
+            <div onClick={() => setShowAddBenPopup(true)} style={{ padding: '16px', borderRadius: 999, textAlign: 'center', cursor: 'pointer', background: isDark ? 'rgba(255,255,255,0.1)' : '#1A1A2E', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10 } as any}><i className="ri-heart-line" style={{ fontSize: 16, color: '#FFF' }} /><span style={{ fontSize: 14, fontWeight: 700, color: '#FFF' }}>{t('add_beneficiary')}</span></div>
 
-          {/* SAAD affiliation card */}
-          {saadLink && (
-            <div onClick={() => setShowSaadPopup(true)} style={{ borderRadius: 20, overflow: 'hidden', position: 'relative', padding: '16px 18px', marginBottom: 14, cursor: 'pointer' } as any}>
-              <img src={BG_IMAGES.saad} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 } as any} />
-              <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.25)', zIndex: 1 } as any} />
-              <div style={{ position: 'relative', zIndex: 2, display: 'flex', alignItems: 'center', gap: 12 } as any}>
-                <div style={{ width: 42, height: 42, borderRadius: 13, background: 'rgba(255,255,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}><i className="ri-building-line" style={{ fontSize: 20, color: '#FFF' }} /></div>
-                <div style={{ flex: 1 } as any}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 2 } as any}>
-                    <span style={{ fontSize: 14, fontWeight: 800, color: '#FFF' }}>{saadLink.company_name}</span>
-                    <span style={{ fontSize: 9, fontWeight: 700, color: '#FFF', background: 'rgba(255,255,255,0.2)', padding: '2px 7px', borderRadius: 99, letterSpacing: 0.5, textTransform: 'uppercase' }}>Rattaché</span>
-                  </div>
-                  {saadLink.company_address && <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.7)' }}>{saadLink.company_address}</div>}
-                </div>
-                <i className="ri-arrow-right-s-line" style={{ fontSize: 18, color: 'rgba(255,255,255,0.6)' }} />
-              </div>
-            </div>
-          )}
-
-          {/* Alert card */}
-          <div style={{ height: 1, background: 'rgba(255,255,255,0.08)', margin: '4px 0 14px' } as any} />
-          <div onClick={() => router.push('/(tabs)/alerts' as any)} style={{ borderRadius: 20, overflow: 'hidden', position: 'relative', padding: '16px 18px', marginBottom: 14, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'space-between' } as any}>
-            <img src={activeAlerts.length > 0 ? BG_RED_G : BG_GREEN_G} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 } as any} />
-            <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.25)', zIndex: 1 } as any} />
-            <div style={{ position: 'relative', zIndex: 2, display: 'flex', alignItems: 'center', gap: 14, flex: 1 } as any}>
-              <div style={{ fontSize: 32, fontWeight: 900, color: '#FFF' }}>{activeAlerts.length}</div>
-              <div><div style={{ fontSize: 14, fontWeight: 700, color: '#FFF' }}>Alerte{activeAlerts.length !== 1 ? 's' : ''}</div><div style={{ fontSize: 11, color: 'rgba(255,255,255,0.6)' }}>{activeAlerts.length > 0 ? `${activeAlerts.length} en cours` : 'Aucune alerte'}</div></div>
-            </div>
-            <div style={{ position: 'relative', zIndex: 2, display: 'flex', alignItems: 'center', gap: 6 } as any}>
-              {activeAlerts.length > 0 ? <div style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '4px 10px', borderRadius: 999, background: 'rgba(239,68,68,0.3)' } as any}><span style={{ width: 6, height: 6, borderRadius: 3, background: '#EF4444' } as any} /><span style={{ fontSize: 10, fontWeight: 600, color: '#FFF' }}>Active</span></div> : <div style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '4px 10px', borderRadius: 999, background: 'rgba(16,185,129,0.2)' } as any}><span style={{ width: 6, height: 6, borderRadius: 3, background: '#10B981' } as any} /><span style={{ fontSize: 10, fontWeight: 600, color: '#10B981' }}>Aucune alerte</span></div>}
-              <i className="ri-arrow-right-s-line" style={{ fontSize: 18, color: 'rgba(255,255,255,0.5)' }} />
-            </div>
           </div>
-          <div style={{ height: 1, background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.08), transparent)', margin: '6px 20px 14px' } as any} />
-          <div style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.35)', letterSpacing: 1.2, textTransform: 'uppercase', marginBottom: 10 }}>Mes beneficiaires</div>
-
-          {/* Beneficiaries list */}
-
-          {/* Language popup glass */}
-          {langOpenG && (
-            <div onClick={() => setLangOpenG(false)} style={{ position: 'fixed', inset: 0, zIndex: 9999, backdropFilter: 'blur(32px)', WebkitBackdropFilter: 'blur(32px)', background: 'rgba(0,0,0,0.4)', overflowY: 'auto' } as any}>
-              <div onClick={(e: any) => e.stopPropagation()} style={{ width: '100%', maxWidth: 420, margin: '0 auto', padding: '40px 24px 120px', boxSizing: 'border-box' } as any}>
-                <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 20 } as any}><div onClick={() => setLangOpenG(false)} style={{ width: 36, height: 36, borderRadius: 999, background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}><i className="ri-close-line" style={{ fontSize: 18, color: 'rgba(255,255,255,0.8)' }} /></div></div>
-                <div style={{ textAlign: 'center', marginBottom: 28 } as any}><div style={{ width: 56, height: 56, borderRadius: 16, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', marginBottom: 14 } as any}><i className="ri-global-line" style={{ fontSize: 26, color: 'rgba(255,255,255,0.6)' }} /></div><div style={{ fontSize: 22, fontWeight: 900, color: '#FFF' }}>Langue</div></div>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 6 } as any}>
-                  {[{ code: 'FR', flag: '\u{1F1EB}\u{1F1F7}', name: 'Francais' }, { code: 'EN', flag: '\u{1F1EC}\u{1F1E7}', name: 'English' }, { code: 'DE', flag: '\u{1F1E9}\u{1F1EA}', name: 'Deutsch' }, { code: 'ES', flag: '\u{1F1EA}\u{1F1F8}', name: 'Espanol' }, { code: 'IT', flag: '\u{1F1EE}\u{1F1F9}', name: 'Italiano' }, { code: 'PT', flag: '\u{1F1F5}\u{1F1F9}', name: 'Portugues' }, { code: 'NL', flag: '\u{1F1F3}\u{1F1F1}', name: 'Nederlands' }].map(l => (
-                    <div key={l.code} onClick={() => { setLang(l.code); setLangOpenG(false); }} style={{ display: 'flex', alignItems: 'center', gap: 16, padding: '14px 18px', borderRadius: 18, cursor: 'pointer', background: lang === l.code ? 'rgba(255,255,255,0.08)' : 'rgba(255,255,255,0.02)', border: lang === l.code ? '1px solid rgba(255,255,255,0.15)' : '1px solid rgba(255,255,255,0.05)' } as any}>
-                      <span style={{ fontSize: 32, lineHeight: 1 }}>{l.flag}</span>
-                      <span style={{ fontSize: 15, fontWeight: lang === l.code ? 800 : 500, color: lang === l.code ? '#FFF' : 'rgba(255,255,255,0.45)', flex: 1 }}>{l.name}</span>
-                      {lang === l.code && <i className="ri-check-line" style={{ fontSize: 18, color: '#22D3EE' }} />}
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* POPUP FICHE SAAD */}
-          {showSaadPopup && saadLink && (
-            <div onClick={() => setShowSaadPopup(false)} style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 9999, backdropFilter: 'blur(32px)', WebkitBackdropFilter: 'blur(32px)', background: 'rgba(0,0,0,0.25)', overflowY: 'auto' } as any}>
-              <div onClick={(e: any) => e.stopPropagation()} style={{ width: '100%', maxWidth: 420, margin: '0 auto', padding: '40px 28px 120px', boxSizing: 'border-box' } as any}>
-                <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 20 } as any}>
-                  <div onClick={() => setShowSaadPopup(false)} style={{ width: 36, height: 36, borderRadius: 999, background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}><i className="ri-close-line" style={{ fontSize: 18, color: 'rgba(255,255,255,0.8)' }} /></div>
-                </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 20 } as any}>
-                  <div style={{ width: 56, height: 56, borderRadius: 16, background: 'rgba(16,185,129,0.2)', border: '2px solid rgba(16,185,129,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}><i className="ri-building-line" style={{ fontSize: 26, color: '#10B981' }} /></div>
-                  <div>
-                    <div style={{ fontSize: 20, fontWeight: 800, color: '#FFF' }}>{saadLink.company_name}</div>
-                    <div style={{ display: 'inline-flex', alignItems: 'center', gap: 5, marginTop: 4, padding: '3px 10px', borderRadius: 99, background: 'rgba(16,185,129,0.15)', border: '1px solid rgba(16,185,129,0.25)' } as any}>
-                      <span style={{ width: 6, height: 6, borderRadius: 99, background: '#10B981', display: 'inline-block' } as any} />
-                      <span style={{ fontSize: 11, fontWeight: 700, color: '#10B981' }}>Rattaché</span>
-                    </div>
-                  </div>
-                </div>
-                <div style={{ padding: '16px', borderRadius: 18, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', marginBottom: 14 } as any}>
-                  <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.3)', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 12 }}>Structure</div>
-                  {[
-                    saadLink.company_address && { icon: 'ri-map-pin-line', label: 'Adresse', value: saadLink.company_address },
-                    saadLink.company_siret && { icon: 'ri-file-text-line', label: 'SIRET', value: saadLink.company_siret },
-                    saadLink.linked_since && { icon: 'ri-calendar-line', label: 'Rattaché depuis', value: new Date(saadLink.linked_since).toLocaleDateString('fr-FR', { day: '2-digit', month: 'long', year: 'numeric' }) },
-                  ].filter(Boolean).map((item: any, i: number) => (
-                    <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: 10, padding: '8px 0', borderTop: i > 0 ? '1px solid rgba(255,255,255,0.06)' : 'none' } as any}>
-                      <i className={item.icon} style={{ fontSize: 14, color: 'rgba(255,255,255,0.4)', marginTop: 2, flexShrink: 0 }} />
-                      <div>
-                        <div style={{ fontSize: 9, fontWeight: 600, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', marginBottom: 2 }}>{item.label}</div>
-                        <div style={{ fontSize: 13, color: '#FFF' }}>{item.value}</div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-                <div style={{ padding: '16px', borderRadius: 18, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', marginBottom: 14 } as any}>
-                  <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.3)', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 12 }}>Mes espaces</div>
-                  <div style={{ display: 'flex', gap: 8 } as any}>
-                    <div style={{ flex: 1, padding: '10px', borderRadius: 12, background: saadLink.intervenant_active !== false ? 'rgba(124,92,255,0.1)' : 'rgba(255,255,255,0.04)', border: `1px solid ${saadLink.intervenant_active !== false ? 'rgba(124,92,255,0.25)' : 'rgba(255,255,255,0.08)'}`, textAlign: 'center' } as any}>
-                      <i className="ri-stethoscope-line" style={{ fontSize: 16, color: saadLink.intervenant_active !== false ? '#A78BFA' : 'rgba(255,255,255,0.25)', display: 'block', marginBottom: 4 }} />
-                      <div style={{ fontSize: 11, fontWeight: 700, color: saadLink.intervenant_active !== false ? '#A78BFA' : 'rgba(255,255,255,0.3)' }}>Intervenant Care</div>
-                      <div style={{ fontSize: 9, color: saadLink.intervenant_active !== false ? 'rgba(164,139,250,0.7)' : 'rgba(255,255,255,0.2)', marginTop: 2 }}>{saadLink.intervenant_active !== false ? 'Actif' : 'Désactivé'}</div>
-                    </div>
-                    <div style={{ flex: 1, padding: '10px', borderRadius: 12, background: saadLink.prescripteur_active !== false ? 'rgba(245,158,11,0.1)' : 'rgba(255,255,255,0.04)', border: `1px solid ${saadLink.prescripteur_active !== false ? 'rgba(245,158,11,0.25)' : 'rgba(255,255,255,0.08)'}`, textAlign: 'center' } as any}>
-                      <i className="ri-file-text-line" style={{ fontSize: 16, color: saadLink.prescripteur_active !== false ? '#F59E0B' : 'rgba(255,255,255,0.25)', display: 'block', marginBottom: 4 }} />
-                      <div style={{ fontSize: 11, fontWeight: 700, color: saadLink.prescripteur_active !== false ? '#F59E0B' : 'rgba(255,255,255,0.3)' }}>Prescripteur</div>
-                      <div style={{ fontSize: 9, color: saadLink.prescripteur_active !== false ? 'rgba(245,158,11,0.7)' : 'rgba(255,255,255,0.2)', marginTop: 2 }}>{saadLink.prescripteur_active !== false ? 'Actif' : 'Désactivé'}</div>
-                    </div>
-                  </div>
-                </div>
-                <div onClick={async () => {
-                  if (!window.confirm(`Vous allez vous détacher de ${saadLink.company_name}. Cette action est irréversible. Continuer ?`)) return;
-                  setDetaching(true);
-                  try {
-                    await apiFetch('/api/guardian/saad-detach', { method: 'POST' }, token);
-                    setShowSaadPopup(false);
-                    fetchData();
-                  } catch (e: any) { window.alert(`Erreur : ${(e as any).message}`); }
-                  finally { setDetaching(false); }
-                }} style={{ padding: '14px', borderRadius: 999, textAlign: 'center', cursor: detaching ? 'not-allowed' : 'pointer', background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.2)', color: '#EF4444', fontSize: 14, fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 } as any}>
-                  {detaching ? <><i className="ri-loader-4-line" style={{ fontSize: 16 }} />Détachement...</> : <><i className="ri-link-unlink-m" style={{ fontSize: 16 }} />Se détacher de la structure</>}
-                </div>
-              </div>
-            </div>
-          )}
-          {/* SAAD pending invitations */}
-          {saadInvitations.map((inv: any) => (
-            <div key={inv.id} style={{ padding: '14px 16px', borderRadius: 18, background: 'rgba(245,158,11,0.08)', border: '1px solid rgba(245,158,11,0.2)', marginBottom: 10 } as any}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10 } as any}>
-                <div style={{ width: 36, height: 36, borderRadius: 10, background: 'rgba(245,158,11,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}><i className="ri-building-4-line" style={{ fontSize: 18, color: '#F59E0B' }} /></div>
-                <div><div style={{ fontSize: 13, fontWeight: 700, color: '#FFF' }}>{inv.company_name}</div><div style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)' }}>Souhaite vous rattacher comme gardien professionnel</div></div>
-              </div>
-              <div style={{ display: 'flex', gap: 8 } as any}>
-                <div onClick={async () => { try { await apiFetch(`/api/guardian/saad-invitations/${inv.id}/accept`, { method: 'POST' }, token); fetchData(); } catch {} }} style={{ flex: 1, padding: '10px', borderRadius: 999, background: 'rgba(16,185,129,0.2)', border: '1px solid rgba(16,185,129,0.3)', textAlign: 'center', cursor: 'pointer', fontSize: 12, fontWeight: 700, color: '#10B981' } as any}>Accepter</div>
-                <div onClick={async () => { try { await apiFetch(`/api/guardian/saad-invitations/${inv.id}/reject`, { method: 'POST' }, token); fetchData(); } catch {} }} style={{ flex: 1, padding: '10px', borderRadius: 999, background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', textAlign: 'center', cursor: 'pointer', fontSize: 12, fontWeight: 700, color: 'rgba(255,255,255,0.4)' } as any}>Refuser</div>
-              </div>
-            </div>
-          ))}
-          {/* Beneficiary cards */}
-          {bens.map((b: any) => (
-            <div key={b.id} onClick={() => router.push({ pathname: '/beneficiary-detail', params: { beneficiaryId: b.id } })} style={{ borderRadius: 20, background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.1)', marginBottom: 12, cursor: 'pointer', overflow: 'hidden', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)' } as any}>
-              <div style={{ padding: '14px 16px 12px', display: 'flex', alignItems: 'center', gap: 14 } as any}>
-                <div style={{ width: 52, height: 52, borderRadius: 16, background: 'linear-gradient(135deg, #D4845A, #E8A87C)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, border: '2px solid rgba(255,255,255,0.15)' } as any}><span style={{ fontSize: 22, fontWeight: 900, color: '#FFF' }}>{b.name?.charAt(0)}</span></div>
-                <div style={{ flex: 1 } as any}>
-                  <div style={{ fontSize: 17, fontWeight: 800, color: '#FFF', marginBottom: 2 }}>{b.name}</div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' } as any}>
-                    {b.date_of_birth && !isNaN(new Date(b.date_of_birth).getTime()) && <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.4)' }}>{Math.floor((Date.now() - new Date(b.date_of_birth).getTime()) / (1000 * 60 * 60 * 24 * 365))} ans</span>}
-                    {b.subscription_type && <><span style={{ fontSize: 10, color: 'rgba(255,255,255,0.2)' }}>&middot;</span><span style={{ fontSize: 10, color: '#D97706', fontWeight: 600 }}>{b.subscription_type}</span></>}
-                  </div>
-                </div>
-                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 4 } as any}>
-                  {b.active_alerts > 0 && (
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '4px 8px', borderRadius: 99, background: 'rgba(239,68,68,0.2)' } as any}><span style={{ width: 5, height: 5, borderRadius: 99, background: '#EF4444' } as any} /><span style={{ fontSize: 10, fontWeight: 700, color: '#EF4444' }}>{b.active_alerts} alerte{b.active_alerts > 1 ? 's' : ''}</span></div>
-                  )}
-                  <i className="ri-arrow-right-s-line" style={{ fontSize: 16, color: 'rgba(255,255,255,0.25)' }} />
-                </div>
-              </div>
-              {b.latest_vitals && (
-                <div style={{ display: 'flex', borderTop: '1px solid rgba(0,0,0,0.06)', padding: '10px 16px 12px', gap: 6 } as any}>
-                  {[
-                    { val: b.latest_vitals.heart_rate, unit: 'bpm', color: '#EF4444', dot: '#EF4444' },
-                    { val: b.latest_vitals.spo2, unit: '%', color: '#60A5FA', dot: '#3B82F6' },
-                    { val: b.latest_vitals.blood_pressure_systolic ? `${b.latest_vitals.blood_pressure_systolic}/${b.latest_vitals.blood_pressure_diastolic}` : null, unit: 'mmHg', color: '#C084FC', dot: '#A78BFA' },
-                    { val: b.latest_vitals.temperature, unit: '°C', color: '#FB923C', dot: '#F59E0B' },
-                  ].map((s: any, i: number) => s.val ? (
-                    <div key={i} style={{ flex: 1, padding: '6px 4px', borderRadius: 10, background: `${s.dot}15`, textAlign: 'center' } as any}>
-                      <div style={{ fontSize: 14, fontWeight: 900, color: s.color, lineHeight: 1 }}>{s.val}</div>
-                      <div style={{ fontSize: 8, color: 'rgba(255,255,255,0.45)', textTransform: 'uppercase', letterSpacing: 0.3, marginTop: 2 }}>{s.unit}</div>
-                    </div>
-                  ) : (
-                    <div key={i} style={{ flex: 1, padding: '6px 4px', borderRadius: 10, background: 'rgba(255,255,255,0.03)', textAlign: 'center' } as any}>
-                      <div style={{ fontSize: 14, fontWeight: 900, color: 'rgba(255,255,255,0.2)', lineHeight: 1 }}>--</div>
-                      <div style={{ fontSize: 8, color: 'rgba(255,255,255,0.2)', textTransform: 'uppercase', letterSpacing: 0.3, marginTop: 2 }}>{s.unit}</div>
-                    </div>
-                  ))}
-                </div>
-              )}
-              {(b.bracelet_battery != null || b.last_seen) && (
-                <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '8px 16px', borderTop: '1px solid rgba(255,255,255,0.06)', background: 'rgba(255,255,255,0.02)' } as any}>
-                  {b.bracelet_battery != null && (
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 5 } as any}>
-                      <i className="ri-battery-line" style={{ fontSize: 13, color: b.bracelet_battery > 30 ? '#10B981' : '#EF4444' }} />
-                      <span style={{ fontSize: 11, fontWeight: 600, color: b.bracelet_battery > 30 ? '#10B981' : '#EF4444' }}>{b.bracelet_battery}%</span>
-                    </div>
-                  )}
-                  {b.last_seen && (
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 5 } as any}>
-                      <i className="ri-map-pin-line" style={{ fontSize: 13, color: 'rgba(255,255,255,0.4)' }} />
-                      <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)' }}>{b.address || 'Position connue'}</span>
-                    </div>
-                  )}
-                  <div style={{ marginLeft: 'auto', fontSize: 11, color: 'rgba(255,255,255,0.25)' }}>Voir la fiche &rarr;</div>
-                </div>
-              )}
-            </div>
-          ))}
-          {bens.length === 0 && <div style={{ textAlign: 'center', padding: '30px', borderRadius: 20, background: 'rgba(255,255,255,0.04)', marginBottom: 10 } as any}><i className="ri-group-line" style={{ fontSize: 36, color: 'rgba(255,255,255,0.15)' }} /><div style={{ fontSize: 15, fontWeight: 700, color: '#FFF', marginTop: 10 }}>Aucun beneficiaire</div></div>}
-          <div onClick={() => setShowAddBenPopup(true)} style={{ padding: '16px', borderRadius: 999, textAlign: 'center', cursor: 'pointer', background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10, backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)' } as any}><i className="ri-heart-line" style={{ fontSize: 16, color: '#FFF' }} /><span style={{ fontSize: 14, fontWeight: 700, color: '#FFF' }}>{t('add_beneficiary')}</span></div>
-
-          {/* Nora IA card */}
-          <div style={{ height: 1, background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent)', margin: '18px 16px' } as any} />
-          <CopilotCard subtitle={"Un accompagnement intelligent pour comprendre la sant\u00e9 de vos b\u00e9n\u00e9ficiaires et agir au quotidien."} />
         </div>
         {/* POPUP AJOUTER BENEFICIAIRE */}
-        {showAddBenPopup && (
-          <div onClick={() => { setShowAddBenPopup(false); setLinkMessage(''); setLinkPhone(''); setLinkRelationship(''); }} style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 9999, backdropFilter: 'blur(32px)', WebkitBackdropFilter: 'blur(32px)', background: 'rgba(0,0,0,0.25)', overflowY: 'auto', WebkitOverflowScrolling: 'touch' } as any}>
+        {showAddBenPopup && portalMount(
+          <div onClick={() => { setShowAddBenPopup(false); setLinkMessage(''); setLinkPhone(''); setLinkRelationship(''); }} style={POP as any}>
             <div onClick={(e: any) => e.stopPropagation()} style={{ width: '100%', maxWidth: 420, margin: '0 auto', padding: '40px 28px 120px', boxSizing: 'border-box' } as any}>
               <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 20 } as any}>
                 <div onClick={() => { setShowAddBenPopup(false); setLinkMessage(''); setLinkPhone(''); setLinkRelationship(''); }} style={{ width: 38, height: 38, borderRadius: 999, background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}>
