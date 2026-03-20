@@ -1,4 +1,4 @@
-# Chutex Care — PRD (Product Requirements Document)
+# Chutex Care — PRD
 
 ## Enonce du probleme
 Chutex Care est une plateforme de teleassistance et de sante connectee pour les personnes agees et dependantes.
@@ -8,57 +8,34 @@ Chutex Care est une plateforme de teleassistance et de sante connectee pour les 
 - **Backend**: FastAPI (Python) + MongoDB
 - **Integrations**: VAPI.ai, Twilio, ElevenLabs, Mollie, Mailjet, SMSMode, Lefu Cloud, GPT-5.2
 
-## Fonctionnalites implementees
+## Dashboard Beneficiaire — Design Final (Mars 2026)
 
-### Dashboard Beneficiaire - Redesign complet (Mars 2026)
-- **Fond rouge abstrait** en haut de page couvrant header + alert, transition vers couleur solide
-- **Header sans carte glass** : nom, avatar, icones directement sur le fond rouge
-- **Toggle theme light/dark** dans le header (soleil/lune), persistance via localStorage
-- Mode Dark : fond #2C2C2E, cartes rgba(70,70,78,0.85), texte blanc
-- Mode Light : fond #F5F2EE, cartes rgba(255,255,255,0.88), texte sombre
-- **Banniere alertes** : glass effect sur fond rouge, "5 | Alertes | Active >"
-- **Carte "Objectifs journalier"** sombre avec video Nora et play button
-- **4 cartes objectifs** dans l'ordre : Pas, Hydratation, Endormissement, Apport calorique
-  - Images 3D correctes : physique.png, hydratation.png, sommeil.png, kcal_icon.svg
-  - Barre de progression segmentee (4 segments) pour les Pas
+### Structure
+- **Header FIXE** : fond rouge abstrait, avatar + nom + icones (theme toggle, notif, drapeau) — texte toujours blanc
+- **Banniere alertes** : glass overlay sur fond rouge, texte blanc, "5 | Alertes | Active >"
+- **Carte contenu scrollable** : coins arrondis en haut (24px), chevauche le header
+- **Gradient** : noir pur (#000) en haut → gris fonce (#3A3A3C) en bas (dark) / blanc → beige (light)
+- **Carte "Objectifs journalier"** : noir pur, video Nora + play button
+- **4 cartes objectifs** (ordre fixe) : Pas, Hydratation, Endormissement, Apport calorique
+  - Images 3D : physique.png, hydratation.png, sommeil.png, kcal_icon.svg
+  - Barre segmentee (4 segments) pour Pas + pourcentage a DROITE des barres
   - Separateur vertical entre valeur et label
-- CopilotCard (Nora separee) supprimee
-- GlassTabBar s'adapte automatiquement au theme
-- SOS fonctionnel (garde en backend, masque sur le dashboard visuel)
+- **Mode light/dark** : toggle dans header, persistance localStorage, navbar adapte
 
-### Bracelet V8 JStyle (Fevrier 2026)
-- Connexion BLE Web Bluetooth (JStyle SDK V8: 0xFFF0 service)
-- Push data types: heart_rate, spo2, temperature, steps, blood_pressure, ecg, blood_glucose, ppg
-- Mode simulation V8 complet
-
-### Correlations Sante (Fevrier 2026)
-- Endpoint `/api/health/correlations` et `/api/health/correlations/trends`
-- 19 paires de metriques, Pearson sur 90 jours
-
-### Age Biologique V2 (Mars 2026)
-- Algorithme 3 niveaux: L1 bracelet, L2 bracelet+balance, L3 tendances
-
-## Backlog
-
-### P0
-- Finaliser integration Balance & Vest
-
-### P1
-- Systeme de signature electronique (Documents admin)
-
-### P2
-- Parrainage Guardian, essai gratuit 7j, PDF contrats, Vivoo, refactoring backend
-
-## Fichiers cles
+### Fichiers cles
 - `/app/frontend/src/components/dashboard/BeneficiaryHome.tsx`
 - `/app/frontend/src/components/dashboard/DailyObjectives.tsx`
 - `/app/frontend/src/components/dashboard/AlertBanner.tsx`
 - `/app/frontend/src/components/GlassTabBar.tsx`
-- `/app/frontend/src/components/dashboard/constants.ts`
 
-## Credentials de test
-| Role | Email / Phone | Password |
+## Backlog
+### P0 — Finaliser integration Balance & Vest
+### P1 — Signature electronique (Documents admin)
+### P2 — Parrainage Guardian, essai gratuit 7j, PDF contrats, Vivoo, refactoring backend
+
+## Credentials
+| Role | Email/Phone | Password |
 | :--- | :--- | :--- |
-| **Admin** | `0600000001` | `admin123` |
-| **Beneficiaire (Josette)** | `0651245918` | `test123` |
-| **Gardien (Marie)** | `+33699887766` | `test123` |
+| Admin | 0600000001 | admin123 |
+| Beneficiaire (Josette) | 0651245918 | test123 |
+| Gardien (Marie) | +33699887766 | test123 |

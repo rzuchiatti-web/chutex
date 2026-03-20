@@ -273,8 +273,8 @@ export function BeneficiaryHome({ token, user }: { token: string; user: any }) {
   if (Platform.OS === 'web') {
     const BG_RED = 'https://customer-assets.emergentagent.com/job_443c9c6e-0feb-4920-a358-fe7cc1a6289b/artifacts/mhh7xwy3_ChatGPT%20Image%2017%20f%C3%A9vr.%202026%2C%2014_08_43.png';
     const C = isDark
-      ? { bg: '#2C2C2E', card: 'rgba(70,70,78,0.85)', text: '#FFF', sub: 'rgba(255,255,255,0.55)', headerBg: 'transparent', btnBg: 'rgba(255,255,255,0.15)', arrow: 'rgba(255,255,255,0.4)', border: 'rgba(255,255,255,0.1)', sep: 'rgba(255,255,255,0.08)' }
-      : { bg: '#F5F2EE', card: 'rgba(255,255,255,0.88)', text: '#1A1A2E', sub: 'rgba(0,0,0,0.45)', headerBg: 'transparent', btnBg: 'rgba(255,255,255,0.3)', arrow: 'rgba(0,0,0,0.3)', border: 'rgba(0,0,0,0.06)', sep: 'rgba(0,0,0,0.06)' };
+      ? { card: 'rgba(70,70,78,0.85)', text: '#FFF', sub: 'rgba(255,255,255,0.55)', arrow: 'rgba(255,255,255,0.4)', border: 'rgba(255,255,255,0.1)', sep: 'rgba(255,255,255,0.08)' }
+      : { card: 'rgba(255,255,255,0.88)', text: '#1A1A2E', sub: 'rgba(0,0,0,0.45)', arrow: 'rgba(0,0,0,0.3)', border: 'rgba(0,0,0,0.06)', sep: 'rgba(0,0,0,0.06)' };
     const glass = { backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)', border: `1px solid ${C.border}` };
 
     const GC = ({ children, style, onClick, testId }: any) => (
@@ -286,17 +286,13 @@ export function BeneficiaryHome({ token, user }: { token: string; user: any }) {
     );
     return (
       <div data-testid="beneficiary-dashboard" style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, display: 'flex', flexDirection: 'column', fontFamily: "'Inter', system-ui, -apple-system, sans-serif", overflow: 'hidden' } as any}>
-        {/* Background: Red image at top, solid color below */}
-        <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, zIndex: 0, background: C.bg, transition: 'background 0.4s ease' } as any}>
-          <img src={BG_RED} alt="" style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: 280, objectFit: 'cover', zIndex: 1 } as any} />
-          <div style={{ position: 'absolute', top: 220, left: 0, right: 0, height: 80, background: `linear-gradient(to bottom, transparent, ${C.bg})`, zIndex: 2 } as any} />
-        </div>
-        {Platform.OS === 'web' && <TeamActivityToast token={token} />}
-        <div style={{ flex: 1, overflowY: 'auto', position: 'relative', zIndex: 5, padding: '0 0 100px', WebkitOverflowScrolling: 'touch' } as any}>
 
-          {/* ══════ HEADER — directly on red background ══════ */}
-          <div data-testid="dashboard-header" className="dash-slide-up" style={{ padding: '18px 20px 10px', position: 'relative', zIndex: 10 } as any}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' } as any}>
+        {/* ═══ FIXED HEADER with red BG ═══ */}
+        <div style={{ position: 'relative', zIndex: 20, flexShrink: 0 } as any}>
+          <img src={BG_RED} alt="" style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 } as any} />
+          <div style={{ position: 'relative', zIndex: 2, padding: '18px 20px 14px' } as any}>
+            {/* Header row */}
+            <div data-testid="dashboard-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 } as any}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 12 } as any}>
                 <div onClick={() => router.push('/(tabs)/profile' as any)} style={{ width: 44, height: 44, borderRadius: 22, background: 'rgba(255,255,255,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, cursor: 'pointer', overflow: 'hidden' } as any}>
                   {user.avatar_url ? <img src={user.avatar_url} style={{ width: 44, height: 44, borderRadius: 22, objectFit: 'cover' } as any} /> : <span style={{ fontSize: 17, fontWeight: 800, color: '#FFF' }}>{user.name?.charAt(0)?.toUpperCase()}</span>}
@@ -319,15 +315,23 @@ export function BeneficiaryHome({ token, user }: { token: string; user: any }) {
                 </div>
               </div>
             </div>
+            {/* Alert banner — always white text on red bg */}
+            <AlertBanner activeAlerts={activeAlerts} />
           </div>
-
-          <div style={{ padding: '0 16px', position: 'relative', zIndex: 10 } as any}>
-
           <NotificationsPopup show={showNotifs} onClose={() => setShowNotifs(false)} activeAlerts={activeAlerts} guardianRequests={guardianRequests} predictiveAlerts={predictiveAlerts} token={token} onRefresh={fetchData} />
           <LanguagePopup show={langOpen} onClose={() => setLangOpen(false)} lang={lang} setLang={setLang} />
+        </div>
 
-          {/* ── Alert Banner on red background ── */}
-          <AlertBanner activeAlerts={activeAlerts} isDark={isDark} />
+        {Platform.OS === 'web' && <TeamActivityToast token={token} />}
+
+        {/* ═══ SCROLLABLE DARK CONTENT CARD — overlaps header ═══ */}
+        <div style={{ flex: 1, overflowY: 'auto', position: 'relative', zIndex: 10, marginTop: -16, WebkitOverflowScrolling: 'touch' } as any}>
+          <div style={{
+            minHeight: '100%', padding: '24px 16px 120px',
+            borderRadius: '24px 24px 0 0',
+            background: isDark ? 'linear-gradient(to bottom, #000 0%, #3A3A3C 100%)' : 'linear-gradient(to bottom, #FFF 0%, #F0EDE8 100%)',
+            transition: 'background 0.4s ease',
+          } as any}>
 
           <DailyObjectivesOnDashboard token={token} isDark={isDark} />
 
@@ -482,8 +486,8 @@ export function BeneficiaryHome({ token, user }: { token: string; user: any }) {
           <CheckinPopup show={showCheckin} onClose={() => setShowCheckin(false)} activeProgram={activeProgram} mood={checkinMood} setMood={setCheckinMood} note={checkinNote} setNote={setCheckinNote} sending={checkinSending} setSending={setCheckinSending} feedback={checkinFeedback} setFeedback={setCheckinFeedback} token={token} fetchData={fetchData} />
           <GuardianActivationPopup show={showGuardianActivation} onClose={() => { setShowGuardianActivation(false); setActiveTab("beneficiary"); }} step={guardianActivationStep} setStep={setGuardianActivationStep} alertSms={alertSms} setAlertSms={setAlertSms} alertEmail={alertEmail} setAlertEmail={setAlertEmail} activating={activatingGuardian} onActivate={activateGuardianMode} />
 
-          </div>
-        </div>
+          </div>{/* end gradient content card */}
+        </div>{/* end scroll container */}
         <style dangerouslySetInnerHTML={{ __html: `@keyframes spin{to{transform:rotate(360deg)}} @keyframes pulseRing{0%{transform:scale(1);opacity:0.3}100%{transform:scale(1.5);opacity:0}} @keyframes twBlink{0%,100%{opacity:1}50%{opacity:0}} @keyframes dashSlideUp{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}} .dash-slide-up{animation:dashSlideUp 0.5s ease-out both} .dash-slide-up:nth-child(1){animation-delay:0s} .dash-slide-up:nth-child(2){animation-delay:0.08s} .dash-slide-up:nth-child(3){animation-delay:0.16s} .dash-slide-up:nth-child(4){animation-delay:0.24s} .dash-slide-up:nth-child(5){animation-delay:0.32s} .dash-slide-up:nth-child(6){animation-delay:0.4s} .tw-cursor{animation:twBlink 1s step-end infinite}` }} />
       </div>
     );

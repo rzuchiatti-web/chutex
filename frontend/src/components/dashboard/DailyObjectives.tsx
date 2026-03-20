@@ -50,14 +50,17 @@ function SegmentedBar({ pct, isDark }: { pct: number; isDark: boolean }) {
   const emptyColor = isDark ? 'rgba(255,255,255,0.12)' : 'rgba(0,0,0,0.08)';
 
   return (
-    <div style={{ display: 'flex', gap: 4, marginTop: 8 } as any}>
-      {Array.from({ length: segments }).map((_, i) => (
-        <div key={i} style={{
-          flex: 1, height: 4, borderRadius: 2,
-          background: i < filledSegments ? filledColor : emptyColor,
-          transition: 'background 0.3s',
-        } as any} />
-      ))}
+    <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 8 } as any}>
+      <div style={{ display: 'flex', gap: 4, flex: 1 } as any}>
+        {Array.from({ length: segments }).map((_, i) => (
+          <div key={i} style={{
+            flex: 1, height: 4, borderRadius: 2,
+            background: i < filledSegments ? filledColor : emptyColor,
+            transition: 'background 0.3s',
+          } as any} />
+        ))}
+      </div>
+      <span style={{ fontSize: 18, fontWeight: 900, color: isDark ? '#FFF' : '#1A1A2E', flexShrink: 0, minWidth: 45, textAlign: 'right' }}>{Math.round(pct)}%</span>
     </div>
   );
 }
@@ -101,9 +104,6 @@ function ObjectiveCard({ objKey, value, unit, label, pct, isDark, onClick }: {
 
         <div style={{ flex: 1, textAlign: 'right' } as any}>
           <div style={{ fontSize: 15, fontWeight: 700, color: textColor }}>{label}</div>
-          {hasProgress && (
-            <div style={{ fontSize: 20, fontWeight: 900, color: textColor, marginTop: 2 }}>{Math.round(pct)}%</div>
-          )}
         </div>
       </div>
 
