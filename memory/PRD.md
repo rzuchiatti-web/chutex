@@ -10,12 +10,13 @@ Chutex Care est une plateforme de teleassistance et de sante connectee pour les 
 
 ## Fonctionnalites implementees
 
-### Dashboard Beneficiaire Design Clinique (Mars 2026)
-- Fond anime Canvas: gris fonce (#1e1e30) avec 5 orbes violettes lumineuses (hue 260-295) qui pulsent et bougent + 40 particules violettes avec glow
-- 4 cartes objectifs journaliers style Apple Watch: barres segmentees (30 segments), gradient d'accent, grandes valeurs
-  - Calories: accent jaune-vert #C8D84C, Hydratation: cyan #22D3EE, Pas: vert #10B981, Coucher: violet #A78BFA
-- Cartes glass rgba(30,30,48,0.85) avec bordures rgba(255,255,255,0.1), border-radius 20px
-- Variables CSS heritees par composants enfants (DailyObjectives, DeviceCards)
+### Dashboard Beneficiaire Design (Mars 2026)
+- Fond gradient CSS: noir (#0a0a0f) avec 3 lueurs violettes radiales (radial-gradient + blur 50-80px)
+- Objectifs journaliers redesignes:
+  - Carte Pas (pleine largeur): cercle progression SVG, badge "MESURE", mini barre segmentee, gradient vert
+  - 3 cartes recommandations (Calories/Hydratation/Coucher): icones, valeurs grandes, badge "RECOMMANDE"
+  - Separation claire mesure bracelet vs recommandations Nora
+- Cartes glass backdrop-blur(24px), border-radius 18-24px, bordures rgba(255,255,255,0.06-0.15)
 
 ### Bracelet V8 JStyle (Fevrier 2026)
 - Connexion BLE Web Bluetooth (JStyle SDK V8: 0xFFF0 service)

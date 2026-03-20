@@ -2,108 +2,135 @@ import React from 'react';
 import { useRouter } from 'expo-router';
 import { apiFetch } from '../../services/api';
 
-const NORA_VIDEO_URL = 'https://customer-assets.emergentagent.com/job_ba3a5789-c8f1-4b12-b5d8-478a7f99aaea/artifacts/b6eh1r76_Nora_video.mp4';
+const NORA_VIDEO = 'https://customer-assets.emergentagent.com/job_ba3a5789-c8f1-4b12-b5d8-478a7f99aaea/artifacts/b6eh1r76_Nora_video.mp4';
 
 function NoraPill() {
   return (
     <div className="dash-slide-up" style={{ display: 'flex', justifyContent: 'center', marginBottom: 18 } as any}>
       <div data-testid="nora-pill" style={{ display: 'inline-flex', alignItems: 'center', gap: 10, background: 'rgba(0,0,0,0.5)', borderRadius: 999, padding: '6px 16px 6px 6px', boxShadow: '0 4px 20px rgba(0,0,0,0.35), 0 0 0 1px rgba(255,255,255,0.12)', border: '1.5px solid rgba(255,255,255,0.18)' } as any}>
-        <video src={NORA_VIDEO_URL} autoPlay loop muted playsInline style={{ width: 28, height: 28, borderRadius: 14, objectFit: 'cover' } as any} />
-        <span style={{ fontSize: 12, fontWeight: 700, color: '#FFF', letterSpacing: -0.2 }}>Nora · Voici vos objectifs journaliers</span>
+        <video src={NORA_VIDEO} autoPlay loop muted playsInline style={{ width: 28, height: 28, borderRadius: 14, objectFit: 'cover' } as any} />
+        <span style={{ fontSize: 12, fontWeight: 700, color: '#FFF', letterSpacing: -0.2 }}>Nora · Vos objectifs du jour</span>
       </div>
     </div>
   );
 }
 
-/* ──── Card config ──── */
-const CFG: Record<string, { icon: string; label: string; unit: string; target: number; tUnit: string; accent: string; gFrom: string; gTo: string }> = {
-  calories_intake: { icon: 'fa-solid fa-fire-flame-curved', label: 'Calories', unit: '/Kcal', target: 2230, tUnit: '/Kcal', accent: '#C8D84C', gFrom: 'rgba(180,200,50,0.22)', gTo: 'rgba(30,30,30,0.9)' },
-  hydration:       { icon: 'fa-solid fa-droplet',           label: 'Hydratation', unit: 'L', target: 2, tUnit: 'L', accent: '#22D3EE', gFrom: 'rgba(34,211,238,0.18)', gTo: 'rgba(30,30,30,0.9)' },
-  steps:           { icon: 'fa-solid fa-shoe-prints',       label: 'Pas', unit: 'pas', target: 10000, tUnit: 'pas', accent: '#34D399', gFrom: 'rgba(52,211,153,0.18)', gTo: 'rgba(30,30,30,0.9)' },
-  sleep:           { icon: 'fa-solid fa-moon',              label: 'Coucher', unit: '', target: 8, tUnit: 'h', accent: '#A78BFA', gFrom: 'rgba(167,139,250,0.18)', gTo: 'rgba(30,30,30,0.9)' },
-};
-
-/* ──── Thick segmented bar ──── */
-function ThickBar({ pct, color }: { pct: number; color: string }) {
-  const N = 28;
-  const filled = Math.round(Math.min(1, Math.max(0, pct / 100)) * N);
-  return (
-    <div data-testid="segmented-bar" style={{ display: 'flex', gap: 3, width: '100%', height: 28 } as any}>
-      {Array.from({ length: N }).map((_, i) => (
-        <div key={i} style={{
-          flex: 1, borderRadius: 3,
-          background: i < filled ? color : 'rgba(255,255,255,0.08)',
-          opacity: i < filled ? 1 : 0.6,
-          transition: 'background 0.4s',
-        } as any} />
-      ))}
-    </div>
-  );
-}
-
-/* ──── Single card ──── */
-function ObjCard({ d, c, i, go }: { d: any; c: typeof CFG[string]; i: number; go: () => void }) {
-  const isSleep = d.key === 'sleep';
-  const raw = d.key === 'hydration' ? parseFloat(String(d.value).replace(/L$/i, '').trim()) : (isSleep ? 0 : (parseFloat(d.value) || 0));
-  const pct = isSleep ? (d.progress || 75) : (c.target > 0 ? (raw / c.target) * 100 : 0);
-  const val = isSleep ? d.value : (d.key === 'hydration' ? raw.toFixed(1) : Math.round(raw).toLocaleString('fr-FR'));
+/* ════════ Steps — main measured card ════════ */
+function StepsCard({ data, measured }: { data: any; measured: number }) {
+  const router = useRouter();
+  const target = parseInt(data.value) || 6000;
+  const pct = target > 0 ? Math.min(100, (measured / target) * 100) : 0;
+  const circumference = 2 * Math.PI * 54;
+  const dashOffset = circumference - (pct / 100) * circumference;
 
   return (
-    <div data-testid={`objective-card-${d.key}`} className="dash-slide-up" onClick={go}
+    <div data-testid="objective-card-steps" className="dash-slide-up" onClick={() => router.push({ pathname: '/metric-detail' as any, params: { key: 'steps' } })}
       style={{
-        padding: '20px 18px 16px', borderRadius: 22, cursor: 'pointer',
-        background: `linear-gradient(145deg, ${c.gFrom}, ${c.gTo})`,
-        border: '1px solid rgba(255,255,255,0.08)',
-        backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)',
-        display: 'flex', flexDirection: 'column', gap: 6,
+        padding: '24px', borderRadius: 24, cursor: 'pointer',
+        background: 'linear-gradient(135deg, rgba(16,185,129,0.12) 0%, rgba(20,20,32,0.92) 60%)',
+        border: '1px solid rgba(16,185,129,0.15)',
+        backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)',
+        display: 'flex', alignItems: 'center', gap: 28,
         transition: 'transform 0.2s, box-shadow 0.2s',
-        animationDelay: `${i * 0.08}s`,
         boxShadow: '0 8px 32px rgba(0,0,0,0.3)',
+        marginBottom: 14,
       } as any}
-      onMouseEnter={(e: any) => { e.currentTarget.style.transform = 'scale(1.02)'; e.currentTarget.style.boxShadow = `0 12px 40px rgba(0,0,0,0.4), 0 0 20px ${c.accent}15`; }}
+      onMouseEnter={(e: any) => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 12px 40px rgba(16,185,129,0.15)'; }}
       onMouseLeave={(e: any) => { e.currentTarget.style.transform = ''; e.currentTarget.style.boxShadow = '0 8px 32px rgba(0,0,0,0.3)'; }}>
 
-      {/* Top: icon + label | target */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' } as any}>
+      {/* Circular progress */}
+      <div style={{ position: 'relative', width: 128, height: 128, flexShrink: 0 } as any}>
+        <svg width="128" height="128" viewBox="0 0 128 128" style={{ transform: 'rotate(-90deg)' }}>
+          <circle cx="64" cy="64" r="54" fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth="10" />
+          <circle cx="64" cy="64" r="54" fill="none" stroke="#10B981" strokeWidth="10"
+            strokeLinecap="round" strokeDasharray={circumference} strokeDashoffset={dashOffset}
+            style={{ transition: 'stroke-dashoffset 1.5s ease' }} />
+        </svg>
+        <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' } as any}>
+          <span style={{ fontSize: 28, fontWeight: 900, color: '#FFF', letterSpacing: -1, lineHeight: 1 }}>{measured.toLocaleString('fr-FR')}</span>
+          <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.45)', fontWeight: 600, marginTop: 2 }}>/ {target.toLocaleString('fr-FR')}</span>
+        </div>
+      </div>
+
+      {/* Info */}
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 6 } as any}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 } as any}>
-          <div style={{ width: 28, height: 28, borderRadius: 8, background: `${c.accent}18`, display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}>
-            <i className={c.icon} style={{ fontSize: 13, color: c.accent }} />
-          </div>
-          <span style={{ fontSize: 14, fontWeight: 600, color: 'rgba(255,255,255,0.65)' }}>{c.label}</span>
+          <i className="fa-solid fa-shoe-prints" style={{ fontSize: 14, color: '#10B981' }} />
+          <span style={{ fontSize: 16, fontWeight: 700, color: '#FFF' }}>Pas</span>
+          <span style={{ fontSize: 9, fontWeight: 600, color: '#10B981', background: 'rgba(16,185,129,0.12)', padding: '2px 8px', borderRadius: 6, marginLeft: 4 }}>MESURE</span>
         </div>
-        <div style={{ textAlign: 'right' } as any}>
-          <div style={{ fontSize: 15, fontWeight: 800, color: '#FFF' }}>{c.target.toLocaleString('fr-FR')}<span style={{ fontSize: 11, fontWeight: 500, color: 'rgba(255,255,255,0.45)' }}>{c.tUnit}</span></div>
-          <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.35)', marginTop: 1 }}>Objectif</div>
+        <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.45)', lineHeight: 1.4 }}>
+          {measured > 0 ? `${Math.round(pct)}% de votre objectif atteint` : 'En attente des donnees du bracelet'}
+        </div>
+
+        {/* Mini bar */}
+        <div style={{ display: 'flex', gap: 2, height: 6, marginTop: 4 } as any}>
+          {Array.from({ length: 20 }).map((_, i) => (
+            <div key={i} style={{ flex: 1, borderRadius: 2, background: i < Math.round(pct / 5) ? '#10B981' : 'rgba(255,255,255,0.08)' } as any} />
+          ))}
+        </div>
+        <div style={{ display: 'flex', justifyContent: 'space-between' } as any}>
+          <span style={{ fontSize: 9, color: 'rgba(255,255,255,0.25)' }}>0</span>
+          <span style={{ fontSize: 9, color: 'rgba(255,255,255,0.25)' }}>{target.toLocaleString('fr-FR')}</span>
         </div>
       </div>
-
-      {/* Big value */}
-      <div style={{ display: 'flex', alignItems: 'baseline', gap: 4, margin: '4px 0 2px' } as any}>
-        <span style={{ fontSize: 36, fontWeight: 900, color: '#FFF', letterSpacing: -1.5, lineHeight: 1 }}>{val}</span>
-        {c.unit && <span style={{ fontSize: 13, fontWeight: 500, color: 'rgba(255,255,255,0.4)' }}>{c.unit}</span>}
-      </div>
-
-      {/* Range */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: -2 } as any}>
-        <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.3)' }}>0</span>
-        <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.3)' }}>{c.target.toLocaleString('fr-FR')}</span>
-      </div>
-
-      {/* Bar */}
-      <ThickBar pct={Math.min(100, pct)} color={c.accent} />
     </div>
   );
 }
 
+/* ════════ Recommendation card (small) ════════ */
+function RecoCard({ data, icon, accent, label, unit, idx, onClick }: {
+  data: any; icon: string; accent: string; label: string; unit: string; idx: number; onClick: () => void;
+}) {
+  const val = data.key === 'hydration' ? String(data.value).replace(/L$/i, '').trim() : data.value;
+  return (
+    <div data-testid={`objective-card-${data.key}`} className="dash-slide-up" onClick={onClick}
+      style={{
+        flex: 1, padding: '16px 14px', borderRadius: 18, cursor: 'pointer',
+        background: 'rgba(20,20,32,0.75)',
+        border: '1px solid rgba(255,255,255,0.06)',
+        backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)',
+        display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8,
+        transition: 'transform 0.2s',
+        animationDelay: `${idx * 0.08}s`,
+      } as any}
+      onMouseEnter={(e: any) => { e.currentTarget.style.transform = 'translateY(-2px)'; }}
+      onMouseLeave={(e: any) => { e.currentTarget.style.transform = ''; }}>
+
+      {/* Icon */}
+      <div style={{ width: 40, height: 40, borderRadius: 12, background: `${accent}12`, display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}>
+        <i className={icon} style={{ fontSize: 18, color: accent }} />
+      </div>
+
+      {/* Value */}
+      <div style={{ textAlign: 'center' } as any}>
+        <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'center', gap: 3 } as any}>
+          <span style={{ fontSize: 24, fontWeight: 900, color: '#FFF', letterSpacing: -0.5, lineHeight: 1 }}>{val}</span>
+          {unit && <span style={{ fontSize: 11, fontWeight: 500, color: 'rgba(255,255,255,0.4)' }}>{unit}</span>}
+        </div>
+        <div style={{ fontSize: 11, fontWeight: 600, color: 'rgba(255,255,255,0.5)', marginTop: 4 }}>{label}</div>
+      </div>
+
+      {/* Tag */}
+      <span style={{ fontSize: 8, fontWeight: 700, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: 0.8 }}>Recommande</span>
+    </div>
+  );
+}
+
+/* ════════ Main export ════════ */
 export function DailyObjectivesOnDashboard({ token }: { token: string }) {
   const router = useRouter();
   const [plan, setPlan] = React.useState<any[]>([]);
+  const [measuredSteps, setMeasuredSteps] = React.useState(0);
   const [loading, setLoading] = React.useState(true);
+
   React.useEffect(() => {
-    apiFetch('/api/health/daily-report', {}, token)
-      .then(d => setPlan(d?.daily_plan || []))
-      .catch(() => {})
-      .finally(() => setLoading(false));
+    Promise.all([
+      apiFetch('/api/health/daily-report', {}, token).then(d => {
+        setPlan(d?.daily_plan || []);
+        setMeasuredSteps(d?.data?.steps || 0);
+      }).catch(() => {}),
+    ]).finally(() => setLoading(false));
   }, [token]);
 
   if (loading) return (
@@ -113,22 +140,28 @@ export function DailyObjectivesOnDashboard({ token }: { token: string }) {
   );
   if (!plan.length) return null;
 
-  const items = plan.filter((p: any) => p.key !== 'connect' && p.key !== 'stress');
-  const nav: Record<string, () => void> = {
-    steps: () => router.push({ pathname: '/metric-detail' as any, params: { key: 'steps' } }),
-    sleep: () => router.push('/sleep' as any),
-    calories_intake: () => router.push('/minceur' as any),
-    hydration: () => router.push('/minceur' as any),
+  const stepsData = plan.find(p => p.key === 'steps');
+  const recos = plan.filter(p => p.key !== 'steps' && p.key !== 'connect' && p.key !== 'stress');
+
+  const recoConfig: Record<string, { icon: string; accent: string; label: string; unit: string; go: () => void }> = {
+    calories_intake: { icon: 'fa-solid fa-fire-flame-curved', accent: '#F59E0B', label: 'Calories / jour', unit: 'kcal', go: () => router.push('/minceur' as any) },
+    hydration: { icon: 'fa-solid fa-droplet', accent: '#22D3EE', label: 'Eau minimum', unit: 'L', go: () => router.push('/minceur' as any) },
+    sleep: { icon: 'fa-solid fa-moon', accent: '#A78BFA', label: 'Heure de coucher', unit: '', go: () => router.push('/sleep' as any) },
   };
 
   return (
     <div data-testid="dashboard-objectives" style={{ marginBottom: 20 } as any}>
       <NoraPill />
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 } as any}>
-        {items.map((p: any, i: number) => {
-          const c = CFG[p.key];
-          if (!c) return null;
-          return <ObjCard key={p.key} d={p} c={c} i={i} go={nav[p.key] || (() => {})} />;
+
+      {/* Steps — measured */}
+      {stepsData && <StepsCard data={stepsData} measured={measuredSteps} />}
+
+      {/* Recommendations — 3 in a row */}
+      <div style={{ display: 'flex', gap: 10 } as any}>
+        {recos.map((p, i) => {
+          const cfg = recoConfig[p.key];
+          if (!cfg) return null;
+          return <RecoCard key={p.key} data={p} icon={cfg.icon} accent={cfg.accent} label={cfg.label} unit={cfg.unit} idx={i} onClick={cfg.go} />;
         })}
       </div>
     </div>
