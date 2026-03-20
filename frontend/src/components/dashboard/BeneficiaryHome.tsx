@@ -290,12 +290,12 @@ export function BeneficiaryHome({ token, user }: { token: string; user: any }) {
         {/* ═══ FULL SCROLL CONTAINER ═══ */}
         <div style={{ flex: 1, overflowY: 'auto', position: 'relative', zIndex: 5, WebkitOverflowScrolling: 'touch' } as any}>
 
-          {/* ═══ HEADER with red BG — scrolls, rounded bottom, BEHIND content card ═══ */}
-          <div style={{ position: 'relative', zIndex: 1, borderRadius: '0 0 24px 24px', overflow: 'hidden' } as any}>
+          {/* ═══ HEADER with red BG — scrolls, NO rounded corners, BEHIND content card ═══ */}
+          <div style={{ position: 'relative', zIndex: 1 } as any}>
             <img src={BG_RED} alt="" style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 } as any} />
-            <div style={{ position: 'relative', zIndex: 2, padding: '18px 20px 14px' } as any}>
+            <div style={{ position: 'relative', zIndex: 2, padding: '22px 20px 28px' } as any}>
               {/* Header row */}
-              <div data-testid="dashboard-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 } as any}>
+              <div data-testid="dashboard-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 18 } as any}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 12 } as any}>
                   <div onClick={() => router.push('/(tabs)/profile' as any)} style={{ width: 44, height: 44, borderRadius: 22, background: 'rgba(255,255,255,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, cursor: 'pointer', overflow: 'hidden' } as any}>
                     {user.avatar_url ? <img src={user.avatar_url} style={{ width: 44, height: 44, borderRadius: 22, objectFit: 'cover' } as any} /> : <span style={{ fontSize: 17, fontWeight: 800, color: '#FFF' }}>{user.name?.charAt(0)?.toUpperCase()}</span>}
