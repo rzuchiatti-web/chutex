@@ -1,41 +1,33 @@
 # Chutex Care — PRD
 
-## Enonce du probleme
-Chutex Care est une plateforme de teleassistance et de sante connectee pour les personnes agees et dependantes.
+## Architecture
+- Frontend: React Native (Expo) - Web + Mobile
+- Backend: FastAPI (Python) + MongoDB
 
-## Architecture technique
-- **Frontend**: React Native (Expo) - Web + Mobile
-- **Backend**: FastAPI (Python) + MongoDB
-- **Integrations**: VAPI.ai, Twilio, ElevenLabs, Mollie, Mailjet, SMSMode, Lefu Cloud, GPT-5.2
-
-## Dashboard Beneficiaire — Design Final (Mars 2026)
+## Dashboard Beneficiaire — Design Final
 
 ### Structure
-- **Header FIXE** : fond rouge abstrait, avatar + nom + icones (theme toggle, notif, drapeau) — texte toujours blanc
-- **Banniere alertes** : glass overlay sur fond rouge, texte blanc, "5 | Alertes | Active >"
-- **Carte contenu scrollable** : coins arrondis en haut (24px), chevauche le header
-- **Gradient** : noir pur (#000) en haut → gris fonce (#3A3A3C) en bas (dark) / blanc → beige (light)
-- **Carte "Objectifs journalier"** : noir pur, video Nora + play button
-- **4 cartes objectifs** (ordre fixe) : Pas, Hydratation, Endormissement, Apport calorique
-  - Images 3D : physique.png, hydratation.png, sommeil.png, kcal_icon.svg
-  - Barre segmentee (4 segments) pour Pas + pourcentage a DROITE des barres
-  - Separateur vertical entre valeur et label
-- **Mode light/dark** : toggle dans header, persistance localStorage, navbar adapte
+- Header SCROLLABLE (pas fixe), coins arrondis en bas (24px), fond rouge abstrait
+- Texte header/alertes toujours blanc (sur fond rouge)
+- Carte contenu: coins arrondis en haut, gradient noir→gris fonce (dark) / #D8D5D0 solide (light)
+- Carte "Objectifs journalier": noir pur #000 + lueur haut-gauche (dark ET light)
+- 4 cartes objectifs: Pas (barre segmentee + % a droite), Hydratation, Endormissement, Apport calorique
+- Images: physique.png, hydratation.png, sommeil.png, kcal_icon.svg
+- Dark: cartes rgba(70,70,78,0.85), Light: cartes #F5F5F5
+- Bouton "Ajouter gardien": rond noir+icon blanc (light) / transparent+blanc (dark)
+- FullScreenLoader z-index 99999 masque la navbar
 
-### Fichiers cles
-- `/app/frontend/src/components/dashboard/BeneficiaryHome.tsx`
-- `/app/frontend/src/components/dashboard/DailyObjectives.tsx`
-- `/app/frontend/src/components/dashboard/AlertBanner.tsx`
-- `/app/frontend/src/components/GlassTabBar.tsx`
+### Fichiers
+- BeneficiaryHome.tsx, DailyObjectives.tsx, AlertBanner.tsx, GlassTabBar.tsx, FullScreenLoader.tsx
 
 ## Backlog
-### P0 — Finaliser integration Balance & Vest
-### P1 — Signature electronique (Documents admin)
-### P2 — Parrainage Guardian, essai gratuit 7j, PDF contrats, Vivoo, refactoring backend
+- P0: Finaliser Balance & Vest
+- P1: Signature electronique Documents admin
+- P2: Parrainage, essai 7j, PDF, Vivoo, refactoring
 
 ## Credentials
-| Role | Email/Phone | Password |
-| :--- | :--- | :--- |
+| Role | Phone | Password |
+|---|---|---|
 | Admin | 0600000001 | admin123 |
-| Beneficiaire (Josette) | 0651245918 | test123 |
-| Gardien (Marie) | +33699887766 | test123 |
+| Beneficiaire | 0651245918 | test123 |
+| Gardien | +33699887766 | test123 |

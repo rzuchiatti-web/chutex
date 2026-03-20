@@ -274,7 +274,7 @@ export function BeneficiaryHome({ token, user }: { token: string; user: any }) {
     const BG_RED = 'https://customer-assets.emergentagent.com/job_443c9c6e-0feb-4920-a358-fe7cc1a6289b/artifacts/mhh7xwy3_ChatGPT%20Image%2017%20f%C3%A9vr.%202026%2C%2014_08_43.png';
     const C = isDark
       ? { card: 'rgba(70,70,78,0.85)', text: '#FFF', sub: 'rgba(255,255,255,0.55)', arrow: 'rgba(255,255,255,0.4)', border: 'rgba(255,255,255,0.1)', sep: 'rgba(255,255,255,0.08)' }
-      : { card: 'rgba(255,255,255,0.88)', text: '#1A1A2E', sub: 'rgba(0,0,0,0.45)', arrow: 'rgba(0,0,0,0.3)', border: 'rgba(0,0,0,0.06)', sep: 'rgba(0,0,0,0.06)' };
+      : { card: '#F5F5F5', text: '#1A1A2E', sub: 'rgba(0,0,0,0.45)', arrow: 'rgba(0,0,0,0.3)', border: 'rgba(0,0,0,0.06)', sep: 'rgba(0,0,0,0.06)' };
     const glass = { backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)', border: `1px solid ${C.border}` };
 
     const GC = ({ children, style, onClick, testId }: any) => (
@@ -287,50 +287,53 @@ export function BeneficiaryHome({ token, user }: { token: string; user: any }) {
     return (
       <div data-testid="beneficiary-dashboard" style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, display: 'flex', flexDirection: 'column', fontFamily: "'Inter', system-ui, -apple-system, sans-serif", overflow: 'hidden' } as any}>
 
-        {/* ═══ FIXED HEADER with red BG ═══ */}
-        <div style={{ position: 'relative', zIndex: 20, flexShrink: 0 } as any}>
-          <img src={BG_RED} alt="" style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 } as any} />
-          <div style={{ position: 'relative', zIndex: 2, padding: '18px 20px 14px' } as any}>
-            {/* Header row */}
-            <div data-testid="dashboard-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 } as any}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 12 } as any}>
-                <div onClick={() => router.push('/(tabs)/profile' as any)} style={{ width: 44, height: 44, borderRadius: 22, background: 'rgba(255,255,255,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, cursor: 'pointer', overflow: 'hidden' } as any}>
-                  {user.avatar_url ? <img src={user.avatar_url} style={{ width: 44, height: 44, borderRadius: 22, objectFit: 'cover' } as any} /> : <span style={{ fontSize: 17, fontWeight: 800, color: '#FFF' }}>{user.name?.charAt(0)?.toUpperCase()}</span>}
+        {/* ═══ FULL SCROLL CONTAINER ═══ */}
+        <div style={{ flex: 1, overflowY: 'auto', position: 'relative', zIndex: 5, WebkitOverflowScrolling: 'touch' } as any}>
+
+          {/* ═══ HEADER with red BG — scrolls with content, rounded bottom corners ═══ */}
+          <div style={{ position: 'relative', zIndex: 20, borderRadius: '0 0 24px 24px', overflow: 'hidden' } as any}>
+            <img src={BG_RED} alt="" style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 } as any} />
+            <div style={{ position: 'relative', zIndex: 2, padding: '18px 20px 14px' } as any}>
+              {/* Header row */}
+              <div data-testid="dashboard-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 } as any}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 12 } as any}>
+                  <div onClick={() => router.push('/(tabs)/profile' as any)} style={{ width: 44, height: 44, borderRadius: 22, background: 'rgba(255,255,255,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, cursor: 'pointer', overflow: 'hidden' } as any}>
+                    {user.avatar_url ? <img src={user.avatar_url} style={{ width: 44, height: 44, borderRadius: 22, objectFit: 'cover' } as any} /> : <span style={{ fontSize: 17, fontWeight: 800, color: '#FFF' }}>{user.name?.charAt(0)?.toUpperCase()}</span>}
+                  </div>
+                  <div>
+                    <div style={{ fontSize: 18, fontWeight: 800, color: '#FFF', letterSpacing: -0.5 }}>{user.name}</div>
+                    <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.6)', fontWeight: 500 }}>{activeTab === 'beneficiary' ? t('space_beneficiary') : t('space_guardian')}</div>
+                  </div>
                 </div>
-                <div>
-                  <div style={{ fontSize: 18, fontWeight: 800, color: '#FFF', letterSpacing: -0.5 }}>{user.name}</div>
-                  <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.6)', fontWeight: 500 }}>{activeTab === 'beneficiary' ? t('space_beneficiary') : t('space_guardian')}</div>
+                <div style={{ display: 'flex', gap: 8, alignItems: 'center' } as any}>
+                  <div data-testid="theme-toggle-btn" onClick={toggleTheme} style={{ width: 36, height: 36, borderRadius: 18, background: 'rgba(255,255,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}>
+                    <i className={isDark ? 'ri-sun-line' : 'ri-moon-line'} style={{ fontSize: 18, color: '#FFF' }} />
+                  </div>
+                  <div data-testid="notif-bell" onClick={() => setShowNotifs(!showNotifs)} style={{ width: 36, height: 36, borderRadius: 18, background: 'rgba(255,255,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', position: 'relative' } as any}>
+                    <i className="ri-notification-4-line" style={{ fontSize: 18, color: '#FFF' }} />
+                    {(guardianRequests.length > 0 || activeAlerts.length > 0 || predictiveAlerts.length > 0) && <div style={{ position: 'absolute', top: -1, right: -1, width: 9, height: 9, borderRadius: 5, background: '#EF4444', border: '2px solid rgba(0,0,0,0.3)' } as any} />}
+                  </div>
+                  <div data-testid="lang-picker-btn" onClick={() => setLangOpen(!langOpen)} style={{ width: 36, height: 36, borderRadius: 18, background: 'rgba(255,255,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', fontSize: 18, lineHeight: 1 } as any}>
+                    {lang === 'FR' ? '\u{1F1EB}\u{1F1F7}' : lang === 'EN' ? '\u{1F1EC}\u{1F1E7}' : lang === 'ES' ? '\u{1F1EA}\u{1F1F8}' : lang === 'DE' ? '\u{1F1E9}\u{1F1EA}' : lang === 'IT' ? '\u{1F1EE}\u{1F1F9}' : lang === 'PT' ? '\u{1F1F5}\u{1F1F9}' : lang === 'NL' ? '\u{1F1F3}\u{1F1F1}' : '\u{1F30D}'}
+                  </div>
                 </div>
               </div>
-              <div style={{ display: 'flex', gap: 8, alignItems: 'center' } as any}>
-                <div data-testid="theme-toggle-btn" onClick={toggleTheme} style={{ width: 36, height: 36, borderRadius: 18, background: 'rgba(255,255,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}>
-                  <i className={isDark ? 'ri-sun-line' : 'ri-moon-line'} style={{ fontSize: 18, color: '#FFF' }} />
-                </div>
-                <div data-testid="notif-bell" onClick={() => setShowNotifs(!showNotifs)} style={{ width: 36, height: 36, borderRadius: 18, background: 'rgba(255,255,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', position: 'relative' } as any}>
-                  <i className="ri-notification-4-line" style={{ fontSize: 18, color: '#FFF' }} />
-                  {(guardianRequests.length > 0 || activeAlerts.length > 0 || predictiveAlerts.length > 0) && <div style={{ position: 'absolute', top: -1, right: -1, width: 9, height: 9, borderRadius: 5, background: '#EF4444', border: '2px solid rgba(0,0,0,0.3)' } as any} />}
-                </div>
-                <div data-testid="lang-picker-btn" onClick={() => setLangOpen(!langOpen)} style={{ width: 36, height: 36, borderRadius: 18, background: 'rgba(255,255,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', fontSize: 18, lineHeight: 1 } as any}>
-                  {lang === 'FR' ? '\u{1F1EB}\u{1F1F7}' : lang === 'EN' ? '\u{1F1EC}\u{1F1E7}' : lang === 'ES' ? '\u{1F1EA}\u{1F1F8}' : lang === 'DE' ? '\u{1F1E9}\u{1F1EA}' : lang === 'IT' ? '\u{1F1EE}\u{1F1F9}' : lang === 'PT' ? '\u{1F1F5}\u{1F1F9}' : lang === 'NL' ? '\u{1F1F3}\u{1F1F1}' : '\u{1F30D}'}
-                </div>
-              </div>
+              {/* Alert banner — always white text on red bg */}
+              <AlertBanner activeAlerts={activeAlerts} />
             </div>
-            {/* Alert banner — always white text on red bg */}
-            <AlertBanner activeAlerts={activeAlerts} />
+            <NotificationsPopup show={showNotifs} onClose={() => setShowNotifs(false)} activeAlerts={activeAlerts} guardianRequests={guardianRequests} predictiveAlerts={predictiveAlerts} token={token} onRefresh={fetchData} />
+            <LanguagePopup show={langOpen} onClose={() => setLangOpen(false)} lang={lang} setLang={setLang} />
           </div>
-          <NotificationsPopup show={showNotifs} onClose={() => setShowNotifs(false)} activeAlerts={activeAlerts} guardianRequests={guardianRequests} predictiveAlerts={predictiveAlerts} token={token} onRefresh={fetchData} />
-          <LanguagePopup show={langOpen} onClose={() => setLangOpen(false)} lang={lang} setLang={setLang} />
-        </div>
 
-        {Platform.OS === 'web' && <TeamActivityToast token={token} />}
+          {Platform.OS === 'web' && <TeamActivityToast token={token} />}
 
-        {/* ═══ SCROLLABLE DARK CONTENT CARD — overlaps header ═══ */}
-        <div style={{ flex: 1, overflowY: 'auto', position: 'relative', zIndex: 10, marginTop: -16, WebkitOverflowScrolling: 'touch' } as any}>
+          {/* ═══ CONTENT CARD — overlaps header ═══ */}
           <div style={{
-            minHeight: '100%', padding: '24px 16px 120px',
+            padding: '24px 16px 120px', marginTop: -16,
             borderRadius: '24px 24px 0 0',
-            background: isDark ? 'linear-gradient(to bottom, #000 0%, #3A3A3C 100%)' : 'linear-gradient(to bottom, #FFF 0%, #F0EDE8 100%)',
+            background: isDark ? 'linear-gradient(to bottom, #000 0%, #3A3A3C 100%)' : '#D8D5D0',
             transition: 'background 0.4s ease',
+            position: 'relative', zIndex: 25,
           } as any}>
 
           <DailyObjectivesOnDashboard token={token} isDark={isDark} />
@@ -470,11 +473,11 @@ export function BeneficiaryHome({ token, user }: { token: string; user: any }) {
               </div>
             ))}
             {guardians.length === 0 && <div style={{ fontSize: 11, color: C.sub, textAlign: 'center', padding: '6px 0' }}>Aucun gardien</div>}
-            <div data-testid="add-guardian-btn" onClick={() => setShowAddGuardianPopup(true)} style={{ marginTop: 12, padding: '14px', borderRadius: 10, background: 'rgba(167,139,250,0.04)', border: '1px solid rgba(167,139,250,0.15)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10, transition: 'background 0.15s' } as any}
-              onMouseEnter={(e: any) => { e.currentTarget.style.background = 'rgba(167,139,250,0.08)'; }}
-              onMouseLeave={(e: any) => { e.currentTarget.style.background = 'rgba(167,139,250,0.04)'; }}>
-              <i className="ri-heart-add-line" style={{ fontSize: 18, color: '#A78BFA' }} />
-              <span style={{ fontSize: 14, fontWeight: 700, color: C.text }}>Ajouter un gardien</span>
+            <div data-testid="add-guardian-btn" onClick={() => setShowAddGuardianPopup(true)} style={{ marginTop: 12, padding: '14px', borderRadius: 999, background: isDark ? 'rgba(255,255,255,0.1)' : '#1A1A2E', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10, transition: 'opacity 0.15s' } as any}
+              onMouseEnter={(e: any) => { e.currentTarget.style.opacity = '0.85'; }}
+              onMouseLeave={(e: any) => { e.currentTarget.style.opacity = '1'; }}>
+              <i className="ri-heart-add-line" style={{ fontSize: 18, color: '#FFF' }} />
+              <span style={{ fontSize: 14, fontWeight: 700, color: '#FFF' }}>Ajouter un gardien</span>
             </div>
           </GC>
 

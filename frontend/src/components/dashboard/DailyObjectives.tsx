@@ -16,12 +16,14 @@ function ObjectivesHeader({ isDark }: { isDark: boolean }) {
   return (
     <div data-testid="objectives-header-card" className="dash-slide-up" style={{
       padding: '20px', borderRadius: 20, marginBottom: 12,
-      background: isDark ? '#111' : '#1A1A2E',
-      border: isDark ? '1px solid rgba(255,255,255,0.1)' : '1.5px solid rgba(255,255,255,0.15)',
+      background: '#000',
+      border: '1px solid rgba(255,255,255,0.1)',
       display: 'flex', alignItems: 'center', justifyContent: 'space-between',
       boxShadow: '0 8px 32px rgba(0,0,0,0.3)',
       overflow: 'hidden', position: 'relative',
     } as any}>
+      {/* Subtle glow top-left */}
+      <div style={{ position: 'absolute', top: -30, left: -30, width: 120, height: 120, borderRadius: '50%', background: 'radial-gradient(circle, rgba(180,160,140,0.15) 0%, transparent 70%)', pointerEvents: 'none' } as any} />
       <div style={{ flex: 1, zIndex: 2 } as any}>
         <div style={{ fontSize: 18, fontWeight: 900, color: '#FFF', marginBottom: 6 }}>Objectifs journalier</div>
         <div style={{ width: 40, height: 2, background: 'rgba(255,255,255,0.3)', marginBottom: 10, borderRadius: 1 } as any} />
@@ -69,7 +71,7 @@ function SegmentedBar({ pct, isDark }: { pct: number; isDark: boolean }) {
 function ObjectiveCard({ objKey, value, unit, label, pct, isDark, onClick }: {
   objKey: string; value: string; unit: string; label: string; pct?: number; isDark: boolean; onClick: () => void;
 }) {
-  const cardBg = isDark ? 'rgba(70,70,78,0.85)' : 'rgba(255,255,255,0.88)';
+  const cardBg = isDark ? 'rgba(70,70,78,0.85)' : '#F5F5F5';
   const cardBorder = isDark ? '1px solid rgba(255,255,255,0.06)' : '1px solid rgba(0,0,0,0.04)';
   const textColor = isDark ? '#FFF' : '#1A1A2E';
   const subColor = isDark ? 'rgba(255,255,255,0.45)' : 'rgba(0,0,0,0.4)';
