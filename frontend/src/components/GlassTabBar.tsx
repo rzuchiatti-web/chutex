@@ -56,6 +56,9 @@ export default function GlassTabBar({ state, navigation, role, showNora = true }
     }
   }, []);
 
+  const tabs = TAB_CONFIGS[role] || TAB_CONFIGS.beneficiary;
+  const currentRoute = state?.routes?.[state.index]?.name || '';
+
   // Guardian sub-pages (interventions, prescriptions, alerts) always dark navbar
   const guardianSubPages = ['teleconsult', 'devices', 'alerts'];
   const forceNavDark = role === 'guardian' && guardianSubPages.includes(currentRoute);
@@ -65,9 +68,6 @@ export default function GlassTabBar({ state, navigation, role, showNora = true }
   const inactiveColor = navDark ? 'rgba(255,255,255,0.3)' : 'rgba(0,0,0,0.25)';
   const glassBg = navDark ? 'rgba(10,10,18,0.35)' : 'rgba(245,245,250,0.4)';
   const borderColor = navDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.06)';
-
-  const tabs = TAB_CONFIGS[role] || TAB_CONFIGS.beneficiary;
-  const currentRoute = state?.routes?.[state.index]?.name || '';
 
   return (
     <div className="glass-tab-bar-root" style={{ position: 'fixed', bottom: 16, left: 16, right: 16, zIndex: 999, display: 'flex', alignItems: 'center', gap: 12, pointerEvents: 'auto' } as any}>
