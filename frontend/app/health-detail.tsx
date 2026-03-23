@@ -72,9 +72,10 @@ const BG_VIOLET = 'https://customer-assets.emergentagent.com/job_8afdc991-0ab2-4
 const BG_RED = 'https://customer-assets.emergentagent.com/job_443c9c6e-0feb-4920-a358-fe7cc1a6289b/artifacts/mhh7xwy3_ChatGPT%20Image%2017%20f%C3%A9vr.%202026%2C%2014_08_43.png';
 
 export default function HealthDetailScreen() {
-  const { metricId } = useLocalSearchParams<{ metricId: string }>();
+  const { metricId, beneficiaryId } = useLocalSearchParams<{ metricId: string; beneficiaryId?: string }>();
   const { token } = useAuth();
   const router = useRouter();
+  const isReadonly = !!beneficiaryId;
   const [report, setReport] = useState<any>(null);
   const [sectionAi, setSectionAi] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -86,16 +87,19 @@ export default function HealthDetailScreen() {
   const [sleepData, setSleepData] = useState<any>(null);
 
   useEffect(() => {
-    if (metricId !== 'sleep' || !token) return;
     (async () => {
       try {
-        const data = await apiFetch('/api/health/sleep/history', {}, token);
+        if (metricId !== 'sleep' || !token) return;
+        const sleepUrl = beneficiaryId
+          ? `/api/guardian/beneficiary/${beneficiaryId}/metric-history/sleep_quality?period=30j`
+          : '/api/health/sleep/history';
+        const data = await apiFetch(sleepUrl, {}, token);
         if (data && Array.isArray(data) && data.length > 0) {
           setSleepData(data);
         }
       } catch {}
     })();
-  }, [token, metricId]);
+  }, [token, metricId, beneficiaryId]);
 
   // Find sleep data for the selected date
   const getSleepForDate = (dt: Date) => {
@@ -143,16 +147,19 @@ export default function HealthDetailScreen() {
   useEffect(() => {
     (async () => {
       try {
-        const rep = await apiFetch('/api/health/daily-report', {}, token);
+        const reportUrl = beneficiaryId
+          ? `/api/guardian/beneficiary/${beneficiaryId}/daily-report`
+          : '/api/health/daily-report';
+        const rep = await apiFetch(reportUrl, {}, token);
         setReport(rep);
         setLoading(false);
         // Defer AI analysis — show page content immediately
-        if (metricId && metricId !== 'heart_rate' && metricId !== 'spo2' && metricId !== 'blood_pressure' && metricId !== 'temperature') {
+        if (!beneficiaryId && metricId && metricId !== 'heart_rate' && metricId !== 'spo2' && metricId !== 'blood_pressure' && metricId !== 'temperature') {
           apiFetch(`/api/health/section-analysis/${metricId}`, {}, token).then(ai => { if (ai) setSectionAi(ai); }).catch(() => {});
         }
       } catch {} finally { setLoading(false); }
     })();
-  }, [token]);
+  }, [token, beneficiaryId]);
 
   const sec = SECTIONS[metricId || ''] || SECTIONS.cardio;
   const d = report?.data || {};
@@ -506,7 +513,7 @@ export default function HealthDetailScreen() {
           const normalStart = z ? ((z.normal[0] - z.low) / (z.high - z.low)) * 100 : 0;
           const normalWidth = z ? ((z.normal[1] - z.normal[0]) / (z.high - z.low)) * 100 : 100;
           return (
-            <div key={m.key} onClick={() => router.push({ pathname: '/metric-detail' as any, params: { key: m.key === 'bp_display' ? 'blood_pressure' : m.key } })} style={{ borderRadius: 20, background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.1)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', marginBottom: 10, overflow: 'hidden', cursor: 'pointer', transition: 'transform 0.15s' } as any}
+            <div key={m.key} onClick={() => router.push({ pathname: '/metric-detail' as any, params: { key: m.key === 'bp_display' ? 'blood_pressure' : m.key, ...(beneficiaryId ? { beneficiaryId } : {}) } })} style={{ borderRadius: 20, background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.1)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', marginBottom: 10, overflow: 'hidden', cursor: 'pointer', transition: 'transform 0.15s' } as any}
               onMouseEnter={(e: any) => { e.currentTarget.style.transform = 'translateY(-1px)'; }}
               onMouseLeave={(e: any) => { e.currentTarget.style.transform = ''; }}>
               <div style={{ padding: '18px 20px' } as any}>

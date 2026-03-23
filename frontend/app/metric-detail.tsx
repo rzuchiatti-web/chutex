@@ -107,7 +107,7 @@ function noraText(key: string, m: any, val: any, avg: string, isNormal: boolean,
 }
 
 export default function MetricDetailScreen() {
-  const { key } = useLocalSearchParams<{ key: string }>();
+  const { key, beneficiaryId } = useLocalSearchParams<{ key: string; beneficiaryId?: string }>();
   const { token } = useAuth();
   const router = useRouter();
   const [data, setData] = useState<any>(null);
@@ -120,13 +120,17 @@ export default function MetricDetailScreen() {
   const [thMax, setThMax] = useState('');
   const [thSaving, setThSaving] = useState(false);
   const [showExplain, setShowExplain] = useState(false);
+  const isReadonly = !!beneficiaryId;
 
   const load = async (r: string) => {
     setLoading(true);
     try {
+      const historyUrl = beneficiaryId
+        ? `/api/guardian/beneficiary/${beneficiaryId}/metric-history/${key}?period=${r}`
+        : `/api/health/metric-history/${key}?period=${r}`;
       const [d, th] = await Promise.all([
-        apiFetch(`/api/health/metric-history/${key}?period=${r}`, {}, token),
-        apiFetch(`/api/health/thresholds/${key}`, {}, token).catch(() => null),
+        apiFetch(historyUrl, {}, token),
+        beneficiaryId ? Promise.resolve(null) : apiFetch(`/api/health/thresholds/${key}`, {}, token).catch(() => null),
       ]);
       setData(d);
       if (th) { setThreshold(th); setThMin(th.min_val != null ? String(th.min_val) : ''); setThMax(th.max_val != null ? String(th.max_val) : ''); }
@@ -510,7 +514,7 @@ export default function MetricDetailScreen() {
         </div>
 
         {/* ─── Objectives (activity) or Alert thresholds (health) ─── */}
-        {(() => {
+        {!isReadonly && (() => {
           const OBJECTIVE_KEYS = new Set(['steps', 'calories', 'distance_km', 'stress_level', 'recovery_score', 'sleep_quality', 'vo2_max']);
           const isObjective = OBJECTIVE_KEYS.has(key || '');
           const defaultGoals: Record<string, { value: string; label: string }> = {

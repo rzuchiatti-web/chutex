@@ -1,9 +1,9 @@
 import React from 'react';
 import { useRouter } from 'expo-router';
 
-interface Props { d: any; subs: any; }
+interface Props { d: any; subs: any; beneficiaryId?: string; }
 
-export default function HealthSections({ d, subs }: Props) {
+export default function HealthSections({ d, subs, beneficiaryId }: Props) {
   const router = useRouter();
   const isDark = typeof localStorage !== 'undefined' ? localStorage.getItem('chutex_dark') !== '0' : true;
   const cardBg = isDark ? 'rgba(70,70,78,0.85)' : '#E8E8EA';
@@ -22,7 +22,7 @@ export default function HealthSections({ d, subs }: Props) {
     <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 14 } as any}>
       {sections.map((sec) => (
         <div key={sec.id} data-testid={`health-section-${sec.id}`}
-          onClick={() => router.push({ pathname: '/health-detail' as any, params: { metricId: sec.id } })}
+          onClick={() => router.push({ pathname: '/health-detail' as any, params: { metricId: sec.id, ...(beneficiaryId ? { beneficiaryId } : {}) } })}
           style={{
             display: 'flex', alignItems: 'center',
             padding: '0 16px 0 0', borderRadius: 18,

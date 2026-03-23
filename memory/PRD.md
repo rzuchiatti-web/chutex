@@ -24,8 +24,11 @@ Pixel-perfect redesign of the Beneficiary and Guardian dashboards, Health, Progr
   - Teste: 15/15 features (100% - iteration_142)
 - [x] **Health Readonly — Page Santé Gardien** (Mar 23, 2026):
   - Endpoint: `GET /api/guardian/beneficiary/{bid}/daily-report`
+  - Endpoint: `GET /api/guardian/beneficiary/{bid}/metric-history/{key}`
   - Page identique au bénéficiaire: HeroScore, ActivityCard, SleepCard, HealthSections, Poids, Pesées, ECG
-  - Badge "LECTURE SEULE", pas d'actions interactives
+  - Badge "LECTURE SEULE", header centré avec avatar du bénéficiaire
+  - Navigation complète vers metric-detail, health-detail (sections), toutes avec beneficiaryId
+  - Seuils/objectifs masqués en mode readonly
     1. Informations personnelles (flat rows: prenom/nom/age/genre/naissance/tel/adresse/taille/poids/IMC)
     2. Dossier medical (groupe sanguin/pathologies/allergies)
     3. Donnees de sante: grille 2x2 des 4 vitales (Pouls/SpO2/Tension/Temperature) — placeholder "--" si pas de donnee
