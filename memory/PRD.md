@@ -14,19 +14,21 @@ Pixel-perfect redesign of the Beneficiary and Guardian dashboards, Health, Progr
 - [x] Redesign Beneficiary/Guardian Dashboards, Health, Programs, Profile pages
 - [x] Navbar labels hidden (icons only)
 - [x] Subscription detail cards (Care = 3 combined tabs; Standard = flat details)
-- [x] In-app Contract Viewer (`ContractViewer.tsx`)
+- [x] In-app Contract Viewer (ContractViewer.tsx)
 - [x] Teleconsultation forced dark navbar + "Medecin disponible 24/7" pill
 - [x] Reactive theming on health.tsx and chat.tsx via 400ms polling
 - [x] Program Detail sub-components light mode fix
 - [x] Subscription tabs: inactive = icons only, active = icon + label
-- [x] Profile page Light Mode refactoring (gray card backgrounds, dark text) — Mar 23, 2026
+- [x] Profile page Light Mode refactoring — Mar 23, 2026
 - [x] Subscription page: onglets centres + titre "Teleassistance Chutex Care" — Mar 23, 2026
-- [x] Dashboard: Refonte sections Gardiens et Rappels (cartes individuelles, avatars gris fonce, sous-titres) — Mar 23, 2026
-- [x] Separateurs corriges (3 colles supprimes, ajout entre Rappels/Gardiens et avant Teleconsultation) — Mar 23, 2026
-- [x] Image IMG_GUARDIANS restauree a cote du titre Mes gardiens — Mar 23, 2026
-- [x] DailyObjectives: trait blanc pleine largeur avec marges — Mar 23, 2026
-- [x] Batch API: resolution noms/relations gardiens depuis users collection — Mar 23, 2026
-- [x] 2 gardiens reels pour Josette (Clement Fils, Claire Fille) avec fiche detail fonctionnelle — Mar 23, 2026
+- [x] Dashboard: Refonte Gardiens/Rappels (cartes individuelles, avatars gris fonce, sous-titres) — Mar 23, 2026
+- [x] Separateurs fixes, DailyObjectives trait blanc pleine largeur — Mar 23, 2026
+- [x] Batch API: resolution noms/relations gardiens — Mar 23, 2026
+- [x] Clement ZUCHIATTI supprime, gardien unique Claire Martin (Fille) — Mar 23, 2026
+- [x] Teleconsult retire de la navbar beneficiaire — Mar 23, 2026
+- [x] Blur ajoute a toutes les cartes/boutons du processus teleconsultation — Mar 23, 2026
+- [x] Navbar: background plus opaque (0.72) + GPU force (translateZ) pour eviter le bug gris — Mar 23, 2026
+- [x] Tab bar default masquee (bg transparent, position absolute, overflow hidden) — Mar 23, 2026
 
 ## P0 — Upcoming
 - [ ] Balance & Vest Integration (verify data flow with V8 bracelet data)
@@ -49,12 +51,11 @@ Pixel-perfect redesign of the Beneficiary and Guardian dashboards, Health, Progr
 | Guardian | +33699887766 | test123 |
 
 ## Key Files
+- `/app/frontend/src/components/GlassTabBar.tsx`
+- `/app/frontend/app/(tabs)/_layout.tsx`
+- `/app/frontend/src/components/teleconsult/BeneficiaryTeleconsult.tsx`
 - `/app/frontend/src/components/dashboard/BeneficiaryHome.tsx`
-- `/app/frontend/src/components/dashboard/DailyObjectives.tsx`
 - `/app/backend/routes/batch_routes.py`
-- `/app/frontend/app/(tabs)/profile.tsx`
-- `/app/frontend/src/components/SubscriptionManagePopup.tsx`
-- `/app/frontend/app/guardian-detail.tsx`
 
 ## 3rd Party Integrations
 - OpenAI GPT-4o (Emergent LLM Key)

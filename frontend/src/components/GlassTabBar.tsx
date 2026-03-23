@@ -14,7 +14,6 @@ export const TAB_CONFIGS: Record<string, TabConfig[]> = {
     { key: 'index', icon: 'ri-home-smile-2-fill', label: 'Accueil' },
     { key: 'health', icon: 'ri-heart-pulse-fill', label: 'Sante' },
     { key: 'chat', icon: 'ri-dna-fill', label: 'Programmes' },
-    { key: 'teleconsult', icon: 'ri-stethoscope-fill', label: 'Teleconsult' },
     { key: 'profile', icon: 'ri-menu-3-fill', label: 'Plus' },
   ],
   guardian: [
@@ -67,7 +66,7 @@ export default function GlassTabBar({ state, navigation, role, showNora = true }
 
   const activeColor = navDark ? '#FFF' : '#111';
   const inactiveColor = navDark ? 'rgba(255,255,255,0.3)' : 'rgba(0,0,0,0.25)';
-  const glassBg = navDark ? 'rgba(10,10,18,0.35)' : 'rgba(245,245,250,0.4)';
+  const glassBg = navDark ? 'rgba(10,10,18,0.72)' : 'rgba(245,245,250,0.72)';
   const borderColor = navDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.06)';
 
   return (
@@ -79,6 +78,7 @@ export default function GlassTabBar({ state, navigation, role, showNora = true }
         backdropFilter: 'blur(28px)', WebkitBackdropFilter: 'blur(28px)',
         border: `1px solid ${borderColor}`,
         boxShadow: '0 8px 32px rgba(0,0,0,0.3)',
+        transform: 'translateZ(0)', willChange: 'transform',
       } as any}>
         {tabs.map((tab) => {
           const isActive = currentRoute === tab.key;

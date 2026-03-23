@@ -41,7 +41,7 @@ export function BeneficiaryTeleconsult({ token }: { token: string }) {
           <div style={{ fontSize: 14, color: 'rgba(255,255,255,0.6)', marginBottom: 32, textAlign: 'center' }}>Un medecin vous rappellera sous peu</div>
 
           {/* Slide to call */}
-          <div style={{ width: '100%', maxWidth: 340, height: 58, borderRadius: 999, position: 'relative', overflow: 'hidden', background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)', marginBottom: 20, touchAction: 'none' } as any}
+          <div style={{ width: '100%', maxWidth: 340, height: 58, borderRadius: 999, position: 'relative', overflow: 'hidden', background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)', marginBottom: 20, touchAction: 'none', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)' } as any}
             onMouseDown={(e: any) => { const bar = e.currentTarget; const thumb = bar.querySelector('[data-thumb]') as HTMLElement; if (!thumb) return; const rect = bar.getBoundingClientRect(); const maxX = rect.width - 52; const startX = e.clientX; const onMove = (ev: any) => { const dx = Math.max(0, Math.min(ev.clientX - startX, maxX)); thumb.style.transform = `translateX(${dx}px)`; if (dx > maxX * 0.8) { document.removeEventListener('mousemove', onMove); document.removeEventListener('mouseup', onUp); window.location.href = `tel:${callInfo.call_number}`; } }; const onUp = () => { thumb.style.transform = 'translateX(0)'; thumb.style.transition = 'transform 0.3s'; setTimeout(() => { if(thumb) thumb.style.transition = ''; }, 300); document.removeEventListener('mousemove', onMove); document.removeEventListener('mouseup', onUp); }; document.addEventListener('mousemove', onMove); document.addEventListener('mouseup', onUp); }}
             onTouchStart={(e: any) => { e.stopPropagation(); const bar = e.currentTarget; const thumb = bar.querySelector('[data-thumb]') as HTMLElement; if (!thumb) return; const rect = bar.getBoundingClientRect(); const maxX = rect.width - 52; const startX = e.touches[0].clientX; const onMove = (ev: any) => { ev.preventDefault(); const dx = Math.max(0, Math.min(ev.touches[0].clientX - startX, maxX)); thumb.style.transform = `translateX(${dx}px)`; if (dx > maxX * 0.8) { bar.removeEventListener('touchmove', onMove); bar.removeEventListener('touchend', onUp); window.location.href = `tel:${callInfo.call_number}`; } }; const onUp = () => { thumb.style.transform = 'translateX(0)'; thumb.style.transition = 'transform 0.3s'; setTimeout(() => { if(thumb) thumb.style.transition = ''; }, 300); bar.removeEventListener('touchmove', onMove); bar.removeEventListener('touchend', onUp); }; bar.addEventListener('touchmove', onMove, { passive: false }); bar.addEventListener('touchend', onUp); }}>
             <div data-thumb style={{ position: 'absolute', top: 4, left: 4, width: 50, height: 50, borderRadius: 999, background: '#FFF', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 2px 10px rgba(0,0,0,0.2)', willChange: 'transform', touchAction: 'none' } as any}>
@@ -52,7 +52,7 @@ export function BeneficiaryTeleconsult({ token }: { token: string }) {
 
           <div style={{ fontSize: 14, color: 'rgba(255,255,255,0.5)', marginBottom: 24 }}>{callInfo.call_number}</div>
 
-          <div onClick={() => { setSubmitted(false); setStep(0); setAnswers({}); }} style={{ padding: '14px 28px', borderRadius: 999, background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)', color: '#FFF', fontSize: 14, fontWeight: 600, cursor: 'pointer' } as any}>Nouvelle consultation</div>
+          <div onClick={() => { setSubmitted(false); setStep(0); setAnswers({}); }} style={{ padding: '14px 28px', borderRadius: 999, background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)', color: '#FFF', fontSize: 14, fontWeight: 600, cursor: 'pointer', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)' } as any}>Nouvelle consultation</div>
         </div>
       </div>
     );
@@ -86,7 +86,7 @@ export function BeneficiaryTeleconsult({ token }: { token: string }) {
           </div>
           {q && (
             <>
-              <div style={{ padding: '18px 20px', borderRadius: 20, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', marginBottom: 14 } as any}>
+              <div style={{ padding: '18px 20px', borderRadius: 20, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', marginBottom: 14, backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)' } as any}>
                 <div style={{ fontSize: 17, fontWeight: 700, color: '#FFF', lineHeight: 1.4 }}>{q.question}</div>
               </div>
 
@@ -96,6 +96,7 @@ export function BeneficiaryTeleconsult({ token }: { token: string }) {
                   background: answers[q.id] === o ? 'rgba(255,255,255,0.15)' : 'rgba(255,255,255,0.05)',
                   border: `1px solid ${answers[q.id] === o ? 'rgba(255,255,255,0.25)' : 'rgba(255,255,255,0.08)'}`,
                   display: 'flex', alignItems: 'center', gap: 12, transition: 'all 0.2s',
+                  backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)',
                 } as any}>
                   <div style={{ width: 22, height: 22, borderRadius: 999, border: `2px solid ${answers[q.id] === o ? '#FFF' : 'rgba(255,255,255,0.25)'}`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}>
                     {answers[q.id] === o && <div style={{ width: 10, height: 10, borderRadius: 999, background: '#FFF' }} />}
@@ -121,14 +122,14 @@ export function BeneficiaryTeleconsult({ token }: { token: string }) {
               {q.type === 'text' && (
                 <textarea value={freeText} onChange={(e: any) => { setFreeText(e.target.value); setAnswers({ ...answers, [q.id]: e.target.value }); }}
                   placeholder="Decrivez vos symptomes..."
-                  style={{ width: '100%', minHeight: 120, padding: '16px 18px', borderRadius: 16, background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', color: '#FFF', fontSize: 15, fontFamily: 'inherit', resize: 'none', outline: 'none' } as any} />
+                  style={{ width: '100%', minHeight: 120, padding: '16px 18px', borderRadius: 16, background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', color: '#FFF', fontSize: 15, fontFamily: 'inherit', resize: 'none', outline: 'none', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)' } as any} />
               )}
             </>
           )}
 
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 20, gap: 10 } as any}>
             {step > 0 ? (
-              <div onClick={() => setStep(step - 1)} style={{ padding: '14px 20px', borderRadius: 999, background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)', color: 'rgba(255,255,255,0.6)', fontSize: 14, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 } as any}>
+              <div onClick={() => setStep(step - 1)} style={{ padding: '14px 20px', borderRadius: 999, background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)', color: 'rgba(255,255,255,0.6)', fontSize: 14, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)' } as any}>
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M15 18l-6-6 6-6"/></svg>
                 Precedent
               </div>
