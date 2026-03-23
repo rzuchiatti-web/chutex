@@ -17,7 +17,7 @@ Pixel-perfect redesign of the Beneficiary and Guardian dashboards, Health, Progr
 - [x] Guardian permissions system (9 alert types, 7 health types, 3 location modes)
 - [x] Guardian-detail refonte + permissions interactives
 - [x] **Beneficiary-detail REFONTE v4 — Style Clinique Premium** (Mar 23, 2026):
-  - Header: BG_RED image, nom centre, bouton "Appeler" slide pleine largeur, SANS pilules
+  - Header: BG_RED image (URL fixée 2025→2026), nom centre, bouton "Appeler" slide pleine largeur, SANS pilules
   - Style plat/clinique: lignes key-value simples, ZERO cartes imbriquees
   - Ordre des sections:
     1. Informations personnelles (flat rows: prenom/nom/age/genre/naissance/tel/adresse/taille/poids/IMC)
