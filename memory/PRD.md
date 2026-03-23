@@ -21,14 +21,14 @@ Pixel-perfect redesign of the Beneficiary and Guardian dashboards, Health, Progr
 - [x] Subscription tabs: inactive = icons only, active = icon + label
 - [x] Profile page Light Mode refactoring — Mar 23, 2026
 - [x] Subscription page: onglets centres + titre "Teleassistance Chutex Care" — Mar 23, 2026
-- [x] Dashboard: Refonte Gardiens/Rappels (cartes individuelles, avatars gris fonce, sous-titres) — Mar 23, 2026
+- [x] Dashboard: Refonte Gardiens/Rappels (cartes individuelles, avatars gris fonce) — Mar 23, 2026
 - [x] Separateurs fixes, DailyObjectives trait blanc pleine largeur — Mar 23, 2026
 - [x] Batch API: resolution noms/relations gardiens — Mar 23, 2026
-- [x] Clement ZUCHIATTI supprime, gardien unique Claire Martin (Fille) — Mar 23, 2026
+- [x] Gardien unique Claire Martin (Fille) — Mar 23, 2026
 - [x] Teleconsult retire de la navbar beneficiaire — Mar 23, 2026
-- [x] Blur ajoute a toutes les cartes/boutons du processus teleconsultation — Mar 23, 2026
-- [x] Navbar: background plus opaque (0.72) + GPU force (translateZ) pour eviter le bug gris — Mar 23, 2026
-- [x] Tab bar default masquee (bg transparent, position absolute, overflow hidden) — Mar 23, 2026
+- [x] Blur cartes/boutons teleconsultation — Mar 23, 2026
+- [x] Navbar: fond solide #16161E (dark) / #F2F2F6 (light) - plus de backdrop-filter bugge — Mar 23, 2026
+- [x] Guardian-detail: refonte complete avec theme dark/light (plus d'image en fond) — Mar 23, 2026
 
 ## P0 — Upcoming
 - [ ] Balance & Vest Integration (verify data flow with V8 bracelet data)
@@ -40,7 +40,7 @@ Pixel-perfect redesign of the Beneficiary and Guardian dashboards, Health, Progr
 - [ ] Guardian Referral System
 - [ ] Free 7-Day Trial Flow
 - [ ] Vivoo Urine Test Integration
-- [ ] Refactoring: Backend monolithic route files (program_routes.py, teleassistance_routes.py)
+- [ ] Refactoring: Backend monolithic route files
 - [ ] Refactoring: Break down profile.tsx (>1000 lines)
 
 ## Test Credentials
@@ -53,6 +53,7 @@ Pixel-perfect redesign of the Beneficiary and Guardian dashboards, Health, Progr
 ## Key Files
 - `/app/frontend/src/components/GlassTabBar.tsx`
 - `/app/frontend/app/(tabs)/_layout.tsx`
+- `/app/frontend/app/guardian-detail.tsx`
 - `/app/frontend/src/components/teleconsult/BeneficiaryTeleconsult.tsx`
 - `/app/frontend/src/components/dashboard/BeneficiaryHome.tsx`
 - `/app/backend/routes/batch_routes.py`

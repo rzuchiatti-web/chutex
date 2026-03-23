@@ -66,8 +66,8 @@ export default function GlassTabBar({ state, navigation, role, showNora = true }
 
   const activeColor = navDark ? '#FFF' : '#111';
   const inactiveColor = navDark ? 'rgba(255,255,255,0.3)' : 'rgba(0,0,0,0.25)';
-  const glassBg = navDark ? 'rgba(10,10,18,0.72)' : 'rgba(245,245,250,0.72)';
-  const borderColor = navDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.06)';
+  const glassBg = navDark ? '#16161E' : '#F2F2F6';
+  const borderColor = navDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.04)';
 
   return (
     <div className="glass-tab-bar-root" style={{ position: 'fixed', bottom: 16, left: 16, right: 16, zIndex: 999, display: 'flex', alignItems: 'center', gap: 12, pointerEvents: 'auto' } as any}>
@@ -75,10 +75,8 @@ export default function GlassTabBar({ state, navigation, role, showNora = true }
         flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'space-around',
         height: 62, borderRadius: 22, padding: '0 8px',
         background: glassBg,
-        backdropFilter: 'blur(28px)', WebkitBackdropFilter: 'blur(28px)',
         border: `1px solid ${borderColor}`,
-        boxShadow: '0 8px 32px rgba(0,0,0,0.3)',
-        transform: 'translateZ(0)', willChange: 'transform',
+        boxShadow: navDark ? '0 8px 32px rgba(0,0,0,0.5)' : '0 8px 32px rgba(0,0,0,0.08)',
       } as any}>
         {tabs.map((tab) => {
           const isActive = currentRoute === tab.key;
