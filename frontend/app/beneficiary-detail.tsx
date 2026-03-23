@@ -400,18 +400,21 @@ export default function BeneficiaryDetailScreen() {
               <div style={{ width: 42, height: 42, borderRadius: 12, background: 'rgba(16,185,129,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}><i className="ri-shield-check-line" style={{ fontSize: 20, color: '#10B981' }} /></div>
               <div style={{ fontSize: 18, fontWeight: 800, color: '#FFF' }}>Comment ca marche ?</div>
             </div>
-            <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.6)', lineHeight: 1.7, marginBottom: 20 }}>La zone est centree sur la position actuelle de votre proche. Pour proteger un lieu (domicile, parc...), creez la zone lorsque votre proche s'y trouve.</div>
+
+            <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.6)', lineHeight: 1.7, paddingBottom: 20, borderBottom: '1px solid rgba(255,255,255,0.15)' }}>La zone est centree sur la position actuelle de votre proche. Pour proteger un lieu (domicile, parc...), creez la zone lorsque votre proche s'y trouve.</div>
+
             {[
               { icon: 'ri-crosshair-2-line', c: '#3B82F6', t: 'Position actuelle', d: 'La zone se cree autour de la ou se trouve votre proche en ce moment.' },
               { icon: 'ri-notification-3-line', c: '#F59E0B', t: 'Alertes automatiques', d: 'Vous etes prevenu immediatement si votre proche sort du perimetre.' },
               { icon: 'ri-settings-4-line', c: '#10B981', t: 'Rayon ajustable', d: 'Adaptez la taille selon le lieu : 300m a 2km recommande.' },
             ].map((item, i) => (
-              <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: 12, marginBottom: 16 } as any}>
+              <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: 12, padding: '20px 0', borderBottom: i < 2 ? '1px solid rgba(255,255,255,0.15)' : 'none' } as any}>
                 <div style={{ width: 28, height: 28, borderRadius: 8, background: `${item.c}20`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, marginTop: 1 } as any}><i className={item.icon} style={{ fontSize: 14, color: item.c }} /></div>
                 <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.55)', lineHeight: 1.55 }}><strong style={{ color: '#FFF', fontWeight: 700 }}>{item.t}</strong> — {item.d}</div>
               </div>
             ))}
-            <div data-testid="zone-help-close-btn" onClick={() => setShowZoneHelp(false)} style={{ width: '100%', padding: '13px', borderRadius: 14, textAlign: 'center', cursor: 'pointer', background: 'rgba(255,255,255,0.12)', border: '1px solid rgba(255,255,255,0.1)', fontSize: 14, fontWeight: 700, color: '#FFF', marginTop: 8, transition: 'background 0.15s' } as any}
+
+            <div data-testid="zone-help-close-btn" onClick={() => setShowZoneHelp(false)} style={{ width: '100%', padding: '13px', borderRadius: 14, textAlign: 'center', cursor: 'pointer', background: 'rgba(255,255,255,0.12)', border: '1px solid rgba(255,255,255,0.1)', fontSize: 14, fontWeight: 700, color: '#FFF', marginTop: 20, transition: 'background 0.15s' } as any}
               onMouseEnter={(e: any) => e.currentTarget.style.background = 'rgba(255,255,255,0.18)'} onMouseLeave={(e: any) => e.currentTarget.style.background = 'rgba(255,255,255,0.12)'}>Compris</div>
           </div>
         </div>
