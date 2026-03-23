@@ -387,7 +387,7 @@ const BG_PROFILE = 'https://customer-assets.emergentagent.com/job_9950a869-9328-
 
           {/* Subscription card — beneficiary only */}
           {isBen && subData?.has_subscription && subData?.subscription_type === 'care' && (
-            <div onClick={() => setShowCareDetail(true)} data-testid="care-subscription-card" style={{ position: 'relative', overflow: 'hidden', borderRadius: 22, height: 90, marginBottom: 14, cursor: 'pointer', transition: 'transform 0.15s', border: '1.5px solid rgba(255,255,255,0.18)', boxShadow: '0 4px 24px rgba(0,0,0,0.4), 0 0 0 1px rgba(255,255,255,0.08)' } as any}
+            <div onClick={() => setShowCareDetail(true)} data-testid="care-subscription-card" style={{ position: 'relative', overflow: 'hidden', borderRadius: 22, height: 90, marginBottom: 14, cursor: 'pointer', transition: 'transform 0.15s', border: isDark ? '1.5px solid rgba(255,255,255,0.18)' : '1.5px solid rgba(0,0,0,0.08)', boxShadow: isDark ? '0 4px 24px rgba(0,0,0,0.4), 0 0 0 1px rgba(255,255,255,0.08)' : '0 4px 16px rgba(0,0,0,0.08)' } as any}
               onMouseEnter={(e: any) => { e.currentTarget.style.transform = 'scale(1.01)'; }}
               onMouseLeave={(e: any) => { e.currentTarget.style.transform = 'scale(1)'; }}>
               <img src="https://customer-assets.emergentagent.com/job_8afdc991-0ab2-4687-a2a5-438b9a5f0711/artifacts/v6obzpez_ChatGPT%20Image%2018%20f%C3%A9vr.%202026%2C%2012_28_20.png" alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', borderRadius: 22 } as any} />
@@ -419,12 +419,12 @@ const BG_PROFILE = 'https://customer-assets.emergentagent.com/job_9950a869-9328-
 
           {/* SAAD Mollie Payment Card */}
           {effectiveRole === 'prescriber_company' && (
-            <div onClick={() => setShowStripeConfig(true)} style={{ padding: '18px 20px', borderRadius: 22, background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(124,58,237,0.15)', marginBottom: 14, cursor: 'pointer', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)' } as any}>
+            <div onClick={() => setShowStripeConfig(true)} style={{ padding: '18px 20px', borderRadius: 22, background: cardBg, border: `1px solid ${isDark ? 'rgba(124,58,237,0.15)' : 'rgba(124,58,237,0.2)'}`, marginBottom: 14, cursor: 'pointer', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)' } as any}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 14 } as any}>
                 <div style={{ width: 44, height: 44, borderRadius: 14, background: 'rgba(124,58,237,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}><i className="ri-bank-card-line" style={{ fontSize: 22, color: '#7C3AED' }} /></div>
                 <div style={{ flex: 1 } as any}>
-                  <div style={{ fontSize: 15, fontWeight: 700, color: '#FFF' }}>Configuration paiements</div>
-                  <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', marginTop: 2 }}>{user.commission_type === 'oneshot' ? 'Commission unique (100/200 EUR)' : user.commission_type === 'monthly' ? 'Commission mensuelle (8/15 EUR)' : 'Non configure'}</div>
+                  <div style={{ fontSize: 15, fontWeight: 700, color: textColor }}>Configuration paiements</div>
+                  <div style={{ fontSize: 11, color: subColor, marginTop: 2 }}>{user.commission_type === 'oneshot' ? 'Commission unique (100/200 EUR)' : user.commission_type === 'monthly' ? 'Commission mensuelle (8/15 EUR)' : 'Non configure'}</div>
                 </div>
                 <div style={{ display: 'inline-flex', alignItems: 'center', gap: 4, padding: '4px 10px', borderRadius: 999, background: user.stripe_account_id ? 'rgba(16,185,129,0.15)' : 'rgba(245,158,11,0.15)' } as any}>
                   <span style={{ width: 5, height: 5, borderRadius: 999, background: user.stripe_account_id ? '#10B981' : '#F59E0B' } as any} />
@@ -503,8 +503,8 @@ const BG_PROFILE = 'https://customer-assets.emergentagent.com/job_9950a869-9328-
             </div>
           )}
 
-          {/* Menu items — dark glass card */}
-          <div style={{ padding: '4px 18px', borderRadius: 22, background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', marginBottom: 14 } as any}>
+          {/* Menu items — themed card */}
+          <div style={{ padding: '4px 18px', borderRadius: 22, background: cardBg, border: `1px solid ${sepColor}`, backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', marginBottom: 14 } as any}>
             <ProfileMenuItem testID="edit-profile-btn" icon="ri-user-settings-line" label={t('modify_profile')} onPress={() => { setEditName(user.name); setEditPhone(user.phone || ''); setEditAddress(user.address || ''); setEditMode(true); }} />
             {effectiveRole === 'beneficiary' && <ProfileMenuItem icon="ri-heart-pulse-line" label="Dossier medical" onPress={() => { setMedForm({ blood_type: user.blood_type || '', conditions: user.medical_conditions ? user.medical_conditions.split(', ') : [], allergies: user.allergies ? user.allergies.split(', ') : [], pacemaker: user.pacemaker || '', stents: user.stents || '', thyroid: user.thyroid || '', other_condition: '', surgeries: Array.isArray(user.surgeries) ? user.surgeries : [] }); setShowMedical(true); setMedSaved(false); }} />}
             <ProfileMenuItem icon="ri-lock-line" label={t('security')} onPress={() => setShowPwChange(true)} />
@@ -514,7 +514,7 @@ const BG_PROFILE = 'https://customer-assets.emergentagent.com/job_9950a869-9328-
           </div>
 
           {/* Second card - Legal & RGPD */}
-          <div style={{ padding: '4px 18px', borderRadius: 22, background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', marginBottom: 14 } as any}>
+          <div style={{ padding: '4px 18px', borderRadius: 22, background: cardBg, border: `1px solid ${sepColor}`, backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', marginBottom: 14 } as any}>
             <ProfileMenuItem icon="ri-shield-check-line" label="Gestion des donnees" onPress={() => { setShowRGPD(true); setRgpdSent(false); setRgpdMsg(''); }} />
             <ProfileMenuItem icon="ri-file-shield-2-line" label="Politique de confidentialite" onPress={() => setShowPrivacy(true)} />
             <ProfileMenuItem icon="ri-file-text-line" label="Conditions generales (CGU)" onPress={() => setShowCGU(true)} />
@@ -522,7 +522,7 @@ const BG_PROFILE = 'https://customer-assets.emergentagent.com/job_9950a869-9328-
           </div>
 
           {/* Third card - Help & Support */}
-          <div style={{ padding: '4px 18px', borderRadius: 22, background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', marginBottom: 14 } as any}>
+          <div style={{ padding: '4px 18px', borderRadius: 22, background: cardBg, border: `1px solid ${sepColor}`, backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', marginBottom: 14 } as any}>
             <ProfileMenuItem icon="ri-question-line" label="Centre d'aide" onPress={() => setShowHelp(true)} />
             <ProfileMenuItem icon="ri-mail-line" label={t('support')} onPress={() => setShowContact(true)} />
             <ProfileMenuItem icon="ri-apps-line" label={`${t('about')} - Chutex v3.0`} onPress={() => Alert.alert('CHUTEX', 'Version 3.0\nChutex Innovation SAS\ncontact@chutex-innovation.com')} />
@@ -535,7 +535,7 @@ const BG_PROFILE = 'https://customer-assets.emergentagent.com/job_9950a869-9328-
             <i className="ri-logout-box-r-line" style={{ fontSize: 16, color: '#EF4444' }} />
             <span style={{ fontSize: 15, fontWeight: 800, color: '#EF4444' }}>{t('logout')}</span>
           </div>
-          <div style={{ textAlign: 'center', fontSize: 11, color: 'rgba(255,255,255,0.25)', marginTop: 16 }}>Chutex Innovation SAS - v3.0</div>
+          <div style={{ textAlign: 'center', fontSize: 11, color: isDark ? 'rgba(255,255,255,0.25)' : 'rgba(0,0,0,0.25)', marginTop: 16 }}>Chutex Innovation SAS - v3.0</div>
 
           {/* GLASS POPUPS */}
           <ProfileGlassPopup visible={editMode} onClose={() => setEditMode(false)}>

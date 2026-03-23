@@ -1,231 +1,146 @@
-<analysis>**original_problem_statement:**
-The user's initial goal was to refine the main beneficiary dashboard. This task evolved through a series of rapid, iterative design changes driven by user feedback. The user rejected multiple implementations, including:
-1.  A clinical design with a video background.
-2.  A different abstract video background.
-3.  An animated WebGL particle background inspired by , which was then refined to add more glow and color.
-4.  A purple gradient background with Apple Watch style objective cards.
-5.  A layout with one large measured card (Steps) and three smaller recommended cards.
-
-The final request is a complete redesign of the beneficiary dashboard () and its daily objectives component () to match the design aesthetic of .
+<analysis>**original_problem_statement**: 
+The user's core objective is a meticulous, pixel-perfect redesign of the Beneficiary and Guardian dashboards, along with the Health, Programs, and Profile pages (inspired by ). Key requirements include implementing a robust Light/Dark mode toggle, creating specific overlapping layouts, fixing  popups, cleaning up the Guardian dashboard, refactoring Subscription detail cards (Care vs. Standard), building an in-app Contract Viewer, adding Balance & Vest integration, and adding electronic signatures to Admin Documents.
 
 PRODUCT REQUIREMENTS:
-1.  Implement an in-app Live Activity banner for guardians. (DONE)
-2.  Add a real-time GPS tracking map and ETA to the banner. (DONE)
-3.  Overhaul the biological age & aging rate algorithm. (DONE)
-4.  Refactor monolithic backend routes and clean up unused frontend components. (DONE)
-5.  Implement the  endpoint and its associated frontend UI. (DONE)
-6.  Add a trends or history view for health correlations. (DONE)
-7.  Integrate the new V8 sports bracelet, including backend data processing and a frontend simulation/dashboard. (DONE)
-8.  Redesign the beneficiary dashboard with a specific aesthetic inspired by . (IN PROGRESS)
+1. Implement a reactive Light/Dark mode toggle across all main pages. (DONE)
+2. Redesign Beneficiary/Guardian Dashboards, Health, Programs, and Profile pages. (DONE)
+3. Hide navbar labels, keeping only icons. (DONE)
+4. Refactor Subscription detail cards in the Profile page based on subscription type (Care vs. Standard) and add an in-app Contract Viewer. (DONE)
+5. Ensure Teleconsultation page has a forced dark navbar and specific titles. (DONE)
+6. Fix Light mode text/background contrasts on Program Details and Profile pages. (IN PROGRESS)
+7. Finalize Balance & Vest integration. (PENDING)
+8. Add electronic signatures to Admin Documents. (PENDING)
 
-**User's preferred language**: French
+**User's preferred language**: French (INSTRUCT NEXT AGENT TO RESPOND IN FRENCH ONLY).
 
-**what currently exists?**
-The backend and core features of the application are stable. The frontend's main beneficiary dashboard () and the daily objectives cards () are the focus of current work. The current code implements a layout with a large, full-width Steps card and three smaller recommendation cards below it, against a purple-to-black gradient background. This design has been rejected by the user, who now wants a complete overhaul based on the  website. All previous design iterations (videos, WebGL particles) have been removed from the code.
+**what currently exists?** 
+A highly customized React Native Web frontend (Expo) interacting with a FastAPI + MongoDB backend. The UI utilizes conditional inline styling to manage a complex Light/Dark theme. The theming relies on  ('chutex_dark'), which is polled via  within  across main tabs to ensure instant reactivity. Popups use . Recently, an in-app  was added to view subscriptions natively instead of via PDF downloads.
 
-**Last working item**:
--   Last item agent was working: The agent was starting the complete redesign of the beneficiary dashboard based on the user's latest inspiration: . The agent successfully crawled the site, analyzed its design aesthetic (warm dark grey background, cards with subtle gradients and thin borders, specific typography), and was viewing the relevant source file () to plan the implementation.
--   Status: IN PROGRESS
--   Agent Testing Done: N
--   Which testing method agent to use? screenshot tool. This is a purely visual task. The agent needs to implement the new styles and layout and then capture a screenshot to verify the result against the user's reference.
--   User Testing Done: N
+**Last working item**: 
+- **Last item agent was working**: Refactoring the  page to properly adapt to Light Mode. The agent was replacing hardcoded dark transparent backgrounds () with the theme-aware  variable and updating text colors to ensure elements are visible in light mode.
+- **Status**: IN PROGRESS
+- **Agent Testing Done**: N
+- **Which testing method agent to use?** Frontend testing agent / Screenshot tool. (Note: Due to a complex morning briefing slider blocking the UI, manual testing via screenshot tool might be more reliable right now).
+- **User Testing Done**: N
 
-**All Pending/In progress Issue list**:
--   **Issue 1**: (P0) The beneficiary dashboard design is unsatisfactory and does not meet the user's aesthetic requirements.
-    -   **Attempted fixes**: The agent has implemented and had the user reject at least five distinct designs in this session:
-        1.  Initial clinical style with a video background.
-        2.  Animated WebGL particle background (inspired by ), first a simple version, then an enhanced one with glowing orbs.
-        3.  A simpler purple gradient background with redesigned Apple Watch style objective cards.
-        4.  A final iteration distinguishing between measured data (a large card for Steps) and recommended data (three smaller cards).
-    -   **Next debug checklist**:
-        1.  Modify  to implement the  style: change the main background to .
-        2.  Modify  to implement the  card style: dark background,  overlay,  border, and 16px border-radius.
-        3.  Update typography and layout to be more spacious and minimal, using  for secondary text.
-        4.  Use the  to capture the final result for user verification.
-    -   **Why fix this issue and what will be achieved with the fix?**: This is a direct and repeated user request. Resolving it is critical for user satisfaction and completing the dashboard feature.
-    -   **Status**: IN PROGRESS
-    -   **Is recurring issue?**: Y
-    -   **Should Test frontend/backend/both after fix?**: frontend
-    -   **Blocked on other issue**: None
+**All Pending/In progress Issue list**: 
+Issue 1: Profile Page Light Mode Legibility (P0)
+- **Attempted fixes**: The agent executed parallel  commands in  to replace hardcoded dark-mode background colors with  and adjust text colors. The process was cut off before completion and testing.
+- **Next debug checklist**: Check . Verify that all settings cards, medical data blocks, and the logout button have proper background and text colors when  is false.
+- **Why fix this issue and what will be achieved with the fix?** Ensures the Profile page design matches the newly updated Dashboard aesthetic and remains usable in Light Mode.
+- **Status**: IN PROGRESS
+- **Is recurring issue?** N
+- **Should Test frontend/backend/both after fix?** Frontend (Screenshot)
+- **Blocked on other issue**: None.
 
-**In progress Task List**:
--   **Task 1**: Beneficiary Dashboard Redesign (Biograph.com Style)
-    -   **Where to resume**: The agent has completed the analysis of . The next step is to execute the implementation plan by editing  and .
-    -   **What will be achieved with this?**: A completely redesigned beneficiary dashboard that aligns with the user's latest visual direction, hopefully concluding the long series of design iterations.
-    -   **Status**: IN PROGRESS
-    -   **Should Test frontend/backend/both after fix?**: frontend
-    -   **Blocked on something**: None
+**In progress Task List**: 
+Task 1: Profile Page UI Refactoring (P0)
+- **Where to resume**: 
+- **What will be achieved with this?** The profile page will correctly display gray backgrounds and dark text in light mode, adhering to the overarching design system.
+- **Status**: IN PROGRESS
+- **Should Test frontend/backend/both after fix?** Frontend
+- **Blocked on something**: None.
 
 **Upcoming and Future Tasks**
+Upcoming Tasks:
+- P0: Finalize Balance & Vest Integration (Verify data flow from scale/vest alongside the new V8 bracelet data).
+- P1: Electronic Signature System (Admin panel -> Documents tab).
 
-**Upcoming Tasks**:
--   **P0: Finalize Balance & Vest Integration**: The user requested to finish integrating the balance to confirm all data sources work together after the V8 integration. This likely involves verifying the data flow from the scale and vest devices alongside the new bracelet data.
--   **P1: Electronic Signature System**: Add an electronic signature feature to the Documents tab in the admin panel.
-
-**Future Tasks**:
--   Guardian Referral System
--   Free 7-Day Trial
--   View Contract PDF functionality
--   Vivoo Urine Test Integration
--   Refactor large route files:  (1866 lines) and  (1131 lines).
+Future Tasks:
+- P2: Guardian Referral System.
+- P2: Free 7-Day Trial flow.
+- P2: Vivoo Urine Test Integration.
+- Refactoring: Backend monolithic route files (, ).
+- Refactoring: Break down  (currently > 1000 lines).
 
 **Completed work in this session**
--   **Dashboard Design Iterations (Implemented & Rejected)**: The agent successfully implemented multiple, functionally complete dashboard designs which were subsequently rejected by the user. The final implemented state (before the current  task) features a clear data hierarchy with a large Steps card and three smaller recommendation cards on a purple gradient background.
+- Hiding navbar on the Subscription Manage Popup via CSS injection. (DONE)
+- Refactoring Subscription Tabs (Care = 3 combined tabs; Standard = flat details). (DONE)
+- Fixing Program Presentation headers (forced white titles over images) and ensuring program phase cards are visible in light mode. (DONE)
+- Fixing Reactive Theming on  and  by implementing the 400ms  polling interval. (DONE)
+- Fixing Program Detail sub-components (, , , ) by passing the  prop down. (DONE)
+- Teleconsultation UI update: Forced dark navbar, added Teleconsultation title and Médecin disponible 24/7 green-dot pill. Un-hid tab for Web beneficiaries. (DONE)
+- Subscription Tabs UI update: Inactive tabs show only icons, active tab shows icon + label. (DONE)
+- In-App Contract Viewer () built and integrated to view contracts without downloading PDFs. (DONE)
 
 **Earlier issues found/mentioned but not fixed**
--   None.
+- None. All user requests up to the Profile Page refactoring were sequentially addressed.
 
 **Known issue recurrence from previous fork**
--   None. The dashboard design issue is a recurring theme within this current session.
+- **Issue recurrence in previous fork**: Expo Metro Bundler Caching Issues & Testing Agent Timeout.
+- **Recurrence count**: High
+- **Status**: IN PROGRESS
+- **Note**: The automated  timed out repeatedly due to the complex frontend onboarding flow and a Morning Briefing slider that blocks the UI. When taking screenshots or using the subagent, you may need to specifically target and bypass the slider (), or rely strictly on manual  checks if the testing agent gets stuck. Always restart the expo supervisor (expo: ERROR (not running)
+expo: started) if UI changes do not appear.
 
 **Code Architecture**
 
 
 **Key Technical Concepts**
--   **Rapid UI/UX Iteration**: The agent demonstrated the ability to rapidly prototype and implement multiple distinct UI designs based on highly subjective and frequent user feedback.
--   **Complex Frontend Logic**: Implemented several advanced frontend concepts, including a custom WebGL particle animation from scratch within a React Native Web environment, involving direct DOM manipulation and lifecycle management with .
--   **Frontend Environment Debugging**: Repeatedly diagnosed and resolved frontend build and caching issues related to the Expo Metro bundler by restarting the supervisor service.
--   **Data-Driven UI**: Modified the UI to visually distinguish between measured data from devices (e.g., steps) and recommended data from an AI (e.g., calorie intake), improving data clarity for the user.
--   **CSS-in-JS**: Heavily utilized inline styles and CSS-in-JS principles to create dynamic and themeable components.
+- **React Native Web (Expo Router)**: UI components built with React Native primitives mapped to DOM elements.
+- **Reactive Theming via Polling**: Global state is simulated by storing  in  and polling it every 400-500ms within a  inside tab components to ensure rapid UI updates.
+- **React Portals**: For popups to bypass Expo routing z-index constraints.
 
 **key DB schema**
--   No changes made to the database schema in this session.
+- : Stores guardian/beneficiary alerts.
+- : User accounts.
+- : Contains , , , etc., now read by .
 
 **changes in tech stack**
--   None. An attempt to use Unicorn Studio (a WebGL library) was made and then abandoned.
+- Added  to handle internal read-only rendering of contract parameters.
 
 **All files of reference**
--   
--   
--   
--   
--   
+-  (Current target for light mode refactoring).
+-  (Updated with new tabs and contract viewer).
+-  (New file created).
+-  &  (Updated for light mode).
+-  &  (Updated with polling mechanism).
 
-**Areas that need refactoring**:
--    has undergone significant churn and contains commented-out code and logic from previous design attempts. Once the  design is approved, this file should be cleaned up.
--   The large backend route files (, ) remain candidates for future refactoring.
+**Areas that need refactoring**
+-  is over 1000 lines long and handles too many distinct UI blocks (Profile, Settings, Subscription Popups, Legal).
+- Backend monolithic route files.
 
 **key api endpoints**
--   The agent used the existing  endpoint to fetch data for the objective cards.
+- : Fetches subscription and associated contract data.
 
 **Critical Info for New Agent**
-1.  **Highest Priority is the Biograph Redesign**: Your immediate and only task is to implement the dashboard redesign based on . The user is very visually driven and has rejected many previous attempts. Success depends on accurately capturing the reference site's aesthetic.
-2.  **Biograph Design Cues**:
-    *   **Background**: Warm dark grey ().
-    *   **Cards**: Dark background, a subtle warm/gold gradient (), very thin borders (), and a  border-radius.
-    *   **Typography & Spacing**: Use clean, airy fonts and generous spacing. Secondary text should be semi-transparent white ().
-3.  **Abandon Previous Designs**: Do not try to salvage code from the video, WebGL, or purple gradient implementations. Start fresh with the  aesthetic. The current code for  should be almost entirely replaced.
-4.  **Expect Cache Issues**: The Expo Metro bundler has been unreliable. If your frontend changes don't appear, restart the service with expo: ERROR (not running)
-expo: ERROR (abnormal termination). This has been a recurring problem and solution.
+1. **Profile Light Mode**: Finish what the previous agent started. Ensure cards have a gray background () and text is dark ( or ) in light mode on the  page.
+2. **React Hooks Rule Compliance**: Keep all hooks (, ) at the absolute top of the files, before any early returns (), to prevent React render crashes.
+3. **Bypassing the Slider**: If you run into the Morning Briefing screen while using the screenshot tool, you must accurately swipe the  element or use  manipulation to skip it.
+4. **Respond in French**: The user explicitly communicates in French.
 
 **documents and test reports created in this job**
--    (updated)
--    (updated)
--    (updated)
+- 
+- 
+- 
 
-**Last 10 User Messages and any pending HUMAN messages**
-1.  **User**: Inspired by their DA [biograph.com], redesign the beneficiary dashboard, background, card style, etc. - This is the current, active request.
-2.  **User**: Rejected the previous design (I dont like the objective cards, and theres only one measured value for steps).
-3.  **User**: Confirmed the agent should proceed with Option 1: one large card for the measured value (steps) and smaller cards for recommendations.
-4.  **User**: Rejected a design, stating The background is way too dark, make it dark grey abstract with moving purple glow. Also requested new card designs based on an image.
-5.  **User**: Rejected a design, stating no, its way too dark, no glow, no movement, do better!"
-6.  **User**: "I want the same background as this site: `https://www.tiwis.fr`".
-7.  **User**: "can you do it as a video?"
-8.  **User**: "but thats not the video, you put the same one back...
-9.  **User**: fait P0 (Do P0) - Approved the agent's initial plan to work on the dashboard redesign.
-10. **User**: Please use ask_human tool and confirm your plan now.
+**Last 10 User Messages and any pending HUMAN messages** 
+1. *(Latest)* **User**: Fait le refactoring de page profil, met les carte aussi sur fond gris en mode light pour garder même design que Dashboard et c’est quoi route monolithique ? (Agent started refactoring but did not complete).
+2. **User**: Requests the 3 subscription tabs to show only icons to avoid text overflow, with the active tab showing icon+label. Also requests an in-app viewer for the Contract instead of just a download. (Agent completed).
+3. **User**: Reports that Program Detail pages are unreadable in light mode. Requests forced dark navbar on Teleconsultation page and addition of Médecin disponible 24/7 title/pill. (Agent completed).
+4. **User**: Reports a bug where the Dark/Light mode toggle does not apply immediately to the Health and Programs pages without a refresh. (Agent completed by adding polling).
+5. **User**: Explicitly requests to hide navbar on the detailed subscription page, refactor the subscription cards, and fix program presentation titles. (Agent completed).
 
 **Project Health Check:**
--   **Broken**: The frontend development environment is unstable. The 
-  Usage: expo [command] [options]
-
-  Options:
-  
-    -V, --version                     output the version number
-    --non-interactive                 Fail, if an interactive prompt would be required to continue.
-    -h, --help                        output usage information
-  
-  Commands:
-
-    init [name]                       Create a new Expo project
-    start [path]                      Start a local dev server for the app
-    start:web [path]                  Start a Webpack dev server for the web app
-    export [path]                     Export the static files of the app for hosting it on a web server
-    install [packages...]             Install a module or other package to a project
-    run:android [path]                Run the Android app binary locally
-    run:ios [path]                    Run the iOS app binary locally
-    send [path]                       Share the project's URL to an email address
-
-    login                             Login to an Expo account
-    logout                            Logout of an Expo account
-    register                          Sign up for a new Expo account
-    whoami                            Return the currently authenticated account
-
-    client:install:ios                Install Expo Go for iOS on the simulator
-    client:install:android            Install Expo Go for Android on a connected device or emulator
-
-    config [path]                     Show the project config
-    doctor [path]                     Diagnose issues with the project
-    upgrade [sdk-version]             Upgrade the project packages and config for the given SDK version
-
-    customize:web [path]              Eject the default web files for customization
-    prebuild [path]                   Create native iOS and Android project files before building natively.
-                                      Learn more: https://docs.expo.dev/workflow/customizing/
-
-    build:web [path]                  Build the web app for production
-
-    credentials:manager [path]        Superseded by eas credentials in eas-cli
-
-    url [path]                        Log a URL for opening the project in Expo Go
-    url:ipa [path]                    Log the download URL for the standalone iOS binary
-    url:apk [path]                    Log the download URL for the standalone Android binary
-
-    webhooks [path]                   List all webhooks for a project
-    webhooks:add [path]               Add a webhook to a project
-    webhooks:remove [path]            Delete a webhook
-    webhooks:update [path]            Update an existing webhook
-
-    build:ios [path]                  Superseded by eas build in eas-cli
-    build:android [path]              Superseded by eas build in eas-cli
-    build:status [path]               Superseded by eas build:list in eas-cli
-    eject [path]                      Superseded by expo prebuild
-    fetch:ios:certs [path]            Superseded by eas credentials in eas-cli
-    fetch:android:keystore [path]     Superseded by eas credentials in eas-cli
-    fetch:android:hashes [path]       Superseded by eas credentials in eas-cli
-    fetch:android:upload-cert [path]  Superseded by eas credentials in eas-cli
-    publish [path]                    Superseded by eas update in eas-cli
-    publish:set [path]                Superseded by eas update:republish in eas-cli
-    publish:rollback [path]           Superseded by eas update:republish in eas-cli
-    publish:history [path]            Superseded by eas update:list in eas-cli
-    publish:details [path]            Superseded by eas update:view in eas-cli
-    push:android:upload [path]        Superseded by eas credentials in eas-cli
-    push:android:show [path]          Superseded by eas credentials in eas-cli
-    push:android:clear [path]         Superseded by eas credentials in eas-cli
-    upload:android [path]             Superseded by eas submit in eas-cli
-    upload:ios [path]                 Superseded by eas submit in eas-cli
-    client:ios [path]                 Superseded by Expo Dev Clients
-
-[09:31:10]   Run a command with --help for more info 💡
-[09:31:10]     $ expo start --help
-[09:31:10] service frequently experiences  connection errors and has severe caching problems, requiring frequent manual restarts (expo: ERROR (not running)
-expo: started). This is a major blocker to efficient development.
--   **Mocked**: The V8 bracelet functionality on the frontend remains a simulation.
+- **Broken**: Expo Metro Bundler hot-reloading in CI mode. Testing Agent struggles with the Morning Briefing slider.
+- **Mocked**: V8 bracelet functionality on the frontend.
 
 **3rd Party Integrations**
--   No new integrations were successfully added. The agent attempted to use  but ultimately removed it.
+- OpenAI GPT-4o — uses Emergent LLM Key
+- Stripe (Payments) — requires User API Key
 
 **Testing status**
--   **Testing agent used after significant changes**: NO
--   **Troubleshoot agent used after agent stuck in loop**: NO
--   **Test files created**: []
--   **Known regressions**: None.
+- Testing agent used after significant changes: YES (but timed out on later complex UI flows).
+- Troubleshoot agent used after agent stuck in loop: NO
+- Test files created: , 
+- Known regressions: None, though  is mid-edit.
 
 **Credentials to test flow:**
 | Role | Email / Phone | Password |
 | :--- | :--- | :--- |
 | **Admin** |  |  |
-| **Beneficiary (Josette)**|  |  |
-| **Guardian (Marie)** |  |  |
+| **Beneficiary**|  |  |
+| **Guardian** |  |  |
 
 **What agent forgot to execute**
-The agent did not fail to execute specific commands but struggled to interpret and deliver on the user's subjective visual requirements, leading to a high volume of rework. The primary challenge has been aligning with the user's aesthetic vision, rather than technical execution.</analysis>
+The agent did not finish the  refactoring for Light Mode before the context window ended. You must immediately resume applying the  and dark text colors to the Profile page cards.</analysis>

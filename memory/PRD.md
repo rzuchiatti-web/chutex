@@ -1,32 +1,54 @@
-# Chutex Care — PRD
+# Chutex Care — Product Requirements Document
 
-## Core Design Language
-- Header: fond rouge abstrait, texte toujours blanc, scrollable, z-index derriere contenu
-- Dark: gradient #000→#3A3A3C, cartes rgba(70,70,78,0.85)
-- Light: fond #FFF, cartes #E8E8EA, texte #1A1A2E, cartes phases #F2F2F4
-- Titres sur images hero: TOUJOURS blancs (#FFF) avec text-shadow
-- Theme reactif: localStorage polling 400ms dans TOUTES les pages
-- Teleconsult: navbar dark, titre + pilule "Medecin disponible 24/7"
+## Original Problem Statement
+Pixel-perfect redesign of the Beneficiary and Guardian dashboards, Health, Programs, and Profile pages (inspired by biograph.com). Implement Light/Dark mode toggle, overlapping layouts, z-index popups, Guardian dashboard cleanup, Subscription detail cards (Care vs Standard), in-app Contract Viewer, Balance & Vest integration, and electronic signatures on Admin Documents.
+
+## Architecture
+- **Frontend**: React Native Web (Expo Router) with conditional inline styling for Light/Dark theme
+- **Backend**: FastAPI + MongoDB
+- **Theming**: localStorage polling (`chutex_dark`) via `setInterval` in `useEffect` for instant reactivity
+- **Popups**: `ReactDOM.createPortal` for z-index bypass
 
 ## Completed Features
-- Dashboards Beneficiaire/Gardien redesign (Light/Dark)
-- Pages Sante, Programmes, Profil redesign
-- Z-index fixes (React portals), Navbar icons only
-- Subscription popup: navbar masquee, 3 onglets Care (icone seule inactive, icone+label active)
-- Contrat: visionneuse in-app en lecture seule (8 articles, conditions generales)
-- Program detail pages refactored avec isDark prop (Onboarding, Ready, Invite, Pill)
-- isDark reactif partout (health, chat, program-detail)
-- Teleconsult: titre + pilule + navbar dark + ajout dans navbar beneficiaire
+- [x] Light/Dark mode reactive toggle across all pages
+- [x] Redesign Beneficiary/Guardian Dashboards, Health, Programs, Profile pages
+- [x] Navbar labels hidden (icons only)
+- [x] Subscription detail cards (Care = 3 combined tabs; Standard = flat details)
+- [x] In-app Contract Viewer (`ContractViewer.tsx`)
+- [x] Teleconsultation forced dark navbar + "Medecin disponible 24/7" pill
+- [x] Reactive theming on health.tsx and chat.tsx via 400ms polling
+- [x] Program Detail sub-components light mode fix
+- [x] Subscription tabs: inactive = icons only, active = icon + label
+- [x] Profile page Light Mode refactoring (gray card backgrounds, dark text) — **Mar 23, 2026**
 
-## Backlog
-- P0: Balance & Vest integration
-- P1: Signature electronique (Admin → Documents)
-- P2: Parrainage Gardien, Essai 7 jours, Vivoo
-- Refactoring: profile.tsx (1000+ lignes), backend routes monolithiques
+## P0 — Upcoming
+- [ ] Balance & Vest Integration (verify data flow with V8 bracelet data)
 
-## Credentials
-| Role | Login | Password |
-|------|-------|----------|
+## P1
+- [ ] Electronic Signature System (Admin panel -> Documents tab)
+
+## P2 — Future/Backlog
+- [ ] Guardian Referral System
+- [ ] Free 7-Day Trial Flow
+- [ ] Vivoo Urine Test Integration
+- [ ] Refactoring: Backend monolithic route files (program_routes.py, teleassistance_routes.py)
+- [ ] Refactoring: Break down profile.tsx (>1000 lines)
+
+## Test Credentials
+| Role | Email/Phone | Password |
+|------|------------|----------|
 | Admin | 0600000001 | admin123 |
-| Beneficiaire | 0651245918 | test123 |
-| Gardien | +33699887766 | test123 |
+| Beneficiary | 0651245918 | test123 |
+| Guardian | +33699887766 | test123 |
+
+## Key Files
+- `/app/frontend/app/(tabs)/profile.tsx`
+- `/app/frontend/src/components/SubscriptionManagePopup.tsx`
+- `/app/frontend/src/components/ContractViewer.tsx`
+- `/app/frontend/app/program-detail.tsx`
+- `/app/frontend/app/(tabs)/health.tsx`
+- `/app/frontend/app/(tabs)/chat.tsx`
+
+## 3rd Party Integrations
+- OpenAI GPT-4o (Emergent LLM Key)
+- Stripe (Payments) — requires User API Key
