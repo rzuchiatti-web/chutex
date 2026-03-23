@@ -89,7 +89,7 @@ export default function GlassTabBar({ state, navigation, role, showNora = true }
               }}
               style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 3, padding: '8px 12px', cursor: 'pointer', transition: 'opacity 0.2s', opacity: isActive ? 1 : 0.6 } as any}>
               <i className={tab.icon} style={{ fontSize: 22, color: isActive ? activeColor : inactiveColor, transition: 'color 0.2s' }} />
-              <span style={{ fontSize: 9, fontWeight: 700, color: isActive ? activeColor : inactiveColor, letterSpacing: 0.3, transition: 'color 0.2s' }}>{tab.label}</span>
+              <span style={{ fontSize: 9, fontWeight: 700, color: isActive ? activeColor : inactiveColor, letterSpacing: 0.3, transition: 'color 0.2s', display: 'none' }}>{tab.label}</span>
             </div>
           );
         })}

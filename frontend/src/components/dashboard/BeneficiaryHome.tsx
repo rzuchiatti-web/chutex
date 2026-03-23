@@ -474,11 +474,11 @@ export function BeneficiaryHome({ token, user }: { token: string; user: any }) {
               </div>
             ))}
             {guardians.length === 0 && <div style={{ fontSize: 11, color: C.sub, textAlign: 'center', padding: '6px 0' }}>Aucun gardien</div>}
-            <div data-testid="add-guardian-btn" onClick={() => setShowAddGuardianPopup(true)} style={{ marginTop: 12, padding: '14px', borderRadius: 999, background: isDark ? 'rgba(255,255,255,0.1)' : '#1A1A2E', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10, transition: 'opacity 0.15s' } as any}
+            <div data-testid="add-guardian-btn" onClick={() => setShowAddGuardianPopup(true)} style={{ marginTop: 12, padding: '14px', borderRadius: 999, background: isDark ? '#FFF' : '#000', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10, transition: 'opacity 0.15s' } as any}
               onMouseEnter={(e: any) => { e.currentTarget.style.opacity = '0.85'; }}
               onMouseLeave={(e: any) => { e.currentTarget.style.opacity = '1'; }}>
-              <i className="ri-heart-add-line" style={{ fontSize: 18, color: '#FFF' }} />
-              <span style={{ fontSize: 14, fontWeight: 700, color: '#FFF' }}>Ajouter un gardien</span>
+              <i className="ri-heart-add-line" style={{ fontSize: 18, color: isDark ? '#000' : '#FFF' }} />
+              <span style={{ fontSize: 14, fontWeight: 700, color: isDark ? '#000' : '#FFF' }}>Ajouter un gardien</span>
             </div>
           </GC>
 

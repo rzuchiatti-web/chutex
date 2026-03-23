@@ -19,6 +19,7 @@ const METRIC_LABELS: Record<string, string> = {
 interface ProgramPresentationProps {
   program: any;
   clr: string;
+  isDark?: boolean;
   hasActiveConflict: boolean;
   hasOnboarding: boolean;
   error: string;
@@ -28,9 +29,15 @@ interface ProgramPresentationProps {
 }
 
 export const ProgramPresentation = ({
-  program, clr, hasActiveConflict, hasOnboarding, error, onStartSolo, onStartTeam, onBack,
+  program, clr, isDark = true, hasActiveConflict, hasOnboarding, error, onStartSolo, onStartTeam, onBack,
 }: ProgramPresentationProps) => {
   const coverImage = program.cover_image || '';
+  const T = isDark ? '#FFF' : '#1A1A2E';
+  const S = isDark ? 'rgba(255,255,255,0.5)' : 'rgba(0,0,0,0.45)';
+  const S2 = isDark ? 'rgba(255,255,255,0.3)' : 'rgba(0,0,0,0.3)';
+  const S3 = isDark ? 'rgba(255,255,255,0.25)' : 'rgba(0,0,0,0.2)';
+  const cardBg = isDark ? 'rgba(255,255,255,0.04)' : 'rgba(0,0,0,0.04)';
+  const cardBorder = isDark ? '1px solid rgba(255,255,255,0.06)' : '1px solid rgba(0,0,0,0.06)';
 
   return (
     <div data-testid="program-detail-step-0" style={{ animation: 'pd-fade-up 500ms ease both' } as any}>
@@ -59,7 +66,7 @@ export const ProgramPresentation = ({
           border: '1px solid rgba(255,255,255,0.15)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)',
           display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer',
         } as any}>
-          <i className="ri-arrow-left-line" style={{ fontSize: 18, color: '#FFF' }} />
+          <i className="ri-arrow-left-line" style={{ fontSize: 18, color: T }} />
         </div>
 
         {/* Hero Content */}
@@ -74,7 +81,7 @@ export const ProgramPresentation = ({
               <i className={program.icon} style={{ fontSize: 24, color: clr }} />
             </div>
             <div style={{ flex: 1 } as any}>
-              <div style={{ fontSize: 22, fontWeight: 900, color: '#FFF', letterSpacing: -0.5, lineHeight: 1.2, textShadow: '0 2px 8px rgba(0,0,0,0.5)' }}>{program.title}</div>
+              <div style={{ fontSize: 22, fontWeight: 900, color: T, letterSpacing: -0.5, lineHeight: 1.2, textShadow: '0 2px 8px rgba(0,0,0,0.5)' }}>{program.title}</div>
             </div>
           </div>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 } as any}>
@@ -87,7 +94,7 @@ export const ProgramPresentation = ({
 
       {/* Content */}
       <div style={{ maxWidth: 480, margin: '0 auto', padding: '0 20px 120px' } as any}>
-        <div style={{ fontSize: 14, color: 'rgba(255,255,255,0.5)', lineHeight: 1.7, margin: '20px 0 24px', animation: 'pd-fade-up 500ms ease 100ms both' } as any}>
+        <div style={{ fontSize: 14, color: S, lineHeight: 1.7, margin: '20px 0 24px', animation: 'pd-fade-up 500ms ease 100ms both' } as any}>
           {program.subtitle}
         </div>
 
@@ -100,24 +107,24 @@ export const ProgramPresentation = ({
             <i className="ri-error-warning-line" style={{ fontSize: 18, color: '#EF4444', flexShrink: 0 }} />
             <div>
               <div style={{ fontSize: 12, fontWeight: 800, color: '#FCA5A5', marginBottom: 3 }}>Programme actif en cours</div>
-              <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.45)', lineHeight: 1.4 }}>Terminez ou arretez le programme en cours pour lancer celui-ci.</div>
+              <div style={{ fontSize: 11, color: S, lineHeight: 1.4 }}>Terminez ou arretez le programme en cours pour lancer celui-ci.</div>
             </div>
           </div>
         )}
 
         {/* Quick Stats Row */}
         <div style={{ display: 'flex', gap: 10, marginBottom: 24, animation: 'pd-fade-up 500ms ease 150ms both' } as any}>
-          <div style={{ flex: 1, padding: '16px', borderRadius: 18, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.06)' } as any}>
-            <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.3)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: 1, marginBottom: 6 }}>Duree</div>
-            <div style={{ fontSize: 26, fontWeight: 900, color: '#FFF' }}>{program.duration_days}<span style={{ fontSize: 13, fontWeight: 600, color: 'rgba(255,255,255,0.35)', marginLeft: 4 }}>jours</span></div>
+          <div style={{ flex: 1, padding: '16px', borderRadius: 18, background: cardBg, border: cardBorder } as any}>
+            <div style={{ fontSize: 9, color: S2, fontWeight: 700, textTransform: 'uppercase', letterSpacing: 1, marginBottom: 6 }}>Duree</div>
+            <div style={{ fontSize: 26, fontWeight: 900, color: T }}>{program.duration_days}<span style={{ fontSize: 13, fontWeight: 600, color: S2, marginLeft: 4 }}>jours</span></div>
           </div>
-          <div style={{ flex: 1, padding: '16px', borderRadius: 18, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.06)' } as any}>
-            <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.3)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: 1, marginBottom: 6 }}>Phases</div>
-            <div style={{ fontSize: 26, fontWeight: 900, color: '#FFF' }}>{program.phases?.length || 3}<span style={{ fontSize: 13, fontWeight: 600, color: 'rgba(255,255,255,0.35)', marginLeft: 4 }}>etapes</span></div>
+          <div style={{ flex: 1, padding: '16px', borderRadius: 18, background: cardBg, border: cardBorder } as any}>
+            <div style={{ fontSize: 9, color: S2, fontWeight: 700, textTransform: 'uppercase', letterSpacing: 1, marginBottom: 6 }}>Phases</div>
+            <div style={{ fontSize: 26, fontWeight: 900, color: T }}>{program.phases?.length || 3}<span style={{ fontSize: 13, fontWeight: 600, color: S2, marginLeft: 4 }}>etapes</span></div>
           </div>
         </div>
 
-        <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)', lineHeight: 1.8, marginBottom: 28, animation: 'pd-fade-up 500ms ease 200ms both' } as any}>
+        <div style={{ fontSize: 13, color: S, lineHeight: 1.8, marginBottom: 28, animation: 'pd-fade-up 500ms ease 200ms both' } as any}>
           {program.description}
         </div>
 
@@ -134,14 +141,14 @@ export const ProgramPresentation = ({
               </div>
               <span style={{ fontSize: 10, fontWeight: 800, color: clr, textTransform: 'uppercase', letterSpacing: 1 }}>Science en bref</span>
             </div>
-            <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.6)', lineHeight: 1.6 }}>{program.benefits[0]}</div>
+            <div style={{ fontSize: 13, color: S, lineHeight: 1.6 }}>{program.benefits[0]}</div>
           </div>
         )}
 
         {/* Benefits */}
         {(program.benefits || []).length > 1 && (
           <div style={{ marginBottom: 28, animation: 'pd-fade-up 500ms ease 300ms both' } as any}>
-            <div style={{ fontSize: 10, fontWeight: 800, color: 'rgba(255,255,255,0.25)', textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 14 }}>Benefices prouves</div>
+            <div style={{ fontSize: 10, fontWeight: 800, color: S3, textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 14 }}>Benefices prouves</div>
             {program.benefits.slice(1).map((b: string, i: number) => (
               <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: 12, marginBottom: 12 } as any}>
                 <div style={{
@@ -151,7 +158,7 @@ export const ProgramPresentation = ({
                 } as any}>
                   <i className="ri-check-line" style={{ fontSize: 12, color: clr }} />
                 </div>
-                <span style={{ fontSize: 13, color: 'rgba(255,255,255,0.55)', lineHeight: 1.5 }}>{b}</span>
+                <span style={{ fontSize: 13, color: S, lineHeight: 1.5 }}>{b}</span>
               </div>
             ))}
           </div>
@@ -160,7 +167,7 @@ export const ProgramPresentation = ({
         {/* Tracked Metrics */}
         {(program.tracked_metrics || []).length > 0 && (
           <div style={{ marginBottom: 28, animation: 'pd-fade-up 500ms ease 350ms both' } as any}>
-            <div style={{ fontSize: 10, fontWeight: 800, color: 'rgba(255,255,255,0.25)', textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 14 }}>Suivi par Nora</div>
+            <div style={{ fontSize: 10, fontWeight: 800, color: S3, textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 14 }}>Suivi par Nora</div>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 } as any}>
               {program.tracked_metrics.map((m: string, i: number) => (
                 <ProgramPill key={i} color={clr} filled>
@@ -175,11 +182,11 @@ export const ProgramPresentation = ({
         {/* Phases */}
         {(program.phases || []).length > 0 && (
           <div style={{ marginBottom: 32, animation: 'pd-fade-up 500ms ease 400ms both' } as any}>
-            <div style={{ fontSize: 10, fontWeight: 800, color: 'rgba(255,255,255,0.25)', textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 14 }}>Phases du programme</div>
+            <div style={{ fontSize: 10, fontWeight: 800, color: S3, textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 14 }}>Phases du programme</div>
             {program.phases.map((ph: any, i: number) => (
               <div key={i} className="pd-phase-card" style={{
                 display: 'flex', alignItems: 'center', gap: 14, padding: '16px',
-                borderRadius: 18, background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)',
+                borderRadius: 18, background: 'rgba(255,255,255,0.03)', border: cardBorder,
                 marginBottom: 8, transition: 'all 200ms ease', cursor: 'default',
                 animation: `pd-fade-up 400ms ease ${450 + i * 80}ms both`,
               } as any}>
@@ -190,8 +197,8 @@ export const ProgramPresentation = ({
                   fontSize: 16, fontWeight: 900, color: ph.color || clr, flexShrink: 0,
                 } as any}>{i + 1}</div>
                 <div style={{ flex: 1 } as any}>
-                  <div style={{ fontSize: 14, fontWeight: 700, color: '#FFF', marginBottom: 3 }}>{ph.name}</div>
-                  <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)', lineHeight: 1.4 }}>Jours {ph.days[0]}-{ph.days[1]} · {ph.description}</div>
+                  <div style={{ fontSize: 14, fontWeight: 700, color: T, marginBottom: 3 }}>{ph.name}</div>
+                  <div style={{ fontSize: 11, color: S2, lineHeight: 1.4 }}>Jours {ph.days[0]}-{ph.days[1]} · {ph.description}</div>
                 </div>
               </div>
             ))}
@@ -218,7 +225,7 @@ export const ProgramPresentation = ({
             style={{
               padding: '18px', borderRadius: 999, textAlign: 'center',
               cursor: hasActiveConflict ? 'not-allowed' : 'pointer',
-              background: clr, fontSize: 15, fontWeight: 900, color: '#FFF',
+              background: clr, fontSize: 15, fontWeight: 900, color: T,
               marginBottom: 12, opacity: hasActiveConflict ? 0.4 : 1,
               boxShadow: `0 4px 24px ${clr}35`,
               transition: 'all 200ms ease', letterSpacing: 0.3,
@@ -231,7 +238,7 @@ export const ProgramPresentation = ({
               padding: '16px', borderRadius: 999, textAlign: 'center',
               cursor: hasActiveConflict ? 'not-allowed' : 'pointer',
               background: 'transparent', border: '1.5px solid rgba(255,255,255,0.15)',
-              fontSize: 14, fontWeight: 700, color: '#FFF',
+              fontSize: 14, fontWeight: 700, color: T,
               display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
               opacity: hasActiveConflict ? 0.4 : 1, transition: 'all 200ms ease',
             } as any}>

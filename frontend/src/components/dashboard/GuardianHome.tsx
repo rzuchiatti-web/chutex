@@ -200,11 +200,11 @@ export default function GuardianHome({ token, user }: { token: string; user: any
               </div>
             ))}
             {bens.length === 0 && <div style={{ textAlign: 'center', padding: '30px', borderRadius: 20, background: cardBg, marginBottom: 10 } as any}><i className="ri-group-line" style={{ fontSize: 36, color: subColor }} /><div style={{ fontSize: 15, fontWeight: 700, color: textColor, marginTop: 10 }}>Aucun beneficiaire</div></div>}
-            <div onClick={() => setShowAddBenPopup(true)} style={{ marginTop: 14, padding: '16px', borderRadius: 999, textAlign: 'center', cursor: 'pointer', background: isDark ? 'rgba(255,255,255,0.1)' : '#1A1A2E', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10, transition: 'opacity 0.15s' } as any}
+            <div onClick={() => setShowAddBenPopup(true)} style={{ marginTop: 14, padding: '16px', borderRadius: 999, textAlign: 'center', cursor: 'pointer', background: isDark ? '#FFF' : '#000', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10, transition: 'opacity 0.15s' } as any}
               onMouseEnter={(e: any) => { e.currentTarget.style.opacity = '0.85'; }}
               onMouseLeave={(e: any) => { e.currentTarget.style.opacity = '1'; }}>
-              <i className="ri-heart-add-line" style={{ fontSize: 18, color: '#FFF' }} />
-              <span style={{ fontSize: 14, fontWeight: 700, color: '#FFF' }}>{t('add_beneficiary')}</span>
+              <i className="ri-heart-add-line" style={{ fontSize: 18, color: isDark ? '#000' : '#FFF' }} />
+              <span style={{ fontSize: 14, fontWeight: 700, color: isDark ? '#000' : '#FFF' }}>{t('add_beneficiary')}</span>
             </div>
 
           </div>

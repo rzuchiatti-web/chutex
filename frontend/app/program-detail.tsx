@@ -47,6 +47,7 @@ export default function ProgramDetailScreen() {
   if (Platform.OS !== 'web') return <NativePageView path={`/program-detail?id=${id}`} />;
   if (loading || !program) return <FullScreenLoader />;
 
+  const isDark = typeof localStorage !== 'undefined' ? localStorage.getItem('chutex_dark') !== '0' : true;
   const clr = program.color || '#FFF';
   const hasOnboarding = (program.onboarding_fields || []).length > 0;
   const hasActiveConflict = !!activeProgram?.active && activeProgram?.program?.id !== programId;
@@ -95,7 +96,7 @@ export default function ProgramDetailScreen() {
   };
 
   return (
-    <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, fontFamily: "'Inter', system-ui, sans-serif", overflow: 'hidden', background: '#0a0a0f' } as any}>
+    <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, fontFamily: "'Inter', system-ui, sans-serif", overflow: 'hidden', background: isDark ? '#0a0a0f' : '#FFF' } as any}>
       <style>{`
         @keyframes pd-fade-up { from { opacity:0; transform:translateY(16px); } to { opacity:1; transform:translateY(0); } }
         @keyframes pd-scale-in { from { opacity:0; transform:scale(0.92); } to { opacity:1; transform:scale(1); } }
@@ -108,7 +109,7 @@ export default function ProgramDetailScreen() {
       <div style={{ position: 'relative', zIndex: 5, height: '100%', overflowY: 'auto', overflowX: 'hidden', WebkitOverflowScrolling: 'touch' } as any}>
         {step === 0 && (
           <ProgramPresentation
-            program={program} clr={clr}
+            program={program} clr={clr} isDark={isDark}
             hasActiveConflict={hasActiveConflict} hasOnboarding={hasOnboarding}
             error={error}
             onStartSolo={() => { if (hasActiveConflict) { setError('Vous avez deja un programme actif.'); return; } setMode('solo'); setStep(hasOnboarding ? 1 : 3); }}
@@ -119,7 +120,7 @@ export default function ProgramDetailScreen() {
 
         {step === 1 && (
           <ProgramOnboarding
-            program={program} clr={clr}
+            program={program} clr={clr} isDark={isDark}
             onboarding={onboarding} setOnboarding={setOnboarding}
             hasActiveConflict={hasActiveConflict}
             onNext={() => { if (hasActiveConflict) { setError('Vous avez deja un programme actif.'); return; } setStep(3); }}
