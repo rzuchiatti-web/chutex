@@ -21,6 +21,17 @@ Pixel-perfect redesign of the Beneficiary and Guardian dashboards, Health, Progr
 - [x] Dashboard Gardiens/Rappels refonte (cartes individuelles, avatars gris fonce)
 - [x] Systeme de permissions gardien complet (alertes 9 types, donnees sante 7 types, localisation 3 modes)
 - [x] Guardian-detail refonte avec theme dark/light + permissions interactives
+- [x] **Beneficiary-detail Dark/Light mode** — Mar 23, 2026:
+  - isDark state avec polling localStorage 400ms
+  - 20+ couleurs adaptatives via objet C (bg, card, text, sub, muted, sep, etc.)
+  - GlassCard, SectionTitle, InfoCell, Sep tous thematises
+  - Modals (guardian detail, contract popup, safe zone form) adaptes
+  - Background image conditionnel (visible seulement en dark mode)
+  - Teste: 9/9 features verifiees (100% success)
+- [x] **GlassTabBar GPU acceleration fix** — Mar 23, 2026:
+  - Ajout transform: translateZ(0), willChange: backdrop-filter
+  - WebkitTransform: translateZ(0) pour compatibilite Safari
+  - Fix du bug de disparition du backdrop-filter blur
 - [x] **Robert Martin** beneficiaire simule pour espace gardien de Josette — Mar 23, 2026:
   - Profil complet: 80 ans, homme, 172cm/78kg, A+, Hypertension, Penicilline
   - 42 device_readings (bracelet V8 + balance S2, 7 jours)
