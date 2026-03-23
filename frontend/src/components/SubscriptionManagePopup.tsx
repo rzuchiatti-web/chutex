@@ -3,6 +3,7 @@ import { Platform } from 'react-native';
 import { useRouter } from 'expo-router';
 import { apiFetch } from '../services/api';
 import { useAuth } from '../context/AuthContext';
+import ContractViewer from './ContractViewer';
 
 const BG_BLUE = 'https://customer-assets.emergentagent.com/job_443c9c6e-0feb-4920-a358-fe7cc1a6289b/artifacts/v5t9l2mb_ChatGPT%20Image%2017%20f%C3%A9vr.%202026%2C%2014_10_07.png';
 const BG_VIOLET = 'https://customer-assets.emergentagent.com/job_8afdc991-0ab2-4687-a2a5-438b9a5f0711/artifacts/v6obzpez_ChatGPT%20Image%2018%20f%C3%A9vr.%202026%2C%2012_28_20.png';
@@ -26,6 +27,7 @@ export default function SubscriptionManagePopup({ show, onClose, subData, onRefr
   const [resending, setResending] = useState('');
   const [showCancel, setShowCancel] = useState(false);
   const [cancelling, setCancelling] = useState(false);
+  const [showContract, setShowContract] = useState(false);
 
   const isCare = subData?.subscription_type === 'care';
   const accent = isCare ? '#A78BFA' : '#3B82F6';
@@ -150,15 +152,18 @@ export default function SubscriptionManagePopup({ show, onClose, subData, onRefr
           </div>
         </div>
 
-        {/* Tabs — Care only (3 tabs inline), Standard = no tabs */}
+        {/* Tabs — Care only (icon only for inactive, icon+label for active) */}
         {tabs.length > 0 && (
           <div style={{ display: 'inline-flex', borderRadius: 999, padding: 4, background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.12)', marginBottom: 20, ...glass } as any}>
-            {tabs.map((t: any) => (
-              <div key={t.key} data-testid={`tab-${t.key}`} onClick={() => setTab(t.key)} style={{ padding: '10px 18px', borderRadius: 999, cursor: 'pointer', background: tab === t.key ? '#FFF' : 'transparent', color: tab === t.key ? '#111' : 'rgba(255,255,255,0.7)', fontSize: 12, fontWeight: 700, transition: 'all 0.2s', display: 'flex', alignItems: 'center', gap: 6 } as any}>
-                <i className={t.icon} style={{ fontSize: 14, color: tab === t.key ? '#111' : 'rgba(255,255,255,0.4)' }} />
-                {t.label}
-              </div>
-            ))}
+            {tabs.map((t: any) => {
+              const isActive = tab === t.key;
+              return (
+                <div key={t.key} data-testid={`tab-${t.key}`} onClick={() => setTab(t.key)} style={{ padding: isActive ? '10px 18px' : '10px 14px', borderRadius: 999, cursor: 'pointer', background: isActive ? '#FFF' : 'transparent', color: isActive ? '#111' : 'rgba(255,255,255,0.7)', fontSize: 12, fontWeight: 700, transition: 'all 0.25s ease', display: 'flex', alignItems: 'center', gap: isActive ? 6 : 0 } as any}>
+                  <i className={t.icon} style={{ fontSize: 16, color: isActive ? '#111' : 'rgba(255,255,255,0.4)' }} />
+                  {isActive && <span>{t.label}</span>}
+                </div>
+              );
+            })}
           </div>
         )}
 
@@ -221,24 +226,16 @@ export default function SubscriptionManagePopup({ show, onClose, subData, onRefr
             {/* ─── CONTRACT SECTION (merged into info/flat) ─── */}
             <div style={{ marginTop: 24, marginBottom: 12 } as any}>
               <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.3)', letterSpacing: 1.5, textTransform: 'uppercase', marginBottom: 12 }}>Contrat</div>
-              {subData?.contract?.contract_pdf_url ? (
-                <div data-testid="view-contract-pdf" onClick={() => window.open(subData.contract.contract_pdf_url, '_blank')} style={{ padding: '16px', borderRadius: 16, background: 'rgba(59,130,246,0.08)', border: '1px solid rgba(59,130,246,0.2)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 14, marginBottom: 10, ...glass } as any}>
-                  <div style={{ width: 40, height: 40, borderRadius: 12, background: 'rgba(59,130,246,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}>
-                    <i className="ri-file-pdf-2-line" style={{ fontSize: 20, color: '#3B82F6' }} />
-                  </div>
-                  <div style={{ flex: 1 } as any}>
-                    <div style={{ fontSize: 13, fontWeight: 700, color: '#FFF' }}>Telecharger le contrat PDF</div>
-                    <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.35)' }}>Conditions generales et particulieres</div>
-                  </div>
-                  <i className="ri-download-2-line" style={{ fontSize: 16, color: '#3B82F6' }} />
+              <div data-testid="view-contract-btn" onClick={() => setShowContract(true)} style={{ padding: '16px', borderRadius: 16, background: 'rgba(59,130,246,0.08)', border: '1px solid rgba(59,130,246,0.2)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 14, marginBottom: 10, ...glass } as any}>
+                <div style={{ width: 40, height: 40, borderRadius: 12, background: 'rgba(59,130,246,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}>
+                  <i className="ri-file-text-line" style={{ fontSize: 20, color: '#3B82F6' }} />
                 </div>
-              ) : (
-                <div style={{ padding: '16px', borderRadius: 16, background: 'rgba(245,158,11,0.06)', border: '1px solid rgba(245,158,11,0.15)', textAlign: 'center', marginBottom: 10, ...glass } as any}>
-                  <i className="ri-time-line" style={{ fontSize: 22, color: 'rgba(245,158,11,0.5)', display: 'block', marginBottom: 6 }} />
-                  <div style={{ fontSize: 12, fontWeight: 700, color: '#FFF', marginBottom: 2 }}>Contrat en cours de generation</div>
-                  <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.35)', lineHeight: 1.5 }}>Votre contrat PDF sera disponible prochainement.</div>
+                <div style={{ flex: 1 } as any}>
+                  <div style={{ fontSize: 13, fontWeight: 700, color: '#FFF' }}>Voir le contrat</div>
+                  <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.35)' }}>Conditions generales et particulieres</div>
                 </div>
-              )}
+                <i className="ri-arrow-right-s-line" style={{ fontSize: 18, color: '#3B82F6' }} />
+              </div>
               <div style={{ padding: '12px 14px', borderRadius: 14, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', ...glass } as any}>
                 <div style={{ fontSize: 9, fontWeight: 700, color: 'rgba(255,255,255,0.3)', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 8 }}>Conditions</div>
                 {[
@@ -448,6 +445,8 @@ export default function SubscriptionManagePopup({ show, onClose, subData, onRefr
 
         </div>
       </div>
+      {/* Contract viewer overlay */}
+      <ContractViewer show={showContract} onClose={() => setShowContract(false)} subData={subData} isCare={isCare} />
     </div>
   );
 }

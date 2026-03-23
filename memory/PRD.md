@@ -2,36 +2,27 @@
 
 ## Core Design Language
 - Header: fond rouge abstrait, texte toujours blanc, scrollable, z-index derriere contenu
-- Carte contenu: coins arrondis haut, z-index devant, dark gradient ou blanc pur
 - Dark: gradient #000→#3A3A3C, cartes rgba(70,70,78,0.85)
 - Light: fond #FFF, cartes #E8E8EA, texte #1A1A2E, cartes phases #F2F2F4
-- Page Santé: header rouge, contenu thémé
-- FullScreenLoader z-index 99999
 - Titres sur images hero: TOUJOURS blancs (#FFF) avec text-shadow
-- Theme reactif: localStorage polling 400ms via useState+useEffect dans TOUTES les pages
-- Teleconsult: navbar toujours dark, titre "Teleconsultation" + pilule "Medecin disponible 24/7" avec rond vert
+- Theme reactif: localStorage polling 400ms dans TOUTES les pages
+- Teleconsult: navbar dark, titre + pilule "Medecin disponible 24/7"
 
 ## Completed Features
-- Beneficiary Dashboard redesign (Light/Dark mode)
-- Health Page redesign
-- Programs & Profile Page redesign
-- Guardian Dashboard UI overhaul
-- Fixed z-index issues (React portals)
-- Removed navbar text labels (icons only)
-- Navbar hidden on Subscription detail popup (CSS injection)
-- Subscription tabs refactor: Care = 3 tabs (Abonnement+Contrat+Paiement fusionnés, Logement, Gardiens), Standard = pas d'onglets
-- ProgramPresentation light mode fix: titres blancs sur hero, cartes lisibles (#F2F2F4 bg, #1A1A2E text)
-- Theme reactif sans rechargement sur Santé et Programmes (polling localStorage)
-- Program detail pages (Onboarding, Ready, Invite, Pill) refactored with isDark prop — visible en light mode
-- program-detail.tsx isDark rendu reactif (useState + polling)
-- Teleconsult page: titre + pilule "Medecin disponible 24/7" + navbar dark forcé
-- Teleconsult ajouté dans la navbar bénéficiaire (5ème icône stethoscope)
+- Dashboards Beneficiaire/Gardien redesign (Light/Dark)
+- Pages Sante, Programmes, Profil redesign
+- Z-index fixes (React portals), Navbar icons only
+- Subscription popup: navbar masquee, 3 onglets Care (icone seule inactive, icone+label active)
+- Contrat: visionneuse in-app en lecture seule (8 articles, conditions generales)
+- Program detail pages refactored avec isDark prop (Onboarding, Ready, Invite, Pill)
+- isDark reactif partout (health, chat, program-detail)
+- Teleconsult: titre + pilule + navbar dark + ajout dans navbar beneficiaire
 
 ## Backlog
 - P0: Balance & Vest integration
 - P1: Signature electronique (Admin → Documents)
-- P2: Parrainage Gardien, Essai 7 jours, PDF Contrat, Vivoo
-- Refactoring: profile.tsx (1000+ lignes) à découper, backend routes monolithiques
+- P2: Parrainage Gardien, Essai 7 jours, Vivoo
+- Refactoring: profile.tsx (1000+ lignes), backend routes monolithiques
 
 ## Credentials
 | Role | Login | Password |
