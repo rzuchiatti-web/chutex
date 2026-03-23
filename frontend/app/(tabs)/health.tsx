@@ -47,6 +47,16 @@ export default function HealthScreen() {
   const [healthProgCatalog, setHealthProgCatalog] = useState<any[]>([]);
   const [refreshing, setRefreshing] = useState(false);
   const [agingRate, setAgingRate] = useState<any>(null);
+  const [isDark, setIsDark] = useState(() => typeof localStorage !== 'undefined' ? localStorage.getItem('chutex_dark') !== '0' : true);
+
+  useEffect(() => {
+    if (typeof localStorage === 'undefined') return;
+    const iv = setInterval(() => {
+      const v = localStorage.getItem('chutex_dark') !== '0';
+      setIsDark(prev => prev !== v ? v : prev);
+    }, 400);
+    return () => clearInterval(iv);
+  }, []);
 
   const fetchData = useCallback(async () => {
     try {
@@ -110,10 +120,7 @@ export default function HealthScreen() {
   if (Platform.OS === 'web' && effectiveRole === 'beneficiary') {
     if (reportLoading) return <FullScreenLoader />;
 
-    const isDark = (() => {
-      if (typeof localStorage !== 'undefined') return localStorage.getItem('chutex_dark') !== '0';
-      return true;
-    })();
+    // isDark comes from the state hook at the top of the component
     const BG_RED_HEADER = 'https://customer-assets.emergentagent.com/job_443c9c6e-0feb-4920-a358-fe7cc1a6289b/artifacts/mhh7xwy3_ChatGPT%20Image%2017%20f%C3%A9vr.%202026%2C%2014_08_43.png';
     const cardBg = isDark ? 'rgba(70,70,78,0.85)' : '#E8E8EA';
     const textColor = isDark ? '#FFF' : '#1A1A2E';

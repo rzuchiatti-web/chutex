@@ -39,6 +39,16 @@ export default function ProgramsTab() {
   const [joinLoading, setJoinLoading] = useState(false);
   const [joinError, setJoinError] = useState('');
   const [joinSuccess, setJoinSuccess] = useState('');
+  const [isDark, setIsDark] = useState(() => typeof localStorage !== 'undefined' ? localStorage.getItem('chutex_dark') !== '0' : true);
+
+  useEffect(() => {
+    if (typeof localStorage === 'undefined') return;
+    const iv = setInterval(() => {
+      const v = localStorage.getItem('chutex_dark') !== '0';
+      setIsDark(prev => prev !== v ? v : prev);
+    }, 400);
+    return () => clearInterval(iv);
+  }, []);
 
   const handleJoinTeam = async () => {
     if (!joinCode.trim()) { setJoinError('Entrez un code equipe'); return; }
@@ -77,7 +87,6 @@ export default function ProgramsTab() {
 
   const glass = { backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)' };
 
-  const isDark = typeof localStorage !== 'undefined' ? localStorage.getItem('chutex_dark') !== '0' : true;
   const BG_RED = 'https://customer-assets.emergentagent.com/job_443c9c6e-0feb-4920-a358-fe7cc1a6289b/artifacts/mhh7xwy3_ChatGPT%20Image%2017%20f%C3%A9vr.%202026%2C%2014_08_43.png';
   const cardBg = isDark ? 'rgba(70,70,78,0.85)' : '#E8E8EA';
   const textColor = isDark ? '#FFF' : '#1A1A2E';
