@@ -21,37 +21,22 @@ Pixel-perfect redesign of the Beneficiary and Guardian dashboards, Health, Progr
 - [x] Dashboard Gardiens/Rappels refonte (cartes individuelles, avatars gris fonce)
 - [x] Systeme de permissions gardien complet (alertes 9 types, donnees sante 7 types, localisation 3 modes)
 - [x] Guardian-detail refonte avec theme dark/light + permissions interactives
-- [x] **Beneficiary-detail Dark/Light mode** — Mar 23, 2026:
-  - isDark state avec polling localStorage 400ms
-  - 20+ couleurs adaptatives via objet C (bg, card, text, sub, muted, sep, etc.)
-  - GlassCard, SectionTitle, InfoCell, Sep tous thematises
-  - Modals (guardian detail, contract popup, safe zone form) adaptes
-  - Background image conditionnel (visible seulement en dark mode)
-  - Teste: 9/9 features verifiees (100% success)
-- [x] **Beneficiary-detail REFONTE COMPLETE** — Mar 23, 2026:
-  - Hero header centre: avatar 82px, nom, pilules age/genre/groupe sanguin, boutons Appeler/Sante
-  - Bande vitales horizontale scrollable avec gros chiffres colores
-  - Navigation par onglets: Dispositifs / Profil / Localisation
-  - Dispositifs: grille 3 colonnes avec status badges et batterie
-  - Profil: cartes separees (Identite, Adresse, Physique, Dossier medical, Preferences)
-  - Localisation: carte OSM + safe zones + bouton ajouter
-  - Fichier reduit de 903 a 634 lignes (-30%)
-  - Dark/Light mode reactif sur toute la page
-- [x] **GlassTabBar GPU acceleration fix** — Mar 23, 2026:
-  - Ajout transform: translateZ(0), willChange: backdrop-filter
-  - WebkitTransform: translateZ(0) pour compatibilite Safari
-  - Fix du bug de disparition du backdrop-filter blur
-- [x] **Robert Martin** beneficiaire simule pour espace gardien de Josette — Mar 23, 2026:
-  - Profil complet: 80 ans, homme, 172cm/78kg, A+, Hypertension, Penicilline
-  - 42 device_readings (bracelet V8 + balance S2, 7 jours)
-  - Constantes vitales: FC, SpO2, temperature, pas, calories, HRV
-  - 14 pesees (balance)
-  - 3 alertes historiques (chute, FC elevee, inactivite)
-  - 2 dispositifs (Bracelet Elio, Balance Vita)
-  - 1 safe zone (Domicile Robert, Lyon)
-  - Localisation GPS
-  - Permissions gardien configurees (tout autorise par defaut)
-  - Josette activee en mode gardien (has_guardian_space=true, active_role=guardian)
+- [x] Beneficiary-detail Dark/Light mode + GlassTabBar GPU fix
+- [x] Robert Martin beneficiaire simule pour espace gardien de Josette
+- [x] **Beneficiary-detail REFONTE COMPLETE v2** — Mar 23, 2026:
+  - Page unique scrollable, SANS onglets, SANS contrat
+  - Hero header centre: avatar, nom, badges neutres (age/genre/sang), boutons Appeler/Sante
+  - Constantes vitales: grille CSS 3 colonnes (gridTemplateColumns repeat(3,1fr)), zero overflow
+  - Carte Nora (analyse IA)
+  - Dispositifs: grille 3 colonnes (Bracelet/Balance/Gilet) avec status et batterie
+  - Gardiens: liste cliquable avec modal detail
+  - Informations: Identite (2 colonnes), Adresse, Physique (3 colonnes), Dossier medical
+  - Preferences: toggles Alertes/Sante/Localisation avec personnalisation expandable
+  - Historique alertes (resolues/cloturees)
+  - Localisation: position GPS, carte OSM, safe zones + CRUD
+  - Design minimaliste: palette neutre C.card/C.sep/C.text, couleurs accent uniquement status
+  - Fichier reduit de 636 a ~500 lignes
+  - Teste: 14/14 features verifiees (100% success)
 
 ## P0 — Upcoming
 - [ ] Balance & Vest Integration (verify data flow with V8 bracelet data)
@@ -88,7 +73,7 @@ Pixel-perfect redesign of the Beneficiary and Guardian dashboards, Health, Progr
 - `/app/backend/routes/guardian_routes.py` (permissions API + beneficiary endpoints)
 - `/app/backend/routes/batch_routes.py` (dashboard batch with guardian resolution)
 - `/app/frontend/app/guardian-detail.tsx` (beneficiary side permissions)
-- `/app/frontend/app/beneficiary-detail.tsx` (guardian side + preferences)
+- `/app/frontend/app/beneficiary-detail.tsx` (guardian side + preferences - REFONTE v2)
 - `/app/frontend/src/components/GlassTabBar.tsx`
 - `/app/frontend/src/components/dashboard/BeneficiaryHome.tsx`
 
