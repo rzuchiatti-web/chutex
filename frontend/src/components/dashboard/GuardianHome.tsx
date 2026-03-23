@@ -187,7 +187,12 @@ export default function GuardianHome({ token, user }: { token: string; user: any
               </div>
             ))}
             {bens.length === 0 && <div style={{ textAlign: 'center', padding: '30px', borderRadius: 20, background: cardBg, marginBottom: 10 } as any}><i className="ri-group-line" style={{ fontSize: 36, color: subColor }} /><div style={{ fontSize: 15, fontWeight: 700, color: textColor, marginTop: 10 }}>Aucun beneficiaire</div></div>}
-            <div onClick={() => setShowAddBenPopup(true)} style={{ padding: '16px', borderRadius: 999, textAlign: 'center', cursor: 'pointer', background: isDark ? 'rgba(255,255,255,0.1)' : '#1A1A2E', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10 } as any}><i className="ri-heart-line" style={{ fontSize: 16, color: '#FFF' }} /><span style={{ fontSize: 14, fontWeight: 700, color: '#FFF' }}>{t('add_beneficiary')}</span></div>
+            <div onClick={() => setShowAddBenPopup(true)} style={{ marginTop: 14, padding: '16px', borderRadius: 999, textAlign: 'center', cursor: 'pointer', background: isDark ? 'rgba(255,255,255,0.1)' : '#1A1A2E', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10, transition: 'opacity 0.15s' } as any}
+              onMouseEnter={(e: any) => { e.currentTarget.style.opacity = '0.85'; }}
+              onMouseLeave={(e: any) => { e.currentTarget.style.opacity = '1'; }}>
+              <i className="ri-heart-add-line" style={{ fontSize: 18, color: '#FFF' }} />
+              <span style={{ fontSize: 14, fontWeight: 700, color: '#FFF' }}>{t('add_beneficiary')}</span>
+            </div>
 
           </div>
         </div>
@@ -328,7 +333,7 @@ export default function GuardianHome({ token, user }: { token: string; user: any
             <div onClick={(e: any) => e.stopPropagation()} style={{ width: '100%', maxWidth: 420, margin: '0 auto', padding: '40px 24px 120px', boxSizing: 'border-box' } as any}>
               <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 20 } as any}><div onClick={() => setLangOpenG(false)} style={{ width: 36, height: 36, borderRadius: 999, background: 'rgba(255,255,255,0.12)', border: '1px solid rgba(255,255,255,0.18)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}><i className="ri-close-line" style={{ fontSize: 18, color: '#FFF' }} /></div></div>
               <div style={{ textAlign: 'center', marginBottom: 28 } as any}><div style={{ fontSize: 22, fontWeight: 900, color: '#FFF' }}>Langue</div></div>
-              {[{ code: 'FR', flag: '\u{1F1EB}\u{1F1F7}', name: 'Francais' }, { code: 'EN', flag: '\u{1F1EC}\u{1F1E7}', name: 'English' }].map(l => (
+              {[{ code: 'FR', flag: '\u{1F1EB}\u{1F1F7}', name: 'Francais' }, { code: 'EN', flag: '\u{1F1EC}\u{1F1E7}', name: 'English' }, { code: 'DE', flag: '\u{1F1E9}\u{1F1EA}', name: 'Deutsch' }, { code: 'ES', flag: '\u{1F1EA}\u{1F1F8}', name: 'Espanol' }, { code: 'IT', flag: '\u{1F1EE}\u{1F1F9}', name: 'Italiano' }, { code: 'PT', flag: '\u{1F1F5}\u{1F1F9}', name: 'Portugues' }, { code: 'NL', flag: '\u{1F1F3}\u{1F1F1}', name: 'Nederlands' }].map(l => (
                 <div key={l.code} onClick={() => { setLang(l.code); setLangOpenG(false); }} style={{ display: 'flex', alignItems: 'center', gap: 16, padding: '14px 18px', borderRadius: 18, cursor: 'pointer', marginBottom: 6, background: lang === l.code ? 'rgba(255,255,255,0.08)' : 'rgba(255,255,255,0.02)', border: lang === l.code ? '1px solid rgba(255,255,255,0.15)' : '1px solid rgba(255,255,255,0.05)' } as any}>
                   <span style={{ fontSize: 32, lineHeight: 1 }}>{l.flag}</span>
                   <span style={{ fontSize: 15, fontWeight: lang === l.code ? 800 : 500, color: lang === l.code ? '#FFF' : 'rgba(255,255,255,0.45)', flex: 1 }}>{l.name}</span>
