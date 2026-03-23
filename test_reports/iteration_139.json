@@ -114,7 +114,7 @@
   "seed_data_creation": "None - used existing user data",
   "retest_needed": false,
   "should_main_agent_self_test": false,
-  "context_for_next_testing_agent": "Dark/Light mode for beneficiary-detail.tsx fully verified. Key localStorage key is 'chutex_dark' (value '1'=dark, '0'=light). Auth token key is 'vl_token'. GlassTabBar has GPU acceleration hints (translateZ(0), willChange: backdrop-filter). Login as guardian with +33612345678/test123, then navigate to /beneficiary-detail?beneficiaryId=495e5e38-3591-474b-abe5-c932574bb609",
+  "context_for_next_testing_agent": "Dark/Light mode for beneficiary-detail.tsx fully verified. Key localStorage key is 'chutex_dark' (value '1'=dark, '0'=light). Auth token key is 'vl_token'. GlassTabBar has GPU acceleration hints (translateZ(0), willChange: backdrop-filter). Login as guardian with +33612345678/test123, then navigate to /beneficiary-detail?beneficiaryId=benef-detail-clean",
   "mocked_apis": {
     "has_mocked_apis": false,
     "note": "All APIs are real, no mocking"
