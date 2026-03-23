@@ -215,6 +215,17 @@ export default function ProfileScreen() {
     try { await apiFetch('/api/push/test', { method: 'POST' }, token); Alert.alert('Notification envoyee', 'Verifiez votre appareil !'); } catch (e: any) { Alert.alert('Erreur', e.message); }
   };
 
+  const [isDark, setIsDark] = React.useState(() => typeof localStorage !== 'undefined' ? localStorage.getItem('chutex_dark') !== '0' : true);
+  React.useEffect(() => {
+    const iv = setInterval(() => {
+      if (typeof localStorage !== 'undefined') {
+        const v = localStorage.getItem('chutex_dark') !== '0';
+        setIsDark(prev => prev !== v ? v : prev);
+      }
+    }, 500);
+    return () => clearInterval(iv);
+  }, []);
+
   if (!user || !token) return null;
 
   const saveProfile = async () => {
@@ -296,7 +307,6 @@ const BG_PROFILE = 'https://customer-assets.emergentagent.com/job_9950a869-9328-
   if (Platform.OS === 'web') {
     const BG_DARK = 'https://customer-assets.emergentagent.com/job_9950a869-9328-4a4b-abf4-a6fb213a3b47/artifacts/iklovqya_background_beneficiary.svg';
 
-    const isDark = typeof localStorage !== 'undefined' ? localStorage.getItem('chutex_dark') !== '0' : true;
     const textColor = isDark ? '#FFF' : '#1A1A2E';
     const subColor = isDark ? 'rgba(255,255,255,0.5)' : 'rgba(0,0,0,0.45)';
     const cardBg = isDark ? 'rgba(70,70,78,0.85)' : '#E8E8EA';
