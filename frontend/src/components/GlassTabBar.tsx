@@ -14,6 +14,7 @@ export const TAB_CONFIGS: Record<string, TabConfig[]> = {
     { key: 'index', icon: 'ri-home-smile-2-fill', label: 'Accueil' },
     { key: 'health', icon: 'ri-heart-pulse-fill', label: 'Sante' },
     { key: 'chat', icon: 'ri-dna-fill', label: 'Programmes' },
+    { key: 'teleconsult', icon: 'ri-stethoscope-fill', label: 'Teleconsult' },
     { key: 'profile', icon: 'ri-menu-3-fill', label: 'Plus' },
   ],
   guardian: [
@@ -59,9 +60,9 @@ export default function GlassTabBar({ state, navigation, role, showNora = true }
   const tabs = TAB_CONFIGS[role] || TAB_CONFIGS.beneficiary;
   const currentRoute = state?.routes?.[state.index]?.name || '';
 
-  // Guardian sub-pages (interventions, prescriptions, alerts) always dark navbar
+  // Force dark navbar on teleconsult for all roles
   const guardianSubPages = ['teleconsult', 'devices', 'alerts'];
-  const forceNavDark = role === 'guardian' && guardianSubPages.includes(currentRoute);
+  const forceNavDark = guardianSubPages.includes(currentRoute) || (role === 'guardian' && guardianSubPages.includes(currentRoute));
   const navDark = forceNavDark || isDark;
 
   const activeColor = navDark ? '#FFF' : '#111';

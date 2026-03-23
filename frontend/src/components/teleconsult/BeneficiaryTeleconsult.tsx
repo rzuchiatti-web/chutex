@@ -32,6 +32,8 @@ export function BeneficiaryTeleconsult({ token }: { token: string }) {
   if (submitted && callInfo && Platform.OS === 'web') {
     return (
       <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, display: 'flex', flexDirection: 'column', fontFamily: 'Inter, system-ui, sans-serif', overflow: 'hidden' } as any}>
+        {/* Force dark navbar on teleconsultation */}
+        <style>{`.glass-tab-bar-root { background: rgba(0,0,0,0.7) !important; border-color: rgba(255,255,255,0.06) !important; } .glass-tab-bar-root i { color: rgba(255,255,255,0.5) !important; } .glass-tab-bar-root .active-tab i { color: #FFF !important; }`}</style>
         <img src={BG_BLUE} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 } as any} />
         <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.3)', zIndex: 1 } as any} />
         <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', position: 'relative', zIndex: 5, padding: '0 28px' } as any}>
@@ -61,10 +63,21 @@ export function BeneficiaryTeleconsult({ token }: { token: string }) {
     const q = questions[step];
     return (
       <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, display: 'flex', flexDirection: 'column', fontFamily: 'Inter, system-ui, sans-serif', overflow: 'hidden' } as any}>
+        {/* Force dark navbar on teleconsultation */}
+        <style>{`.glass-tab-bar-root { background: rgba(0,0,0,0.7) !important; border-color: rgba(255,255,255,0.06) !important; } .glass-tab-bar-root i { color: rgba(255,255,255,0.5) !important; } .glass-tab-bar-root .active-tab i { color: #FFF !important; }`}</style>
         <img src={BG_BLUE} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 } as any} />
         <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.3)', zIndex: 1 } as any} />
 
         <div style={{ flex: 1, overflowY: 'auto', position: 'relative', zIndex: 5, padding: '24px 20px 100px', WebkitOverflowScrolling: 'touch' } as any}>
+          {/* Header title + pill */}
+          <div style={{ textAlign: 'center', marginBottom: 22 } as any}>
+            <div style={{ fontSize: 22, fontWeight: 900, color: '#FFF', marginBottom: 10 }}>Teleconsultation</div>
+            <div data-testid="doctor-available-pill" style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '8px 16px', borderRadius: 999, background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)' } as any}>
+              <div style={{ width: 8, height: 8, borderRadius: 999, background: '#22C55E', boxShadow: '0 0 8px rgba(34,197,94,0.5)' }} />
+              <span style={{ fontSize: 12, fontWeight: 600, color: 'rgba(255,255,255,0.8)' }}>Medecin disponible 24/7</span>
+            </div>
+          </div>
+
           <div style={{ textAlign: 'center', marginBottom: 18 } as any}>
             <div style={{ display: 'flex', justifyContent: 'center', gap: 6, marginBottom: 6 } as any}>
               {questions.map((_, i) => <div key={i} style={{ width: i <= step ? 20 : 6, height: 6, borderRadius: 3, backgroundColor: i <= step ? '#FFF' : 'rgba(255,255,255,0.2)', transition: 'all 0.3s' }} />)}

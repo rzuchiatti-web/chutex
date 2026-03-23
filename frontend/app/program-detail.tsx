@@ -31,6 +31,16 @@ export default function ProgramDetailScreen() {
   const [invitedFriends, setInvitedFriends] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [invitePrefix, setInvitePrefix] = useState('+33');
+  const [isDark, setIsDark] = useState(() => typeof localStorage !== 'undefined' ? localStorage.getItem('chutex_dark') !== '0' : true);
+
+  useEffect(() => {
+    if (typeof localStorage === 'undefined') return;
+    const iv = setInterval(() => {
+      const v = localStorage.getItem('chutex_dark') !== '0';
+      setIsDark(prev => prev !== v ? v : prev);
+    }, 400);
+    return () => clearInterval(iv);
+  }, []);
 
   useEffect(() => {
     if (!programId) return;
@@ -47,7 +57,6 @@ export default function ProgramDetailScreen() {
   if (Platform.OS !== 'web') return <NativePageView path={`/program-detail?id=${id}`} />;
   if (loading || !program) return <FullScreenLoader />;
 
-  const isDark = typeof localStorage !== 'undefined' ? localStorage.getItem('chutex_dark') !== '0' : true;
   const clr = program.color || '#FFF';
   const hasOnboarding = (program.onboarding_fields || []).length > 0;
   const hasActiveConflict = !!activeProgram?.active && activeProgram?.program?.id !== programId;
@@ -130,7 +139,7 @@ export default function ProgramDetailScreen() {
 
         {step === 2 && (
           <ProgramInvite
-            clr={clr} inviteCode={inviteCode}
+            clr={clr} isDark={isDark} inviteCode={inviteCode}
             invitePhone={invitePhone} setInvitePhone={setInvitePhone}
             invitePrefix={invitePrefix} setInvitePrefix={setInvitePrefix}
             inviteMsg={inviteMsg} inviteLoading={inviteLoading}
@@ -142,7 +151,7 @@ export default function ProgramDetailScreen() {
 
         {step === 3 && (
           <ProgramReady
-            program={program} clr={clr} mode={mode}
+            program={program} clr={clr} isDark={isDark} mode={mode}
             hasOnboarding={hasOnboarding} hasActiveConflict={hasActiveConflict}
             starting={starting} error={error}
             onBack={() => setStep(hasOnboarding ? 1 : 0)}

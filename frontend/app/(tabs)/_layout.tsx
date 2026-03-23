@@ -62,7 +62,6 @@ export default function TabLayout() {
       }} />
       <Tabs.Screen name="teleconsult" options={{
         tabBarIcon: ({ color, size }) => (isAdmin || isCompany) ? <Icon name="medkit-outline" size={size} color={color} /> : isG ? <Icon name="tab-intervention" size={size} color={color} /> : <Icon name={role === 'teleassistance' ? 'headset-outline' : 'videocam-outline'} size={size} color={color} />,
-        href: (isWeb && isBen) ? null : undefined,
       }} />
       <Tabs.Screen name="devices" options={{
         tabBarIcon: ({ color, size }) => (isCompany || isG) ? <Icon name="document-text-outline" size={size} color={color} /> : <MCIcon name="bluetooth-connect" size={size} color={color} />,

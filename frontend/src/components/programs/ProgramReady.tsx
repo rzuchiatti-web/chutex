@@ -4,6 +4,7 @@ import { ProgramPill } from './ProgramPill';
 interface ProgramReadyProps {
   program: any;
   clr: string;
+  isDark?: boolean;
   mode: string;
   hasOnboarding: boolean;
   hasActiveConflict: boolean;
@@ -14,15 +15,22 @@ interface ProgramReadyProps {
 }
 
 export const ProgramReady = ({
-  program, clr, mode, hasOnboarding, hasActiveConflict, starting, error, onBack, onLaunch,
-}: ProgramReadyProps) => (
+  program, clr, isDark = true, mode, hasOnboarding, hasActiveConflict, starting, error, onBack, onLaunch,
+}: ProgramReadyProps) => {
+  const T = isDark ? '#FFF' : '#1A1A2E';
+  const S = isDark ? 'rgba(255,255,255,0.55)' : 'rgba(0,0,0,0.55)';
+  const S2 = isDark ? 'rgba(255,255,255,0.6)' : 'rgba(0,0,0,0.5)';
+  const cardBg = isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.04)';
+  const cardBorder = isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.08)';
+
+  return (
   <div style={{ maxWidth: 480, margin: '0 auto', padding: 'calc(env(safe-area-inset-top, 44px) + 10px) 20px 120px', animation: 'pd-fade-up 400ms ease both' } as any}>
     <div onClick={onBack} style={{
-      width: 42, height: 42, borderRadius: 999, background: 'rgba(255,255,255,0.06)',
-      border: '1px solid rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center',
+      width: 42, height: 42, borderRadius: 999, background: cardBg,
+      border: `1px solid ${cardBorder}`, display: 'flex', alignItems: 'center', justifyContent: 'center',
       cursor: 'pointer', marginBottom: 24,
     } as any}>
-      <i className="ri-arrow-left-line" style={{ fontSize: 18, color: 'rgba(255,255,255,0.6)' }} />
+      <i className="ri-arrow-left-line" style={{ fontSize: 18, color: S2 }} />
     </div>
 
     <div style={{ textAlign: 'center', marginBottom: 32 } as any}>
@@ -33,10 +41,10 @@ export const ProgramReady = ({
       } as any}>
         <i className="ri-rocket-2-line" style={{ fontSize: 30, color: clr }} />
       </div>
-      <div style={{ fontSize: 26, fontWeight: 900, color: '#FFF', marginBottom: 8 }}>Pret a commencer !</div>
+      <div style={{ fontSize: 26, fontWeight: 900, color: T, marginBottom: 8 }}>Pret a commencer !</div>
       <div style={{ display: 'flex', justifyContent: 'center', flexWrap: 'wrap', gap: 8, marginTop: 12 } as any}>
-        <ProgramPill color={clr} filled>{program.title}</ProgramPill>
-        <ProgramPill color={clr}>Mode {mode === 'solo' ? 'solo' : 'equipe'}</ProgramPill>
+        <ProgramPill color={clr} filled isDark={isDark}>{program.title}</ProgramPill>
+        <ProgramPill color={clr} isDark={isDark}>Mode {mode === 'solo' ? 'solo' : 'equipe'}</ProgramPill>
       </div>
     </div>
 
@@ -59,7 +67,7 @@ export const ProgramReady = ({
           } as any}>
             <i className={item.icon} style={{ fontSize: 16, color: clr }} />
           </div>
-          <span style={{ fontSize: 13, color: 'rgba(255,255,255,0.55)', lineHeight: 1.4 }}>{item.text}</span>
+          <span style={{ fontSize: 13, color: S, lineHeight: 1.4 }}>{item.text}</span>
         </div>
       ))}
     </div>
@@ -77,4 +85,5 @@ export const ProgramReady = ({
       {starting ? 'Lancement...' : mode !== 'solo' ? 'Creer l\'equipe et commencer' : 'Lancer le programme'}
     </div>
   </div>
-);
+  );
+};
