@@ -20,8 +20,13 @@ Pixel-perfect redesign of the Beneficiary and Guardian dashboards, Health, Progr
 - [x] Program Detail sub-components light mode fix
 - [x] Subscription tabs: inactive = icons only, active = icon + label
 - [x] Profile page Light Mode refactoring (gray card backgrounds, dark text) — Mar 23, 2026
-- [x] Subscription page: onglets centres + titre renomme "Teleassistance Chutex Care" — Mar 23, 2026
-- [x] Dashboard: Refonte sections Gardiens et Rappels (cartes individuelles, avatars circulaires chevauches, sous-titres) — Mar 23, 2026
+- [x] Subscription page: onglets centres + titre "Teleassistance Chutex Care" — Mar 23, 2026
+- [x] Dashboard: Refonte sections Gardiens et Rappels (cartes individuelles, avatars gris fonce, sous-titres) — Mar 23, 2026
+- [x] Separateurs corriges (3 colles supprimes, ajout entre Rappels/Gardiens et avant Teleconsultation) — Mar 23, 2026
+- [x] Image IMG_GUARDIANS restauree a cote du titre Mes gardiens — Mar 23, 2026
+- [x] DailyObjectives: trait blanc pleine largeur avec marges — Mar 23, 2026
+- [x] Batch API: resolution noms/relations gardiens depuis users collection — Mar 23, 2026
+- [x] 2 gardiens reels pour Josette (Clement Fils, Claire Fille) avec fiche detail fonctionnelle — Mar 23, 2026
 
 ## P0 — Upcoming
 - [ ] Balance & Vest Integration (verify data flow with V8 bracelet data)
@@ -45,12 +50,11 @@ Pixel-perfect redesign of the Beneficiary and Guardian dashboards, Health, Progr
 
 ## Key Files
 - `/app/frontend/src/components/dashboard/BeneficiaryHome.tsx`
+- `/app/frontend/src/components/dashboard/DailyObjectives.tsx`
+- `/app/backend/routes/batch_routes.py`
 - `/app/frontend/app/(tabs)/profile.tsx`
 - `/app/frontend/src/components/SubscriptionManagePopup.tsx`
-- `/app/frontend/src/components/ContractViewer.tsx`
-- `/app/frontend/app/program-detail.tsx`
-- `/app/frontend/app/(tabs)/health.tsx`
-- `/app/frontend/app/(tabs)/chat.tsx`
+- `/app/frontend/app/guardian-detail.tsx`
 
 ## 3rd Party Integrations
 - OpenAI GPT-4o (Emergent LLM Key)

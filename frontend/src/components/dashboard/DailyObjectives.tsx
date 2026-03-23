@@ -26,8 +26,8 @@ function ObjectivesHeader({ isDark }: { isDark: boolean }) {
       <div style={{ position: 'absolute', top: -30, left: -30, width: 120, height: 120, borderRadius: '50%', background: 'radial-gradient(circle, rgba(180,160,140,0.15) 0%, transparent 70%)', pointerEvents: 'none' } as any} />
       <div style={{ flex: 1, zIndex: 2 } as any}>
         <div style={{ fontSize: 18, fontWeight: 900, color: '#FFF', marginBottom: 6 }}>Objectifs journalier</div>
-        <div style={{ width: 40, height: 2, background: 'rgba(255,255,255,0.3)', marginBottom: 10, borderRadius: 1 } as any} />
-        <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.55)', lineHeight: 1.5 }}>
+        <div style={{ width: '100%', height: 2, background: '#FFF', marginTop: 12, marginBottom: 14, borderRadius: 1 } as any} />
+        <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.55)', lineHeight: 1.5, marginBottom: 4 }}>
           Vous etes en excellente sante aujourd'hui, voici vos objectifs journalier.
         </div>
       </div>

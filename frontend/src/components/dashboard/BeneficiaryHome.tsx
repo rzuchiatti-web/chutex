@@ -339,8 +339,6 @@ export function BeneficiaryHome({ token, user }: { token: string; user: any }) {
 
           <DailyObjectivesOnDashboard token={token} isDark={isDark} />
 
-          <div style={{ height: 1, background: C.sep, margin: "10px 0 24px" } as any} />
-
           {/* ── TEAM INVITATIONS ── */}
           {teamInvitations.length > 0 && teamInvitations.map((inv: any) => (
             <div key={inv.id} data-testid={`team-invite-${inv.id}`} style={{ borderRadius: 14, background: C.card, border: `1px solid ${C.border}`, padding: '16px 18px', marginBottom: 12, backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)' } as any}>
@@ -422,8 +420,6 @@ export function BeneficiaryHome({ token, user }: { token: string; user: any }) {
 
           <WeightGoalDashCard token={token} />
 
-          <div style={{ height: 1, background: C.sep, margin: "10px 0 24px" } as any} />
-
           {(br.connected || br.paired || ((sc.connected || sc.paired) && weighings.length > 0) || vs.connected || vs.paired) && (
             <DeviceCards br={br} sc={sc} vs={vs} weighings={weighings} onStartWeighing={() => setShowWeighing(true)} onRefresh={fetchData} subscription={subscription} />
           )}
@@ -479,36 +475,23 @@ export function BeneficiaryHome({ token, user }: { token: string; user: any }) {
             </div>
           </div>
 
+          <div style={{ height: 1, background: C.sep, margin: "10px 0 24px" } as any} />
+
           {/* ── Gardiens ── */}
           <div data-testid="guardians-section" className="dash-slide-up" style={{ marginBottom: 28 } as any}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 } as any}>
               <div style={{ fontSize: 20, fontWeight: 900, color: C.text, letterSpacing: '-0.3px' } as any}>Mes gardiens</div>
-              <div style={{ display: 'flex', gap: 0 } as any}>
-                {guardians.slice(0, 4).map((g: any, gi: number) => {
-                  const avatarColors = ['#34D399','#60A5FA','#FBBF24','#F87171','#A78BFA','#FB923C'];
-                  return (
-                    <div key={g.id || gi} style={{ width: 32, height: 32, borderRadius: 999, background: g.avatar_url ? 'transparent' : avatarColors[gi % avatarColors.length], display: 'flex', alignItems: 'center', justifyContent: 'center', marginLeft: gi > 0 ? -8 : 0, border: `2.5px solid ${isDark ? '#1a1a24' : '#FFF'}`, overflow: 'hidden', zIndex: 4 - gi } as any}>
-                      {g.avatar_url ? <img src={g.avatar_url} style={{ width: 32, height: 32, objectFit: 'cover' } as any} /> : <span style={{ fontSize: 13, fontWeight: 800, color: '#FFF' }}>{g.name?.charAt(0)}</span>}
-                    </div>
-                  );
-                })}
-                {guardians.length === 0 && (
-                  <div style={{ width: 32, height: 32, borderRadius: 999, background: isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.06)', display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}>
-                    <i className="ri-user-add-line" style={{ fontSize: 14, color: C.sub }} />
-                  </div>
-                )}
-              </div>
+              <img src={IMG_GUARDIANS} alt="" style={{ width: 90, height: 45, objectFit: 'contain' } as any} />
             </div>
             <div style={{ fontSize: 13, color: C.sub, marginBottom: 16, lineHeight: '1.45' } as any}>Retrouvez l'ensemble de vos gardiens qui veillent sur vous au quotidien.</div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 10 } as any}>
               {guardians.map((g: any, i: number) => {
-                const avatarColors = ['#34D399','#60A5FA','#FBBF24','#F87171','#A78BFA','#FB923C'];
                 return (
                   <div key={g.id || i} onClick={() => router.push({ pathname: '/guardian-detail', params: { guardianId: g.id } })}
                     style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '14px 16px', borderRadius: 18, background: C.card, cursor: 'pointer', transition: 'transform 0.15s', ...glass } as any}
                     onMouseEnter={(e: any) => { e.currentTarget.style.transform = 'translateY(-2px)'; }}
                     onMouseLeave={(e: any) => { e.currentTarget.style.transform = ''; }}>
-                    <div style={{ width: 50, height: 50, borderRadius: 999, background: g.avatar_url ? 'transparent' : avatarColors[i % avatarColors.length], display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', flexShrink: 0 } as any}>
+                    <div style={{ width: 50, height: 50, borderRadius: 999, background: g.avatar_url ? 'transparent' : '#3A3A42', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', flexShrink: 0 } as any}>
                       {g.avatar_url ? <img src={g.avatar_url} style={{ width: 50, height: 50, borderRadius: 999, objectFit: 'cover' } as any} /> : <span style={{ fontSize: 20, fontWeight: 800, color: '#FFF' }}>{g.name?.charAt(0)}</span>}
                     </div>
                     <div style={{ flex: 1 } as any}>
@@ -528,6 +511,8 @@ export function BeneficiaryHome({ token, user }: { token: string; user: any }) {
               <span style={{ fontSize: 14, fontWeight: 700, color: isDark ? '#111' : '#FFF' }}>Ajouter un gardien</span>
             </div>
           </div>
+
+          <div style={{ height: 1, background: C.sep, margin: "10px 0 24px" } as any} />
 
           <DoctorCard onPress={() => router.push('/(tabs)/teleconsult')} />
 

@@ -23,7 +23,29 @@ async def dashboard_batch(user=Depends(get_current_user)):
         return await db.reminders.find({"user_id": uid}, {"_id": 0}).sort("created_at", -1).to_list(50)
 
     async def get_guards():
-        return await db.guardian_beneficiaries.find({"beneficiary_id": uid}, {"_id": 0}).to_list(20)
+        """Resolve guardian data from user collection like /api/guardians/my."""
+        cu = await db.users.find_one({"id": uid}, {"_id": 0, "guardians": 1, "guardian_order": 1})
+        if not cu:
+            return []
+        guardian_order = cu.get('guardian_order', cu.get('guardians', []))
+        guardians = []
+        seen = set()
+        for gid in list(guardian_order) + cu.get('guardians', []):
+            if gid in seen:
+                continue
+            seen.add(gid)
+            g = await db.users.find_one({"id": gid}, {"_id": 0})
+            if g:
+                rel_doc = await db.guardian_relationships.find_one(
+                    {"guardian_id": gid, "beneficiary_id": uid}, {"_id": 0}
+                )
+                rel = rel_doc.get('relationship', '') if rel_doc else g.get('relationship', '')
+                guardians.append({
+                    "id": g['id'], "name": g.get('name', ''), "phone": g.get('phone', ''),
+                    "avatar_url": g.get('avatar_url', ''),
+                    "guardian_type": g.get('guardian_type', ''), "relationship": rel,
+                })
+        return guardians
 
     async def get_greqs():
         return await db.guardian_requests.find({"beneficiary_id": uid, "status": "pending"}, {"_id": 0}).to_list(20)
