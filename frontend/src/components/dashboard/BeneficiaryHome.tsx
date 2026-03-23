@@ -433,54 +433,101 @@ export function BeneficiaryHome({ token, user }: { token: string; user: any }) {
           <div style={{ height: 1, background: C.sep, margin: "10px 0 24px" } as any} />
 
           {/* ── Rappels ── */}
-          <div data-testid="reminders-section" className="dash-slide-up" style={{ padding: '16px', borderRadius: 14, background: C.card, marginBottom: 20, ...glass } as any}>
-            <div style={{ fontSize: 16, fontWeight: 900, color: C.text, marginBottom: 12 }}>Rappels</div>
-            {[
-              { type: 'hydration', label: 'Hydratation', img: REMINDER_IMAGES.hydration, color: '#38BDF8' },
-              { type: 'medication', label: 'Traitement', img: REMINDER_IMAGES.medication, color: '#F59E0B' },
-              { type: 'alarm', label: 'Alarmes', img: REMINDER_IMAGES.alarm, color: '#EF4444' },
-            ].map((cat, idx) => {
-              const catRems = reminders.filter((r: any) => r.reminder_type === cat.type);
-              const activeCount = catRems.filter((r: any) => r.active).length;
-              const nextTime = activeCount > 0 ? getNextReminderTime(catRems.find((r: any) => r.active)) : '';
-              return (
-                <div key={cat.type} data-testid={`reminder-cat-${cat.type}`} onClick={() => { setEditReminder({ _type: cat.type }); setShowReminderCRUD(true); }} style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '12px 0', borderTop: idx > 0 ? `1px solid ${C.border}` : 'none', cursor: 'pointer' } as any}>
-                  <img src={cat.img} alt={cat.label} style={{ width: 44, height: 44, objectFit: 'contain', flexShrink: 0 } as any} />
-                  <div style={{ flex: 1 } as any}>
-                    <div style={{ fontSize: 14, fontWeight: 800, color: C.text }}>{cat.label}</div>
-                    <div style={{ fontSize: 11, color: activeCount > 0 ? cat.color : C.sub, fontWeight: 600 }}>
-                      {activeCount > 0 ? `${activeCount} rappel${activeCount > 1 ? 's' : ''} actif${activeCount > 1 ? 's' : ''}${nextTime ? ` · dans ${nextTime}` : ''}` : 'Non configure'}
-                    </div>
+          <div data-testid="reminders-section" className="dash-slide-up" style={{ marginBottom: 28 } as any}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 } as any}>
+              <div style={{ fontSize: 20, fontWeight: 900, color: C.text, letterSpacing: '-0.3px' } as any}>Mes rappels</div>
+              <div style={{ display: 'flex', gap: 0 } as any}>
+                {[
+                  { bg: '#38BDF8', icon: 'ri-drop-fill' },
+                  { bg: '#F59E0B', icon: 'ri-capsule-fill' },
+                  { bg: '#EF4444', icon: 'ri-alarm-fill' },
+                ].map((a, ai) => (
+                  <div key={ai} style={{ width: 32, height: 32, borderRadius: 999, background: a.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', marginLeft: ai > 0 ? -8 : 0, border: `2.5px solid ${isDark ? '#1a1a24' : '#FFF'}`, zIndex: 3 - ai } as any}>
+                    <i className={a.icon} style={{ fontSize: 14, color: '#FFF' }} />
                   </div>
-                  <i className="ri-arrow-right-s-line" style={{ fontSize: 18, color: C.arrow }} />
-                </div>
-              );
-            })}
+                ))}
+              </div>
+            </div>
+            <div style={{ fontSize: 13, color: C.sub, marginBottom: 16, lineHeight: '1.45' } as any}>Gerez vos rappels quotidiens pour rester en bonne sante et ne rien oublier.</div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 10 } as any}>
+              {[
+                { type: 'hydration', label: 'Hydratation', img: REMINDER_IMAGES.hydration, color: '#38BDF8', desc: 'Pensez a boire regulierement' },
+                { type: 'medication', label: 'Traitement', img: REMINDER_IMAGES.medication, color: '#F59E0B', desc: 'Suivi de votre traitement' },
+                { type: 'alarm', label: 'Alarmes', img: REMINDER_IMAGES.alarm, color: '#EF4444', desc: 'Vos alarmes personnalisees' },
+              ].map((cat) => {
+                const catRems = reminders.filter((r: any) => r.reminder_type === cat.type);
+                const activeCount = catRems.filter((r: any) => r.active).length;
+                const nextTime = activeCount > 0 ? getNextReminderTime(catRems.find((r: any) => r.active)) : '';
+                return (
+                  <div key={cat.type} data-testid={`reminder-cat-${cat.type}`} onClick={() => { setEditReminder({ _type: cat.type }); setShowReminderCRUD(true); }}
+                    style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '14px 16px', borderRadius: 18, background: C.card, cursor: 'pointer', transition: 'transform 0.15s', ...glass } as any}
+                    onMouseEnter={(e: any) => { e.currentTarget.style.transform = 'translateY(-2px)'; }}
+                    onMouseLeave={(e: any) => { e.currentTarget.style.transform = ''; }}>
+                    <div style={{ width: 50, height: 50, borderRadius: 999, background: `${cat.color}18`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}>
+                      <img src={cat.img} alt={cat.label} style={{ width: 30, height: 30, objectFit: 'contain' } as any} />
+                    </div>
+                    <div style={{ flex: 1 } as any}>
+                      <div style={{ fontSize: 15, fontWeight: 700, color: C.text }}>{cat.label}</div>
+                      <div style={{ fontSize: 12, color: activeCount > 0 ? cat.color : C.sub, fontWeight: 500, marginTop: 2 }}>
+                        {activeCount > 0 ? `${activeCount} rappel${activeCount > 1 ? 's' : ''} actif${activeCount > 1 ? 's' : ''}${nextTime ? ` · dans ${nextTime}` : ''}` : cat.desc}
+                      </div>
+                    </div>
+                    <i className="ri-arrow-right-s-line" style={{ fontSize: 20, color: C.arrow }} />
+                  </div>
+                );
+              })}
+            </div>
           </div>
 
           {/* ── Gardiens ── */}
-          <GC testId="guardians-section">
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 } as any}>
-              <div style={{ fontSize: 16, fontWeight: 900, color: C.text }}>Mes gardiens</div>
-              <img src={IMG_GUARDIANS} alt="" style={{ width: 100, height: 50, objectFit: 'contain' } as any} />
-            </div>
-            {guardians.map((g: any, i: number) => (
-              <div key={g.id || i} onClick={() => router.push({ pathname: '/guardian-detail', params: { guardianId: g.id } })} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 0', borderTop: i > 0 ? `1px solid ${C.border}` : 'none', cursor: 'pointer' } as any}>
-                <div style={{ width: 44, height: 44, borderRadius: 12, background: isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.05)', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', flexShrink: 0 } as any}>
-                  {g.avatar_url ? <img src={g.avatar_url} style={{ width: 44, height: 44, objectFit: 'cover' } as any} /> : <span style={{ fontSize: 18, fontWeight: 800, color: '#C7C7CC' }}>{g.name?.charAt(0)}</span>}
-                </div>
-                <div style={{ flex: 1 } as any}><div style={{ fontSize: 15, fontWeight: 700, color: C.text }}>{g.name}</div><div style={{ fontSize: 12, color: C.sub }}>{g.relationship || t('guardian')}</div></div>
-                <i className="ri-arrow-right-s-line" style={{ fontSize: 20, color: C.arrow }} />
+          <div data-testid="guardians-section" className="dash-slide-up" style={{ marginBottom: 28 } as any}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 } as any}>
+              <div style={{ fontSize: 20, fontWeight: 900, color: C.text, letterSpacing: '-0.3px' } as any}>Mes gardiens</div>
+              <div style={{ display: 'flex', gap: 0 } as any}>
+                {guardians.slice(0, 4).map((g: any, gi: number) => {
+                  const avatarColors = ['#34D399','#60A5FA','#FBBF24','#F87171','#A78BFA','#FB923C'];
+                  return (
+                    <div key={g.id || gi} style={{ width: 32, height: 32, borderRadius: 999, background: g.avatar_url ? 'transparent' : avatarColors[gi % avatarColors.length], display: 'flex', alignItems: 'center', justifyContent: 'center', marginLeft: gi > 0 ? -8 : 0, border: `2.5px solid ${isDark ? '#1a1a24' : '#FFF'}`, overflow: 'hidden', zIndex: 4 - gi } as any}>
+                      {g.avatar_url ? <img src={g.avatar_url} style={{ width: 32, height: 32, objectFit: 'cover' } as any} /> : <span style={{ fontSize: 13, fontWeight: 800, color: '#FFF' }}>{g.name?.charAt(0)}</span>}
+                    </div>
+                  );
+                })}
+                {guardians.length === 0 && (
+                  <div style={{ width: 32, height: 32, borderRadius: 999, background: isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.06)', display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}>
+                    <i className="ri-user-add-line" style={{ fontSize: 14, color: C.sub }} />
+                  </div>
+                )}
               </div>
-            ))}
-            {guardians.length === 0 && <div style={{ fontSize: 11, color: C.sub, textAlign: 'center', padding: '6px 0' }}>Aucun gardien</div>}
-            <div data-testid="add-guardian-btn" onClick={() => setShowAddGuardianPopup(true)} style={{ marginTop: 12, padding: '14px', borderRadius: 999, background: isDark ? '#FFF' : '#000', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10, transition: 'opacity 0.15s' } as any}
+            </div>
+            <div style={{ fontSize: 13, color: C.sub, marginBottom: 16, lineHeight: '1.45' } as any}>Retrouvez l'ensemble de vos gardiens qui veillent sur vous au quotidien.</div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 10 } as any}>
+              {guardians.map((g: any, i: number) => {
+                const avatarColors = ['#34D399','#60A5FA','#FBBF24','#F87171','#A78BFA','#FB923C'];
+                return (
+                  <div key={g.id || i} onClick={() => router.push({ pathname: '/guardian-detail', params: { guardianId: g.id } })}
+                    style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '14px 16px', borderRadius: 18, background: C.card, cursor: 'pointer', transition: 'transform 0.15s', ...glass } as any}
+                    onMouseEnter={(e: any) => { e.currentTarget.style.transform = 'translateY(-2px)'; }}
+                    onMouseLeave={(e: any) => { e.currentTarget.style.transform = ''; }}>
+                    <div style={{ width: 50, height: 50, borderRadius: 999, background: g.avatar_url ? 'transparent' : avatarColors[i % avatarColors.length], display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', flexShrink: 0 } as any}>
+                      {g.avatar_url ? <img src={g.avatar_url} style={{ width: 50, height: 50, borderRadius: 999, objectFit: 'cover' } as any} /> : <span style={{ fontSize: 20, fontWeight: 800, color: '#FFF' }}>{g.name?.charAt(0)}</span>}
+                    </div>
+                    <div style={{ flex: 1 } as any}>
+                      <div style={{ fontSize: 15, fontWeight: 700, color: C.text }}>{g.name}</div>
+                      <div style={{ fontSize: 12, color: C.sub, marginTop: 2 }}>{g.relationship || t('guardian')}</div>
+                    </div>
+                    <i className="ri-arrow-right-s-line" style={{ fontSize: 20, color: C.arrow }} />
+                  </div>
+                );
+              })}
+              {guardians.length === 0 && <div style={{ padding: '20px', borderRadius: 18, background: C.card, textAlign: 'center', ...glass } as any}><div style={{ fontSize: 13, color: C.sub }}>Aucun gardien pour le moment</div></div>}
+            </div>
+            <div data-testid="add-guardian-btn" onClick={() => setShowAddGuardianPopup(true)} style={{ marginTop: 14, padding: '15px', borderRadius: 999, background: isDark ? '#FFF' : '#111', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10, transition: 'opacity 0.15s' } as any}
               onMouseEnter={(e: any) => { e.currentTarget.style.opacity = '0.85'; }}
               onMouseLeave={(e: any) => { e.currentTarget.style.opacity = '1'; }}>
-              <i className="ri-heart-add-line" style={{ fontSize: 18, color: isDark ? '#000' : '#FFF' }} />
-              <span style={{ fontSize: 14, fontWeight: 700, color: isDark ? '#000' : '#FFF' }}>Ajouter un gardien</span>
+              <i className="ri-heart-add-line" style={{ fontSize: 18, color: isDark ? '#111' : '#FFF' }} />
+              <span style={{ fontSize: 14, fontWeight: 700, color: isDark ? '#111' : '#FFF' }}>Ajouter un gardien</span>
             </div>
-          </GC>
+          </div>
 
           <DoctorCard onPress={() => router.push('/(tabs)/teleconsult')} />
 

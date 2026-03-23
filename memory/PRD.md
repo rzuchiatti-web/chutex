@@ -21,6 +21,7 @@ Pixel-perfect redesign of the Beneficiary and Guardian dashboards, Health, Progr
 - [x] Subscription tabs: inactive = icons only, active = icon + label
 - [x] Profile page Light Mode refactoring (gray card backgrounds, dark text) — Mar 23, 2026
 - [x] Subscription page: onglets centres + titre renomme "Teleassistance Chutex Care" — Mar 23, 2026
+- [x] Dashboard: Refonte sections Gardiens et Rappels (cartes individuelles, avatars circulaires chevauches, sous-titres) — Mar 23, 2026
 
 ## P0 — Upcoming
 - [ ] Balance & Vest Integration (verify data flow with V8 bracelet data)
@@ -43,6 +44,7 @@ Pixel-perfect redesign of the Beneficiary and Guardian dashboards, Health, Progr
 | Guardian | +33699887766 | test123 |
 
 ## Key Files
+- `/app/frontend/src/components/dashboard/BeneficiaryHome.tsx`
 - `/app/frontend/app/(tabs)/profile.tsx`
 - `/app/frontend/src/components/SubscriptionManagePopup.tsx`
 - `/app/frontend/src/components/ContractViewer.tsx`
