@@ -32,12 +32,15 @@ export const ProgramPresentation = ({
   program, clr, isDark = true, hasActiveConflict, hasOnboarding, error, onStartSolo, onStartTeam, onBack,
 }: ProgramPresentationProps) => {
   const coverImage = program.cover_image || '';
+  // Text on hero image is ALWAYS white for readability
   const T = isDark ? '#FFF' : '#1A1A2E';
-  const S = isDark ? 'rgba(255,255,255,0.5)' : 'rgba(0,0,0,0.45)';
-  const S2 = isDark ? 'rgba(255,255,255,0.3)' : 'rgba(0,0,0,0.3)';
-  const S3 = isDark ? 'rgba(255,255,255,0.25)' : 'rgba(0,0,0,0.2)';
-  const cardBg = isDark ? 'rgba(255,255,255,0.04)' : 'rgba(0,0,0,0.04)';
-  const cardBorder = isDark ? '1px solid rgba(255,255,255,0.06)' : '1px solid rgba(0,0,0,0.06)';
+  const S = isDark ? 'rgba(255,255,255,0.5)' : 'rgba(0,0,0,0.55)';
+  const S2 = isDark ? 'rgba(255,255,255,0.3)' : 'rgba(0,0,0,0.35)';
+  const S3 = isDark ? 'rgba(255,255,255,0.25)' : 'rgba(0,0,0,0.25)';
+  const cardBg = isDark ? 'rgba(255,255,255,0.04)' : 'rgba(0,0,0,0.03)';
+  const cardBorder = isDark ? '1px solid rgba(255,255,255,0.06)' : '1px solid rgba(0,0,0,0.08)';
+  // Light mode uses a slightly gray card for better contrast
+  const lightCardBg = isDark ? 'rgba(255,255,255,0.03)' : '#F2F2F4';
 
   return (
     <div data-testid="program-detail-step-0" style={{ animation: 'pd-fade-up 500ms ease both' } as any}>
@@ -49,13 +52,15 @@ export const ProgramPresentation = ({
         {!coverImage && (
           <div style={{
             position: 'absolute', inset: 0,
-            background: `radial-gradient(ellipse at 50% 30%, ${clr}20 0%, rgba(10,10,15,1) 70%)`,
+            background: `radial-gradient(ellipse at 50% 30%, ${clr}20 0%, ${isDark ? 'rgba(10,10,15,1)' : 'rgba(255,255,255,1)'} 70%)`,
           } as any} />
         )}
         <div style={{
           position: 'absolute', inset: 0,
           background: coverImage
-            ? `linear-gradient(180deg, rgba(10,10,15,0) 0%, rgba(10,10,15,0.15) 30%, rgba(10,10,15,0.6) 65%, rgba(10,10,15,0.95) 85%, rgba(10,10,15,1) 100%)`
+            ? (isDark
+              ? `linear-gradient(180deg, rgba(10,10,15,0) 0%, rgba(10,10,15,0.15) 30%, rgba(10,10,15,0.6) 65%, rgba(10,10,15,0.95) 85%, rgba(10,10,15,1) 100%)`
+              : `linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(0,0,0,0.1) 30%, rgba(0,0,0,0.35) 65%, rgba(0,0,0,0.7) 85%, rgba(0,0,0,0.85) 100%)`)
             : 'transparent',
         } as any} />
 
@@ -66,7 +71,7 @@ export const ProgramPresentation = ({
           border: '1px solid rgba(255,255,255,0.15)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)',
           display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer',
         } as any}>
-          <i className="ri-arrow-left-line" style={{ fontSize: 18, color: T }} />
+          <i className="ri-arrow-left-line" style={{ fontSize: 18, color: '#FFF' }} />
         </div>
 
         {/* Hero Content */}
@@ -81,7 +86,7 @@ export const ProgramPresentation = ({
               <i className={program.icon} style={{ fontSize: 24, color: clr }} />
             </div>
             <div style={{ flex: 1 } as any}>
-              <div style={{ fontSize: 22, fontWeight: 900, color: T, letterSpacing: -0.5, lineHeight: 1.2, textShadow: '0 2px 8px rgba(0,0,0,0.5)' }}>{program.title}</div>
+              <div style={{ fontSize: 22, fontWeight: 900, color: '#FFF', letterSpacing: -0.5, lineHeight: 1.2, textShadow: '0 2px 8px rgba(0,0,0,0.5)' }}>{program.title}</div>
             </div>
           </div>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 } as any}>
@@ -186,7 +191,7 @@ export const ProgramPresentation = ({
             {program.phases.map((ph: any, i: number) => (
               <div key={i} className="pd-phase-card" style={{
                 display: 'flex', alignItems: 'center', gap: 14, padding: '16px',
-                borderRadius: 18, background: 'rgba(255,255,255,0.03)', border: cardBorder,
+                borderRadius: 18, background: lightCardBg, border: cardBorder,
                 marginBottom: 8, transition: 'all 200ms ease', cursor: 'default',
                 animation: `pd-fade-up 400ms ease ${450 + i * 80}ms both`,
               } as any}>
@@ -209,8 +214,8 @@ export const ProgramPresentation = ({
         {program.medical_disclaimer && (
           <div style={{
             padding: '14px 16px', borderRadius: 16,
-            background: 'rgba(245,158,11,0.05)', border: '1px solid rgba(245,158,11,0.12)',
-            fontSize: 11, color: 'rgba(255,255,255,0.4)', lineHeight: 1.6, marginBottom: 32,
+            background: isDark ? 'rgba(245,158,11,0.05)' : 'rgba(245,158,11,0.08)', border: '1px solid rgba(245,158,11,0.12)',
+            fontSize: 11, color: S, lineHeight: 1.6, marginBottom: 32,
             display: 'flex', alignItems: 'flex-start', gap: 10,
             animation: 'pd-fade-up 500ms ease 600ms both',
           } as any}>
@@ -225,7 +230,7 @@ export const ProgramPresentation = ({
             style={{
               padding: '18px', borderRadius: 999, textAlign: 'center',
               cursor: hasActiveConflict ? 'not-allowed' : 'pointer',
-              background: clr, fontSize: 15, fontWeight: 900, color: T,
+              background: clr, fontSize: 15, fontWeight: 900, color: '#FFF',
               marginBottom: 12, opacity: hasActiveConflict ? 0.4 : 1,
               boxShadow: `0 4px 24px ${clr}35`,
               transition: 'all 200ms ease', letterSpacing: 0.3,
@@ -237,7 +242,7 @@ export const ProgramPresentation = ({
             style={{
               padding: '16px', borderRadius: 999, textAlign: 'center',
               cursor: hasActiveConflict ? 'not-allowed' : 'pointer',
-              background: 'transparent', border: '1.5px solid rgba(255,255,255,0.15)',
+              background: 'transparent', border: isDark ? '1.5px solid rgba(255,255,255,0.15)' : '1.5px solid rgba(0,0,0,0.12)',
               fontSize: 14, fontWeight: 700, color: T,
               display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
               opacity: hasActiveConflict ? 0.4 : 1, transition: 'all 200ms ease',

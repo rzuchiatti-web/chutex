@@ -1,0 +1,85 @@
+{
+  "summary": "UI verification testing for 3 specific changes: (1) Navbar hidden when SubscriptionManagePopup is open, (2) Care subscription shows exactly 3 tabs (Abonnement, Logement, Gardiens), (3) Program detail hero title is always white with proper light mode card text colors. ALL TESTS PASSED.",
+  "backend_issues": {
+    "critical": [],
+    "minor": [],
+    "notes": "Backend testing skipped as per request - frontend only testing"
+  },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": [],
+    "verified_features": [
+      {
+        "feature": "Navbar hidden when SubscriptionManagePopup is open",
+        "status": "PASS",
+        "details": "Tab bar (.glass-tab-bar-root) display changes from 'flex' to 'none' when popup opens via CSS injection in useEffect"
+      },
+      {
+        "feature": "Care subscription shows exactly 3 tabs",
+        "status": "PASS",
+        "details": "Tabs found: Abonnement (tab-info), Logement (tab-housing), Gardiens (tab-guardians). No separate Contract or Payment tabs."
+      },
+      {
+        "feature": "Hero title always white",
+        "status": "PASS",
+        "details": "Hero title color is rgb(255, 255, 255) in both dark and light mode with text-shadow for readability"
+      },
+      {
+        "feature": "Light mode card text readable",
+        "status": "PASS",
+        "details": "Phase card titles use rgb(26, 26, 46) (#1A1A2E) on rgb(242, 242, 244) (#F2F2F4) background - proper contrast"
+      }
+    ]
+  },
+  "test_results": {
+    "subscription_popup": {
+      "navbar_hidden": true,
+      "tab_bar_display_before": "flex",
+      "tab_bar_display_after": "none",
+      "tabs_found": ["Abonnement", "Logement", "Gardiens"],
+      "tabs_count": 3,
+      "separate_contract_tab": false,
+      "separate_payment_tab": false
+    },
+    "program_presentation": {
+      "hero_title_color_dark_mode": "rgb(255, 255, 255)",
+      "hero_title_color_light_mode": "rgb(255, 255, 255)",
+      "phase_card_background_light": "rgb(242, 242, 244)",
+      "phase_card_title_color_light": "rgb(26, 26, 46)",
+      "phase_card_description_color_light": "rgba(0, 0, 0, 0.35)"
+    }
+  },
+  "code_review": {
+    "SubscriptionManagePopup.tsx": {
+      "navbar_hiding": "Lines 33-41: useEffect injects CSS style to hide .glass-tab-bar-root when popup is open",
+      "tabs_definition": "Lines 117-119: tabs array has 3 items for Care (Abonnement, Logement, Gardiens), empty array for Standard"
+    },
+    "ProgramPresentation.tsx": {
+      "hero_title_color": "Line 89: Title always uses color '#FFF' with textShadow for readability",
+      "light_mode_cards": "Lines 40-43: lightCardBg uses '#F2F2F4' for light mode, T uses '#1A1A2E' for text"
+    },
+    "GlassTabBar.tsx": {
+      "class_name": "Line 73: Has className='glass-tab-bar-root' which is targeted by CSS injection"
+    }
+  },
+  "test_report_links": [],
+  "action_items": [],
+  "critical_code_review_comments": [],
+  "updated_files": [],
+  "success_rate": {
+    "backend": "N/A (skipped)",
+    "frontend": "100% (4/4 features verified)"
+  },
+  "test_credentials": {
+    "beneficiary": {"phone": "0651245918", "password": "test123"}
+  },
+  "seed_data_creation": "None - used existing user data",
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "All 3 UI changes verified: (1) Navbar hides when subscription popup opens via CSS injection, (2) Care subscription has exactly 3 tabs (Abonnement merges contract+payment info), (3) Program detail hero title is always white with proper light mode text contrast. Login flow requires: onboarding swipe -> Nora skip -> login -> wait 20s for loading -> morning briefing swipe.",
+  "mocked_apis": {
+    "has_mocked_apis": false,
+    "note": "All APIs are real, no mocking"
+  }
+}

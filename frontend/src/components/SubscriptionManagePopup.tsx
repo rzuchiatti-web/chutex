@@ -17,7 +17,7 @@ interface Props {
 export default function SubscriptionManagePopup({ show, onClose, subData, onRefresh }: Props) {
   const { token, user } = useAuth();
   const router = useRouter();
-  const [tab, setTab] = useState<'info' | 'housing' | 'guardians' | 'payment'>('info');
+  const [tab, setTab] = useState<string>('info');
   const [guardians, setGuardians] = useState<any[]>([]);
   const [pendingInvites, setPendingInvites] = useState<any[]>([]);
   const [housing, setHousing] = useState({ address: '', postal_code: '', city: '', floor: '', digicode: '', interphone: '', key_box_code: '', housing_notes: '' });
@@ -29,6 +29,16 @@ export default function SubscriptionManagePopup({ show, onClose, subData, onRefr
 
   const isCare = subData?.subscription_type === 'care';
   const accent = isCare ? '#A78BFA' : '#3B82F6';
+
+  // Hide the GlassTabBar when this popup is open
+  useEffect(() => {
+    if (!show || Platform.OS !== 'web' || typeof document === 'undefined') return;
+    const style = document.createElement('style');
+    style.id = 'hide-tabbar-sub';
+    style.textContent = `.glass-tab-bar-root { display: none !important; }`;
+    document.head.appendChild(style);
+    return () => { style.remove(); };
+  }, [show]);
 
   const fetchData = useCallback(async () => {
     if (!token) return;
@@ -102,9 +112,11 @@ export default function SubscriptionManagePopup({ show, onClose, subData, onRefr
   if (!show || Platform.OS !== 'web') return null;
 
   const sub = subData?.subscription;
+  // Care = 3 tabs: Abonnement (combines info+contract+payment), Logement, Gardiens
+  // Standard = no tabs, flat display
   const tabs = isCare
-    ? [{ key: 'info', label: 'Abonnement', icon: 'ri-shield-star-line' }, { key: 'contract', label: 'Contrat', icon: 'ri-file-text-line' }, { key: 'housing', label: 'Logement', icon: 'ri-home-4-line' }, { key: 'guardians', label: 'Gardiens', icon: 'ri-group-line' }, { key: 'payment', label: 'Paiement', icon: 'ri-bank-card-line' }]
-    : [{ key: 'info', label: 'Abonnement', icon: 'ri-watch-line' }, { key: 'contract', label: 'Contrat', icon: 'ri-file-text-line' }, { key: 'payment', label: 'Paiement', icon: 'ri-bank-card-line' }];
+    ? [{ key: 'info', label: 'Abonnement', icon: 'ri-shield-star-line' }, { key: 'housing', label: 'Logement', icon: 'ri-home-4-line' }, { key: 'guardians', label: 'Gardiens', icon: 'ri-group-line' }]
+    : [];
 
   const glass = { backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' };
 
@@ -138,20 +150,11 @@ export default function SubscriptionManagePopup({ show, onClose, subData, onRefr
           </div>
         </div>
 
-        {/* Tabs — pill style 2x2 grid for 4 tabs, inline for 2 */}
-        {tabs.length <= 2 ? (
+        {/* Tabs — Care only (3 tabs inline), Standard = no tabs */}
+        {tabs.length > 0 && (
           <div style={{ display: 'inline-flex', borderRadius: 999, padding: 4, background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.12)', marginBottom: 20, ...glass } as any}>
             {tabs.map((t: any) => (
-              <div key={t.key} data-testid={`tab-${t.key}`} onClick={() => setTab(t.key)} style={{ padding: '10px 22px', borderRadius: 999, cursor: 'pointer', background: tab === t.key ? '#FFF' : 'transparent', color: tab === t.key ? '#111' : 'rgba(255,255,255,0.7)', fontSize: 13, fontWeight: 700, transition: 'all 0.2s', display: 'flex', alignItems: 'center', gap: 6 } as any}>
-                <i className={t.icon} style={{ fontSize: 14, color: tab === t.key ? '#111' : 'rgba(255,255,255,0.4)' }} />
-                {t.label}
-              </div>
-            ))}
-          </div>
-        ) : (
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 6, padding: 4, borderRadius: 16, background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.12)', marginBottom: 20, ...glass } as any}>
-            {tabs.map((t: any) => (
-              <div key={t.key} data-testid={`tab-${t.key}`} onClick={() => setTab(t.key)} style={{ padding: '10px 12px', borderRadius: 12, cursor: 'pointer', background: tab === t.key ? '#FFF' : 'transparent', color: tab === t.key ? '#111' : 'rgba(255,255,255,0.7)', fontSize: 12, fontWeight: 700, transition: 'all 0.2s', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 } as any}>
+              <div key={t.key} data-testid={`tab-${t.key}`} onClick={() => setTab(t.key)} style={{ padding: '10px 18px', borderRadius: 999, cursor: 'pointer', background: tab === t.key ? '#FFF' : 'transparent', color: tab === t.key ? '#111' : 'rgba(255,255,255,0.7)', fontSize: 12, fontWeight: 700, transition: 'all 0.2s', display: 'flex', alignItems: 'center', gap: 6 } as any}>
                 <i className={t.icon} style={{ fontSize: 14, color: tab === t.key ? '#111' : 'rgba(255,255,255,0.4)' }} />
                 {t.label}
               </div>
@@ -159,8 +162,9 @@ export default function SubscriptionManagePopup({ show, onClose, subData, onRefr
           </div>
         )}
 
-        {/* === TAB: INFO === */}
-        {tab === 'info' && (
+        {/* === CARE TAB: INFO (combines Abonnement + Contrat + Paiement) === */}
+        {/* === STANDARD: flat display (no tabs) === */}
+        {(isCare ? tab === 'info' : true) && (
           <div>
             {(() => {
               const ct = subData?.contract || {};
@@ -213,62 +217,111 @@ export default function SubscriptionManagePopup({ show, onClose, subData, onRefr
                 <i className="ri-arrow-right-s-line" style={{ fontSize: 16, color: '#A78BFA' }} />
               </div>
             )}
-          </div>
-        )}
 
-        {/* === TAB: CONTRACT (PDF) === */}
-        {tab === 'contract' && (
-          <div>
-            <div style={{ textAlign: 'center', marginBottom: 24 } as any}>
-              <div style={{ width: 64, height: 64, borderRadius: 20, background: 'rgba(59,130,246,0.12)', border: '1px solid rgba(59,130,246,0.2)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', marginBottom: 14 } as any}>
-                <i className="ri-file-text-line" style={{ fontSize: 32, color: '#3B82F6' }} />
+            {/* ─── CONTRACT SECTION (merged into info/flat) ─── */}
+            <div style={{ marginTop: 24, marginBottom: 12 } as any}>
+              <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.3)', letterSpacing: 1.5, textTransform: 'uppercase', marginBottom: 12 }}>Contrat</div>
+              {subData?.contract?.contract_pdf_url ? (
+                <div data-testid="view-contract-pdf" onClick={() => window.open(subData.contract.contract_pdf_url, '_blank')} style={{ padding: '16px', borderRadius: 16, background: 'rgba(59,130,246,0.08)', border: '1px solid rgba(59,130,246,0.2)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 14, marginBottom: 10, ...glass } as any}>
+                  <div style={{ width: 40, height: 40, borderRadius: 12, background: 'rgba(59,130,246,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}>
+                    <i className="ri-file-pdf-2-line" style={{ fontSize: 20, color: '#3B82F6' }} />
+                  </div>
+                  <div style={{ flex: 1 } as any}>
+                    <div style={{ fontSize: 13, fontWeight: 700, color: '#FFF' }}>Telecharger le contrat PDF</div>
+                    <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.35)' }}>Conditions generales et particulieres</div>
+                  </div>
+                  <i className="ri-download-2-line" style={{ fontSize: 16, color: '#3B82F6' }} />
+                </div>
+              ) : (
+                <div style={{ padding: '16px', borderRadius: 16, background: 'rgba(245,158,11,0.06)', border: '1px solid rgba(245,158,11,0.15)', textAlign: 'center', marginBottom: 10, ...glass } as any}>
+                  <i className="ri-time-line" style={{ fontSize: 22, color: 'rgba(245,158,11,0.5)', display: 'block', marginBottom: 6 }} />
+                  <div style={{ fontSize: 12, fontWeight: 700, color: '#FFF', marginBottom: 2 }}>Contrat en cours de generation</div>
+                  <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.35)', lineHeight: 1.5 }}>Votre contrat PDF sera disponible prochainement.</div>
+                </div>
+              )}
+              <div style={{ padding: '12px 14px', borderRadius: 14, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', ...glass } as any}>
+                <div style={{ fontSize: 9, fontWeight: 700, color: 'rgba(255,255,255,0.3)', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 8 }}>Conditions</div>
+                {[
+                  'Resiliable a tout moment (30 jours de preavis)',
+                  'Credit d\'impot 50% (art. 199 sexdecies du CGI)',
+                  'Equipements a restituer en cas de resiliation',
+                ].map((r, i) => (
+                  <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: 6, marginBottom: 5 } as any}>
+                    <i className="ri-checkbox-circle-line" style={{ fontSize: 12, color: 'rgba(255,255,255,0.2)', marginTop: 1, flexShrink: 0 }} />
+                    <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.45)', lineHeight: 1.4 }}>{r}</span>
+                  </div>
+                ))}
               </div>
-              <div style={{ fontSize: 18, fontWeight: 800, color: '#FFF', marginBottom: 4 }}>Votre contrat</div>
-              <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', lineHeight: 1.5 }}>Consultez les conditions de votre abonnement Chutex Care</div>
             </div>
 
-            {subData?.contract?.contract_number && (
-              <div style={{ padding: '14px 16px', borderRadius: 16, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', marginBottom: 12, ...glass } as any}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' } as any}>
-                  <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)' }}>N° contrat</span>
-                  <span style={{ fontSize: 14, fontWeight: 800, color: '#FFF', fontFamily: 'monospace' }}>{subData.contract.contract_number}</span>
-                </div>
-              </div>
-            )}
-
-            {subData?.contract?.contract_pdf_url ? (
-              <div data-testid="view-contract-pdf" onClick={() => window.open(subData.contract.contract_pdf_url, '_blank')} style={{ padding: '18px', borderRadius: 16, background: 'rgba(59,130,246,0.08)', border: '1px solid rgba(59,130,246,0.2)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 14, marginBottom: 12, ...glass } as any}>
-                <div style={{ width: 44, height: 44, borderRadius: 14, background: 'rgba(59,130,246,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}>
-                  <i className="ri-file-pdf-2-line" style={{ fontSize: 22, color: '#3B82F6' }} />
-                </div>
+            {/* ─── PAYMENT SECTION (merged into info/flat) ─── */}
+            <div style={{ marginTop: 16 } as any}>
+              <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.3)', letterSpacing: 1.5, textTransform: 'uppercase', marginBottom: 12 }}>Paiement</div>
+              <div data-testid="billing-portal-btn" onClick={openBillingPortal} style={{ padding: '14px', borderRadius: 16, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', marginBottom: 10, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 12, ...glass } as any}>
+                <div style={{ width: 36, height: 36, borderRadius: 10, background: 'rgba(59,130,246,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}><i className="ri-bank-card-line" style={{ fontSize: 18, color: '#3B82F6' }} /></div>
                 <div style={{ flex: 1 } as any}>
-                  <div style={{ fontSize: 14, fontWeight: 700, color: '#FFF' }}>Telecharger le contrat PDF</div>
-                  <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)' }}>Conditions generales et particulieres</div>
+                  <div style={{ fontSize: 13, fontWeight: 700, color: '#FFF' }}>Moyen de paiement</div>
+                  <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.35)' }}>Modifier ou mettre a jour votre carte</div>
                 </div>
-                <i className="ri-download-2-line" style={{ fontSize: 18, color: '#3B82F6' }} />
+                <i className="ri-external-link-line" style={{ fontSize: 14, color: 'rgba(255,255,255,0.3)' }} />
               </div>
-            ) : (
-              <div style={{ padding: '20px', borderRadius: 16, background: 'rgba(245,158,11,0.06)', border: '1px solid rgba(245,158,11,0.15)', textAlign: 'center', marginBottom: 12, ...glass } as any}>
-                <i className="ri-time-line" style={{ fontSize: 28, color: 'rgba(245,158,11,0.5)', display: 'block', marginBottom: 8 }} />
-                <div style={{ fontSize: 13, fontWeight: 700, color: '#FFF', marginBottom: 4 }}>Contrat en cours de generation</div>
-                <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)', lineHeight: 1.5 }}>Votre contrat PDF sera disponible prochainement. Vous recevrez un email lorsqu'il sera pret.</div>
-              </div>
-            )}
+              {(() => {
+                const ct = subData?.contract || {};
+                const price = ct.price_monthly || (isCare ? 39.90 : 24.90);
+                const priceCredit = ct.price_after_credit;
+                const planLabel = ct.plan_label || (isCare ? 'Chutex Care' : 'Bracelet Elio');
+                return (
+                  <div style={{ padding: '14px', borderRadius: 14, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', ...glass } as any}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6 } as any}>
+                      <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.5)' }}>{planLabel}</span>
+                      <span style={{ fontSize: 12, fontWeight: 700, color: '#FFF' }}>{price.toFixed(2).replace('.', ',')} EUR</span>
+                    </div>
+                    {priceCredit && (
+                      <>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 } as any}>
+                          <span style={{ fontSize: 11, color: 'rgba(16,185,129,0.6)' }}>Credit d'impot 50%</span>
+                          <span style={{ fontSize: 11, color: '#10B981' }}>-{(price - priceCredit).toFixed(2).replace('.', ',')} EUR</span>
+                        </div>
+                        <div style={{ height: 1, background: 'rgba(255,255,255,0.06)', margin: '4px 0' } as any} />
+                        <div style={{ display: 'flex', justifyContent: 'space-between' } as any}>
+                          <span style={{ fontSize: 12, fontWeight: 700, color: 'rgba(255,255,255,0.6)' }}>Apres credit d'impot</span>
+                          <span style={{ fontSize: 14, fontWeight: 900, color: '#10B981' }}>{priceCredit.toFixed(2).replace('.', ',')} EUR/mois</span>
+                        </div>
+                      </>
+                    )}
+                    {!priceCredit && (
+                      <>
+                        <div style={{ height: 1, background: 'rgba(255,255,255,0.06)', margin: '4px 0' } as any} />
+                        <div style={{ display: 'flex', justifyContent: 'space-between' } as any}>
+                          <span style={{ fontSize: 12, fontWeight: 700, color: 'rgba(255,255,255,0.6)' }}>Total mensuel</span>
+                          <span style={{ fontSize: 14, fontWeight: 900, color: '#FFF' }}>{price.toFixed(2).replace('.', ',')} EUR</span>
+                        </div>
+                      </>
+                    )}
+                  </div>
+                );
+              })()}
 
-            {/* Contract key info summary */}
-            <div style={{ padding: '14px 16px', borderRadius: 16, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', ...glass } as any}>
-              <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.3)', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 10 }}>Rappel des conditions</div>
-              {[
-                'Contrat a duree indeterminee, resiliable a tout moment avec 30 jours de preavis.',
-                'Les equipements restent la propriete de Chutex Innovation et doivent etre restitues en cas de resiliation.',
-                'Le service ouvre droit a un credit d\'impot de 50% au titre des services a la personne (art. 199 sexdecies du CGI).',
-                'Support : contact@chutex-innovation.com',
-              ].map((r, i) => (
-                <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: 8, marginBottom: 8 } as any}>
-                  <i className="ri-checkbox-circle-line" style={{ fontSize: 14, color: 'rgba(255,255,255,0.2)', marginTop: 1, flexShrink: 0 }} />
-                  <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.45)', lineHeight: 1.5 }}>{r}</span>
+              {/* Cancel */}
+              {!showCancel ? (
+                <div onClick={() => setShowCancel(true)} style={{ padding: '14px', borderRadius: 16, background: 'rgba(239,68,68,0.06)', border: '1px solid rgba(239,68,68,0.1)', cursor: 'pointer', textAlign: 'center', fontSize: 13, fontWeight: 600, color: 'rgba(239,68,68,0.5)', marginTop: 16 } as any}>
+                  Resilier mon abonnement
                 </div>
-              ))}
+              ) : (
+                <div style={{ marginTop: 16, padding: '18px', borderRadius: 16, background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.2)', ...glass } as any}>
+                  <div style={{ fontSize: 15, fontWeight: 800, color: '#EF4444', marginBottom: 8 }}>Confirmer la resiliation ?</div>
+                  <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.5)', lineHeight: 1.6, marginBottom: 14 }}>
+                    En resiliant votre abonnement :<br/>
+                    - Vous devez retourner le materiel sous 30 jours ouvrables<br/>
+                    - Envoyez le numero de suivi a : <span style={{ color: '#F59E0B', fontWeight: 700 }}>contact@chutex-innovation.com</span><br/>
+                    {isCare ? '- Vous perdrez l\'acces a la teleassistance 24/7, au suivi GPS et aux intervenants Care' : '- Vous ne pourrez plus utiliser votre bracelet Elio ni acceder a vos donnees de sante'}
+                  </div>
+                  <div style={{ display: 'flex', gap: 10 } as any}>
+                    <div onClick={() => setShowCancel(false)} style={{ flex: 1, padding: '12px', borderRadius: 999, background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.15)', cursor: 'pointer', textAlign: 'center', fontSize: 13, fontWeight: 700, color: '#FFF' } as any}>Annuler</div>
+                    <div data-testid="confirm-cancel-btn" onClick={cancelSub} style={{ flex: 1, padding: '12px', borderRadius: 999, background: '#EF4444', cursor: 'pointer', textAlign: 'center', fontSize: 13, fontWeight: 700, color: '#FFF' } as any}>{cancelling ? 'Resiliation...' : 'Confirmer'}</div>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         )}
@@ -392,80 +445,6 @@ export default function SubscriptionManagePopup({ show, onClose, subData, onRefr
           </div>
         )}
 
-        {/* === TAB: PAYMENT === */}
-        {tab === 'payment' && (
-          <div>
-            {/* Billing portal */}
-            <div data-testid="billing-portal-btn" onClick={openBillingPortal} style={{ padding: '16px', borderRadius: 16, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', marginBottom: 12, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 14, ...glass } as any}>
-              <div style={{ width: 40, height: 40, borderRadius: 12, background: 'rgba(59,130,246,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}><i className="ri-bank-card-line" style={{ fontSize: 20, color: '#3B82F6' }} /></div>
-              <div style={{ flex: 1 } as any}>
-                <div style={{ fontSize: 14, fontWeight: 700, color: '#FFF' }}>Moyen de paiement</div>
-                <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)' }}>Modifier ou mettre a jour votre carte</div>
-              </div>
-              <i className="ri-external-link-line" style={{ fontSize: 16, color: 'rgba(255,255,255,0.3)' }} />
-            </div>
-
-            {/* Subscription info — use contract data */}
-            {(() => {
-              const ct = subData?.contract || {};
-              const price = ct.price_monthly || (isCare ? 39.90 : 24.90);
-              const priceCredit = ct.price_after_credit;
-              const planLabel = ct.plan_label || (isCare ? 'Chutex Care' : 'Bracelet Elio');
-              return (
-                <div style={{ padding: '16px', borderRadius: 16, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', marginBottom: 12, ...glass } as any}>
-                  <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.3)', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 10 }}>Recapitulatif</div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6 } as any}>
-                    <span style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)' }}>{planLabel}</span>
-                    <span style={{ fontSize: 13, fontWeight: 700, color: '#FFF' }}>{price.toFixed(2).replace('.', ',')} EUR</span>
-                  </div>
-                  {priceCredit && (
-                    <>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6 } as any}>
-                        <span style={{ fontSize: 12, color: 'rgba(16,185,129,0.6)' }}>Credit d'impot 50%</span>
-                        <span style={{ fontSize: 12, color: '#10B981' }}>-{(price - priceCredit).toFixed(2).replace('.', ',')} EUR</span>
-                      </div>
-                      <div style={{ height: 1, background: 'rgba(255,255,255,0.06)', margin: '6px 0' } as any} />
-                      <div style={{ display: 'flex', justifyContent: 'space-between' } as any}>
-                        <span style={{ fontSize: 13, fontWeight: 700, color: 'rgba(255,255,255,0.6)' }}>Apres credit d'impot</span>
-                        <span style={{ fontSize: 15, fontWeight: 900, color: '#10B981' }}>{priceCredit.toFixed(2).replace('.', ',')} EUR/mois</span>
-                      </div>
-                    </>
-                  )}
-                  {!priceCredit && (
-                    <>
-                      <div style={{ height: 1, background: 'rgba(255,255,255,0.06)', margin: '6px 0' } as any} />
-                      <div style={{ display: 'flex', justifyContent: 'space-between' } as any}>
-                        <span style={{ fontSize: 13, fontWeight: 700, color: 'rgba(255,255,255,0.6)' }}>Total mensuel</span>
-                        <span style={{ fontSize: 15, fontWeight: 900, color: '#FFF' }}>{price.toFixed(2).replace('.', ',')} EUR</span>
-                      </div>
-                    </>
-                  )}
-                </div>
-              );
-            })()}
-
-            {/* Cancel */}
-            {!showCancel ? (
-              <div onClick={() => setShowCancel(true)} style={{ padding: '14px', borderRadius: 16, background: 'rgba(239,68,68,0.06)', border: '1px solid rgba(239,68,68,0.1)', cursor: 'pointer', textAlign: 'center', fontSize: 13, fontWeight: 600, color: 'rgba(239,68,68,0.5)', marginTop: 20 } as any}>
-                Resilier mon abonnement
-              </div>
-            ) : (
-              <div style={{ marginTop: 20, padding: '18px', borderRadius: 16, background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.2)', ...glass } as any}>
-                <div style={{ fontSize: 15, fontWeight: 800, color: '#EF4444', marginBottom: 8 }}>Confirmer la resiliation ?</div>
-                <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.5)', lineHeight: 1.6, marginBottom: 14 }}>
-                  En resiliant votre abonnement :<br/>
-                  - Vous devez retourner le materiel sous 30 jours ouvrables<br/>
-                  - Envoyez le numero de suivi a : <span style={{ color: '#F59E0B', fontWeight: 700 }}>contact@chutex-innovation.com</span><br/>
-                  {isCare ? '- Vous perdrez l\'acces a la teleassistance 24/7, au suivi GPS et aux intervenants Care' : '- Vous ne pourrez plus utiliser votre bracelet Elio ni acceder a vos donnees de sante'}
-                </div>
-                <div style={{ display: 'flex', gap: 10 } as any}>
-                  <div onClick={() => setShowCancel(false)} style={{ flex: 1, padding: '12px', borderRadius: 999, background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.15)', cursor: 'pointer', textAlign: 'center', fontSize: 13, fontWeight: 700, color: '#FFF' } as any}>Annuler</div>
-                  <div data-testid="confirm-cancel-btn" onClick={cancelSub} style={{ flex: 1, padding: '12px', borderRadius: 999, background: '#EF4444', cursor: 'pointer', textAlign: 'center', fontSize: 13, fontWeight: 700, color: '#FFF' } as any}>{cancelling ? 'Resiliation...' : 'Confirmer'}</div>
-                </div>
-              </div>
-            )}
-          </div>
-        )}
 
         </div>
       </div>

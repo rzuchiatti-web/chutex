@@ -102,8 +102,8 @@ export default function ProgramDetailScreen() {
         @keyframes pd-scale-in { from { opacity:0; transform:scale(0.92); } to { opacity:1; transform:scale(1); } }
         @keyframes pd-shimmer { 0% { background-position: -400px 0; } 100% { background-position: 400px 0; } }
         .pd-btn-primary:hover { transform: translateY(-1px) !important; box-shadow: 0 8px 32px ${clr}30 !important; }
-        .pd-btn-secondary:hover { background: rgba(255,255,255,0.08) !important; }
-        .pd-phase-card:hover { background: rgba(255,255,255,0.06) !important; border-color: ${clr}25 !important; }
+        .pd-btn-secondary:hover { background: ${isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.04)'} !important; }
+        .pd-phase-card:hover { background: ${isDark ? 'rgba(255,255,255,0.06)' : '#EBEBED'} !important; border-color: ${clr}25 !important; }
       `}</style>
 
       <div style={{ position: 'relative', zIndex: 5, height: '100%', overflowY: 'auto', overflowX: 'hidden', WebkitOverflowScrolling: 'touch' } as any}>
