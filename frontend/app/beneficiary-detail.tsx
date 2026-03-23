@@ -345,7 +345,7 @@ export default function BeneficiaryDetailScreen() {
 
           {/* explainer */}
           <div style={{ fontSize: 12, color: C.sub, lineHeight: 1.6, marginBottom: 14 }}>
-            Definissez des perimetres autour des lieux habituels de {firstName}. Vous serez alerte si {firstName} en sort.
+            Les zones sont centrees sur la position actuelle de {firstName}. Pour creer une zone autour du domicile, activez-la lorsque {firstName} s'y trouve. Vous serez alerte si {firstName} sort du perimetre.
           </div>
 
           {/* map — large + prominent */}
@@ -392,23 +392,27 @@ export default function BeneficiaryDetailScreen() {
 
       {/* ══ MODALS ══ */}
 
-      {/* zone help */}
+      {/* zone help — elements directly on blurred backdrop */}
       {showZoneHelp && (
-        <div data-testid="zone-help-modal" onClick={() => setShowZoneHelp(false)} style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 1200, backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)', background: isDark ? 'rgba(0,0,0,0.55)' : 'rgba(0,0,0,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24 } as any}>
-          <div onClick={(e: any) => e.stopPropagation()} style={{ width: '100%', maxWidth: 380, borderRadius: 20, background: isDark ? 'rgba(30,30,38,0.95)' : 'rgba(255,255,255,0.97)', border: `1px solid ${C.border}`, padding: '24px 20px', animation: 'bd-pop 220ms ease both' } as any}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16 } as any}><div style={{ width: 38, height: 38, borderRadius: 10, background: 'rgba(16,185,129,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}><i className="ri-shield-check-line" style={{ fontSize: 18, color: '#10B981' }} /></div><div style={{ fontSize: 17, fontWeight: 800, color: C.text }}>Comment ca marche ?</div></div>
-            <div style={{ fontSize: 13, color: C.sub, lineHeight: 1.7, marginBottom: 16 }}>Les zones de securite sont des perimetres autour des lieux habituels de votre proche.</div>
+        <div data-testid="zone-help-modal" onClick={() => setShowZoneHelp(false)} style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 1200, backdropFilter: 'blur(32px)', WebkitBackdropFilter: 'blur(32px)', background: isDark ? 'rgba(0,0,0,0.6)' : 'rgba(0,0,0,0.35)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 28 } as any}>
+          <div onClick={(e: any) => e.stopPropagation()} style={{ width: '100%', maxWidth: 380, animation: 'bd-pop 220ms ease both' } as any}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 20 } as any}>
+              <div style={{ width: 42, height: 42, borderRadius: 12, background: 'rgba(16,185,129,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}><i className="ri-shield-check-line" style={{ fontSize: 20, color: '#10B981' }} /></div>
+              <div style={{ fontSize: 18, fontWeight: 800, color: '#FFF' }}>Comment ca marche ?</div>
+            </div>
+            <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.6)', lineHeight: 1.7, marginBottom: 20 }}>La zone est centree sur la position actuelle de votre proche. Pour proteger un lieu (domicile, parc...), creez la zone lorsque votre proche s'y trouve.</div>
             {[
-              { icon: 'ri-map-pin-add-line', c: '#3B82F6', t: 'Definir une zone', d: 'Choisissez un lieu (domicile, parc...) et definissez un rayon autour.' },
-              { icon: 'ri-notification-3-line', c: '#F59E0B', t: 'Recevez des alertes', d: 'Si votre proche sort de la zone, vous etes prevenu immediatement.' },
-              { icon: 'ri-settings-4-line', c: '#10B981', t: 'Personnalisez', d: 'Ajustez le rayon selon ses habitudes (300m a 2km recommande).' },
+              { icon: 'ri-crosshair-2-line', c: '#3B82F6', t: 'Position actuelle', d: 'La zone se cree autour de la ou se trouve votre proche en ce moment.' },
+              { icon: 'ri-notification-3-line', c: '#F59E0B', t: 'Alertes automatiques', d: 'Vous etes prevenu immediatement si votre proche sort du perimetre.' },
+              { icon: 'ri-settings-4-line', c: '#10B981', t: 'Rayon ajustable', d: 'Adaptez la taille selon le lieu : 300m a 2km recommande.' },
             ].map((item, i) => (
-              <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: 10, marginBottom: 10 } as any}>
-                <div style={{ width: 24, height: 24, borderRadius: 7, background: `${item.c}12`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, marginTop: 1 } as any}><i className={item.icon} style={{ fontSize: 12, color: item.c }} /></div>
-                <div style={{ fontSize: 12, color: C.sub, lineHeight: 1.5 }}><strong style={{ color: C.text }}>{item.t}</strong> : {item.d}</div>
+              <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: 12, marginBottom: 16 } as any}>
+                <div style={{ width: 28, height: 28, borderRadius: 8, background: `${item.c}20`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, marginTop: 1 } as any}><i className={item.icon} style={{ fontSize: 14, color: item.c }} /></div>
+                <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.55)', lineHeight: 1.55 }}><strong style={{ color: '#FFF', fontWeight: 700 }}>{item.t}</strong> — {item.d}</div>
               </div>
             ))}
-            <div data-testid="zone-help-close-btn" onClick={() => setShowZoneHelp(false)} style={{ width: '100%', padding: '12px', borderRadius: 12, textAlign: 'center', cursor: 'pointer', background: isDark ? '#FFF' : '#111', fontSize: 13, fontWeight: 700, color: isDark ? '#111' : '#FFF', marginTop: 10 } as any}>Compris</div>
+            <div data-testid="zone-help-close-btn" onClick={() => setShowZoneHelp(false)} style={{ width: '100%', padding: '13px', borderRadius: 14, textAlign: 'center', cursor: 'pointer', background: 'rgba(255,255,255,0.12)', border: '1px solid rgba(255,255,255,0.1)', fontSize: 14, fontWeight: 700, color: '#FFF', marginTop: 8, transition: 'background 0.15s' } as any}
+              onMouseEnter={(e: any) => e.currentTarget.style.background = 'rgba(255,255,255,0.18)'} onMouseLeave={(e: any) => e.currentTarget.style.background = 'rgba(255,255,255,0.12)'}>Compris</div>
           </div>
         </div>
       )}
@@ -444,20 +448,34 @@ export default function BeneficiaryDetailScreen() {
         );
       })()}
 
-      {/* safe zone form */}
+      {/* safe zone form — elements directly on blurred backdrop */}
       {geoFormOpen && (
-        <div data-testid="safezone-form-modal" style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 1200, backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)', background: isDark ? 'rgba(0,0,0,0.55)' : 'rgba(0,0,0,0.3)', overflowY: 'auto' } as any}>
-          <div style={{ width: '100%', maxWidth: 420, margin: '0 auto', padding: '40px 24px 120px' } as any}>
-            <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 14 } as any}><div data-testid="safezone-form-close-btn" onClick={() => { setGeoFormOpen(false); setGeoEditingId(null); }} style={{ width: 34, height: 34, borderRadius: 10, background: isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.05)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}><i className="ri-close-line" style={{ fontSize: 16, color: C.sub }} /></div></div>
-            <div style={{ borderRadius: 18, background: isDark ? 'rgba(30,30,38,0.95)' : 'rgba(255,255,255,0.97)', border: `1px solid ${C.border}`, padding: '24px 20px', animation: 'bd-pop 220ms ease both' } as any}>
-              <div style={{ fontSize: 18, fontWeight: 800, color: C.text, marginBottom: 4 }} data-testid="safezone-form-modal-title">{geoEditingId ? 'Modifier la zone' : 'Nouvelle zone de securite'}</div>
-              <div style={{ fontSize: 11, color: C.sub, marginBottom: 16 }} data-testid="safezone-form-center-info">Centree sur la position actuelle de {firstName}</div>
-              <div style={{ marginBottom: 10 } as any}><div style={{ fontSize: 10, fontWeight: 600, color: C.muted, textTransform: 'uppercase', marginBottom: 4 }}>Nom de la zone</div><input data-testid="safezone-form-name-input" value={geoFormName} onChange={(e: any) => setGeoFormName(e.target.value)} placeholder="Ex: Domicile, Parc..." style={{ width: '100%', padding: '10px 12px', borderRadius: 10, border: `1px solid ${C.sep}`, background: C.row, color: C.text, fontSize: 13, outline: 'none', boxSizing: 'border-box' } as any} /></div>
-              <div style={{ marginBottom: 16 } as any}><div style={{ fontSize: 10, fontWeight: 600, color: C.muted, textTransform: 'uppercase', marginBottom: 4 }}>Rayon du perimetre (metres)</div><input data-testid="safezone-form-radius-input" value={geoFormRadius} onChange={(e: any) => setGeoFormRadius(e.target.value)} placeholder="300" style={{ width: '100%', padding: '10px 12px', borderRadius: 10, border: `1px solid ${C.sep}`, background: C.row, color: C.text, fontSize: 13, outline: 'none', boxSizing: 'border-box' } as any} /><div style={{ fontSize: 10, color: C.faint, marginTop: 4 }}>Recommande : 300m a 2000m selon les habitudes</div></div>
-              <div style={{ display: 'flex', gap: 8 } as any}>
-                <div data-testid="safezone-form-cancel-btn" onClick={() => { setGeoFormOpen(false); setGeoEditingId(null); }} style={{ flex: 1, padding: '11px', borderRadius: 12, cursor: 'pointer', textAlign: 'center', border: `1px solid ${C.sep}`, fontSize: 13, fontWeight: 600, color: C.text } as any}>Annuler</div>
-                <div data-testid="safezone-form-save-btn" onClick={saveGeoForm} style={{ flex: 1, padding: '11px', borderRadius: 12, cursor: geoFormSaving ? 'wait' : 'pointer', textAlign: 'center', background: isDark ? '#FFF' : '#111', fontSize: 13, fontWeight: 700, color: isDark ? '#111' : '#FFF', opacity: geoFormSaving ? 0.6 : 1 } as any}>{geoFormSaving ? '...' : (geoEditingId ? 'Enregistrer' : 'Creer la zone')}</div>
-              </div>
+        <div data-testid="safezone-form-modal" onClick={() => { setGeoFormOpen(false); setGeoEditingId(null); }} style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 1200, backdropFilter: 'blur(32px)', WebkitBackdropFilter: 'blur(32px)', background: isDark ? 'rgba(0,0,0,0.6)' : 'rgba(0,0,0,0.35)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 28 } as any}>
+          <div onClick={(e: any) => e.stopPropagation()} style={{ width: '100%', maxWidth: 380, animation: 'bd-pop 220ms ease both' } as any}>
+            {/* close */}
+            <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 12 } as any}>
+              <div data-testid="safezone-form-close-btn" onClick={() => { setGeoFormOpen(false); setGeoEditingId(null); }} style={{ width: 34, height: 34, borderRadius: 10, background: 'rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}><i className="ri-close-line" style={{ fontSize: 16, color: 'rgba(255,255,255,0.6)' }} /></div>
+            </div>
+            {/* title */}
+            <div style={{ fontSize: 20, fontWeight: 800, color: '#FFF', marginBottom: 6 }} data-testid="safezone-form-modal-title">{geoEditingId ? 'Modifier la zone' : 'Nouvelle zone de securite'}</div>
+            <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.5)', marginBottom: 6, lineHeight: 1.5 }} data-testid="safezone-form-center-info">Centree sur la position actuelle de {firstName}.</div>
+            <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)', marginBottom: 24, lineHeight: 1.5 }}>Pour proteger un lieu precis, assurez-vous que {firstName} s'y trouve avant de creer la zone.</div>
+            {/* name */}
+            <div style={{ marginBottom: 16 } as any}>
+              <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 6 }}>Nom de la zone</div>
+              <input data-testid="safezone-form-name-input" value={geoFormName} onChange={(e: any) => setGeoFormName(e.target.value)} placeholder="Ex: Domicile, Parc..." style={{ width: '100%', padding: '12px 14px', borderRadius: 12, border: '1px solid rgba(255,255,255,0.1)', background: 'rgba(255,255,255,0.06)', color: '#FFF', fontSize: 14, outline: 'none', boxSizing: 'border-box', fontWeight: 500 } as any} />
+            </div>
+            {/* radius */}
+            <div style={{ marginBottom: 28 } as any}>
+              <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 6 }}>Rayon du perimetre (metres)</div>
+              <input data-testid="safezone-form-radius-input" value={geoFormRadius} onChange={(e: any) => setGeoFormRadius(e.target.value)} placeholder="300" style={{ width: '100%', padding: '12px 14px', borderRadius: 12, border: '1px solid rgba(255,255,255,0.1)', background: 'rgba(255,255,255,0.06)', color: '#FFF', fontSize: 14, outline: 'none', boxSizing: 'border-box', fontWeight: 500 } as any} />
+              <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)', marginTop: 6 }}>Recommande : 300m a 2000m selon les habitudes</div>
+            </div>
+            {/* actions */}
+            <div style={{ display: 'flex', gap: 10 } as any}>
+              <div data-testid="safezone-form-cancel-btn" onClick={() => { setGeoFormOpen(false); setGeoEditingId(null); }} style={{ flex: 1, padding: '13px', borderRadius: 14, cursor: 'pointer', textAlign: 'center', border: '1px solid rgba(255,255,255,0.12)', fontSize: 14, fontWeight: 600, color: 'rgba(255,255,255,0.7)', transition: 'background 0.15s' } as any}
+                onMouseEnter={(e: any) => e.currentTarget.style.background = 'rgba(255,255,255,0.06)'} onMouseLeave={(e: any) => e.currentTarget.style.background = 'transparent'}>Annuler</div>
+              <div data-testid="safezone-form-save-btn" onClick={saveGeoForm} style={{ flex: 1, padding: '13px', borderRadius: 14, cursor: geoFormSaving ? 'wait' : 'pointer', textAlign: 'center', background: '#FFF', fontSize: 14, fontWeight: 700, color: '#111', opacity: geoFormSaving ? 0.6 : 1, transition: 'opacity 0.15s' } as any}>{geoFormSaving ? '...' : (geoEditingId ? 'Enregistrer' : 'Creer la zone')}</div>
             </div>
           </div>
         </div>
