@@ -19,7 +19,8 @@ Pixel-perfect redesign of the Beneficiary and Guardian dashboards, Health, Progr
 - [x] Reactive theming on health.tsx and chat.tsx via 400ms polling
 - [x] Program Detail sub-components light mode fix
 - [x] Subscription tabs: inactive = icons only, active = icon + label
-- [x] Profile page Light Mode refactoring (gray card backgrounds, dark text) — **Mar 23, 2026**
+- [x] Profile page Light Mode refactoring (gray card backgrounds, dark text) — Mar 23, 2026
+- [x] Subscription page: onglets centres + titre renomme "Teleassistance Chutex Care" — Mar 23, 2026
 
 ## P0 — Upcoming
 - [ ] Balance & Vest Integration (verify data flow with V8 bracelet data)

@@ -145,7 +145,7 @@ export default function SubscriptionManagePopup({ show, onClose, subData, onRefr
           <div style={{ width: 64, height: 64, borderRadius: 20, background: `${accent}25`, border: `1px solid ${accent}40`, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', marginBottom: 12 } as any}>
             <i className={isCare ? 'ri-shield-star-line' : 'ri-watch-line'} style={{ fontSize: 32, color: accent }} />
           </div>
-          <div style={{ fontSize: 22, fontWeight: 800, color: '#FFF' }}>{subData?.contract?.plan_label || (isCare ? 'Abonnement Care' : 'Bracelet Elio')}</div>
+          <div style={{ fontSize: 22, fontWeight: 800, color: '#FFF' }}>{isCare ? 'Téléassistance Chutex Care' : (subData?.contract?.plan_label || 'Bracelet Elio')}</div>
           <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '4px 14px', borderRadius: 999, background: 'rgba(16,185,129,0.2)', border: '1px solid rgba(16,185,129,0.3)', marginTop: 8 } as any}>
             <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#10B981' } as any} />
             <span style={{ fontSize: 11, fontWeight: 700, color: '#10B981' }}>Actif</span>
@@ -154,7 +154,8 @@ export default function SubscriptionManagePopup({ show, onClose, subData, onRefr
 
         {/* Tabs — Care only (icon only for inactive, icon+label for active) */}
         {tabs.length > 0 && (
-          <div style={{ display: 'inline-flex', borderRadius: 999, padding: 4, background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.12)', marginBottom: 20, ...glass } as any}>
+          <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 20 } as any}>
+          <div style={{ display: 'inline-flex', borderRadius: 999, padding: 4, background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.12)', ...glass } as any}>
             {tabs.map((t: any) => {
               const isActive = tab === t.key;
               return (
@@ -164,6 +165,7 @@ export default function SubscriptionManagePopup({ show, onClose, subData, onRefr
                 </div>
               );
             })}
+          </div>
           </div>
         )}
 
