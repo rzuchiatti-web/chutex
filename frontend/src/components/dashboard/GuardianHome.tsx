@@ -94,7 +94,17 @@ export default function GuardianHome({ token, user }: { token: string; user: any
   const POP: any = { position: 'fixed', inset: 0, zIndex: 99990, backdropFilter: 'blur(32px)', WebkitBackdropFilter: 'blur(32px)', background: 'rgba(0,0,0,0.55)', overflowY: 'scroll', WebkitOverflowScrolling: 'touch' };
 
   if (Platform.OS === 'web') {
-    const isDark = typeof localStorage !== 'undefined' ? localStorage.getItem('chutex_dark') !== '0' : true;
+    const [isDark, setIsDark] = React.useState(() => {
+      if (typeof localStorage !== 'undefined') return localStorage.getItem('chutex_dark') !== '0';
+      return true;
+    });
+    const toggleTheme = () => {
+      setIsDark(prev => {
+        const next = !prev;
+        if (typeof localStorage !== 'undefined') localStorage.setItem('chutex_dark', next ? '1' : '0');
+        return next;
+      });
+    };
     const cardBg = isDark ? 'rgba(70,70,78,0.85)' : '#E8E8EA';
     const textColor = isDark ? '#FFF' : '#1A1A2E';
     const subColor = isDark ? 'rgba(255,255,255,0.5)' : 'rgba(0,0,0,0.45)';
@@ -121,6 +131,9 @@ export default function GuardianHome({ token, user }: { token: string; user: any
                   </div>
                 </div>
                 <div style={{ display: 'flex', gap: 8, alignItems: 'center' } as any}>
+                  <div data-testid="theme-toggle-btn" onClick={toggleTheme} style={{ width: 36, height: 36, borderRadius: 18, background: 'rgba(255,255,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}>
+                    <i className={isDark ? 'ri-sun-line' : 'ri-moon-line'} style={{ fontSize: 18, color: '#FFF' }} />
+                  </div>
                   <div onClick={() => setShowNotifsG(!showNotifsG)} style={{ width: 36, height: 36, borderRadius: 18, background: 'rgba(255,255,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', position: 'relative' } as any}>
                     <i className="ri-notification-4-line" style={{ fontSize: 18, color: '#FFF' }} />
                     {(invitations.length > 0 || activeAlertsG.length > 0) && <div style={{ position: 'absolute', top: -1, right: -1, width: 9, height: 9, borderRadius: 5, background: '#EF4444', border: '2px solid rgba(0,0,0,0.3)' } as any} />}
