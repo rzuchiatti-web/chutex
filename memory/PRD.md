@@ -1,12 +1,12 @@
 # Chutex Care — Product Requirements Document
 
 ## Original Problem Statement
-Pixel-perfect redesign of the Beneficiary and Guardian dashboards, Health, Programs, and Profile pages (inspired by biograph.com). Implement Light/Dark mode toggle, overlapping layouts, z-index popups, Guardian dashboard cleanup, Subscription detail cards (Care vs Standard), in-app Contract Viewer, Balance & Vest integration, and electronic signatures on Admin Documents.
+Pixel-perfect redesign of the Beneficiary and Guardian dashboards, Health, Programs, and Profile pages. Implement Light/Dark mode toggle, overlapping layouts, z-index popups, Guardian dashboard cleanup, Subscription detail cards, Balance & Vest integration, and electronic signatures on Admin Documents.
 
 ## Architecture
 - **Frontend**: React Native Web (Expo Router) with conditional inline styling for Light/Dark theme
 - **Backend**: FastAPI + MongoDB
-- **Theming**: localStorage polling (`chutex_dark`) via `setInterval` in `useEffect` for instant reactivity
+- **Theming**: localStorage polling (`chutex_dark`) via `setInterval` in `useEffect`
 - **Popups**: `ReactDOM.createPortal` for z-index bypass
 
 ## Completed Features
@@ -18,25 +18,28 @@ Pixel-perfect redesign of the Beneficiary and Guardian dashboards, Health, Progr
 - [x] Reactive theming (polling 400ms)
 - [x] Program Detail light mode fix
 - [x] Profile page Light Mode + subscription centered tabs
-- [x] Dashboard Gardiens/Rappels refonte (cartes individuelles, avatars gris fonce)
-- [x] Systeme de permissions gardien complet (alertes 9 types, donnees sante 7 types, localisation 3 modes)
+- [x] Dashboard Gardiens/Rappels refonte
+- [x] Systeme de permissions gardien complet (alertes 9 types, sante 7 types, localisation 3 modes)
 - [x] Guardian-detail refonte avec theme dark/light + permissions interactives
 - [x] Beneficiary-detail Dark/Light mode + GlassTabBar GPU fix
-- [x] Robert Martin beneficiaire simule pour espace gardien de Josette
-- [x] **Beneficiary-detail REFONTE COMPLETE v2** — Mar 23, 2026:
-  - Page unique scrollable, SANS onglets, SANS contrat
-  - Hero header centre: avatar, nom, badges neutres (age/genre/sang), boutons Appeler/Sante
-  - Constantes vitales: grille CSS 3 colonnes (gridTemplateColumns repeat(3,1fr)), zero overflow
-  - Carte Nora (analyse IA)
-  - Dispositifs: grille 3 colonnes (Bracelet/Balance/Gilet) avec status et batterie
-  - Gardiens: liste cliquable avec modal detail
-  - Informations: Identite (2 colonnes), Adresse, Physique (3 colonnes), Dossier medical
-  - Preferences: toggles Alertes/Sante/Localisation avec personnalisation expandable
-  - Historique alertes (resolues/cloturees)
-  - Localisation: position GPS, carte OSM, safe zones + CRUD
-  - Design minimaliste: palette neutre C.card/C.sep/C.text, couleurs accent uniquement status
-  - Fichier reduit de 636 a ~500 lignes
-  - Teste: 14/14 features verifiees (100% success)
+- [x] Robert Martin beneficiaire simule pour espace gardien
+- [x] **Beneficiary-detail REFONTE COMPLETE v3** — Mar 23, 2026:
+  - Structure identique au dashboard: header BG_RED + carte arrondie (24px radius) en dessous
+  - Header: back button, nom beneficiaire, badges (age/genre/sang), boutons Appeler/Sante
+  - Nouvel ordre des sections:
+    1. Informations personnelles (Prenom/Nom/Age/Genre/Naissance/Tel/Adresse/Physique)
+    2. Dossier medical (Groupe sanguin/Pathologies/Allergies)
+    3. Donnees de sante (grille 2 colonnes: Pouls/SpO2/Tension/Temperature)
+    4. Activite physique (Pas/Calories/Distance) - si disponible
+    5. Dispositifs (Bracelet/Balance/Gilet)
+    6. Preferences (toggles Alertes/Sante/Localisation)
+    7. Gardiens (liste cliquable -> modal detail)
+    8. Gestion des zones (popup glass explicative + carte OSM + safe zones CRUD)
+  - Popup glass "Zones de securite" avec explication fonctionnement
+  - Meme tokens couleurs C et effets glass blur que le dashboard
+  - Design dark: gradient `linear-gradient(to bottom, #000 0%, #3A3A3C 100%)`
+  - Design light: fond blanc `#FFF`
+  - Teste 18/18 features (100% success, iteration_141)
 
 ## P0 — Upcoming
 - [ ] Balance & Vest Integration (verify data flow with V8 bracelet data)
@@ -52,30 +55,16 @@ Pixel-perfect redesign of the Beneficiary and Guardian dashboards, Health, Progr
 - [ ] Refactoring: Break down profile.tsx (>1000 lines)
 
 ## Test Credentials
-| Role | Email/Phone | Password | Notes |
-|------|------------|----------|-------|
-| Admin | 0600000001 | admin123 | |
-| Beneficiary (Josette) | 0651245918 | test123 | Also has guardian space |
-| Guardian (Claire) | +33612345678 | test123 | Gardienne de Josette |
-| Guardian (Marie) | +33699887766 | test123 | |
-| Beneficiary (Robert) | +33678901234 | - | Beneficiaire de Josette (simule) |
-
-## Key DB Collections
-- `guardian_permissions`: Per-guardian bidirectional permissions
-- `device_readings`: Bracelet/balance readings (user_id, device_type, timestamp, data{})
-- `health_vitals`, `latest_vitals`: Health snapshots
-- `alerts`: Guardian/beneficiary alerts
-- `weighings`: Weight history
-- `geofences`: Safe zones
-- `locations`: GPS positions
+| Role | Email/Phone | Password |
+|------|------------|----------|
+| Beneficiary (Josette) | 0651245918 | test123 |
+| Guardian (Claire) | +33612345678 | test123 |
 
 ## Key Files
-- `/app/backend/routes/guardian_routes.py` (permissions API + beneficiary endpoints)
-- `/app/backend/routes/batch_routes.py` (dashboard batch with guardian resolution)
-- `/app/frontend/app/guardian-detail.tsx` (beneficiary side permissions)
-- `/app/frontend/app/beneficiary-detail.tsx` (guardian side + preferences - REFONTE v2)
+- `/app/frontend/app/beneficiary-detail.tsx` (REFONTE v3 - dashboard style)
+- `/app/frontend/src/components/dashboard/BeneficiaryHome.tsx` (dashboard reference)
 - `/app/frontend/src/components/GlassTabBar.tsx`
-- `/app/frontend/src/components/dashboard/BeneficiaryHome.tsx`
+- `/app/backend/routes/guardian_routes.py`
 
 ## 3rd Party Integrations
 - OpenAI GPT-4o (Emergent LLM Key)
