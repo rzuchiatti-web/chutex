@@ -12,26 +12,26 @@ Pixel-perfect redesign of the Beneficiary and Guardian dashboards, Health, Progr
 ## Completed Features
 - [x] Light/Dark mode reactive toggle across all pages
 - [x] Redesign Beneficiary/Guardian Dashboards, Health, Programs, Profile pages
-- [x] Navbar labels hidden (icons only)
-- [x] Subscription detail cards (Care = 3 combined tabs; Standard = flat details)
-- [x] In-app Contract Viewer (ContractViewer.tsx)
-- [x] Teleconsultation forced dark navbar + "Medecin disponible 24/7" pill
-- [x] Reactive theming on health.tsx and chat.tsx via 400ms polling
-- [x] Program Detail sub-components light mode fix
-- [x] Subscription tabs: inactive = icons only, active = icon + label
-- [x] Profile page Light Mode refactoring — Mar 23, 2026
-- [x] Subscription page: onglets centres + titre "Teleassistance Chutex Care" — Mar 23, 2026
-- [x] Dashboard: Refonte Gardiens/Rappels — Mar 23, 2026
-- [x] Navbar fond solide (#16161E dark / #F2F2F6 light) — Mar 23, 2026
-- [x] Guardian-detail: refonte avec theme dark/light — Mar 23, 2026
-- [x] **Systeme de permissions gardien complet** — Mar 23, 2026:
-  - Collection `guardian_permissions` en BD
-  - API: GET/PUT permissions beneficiaire + PUT preferences gardien
-  - Cote beneficiaire: toggles interactifs alertes (9 types), donnees de sante (7 types), localisation (jamais/alerte/toujours)
-  - Cote gardien: opt-in/out alertes, donnees sante, localisation + personnalisation par type d'alerte
-  - Messages croisés (beneficiaire voit si gardien refuse, gardien voit si beneficiaire desactive)
-  - Bouton "Voir la sante de PRENOM" cote gardien
-  - Claire Martin configuree comme gardienne testable (phone: +33612345678, pwd: test123)
+- [x] Navbar labels hidden (icons only), fond solide
+- [x] Subscription detail cards + In-app Contract Viewer
+- [x] Teleconsultation UI + blur cartes
+- [x] Reactive theming (polling 400ms)
+- [x] Program Detail light mode fix
+- [x] Profile page Light Mode + subscription centered tabs
+- [x] Dashboard Gardiens/Rappels refonte (cartes individuelles, avatars gris fonce)
+- [x] Systeme de permissions gardien complet (alertes 9 types, donnees sante 7 types, localisation 3 modes)
+- [x] Guardian-detail refonte avec theme dark/light + permissions interactives
+- [x] **Robert Martin** beneficiaire simule pour espace gardien de Josette — Mar 23, 2026:
+  - Profil complet: 80 ans, homme, 172cm/78kg, A+, Hypertension, Penicilline
+  - 42 device_readings (bracelet V8 + balance S2, 7 jours)
+  - Constantes vitales: FC, SpO2, temperature, pas, calories, HRV
+  - 14 pesees (balance)
+  - 3 alertes historiques (chute, FC elevee, inactivite)
+  - 2 dispositifs (Bracelet Elio, Balance Vita)
+  - 1 safe zone (Domicile Robert, Lyon)
+  - Localisation GPS
+  - Permissions gardien configurees (tout autorise par defaut)
+  - Josette activee en mode gardien (has_guardian_space=true, active_role=guardian)
 
 ## P0 — Upcoming
 - [ ] Balance & Vest Integration (verify data flow with V8 bracelet data)
@@ -47,22 +47,30 @@ Pixel-perfect redesign of the Beneficiary and Guardian dashboards, Health, Progr
 - [ ] Refactoring: Break down profile.tsx (>1000 lines)
 
 ## Test Credentials
-| Role | Email/Phone | Password |
-|------|------------|----------|
-| Admin | 0600000001 | admin123 |
-| Beneficiary | 0651245918 | test123 |
-| Guardian (Claire) | +33612345678 | test123 |
-| Guardian (Marie) | +33699887766 | test123 |
+| Role | Email/Phone | Password | Notes |
+|------|------------|----------|-------|
+| Admin | 0600000001 | admin123 | |
+| Beneficiary (Josette) | 0651245918 | test123 | Also has guardian space |
+| Guardian (Claire) | +33612345678 | test123 | Gardienne de Josette |
+| Guardian (Marie) | +33699887766 | test123 | |
+| Beneficiary (Robert) | +33678901234 | - | Beneficiaire de Josette (simule) |
+
+## Key DB Collections
+- `guardian_permissions`: Per-guardian bidirectional permissions
+- `device_readings`: Bracelet/balance readings (user_id, device_type, timestamp, data{})
+- `health_vitals`, `latest_vitals`: Health snapshots
+- `alerts`: Guardian/beneficiary alerts
+- `weighings`: Weight history
+- `geofences`: Safe zones
+- `locations`: GPS positions
 
 ## Key Files
-- `/app/backend/routes/guardian_routes.py` (permissions API: lines 821-908)
-- `/app/frontend/app/guardian-detail.tsx` (beneficiary side permissions UI)
-- `/app/frontend/app/beneficiary-detail.tsx` (guardian side preferences UI)
+- `/app/backend/routes/guardian_routes.py` (permissions API + beneficiary endpoints)
+- `/app/backend/routes/batch_routes.py` (dashboard batch with guardian resolution)
+- `/app/frontend/app/guardian-detail.tsx` (beneficiary side permissions)
+- `/app/frontend/app/beneficiary-detail.tsx` (guardian side + preferences)
 - `/app/frontend/src/components/GlassTabBar.tsx`
 - `/app/frontend/src/components/dashboard/BeneficiaryHome.tsx`
-
-## DB Collections
-- `guardian_permissions`: Per-guardian permissions with beneficiary grants + guardian preferences
 
 ## 3rd Party Integrations
 - OpenAI GPT-4o (Emergent LLM Key)
