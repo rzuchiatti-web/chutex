@@ -1,58 +1,48 @@
 # Chutex Care — Product Requirements Document
 
 ## Original Problem Statement
-Pixel-perfect redesign of the Beneficiary and Guardian dashboards, Health, Programs, and Profile pages. Implement Light/Dark mode toggle, overlapping layouts, z-index popups, Guardian dashboard cleanup, Subscription detail cards, Balance & Vest integration, and electronic signatures on Admin Documents.
+Pixel-perfect redesign of the Beneficiary and Guardian dashboards, Health, Programs, and Profile pages. Implement Light/Dark mode toggle, overlapping layouts, Guardian dashboard cleanup, Balance & Vest integration, and electronic signatures on Admin Documents.
 
 ## Architecture
-- **Frontend**: React Native Web (Expo Router) with conditional inline styling for Light/Dark theme
+- **Frontend**: React Native Web (Expo Router), inline conditional Light/Dark styling
 - **Backend**: FastAPI + MongoDB
-- **Theming**: localStorage polling (`chutex_dark`) via `setInterval` in `useEffect`
-- **Popups**: `ReactDOM.createPortal` for z-index bypass
+- **Theming**: localStorage polling (`chutex_dark`) via setInterval
 
 ## Completed Features
 - [x] Light/Dark mode reactive toggle across all pages
-- [x] Redesign Beneficiary/Guardian Dashboards, Health, Programs, Profile pages
-- [x] Navbar labels hidden (icons only), fond solide
+- [x] Redesign Beneficiary/Guardian Dashboards, Health, Programs, Profile
+- [x] Navbar (GlassTabBar) GPU fix + icons only
 - [x] Subscription detail cards + In-app Contract Viewer
-- [x] Teleconsultation UI + blur cartes
-- [x] Reactive theming (polling 400ms)
-- [x] Program Detail light mode fix
-- [x] Profile page Light Mode + subscription centered tabs
-- [x] Dashboard Gardiens/Rappels refonte
-- [x] Systeme de permissions gardien complet (alertes 9 types, sante 7 types, localisation 3 modes)
-- [x] Guardian-detail refonte avec theme dark/light + permissions interactives
-- [x] Beneficiary-detail Dark/Light mode + GlassTabBar GPU fix
-- [x] Robert Martin beneficiaire simule pour espace gardien
-- [x] **Beneficiary-detail REFONTE COMPLETE v3** — Mar 23, 2026:
-  - Structure identique au dashboard: header BG_RED + carte arrondie (24px radius) en dessous
-  - Header: back button, nom beneficiaire, badges (age/genre/sang), boutons Appeler/Sante
-  - Nouvel ordre des sections:
-    1. Informations personnelles (Prenom/Nom/Age/Genre/Naissance/Tel/Adresse/Physique)
-    2. Dossier medical (Groupe sanguin/Pathologies/Allergies)
-    3. Donnees de sante (grille 2 colonnes: Pouls/SpO2/Tension/Temperature)
-    4. Activite physique (Pas/Calories/Distance) - si disponible
-    5. Dispositifs (Bracelet/Balance/Gilet)
-    6. Preferences (toggles Alertes/Sante/Localisation)
-    7. Gardiens (liste cliquable -> modal detail)
-    8. Gestion des zones (popup glass explicative + carte OSM + safe zones CRUD)
-  - Popup glass "Zones de securite" avec explication fonctionnement
-  - Meme tokens couleurs C et effets glass blur que le dashboard
-  - Design dark: gradient `linear-gradient(to bottom, #000 0%, #3A3A3C 100%)`
-  - Design light: fond blanc `#FFF`
-  - Teste 18/18 features (100% success, iteration_141)
+- [x] Teleconsultation UI
+- [x] Guardian permissions system (9 alert types, 7 health types, 3 location modes)
+- [x] Guardian-detail refonte + permissions interactives
+- [x] **Beneficiary-detail REFONTE v4 — Style Clinique Premium** (Mar 23, 2026):
+  - Header: BG_RED image, nom centre, bouton "Appeler" slide pleine largeur, SANS pilules
+  - Style plat/clinique: lignes key-value simples, ZERO cartes imbriquees
+  - Ordre des sections:
+    1. Informations personnelles (flat rows: prenom/nom/age/genre/naissance/tel/adresse/taille/poids/IMC)
+    2. Dossier medical (groupe sanguin/pathologies/allergies)
+    3. Donnees de sante: grille 2x2 des 4 vitales (Pouls/SpO2/Tension/Temperature) — placeholder "--" si pas de donnee
+    4. Bouton "Voir la page sante" sous les vitales
+    5. Activite physique (pas/kcal/distance) si disponible
+    6. Dispositifs (3 en grille plate)
+    7. Preferences (toggles + customisation alertes)
+    8. Gardiens (liste plate, modal detail)
+    9. Gestion des zones + popup glass explicative
+  - Palette dark: gradient linear(#0C0C14 -> #1C1C24), light: #FAFAFA
+  - Teste: 15/15 features (100% - iteration_142)
 
 ## P0 — Upcoming
-- [ ] Balance & Vest Integration (verify data flow with V8 bracelet data)
+- [ ] Balance & Vest Integration
 
 ## P1
-- [ ] Electronic Signature System (Admin panel -> Documents tab)
+- [ ] Electronic Signature System (Admin -> Documents)
 
 ## P2 — Future/Backlog
 - [ ] Guardian Referral System
 - [ ] Free 7-Day Trial Flow
 - [ ] Vivoo Urine Test Integration
-- [ ] Refactoring: Backend monolithic route files
-- [ ] Refactoring: Break down profile.tsx (>1000 lines)
+- [ ] Refactoring: Backend routes + profile.tsx
 
 ## Test Credentials
 | Role | Email/Phone | Password |
@@ -61,8 +51,8 @@ Pixel-perfect redesign of the Beneficiary and Guardian dashboards, Health, Progr
 | Guardian (Claire) | +33612345678 | test123 |
 
 ## Key Files
-- `/app/frontend/app/beneficiary-detail.tsx` (REFONTE v3 - dashboard style)
-- `/app/frontend/src/components/dashboard/BeneficiaryHome.tsx` (dashboard reference)
+- `/app/frontend/app/beneficiary-detail.tsx` (REFONTE v4 - style clinique)
+- `/app/frontend/src/components/dashboard/BeneficiaryHome.tsx`
 - `/app/frontend/src/components/GlassTabBar.tsx`
 - `/app/backend/routes/guardian_routes.py`
 
