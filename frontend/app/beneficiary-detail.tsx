@@ -56,6 +56,9 @@ export default function BeneficiaryDetailScreen() {
   const [geoFormSaving, setGeoFormSaving] = useState(false);
   const [selectedGuardian, setSelectedGuardian] = useState<any | null>(null);
   const [showContractPopup, setShowContractPopup] = useState(false);
+  const [guardianPerms, setGuardianPerms] = useState<any>(null);
+  const [expandedPerm, setExpandedPerm] = useState<string | null>(null);
+  const [permSaving, setPermSaving] = useState(false);
   const [resolvedBid, setResolvedBid] = useState('');
   const [loading, setLoading] = useState(true);
 
@@ -100,6 +103,11 @@ export default function BeneficiaryDetailScreen() {
         apiFetch(`/api/guardian/beneficiary/${targetBid}/subscription`, {}, token)
           .then((r: any) => setSubInfo(r))
           .catch(() => {});
+        if (user?.id) {
+          apiFetch(`/api/guardian-permissions/${user.id}/${targetBid}`, {}, token)
+            .then((p: any) => setGuardianPerms(p))
+            .catch(() => {});
+        }
       }
     } catch {
       setGeoLoading(false);
@@ -433,7 +441,7 @@ export default function BeneficiaryDetailScreen() {
                 onMouseEnter={(e: any) => { e.currentTarget.style.background = 'rgba(255,255,255,0.1)'; }}
                 onMouseLeave={(e: any) => { e.currentTarget.style.background = 'rgba(255,255,255,0.06)'; }}>
                 <i className="ri-heart-pulse-line" style={{ fontSize: 14, color: '#FFF' }} />
-                <span style={{ fontSize: 12, fontWeight: 700, color: '#FFF' }}>Voir la page sante complete</span>
+                <span style={{ fontSize: 12, fontWeight: 700, color: '#FFF' }}>Voir la sante de {firstName}</span>
                 <i className="ri-arrow-right-s-line" style={{ fontSize: 14, color: 'rgba(255,255,255,0.4)' }} />
               </div>
             </>
@@ -486,6 +494,112 @@ export default function BeneficiaryDetailScreen() {
 
         {/* ── SAFE ZONES ── */}
         <SectionTitle icon="ri-shield-check-line" label="Safe zones" color="#34D399" />
+
+        {/* ── MES PREFERENCES DE NOTIFICATIONS ── */}
+        {guardianPerms && (<>
+          <SectionTitle icon="ri-notification-3-line" label="Mes preferences de notifications" color="#F59E0B" />
+          <GlassCard>
+            <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', marginBottom: 14, lineHeight: 1.4 }}>
+              Gerez les notifications que vous souhaitez recevoir pour {firstName}. Le beneficiaire autorise les donnees, vous choisissez de les recevoir ou non.
+            </div>
+
+            {/* Guardian alerts opt-in */}
+            <div style={{ marginBottom: 16 } as any}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 } as any}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8 } as any}>
+                  <i className="ri-alarm-warning-line" style={{ fontSize: 16, color: guardianPerms.guardian_alerts_enabled ? '#10B981' : 'rgba(255,255,255,0.3)' }} />
+                  <span style={{ fontSize: 13, fontWeight: 700, color: '#FFF' }}>Recevoir les alertes</span>
+                </div>
+                <div onClick={() => {
+                  const next = !guardianPerms.guardian_alerts_enabled;
+                  setGuardianPerms((p: any) => ({ ...p, guardian_alerts_enabled: next }));
+                  apiFetch(`/api/guardian-permissions/${user?.id}/${activeBid}/guardian`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ guardian_alerts_enabled: next }) }, token).catch(() => {});
+                }} style={{ width: 44, height: 26, borderRadius: 13, background: guardianPerms.guardian_alerts_enabled ? '#10B981' : 'rgba(255,255,255,0.08)', cursor: 'pointer', position: 'relative', transition: 'background 0.2s' } as any}>
+                  <div style={{ width: 20, height: 20, borderRadius: 10, background: '#FFF', position: 'absolute', top: 3, left: guardianPerms.guardian_alerts_enabled ? 21 : 3, transition: 'left 0.2s', boxShadow: '0 1px 3px rgba(0,0,0,0.2)' } as any} />
+                </div>
+              </div>
+              {guardianPerms.guardian_alerts_enabled && !guardianPerms.alerts_enabled && (
+                <div style={{ padding: '8px 12px', borderRadius: 10, background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.15)', marginBottom: 8 } as any}>
+                  <div style={{ fontSize: 10, color: '#EF4444', fontWeight: 600 }}><i className="ri-information-line" style={{ marginRight: 4 }} />{firstName} n'a pas active le partage des alertes</div>
+                </div>
+              )}
+              {guardianPerms.guardian_alerts_enabled && guardianPerms.alerts_enabled && expandedPerm === 'alerts' && (
+                <div style={{ paddingLeft: 4 } as any}>
+                  {Object.entries(guardianPerms.guardian_alert_types || {}).map(([key, val]: [string, any]) => {
+                    const labels: Record<string, string> = { fall: 'Chute', heart_rate: 'Freq. cardiaque', inactivity: 'Inactivite', sos_manual: 'SOS manuel', temperature: 'Temperature', spo2: 'SpO2', blood_pressure: 'Tension', weight: 'Poids', pulse: 'Pouls' };
+                    const benGranted = guardianPerms.alert_types?.[key];
+                    return (
+                      <div key={key} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '8px 0', borderBottom: '1px solid rgba(255,255,255,0.04)' } as any}>
+                        <span style={{ flex: 1, fontSize: 12, color: benGranted ? '#FFF' : 'rgba(255,255,255,0.25)', fontWeight: 500 }}>{labels[key] || key}{!benGranted ? ' (non partage)' : ''}</span>
+                        <div onClick={() => {
+                          if (!benGranted) return;
+                          const next = { ...guardianPerms.guardian_alert_types, [key]: !val };
+                          setGuardianPerms((p: any) => ({ ...p, guardian_alert_types: next }));
+                          apiFetch(`/api/guardian-permissions/${user?.id}/${activeBid}/guardian`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ guardian_alert_types: next }) }, token).catch(() => {});
+                        }} style={{ width: 38, height: 22, borderRadius: 11, background: (val && benGranted) ? '#10B981' : 'rgba(255,255,255,0.08)', cursor: benGranted ? 'pointer' : 'default', position: 'relative', transition: 'background 0.2s', opacity: benGranted ? 1 : 0.3 } as any}>
+                          <div style={{ width: 16, height: 16, borderRadius: 8, background: '#FFF', position: 'absolute', top: 3, left: (val && benGranted) ? 19 : 3, transition: 'left 0.2s' } as any} />
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+              {guardianPerms.guardian_alerts_enabled && guardianPerms.alerts_enabled && (
+                <div onClick={() => setExpandedPerm(expandedPerm === 'alerts' ? null : 'alerts')} style={{ fontSize: 11, color: '#F59E0B', fontWeight: 600, cursor: 'pointer', marginTop: 6, display: 'flex', alignItems: 'center', gap: 4 } as any}>
+                  <i className={expandedPerm === 'alerts' ? 'ri-arrow-up-s-line' : 'ri-arrow-down-s-line'} style={{ fontSize: 14 }} />
+                  {expandedPerm === 'alerts' ? 'Masquer le detail' : 'Personnaliser les alertes'}
+                </div>
+              )}
+            </div>
+
+            {/* Guardian health data opt-in */}
+            <div style={{ marginBottom: 16, paddingTop: 12, borderTop: '1px solid rgba(255,255,255,0.04)' } as any}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 } as any}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8 } as any}>
+                  <i className="ri-heart-pulse-line" style={{ fontSize: 16, color: guardianPerms.guardian_health_enabled ? '#10B981' : 'rgba(255,255,255,0.3)' }} />
+                  <span style={{ fontSize: 13, fontWeight: 700, color: '#FFF' }}>Consulter les donnees de sante</span>
+                </div>
+                <div onClick={() => {
+                  const next = !guardianPerms.guardian_health_enabled;
+                  setGuardianPerms((p: any) => ({ ...p, guardian_health_enabled: next }));
+                  apiFetch(`/api/guardian-permissions/${user?.id}/${activeBid}/guardian`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ guardian_health_enabled: next }) }, token).catch(() => {});
+                }} style={{ width: 44, height: 26, borderRadius: 13, background: guardianPerms.guardian_health_enabled ? '#10B981' : 'rgba(255,255,255,0.08)', cursor: 'pointer', position: 'relative', transition: 'background 0.2s' } as any}>
+                  <div style={{ width: 20, height: 20, borderRadius: 10, background: '#FFF', position: 'absolute', top: 3, left: guardianPerms.guardian_health_enabled ? 21 : 3, transition: 'left 0.2s', boxShadow: '0 1px 3px rgba(0,0,0,0.2)' } as any} />
+                </div>
+              </div>
+              {!guardianPerms.health_data_enabled && (
+                <div style={{ padding: '8px 12px', borderRadius: 10, background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.15)' } as any}>
+                  <div style={{ fontSize: 10, color: '#EF4444', fontWeight: 600 }}><i className="ri-information-line" style={{ marginRight: 4 }} />{firstName} n'a pas active le partage des donnees de sante</div>
+                </div>
+              )}
+            </div>
+
+            {/* Guardian location opt-in */}
+            <div style={{ paddingTop: 12, borderTop: '1px solid rgba(255,255,255,0.04)' } as any}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 } as any}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8 } as any}>
+                  <i className="ri-map-pin-line" style={{ fontSize: 16, color: guardianPerms.guardian_location_accepted ? '#10B981' : 'rgba(255,255,255,0.3)' }} />
+                  <span style={{ fontSize: 13, fontWeight: 700, color: '#FFF' }}>Acces a la localisation</span>
+                </div>
+                <div onClick={() => {
+                  const next = !guardianPerms.guardian_location_accepted;
+                  setGuardianPerms((p: any) => ({ ...p, guardian_location_accepted: next }));
+                  apiFetch(`/api/guardian-permissions/${user?.id}/${activeBid}/guardian`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ guardian_location_accepted: next }) }, token).catch(() => {});
+                }} style={{ width: 44, height: 26, borderRadius: 13, background: guardianPerms.guardian_location_accepted ? '#10B981' : 'rgba(255,255,255,0.08)', cursor: 'pointer', position: 'relative', transition: 'background 0.2s' } as any}>
+                  <div style={{ width: 20, height: 20, borderRadius: 10, background: '#FFF', position: 'absolute', top: 3, left: guardianPerms.guardian_location_accepted ? 21 : 3, transition: 'left 0.2s', boxShadow: '0 1px 3px rgba(0,0,0,0.2)' } as any} />
+                </div>
+              </div>
+              {guardianPerms.location_mode === 'never' && (
+                <div style={{ padding: '8px 12px', borderRadius: 10, background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.15)' } as any}>
+                  <div style={{ fontSize: 10, color: '#EF4444', fontWeight: 600 }}><i className="ri-information-line" style={{ marginRight: 4 }} />{firstName} a desactive le partage de sa localisation</div>
+                </div>
+              )}
+              {guardianPerms.location_mode !== 'never' && (
+                <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.35)', marginTop: 2 }}>Mode: {guardianPerms.location_mode === 'always' ? 'Tout le temps' : 'En cas d\'alerte uniquement'}</div>
+              )}
+            </div>
+          </GlassCard>
+        </>)}
         <GlassCard>
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'stretch', gap: 8, marginBottom: 10 } as any}>
             <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.55)' }} data-testid="beneficiary-safezone-count">

@@ -21,14 +21,17 @@ Pixel-perfect redesign of the Beneficiary and Guardian dashboards, Health, Progr
 - [x] Subscription tabs: inactive = icons only, active = icon + label
 - [x] Profile page Light Mode refactoring — Mar 23, 2026
 - [x] Subscription page: onglets centres + titre "Teleassistance Chutex Care" — Mar 23, 2026
-- [x] Dashboard: Refonte Gardiens/Rappels (cartes individuelles, avatars gris fonce) — Mar 23, 2026
-- [x] Separateurs fixes, DailyObjectives trait blanc pleine largeur — Mar 23, 2026
-- [x] Batch API: resolution noms/relations gardiens — Mar 23, 2026
-- [x] Gardien unique Claire Martin (Fille) — Mar 23, 2026
-- [x] Teleconsult retire de la navbar beneficiaire — Mar 23, 2026
-- [x] Blur cartes/boutons teleconsultation — Mar 23, 2026
-- [x] Navbar: fond solide #16161E (dark) / #F2F2F6 (light) - plus de backdrop-filter bugge — Mar 23, 2026
-- [x] Guardian-detail: refonte complete avec theme dark/light (plus d'image en fond) — Mar 23, 2026
+- [x] Dashboard: Refonte Gardiens/Rappels — Mar 23, 2026
+- [x] Navbar fond solide (#16161E dark / #F2F2F6 light) — Mar 23, 2026
+- [x] Guardian-detail: refonte avec theme dark/light — Mar 23, 2026
+- [x] **Systeme de permissions gardien complet** — Mar 23, 2026:
+  - Collection `guardian_permissions` en BD
+  - API: GET/PUT permissions beneficiaire + PUT preferences gardien
+  - Cote beneficiaire: toggles interactifs alertes (9 types), donnees de sante (7 types), localisation (jamais/alerte/toujours)
+  - Cote gardien: opt-in/out alertes, donnees sante, localisation + personnalisation par type d'alerte
+  - Messages croisés (beneficiaire voit si gardien refuse, gardien voit si beneficiaire desactive)
+  - Bouton "Voir la sante de PRENOM" cote gardien
+  - Claire Martin configuree comme gardienne testable (phone: +33612345678, pwd: test123)
 
 ## P0 — Upcoming
 - [ ] Balance & Vest Integration (verify data flow with V8 bracelet data)
@@ -48,15 +51,18 @@ Pixel-perfect redesign of the Beneficiary and Guardian dashboards, Health, Progr
 |------|------------|----------|
 | Admin | 0600000001 | admin123 |
 | Beneficiary | 0651245918 | test123 |
-| Guardian | +33699887766 | test123 |
+| Guardian (Claire) | +33612345678 | test123 |
+| Guardian (Marie) | +33699887766 | test123 |
 
 ## Key Files
+- `/app/backend/routes/guardian_routes.py` (permissions API: lines 821-908)
+- `/app/frontend/app/guardian-detail.tsx` (beneficiary side permissions UI)
+- `/app/frontend/app/beneficiary-detail.tsx` (guardian side preferences UI)
 - `/app/frontend/src/components/GlassTabBar.tsx`
-- `/app/frontend/app/(tabs)/_layout.tsx`
-- `/app/frontend/app/guardian-detail.tsx`
-- `/app/frontend/src/components/teleconsult/BeneficiaryTeleconsult.tsx`
 - `/app/frontend/src/components/dashboard/BeneficiaryHome.tsx`
-- `/app/backend/routes/batch_routes.py`
+
+## DB Collections
+- `guardian_permissions`: Per-guardian permissions with beneficiary grants + guardian preferences
 
 ## 3rd Party Integrations
 - OpenAI GPT-4o (Emergent LLM Key)

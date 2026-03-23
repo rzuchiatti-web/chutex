@@ -817,3 +817,78 @@ async def remove_guardian_from_beneficiary(gid: str, user=Depends(get_current_us
     await db.users.update_one({"id": user['id']}, {"$pull": {"guardians": gid, "guardian_order": gid}})
     await db.users.update_one({"id": gid}, {"$pull": {"beneficiaries": user['id']}})
     return {"status": "removed", "message": "Gardien retire de votre liste"}
+
+
+# ─── Guardian Permissions System ───
+
+DEFAULT_ALERT_TYPES = {
+    "fall": True, "heart_rate": True, "inactivity": True, "sos_manual": True,
+    "temperature": True, "spo2": True, "blood_pressure": True, "weight": True, "pulse": True,
+}
+DEFAULT_HEALTH_DATA_TYPES = {
+    "heart_rate": True, "blood_pressure": True, "sleep": True,
+    "activity": True, "weight": True, "temperature": True, "spo2": True,
+}
+
+async def _get_or_create_permissions(guardian_id: str, beneficiary_id: str) -> dict:
+    doc = await db.guardian_permissions.find_one(
+        {"guardian_id": guardian_id, "beneficiary_id": beneficiary_id}, {"_id": 0}
+    )
+    if doc:
+        return doc
+    doc = {
+        "guardian_id": guardian_id, "beneficiary_id": beneficiary_id,
+        "alerts_enabled": True, "alert_types": {**DEFAULT_ALERT_TYPES},
+        "health_data_enabled": True, "health_data_types": {**DEFAULT_HEALTH_DATA_TYPES},
+        "location_mode": "alert_only",
+        "guardian_alerts_enabled": True, "guardian_alert_types": {**DEFAULT_ALERT_TYPES},
+        "guardian_health_enabled": True,
+        "guardian_location_accepted": True,
+        "created_at": datetime.now(timezone.utc).isoformat(),
+        "updated_at": datetime.now(timezone.utc).isoformat(),
+    }
+    await db.guardian_permissions.insert_one({**doc})
+    return doc
+
+
+@router.get("/guardian-permissions/{guardian_id}/{beneficiary_id}")
+async def get_guardian_permissions(guardian_id: str, beneficiary_id: str, user=Depends(get_current_user)):
+    uid = user['id']
+    if uid != guardian_id and uid != beneficiary_id:
+        raise HTTPException(status_code=403, detail="Non autorise")
+    perms = await _get_or_create_permissions(guardian_id, beneficiary_id)
+    return perms
+
+
+@router.put("/guardian-permissions/{guardian_id}/{beneficiary_id}/beneficiary")
+async def update_beneficiary_permissions(guardian_id: str, beneficiary_id: str, data: dict, user=Depends(get_current_user)):
+    if user['id'] != beneficiary_id:
+        raise HTTPException(status_code=403, detail="Seul le beneficiaire peut modifier ces autorisations")
+    await _get_or_create_permissions(guardian_id, beneficiary_id)
+    update = {"updated_at": datetime.now(timezone.utc).isoformat()}
+    for key in ["alerts_enabled", "alert_types", "health_data_enabled", "health_data_types", "location_mode"]:
+        if key in data:
+            update[key] = data[key]
+    await db.guardian_permissions.update_one(
+        {"guardian_id": guardian_id, "beneficiary_id": beneficiary_id}, {"$set": update}
+    )
+    return await db.guardian_permissions.find_one(
+        {"guardian_id": guardian_id, "beneficiary_id": beneficiary_id}, {"_id": 0}
+    )
+
+
+@router.put("/guardian-permissions/{guardian_id}/{beneficiary_id}/guardian")
+async def update_guardian_preferences(guardian_id: str, beneficiary_id: str, data: dict, user=Depends(get_current_user)):
+    if user['id'] != guardian_id:
+        raise HTTPException(status_code=403, detail="Seul le gardien peut modifier ses preferences")
+    await _get_or_create_permissions(guardian_id, beneficiary_id)
+    update = {"updated_at": datetime.now(timezone.utc).isoformat()}
+    for key in ["guardian_alerts_enabled", "guardian_alert_types", "guardian_health_enabled", "guardian_location_accepted"]:
+        if key in data:
+            update[key] = data[key]
+    await db.guardian_permissions.update_one(
+        {"guardian_id": guardian_id, "beneficiary_id": beneficiary_id}, {"$set": update}
+    )
+    return await db.guardian_permissions.find_one(
+        {"guardian_id": guardian_id, "beneficiary_id": beneficiary_id}, {"_id": 0}
+    )
