@@ -619,6 +619,156 @@ async def guardian_beneficiary_subscription(bid: str, user=Depends(get_current_u
     return {"subscription": sub, "contract": contract, "guardians": guardians}
 
 
+@router.get("/guardian/beneficiary/{bid}/daily-report")
+async def guardian_beneficiary_daily_report(bid: str, user=Depends(get_current_user)):
+    """Return the same data structure as /health/daily-report but for a specific beneficiary (guardian access)."""
+    ben = await _ensure_guardian_access_to_beneficiary(bid, user)
+    from routes.health_report_routes import (
+        compute_subscores, _sanitize_data, gen_ai, compute_daily_plan_async,
+        estimate_vo2_max, evaluate_objectives_met, HUMAN_MAP_IMG,
+    )
+    from services.nora_context import build_nora_context
+
+    uid = bid
+    nora_ctx = await build_nora_context(ben)
+
+    has_any_readings = await db.device_readings.find_one({"user_id": uid}, {"_id": 0})
+    if not has_any_readings:
+        ai_no_data = await gen_ai({}, {"score": 0, "status": "Aucune donnee", "subscores": {"cardio": {"score": 0}, "sleep": {"score": 0}, "activity": {"score": 0}, "metabolism": {"score": 0}, "hydration": {"score": 0}}}, nora_ctx)
+        return {"no_data": True, "data": {}, "score_info": {"score": 0, "status": "Aucune donnee", "status_color": "#6B7280", "subscores": {}, "lifts": [], "limits": []},
+                "ai": ai_no_data, "daily_plan": [], "sparklines": {}, "weighings": [], "readonly": True}
+
+    bracelet_reading = await db.device_readings.find_one({"user_id": uid, "device_type": "bracelet"}, {"_id": 0}, sort=[("timestamp", -1)])
+    scale_reading = await db.device_readings.find_one({"user_id": uid, "device_type": "scale"}, {"_id": 0}, sort=[("timestamp", -1)])
+
+    d = {
+        "heart_rate": 0, "heart_rate_prev": 0, "hrv": 0, "spo2": 0,
+        "blood_pressure": {"systolic": 0, "diastolic": 0},
+        "temperature": 0, "steps": 0, "calories": 0, "distance_km": 0,
+        "sleep_quality": 0, "sleep_duration": 0, "sleep_deep_pct": 0, "sleep_rem_pct": 0,
+        "sleep_duration_min": 0, "sleep_interruptions": 0,
+        "stress_level": 0, "recovery_score": 0,
+        "weight": 0, "bmi": 0, "body_fat_pct": 0, "muscle_pct": 0,
+        "water_pct": 0, "visceral_fat": 0, "body_age": 0, "bone_mass_kg": 0,
+    }
+    if bracelet_reading and bracelet_reading.get("data"):
+        rd = bracelet_reading["data"]
+        for k in ["heart_rate", "spo2", "temperature", "steps", "calories", "distance_km", "hrv", "stress_level", "recovery_score", "sleep_quality", "sleep_duration", "sleep_duration_min", "sleep_deep_pct", "sleep_rem_pct", "deep_sleep_min", "light_sleep_min", "rem_sleep_min", "sleep_interruptions"]:
+            if rd.get(k): d[k] = rd[k]
+        if rd.get("blood_pressure"): d["blood_pressure"] = rd["blood_pressure"]
+
+    if d.get("heart_rate") and d["heart_rate"] > 0:
+        age = None
+        dob = ben.get("date_of_birth", "")
+        if dob:
+            for fmt in ("%d/%m/%Y", "%Y-%m-%d"):
+                try:
+                    born = datetime.strptime(dob, fmt)
+                    age = (datetime.now(timezone.utc) - born.replace(tzinfo=timezone.utc)).days // 365
+                    break
+                except ValueError:
+                    continue
+        gender = ben.get("gender", "F")
+        weight = d.get("weight", 0) or ben.get("weight_kg", 0) or 0
+        seven_ago = (datetime.now(timezone.utc) - timedelta(days=7)).isoformat()
+        recent_steps = await db.device_readings.find(
+            {"user_id": uid, "device_type": "bracelet", "timestamp": {"$gte": seven_ago}}, {"_id": 0, "data.steps": 1}
+        ).to_list(30)
+        step_vals = [r.get("data", {}).get("steps", 0) for r in recent_steps if r.get("data", {}).get("steps", 0) > 0]
+        avg_steps = sum(step_vals) / len(step_vals) if step_vals else d.get("steps", 0)
+        if age and age > 0:
+            d["vo2_max"] = estimate_vo2_max(age=age, resting_hr=d["heart_rate"], hrv=d.get("hrv", 0), steps_daily=avg_steps, gender=gender, weight_kg=weight)
+
+    if scale_reading and scale_reading.get("data"):
+        sd = scale_reading["data"]
+        for k in ["weight", "bmi", "body_fat_pct", "muscle_pct", "water_pct", "visceral_fat", "body_age", "bone_mass_kg", "basal_metabolism", "protein_pct"]:
+            if sd.get(k): d[k] = sd[k]
+
+    d = _sanitize_data(d)
+    si = compute_subscores(d)
+
+    if si.get("no_data"):
+        ai_no_data = await gen_ai(d, si, nora_ctx)
+        plan = await compute_daily_plan_async(d, si, uid)
+        return {"no_data": True, "data": d, "score_info": si, "score": 0, "status": "Aucune donnee", "status_color": "#6B7280",
+                "subscores": si.get("subscores", {}), "lifts": [], "limits": [],
+                "ai": ai_no_data, "daily_plan": plan, "sparklines": {}, "weighings": [], "readonly": True}
+
+    ai = await gen_ai(d, si, nora_ctx)
+    plan = await compute_daily_plan_async(d, si, uid)
+
+    sparks = {}
+    seven_days_ago = (datetime.now(timezone.utc) - timedelta(days=7)).isoformat()
+    br_readings = await db.device_readings.find({"user_id": uid, "device_type": "bracelet", "timestamp": {"$gte": seven_days_ago}}, {"_id": 0}).sort("timestamp", 1).to_list(50)
+    sc_readings = await db.device_readings.find({"user_id": uid, "device_type": "scale", "timestamp": {"$gte": seven_days_ago}}, {"_id": 0}).sort("timestamp", 1).to_list(50)
+    for key in ["heart_rate", "spo2", "steps", "sleep_quality", "stress_level", "recovery_score", "hrv"]:
+        vals = [r.get("data", {}).get(key, 0) for r in br_readings if r.get("data", {}).get(key)]
+        sparks[key] = vals[-7:] if vals else []
+    for key in ["weight", "body_fat_pct", "muscle_pct", "water_pct"]:
+        vals = [r.get("data", {}).get(key, 0) for r in sc_readings if r.get("data", {}).get(key)]
+        sparks[key] = vals[-7:] if vals else []
+
+    weighings = []
+    all_scale = await db.device_readings.find({"user_id": uid, "device_type": "scale"}, {"_id": 0}).sort("timestamp", -1).to_list(10)
+    for r in all_scale:
+        sd = r.get("data", {})
+        if sd.get("weight", 0) > 0:
+            weighings.append({
+                "id": r.get("id", ""), "date": r.get("timestamp", ""),
+                "weight": sd.get("weight", 0), "bmi": sd.get("bmi", 0),
+                "body_fat_pct": sd.get("body_fat_pct", 0), "muscle_pct": sd.get("muscle_pct", 0),
+                "water_pct": sd.get("water_pct", 0), "bone_mass_kg": sd.get("bone_mass_kg", 0),
+                "visceral_fat": sd.get("visceral_fat", 0), "body_age": sd.get("body_age", 0),
+                "score": sd.get("health_score_balance", 0), "status": sd.get("health_evaluation", "--"),
+            })
+
+    body_age_data = None
+    try:
+        body_age_result = await db.body_age_cache.find_one({"user_id": uid}, {"_id": 0})
+        if body_age_result and body_age_result.get("body_age"):
+            body_age_data = body_age_result
+            d["body_age"] = body_age_result["body_age"]
+    except:
+        pass
+
+    analysis_phase = None
+    distinct_days = set()
+    all_user_readings = await db.device_readings.find({"user_id": uid}, {"_id": 0, "timestamp": 1}).to_list(500)
+    for r in all_user_readings:
+        ts = r.get("timestamp", "")
+        if ts: distinct_days.add(ts[:10])
+    days_count = len(distinct_days)
+    if 0 < days_count < 7:
+        messages = {1: "Debut de l'analyse", 2: "Collecte des premieres tendances", 3: "Ajustement du profil", 4: "Analyse des habitudes", 5: "Correlation des donnees", 6: "Finalisation du profil"}
+        analysis_phase = {"day": days_count, "total": 7, "message": messages.get(days_count, "Analyse en cours"), "progress_pct": round((days_count / 7) * 100), "type": "body_age"}
+
+    activity_streak = {"current_streak": 0, "max_streak": 0, "objectives_today": [], "badge": None}
+    try:
+        streak_doc = await db.activity_streaks.find_one({"user_id": uid}, {"_id": 0})
+        if streak_doc:
+            cs = streak_doc.get("current_streak", 0)
+            badge = None
+            if cs >= 100: badge = {"icon": "ri-vip-diamond-fill", "color": "#10B981", "label": "100 jours"}
+            elif cs >= 30: badge = {"icon": "ri-medal-fill", "color": "#A78BFA", "label": "1 mois"}
+            elif cs >= 14: badge = {"icon": "ri-fire-fill", "color": "#EF4444", "label": "2 semaines"}
+            elif cs >= 7: badge = {"icon": "ri-fire-fill", "color": "#F59E0B", "label": "1 semaine"}
+            activity_streak = {"current_streak": cs, "max_streak": streak_doc.get("max_streak", 0), "objectives_today": streak_doc.get("objectives_today", []), "badge": badge}
+    except:
+        pass
+
+    return {
+        "score": si["score"], "status": si["status"], "status_color": si["status_color"],
+        "subscores": si["subscores"], "lifts": si["lifts"], "limits": si["limits"],
+        "data": d, "ai": ai, "daily_plan": plan, "sparklines": sparks,
+        "weighings": weighings, "human_map_img": HUMAN_MAP_IMG,
+        "analysis_phase": analysis_phase, "body_age_nora": body_age_data,
+        "activity_streak": activity_streak, "readonly": True,
+        "beneficiary_name": ben.get("name", ""),
+        "beneficiary_age": None,
+        "generated_at": datetime.now(timezone.utc).isoformat(),
+    }
+
+
 @router.get("/guardian/beneficiary/{bid}/health-report")
 async def guardian_health_report(bid: str, user=Depends(get_current_user)):
     ben = await db.users.find_one({"id": bid}, {"_id": 0, "password_hash": 0})

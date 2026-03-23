@@ -1,207 +1,293 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, Platform } from 'react-native';
+import React, { useState, useEffect, useCallback } from 'react';
+import { Platform } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useAuth } from '../src/context/AuthContext';
 import { apiFetch } from '../src/services/api';
 import FullScreenLoader from '../src/components/FullScreenLoader';
-
-const BG = 'https://customer-assets.emergentagent.com/job_9950a869-9328-4a4b-abf4-a6fb213a3b47/artifacts/iklovqya_background_beneficiary.svg';
-const glass: any = Platform.OS === 'web' ? { backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)' } : {};
+import HeroScore from '../src/components/health/HeroScore';
+import AnalysisPhase from '../src/components/health/AnalysisPhase';
+import ActivityCard from '../src/components/dashboard/ActivityCard';
+import SleepCard from '../src/components/health/SleepCard';
+import HealthSections from '../src/components/health/HealthSections';
 
 export default function HealthReadonlyScreen() {
   const { beneficiaryId } = useLocalSearchParams<{ beneficiaryId: string }>();
-  const { token } = useAuth();
+  const { token, user } = useAuth();
   const router = useRouter();
-  const [data, setData] = useState<any>(null);
+  const [report, setReport] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [showScoreDetail, setShowScoreDetail] = useState(false);
+  const [showAnalysisInfo, setShowAnalysisInfo] = useState(false);
+  const [isDark, setIsDark] = useState(() => typeof localStorage !== 'undefined' ? localStorage.getItem('chutex_dark') !== '0' : true);
+  const [benName, setBenName] = useState('');
+  const [benAge, setBenAge] = useState<number | null>(null);
+
+  useEffect(() => {
+    if (typeof localStorage === 'undefined') return;
+    const iv = setInterval(() => {
+      const v = localStorage.getItem('chutex_dark') !== '0';
+      setIsDark(prev => prev !== v ? v : prev);
+    }, 400);
+    return () => clearInterval(iv);
+  }, []);
 
   useEffect(() => {
     (async () => {
       try {
-        const bens = await apiFetch('/api/guardian/beneficiaries', {}, token);
-        const ben = (bens || []).find((b: any) => b.id === beneficiaryId) || bens?.[0];
-        setData(ben || null);
-      } catch {} finally { setLoading(false); }
+        const [dailyReport, bens] = await Promise.all([
+          apiFetch(`/api/guardian/beneficiary/${beneficiaryId}/daily-report`, {}, token),
+          apiFetch('/api/guardian/beneficiaries', {}, token),
+        ]);
+        setReport(dailyReport);
+        const ben = (bens || []).find((b: any) => b.id === beneficiaryId);
+        if (ben) {
+          setBenName(ben.name || '');
+          if (ben.date_of_birth) {
+            setBenAge(Math.floor((Date.now() - new Date(ben.date_of_birth).getTime()) / 31557600000));
+          }
+        }
+        if (dailyReport?.beneficiary_name) setBenName(dailyReport.beneficiary_name);
+      } catch (e) {
+        console.error('Failed to fetch health report:', e);
+      } finally { setLoading(false); }
     })();
   }, [beneficiaryId, token]);
 
   if (loading) return <FullScreenLoader />;
-  if (!data) return <View style={{ flex: 1, backgroundColor: '#050510', justifyContent: 'center', alignItems: 'center' }}><Text style={{ color: '#FFF' }}>Donnees non disponibles</Text></View>;
   if (Platform.OS !== 'web') return null;
-
-  const v = data.latest_vitals || {};
-  const age = data.date_of_birth ? Math.floor((Date.now() - new Date(data.date_of_birth).getTime()) / 31557600000) : null;
-  const firstName = (data.name || '').split(' ')[0] || data.name;
-
-  const Card = ({ children, style }: any) => (
-    <div style={{ padding: 16, borderRadius: 20, background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)', marginBottom: 12, ...glass, ...style } as any}>{children}</div>
-  );
-
-  const Section = ({ icon, label, color }: any) => (
-    <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 14, marginTop: 2 } as any}>
-      <i className={icon} style={{ fontSize: 15, color }} />
-      <span style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.35)', letterSpacing: 1.5, textTransform: 'uppercase' }}>{label}</span>
-      <div style={{ flex: 1, height: 1, background: 'rgba(255,255,255,0.04)' } as any} />
-      <span style={{ fontSize: 8, fontWeight: 700, color: 'rgba(255,255,255,0.2)', letterSpacing: 1, textTransform: 'uppercase' }}>Lecture seule</span>
+  if (!report) return (
+    <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', background: isDark ? '#000' : '#FFF', fontFamily: "'Inter', system-ui, sans-serif" } as any}>
+      <div style={{ textAlign: 'center' } as any}>
+        <i className="ri-heart-pulse-line" style={{ fontSize: 40, color: isDark ? 'rgba(255,255,255,0.15)' : 'rgba(0,0,0,0.1)' }} />
+        <div style={{ fontSize: 16, fontWeight: 700, color: isDark ? '#FFF' : '#111', marginTop: 12 }}>Donnees non disponibles</div>
+        <div onClick={() => router.back()} style={{ marginTop: 16, padding: '10px 24px', borderRadius: 99, background: isDark ? '#FFF' : '#111', color: isDark ? '#111' : '#FFF', fontSize: 13, fontWeight: 700, cursor: 'pointer' } as any}>Retour</div>
+      </div>
     </div>
   );
 
-  const metrics = [
-    { label: 'Freq. cardiaque', val: v.heart_rate, unit: 'bpm', icon: 'ri-heart-pulse-line', color: '#EF4444' },
-    { label: 'SpO2', val: v.spo2, unit: '%', icon: 'ri-drop-line', color: '#60A5FA' },
-    { label: 'Tension', val: v.systolic ? `${v.systolic}/${v.diastolic}` : null, unit: 'mmHg', icon: 'ri-pulse-line', color: '#C084FC' },
-    { label: 'Temperature', val: v.temperature && v.temperature > 30 ? v.temperature : null, unit: '°C', icon: 'ri-temp-hot-line', color: '#FB923C' },
-    { label: 'Pas', val: v.steps, unit: 'pas', icon: 'ri-footprint-line', color: '#10B981' },
-    { label: 'Calories', val: v.calories, unit: 'kcal', icon: 'ri-fire-line', color: '#F59E0B' },
-    { label: 'HRV', val: v.hrv, unit: 'ms', icon: 'ri-rhythm-line', color: '#818CF8' },
-    { label: 'Sommeil', val: v.sleep_quality, unit: '%', icon: 'ri-moon-line', color: '#A78BFA' },
-  ].filter(m => m.val && m.val !== 0);
+  const d = report?.data || {};
+  const ai = report?.ai || {};
+  const status = report?.status || '';
+  const statusColor = report?.status_color || 'rgba(255,255,255,0.3)';
+  const subs = report?.subscores || {};
+  const plan = report?.daily_plan || [];
+  const weighings = report?.weighings || [];
+  const analysisPhase = report?.analysis_phase || null;
+  const bodyAgeNora = report?.body_age_nora || null;
+  const noraBodyAge = bodyAgeNora?.body_age || 0;
+  const activityStreak = report?.activity_streak || { current_streak: 0, max_streak: 0, objectives_today: [], badge: null };
+  const hasHeartRate = Number(d.heart_rate || 0) > 0;
+  const hasSpo2 = Number(d.spo2 || 0) > 0;
+  const hasBloodPressure = Number(d.blood_pressure?.systolic || 0) > 0;
+  const hasValidTemp = Number(d.temperature || 0) >= 34 && Number(d.temperature || 0) <= 42;
+  const hasMeaningfulVitals = hasHeartRate || hasSpo2 || hasBloodPressure || hasValidTemp;
+  const hasBodyAge = noraBodyAge > 0 || Number(d.body_age || 0) > 0;
+  const hasWeightData = weighings.length > 0 || Number(d.weight || 0) > 0;
+  const firstName = (benName || '').split(' ')[0] || benName;
 
-  // Simulated bio age & glycemia (same as beneficiary page)
-  const bioAge = age ? Math.round(age * 0.92 + (v.hrv ? (50 - v.hrv) * 0.1 : 0)) : null;
-  const glycemia = v.heart_rate && v.steps ? Math.round(0.85 + (v.heart_rate - 70) * 0.005 + Math.max(0, 5000 - v.steps) * 0.00002) : null;
-  const glycLabel = !glycemia ? null : glycemia < 1.0 ? 'Normal' : glycemia < 1.1 ? 'Normal haut' : glycemia < 1.26 ? 'Vigilance' : 'Alerte';
-  const glycColor = !glycemia ? '#10B981' : glycemia < 1.0 ? '#10B981' : glycemia < 1.1 ? '#84CC16' : glycemia < 1.26 ? '#F59E0B' : '#EF4444';
+  const agingRate = null; // Not available for guardian view
+
+  const filteredPlan = (Array.isArray(plan) ? plan : []).filter((p: any) => {
+    if (p.key === 'steps') return Number(d.steps || 0) > 0;
+    if (p.key === 'hydration') return Number(d.water_pct || 0) > 0;
+    if (p.key === 'sleep') return true;
+    if (p.key === 'calories') return Number(d.calories || 0) > 0;
+    if (p.key === 'calories_intake') return true;
+    return p?.value != null && `${p.value}` !== '' && `${p.value}` !== '0';
+  });
+
+  const BG_RED_HEADER = 'https://customer-assets.emergentagent.com/job_443c9c6e-0feb-4920-a358-fe7cc1a6289b/artifacts/mhh7xwy3_ChatGPT%20Image%2017%20f%C3%A9vr.%202026%2C%2014_08_43.png';
+  const PROGRESS_BG = 'https://customer-assets.emergentagent.com/job_92308143-f99e-4bad-8264-e3775a214313/artifacts/jai7cybu_background_progressbar.jpg';
+  const BRACELET_IMG = 'https://customer-assets.emergentagent.com/job_8afdc991-0ab2-4687-a2a5-438b9a5f0711/artifacts/2fto1qw7_bracelet_sante_connecte_elio_chutex_care_teleassistance_telealarme%281%29.svg';
+  const SCALE_IMG = 'https://customer-assets.emergentagent.com/job_8afdc991-0ab2-4687-a2a5-438b9a5f0711/artifacts/dwmw2i8r_Balance_connecte_Vita_chutex.svg';
+  const NUTRITION_BG = 'https://customer-assets.emergentagent.com/job_443c9c6e-0feb-4920-a358-fe7cc1a6289b/artifacts/v5t9l2mb_ChatGPT%20Image%2017%20f%C3%A9vr.%202026%2C%2014_10_07.png';
+
+  const cardBg = isDark ? 'rgba(70,70,78,0.85)' : '#E8E8EA';
+  const textColor = isDark ? '#FFF' : '#1A1A2E';
+  const subColor = isDark ? 'rgba(255,255,255,0.5)' : 'rgba(0,0,0,0.45)';
+  const sepColor = isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.06)';
+  const contentBg = isDark ? 'linear-gradient(to bottom, #000 0%, #3A3A3C 100%)' : '#FFF';
+
+  const stepPlan = filteredPlan.find((p: any) => p.key === 'steps');
+  const sGoal = stepPlan ? parseInt(stepPlan.value) || 6000 : 6000;
+
+  // No data view
+  if (report?.no_data) {
+    return (
+      <div data-testid="health-readonly-no-data" style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', fontFamily: "'Inter', system-ui, sans-serif", overflow: 'hidden', background: isDark ? '#000' : '#FFF' } as any}>
+        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '0 28px', textAlign: 'center' } as any}>
+          <i className="ri-heart-pulse-line" style={{ fontSize: 48, color: isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.08)', marginBottom: 16 }} />
+          <div style={{ fontSize: 22, fontWeight: 900, color: textColor, marginBottom: 8 }}>Aucune donnee de sante</div>
+          <div style={{ fontSize: 13, color: subColor, lineHeight: 1.6, maxWidth: 320, marginBottom: 24 }}>{firstName} n'a pas encore connecte de dispositif de sante.</div>
+          <div onClick={() => router.back()} style={{ padding: '12px 32px', borderRadius: 99, background: isDark ? '#FFF' : '#111', color: isDark ? '#111' : '#FFF', fontSize: 14, fontWeight: 700, cursor: 'pointer' } as any}>Retour</div>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', fontFamily: "'Inter', system-ui, sans-serif", overflow: 'hidden' } as any}>
-      <img src={BG} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 } as any} />
-      <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.55)', zIndex: 1 } as any} />
-      <div style={{ flex: 1, overflowY: 'auto', position: 'relative', zIndex: 5, padding: '20px 20px 100px', WebkitOverflowScrolling: 'touch', maxWidth: 600, margin: '0 auto', width: '100%' } as any}>
+    <div data-testid="health-readonly-screen" style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, display: 'flex', flexDirection: 'column', fontFamily: "'Inter', system-ui, sans-serif", overflow: 'hidden' } as any}>
 
-        {/* Header */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 20 } as any}>
-          <div onClick={() => router.back()} style={{ width: 40, height: 40, borderRadius: 999, background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', flexShrink: 0 } as any}>
-            <i className="ri-arrow-left-s-line" style={{ fontSize: 20, color: '#FFF' }} />
-          </div>
-          <div style={{ flex: 1 } as any}>
-            <div style={{ fontSize: 18, fontWeight: 900, color: '#FFF' }}>Sante de {firstName}</div>
-            <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)' }}>{age ? `${age} ans` : ''} · Consultation gardien</div>
-          </div>
-          <div style={{ padding: '5px 12px', borderRadius: 999, background: 'rgba(245,158,11,0.12)', border: '1px solid rgba(245,158,11,0.2)' } as any}>
-            <span style={{ fontSize: 9, fontWeight: 700, color: '#F59E0B' }}>LECTURE SEULE</span>
+      <div style={{ flex: 1, overflowY: 'auto', position: 'relative', zIndex: 5, WebkitOverflowScrolling: 'touch' } as any}>
+
+        {/* ═══ RED BG HEADER ═══ */}
+        <div style={{ position: 'relative', zIndex: 1 } as any}>
+          <img src={BG_RED_HEADER} alt="" style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 } as any} />
+          <div style={{ position: 'relative', zIndex: 2, padding: '10px 20px 28px' } as any}>
+
+            {/* Back button + Badge LECTURE SEULE */}
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 } as any}>
+              <div data-testid="health-readonly-back-btn" onClick={() => router.back()} style={{ width: 36, height: 36, borderRadius: 99, background: 'rgba(0,0,0,0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)' } as any}>
+                <i className="ri-arrow-left-s-line" style={{ fontSize: 20, color: '#FFF' }} />
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8 } as any}>
+                <div style={{ padding: '4px 12px', borderRadius: 999, background: 'rgba(245,158,11,0.15)', border: '1px solid rgba(245,158,11,0.25)', backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)' } as any}>
+                  <span style={{ fontSize: 9, fontWeight: 700, color: '#F59E0B', letterSpacing: 0.5 }}>LECTURE SEULE</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Title */}
+            <div style={{ marginBottom: 12 } as any}>
+              <div style={{ fontSize: 18, fontWeight: 900, color: '#FFF' }}>Sante de {firstName}</div>
+              <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.55)' }}>{benAge ? `${benAge} ans` : ''} {benAge ? '·' : ''} Consultation gardien</div>
+            </div>
+
+            {/* Analysis Phase */}
+            <AnalysisPhase analysisPhase={analysisPhase} showInfo={showAnalysisInfo} setShowInfo={setShowAnalysisInfo} progressBg={PROGRESS_BG} />
+
+            {/* Hero BioAge */}
+            {!analysisPhase && (hasMeaningfulVitals || hasBodyAge) && (
+              <HeroScore bioAge={noraBodyAge || d.body_age || 0} realAge={benAge || 0} status={status} statusColor={statusColor} ai={ai} subs={subs} showDetail={showScoreDetail} setShowDetail={setShowScoreDetail} d={d} bodyAgeNora={bodyAgeNora} agingRate={agingRate} />
+            )}
+            {!analysisPhase && !hasMeaningfulVitals && !hasBodyAge && (
+              <div style={{ padding: '18px 16px', borderRadius: 16, marginBottom: 8, background: 'rgba(0,0,0,0.3)' } as any}>
+                <div style={{ fontSize: 13, fontWeight: 800, color: '#FCD34D', marginBottom: 6 }}>Score Nora indisponible</div>
+                <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.55)', lineHeight: 1.55 }}>Pas assez de mesures physiologiques pour calculer un score fiable.</div>
+              </div>
+            )}
           </div>
         </div>
 
-        {/* Age biologique */}
-        {bioAge && (
-          <Card style={{ background: '#000', border: '1px solid rgba(255,255,255,0.1)', textAlign: 'center', padding: 24 }}>
-            <div style={{ fontSize: 9, fontWeight: 700, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 10 }}>Age biologique estime</div>
-            <div style={{ fontSize: 48, fontWeight: 900, color: '#FFF', lineHeight: 1 }}>{bioAge} <span style={{ fontSize: 16, fontWeight: 600, color: 'rgba(255,255,255,0.4)' }}>ans</span></div>
-            {age && <div style={{ fontSize: 11, color: bioAge < age ? '#10B981' : '#F59E0B', marginTop: 8, fontWeight: 700 }}>{bioAge < age ? `${age - bioAge} ans de moins que l'age civil` : `${bioAge - age} ans de plus que l'age civil`}</div>}
-          </Card>
-        )}
+        {/* ═══ THEMED CONTENT CARD ═══ */}
+        <div style={{
+          padding: '24px 16px 120px', marginTop: -16,
+          borderRadius: '24px 24px 0 0',
+          background: contentBg,
+          position: 'relative', zIndex: 10,
+          borderTop: isDark ? '1px solid rgba(255,255,255,0.1)' : '1px solid rgba(0,0,0,0.08)',
+        } as any}>
 
-        {/* Constantes vitales */}
-        <Section icon="ri-heart-pulse-line" label="Constantes vitales" color="#EF4444" />
-        <Card>
-          {metrics.length > 0 ? (
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(110px, 1fr))', gap: 8 } as any}>
-              {metrics.map((m, i) => (
-                <div key={i} style={{ padding: '12px 10px', borderRadius: 16, background: `${m.color}08`, border: `1px solid ${m.color}18` } as any}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 8 } as any}>
-                    <i className={m.icon} style={{ fontSize: 12, color: m.color }} />
-                    <span style={{ fontSize: 8, fontWeight: 700, color: 'rgba(255,255,255,0.35)', textTransform: 'uppercase', letterSpacing: 0.3 }}>{m.label}</span>
-                  </div>
-                  <div style={{ fontSize: 22, fontWeight: 900, color: m.color, lineHeight: 1 }}>{m.val}</div>
-                  <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.35)', marginTop: 2, fontWeight: 600 }}>{m.unit}</div>
+        {/* Vitals Row — same 2x2 grid, no click */}
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 14 } as any}>
+          {[
+            { val: d.heart_rate > 0 ? d.heart_rate : '--', unit: 'bpm', label: 'Rythme cardiaque', status: d.heart_rate > 0 ? 'Mesure recente' : 'Aucune donnee', icon: 'ri-heart-pulse-line', color: '#EF4444' },
+            { val: d.spo2 > 0 ? `${d.spo2}` : '--', unit: '%', label: 'Saturation O2', status: d.spo2 > 0 ? 'Mesure recente' : 'Aucune donnee', icon: 'ri-drop-line', color: '#6366F1' },
+            { val: d.blood_pressure?.systolic > 0 && d.blood_pressure?.diastolic > 0 ? `${d.blood_pressure.systolic}/${d.blood_pressure.diastolic}` : '--/--', unit: 'mmHg', label: 'Pression arterielle', status: d.blood_pressure?.systolic > 0 ? 'Mesure recente' : 'Aucune donnee', icon: 'ri-water-flash-line', color: '#8B5CF6' },
+            { val: d.temperature > 0 ? `${d.temperature}` : '--', unit: '°C', label: 'Temperature', status: d.temperature > 0 ? 'Mesure recente' : 'Aucune donnee', icon: 'ri-temp-hot-line', color: '#F59E0B' },
+          ].map((v, i) => (
+            <div key={i} data-testid={`readonly-vital-${v.label.toLowerCase().replace(/\s+/g, '-')}`} style={{ padding: '12px 14px 10px', borderRadius: 18, background: cardBg } as any}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 } as any}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 6 } as any}>
+                  <i className={v.icon} style={{ fontSize: 13, color: v.color }} />
+                  <span style={{ fontSize: 10, fontWeight: 700, color: subColor }}>{v.label}</span>
                 </div>
-              ))}
+              </div>
+              <div style={{ display: 'flex', alignItems: 'baseline', gap: 3, marginBottom: 2 } as any}>
+                <span style={{ fontSize: 28, fontWeight: 900, color: textColor, lineHeight: 1, letterSpacing: -0.5 }}>{v.val}</span>
+                <span style={{ fontSize: 11, fontWeight: 500, color: subColor }}>{v.unit}</span>
+              </div>
+              <div style={{ fontSize: 10, fontWeight: 600, color: v.color, opacity: 0.7 }}>{v.status}</div>
             </div>
-          ) : (
-            <div style={{ textAlign: 'center', padding: '20px 0', fontSize: 12, color: 'rgba(255,255,255,0.3)' }}>Aucune constante disponible</div>
-          )}
-        </Card>
+          ))}
+        </div>
 
-        {/* Glycemie estimee */}
-        {glycemia && (
-          <>
-            <Section icon="ri-test-tube-line" label="Glycemie estimee" color="#F59E0B" />
-            <Card style={{ background: `${glycColor}08`, border: `1px solid ${glycColor}18` }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 16 } as any}>
-                <div style={{ textAlign: 'center' } as any}>
-                  <div style={{ fontSize: 32, fontWeight: 900, color: glycColor, lineHeight: 1 }}>{glycemia.toFixed(2)}</div>
-                  <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.35)', fontWeight: 600, marginTop: 4 }}>g/L</div>
-                </div>
-                <div style={{ flex: 1 } as any}>
-                  <div style={{ display: 'inline-flex', padding: '4px 10px', borderRadius: 999, background: `${glycColor}15`, marginBottom: 6 } as any}>
-                    <span style={{ fontSize: 10, fontWeight: 700, color: glycColor }}>{glycLabel}</span>
-                  </div>
-                  <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', lineHeight: 1.5 }}>Estimation basee sur les donnees du bracelet Elio. Non substitutive a une prise de sang.</div>
-                </div>
+        <div style={{ height: 1, background: sepColor, margin: '12px 0 16px' } as any} />
+
+        {/* Activity Card */}
+        <ActivityCard steps={d.steps || 0} calories={d.calories || 0} distance={d.distance_km || 0} recovery={d.recovery_score || 0} stress={d.stress_level || 0} sleepQuality={d.sleep_quality || 0} heartRate={d.heart_rate || 0} streak={activityStreak} stepGoal={sGoal} />
+
+        <div style={{ height: 1, background: sepColor, margin: '12px 0 16px' } as any} />
+
+        {/* Sleep Card */}
+        <SleepCard d={d} />
+
+        <div style={{ height: 1, background: sepColor, margin: '12px 0 16px' } as any} />
+
+        {/* Poids & Nutrition — same visual, no click */}
+        <div style={{ borderRadius: 18, overflow: 'hidden', marginBottom: 14, position: 'relative', border: isDark ? '1.5px solid rgba(255,255,255,0.25)' : '1.5px solid rgba(0,0,0,0.08)', boxShadow: isDark ? '0 0 30px rgba(255,255,255,0.08), 0 8px 40px rgba(0,0,0,0.5)' : '0 4px 20px rgba(0,0,0,0.08)' } as any}>
+          <img src={NUTRITION_BG} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 } as any} />
+          <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.4)', zIndex: 1 } as any} />
+          <div style={{ position: 'relative', zIndex: 2 } as any}>
+            <div style={{ textAlign: 'center', paddingTop: 16 } as any}>
+              <img src={SCALE_IMG} alt="" style={{ width: 80, height: 80, objectFit: 'contain', display: 'block', margin: '0 auto', filter: 'drop-shadow(0 8px 20px rgba(0,0,0,0.4))' } as any} />
+            </div>
+            <div style={{ padding: '10px 16px 14px' } as any}>
+              <div style={{ textAlign: 'center', marginBottom: 10 } as any}>
+                <div style={{ fontSize: 15, fontWeight: 900, color: '#FFF', marginBottom: 2 }}>Poids & Nutrition</div>
+                <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.4)' }}>Repas, exercices, objectif</div>
               </div>
-            </Card>
-          </>
-        )}
-
-        {/* Sommeil */}
-        {v.sleep_quality && (
-          <>
-            <Section icon="ri-moon-line" label="Sommeil" color="#A78BFA" />
-            <Card>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 16 } as any}>
-                <div style={{ width: 60, height: 60, borderRadius: 999, background: 'rgba(167,139,250,0.1)', border: '2px solid rgba(167,139,250,0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}>
-                  <span style={{ fontSize: 22, fontWeight: 900, color: '#A78BFA' }}>{v.sleep_quality}%</span>
-                </div>
-                <div style={{ flex: 1 } as any}>
-                  <div style={{ fontSize: 14, fontWeight: 800, color: '#FFF', marginBottom: 4 }}>Qualite du sommeil</div>
-                  <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)' }}>{v.sleep_quality >= 80 ? 'Sommeil de bonne qualite' : v.sleep_quality >= 60 ? 'Sommeil moyen, a surveiller' : 'Sommeil insuffisant'}</div>
-                </div>
-              </div>
-            </Card>
-          </>
-        )}
-
-        {/* Poids */}
-        {data.weight_kg && (
-          <>
-            <Section icon="ri-scales-3-line" label="Composition corporelle" color="#3B82F6" />
-            <Card>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 16 } as any}>
-                <div>
-                  <div style={{ fontSize: 32, fontWeight: 900, color: '#3B82F6', lineHeight: 1 }}>{data.weight_kg}</div>
-                  <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.35)', fontWeight: 600, marginTop: 2 }}>kg</div>
-                </div>
-                {data.height_cm && (
-                  <div style={{ flex: 1, display: 'flex', gap: 8 } as any}>
-                    <div style={{ padding: '8px 12px', borderRadius: 12, background: 'rgba(255,255,255,0.04)', flex: 1 } as any}>
-                      <div style={{ fontSize: 8, fontWeight: 700, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', marginBottom: 2 }}>Taille</div>
-                      <div style={{ fontSize: 14, fontWeight: 800, color: '#FFF' }}>{data.height_cm} cm</div>
+              <div style={{ display: 'flex', gap: 6 } as any}>
+                {[
+                  { label: 'Poids', val: d.weight, unit: 'kg', color: '#F59E0B' },
+                  { label: 'Graisse', val: weighings[0]?.body_fat_pct, unit: '%', color: '#F97316' },
+                  { label: 'Muscle', val: weighings[0]?.muscle_pct, unit: '%', color: '#10B981' },
+                ].map((m, i) => (
+                  <div key={i} style={{ flex: 1, padding: '8px 6px', borderRadius: 10, background: 'rgba(0,0,0,0.2)', textAlign: 'center' } as any}>
+                    <div style={{ fontSize: 18, fontWeight: 900, color: Number(m.val || 0) > 0 ? '#FFF' : 'rgba(255,255,255,0.15)', lineHeight: 1 }}>
+                      {Number(m.val || 0) > 0 ? m.val : '--'}<span style={{ fontSize: 8, color: 'rgba(255,255,255,0.25)' }}>{m.unit}</span>
                     </div>
-                    <div style={{ padding: '8px 12px', borderRadius: 12, background: 'rgba(255,255,255,0.04)', flex: 1 } as any}>
-                      <div style={{ fontSize: 8, fontWeight: 700, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', marginBottom: 2 }}>IMC</div>
-                      <div style={{ fontSize: 14, fontWeight: 800, color: '#FFF' }}>{(data.weight_kg / Math.pow(data.height_cm / 100, 2)).toFixed(1)}</div>
-                    </div>
+                    <div style={{ fontSize: 8, color: m.color, fontWeight: 700, marginTop: 2 }}>{m.label}</div>
                   </div>
-                )}
+                ))}
               </div>
-            </Card>
-          </>
-        )}
-
-        {/* Pathologies */}
-        {data.medical_conditions && (
-          <>
-            <Section icon="ri-stethoscope-line" label="Dossier medical" color="#F59E0B" />
-            <Card style={{ background: 'rgba(245,158,11,0.04)', border: '1px solid rgba(245,158,11,0.15)' }}>
-              <div style={{ fontSize: 9, fontWeight: 700, color: '#F59E0B', textTransform: 'uppercase', marginBottom: 6 }}>Pathologies connues</div>
-              <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.65)', lineHeight: 1.6 }}>{data.medical_conditions}</div>
-              {data.allergies && data.allergies !== 'Aucune' && (
-                <div style={{ marginTop: 10, paddingTop: 10, borderTop: '1px solid rgba(255,255,255,0.06)' } as any}>
-                  <div style={{ fontSize: 9, fontWeight: 700, color: '#EF4444', textTransform: 'uppercase', marginBottom: 4 }}>Allergies</div>
-                  <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.65)' }}>{data.allergies}</div>
-                </div>
-              )}
-            </Card>
-          </>
-        )}
-
-        {/* Last sync info */}
-        {data.last_sync && (
-          <div style={{ textAlign: 'center', fontSize: 10, color: 'rgba(255,255,255,0.2)', marginTop: 10 }}>
-            Derniere synchronisation : {new Date(data.last_sync).toLocaleString('fr-FR')}
+            </div>
           </div>
-        )}
+        </div>
+
+        <div style={{ height: 1, background: sepColor, margin: '12px 0 16px' } as any} />
+
+        {/* Health Sections */}
+        <HealthSections d={d} subs={subs} />
+
+        <div style={{ height: 1, background: sepColor, margin: '12px 0 16px' } as any} />
+
+        {/* Pesees — readonly, no launch button */}
+        <div style={{ borderRadius: 18, background: cardBg, marginBottom: 14, overflow: 'hidden' } as any}>
+          <div style={{ padding: '12px 16px', display: 'flex', alignItems: 'center', gap: 14, borderBottom: `1px solid ${sepColor}` } as any}>
+            <img src={SCALE_IMG} alt="Balance" style={{ height: 40, objectFit: 'contain', filter: 'drop-shadow(0 4px 12px rgba(0,0,0,0.3))', flexShrink: 0 } as any} />
+            <div style={{ flex: 1 } as any}><div style={{ fontSize: 14, fontWeight: 800, color: textColor }}>Historique pesees</div><div style={{ fontSize: 10, color: subColor }}>Balance 8 electrodes</div></div>
+          </div>
+          <div style={{ padding: '0 16px' } as any}>
+            {weighings.length === 0 && <div style={{ textAlign: 'center', padding: '12px 0', fontSize: 11, color: subColor }}>Aucune pesee</div>}
+            {weighings.slice(0, 5).map((w: any, i: number) => (
+              <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 0', borderTop: i > 0 ? `1px solid ${sepColor}` : 'none' } as any}>
+                <div style={{ flex: 1 } as any}><span style={{ fontSize: 14, fontWeight: 800, color: textColor }}>{w.weight} kg</span><span style={{ fontSize: 10, color: subColor, marginLeft: 8 }}>{new Date(w.date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })}</span></div>
+                <span style={{ padding: '2px 8px', borderRadius: 999, background: w.status === 'Bonne' ? 'rgba(16,185,129,0.12)' : 'rgba(245,158,11,0.12)', fontSize: 9, fontWeight: 700, color: w.status === 'Bonne' ? '#10B981' : '#F59E0B' }}>{w.status}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div style={{ height: 1, background: sepColor, margin: '12px 0 16px' } as any} />
+
+        {/* ECG History — readonly */}
+        <div style={{ borderRadius: 18, background: cardBg, marginBottom: 14, overflow: 'hidden' } as any}>
+          <div style={{ padding: '12px 16px', display: 'flex', alignItems: 'center', gap: 14, borderBottom: `1px solid ${sepColor}` } as any}>
+            <img src={BRACELET_IMG} alt="Bracelet" style={{ height: 40, objectFit: 'contain', filter: 'drop-shadow(0 4px 12px rgba(0,0,0,0.3))', flexShrink: 0 } as any} />
+            <div style={{ flex: 1 } as any}><div style={{ fontSize: 14, fontWeight: 800, color: textColor }}>Historique ECG</div><div style={{ fontSize: 10, color: subColor }}>Electrocardiogramme</div></div>
+          </div>
+          <div style={{ padding: '0 16px' } as any}>
+            <div style={{ textAlign: 'center', padding: '12px 0', fontSize: 11, color: subColor }}>Aucun ECG enregistre</div>
+          </div>
+        </div>
+
+        <div style={{ height: 1, background: sepColor, margin: '12px 0 16px' } as any} />
+
+        {/* AI Motivation */}
+        {ai.motivation && <div style={{ textAlign: 'center', padding: '16px 0', fontSize: 13, color: subColor, fontStyle: 'italic' }}>{ai.motivation}</div>}
+
+      </div>
       </div>
     </div>
   );

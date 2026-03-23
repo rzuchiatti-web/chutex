@@ -225,13 +225,17 @@ export default function BeneficiaryDetailScreen() {
           <div style={{ ...rowS, flexDirection: 'column', alignItems: 'flex-start', gap: 2 } as any}><span style={lbS}>Adresse</span><span data-testid="beneficiary-profile-address-value" style={{ fontSize: 13, color: C.text, fontWeight: 600, marginTop: 2 }}>{data.address || '-'}{(data.postal_code || data.city) ? `, ${[data.postal_code, data.city].filter(Boolean).join(' ')}` : ''}</span></div>
           {data.height_cm && <div style={rowS}><span style={lbS}>Taille</span><span data-testid="beneficiary-profile-height-value" style={vlS}>{data.height_cm} cm</span></div>}
           {profileWeight && <div style={rowS}><span style={lbS}>Poids</span><span data-testid="beneficiary-profile-weight-value" style={vlS}>{profileWeight} kg</span></div>}
-          {data.height_cm && profileWeight && <div style={rowS}><span style={lbS}>IMC</span><span style={vlS}>{(profileWeight / Math.pow(data.height_cm / 100, 2)).toFixed(1)}</span></div>}
+          {data.height_cm && profileWeight && <div style={{ ...rowS, borderBottom: 'none' }}><span style={lbS}>IMC</span><span style={vlS}>{(profileWeight / Math.pow(data.height_cm / 100, 2)).toFixed(1)}</span></div>}
+
+          <div style={{ height: 1, background: C.sep, margin: '8px 0' } as any} />
 
           {/* ── 2. DOSSIER MEDICAL ── */}
           <div style={SL}>Dossier medical</div>
           <div style={rowS}><span style={lbS}>Groupe sanguin</span><span style={vlS}>{data.blood_type || '--'}</span></div>
           <div style={{ ...rowS, flexDirection: 'column', alignItems: 'flex-start', gap: 2 } as any}><span style={lbS}>Pathologies</span><span style={{ fontSize: 13, color: C.text, fontWeight: 600, marginTop: 2 }}>{data.medical_conditions || 'Aucune'}</span></div>
-          <div style={{ ...rowS, flexDirection: 'column', alignItems: 'flex-start', gap: 2 } as any}><span style={lbS}>Allergies</span><span style={{ fontSize: 13, color: C.text, fontWeight: 600, marginTop: 2 }}>{data.allergies || 'Aucune'}</span></div>
+          <div style={{ ...rowS, flexDirection: 'column', alignItems: 'flex-start', gap: 2, borderBottom: 'none' } as any}><span style={lbS}>Allergies</span><span style={{ fontSize: 13, color: C.text, fontWeight: 600, marginTop: 2 }}>{data.allergies || 'Aucune'}</span></div>
+
+          <div style={{ height: 1, background: C.sep, margin: '8px 0' } as any} />
 
           {/* ── 3. DONNEES DE SANTE (4 vitales) ── */}
           <div style={SL}>Donnees de sante</div>
@@ -272,6 +276,8 @@ export default function BeneficiaryDetailScreen() {
             <span style={{ fontSize: 14, fontWeight: 700, color: isDark ? '#111' : '#FFF', letterSpacing: 0.2 }}>Voir la page sante</span>
           </div>
 
+          <div style={{ height: 1, background: C.sep, margin: '8px 0' } as any} />
+
           {/* ── 5. DISPOSITIFS ── */}
           <div style={SL}>Dispositifs</div>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 1, borderRadius: 14, overflow: 'hidden', border: `1px solid ${C.sep}`, marginBottom: 4 } as any}>
@@ -288,6 +294,8 @@ export default function BeneficiaryDetailScreen() {
               </div>);
             })}
           </div>
+
+          <div style={{ height: 1, background: C.sep, margin: '8px 0' } as any} />
 
           {/* ── 6. PREFERENCES ── */}
           {guardianPerms && (<>
@@ -309,6 +317,8 @@ export default function BeneficiaryDetailScreen() {
             </>)}
           </>)}
 
+          <div style={{ height: 1, background: C.sep, margin: '8px 0' } as any} />
+
           {/* ── 7. GARDIENS — grey card ── */}
           <div style={SL}>Gardiens ({guardiansList.length})</div>
           <div style={{ ...greyCard, padding: 0, overflow: 'hidden' }}>
@@ -323,6 +333,8 @@ export default function BeneficiaryDetailScreen() {
             )) : <div data-testid="beneficiary-guardians-empty" style={{ padding: '16px', textAlign: 'center', fontSize: 12, color: C.sub }}>Aucun gardien associe</div>}
           </div>
 
+          <div style={{ height: 1, background: C.sep, margin: '8px 0' } as any} />
+
           {/* Historique — grey card */}
           {historyAlerts.length > 0 && (<>
             <div style={SL}>Historique ({historyAlerts.length})</div>
@@ -336,6 +348,8 @@ export default function BeneficiaryDetailScreen() {
               ))}
             </div>
           </>)}
+
+          <div style={{ height: 1, background: C.sep, margin: '8px 0' } as any} />
 
           {/* ── 8. ZONES DE SECURITE — refonte complete ── */}
           <div style={{ ...SL, display: 'flex', alignItems: 'center', justifyContent: 'space-between' } as any}>

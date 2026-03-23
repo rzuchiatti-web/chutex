@@ -19,8 +19,13 @@ Pixel-perfect redesign of the Beneficiary and Guardian dashboards, Health, Progr
 - [x] **Beneficiary-detail REFONTE v4 — Style Clinique Premium** (Mar 23, 2026):
   - Header: BG_RED image (URL fixée 2025→2026), nom centre, bouton "Appeler" slide pleine largeur, SANS pilules
   - Safe Zones: texte explicatif clarifie position actuelle, popups aide/formulaire directement sur fond floute (sans carte)
+  - Séparateurs visuels entre chaque section (ligne fine horizontale)
   - Style plat/clinique: lignes key-value simples, ZERO cartes imbriquees
-  - Ordre des sections:
+  - Teste: 15/15 features (100% - iteration_142)
+- [x] **Health Readonly — Page Santé Gardien** (Mar 23, 2026):
+  - Endpoint: `GET /api/guardian/beneficiary/{bid}/daily-report`
+  - Page identique au bénéficiaire: HeroScore, ActivityCard, SleepCard, HealthSections, Poids, Pesées, ECG
+  - Badge "LECTURE SEULE", pas d'actions interactives
     1. Informations personnelles (flat rows: prenom/nom/age/genre/naissance/tel/adresse/taille/poids/IMC)
     2. Dossier medical (groupe sanguin/pathologies/allergies)
     3. Donnees de sante: grille 2x2 des 4 vitales (Pouls/SpO2/Tension/Temperature) — placeholder "--" si pas de donnee
