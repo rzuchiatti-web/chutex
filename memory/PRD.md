@@ -28,6 +28,15 @@ Pixel-perfect redesign of the Beneficiary and Guardian dashboards, Health, Progr
   - Modals (guardian detail, contract popup, safe zone form) adaptes
   - Background image conditionnel (visible seulement en dark mode)
   - Teste: 9/9 features verifiees (100% success)
+- [x] **Beneficiary-detail REFONTE COMPLETE** — Mar 23, 2026:
+  - Hero header centre: avatar 82px, nom, pilules age/genre/groupe sanguin, boutons Appeler/Sante
+  - Bande vitales horizontale scrollable avec gros chiffres colores
+  - Navigation par onglets: Dispositifs / Profil / Localisation
+  - Dispositifs: grille 3 colonnes avec status badges et batterie
+  - Profil: cartes separees (Identite, Adresse, Physique, Dossier medical, Preferences)
+  - Localisation: carte OSM + safe zones + bouton ajouter
+  - Fichier reduit de 903 a 634 lignes (-30%)
+  - Dark/Light mode reactif sur toute la page
 - [x] **GlassTabBar GPU acceleration fix** — Mar 23, 2026:
   - Ajout transform: translateZ(0), willChange: backdrop-filter
   - WebkitTransform: translateZ(0) pour compatibilite Safari
