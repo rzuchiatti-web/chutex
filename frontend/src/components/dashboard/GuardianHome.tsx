@@ -79,6 +79,17 @@ export default function GuardianHome({ token, user }: { token: string; user: any
   const [linkRelationship, setLinkRelationship] = useState('');
   const [linkingBen, setLinkingBen] = useState(false);
   const [linkMessage, setLinkMessage] = useState('');
+  const [isDark, setIsDark] = React.useState(() => {
+    if (typeof localStorage !== 'undefined') return localStorage.getItem('chutex_dark') !== '0';
+    return true;
+  });
+  const toggleTheme = () => {
+    setIsDark(prev => {
+      const next = !prev;
+      if (typeof localStorage !== 'undefined') localStorage.setItem('chutex_dark', next ? '1' : '0');
+      return next;
+    });
+  };
 
   if (loading) return <FullScreenLoader />;
   const activeAlerts = alerts.filter((a: any) => a.status === 'active');
@@ -92,18 +103,6 @@ export default function GuardianHome({ token, user }: { token: string; user: any
     return node;
   };
   const POP: any = { position: 'fixed', inset: 0, zIndex: 99990, backdropFilter: 'blur(32px)', WebkitBackdropFilter: 'blur(32px)', background: 'rgba(0,0,0,0.55)', overflowY: 'scroll', WebkitOverflowScrolling: 'touch' };
-
-  const [isDark, setIsDark] = React.useState(() => {
-    if (typeof localStorage !== 'undefined') return localStorage.getItem('chutex_dark') !== '0';
-    return true;
-  });
-  const toggleTheme = () => {
-    setIsDark(prev => {
-      const next = !prev;
-      if (typeof localStorage !== 'undefined') localStorage.setItem('chutex_dark', next ? '1' : '0');
-      return next;
-    });
-  };
 
   if (Platform.OS === 'web') {
     const cardBg = isDark ? 'rgba(70,70,78,0.85)' : '#E8E8EA';
