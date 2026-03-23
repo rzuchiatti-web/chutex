@@ -61,6 +61,16 @@ export default function BeneficiaryDetailScreen() {
   const [permSaving, setPermSaving] = useState(false);
   const [resolvedBid, setResolvedBid] = useState('');
   const [loading, setLoading] = useState(true);
+  const [isDark, setIsDark] = useState(true);
+
+  useEffect(() => {
+    if (typeof localStorage !== 'undefined') {
+      const check = () => setIsDark(localStorage.getItem('chutex_dark') !== '0');
+      check();
+      const iv = setInterval(check, 400);
+      return () => clearInterval(iv);
+    }
+  }, []);
 
   const activeBid = resolvedBid || bid;
 
@@ -130,7 +140,7 @@ export default function BeneficiaryDetailScreen() {
   }, [activeBid, token]);
 
   if (loading) return <FullScreenLoader />;
-  if (!data) return <SafeAreaView style={{ flex: 1, backgroundColor: '#000', justifyContent: 'center', alignItems: 'center' }}><Text style={{ color: 'rgba(255,255,255,0.5)' }}>Beneficiaire non trouve</Text></SafeAreaView>;
+  if (!data) return <SafeAreaView style={{ flex: 1, backgroundColor: isDark ? '#000' : '#F5F5F5', justifyContent: 'center', alignItems: 'center' }}><Text style={{ color: isDark ? 'rgba(255,255,255,0.5)' : 'rgba(0,0,0,0.4)' }}>Beneficiaire non trouve</Text></SafeAreaView>;
   if (Platform.OS !== 'web') return <NativePageView path={`/beneficiary-detail?beneficiaryId=${activeBid || ''}`} />;
 
   const v = data.latest_vitals || {};
@@ -139,15 +149,20 @@ export default function BeneficiaryDetailScreen() {
   const bracelet = devices?.bracelet || null;
   const scale = devices?.scale || null;
   const vest = devices?.vest || null;
-  const Sep = () => <div style={{ height: 1, background: 'rgba(255,255,255,0.06)', margin: '18px 0' } as any} />;
+
+  const C = isDark
+    ? { bg: '#000', overlay: 'rgba(0,0,0,0.55)', card: 'rgba(255,255,255,0.05)', cardSolid: 'rgba(70,70,78,0.85)', text: '#FFF', sub: 'rgba(255,255,255,0.4)', muted: 'rgba(255,255,255,0.3)', faint: 'rgba(255,255,255,0.35)', sep: 'rgba(255,255,255,0.08)', sepLight: 'rgba(255,255,255,0.06)', cellBg: 'rgba(255,255,255,0.03)', cellBorder: 'rgba(255,255,255,0.04)', label: 'rgba(255,255,255,0.25)', initBg: '#FFF', initText: '#111', toggleBg: 'rgba(255,255,255,0.08)', hoverBg: 'rgba(255,255,255,0.1)', btnBg: 'rgba(255,255,255,0.06)', btnBorder: 'rgba(255,255,255,0.1)', valueTxt: 'rgba(255,255,255,0.75)', addressTxt: 'rgba(255,255,255,0.7)', tagBg: 'rgba(255,255,255,0.04)', mapEmptyTxt: 'rgba(255,255,255,0.4)', zoneDot: '#10B981' }
+    : { bg: '#F5F5F5', overlay: 'rgba(245,245,250,0.75)', card: 'rgba(0,0,0,0.03)', cardSolid: '#E8E8EA', text: '#1A1A2E', sub: 'rgba(0,0,0,0.4)', muted: 'rgba(0,0,0,0.3)', faint: 'rgba(0,0,0,0.35)', sep: 'rgba(0,0,0,0.06)', sepLight: 'rgba(0,0,0,0.04)', cellBg: 'rgba(0,0,0,0.02)', cellBorder: 'rgba(0,0,0,0.04)', label: 'rgba(0,0,0,0.25)', initBg: '#1A1A2E', initText: '#FFF', toggleBg: 'rgba(0,0,0,0.06)', hoverBg: 'rgba(0,0,0,0.06)', btnBg: 'rgba(0,0,0,0.04)', btnBorder: 'rgba(0,0,0,0.08)', valueTxt: 'rgba(0,0,0,0.65)', addressTxt: 'rgba(0,0,0,0.6)', tagBg: 'rgba(0,0,0,0.03)', mapEmptyTxt: 'rgba(0,0,0,0.35)', zoneDot: '#10B981' };
+
+  const Sep = () => <div style={{ height: 1, background: C.sepLight, margin: '18px 0' } as any} />;
 
   const GlassCard = ({ children, style }: any) => (
     <div
       style={{
         padding: '16px',
         borderRadius: 20,
-        background: 'rgba(255,255,255,0.05)',
-        border: '1px solid rgba(255,255,255,0.08)',
+        background: C.card,
+        border: `1px solid ${C.sep}`,
         backdropFilter: 'blur(12px)',
         WebkitBackdropFilter: 'blur(12px)',
         marginBottom: 12,
@@ -157,11 +172,11 @@ export default function BeneficiaryDetailScreen() {
       } as any}
       onMouseEnter={(e: any) => {
         e.currentTarget.style.transform = 'translateY(-1px)';
-        e.currentTarget.style.borderColor = 'rgba(255,255,255,0.14)';
+        e.currentTarget.style.borderColor = isDark ? 'rgba(255,255,255,0.14)' : 'rgba(0,0,0,0.1)';
       }}
       onMouseLeave={(e: any) => {
         e.currentTarget.style.transform = 'translateY(0)';
-        e.currentTarget.style.borderColor = style?.border || 'rgba(255,255,255,0.08)';
+        e.currentTarget.style.borderColor = style?.border || C.sep;
       }}
     >
       {children}
@@ -171,14 +186,14 @@ export default function BeneficiaryDetailScreen() {
   const SectionTitle = ({ icon, label, color }: any) => (
     <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 14, marginTop: 2 } as any}>
       <i className={icon} style={{ fontSize: 15, color }} />
-      <span style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.35)', letterSpacing: 1.5, textTransform: 'uppercase' }}>{label}</span>
+      <span style={{ fontSize: 10, fontWeight: 700, color: C.faint, letterSpacing: 1.5, textTransform: 'uppercase' }}>{label}</span>
     </div>
   );
 
   const InfoCell = ({ label, value, highlight, color, ...rest }: any) => (
-    <div style={{ padding: '10px 12px', borderRadius: 12, background: highlight ? `${color || '#F59E0B'}08` : 'rgba(255,255,255,0.03)', border: highlight ? `1px solid ${color || '#F59E0B'}20` : '1px solid rgba(255,255,255,0.04)' } as any} {...rest}>
-      <div style={{ fontSize: 9, fontWeight: 700, color: highlight ? (color || '#F59E0B') : 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 3 }}>{label}</div>
-      <div style={{ fontSize: 13, fontWeight: 600, color: 'rgba(255,255,255,0.75)', lineHeight: 1.4 }}>{value}</div>
+    <div style={{ padding: '10px 12px', borderRadius: 12, background: highlight ? `${color || '#F59E0B'}08` : C.cellBg, border: highlight ? `1px solid ${color || '#F59E0B'}20` : `1px solid ${C.cellBorder}` } as any} {...rest}>
+      <div style={{ fontSize: 9, fontWeight: 700, color: highlight ? (color || '#F59E0B') : C.muted, textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 3 }}>{label}</div>
+      <div style={{ fontSize: 13, fontWeight: 600, color: C.valueTxt, lineHeight: 1.4 }}>{value}</div>
     </div>
   );
 
@@ -307,9 +322,9 @@ export default function BeneficiaryDetailScreen() {
   };
 
   return (
-    <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, display: 'flex', flexDirection: 'column', fontFamily: 'Inter, system-ui, sans-serif', overflow: 'hidden' } as any}>
-      <img src={BG} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 } as any} />
-      <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.55)', zIndex: 1 } as any} />
+    <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, display: 'flex', flexDirection: 'column', fontFamily: 'Inter, system-ui, sans-serif', overflow: 'hidden', background: isDark ? '#000' : '#F5F5F5' } as any}>
+      {isDark && <img src={BG} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 } as any} />}
+      <div style={{ position: 'absolute', inset: 0, background: C.overlay, zIndex: 1 } as any} />
       <style>{`
         @keyframes beneficiary-fade-in {
           from { opacity: 0; transform: translateY(6px); }
@@ -325,22 +340,22 @@ export default function BeneficiaryDetailScreen() {
 
         {/* ── HEADER ── */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 16 } as any}>
-          <div data-testid="beneficiary-detail-back-button" onClick={() => router.back()} style={{ width: 40, height: 40, borderRadius: 999, background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', flexShrink: 0 } as any}>
-            <i className="ri-arrow-left-s-line" style={{ fontSize: 20, color: '#FFF' }} />
+          <div data-testid="beneficiary-detail-back-button" onClick={() => router.back()} style={{ width: 40, height: 40, borderRadius: 999, background: C.card, border: `1px solid ${C.sep}`, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', flexShrink: 0, backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)' } as any}>
+            <i className="ri-arrow-left-s-line" style={{ fontSize: 20, color: C.text }} />
           </div>
         </div>
 
         {/* ── PROFIL & DOSSIER MEDICAL ── */}
-        <div style={{ borderRadius: 24, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', padding: 24, marginBottom: 14, ...glass, animation: 'beneficiary-fade-in 400ms ease' } as any}>
+        <div style={{ borderRadius: 24, background: C.card, border: `1px solid ${C.sep}`, padding: 24, marginBottom: 14, ...glass, animation: 'beneficiary-fade-in 400ms ease' } as any}>
 
           {/* ─ Identity header ─ */}
           <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 20 } as any}>
-            <div style={{ width: 64, height: 64, borderRadius: 20, background: '#FFF', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}>
-              <span style={{ fontSize: 24, fontWeight: 900, color: '#111' }}>{firstName?.charAt(0)}{lastName?.charAt(0)}</span>
+            <div style={{ width: 64, height: 64, borderRadius: 20, background: C.initBg, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}>
+              <span style={{ fontSize: 24, fontWeight: 900, color: C.initText }}>{firstName?.charAt(0)}{lastName?.charAt(0)}</span>
             </div>
             <div style={{ flex: 1 } as any}>
-              <div style={{ fontSize: 22, fontWeight: 900, color: '#FFF', letterSpacing: -0.3, lineHeight: 1.2 }} data-testid="beneficiary-firstname-value">{firstName} <span data-testid="beneficiary-lastname-value">{lastName}</span></div>
-              <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', marginTop: 4 }}>Beneficiaire</div>
+              <div style={{ fontSize: 22, fontWeight: 900, color: C.text, letterSpacing: -0.3, lineHeight: 1.2 }} data-testid="beneficiary-firstname-value">{firstName} <span data-testid="beneficiary-lastname-value">{lastName}</span></div>
+              <div style={{ fontSize: 12, color: C.sub, marginTop: 4 }}>Beneficiaire</div>
             </div>
             {data.phone && (
               <div data-testid="beneficiary-call-btn" onClick={() => window.open(`tel:${data.phone}`, '_self')} style={{ width: 44, height: 44, borderRadius: 14, background: 'rgba(16,185,129,0.15)', border: '1px solid rgba(16,185,129,0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', flexShrink: 0 } as any}>
@@ -350,8 +365,8 @@ export default function BeneficiaryDetailScreen() {
           </div>
 
           {/* ─ Section: Identite ─ */}
-          <div style={{ borderTop: '1px solid rgba(255,255,255,0.06)', paddingTop: 16, marginBottom: 16 } as any}>
-            <div style={{ fontSize: 9, fontWeight: 700, color: 'rgba(255,255,255,0.25)', textTransform: 'uppercase', letterSpacing: 1.2, marginBottom: 10 }}>
+          <div style={{ borderTop: `1px solid ${C.sepLight}`, paddingTop: 16, marginBottom: 16 } as any}>
+            <div style={{ fontSize: 9, fontWeight: 700, color: C.label, textTransform: 'uppercase', letterSpacing: 1.2, marginBottom: 10 }}>
               <i className="ri-user-line" style={{ fontSize: 11, marginRight: 6, color: '#60A5FA' }} />Identite
             </div>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(100px, 1fr))', gap: 10 } as any}>
@@ -363,11 +378,11 @@ export default function BeneficiaryDetailScreen() {
           </div>
 
           {/* ─ Section: Adresse ─ */}
-          <div style={{ borderTop: '1px solid rgba(255,255,255,0.06)', paddingTop: 16, marginBottom: 16 } as any}>
-            <div style={{ fontSize: 9, fontWeight: 700, color: 'rgba(255,255,255,0.25)', textTransform: 'uppercase', letterSpacing: 1.2, marginBottom: 10 }}>
+          <div style={{ borderTop: `1px solid ${C.sepLight}`, paddingTop: 16, marginBottom: 16 } as any}>
+            <div style={{ fontSize: 9, fontWeight: 700, color: C.label, textTransform: 'uppercase', letterSpacing: 1.2, marginBottom: 10 }}>
               <i className="ri-map-pin-line" style={{ fontSize: 11, marginRight: 6, color: '#60A5FA' }} />Adresse
             </div>
-            <div data-testid="beneficiary-profile-address-value" style={{ fontSize: 13, color: 'rgba(255,255,255,0.7)', lineHeight: 1.5 }}>
+            <div data-testid="beneficiary-profile-address-value" style={{ fontSize: 13, color: C.addressTxt, lineHeight: 1.5 }}>
               {data.address || '-'}
               {(data.postal_code || data.city) && <><br />{[data.postal_code, data.city].filter(Boolean).join(' ')}</>}
             </div>
@@ -375,8 +390,8 @@ export default function BeneficiaryDetailScreen() {
 
           {/* ─ Section: Physique ─ */}
           {(data.height_cm || profileWeight) && (
-            <div style={{ borderTop: '1px solid rgba(255,255,255,0.06)', paddingTop: 16, marginBottom: 16 } as any}>
-              <div style={{ fontSize: 9, fontWeight: 700, color: 'rgba(255,255,255,0.25)', textTransform: 'uppercase', letterSpacing: 1.2, marginBottom: 10 }}>
+            <div style={{ borderTop: `1px solid ${C.sepLight}`, paddingTop: 16, marginBottom: 16 } as any}>
+              <div style={{ fontSize: 9, fontWeight: 700, color: C.label, textTransform: 'uppercase', letterSpacing: 1.2, marginBottom: 10 }}>
                 <i className="ri-body-scan-line" style={{ fontSize: 11, marginRight: 6, color: '#10B981' }} />Physique
               </div>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(100px, 1fr))', gap: 10 } as any}>
@@ -388,8 +403,8 @@ export default function BeneficiaryDetailScreen() {
           )}
 
           {/* ─ Section: Dossier Medical ─ */}
-          <div style={{ borderTop: '1px solid rgba(255,255,255,0.06)', paddingTop: 16 } as any}>
-            <div style={{ fontSize: 9, fontWeight: 700, color: 'rgba(255,255,255,0.25)', textTransform: 'uppercase', letterSpacing: 1.2, marginBottom: 10 }}>
+          <div style={{ borderTop: `1px solid ${C.sepLight}`, paddingTop: 16 } as any}>
+            <div style={{ fontSize: 9, fontWeight: 700, color: C.label, textTransform: 'uppercase', letterSpacing: 1.2, marginBottom: 10 }}>
               <i className="ri-stethoscope-line" style={{ fontSize: 11, marginRight: 6, color: '#F59E0B' }} />Dossier Medical
             </div>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: 10 } as any}>
@@ -407,10 +422,10 @@ export default function BeneficiaryDetailScreen() {
               <i className="ri-alarm-warning-line" style={{ fontSize: 18, color: '#EF4444' }} />
             </div>
             <div style={{ flex: 1 } as any}>
-              <div style={{ fontSize: 13, fontWeight: 700, color: '#FFF' }}>Alerte active</div>
-              <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.5)' }}>{activeAlerts[0].message || 'Intervention en cours'}</div>
+              <div style={{ fontSize: 13, fontWeight: 700, color: C.text }}>Alerte active</div>
+              <div style={{ fontSize: 11, color: C.sub }}>{activeAlerts[0].message || 'Intervention en cours'}</div>
             </div>
-            <i className="ri-arrow-right-s-line" style={{ fontSize: 18, color: 'rgba(255,255,255,0.3)' }} />
+            <i className="ri-arrow-right-s-line" style={{ fontSize: 18, color: C.muted }} />
           </div>
         )}
 
@@ -429,24 +444,24 @@ export default function BeneficiaryDetailScreen() {
                   <div key={i} data-testid={`beneficiary-vital-card-${m.label.toLowerCase().replace(/\s+/g, '-')}`} style={{ padding: '12px 10px', borderRadius: 16, background: `${m.color}08`, border: `1px solid ${m.color}18` } as any}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 8 } as any}>
                       <i className={m.icon} style={{ fontSize: 12, color: m.color }} />
-                      <span style={{ fontSize: 8, fontWeight: 700, color: 'rgba(255,255,255,0.35)', textTransform: 'uppercase', letterSpacing: 0.3 }}>{m.label}</span>
+                      <span style={{ fontSize: 8, fontWeight: 700, color: C.faint, textTransform: 'uppercase', letterSpacing: 0.3 }}>{m.label}</span>
                     </div>
                     <div style={{ fontSize: 22, fontWeight: 900, color: m.color, lineHeight: 1 }}>{m.val}</div>
-                    <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.35)', marginTop: 2, fontWeight: 600 }}>{m.unit}</div>
+                    <div style={{ fontSize: 9, color: C.faint, marginTop: 2, fontWeight: 600 }}>{m.unit}</div>
                   </div>
                 ))}
               </div>
               <div data-testid="view-health-page-btn" onClick={() => router.push({ pathname: '/health-readonly' as any, params: { beneficiaryId: activeBid } })}
-                style={{ marginTop: 12, padding: '12px', borderRadius: 999, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', cursor: 'pointer', textAlign: 'center', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, transition: 'background 0.2s' } as any}
-                onMouseEnter={(e: any) => { e.currentTarget.style.background = 'rgba(255,255,255,0.1)'; }}
-                onMouseLeave={(e: any) => { e.currentTarget.style.background = 'rgba(255,255,255,0.06)'; }}>
-                <i className="ri-heart-pulse-line" style={{ fontSize: 14, color: '#FFF' }} />
-                <span style={{ fontSize: 12, fontWeight: 700, color: '#FFF' }}>Voir la sante de {firstName}</span>
-                <i className="ri-arrow-right-s-line" style={{ fontSize: 14, color: 'rgba(255,255,255,0.4)' }} />
+                style={{ marginTop: 12, padding: '12px', borderRadius: 999, background: C.btnBg, border: `1px solid ${C.btnBorder}`, cursor: 'pointer', textAlign: 'center', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, transition: 'background 0.2s' } as any}
+                onMouseEnter={(e: any) => { e.currentTarget.style.background = C.hoverBg; }}
+                onMouseLeave={(e: any) => { e.currentTarget.style.background = C.btnBg; }}>
+                <i className="ri-heart-pulse-line" style={{ fontSize: 14, color: C.text }} />
+                <span style={{ fontSize: 12, fontWeight: 700, color: C.text }}>Voir la sante de {firstName}</span>
+                <i className="ri-arrow-right-s-line" style={{ fontSize: 14, color: C.sub }} />
               </div>
             </>
           ) : (
-            <div data-testid="beneficiary-vitals-empty" style={{ textAlign: 'center', padding: '20px 0', fontSize: 12, color: 'rgba(255,255,255,0.3)' }}>Aucune constante disponible</div>
+            <div data-testid="beneficiary-vitals-empty" style={{ textAlign: 'center', padding: '20px 0', fontSize: 12, color: C.muted }}>Aucune constante disponible</div>
           )}
         </GlassCard>
 
@@ -460,9 +475,9 @@ export default function BeneficiaryDetailScreen() {
             const statusColor = !dev.d ? '#6B7280' : isVest ? (vestAct ? '#10B981' : '#F59E0B') : (dev.d?.connected ? '#10B981' : '#6B7280');
             const bat = dev.d?.battery_level ?? 0;
             return (
-              <div key={i} data-testid={`beneficiary-device-card-${dev.type}`} style={{ flex: '1 1 120px', minWidth: 110, padding: '12px 8px', borderRadius: 16, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.06)', textAlign: 'center', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)' } as any}>
+              <div key={i} data-testid={`beneficiary-device-card-${dev.type}`} style={{ flex: '1 1 120px', minWidth: 110, padding: '12px 8px', borderRadius: 16, background: C.card, border: `1px solid ${C.sep}`, textAlign: 'center', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)' } as any}>
                 <img src={dev.img} alt="" style={{ width: 36, height: 36, objectFit: 'contain', margin: '0 auto 6px', display: 'block', opacity: dev.d ? 1 : 0.25 } as any} />
-                <div style={{ fontSize: 10, fontWeight: 700, color: '#FFF', marginBottom: 4 }}>{dev.label}</div>
+                <div style={{ fontSize: 10, fontWeight: 700, color: C.text, marginBottom: 4 }}>{dev.label}</div>
                 <div style={{ display: 'inline-flex', alignItems: 'center', gap: 3, padding: '2px 7px', borderRadius: 99, background: `${statusColor}18` } as any}>
                   <span style={{ width: 4, height: 4, borderRadius: 99, background: statusColor } as any} />
                   <span style={{ fontSize: 8, fontWeight: 700, color: statusColor }}>{statusLabel}</span>
@@ -477,18 +492,18 @@ export default function BeneficiaryDetailScreen() {
         <SectionTitle icon="ri-team-line" label="Liste des gardiens" color="#34D399" />
         <GlassCard>
           {guardiansList.length > 0 ? guardiansList.map((g: any, i: number) => (
-            <div key={g.id || i} data-testid={`beneficiary-guardian-card-${g.id || i}`} onClick={() => setSelectedGuardian(g)} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '11px 0', borderBottom: i < guardiansList.length - 1 ? '1px solid rgba(255,255,255,0.05)' : 'none', cursor: 'pointer' } as any}>
+            <div key={g.id || i} data-testid={`beneficiary-guardian-card-${g.id || i}`} onClick={() => setSelectedGuardian(g)} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '11px 0', borderBottom: i < guardiansList.length - 1 ? `1px solid ${C.sepLight}` : 'none', cursor: 'pointer' } as any}>
               <div style={{ width: 34, height: 34, borderRadius: 999, background: 'rgba(52,211,153,0.14)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}>
                 <span style={{ fontSize: 13, fontWeight: 800, color: '#34D399' }}>{g.name?.charAt(0)}</span>
               </div>
               <div style={{ flex: 1 } as any}>
-                <div style={{ fontSize: 12, fontWeight: 700, color: '#FFF' }}>{g.name}</div>
-                <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.4)' }}>{g.relationship || g.guardian_type || 'Gardien'}{g.phone ? ` · ${g.phone}` : ''}</div>
+                <div style={{ fontSize: 12, fontWeight: 700, color: C.text }}>{g.name}</div>
+                <div style={{ fontSize: 10, color: C.sub }}>{g.relationship || g.guardian_type || 'Gardien'}{g.phone ? ` · ${g.phone}` : ''}</div>
               </div>
-              <i className="ri-arrow-right-s-line" style={{ color: 'rgba(255,255,255,0.35)' }} />
+              <i className="ri-arrow-right-s-line" style={{ color: C.faint }} />
             </div>
           )) : (
-            <div data-testid="beneficiary-guardians-empty" style={{ textAlign: 'center', fontSize: 12, color: 'rgba(255,255,255,0.4)', padding: '10px 0' } as any}>Aucun gardien associe</div>
+            <div data-testid="beneficiary-guardians-empty" style={{ textAlign: 'center', fontSize: 12, color: C.sub, padding: '10px 0' } as any}>Aucun gardien associe</div>
           )}
         </GlassCard>
 
@@ -499,7 +514,7 @@ export default function BeneficiaryDetailScreen() {
         {guardianPerms && (<>
           <SectionTitle icon="ri-notification-3-line" label="Mes preferences de notifications" color="#F59E0B" />
           <GlassCard>
-            <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', marginBottom: 14, lineHeight: 1.4 }}>
+            <div style={{ fontSize: 11, color: C.sub, marginBottom: 14, lineHeight: 1.4 }}>
               Gerez les notifications que vous souhaitez recevoir pour {firstName}. Le beneficiaire autorise les donnees, vous choisissez de les recevoir ou non.
             </div>
 
@@ -507,15 +522,15 @@ export default function BeneficiaryDetailScreen() {
             <div style={{ marginBottom: 16 } as any}>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 } as any}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8 } as any}>
-                  <i className="ri-alarm-warning-line" style={{ fontSize: 16, color: guardianPerms.guardian_alerts_enabled ? '#10B981' : 'rgba(255,255,255,0.3)' }} />
-                  <span style={{ fontSize: 13, fontWeight: 700, color: '#FFF' }}>Recevoir les alertes</span>
+                  <i className="ri-alarm-warning-line" style={{ fontSize: 16, color: guardianPerms.guardian_alerts_enabled ? '#10B981' : C.muted }} />
+                  <span style={{ fontSize: 13, fontWeight: 700, color: C.text }}>Recevoir les alertes</span>
                 </div>
                 <div onClick={() => {
                   const next = !guardianPerms.guardian_alerts_enabled;
                   setGuardianPerms((p: any) => ({ ...p, guardian_alerts_enabled: next }));
                   apiFetch(`/api/guardian-permissions/${user?.id}/${activeBid}/guardian`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ guardian_alerts_enabled: next }) }, token).catch(() => {});
-                }} style={{ width: 44, height: 26, borderRadius: 13, background: guardianPerms.guardian_alerts_enabled ? '#10B981' : 'rgba(255,255,255,0.08)', cursor: 'pointer', position: 'relative', transition: 'background 0.2s' } as any}>
-                  <div style={{ width: 20, height: 20, borderRadius: 10, background: '#FFF', position: 'absolute', top: 3, left: guardianPerms.guardian_alerts_enabled ? 21 : 3, transition: 'left 0.2s', boxShadow: '0 1px 3px rgba(0,0,0,0.2)' } as any} />
+                }} style={{ width: 44, height: 26, borderRadius: 13, background: guardianPerms.guardian_alerts_enabled ? '#10B981' : C.toggleBg, cursor: 'pointer', position: 'relative', transition: 'background 0.2s' } as any}>
+                  <div style={{ width: 20, height: 20, borderRadius: 10, background: isDark ? '#FFF' : '#FFF', position: 'absolute', top: 3, left: guardianPerms.guardian_alerts_enabled ? 21 : 3, transition: 'left 0.2s', boxShadow: '0 1px 3px rgba(0,0,0,0.2)' } as any} />
                 </div>
               </div>
               {guardianPerms.guardian_alerts_enabled && !guardianPerms.alerts_enabled && (
@@ -529,14 +544,14 @@ export default function BeneficiaryDetailScreen() {
                     const labels: Record<string, string> = { fall: 'Chute', heart_rate: 'Freq. cardiaque', inactivity: 'Inactivite', sos_manual: 'SOS manuel', temperature: 'Temperature', spo2: 'SpO2', blood_pressure: 'Tension', weight: 'Poids', pulse: 'Pouls' };
                     const benGranted = guardianPerms.alert_types?.[key];
                     return (
-                      <div key={key} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '8px 0', borderBottom: '1px solid rgba(255,255,255,0.04)' } as any}>
-                        <span style={{ flex: 1, fontSize: 12, color: benGranted ? '#FFF' : 'rgba(255,255,255,0.25)', fontWeight: 500 }}>{labels[key] || key}{!benGranted ? ' (non partage)' : ''}</span>
+                      <div key={key} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '8px 0', borderBottom: `1px solid ${C.sepLight}` } as any}>
+                        <span style={{ flex: 1, fontSize: 12, color: benGranted ? C.text : C.label, fontWeight: 500 }}>{labels[key] || key}{!benGranted ? ' (non partage)' : ''}</span>
                         <div onClick={() => {
                           if (!benGranted) return;
                           const next = { ...guardianPerms.guardian_alert_types, [key]: !val };
                           setGuardianPerms((p: any) => ({ ...p, guardian_alert_types: next }));
                           apiFetch(`/api/guardian-permissions/${user?.id}/${activeBid}/guardian`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ guardian_alert_types: next }) }, token).catch(() => {});
-                        }} style={{ width: 38, height: 22, borderRadius: 11, background: (val && benGranted) ? '#10B981' : 'rgba(255,255,255,0.08)', cursor: benGranted ? 'pointer' : 'default', position: 'relative', transition: 'background 0.2s', opacity: benGranted ? 1 : 0.3 } as any}>
+                        }} style={{ width: 38, height: 22, borderRadius: 11, background: (val && benGranted) ? '#10B981' : C.toggleBg, cursor: benGranted ? 'pointer' : 'default', position: 'relative', transition: 'background 0.2s', opacity: benGranted ? 1 : 0.3 } as any}>
                           <div style={{ width: 16, height: 16, borderRadius: 8, background: '#FFF', position: 'absolute', top: 3, left: (val && benGranted) ? 19 : 3, transition: 'left 0.2s' } as any} />
                         </div>
                       </div>
@@ -553,17 +568,17 @@ export default function BeneficiaryDetailScreen() {
             </div>
 
             {/* Guardian health data opt-in */}
-            <div style={{ marginBottom: 16, paddingTop: 12, borderTop: '1px solid rgba(255,255,255,0.04)' } as any}>
+            <div style={{ marginBottom: 16, paddingTop: 12, borderTop: `1px solid ${C.sepLight}` } as any}>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 } as any}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8 } as any}>
-                  <i className="ri-heart-pulse-line" style={{ fontSize: 16, color: guardianPerms.guardian_health_enabled ? '#10B981' : 'rgba(255,255,255,0.3)' }} />
-                  <span style={{ fontSize: 13, fontWeight: 700, color: '#FFF' }}>Consulter les donnees de sante</span>
+                  <i className="ri-heart-pulse-line" style={{ fontSize: 16, color: guardianPerms.guardian_health_enabled ? '#10B981' : C.muted }} />
+                  <span style={{ fontSize: 13, fontWeight: 700, color: C.text }}>Consulter les donnees de sante</span>
                 </div>
                 <div onClick={() => {
                   const next = !guardianPerms.guardian_health_enabled;
                   setGuardianPerms((p: any) => ({ ...p, guardian_health_enabled: next }));
                   apiFetch(`/api/guardian-permissions/${user?.id}/${activeBid}/guardian`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ guardian_health_enabled: next }) }, token).catch(() => {});
-                }} style={{ width: 44, height: 26, borderRadius: 13, background: guardianPerms.guardian_health_enabled ? '#10B981' : 'rgba(255,255,255,0.08)', cursor: 'pointer', position: 'relative', transition: 'background 0.2s' } as any}>
+                }} style={{ width: 44, height: 26, borderRadius: 13, background: guardianPerms.guardian_health_enabled ? '#10B981' : C.toggleBg, cursor: 'pointer', position: 'relative', transition: 'background 0.2s' } as any}>
                   <div style={{ width: 20, height: 20, borderRadius: 10, background: '#FFF', position: 'absolute', top: 3, left: guardianPerms.guardian_health_enabled ? 21 : 3, transition: 'left 0.2s', boxShadow: '0 1px 3px rgba(0,0,0,0.2)' } as any} />
                 </div>
               </div>
@@ -575,17 +590,17 @@ export default function BeneficiaryDetailScreen() {
             </div>
 
             {/* Guardian location opt-in */}
-            <div style={{ paddingTop: 12, borderTop: '1px solid rgba(255,255,255,0.04)' } as any}>
+            <div style={{ paddingTop: 12, borderTop: `1px solid ${C.sepLight}` } as any}>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 } as any}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8 } as any}>
-                  <i className="ri-map-pin-line" style={{ fontSize: 16, color: guardianPerms.guardian_location_accepted ? '#10B981' : 'rgba(255,255,255,0.3)' }} />
-                  <span style={{ fontSize: 13, fontWeight: 700, color: '#FFF' }}>Acces a la localisation</span>
+                  <i className="ri-map-pin-line" style={{ fontSize: 16, color: guardianPerms.guardian_location_accepted ? '#10B981' : C.muted }} />
+                  <span style={{ fontSize: 13, fontWeight: 700, color: C.text }}>Acces a la localisation</span>
                 </div>
                 <div onClick={() => {
                   const next = !guardianPerms.guardian_location_accepted;
                   setGuardianPerms((p: any) => ({ ...p, guardian_location_accepted: next }));
                   apiFetch(`/api/guardian-permissions/${user?.id}/${activeBid}/guardian`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ guardian_location_accepted: next }) }, token).catch(() => {});
-                }} style={{ width: 44, height: 26, borderRadius: 13, background: guardianPerms.guardian_location_accepted ? '#10B981' : 'rgba(255,255,255,0.08)', cursor: 'pointer', position: 'relative', transition: 'background 0.2s' } as any}>
+                }} style={{ width: 44, height: 26, borderRadius: 13, background: guardianPerms.guardian_location_accepted ? '#10B981' : C.toggleBg, cursor: 'pointer', position: 'relative', transition: 'background 0.2s' } as any}>
                   <div style={{ width: 20, height: 20, borderRadius: 10, background: '#FFF', position: 'absolute', top: 3, left: guardianPerms.guardian_location_accepted ? 21 : 3, transition: 'left 0.2s', boxShadow: '0 1px 3px rgba(0,0,0,0.2)' } as any} />
                 </div>
               </div>
@@ -595,14 +610,14 @@ export default function BeneficiaryDetailScreen() {
                 </div>
               )}
               {guardianPerms.location_mode !== 'never' && (
-                <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.35)', marginTop: 2 }}>Mode: {guardianPerms.location_mode === 'always' ? 'Tout le temps' : 'En cas d\'alerte uniquement'}</div>
+                <div style={{ fontSize: 10, color: C.faint, marginTop: 2 }}>Mode: {guardianPerms.location_mode === 'always' ? 'Tout le temps' : 'En cas d\'alerte uniquement'}</div>
               )}
             </div>
           </GlassCard>
         </>)}
         <GlassCard>
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'stretch', gap: 8, marginBottom: 10 } as any}>
-            <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.55)' }} data-testid="beneficiary-safezone-count">
+            <div style={{ fontSize: 12, color: C.sub }} data-testid="beneficiary-safezone-count">
               {geoLoading ? 'Chargement...' : `${geoZones.length} zone(s) configuree(s)`}
             </div>
             <div data-testid="beneficiary-safezone-open-create-popup-btn" onClick={openCreateZonePopup} style={{ padding: '9px 12px', borderRadius: 999, cursor: geoLocation?.latitude != null ? 'pointer' : 'not-allowed', textAlign: 'center', background: geoLocation?.latitude != null ? 'rgba(16,185,129,0.14)' : 'rgba(107,114,128,0.12)', border: geoLocation?.latitude != null ? '1px solid rgba(16,185,129,0.28)' : '1px solid rgba(107,114,128,0.28)', fontSize: 11, fontWeight: 700, color: geoLocation?.latitude != null ? '#34D399' : '#9CA3AF' } as any}>
@@ -610,16 +625,16 @@ export default function BeneficiaryDetailScreen() {
             </div>
           </div>
 
-          <div style={{ padding: '10px 12px', borderRadius: 12, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', marginBottom: 10 } as any}>
-            <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.35)', textTransform: 'uppercase', marginBottom: 4 }}>Position beneficiaire</div>
-            <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.65)' }} data-testid="beneficiary-safezone-location-value">
+          <div style={{ padding: '10px 12px', borderRadius: 12, background: C.cellBg, border: `1px solid ${C.sep}`, marginBottom: 10 } as any}>
+            <div style={{ fontSize: 10, fontWeight: 700, color: C.faint, textTransform: 'uppercase', marginBottom: 4 }}>Position beneficiaire</div>
+            <div style={{ fontSize: 12, color: C.addressTxt }} data-testid="beneficiary-safezone-location-value">
               {geoLocation?.latitude != null && geoLocation?.longitude != null
                 ? `${Number(geoLocation.latitude).toFixed(5)}, ${Number(geoLocation.longitude).toFixed(5)}${geoLocation?.updated_at ? ` · MAJ ${new Date(geoLocation.updated_at).toLocaleString('fr-FR')}` : ''}`
                 : 'Localisation non disponible. Le beneficiaire doit autoriser la localisation en mode Toujours.'}
             </div>
           </div>
 
-          <div data-testid="beneficiary-safezone-map" style={{ borderRadius: 14, overflow: 'hidden', border: '1px solid rgba(255,255,255,0.08)', background: 'rgba(255,255,255,0.03)', marginBottom: 10, minHeight: 210 } as any}>
+          <div data-testid="beneficiary-safezone-map" style={{ borderRadius: 14, overflow: 'hidden', border: `1px solid ${C.sep}`, background: C.cellBg, marginBottom: 10, minHeight: 210 } as any}>
             {geoLocation?.latitude != null && geoLocation?.longitude != null ? (
               <iframe
                 title="beneficiary-safezone-map"
@@ -627,7 +642,7 @@ export default function BeneficiaryDetailScreen() {
                 style={{ width: '100%', height: 210, border: 'none' } as any}
               />
             ) : (
-              <div style={{ minHeight: 210, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', color: 'rgba(255,255,255,0.4)', gap: 6 } as any}>
+              <div style={{ minHeight: 210, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', color: C.mapEmptyTxt, gap: 6 } as any}>
                 <i className="ri-map-pin-off-line" style={{ fontSize: 24 }} />
                 <div style={{ fontSize: 12 }} data-testid="beneficiary-safezone-map-empty">Carte indisponible sans localisation beneficiaire.</div>
               </div>
@@ -635,11 +650,11 @@ export default function BeneficiaryDetailScreen() {
           </div>
 
           {geoZones.map((zone: any) => (
-            <div key={zone.id} data-testid={`beneficiary-safezone-row-${zone.id}`} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '10px 0', borderBottom: '1px solid rgba(255,255,255,0.05)' } as any}>
-              <div style={{ width: 8, height: 8, borderRadius: 99, background: '#10B981' } as any} />
+            <div key={zone.id} data-testid={`beneficiary-safezone-row-${zone.id}`} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '10px 0', borderBottom: `1px solid ${C.sepLight}` } as any}>
+              <div style={{ width: 8, height: 8, borderRadius: 99, background: C.zoneDot } as any} />
               <div style={{ flex: 1 } as any}>
-                <div style={{ fontSize: 12, fontWeight: 700, color: '#FFF' }}>{zone.name}</div>
-                <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.45)' }}>{Math.round(Number(zone.radius_m || 0))}m · {Number(zone.latitude).toFixed(4)}, {Number(zone.longitude).toFixed(4)}</div>
+                <div style={{ fontSize: 12, fontWeight: 700, color: C.text }}>{zone.name}</div>
+                <div style={{ fontSize: 10, color: C.sub }}>{Math.round(Number(zone.radius_m || 0))}m · {Number(zone.latitude).toFixed(4)}, {Number(zone.longitude).toFixed(4)}</div>
               </div>
               <div data-testid={`beneficiary-safezone-edit-btn-${zone.id}`} onClick={() => startGeoEdit(zone)} style={{ padding: '5px 8px', borderRadius: 999, cursor: 'pointer', background: 'rgba(59,130,246,0.15)', fontSize: 10, fontWeight: 700, color: '#93C5FD' } as any}>
                 Modifier
@@ -651,7 +666,7 @@ export default function BeneficiaryDetailScreen() {
           ))}
 
           {!geoLoading && geoZones.length === 0 && (
-            <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.45)', textAlign: 'center', padding: '8px 0' } as any}>Aucune safe zone configuree.</div>
+            <div style={{ fontSize: 12, color: C.sub, textAlign: 'center', padding: '8px 0' } as any}>Aucune safe zone configuree.</div>
           )}
         </GlassCard>
 
@@ -660,13 +675,13 @@ export default function BeneficiaryDetailScreen() {
           <Sep />
           <SectionTitle icon="ri-alarm-line" label={`Historique alertes (${historyAlerts.length})`} color="#F59E0B" />
           {historyAlerts.slice(0, 8).map((alert: any) => (
-            <div key={alert.id} onClick={() => router.push({ pathname: '/(tabs)/alerts', params: { preselect: alert.id } })} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 14px', borderRadius: 14, background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.05)', marginBottom: 6, cursor: 'pointer' } as any}>
+            <div key={alert.id} onClick={() => router.push({ pathname: '/(tabs)/alerts', params: { preselect: alert.id } })} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 14px', borderRadius: 14, background: C.cellBg, border: `1px solid ${C.sepLight}`, marginBottom: 6, cursor: 'pointer' } as any}>
               <div style={{ width: 32, height: 32, borderRadius: 10, background: alert.status === 'resolved' ? 'rgba(16,185,129,0.1)' : 'rgba(245,158,11,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}>
                 <i className={alert.status === 'resolved' ? 'ri-checkbox-circle-line' : 'ri-alarm-warning-line'} style={{ fontSize: 15, color: alert.status === 'resolved' ? '#10B981' : '#F59E0B' }} />
               </div>
               <div style={{ flex: 1 } as any}>
-                <div style={{ fontSize: 12, fontWeight: 700, color: '#FFF' }}>{alert.message || alert.alert_type}</div>
-                <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.35)', marginTop: 2 }}>{new Date(alert.created_at).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' })}</div>
+                <div style={{ fontSize: 12, fontWeight: 700, color: C.text }}>{alert.message || alert.alert_type}</div>
+                <div style={{ fontSize: 10, color: C.faint, marginTop: 2 }}>{new Date(alert.created_at).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' })}</div>
               </div>
               <div style={{ padding: '3px 8px', borderRadius: 99, background: alert.status === 'resolved' ? 'rgba(16,185,129,0.12)' : 'rgba(245,158,11,0.12)' } as any}>
                 <span style={{ fontSize: 9, fontWeight: 700, color: alert.status === 'resolved' ? '#10B981' : '#F59E0B' }}>{alert.status === 'resolved' ? 'Resolue' : 'Cloturee'}</span>
@@ -722,19 +737,19 @@ export default function BeneficiaryDetailScreen() {
           const gAddress = [extra?.address, extra?.postal_code, extra?.city].filter(Boolean).join(', ');
           const gRelation = selectedGuardian.relationship || selectedGuardian.guardian_type || 'Gardien';
           return (
-            <div data-testid="guardian-detail-modal" onClick={() => setSelectedGuardian(null)} style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 1190, backdropFilter: 'blur(32px)', WebkitBackdropFilter: 'blur(32px)', background: 'rgba(0,0,0,0.4)', overflowY: 'auto', WebkitOverflowScrolling: 'touch', animation: 'beneficiary-fade-in 200ms ease' } as any}>
+            <div data-testid="guardian-detail-modal" onClick={() => setSelectedGuardian(null)} style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 1190, backdropFilter: 'blur(32px)', WebkitBackdropFilter: 'blur(32px)', background: isDark ? 'rgba(0,0,0,0.4)' : 'rgba(0,0,0,0.3)', overflowY: 'auto', WebkitOverflowScrolling: 'touch', animation: 'beneficiary-fade-in 200ms ease' } as any}>
               <div onClick={(e: any) => e.stopPropagation()} style={{ width: '100%', maxWidth: 420, margin: '0 auto', padding: '40px 24px 120px', boxSizing: 'border-box' } as any}>
                 <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 16 } as any}>
-                  <div data-testid="guardian-detail-close-btn" onClick={() => setSelectedGuardian(null)} style={{ width: 38, height: 38, borderRadius: 999, background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}><i className="ri-close-line" style={{ fontSize: 18, color: 'rgba(255,255,255,0.8)' }} /></div>
+                  <div data-testid="guardian-detail-close-btn" onClick={() => setSelectedGuardian(null)} style={{ width: 38, height: 38, borderRadius: 999, background: C.card, border: `1px solid ${C.sep}`, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}><i className="ri-close-line" style={{ fontSize: 18, color: C.sub }} /></div>
                 </div>
 
-                <div style={{ borderRadius: 24, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', padding: 24, animation: 'beneficiary-popup-in 220ms ease both' } as any}>
+                <div style={{ borderRadius: 24, background: isDark ? 'rgba(255,255,255,0.06)' : 'rgba(255,255,255,0.85)', border: `1px solid ${C.sep}`, padding: 24, animation: 'beneficiary-popup-in 220ms ease both', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' } as any}>
                   {/* Avatar + Name */}
                   <div style={{ textAlign: 'center', marginBottom: 20 } as any}>
                     <div style={{ width: 64, height: 64, borderRadius: 18, background: 'linear-gradient(135deg, #34D399, #059669)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 12px', border: '2px solid rgba(52,211,153,0.4)', boxShadow: '0 8px 24px rgba(52,211,153,0.2)' } as any}>
                       <span style={{ fontSize: 24, fontWeight: 900, color: '#FFF' }}>{gInitials}</span>
                     </div>
-                    <div data-testid="guardian-detail-name" style={{ fontSize: 22, fontWeight: 800, color: '#FFF', marginBottom: 4 }}>{gName}</div>
+                    <div data-testid="guardian-detail-name" style={{ fontSize: 22, fontWeight: 800, color: C.text, marginBottom: 4 }}>{gName}</div>
                     <div style={{ display: 'inline-flex', alignItems: 'center', gap: 5, padding: '4px 14px', borderRadius: 999, background: 'rgba(52,211,153,0.12)', border: '1px solid rgba(52,211,153,0.25)' } as any}>
                       <i className="ri-shield-user-line" style={{ fontSize: 11, color: '#34D399' }} />
                       <span data-testid="guardian-detail-role" style={{ fontSize: 11, fontWeight: 700, color: '#34D399' }}>{gRelation}</span>
@@ -744,46 +759,46 @@ export default function BeneficiaryDetailScreen() {
                   {/* Info rows with icons */}
                   <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 16 } as any}>
                     {gPhone && (
-                      <div data-testid="guardian-detail-phone" style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '12px 14px', borderRadius: 14, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)' } as any}>
+                      <div data-testid="guardian-detail-phone" style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '12px 14px', borderRadius: 14, background: C.cellBg, border: `1px solid ${C.sep}` } as any}>
                         <div style={{ width: 32, height: 32, borderRadius: 8, background: 'rgba(59,130,246,0.12)', border: '1px solid rgba(59,130,246,0.22)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}>
                           <i className="ri-phone-line" style={{ fontSize: 15, color: '#60A5FA' }} />
                         </div>
                         <div style={{ flex: 1 } as any}>
-                          <div style={{ fontSize: 8, fontWeight: 700, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: 0.5 }}>Telephone</div>
-                          <div style={{ fontSize: 14, fontWeight: 700, color: '#FFF' }}>{gPhone}</div>
+                          <div style={{ fontSize: 8, fontWeight: 700, color: C.muted, textTransform: 'uppercase', letterSpacing: 0.5 }}>Telephone</div>
+                          <div style={{ fontSize: 14, fontWeight: 700, color: C.text }}>{gPhone}</div>
                         </div>
                       </div>
                     )}
                     {gEmail && (
-                      <div data-testid="guardian-detail-email" onClick={() => window.open(`mailto:${gEmail}`, '_blank')} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '12px 14px', borderRadius: 14, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', cursor: 'pointer' } as any}>
+                      <div data-testid="guardian-detail-email" onClick={() => window.open(`mailto:${gEmail}`, '_blank')} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '12px 14px', borderRadius: 14, background: C.cellBg, border: `1px solid ${C.sep}`, cursor: 'pointer' } as any}>
                         <div style={{ width: 32, height: 32, borderRadius: 8, background: 'rgba(167,139,250,0.12)', border: '1px solid rgba(167,139,250,0.22)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}>
                           <i className="ri-mail-line" style={{ fontSize: 15, color: '#A78BFA' }} />
                         </div>
                         <div style={{ flex: 1 } as any}>
-                          <div style={{ fontSize: 8, fontWeight: 700, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: 0.5 }}>Email</div>
+                          <div style={{ fontSize: 8, fontWeight: 700, color: C.muted, textTransform: 'uppercase', letterSpacing: 0.5 }}>Email</div>
                           <div style={{ fontSize: 13, fontWeight: 700, color: '#A78BFA', textDecoration: 'underline', textDecorationColor: 'rgba(167,139,250,0.3)' }}>{gEmail}</div>
                         </div>
-                        <i className="ri-external-link-line" style={{ fontSize: 14, color: 'rgba(255,255,255,0.25)' }} />
+                        <i className="ri-external-link-line" style={{ fontSize: 14, color: C.label }} />
                       </div>
                     )}
                     {gAddress && (
-                      <div data-testid="guardian-detail-address" style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '12px 14px', borderRadius: 14, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)' } as any}>
+                      <div data-testid="guardian-detail-address" style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '12px 14px', borderRadius: 14, background: C.cellBg, border: `1px solid ${C.sep}` } as any}>
                         <div style={{ width: 32, height: 32, borderRadius: 8, background: 'rgba(245,158,11,0.12)', border: '1px solid rgba(245,158,11,0.22)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}>
                           <i className="ri-map-pin-line" style={{ fontSize: 15, color: '#F59E0B' }} />
                         </div>
                         <div style={{ flex: 1 } as any}>
-                          <div style={{ fontSize: 8, fontWeight: 700, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: 0.5 }}>Adresse</div>
-                          <div style={{ fontSize: 13, fontWeight: 700, color: '#FFF' }}>{gAddress}</div>
+                          <div style={{ fontSize: 8, fontWeight: 700, color: C.muted, textTransform: 'uppercase', letterSpacing: 0.5 }}>Adresse</div>
+                          <div style={{ fontSize: 13, fontWeight: 700, color: C.text }}>{gAddress}</div>
                         </div>
                       </div>
                     )}
-                    <div data-testid="guardian-detail-type" style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '12px 14px', borderRadius: 14, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)' } as any}>
+                    <div data-testid="guardian-detail-type" style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '12px 14px', borderRadius: 14, background: C.cellBg, border: `1px solid ${C.sep}` } as any}>
                       <div style={{ width: 32, height: 32, borderRadius: 8, background: 'rgba(34,211,238,0.12)', border: '1px solid rgba(34,211,238,0.22)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}>
                         <i className="ri-user-star-line" style={{ fontSize: 15, color: '#22D3EE' }} />
                       </div>
                       <div style={{ flex: 1 } as any}>
-                        <div style={{ fontSize: 8, fontWeight: 700, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: 0.5 }}>Type</div>
-                        <div style={{ fontSize: 13, fontWeight: 700, color: '#FFF' }}>{selectedGuardian.guardian_type === 'saad' ? 'SAAD' : selectedGuardian.guardian_type === 'company' ? 'Entreprise' : 'Particulier'}</div>
+                        <div style={{ fontSize: 8, fontWeight: 700, color: C.muted, textTransform: 'uppercase', letterSpacing: 0.5 }}>Type</div>
+                        <div style={{ fontSize: 13, fontWeight: 700, color: C.text }}>{selectedGuardian.guardian_type === 'saad' ? 'SAAD' : selectedGuardian.guardian_type === 'company' ? 'Entreprise' : 'Particulier'}</div>
                       </div>
                     </div>
                   </div>
@@ -796,7 +811,7 @@ export default function BeneficiaryDetailScreen() {
                       </div>
                     )}
                     {gPhone && (
-                      <div data-testid="guardian-sms-btn" onClick={() => window.open(`sms:${gPhone}`, '_self')} style={{ flex: 1, padding: '14px', borderRadius: 999, cursor: 'pointer', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, fontSize: 14, fontWeight: 700, color: '#FFF' } as any}>
+                      <div data-testid="guardian-sms-btn" onClick={() => window.open(`sms:${gPhone}`, '_self')} style={{ flex: 1, padding: '14px', borderRadius: 999, cursor: 'pointer', background: C.btnBg, border: `1px solid ${C.btnBorder}`, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, fontSize: 14, fontWeight: 700, color: C.text } as any}>
                         <i className="ri-message-3-line" style={{ fontSize: 16 }} />SMS
                       </div>
                     )}
@@ -809,22 +824,22 @@ export default function BeneficiaryDetailScreen() {
                       <span style={{ fontSize: 10, fontWeight: 800, color: '#A5B4FC', textTransform: 'uppercase', letterSpacing: 1 }}>Historique d'activite</span>
                     </div>
                     <div style={{ display: 'flex', gap: 8, marginBottom: 10 } as any}>
-                      <div style={{ flex: 1, padding: '8px 10px', borderRadius: 10, background: 'rgba(255,255,255,0.04)' } as any}>
-                        <div style={{ fontSize: 8, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', marginBottom: 2 }}>Actions</div>
-                        <div data-testid="guardian-detail-activity-count" style={{ fontSize: 16, fontWeight: 900, color: '#FFF' }}>{activity.count}</div>
+                      <div style={{ flex: 1, padding: '8px 10px', borderRadius: 10, background: C.cellBg } as any}>
+                        <div style={{ fontSize: 8, color: C.muted, textTransform: 'uppercase', marginBottom: 2 }}>Actions</div>
+                        <div data-testid="guardian-detail-activity-count" style={{ fontSize: 16, fontWeight: 900, color: C.text }}>{activity.count}</div>
                       </div>
-                      <div style={{ flex: 2, padding: '8px 10px', borderRadius: 10, background: 'rgba(255,255,255,0.04)' } as any}>
-                        <div style={{ fontSize: 8, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', marginBottom: 2 }}>Derniere action</div>
-                        <div data-testid="guardian-detail-last-action" style={{ fontSize: 12, fontWeight: 700, color: '#FFF' }}>{activity.lastActionAt ? new Date(activity.lastActionAt).toLocaleString('fr-FR') : 'Aucune'}</div>
+                      <div style={{ flex: 2, padding: '8px 10px', borderRadius: 10, background: C.cellBg } as any}>
+                        <div style={{ fontSize: 8, color: C.muted, textTransform: 'uppercase', marginBottom: 2 }}>Derniere action</div>
+                        <div data-testid="guardian-detail-last-action" style={{ fontSize: 12, fontWeight: 700, color: C.text }}>{activity.lastActionAt ? new Date(activity.lastActionAt).toLocaleString('fr-FR') : 'Aucune'}</div>
                       </div>
                     </div>
                     {activity.recentAlerts.length > 0 ? activity.recentAlerts.map((a: any) => (
-                      <div key={a.id} data-testid={`guardian-detail-activity-item-${a.id}`} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '6px 0', borderTop: '1px solid rgba(255,255,255,0.04)' } as any}>
+                      <div key={a.id} data-testid={`guardian-detail-activity-item-${a.id}`} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '6px 0', borderTop: `1px solid ${C.sepLight}` } as any}>
                         <div style={{ width: 5, height: 5, borderRadius: 3, background: '#A5B4FC', flexShrink: 0 } as any} />
-                        <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.55)', flex: 1 }}>{a.message || a.alert_type}</span>
-                        <span style={{ fontSize: 9, color: 'rgba(255,255,255,0.3)' }}>{new Date(a.created_at).toLocaleDateString('fr-FR')}</span>
+                        <span style={{ fontSize: 11, color: C.sub, flex: 1 }}>{a.message || a.alert_type}</span>
+                        <span style={{ fontSize: 9, color: C.muted }}>{new Date(a.created_at).toLocaleDateString('fr-FR')}</span>
                       </div>
-                    )) : <div data-testid="guardian-detail-activity-empty" style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)', textAlign: 'center', padding: '6px 0' }}>Aucune action enregistree</div>}
+                    )) : <div data-testid="guardian-detail-activity-empty" style={{ fontSize: 11, color: C.faint, textAlign: 'center', padding: '6px 0' }}>Aucune action enregistree</div>}
                   </div>
                 </div>
               </div>
@@ -836,18 +851,18 @@ export default function BeneficiaryDetailScreen() {
           <div data-testid="contract-detail-modal" style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 1185, backdropFilter: 'blur(32px)', WebkitBackdropFilter: 'blur(32px)', background: 'rgba(0,0,0,0.25)', overflowY: 'auto', WebkitOverflowScrolling: 'touch' } as any}>
             <div style={{ width: '100%', maxWidth: 420, margin: '0 auto', padding: '40px 28px 120px', boxSizing: 'border-box' } as any}>
               <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 20 } as any}>
-                <div data-testid="contract-detail-close-btn" onClick={() => setShowContractPopup(false)} style={{ width: 38, height: 38, borderRadius: 999, background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}><i className="ri-close-line" style={{ fontSize: 18, color: 'rgba(255,255,255,0.8)' }} /></div>
+                <div data-testid="contract-detail-close-btn" onClick={() => setShowContractPopup(false)} style={{ width: 38, height: 38, borderRadius: 999, background: C.card, border: `1px solid ${C.sep}`, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}><i className="ri-close-line" style={{ fontSize: 18, color: C.sub }} /></div>
               </div>
 
-              <div style={{ borderRadius: 22, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', padding: 16, animation: 'beneficiary-popup-in 220ms ease both' } as any}>
-                <div style={{ fontSize: 22, fontWeight: 900, color: '#FFF', marginBottom: 3 }} data-testid="contract-detail-title">Contrat {subscription.subscription_type === 'care' ? 'Care' : 'Standard'}</div>
-                <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.45)', marginBottom: 12 }} data-testid="contract-detail-status">Statut: {subscription.status || 'N/A'}</div>
+              <div style={{ borderRadius: 22, background: isDark ? 'rgba(255,255,255,0.06)' : 'rgba(255,255,255,0.85)', border: `1px solid ${C.sep}`, padding: 16, animation: 'beneficiary-popup-in 220ms ease both', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' } as any}>
+                <div style={{ fontSize: 22, fontWeight: 900, color: C.text, marginBottom: 3 }} data-testid="contract-detail-title">Contrat {subscription.subscription_type === 'care' ? 'Care' : 'Standard'}</div>
+                <div style={{ fontSize: 11, color: C.sub, marginBottom: 12 }} data-testid="contract-detail-status">Statut: {subscription.status || 'N/A'}</div>
 
                 <div style={{ display: 'grid', gap: 8 } as any}>
-                  <div style={{ padding: '10px 12px', borderRadius: 12, background: 'rgba(255,255,255,0.05)' } as any}><div style={{ fontSize: 9, color: 'rgba(255,255,255,0.35)' }}>Date de souscription</div><div style={{ fontSize: 12, fontWeight: 700, color: '#FFF' }} data-testid="contract-detail-created-at">{subscription.created_at ? new Date(subscription.created_at).toLocaleDateString('fr-FR') : 'N/A'}</div></div>
-                  <div style={{ padding: '10px 12px', borderRadius: 12, background: 'rgba(255,255,255,0.05)' } as any}><div style={{ fontSize: 9, color: 'rgba(255,255,255,0.35)' }}>Offre</div><div style={{ fontSize: 12, fontWeight: 700, color: '#FFF' }} data-testid="contract-detail-plan">{contract?.plan_label || (subscription.subscription_type === 'care' ? 'Chutex Care' : 'Standard')}</div></div>
-                  <div style={{ padding: '10px 12px', borderRadius: 12, background: 'rgba(255,255,255,0.05)' } as any}><div style={{ fontSize: 9, color: 'rgba(255,255,255,0.35)' }}>Paiement</div><div style={{ fontSize: 12, fontWeight: 700, color: '#FFF' }} data-testid="contract-detail-payment">{contract?.price_monthly ? `${contract.price_monthly} EUR / mois` : 'N/A'}</div></div>
-                  <div style={{ padding: '10px 12px', borderRadius: 12, background: 'rgba(255,255,255,0.05)' } as any}><div style={{ fontSize: 9, color: 'rgba(255,255,255,0.35)' }}>Numero contrat</div><div style={{ fontSize: 12, fontWeight: 700, color: '#FFF' }} data-testid="contract-detail-number">{contract?.contract_number || 'N/A'}</div></div>
+                  <div style={{ padding: '10px 12px', borderRadius: 12, background: C.card } as any}><div style={{ fontSize: 9, color: C.faint }}>Date de souscription</div><div style={{ fontSize: 12, fontWeight: 700, color: C.text }} data-testid="contract-detail-created-at">{subscription.created_at ? new Date(subscription.created_at).toLocaleDateString('fr-FR') : 'N/A'}</div></div>
+                  <div style={{ padding: '10px 12px', borderRadius: 12, background: C.card } as any}><div style={{ fontSize: 9, color: C.faint }}>Offre</div><div style={{ fontSize: 12, fontWeight: 700, color: C.text }} data-testid="contract-detail-plan">{contract?.plan_label || (subscription.subscription_type === 'care' ? 'Chutex Care' : 'Standard')}</div></div>
+                  <div style={{ padding: '10px 12px', borderRadius: 12, background: C.card } as any}><div style={{ fontSize: 9, color: C.faint }}>Paiement</div><div style={{ fontSize: 12, fontWeight: 700, color: C.text }} data-testid="contract-detail-payment">{contract?.price_monthly ? `${contract.price_monthly} EUR / mois` : 'N/A'}</div></div>
+                  <div style={{ padding: '10px 12px', borderRadius: 12, background: C.card } as any}><div style={{ fontSize: 9, color: C.faint }}>Numero contrat</div><div style={{ fontSize: 12, fontWeight: 700, color: C.text }} data-testid="contract-detail-number">{contract?.contract_number || 'N/A'}</div></div>
                 </div>
               </div>
             </div>
@@ -855,25 +870,25 @@ export default function BeneficiaryDetailScreen() {
         )}
 
         {geoFormOpen && (
-          <div data-testid="safezone-form-modal" style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 1200, backdropFilter: 'blur(32px)', WebkitBackdropFilter: 'blur(32px)', background: 'rgba(0,0,0,0.25)', overflowY: 'auto', WebkitOverflowScrolling: 'touch' } as any}>
+          <div data-testid="safezone-form-modal" style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 1200, backdropFilter: 'blur(32px)', WebkitBackdropFilter: 'blur(32px)', background: isDark ? 'rgba(0,0,0,0.25)' : 'rgba(0,0,0,0.2)', overflowY: 'auto', WebkitOverflowScrolling: 'touch' } as any}>
             <div style={{ width: '100%', maxWidth: 420, margin: '0 auto', padding: '40px 28px 120px', boxSizing: 'border-box' } as any}>
               <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 20 } as any}>
-                <div data-testid="safezone-form-close-btn" onClick={() => { setGeoFormOpen(false); setGeoEditingId(null); }} style={{ width: 38, height: 38, borderRadius: 999, background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}><i className="ri-close-line" style={{ fontSize: 18, color: 'rgba(255,255,255,0.8)' }} /></div>
+                <div data-testid="safezone-form-close-btn" onClick={() => { setGeoFormOpen(false); setGeoEditingId(null); }} style={{ width: 38, height: 38, borderRadius: 999, background: C.card, border: `1px solid ${C.sep}`, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}><i className="ri-close-line" style={{ fontSize: 18, color: C.sub }} /></div>
               </div>
 
-              <div style={{ borderRadius: 22, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', padding: 16, animation: 'beneficiary-popup-in 220ms ease both' } as any}>
-                <div style={{ fontSize: 22, fontWeight: 900, color: '#FFF', marginBottom: 4 }} data-testid="safezone-form-modal-title">{geoEditingId ? 'Modifier la safe zone' : 'Definir une safe zone'}</div>
-                <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.6)', marginBottom: 12 }} data-testid="safezone-form-center-info">
+              <div style={{ borderRadius: 22, background: isDark ? 'rgba(255,255,255,0.06)' : 'rgba(255,255,255,0.85)', border: `1px solid ${C.sep}`, padding: 16, animation: 'beneficiary-popup-in 220ms ease both', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' } as any}>
+                <div style={{ fontSize: 22, fontWeight: 900, color: C.text, marginBottom: 4 }} data-testid="safezone-form-modal-title">{geoEditingId ? 'Modifier la safe zone' : 'Definir une safe zone'}</div>
+                <div style={{ fontSize: 11, color: C.sub, marginBottom: 12 }} data-testid="safezone-form-center-info">
                   Centre: {Number(geoFormLat || 0).toFixed(5)}, {Number(geoFormLng || 0).toFixed(5)}
                 </div>
 
                 <div style={{ display: 'grid', gap: 8 } as any}>
-                  <input data-testid="safezone-form-name-input" value={geoFormName} onChange={(e: any) => setGeoFormName(e.target.value)} placeholder="Nom de la zone" style={{ padding: '11px 12px', borderRadius: 12, border: '1px solid rgba(255,255,255,0.18)', background: 'rgba(255,255,255,0.08)', color: '#FFF' } as any} />
-                  <input data-testid="safezone-form-radius-input" value={geoFormRadius} onChange={(e: any) => setGeoFormRadius(e.target.value)} placeholder="Rayon en metres" style={{ padding: '11px 12px', borderRadius: 12, border: '1px solid rgba(255,255,255,0.18)', background: 'rgba(255,255,255,0.08)', color: '#FFF' } as any} />
+                  <input data-testid="safezone-form-name-input" value={geoFormName} onChange={(e: any) => setGeoFormName(e.target.value)} placeholder="Nom de la zone" style={{ padding: '11px 12px', borderRadius: 12, border: `1px solid ${C.sep}`, background: C.toggleBg, color: C.text } as any} />
+                  <input data-testid="safezone-form-radius-input" value={geoFormRadius} onChange={(e: any) => setGeoFormRadius(e.target.value)} placeholder="Rayon en metres" style={{ padding: '11px 12px', borderRadius: 12, border: `1px solid ${C.sep}`, background: C.toggleBg, color: C.text } as any} />
                 </div>
 
                 <div style={{ display: 'flex', gap: 8, marginTop: 12 } as any}>
-                  <div data-testid="safezone-form-cancel-btn" onClick={() => { setGeoFormOpen(false); setGeoEditingId(null); }} style={{ flex: 1, padding: '10px 12px', borderRadius: 999, cursor: 'pointer', textAlign: 'center', background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.18)', fontSize: 12, fontWeight: 700, color: '#FFF' } as any}>Annuler</div>
+                  <div data-testid="safezone-form-cancel-btn" onClick={() => { setGeoFormOpen(false); setGeoEditingId(null); }} style={{ flex: 1, padding: '10px 12px', borderRadius: 999, cursor: 'pointer', textAlign: 'center', background: C.toggleBg, border: `1px solid ${C.sep}`, fontSize: 12, fontWeight: 700, color: C.text } as any}>Annuler</div>
                   <div data-testid="safezone-form-save-btn" onClick={saveGeoForm} style={{ flex: 1, padding: '10px 12px', borderRadius: 999, cursor: geoFormSaving ? 'wait' : 'pointer', textAlign: 'center', background: 'rgba(16,185,129,0.22)', border: '1px solid rgba(16,185,129,0.35)', fontSize: 12, fontWeight: 800, color: '#34D399', opacity: geoFormSaving ? 0.6 : 1 } as any}>{geoFormSaving ? 'Enregistrement...' : (geoEditingId ? 'Enregistrer' : 'Creer')}</div>
                 </div>
               </div>
