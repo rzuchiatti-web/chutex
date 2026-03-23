@@ -93,18 +93,19 @@ export default function GuardianHome({ token, user }: { token: string; user: any
   };
   const POP: any = { position: 'fixed', inset: 0, zIndex: 99990, backdropFilter: 'blur(32px)', WebkitBackdropFilter: 'blur(32px)', background: 'rgba(0,0,0,0.55)', overflowY: 'scroll', WebkitOverflowScrolling: 'touch' };
 
-  if (Platform.OS === 'web') {
-    const [isDark, setIsDark] = React.useState(() => {
-      if (typeof localStorage !== 'undefined') return localStorage.getItem('chutex_dark') !== '0';
-      return true;
+  const [isDark, setIsDark] = React.useState(() => {
+    if (typeof localStorage !== 'undefined') return localStorage.getItem('chutex_dark') !== '0';
+    return true;
+  });
+  const toggleTheme = () => {
+    setIsDark(prev => {
+      const next = !prev;
+      if (typeof localStorage !== 'undefined') localStorage.setItem('chutex_dark', next ? '1' : '0');
+      return next;
     });
-    const toggleTheme = () => {
-      setIsDark(prev => {
-        const next = !prev;
-        if (typeof localStorage !== 'undefined') localStorage.setItem('chutex_dark', next ? '1' : '0');
-        return next;
-      });
-    };
+  };
+
+  if (Platform.OS === 'web') {
     const cardBg = isDark ? 'rgba(70,70,78,0.85)' : '#E8E8EA';
     const textColor = isDark ? '#FFF' : '#1A1A2E';
     const subColor = isDark ? 'rgba(255,255,255,0.5)' : 'rgba(0,0,0,0.45)';
