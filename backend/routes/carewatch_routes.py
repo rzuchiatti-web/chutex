@@ -16,7 +16,7 @@ from services.elevenlabs_service import generate_speech_base64
 
 logger = logging.getLogger(__name__)
 router = APIRouter()
-BASE_URL = "https://benef-detail-clean.preview.emergentagent.com"
+BASE_URL = "https://zone-management-v2.preview.emergentagent.com"
 
 
 # ─── TWILIO WEBHOOKS ───
