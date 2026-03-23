@@ -294,6 +294,50 @@ export default function GuardianHome({ token, user }: { token: string; user: any
             </div>
           </div>
         )}
+
+        {/* POPUP NOTIFICATIONS */}
+        {showNotifsG && portalMount(
+          <div onClick={() => setShowNotifsG(false)} style={POP as any}>
+            <div onClick={(e: any) => e.stopPropagation()} style={{ width: '100%', maxWidth: 420, margin: '0 auto', padding: '40px 24px 120px', boxSizing: 'border-box' } as any}>
+              <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 20 } as any}><div onClick={() => setShowNotifsG(false)} style={{ width: 36, height: 36, borderRadius: 999, background: 'rgba(255,255,255,0.12)', border: '1px solid rgba(255,255,255,0.18)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}><i className="ri-close-line" style={{ fontSize: 18, color: '#FFF' }} /></div></div>
+              <div style={{ textAlign: 'center', marginBottom: 24 } as any}><div style={{ fontSize: 22, fontWeight: 900, color: '#FFF' }}>Notifications</div></div>
+              {activeAlertsG.length === 0 && invitations.length === 0 && pendingInterventions.length === 0 && <div style={{ textAlign: 'center', padding: '32px 20px', borderRadius: 20, background: 'rgba(255,255,255,0.04)' } as any}><div style={{ fontSize: 14, fontWeight: 700, color: 'rgba(255,255,255,0.4)' }}>Aucune notification</div></div>}
+              {activeAlertsG.map((a: any) => (
+                <div key={a.id} onClick={() => { setShowNotifsG(false); router.push({ pathname: '/alert-detail', params: { alertId: a.id } }); }} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '14px 16px', borderRadius: 18, background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.18)', marginBottom: 8, cursor: 'pointer' } as any}>
+                  <div style={{ width: 38, height: 38, borderRadius: 12, background: 'rgba(239,68,68,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}><i className="ri-alarm-warning-line" style={{ fontSize: 18, color: '#EF4444' }} /></div>
+                  <div style={{ flex: 1 } as any}><div style={{ fontSize: 13, fontWeight: 700, color: '#FFF' }}>{a.beneficiary_name}</div><div style={{ fontSize: 11, color: 'rgba(255,255,255,0.5)' }}>{a.message || 'Alerte active'}</div></div>
+                  <div style={{ padding: '3px 10px', borderRadius: 999, background: 'rgba(239,68,68,0.2)' } as any}><span style={{ fontSize: 9, fontWeight: 700, color: '#EF4444' }}>URGENT</span></div>
+                </div>
+              ))}
+              {invitations.map((inv: any) => (
+                <div key={inv.id} style={{ padding: '14px 16px', borderRadius: 18, background: 'rgba(167,139,250,0.08)', border: '1px solid rgba(167,139,250,0.18)', marginBottom: 8 } as any}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 10 } as any}><div style={{ flex: 1 } as any}><div style={{ fontSize: 13, fontWeight: 700, color: '#FFF' }}>{inv.beneficiary_name} vous invite</div></div></div>
+                  <div style={{ display: 'flex', gap: 8 } as any}>
+                    <div onClick={async () => { try { await apiFetch(`/api/guardian/invitations/${inv.id}/accept`, { method: 'POST' }, token); setShowNotifsG(false); fetchData(); } catch {} }} style={{ flex: 1, padding: '10px', borderRadius: 999, textAlign: 'center', cursor: 'pointer', background: 'rgba(16,185,129,0.2)', fontSize: 12, fontWeight: 700, color: '#10B981' } as any}>Accepter</div>
+                    <div onClick={async () => { try { await apiFetch(`/api/guardian/invitations/${inv.id}/reject`, { method: 'POST' }, token); fetchData(); } catch {} }} style={{ flex: 1, padding: '10px', borderRadius: 999, textAlign: 'center', cursor: 'pointer', background: 'rgba(255,255,255,0.05)', fontSize: 12, fontWeight: 700, color: 'rgba(255,255,255,0.4)' } as any}>Refuser</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* POPUP LANGUE */}
+        {langOpenG && portalMount(
+          <div onClick={() => setLangOpenG(false)} style={POP as any}>
+            <div onClick={(e: any) => e.stopPropagation()} style={{ width: '100%', maxWidth: 420, margin: '0 auto', padding: '40px 24px 120px', boxSizing: 'border-box' } as any}>
+              <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 20 } as any}><div onClick={() => setLangOpenG(false)} style={{ width: 36, height: 36, borderRadius: 999, background: 'rgba(255,255,255,0.12)', border: '1px solid rgba(255,255,255,0.18)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}><i className="ri-close-line" style={{ fontSize: 18, color: '#FFF' }} /></div></div>
+              <div style={{ textAlign: 'center', marginBottom: 28 } as any}><div style={{ fontSize: 22, fontWeight: 900, color: '#FFF' }}>Langue</div></div>
+              {[{ code: 'FR', flag: '\u{1F1EB}\u{1F1F7}', name: 'Francais' }, { code: 'EN', flag: '\u{1F1EC}\u{1F1E7}', name: 'English' }].map(l => (
+                <div key={l.code} onClick={() => { setLang(l.code); setLangOpenG(false); }} style={{ display: 'flex', alignItems: 'center', gap: 16, padding: '14px 18px', borderRadius: 18, cursor: 'pointer', marginBottom: 6, background: lang === l.code ? 'rgba(255,255,255,0.08)' : 'rgba(255,255,255,0.02)', border: lang === l.code ? '1px solid rgba(255,255,255,0.15)' : '1px solid rgba(255,255,255,0.05)' } as any}>
+                  <span style={{ fontSize: 32, lineHeight: 1 }}>{l.flag}</span>
+                  <span style={{ fontSize: 15, fontWeight: lang === l.code ? 800 : 500, color: lang === l.code ? '#FFF' : 'rgba(255,255,255,0.45)', flex: 1 }}>{l.name}</span>
+                  {lang === l.code && <i className="ri-check-line" style={{ fontSize: 18, color: '#22D3EE' }} />}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
     );
   }
