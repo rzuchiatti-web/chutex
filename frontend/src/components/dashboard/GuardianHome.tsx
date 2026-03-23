@@ -102,7 +102,7 @@ export default function GuardianHome({ token, user }: { token: string; user: any
     const sepColor = isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.06)';
 
     return (
-      <div data-testid="guardian-dashboard" style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, display: 'flex', flexDirection: 'column', fontFamily: 'Inter, system-ui, sans-serif', overflow: 'hidden' } as any}>
+      <div data-testid="guardian-dashboard" style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, display: 'flex', flexDirection: 'column', fontFamily: 'Inter, system-ui, sans-serif', overflow: 'hidden', background: isDark ? '#1C1C1E' : '#F5F5F5' } as any}>
 
         <div style={{ flex: 1, overflowY: 'auto', WebkitOverflowScrolling: 'touch' } as any}>
 
@@ -149,7 +149,7 @@ export default function GuardianHome({ token, user }: { token: string; user: any
           <LiveAlertBanner token={token} />
 
           {/* ═══ CONTENT CARD ═══ */}
-          <div style={{ padding: '24px 16px 120px', marginTop: -16, borderRadius: '24px 24px 0 0', background: contentBg, position: 'relative', zIndex: 10, borderTop: isDark ? '1px solid rgba(255,255,255,0.1)' : '1px solid rgba(0,0,0,0.08)' } as any}>
+          <div style={{ padding: '24px 16px 120px', marginTop: -16, borderRadius: '24px 24px 0 0', background: contentBg, position: 'relative', zIndex: 10, borderTop: isDark ? '1px solid rgba(255,255,255,0.1)' : '1px solid rgba(0,0,0,0.08)', minHeight: 'calc(100vh - 180px)' } as any}>
 
             <div style={{ fontSize: 13, fontWeight: 700, color: subColor, letterSpacing: 1, textTransform: 'uppercase', marginBottom: 12 }}>Mes beneficiaires</div>
 

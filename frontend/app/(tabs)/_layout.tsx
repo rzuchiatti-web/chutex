@@ -37,7 +37,7 @@ export default function TabLayout() {
     <Tabs
       key={role}
       tabBar={useGlass ? (props) => <GlassTabBar {...props} role={tabRole} /> : undefined}
-      sceneContainerStyle={{ backgroundColor: 'transparent' }}
+      sceneContainerStyle={{ backgroundColor: (isG && isWeb) ? '#1C1C1E' : 'transparent' }}
       screenOptions={{
         headerShown: false,
         tabBarActiveTintColor: '#FFFFFF',
