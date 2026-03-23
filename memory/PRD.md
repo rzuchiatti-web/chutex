@@ -8,6 +8,7 @@
 - Page Santé: header rouge, contenu thémé
 - FullScreenLoader z-index 99999
 - Titres sur images hero: TOUJOURS blancs (#FFF) avec text-shadow
+- Theme reactif: localStorage polling 400ms via useState+useEffect dans TOUTES les pages
 
 ## Completed Features
 - Beneficiary Dashboard redesign (Light/Dark mode)
@@ -19,6 +20,7 @@
 - Navbar hidden on Subscription detail popup (CSS injection)
 - Subscription tabs refactor: Care = 3 tabs (Abonnement+Contrat+Paiement fusionnés, Logement, Gardiens), Standard = pas d'onglets
 - ProgramPresentation light mode fix: titres blancs sur hero, cartes lisibles (#F2F2F4 bg, #1A1A2E text)
+- Theme reactif sans rechargement sur Santé et Programmes (polling localStorage)
 
 ## Backlog
 - P0: Balance & Vest integration
