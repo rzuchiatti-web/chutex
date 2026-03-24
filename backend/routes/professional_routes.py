@@ -22,6 +22,7 @@ class ProgramCreate(BaseModel):
 class SessionCreate(BaseModel):
     title: str
     description: str = ""
+    category: str = ""
     media_url: str = ""
     media_type: str = ""  # video, image
     duration_min: int = 30
@@ -188,6 +189,7 @@ async def add_session(program_id: str, data: SessionCreate, user=Depends(get_cur
         "id": str(uuid.uuid4()),
         "title": data.title,
         "description": data.description,
+        "category": data.category if hasattr(data, 'category') else '',
         "media_url": data.media_url,
         "media_type": data.media_type,
         "duration_min": data.duration_min,
@@ -262,10 +264,14 @@ async def complete_session(program_id: str, session_id: str, data: SessionComple
 
 @router.get("/pro/my-programs")
 async def get_my_programs(user=Depends(get_current_user)):
-    """Beneficiary gets their prescribed programs"""
+    """Beneficiary gets their prescribed programs with sessions"""
     programs = await db.pro_programs.find(
         {"beneficiary_id": user['id'], "status": "active"}, {"_id": 0}
     ).sort("created_at", -1).to_list(50)
+    # Include professional name for each program
+    for prog in programs:
+        pro = await db.users.find_one({"id": prog.get('professional_id')}, {"_id": 0, "name": 1})
+        prog['professional_name'] = pro.get('name', '') if pro else ''
     return programs
 
 
@@ -288,74 +294,186 @@ async def pro_dashboard(user=Depends(get_current_user)):
 
 
 
-# ── Supplements CRUD ──
+# ── Pro Reminders (supplements + hydration → beneficiary reminders) ──
 
-class SupplementCreate(BaseModel):
-    name: str
-    dosage: str = ""
-    frequency: str = ""  # e.g. "1x/jour matin"
+class ProReminderCreate(BaseModel):
+    reminder_type: str = "medication"  # medication, hydration
+    title: str
+    time: str = "08:00"
+    days: List[str] = ["lun", "mar", "mer", "jeu", "ven", "sam", "dim"]
     notes: str = ""
+    dosage: str = ""
 
-@router.post("/pro/supplements/{beneficiary_id}")
-async def create_supplement(beneficiary_id: str, data: SupplementCreate, user=Depends(get_current_user)):
+@router.post("/pro/reminders/{beneficiary_id}")
+async def create_pro_reminder(beneficiary_id: str, data: ProReminderCreate, user=Depends(get_current_user)):
+    """Pro creates a reminder (medication/hydration) directly in beneficiary's reminders"""
     require_pro(user)
     cu = await db.users.find_one({"id": user['id']}, {"_id": 0})
     if beneficiary_id not in cu.get('beneficiaries', []):
         raise HTTPException(status_code=403, detail="Beneficiaire non rattache")
-    supp = {
+    if data.reminder_type not in ("medication", "hydration"):
+        raise HTTPException(status_code=400, detail="Type doit etre medication ou hydration")
+    rem = {
         "id": str(uuid.uuid4()),
-        "professional_id": user['id'],
-        "professional_name": cu.get('name', ''),
-        "beneficiary_id": beneficiary_id,
-        "name": data.name,
-        "dosage": data.dosage,
-        "frequency": data.frequency,
+        "user_id": beneficiary_id,
+        "reminder_type": data.reminder_type,
+        "title": data.title,
+        "time": data.time,
+        "days": data.days,
         "notes": data.notes,
-        "status": "active",
-        "tracking": [],
+        "dosage": data.dosage,
+        "active": True,
+        "completed": False,
+        "created_by_pro": user['id'],
+        "pro_name": cu.get('name', ''),
         "created_at": datetime.now(timezone.utc).isoformat(),
     }
-    await db.pro_supplements.insert_one(supp)
-    supp.pop('_id', None)
-    return supp
+    await db.reminders.insert_one(rem)
+    rem.pop('_id', None)
+    return rem
 
-@router.get("/pro/supplements/{beneficiary_id}")
-async def list_supplements(beneficiary_id: str, user=Depends(get_current_user)):
-    eff = get_effective_role(user)
-    query = {"beneficiary_id": beneficiary_id, "status": "active"}
-    if eff == 'professional':
-        query["professional_id"] = user['id']
-    supps = await db.pro_supplements.find(query, {"_id": 0}).sort("created_at", -1).to_list(50)
-    return supps
-
-@router.delete("/pro/supplements/delete/{supplement_id}")
-async def delete_supplement(supplement_id: str, user=Depends(get_current_user)):
+@router.get("/pro/reminders/{beneficiary_id}")
+async def list_pro_reminders(beneficiary_id: str, user=Depends(get_current_user)):
+    """Pro lists reminders they created for a beneficiary"""
     require_pro(user)
-    await db.pro_supplements.delete_one({"id": supplement_id, "professional_id": user['id']})
+    rems = await db.reminders.find(
+        {"user_id": beneficiary_id, "created_by_pro": user['id']}, {"_id": 0}
+    ).sort("created_at", -1).to_list(50)
+    return rems
+
+@router.delete("/pro/reminders/{reminder_id}")
+async def delete_pro_reminder(reminder_id: str, user=Depends(get_current_user)):
+    """Pro deletes a reminder they created"""
+    require_pro(user)
+    result = await db.reminders.delete_one({"id": reminder_id, "created_by_pro": user['id']})
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Rappel non trouve")
     return {"status": "deleted"}
 
-@router.get("/pro/my-supplements")
-async def get_my_supplements(user=Depends(get_current_user)):
-    """Beneficiary gets their prescribed supplements"""
-    supps = await db.pro_supplements.find(
-        {"beneficiary_id": user['id'], "status": "active"}, {"_id": 0}
-    ).sort("created_at", -1).to_list(50)
-    return supps
 
-@router.post("/pro/supplements/track/{supplement_id}")
-async def track_supplement(supplement_id: str, user=Depends(get_current_user)):
-    """Beneficiary marks supplement as taken today"""
-    today = datetime.now(timezone.utc).strftime('%Y-%m-%d')
-    supp = await db.pro_supplements.find_one({"id": supplement_id, "beneficiary_id": user['id']})
-    if not supp:
-        raise HTTPException(status_code=404, detail="Complement non trouve")
-    tracking = supp.get('tracking', [])
-    if today in tracking:
-        tracking.remove(today)
+# ── Pro Meals Management ──
+
+class ProMealCreate(BaseModel):
+    type: str = "lunch"  # breakfast, lunch, snack, dinner
+    label: str = "Dejeuner"
+    name: str
+    description: str = ""
+    calories: int = 0
+    time: str = "12:30"
+    ingredients: List[dict] = []
+    recipe: List[str] = []
+    prep_time: str = ""
+    proteines_g: int = 0
+    glucides_g: int = 0
+    lipides_g: int = 0
+
+@router.get("/pro/meals/{beneficiary_id}")
+async def get_beneficiary_meals(beneficiary_id: str, user=Depends(get_current_user)):
+    """Pro gets the beneficiary's current meal plan (from minceur cache + pro overrides)"""
+    require_pro(user)
+    cu = await db.users.find_one({"id": user['id']}, {"_id": 0})
+    if beneficiary_id not in cu.get('beneficiaries', []):
+        raise HTTPException(status_code=403, detail="Beneficiaire non rattache")
+    today_str = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+    # Check for pro meal overrides first
+    pro_meals = await db.pro_meals.find_one(
+        {"beneficiary_id": beneficiary_id, "professional_id": user['id'], "date": today_str}, {"_id": 0}
+    )
+    if pro_meals and pro_meals.get('meals'):
+        return {"meals": pro_meals['meals'], "source": "pro"}
+    # Fallback to minceur cache
+    cached = await db.minceur_daily_cache.find_one(
+        {"user_id": beneficiary_id, "date": today_str}, {"_id": 0}
+    )
+    if cached and cached.get('recommendations', {}).get('meals'):
+        return {"meals": cached['recommendations']['meals'], "source": "minceur"}
+    return {"meals": [], "source": "none"}
+
+@router.post("/pro/meals/{beneficiary_id}")
+async def add_pro_meal(beneficiary_id: str, data: ProMealCreate, user=Depends(get_current_user)):
+    """Pro adds a meal to the beneficiary's plan for today"""
+    require_pro(user)
+    cu = await db.users.find_one({"id": user['id']}, {"_id": 0})
+    if beneficiary_id not in cu.get('beneficiaries', []):
+        raise HTTPException(status_code=403, detail="Beneficiaire non rattache")
+    today_str = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+    meal = {
+        "type": data.type, "label": data.label, "name": data.name,
+        "description": data.description, "calories": data.calories, "time": data.time,
+        "ingredients": data.ingredients, "recipe": data.recipe, "prep_time": data.prep_time,
+        "proteines_g": data.proteines_g, "glucides_g": data.glucides_g, "lipides_g": data.lipides_g,
+        "created_by_pro": True,
+    }
+    # Get or create pro_meals doc for today
+    existing = await db.pro_meals.find_one(
+        {"beneficiary_id": beneficiary_id, "professional_id": user['id'], "date": today_str}
+    )
+    if existing:
+        await db.pro_meals.update_one(
+            {"beneficiary_id": beneficiary_id, "professional_id": user['id'], "date": today_str},
+            {"$push": {"meals": meal}}
+        )
     else:
-        tracking.append(today)
-    await db.pro_supplements.update_one({"id": supplement_id}, {"$set": {"tracking": tracking}})
-    return {"status": "tracked", "tracking": tracking}
+        # Copy current minceur meals as base then add
+        cached = await db.minceur_daily_cache.find_one(
+            {"user_id": beneficiary_id, "date": today_str}, {"_id": 0}
+        )
+        base_meals = cached.get('recommendations', {}).get('meals', []) if cached else []
+        base_meals.append(meal)
+        await db.pro_meals.insert_one({
+            "beneficiary_id": beneficiary_id,
+            "professional_id": user['id'],
+            "date": today_str,
+            "meals": base_meals,
+            "created_at": datetime.now(timezone.utc).isoformat(),
+        })
+    return {"status": "added", "meal": meal}
+
+@router.delete("/pro/meals/{beneficiary_id}/{meal_index}")
+async def delete_pro_meal(beneficiary_id: str, meal_index: int, user=Depends(get_current_user)):
+    """Pro deletes a meal from the beneficiary's plan (by index)"""
+    require_pro(user)
+    today_str = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+    existing = await db.pro_meals.find_one(
+        {"beneficiary_id": beneficiary_id, "professional_id": user['id'], "date": today_str}
+    )
+    if not existing:
+        # Create override from minceur cache first
+        cached = await db.minceur_daily_cache.find_one(
+            {"user_id": beneficiary_id, "date": today_str}, {"_id": 0}
+        )
+        base_meals = cached.get('recommendations', {}).get('meals', []) if cached else []
+        if meal_index < 0 or meal_index >= len(base_meals):
+            raise HTTPException(status_code=404, detail="Repas non trouve")
+        base_meals.pop(meal_index)
+        await db.pro_meals.insert_one({
+            "beneficiary_id": beneficiary_id,
+            "professional_id": user['id'],
+            "date": today_str,
+            "meals": base_meals,
+            "created_at": datetime.now(timezone.utc).isoformat(),
+        })
+    else:
+        meals = existing.get('meals', [])
+        if meal_index < 0 or meal_index >= len(meals):
+            raise HTTPException(status_code=404, detail="Repas non trouve")
+        meals.pop(meal_index)
+        await db.pro_meals.update_one(
+            {"beneficiary_id": beneficiary_id, "professional_id": user['id'], "date": today_str},
+            {"$set": {"meals": meals}}
+        )
+    return {"status": "deleted"}
+
+
+# ── Check if beneficiary has active pro programs ──
+
+@router.get("/pro/has-active-programs")
+async def check_active_pro_programs(user=Depends(get_current_user)):
+    """Beneficiary checks if they have active pro programs (to hide minceur exercises)"""
+    count = await db.pro_programs.count_documents(
+        {"beneficiary_id": user['id'], "status": "active"}
+    )
+    return {"has_programs": count > 0, "count": count}
 
 
 # ── Bilans (Nora-powered reports) ──
@@ -400,11 +518,11 @@ async def generate_bilan(beneficiary_id: str, period: str = "week", user=Depends
         done = sum(1 for s in sessions if any(c.get('status') == 'done' for c in s.get('completions', [])))
         program_summary.append({"title": p['title'], "exercises": len(sessions), "completed": done})
 
-    # Supplements tracking
-    supps = await db.pro_supplements.find(
-        {"beneficiary_id": beneficiary_id, "status": "active"}, {"_id": 0}
+    # Supplements tracking (from reminders created by pros)
+    pro_reminders = await db.reminders.find(
+        {"user_id": beneficiary_id, "created_by_pro": {"$exists": True}, "reminder_type": "medication"}, {"_id": 0}
     ).to_list(20)
-    supp_summary = [{"name": s['name'], "tracked_days": len(s.get('tracking', []))} for s in supps]
+    supp_summary = [{"name": r['title'], "dosage": r.get('dosage', ''), "active": r.get('active', True)} for r in pro_reminders]
 
     # Generate with Nora (GPT)
     try:
@@ -420,7 +538,7 @@ Donnees de sante ({period}):
 - Pas moyens/jour: {vitals_summary.get('avg_steps', 'N/A')}
 
 Programmes d'exercices: {program_summary if program_summary else 'Aucun'}
-Complements alimentaires: {supp_summary if supp_summary else 'Aucun'}
+Complements prescrits: {[s['name'] + (' (' + s['dosage'] + ')' if s.get('dosage') else '') for s in supp_summary] if supp_summary else 'Aucun'}
 
 Genere un bilan structure avec:
 1. Resume general (2-3 phrases)
@@ -443,9 +561,9 @@ Reponds en francais, de maniere concise et bienveillante. Format en texte simple
             for p in program_summary:
                 bilan_text += f"- {p['title']}: {p['completed']}/{p['exercises']} exercices completes\n"
         if supp_summary:
-            bilan_text += "\nComplements:\n"
+            bilan_text += "\nComplements prescrits:\n"
             for s in supp_summary:
-                bilan_text += f"- {s['name']}: {s['tracked_days']} jours de prise\n"
+                bilan_text += f"- {s['name']}{' (' + s['dosage'] + ')' if s.get('dosage') else ''}\n"
 
     return {
         "beneficiary_name": ben.get('name', ''),
