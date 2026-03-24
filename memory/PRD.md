@@ -43,10 +43,14 @@ Refonte complete des tableaux de bord Beneficiaire et Gardien, des pages Sante, 
   - Cartes fonctionnalites avec slide-up animation
 - [x] **Corrections UI multiples** (Mars 2026):
   - Onboarding NoraIntroSlide: contenu raccourci, sans "longevite/bien vieillir"
-  - Teleconsultation navbar: fix style persistant (useEffect cleanup)
   - Metric-detail Nora cards: fond transparent au lieu de #000
   - Chat Nora: greeting simplifie + 3 questions prefaites
   - Suppression page doublon nora-welcome.tsx
+- [x] **Fix bug navbar Teleconsultation** (Mars 2026):
+  - Suppression TeleconsultDarkNav (injection style !important dans teleconsult.tsx)
+  - Cause racine: useEffect cleanup ne fonctionne pas car onglets Expo Router ne se demontent pas
+  - Solution: GlassTabBar gere son propre style via route active (forceNavDark)
+  - Ajout nettoyage defensif dans GlassTabBar pour styles residuels
 
 ## Prioritized Backlog
 ### P1

@@ -16,16 +16,6 @@ export function BeneficiaryTeleconsult({ token }: { token: string }) {
   const [freeText, setFreeText] = useState('');
   const [painLevel, setPainLevel] = useState(3);
 
-  /* Dark navbar — inject on mount, remove on unmount */
-  useEffect(() => {
-    if (Platform.OS !== 'web') return;
-    const style = document.createElement('style');
-    style.id = 'teleconsult-dark-nav';
-    style.textContent = '.glass-tab-bar-root { background: rgba(0,0,0,0.7) !important; border-color: rgba(255,255,255,0.06) !important; } .glass-tab-bar-root i { color: rgba(255,255,255,0.5) !important; } .glass-tab-bar-root .active-tab i { color: #FFF !important; }';
-    document.head.appendChild(style);
-    return () => { style.remove(); };
-  }, []);
-
   useEffect(() => { (async () => { try { const q = await apiFetch('/api/teleconsult/questions', {}, token); setQuestions(q); } catch {} finally { setLoading(false); } })(); }, []);
 
   const submitQCM = async () => {

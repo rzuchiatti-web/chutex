@@ -59,6 +59,14 @@ export default function GlassTabBar({ state, navigation, role, showNora = true }
   const tabs = TAB_CONFIGS[role] || TAB_CONFIGS.beneficiary;
   const currentRoute = state?.routes?.[state.index]?.name || '';
 
+  // Cleanup any lingering injected style overrides from removed components
+  React.useEffect(() => {
+    if (typeof document !== 'undefined') {
+      const stale = document.getElementById('teleconsult-dark-nav');
+      if (stale) stale.remove();
+    }
+  }, [currentRoute]);
+
   // Force dark navbar on teleconsult for all roles
   const guardianSubPages = ['teleconsult', 'devices', 'alerts'];
   const forceNavDark = guardianSubPages.includes(currentRoute) || (role === 'guardian' && guardianSubPages.includes(currentRoute));
