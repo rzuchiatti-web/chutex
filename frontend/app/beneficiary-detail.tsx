@@ -179,6 +179,13 @@ export default function BeneficiaryDetailScreen() {
               <i className="ri-arrow-left-s-line" style={{ fontSize: 20, color: '#FFF' }} />
             </div>
             <div style={{ textAlign: 'center', marginBottom: 20 } as any}>
+              {/* Avatar */}
+              <div style={{ width: 68, height: 68, borderRadius: 999, background: data.avatar_url ? 'transparent' : 'rgba(255,255,255,0.15)', border: '3px solid rgba(255,255,255,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', margin: '0 auto 10px', backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)' } as any}>
+                {data.avatar_url
+                  ? <img src={data.avatar_url} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' } as any} />
+                  : <span style={{ fontSize: 24, fontWeight: 900, color: '#FFF' }}>{firstName?.charAt(0)}{lastName?.charAt(0)}</span>
+                }
+              </div>
               <div style={{ fontSize: 24, fontWeight: 800, color: '#FFF', letterSpacing: -0.5, lineHeight: 1.15 }} data-testid="beneficiary-firstname-value">{firstName} <span data-testid="beneficiary-lastname-value">{lastName}</span></div>
               <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.55)', fontWeight: 500, marginTop: 4 }}>Fiche beneficiaire</div>
             </div>

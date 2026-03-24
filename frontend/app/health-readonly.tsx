@@ -150,14 +150,8 @@ export default function HealthReadonlyScreen() {
               </div>
             </div>
 
-            {/* Profile image + name — CENTERED */}
+            {/* Name — CENTERED, no avatar */}
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginBottom: 16 } as any}>
-              <div style={{ width: 64, height: 64, borderRadius: 999, background: avatarUrl ? 'transparent' : 'rgba(255,255,255,0.15)', border: '3px solid rgba(255,255,255,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', marginBottom: 10, backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)' } as any}>
-                {avatarUrl
-                  ? <img src={avatarUrl} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' } as any} />
-                  : <span style={{ fontSize: 22, fontWeight: 900, color: '#FFF' }}>{initials}</span>
-                }
-              </div>
               <div style={{ fontSize: 20, fontWeight: 900, color: '#FFF', textAlign: 'center' }}>Sante de {firstName}</div>
               <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.55)', textAlign: 'center', marginTop: 2 }}>{benAge ? `${benAge} ans · ` : ''}Consultation gardien</div>
             </div>
@@ -217,12 +211,12 @@ export default function HealthReadonlyScreen() {
         <div style={{ height: 1, background: sepColor, margin: '12px 0 16px' } as any} />
 
         {/* Activity Card */}
-        <ActivityCard steps={d.steps || 0} calories={d.calories || 0} distance={d.distance_km || 0} recovery={d.recovery_score || 0} stress={d.stress_level || 0} sleepQuality={d.sleep_quality || 0} heartRate={d.heart_rate || 0} streak={activityStreak} stepGoal={sGoal} />
+        <ActivityCard steps={d.steps || 0} calories={d.calories || 0} distance={d.distance_km || 0} recovery={d.recovery_score || 0} stress={d.stress_level || 0} sleepQuality={d.sleep_quality || 0} heartRate={d.heart_rate || 0} streak={activityStreak} stepGoal={sGoal} beneficiaryId={beneficiaryId} />
 
         <div style={{ height: 1, background: sepColor, margin: '12px 0 16px' } as any} />
 
         {/* Sleep Card */}
-        <SleepCard d={d} />
+        <SleepCard d={d} beneficiaryId={beneficiaryId} />
 
         <div style={{ height: 1, background: sepColor, margin: '12px 0 16px' } as any} />
 
