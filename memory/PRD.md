@@ -1,101 +1,75 @@
-# Chutex Care Watch — PRD
+# Chutex Care Watch - PRD
 
-## Objectif
-Application de teleassistance et de suivi de sante preventif pour les personnes agees. Inclut le suivi des constantes vitales, la detection de chutes, l'assistance 24/7, et des recommandations IA (Nora).
+## Original Problem Statement
+Refonte complete des tableaux de bord Beneficiaire et Gardien, des pages Sante, Programmes et Profil avec un design "clinique" et premium. Integration de la Balance & Gilet, signature electronique pour les documents admin, et integration du serveur TCP pour le bracelet V6 4G (J2358).
 
-## Stack technique
-- **Frontend** : React Native Web (Expo Router), React 19.1.0
-- **Backend** : FastAPI + MongoDB (Motor)
-- **IA** : OpenAI GPT-4o (via Emergent LLM Key)
-- **IoT** : Serveur TCP asyncio pour bracelet J2358 4G
-- **Paiements** : Stripe (cle utilisateur requise)
+## Tech Stack
+- Frontend: Expo React Native Web (file-based routing via expo-router)
+- Backend: FastAPI + MongoDB
+- AI: GPT-5.2 via Emergent LLM Key (LiteLLM)
+- Charts: Custom SVG (no Recharts for RN Web compat)
 
-## Architecture
+## User Personas
+- **Beneficiaire**: Personne agee portant le bracelet Elio, accede au tableau de bord sante
+- **Gardien**: Famille/aidant qui surveille le beneficiaire a distance
+- **Admin**: Gestion des utilisateurs, documents, paiements
 
-### Backend (`/app/backend/`)
-- `server.py` — Point d'entree FastAPI
-- `routes/`
-  - `auth_routes.py` — Authentification, inscription
-  - `program_routes.py` — Routes principales programmes
-  - `program_seed_data.py` — Donnees statiques SEED_PROGRAMS
-  - `program_helpers.py` — Fonctions utilitaires
-  - `program_team_routes.py` — Routes equipes
-  - `teleassistance_routes.py` — Routes teleassistance
-  - `escalation_routes.py` — Routes d'escalade
-  - `intervention_routes.py` — Routes interventions CARE
-  - `minceur_routes.py` — Poids & Nutrition
-  - `guardian_routes.py` — Routes gardien
-  - `misc_routes.py` — Endpoints Reminders
-- `services/` — Services externes (ElevenLabs, VAPI, J2358 TCP)
+## Core Features - DONE
+- [x] Dashboard beneficiaire avec design clinique premium
+- [x] Dashboard gardien coherent avec beneficiaire
+- [x] Page Sante complete (sommeil, activite, signes vitaux, poids)
+- [x] IA Nora pour analyses et rapports personnalises
+- [x] Nora parle a la 3eme personne pour les gardiens
+- [x] Systeme de rappels (CRUD temps reel)
+- [x] Suppression bouton SMS de guardian-detail
+- [x] Suppression carte correlation de sante
+- [x] **Page Sommeil WHOOP** dans health-detail.tsx (Mars 2026):
+  - Score performance sommeil (ring gauge SVG)
+  - 4 sous-scores: Suffisance, Regularite, Efficacite, Stress
+  - Hypnogramme des phases
+  - Bilan dette sommeil (dynamique via backend)
+  - Carte Recuperation (VFC, FC repos, zones)
+  - Graphique 7 derniers jours (barres empilees)
+  - Planification sommeil (besoin, coucher, reveil)
+  - Risque d'apnee avec analyse Nora
+  - Auto-selection derniere date avec donnees
+  - Bug floating-point dette corrige
+  - Endpoint backend /api/health/sleep/analysis
 
-### Frontend (`/app/frontend/`)
-- `app/(tabs)/` — Pages principaux (dashboard, sante, programmes, profil)
-- `app/index.tsx` — Page login
-- `app/onboarding.tsx` — Onboarding
-- `src/components/dashboard/BeneficiaryHome.tsx` — Dashboard beneficiaire (etat global, fetch)
-- `src/components/dashboard/BeneficiaryPopups.tsx` — Popups CRUD rappels (etat local independant)
-- `src/services/api.ts` — Wrapper Fetch avec gestion de cache
+## Prioritized Backlog
+### P1
+- [ ] Integration Balance & Gilet connecte
+- [ ] Systeme de Signature Electronique (Admin -> Documents)
 
-## Fonctionnalites terminees
-- [x] Design clinique (cartes grises, theme sombre)
-- [x] Tableaux de bord Beneficiaire et Gardien
-- [x] Vue sante read-only pour les gardiens
-- [x] Fiche gardien dediee
-- [x] Separation des champs d'adresse
-- [x] Navigation gardien (page dediee avec slide-to-call)
-- [x] Refactoring des fichiers monolithiques (Mars 2026)
-- [x] Bug Fix: Carte "Poids & Nutrition" (gardien) -> ouvre /minceur
-- [x] Bug Fix: Rappels CRUD rafraichissement en temps reel (Mars 2026)
-  - Solution definitive: `ReminderCRUDPopup` gere son propre etat local (`localReminders`) avec `refreshLocal()` pour contourner le batching React 19
-  - Mises a jour optimistes pour toggle et suppression
-  - Retire: `flushSync`, `remKey` (contournements inutiles)
-  - Fichiers modifies: `BeneficiaryPopups.tsx`, `BeneficiaryHome.tsx`
-- [x] UI: Boutons ronds (pill-shaped) partout (Mars 2026)
-  - borderRadius: 999 applique sur tous les boutons d'action
-- [x] Fix API: Cache bypass dans api.ts (cache: no-store, nettoyage inflight)
+### P2
+- [ ] Systeme de parrainage Gardiens
+- [ ] Flux essai gratuit 7 jours
+- [ ] Integration test urinaire Vivoo
 
-- [x] UI: Header avec image en fond sur la page gardien detail (Mars 2026)
-  - Meme pattern que beneficiary-detail: BG_RED, avatar, nom, badges, slide-to-call
-  - Contenu en carte arrondie chevauchant le header
-  - Fichier modifie: `guardian-detail.tsx`
+### BLOCKED
+- [ ] Validation CRC32 serveur TCP J2358 (attente info fabricant)
 
-- [x] UI: Suppression du bouton "Envoyer un SMS" de la page gardien detail (Mars 2026)
-- [x] UI: Suppression de la carte CorrelationsCard de la page sante beneficiaire (Mars 2026)
-- [x] Nora parle a la 3eme personne avec le prenom du beneficiaire pour les gardiens (Mars 2026)
-- [x] Page Sommeil complete style WHOOP (Mars 2026)
-  - Score Performance composite (suffisance, regularite, efficacite, stress)
-  - Hypnogramme 3D SVG avec labels
-  - Repartition des phases (stacked bar + grid 2x2)
-  - Besoin vs Obtenu + dette de sommeil cumulee
-  - Recuperation (VFC, FC repos, zone couleur)
-  - Planificateur de sommeil (coucher, reveil, besoin)
-  - 7 derniers jours (barres empilees colorees + qualite %)
-  - Risque d'apnee du sommeil
-  - Backend: /api/health/sleep/analysis (calculs WHOOP-inspired)
-  - Fichiers: sleep.tsx, health_sleep_routes.py
-  - gen_ai: parametre guardian_view_name pour modifier le prompt
-  - Chat Nora: prompt gardien ameliore avec prenoms des beneficiaires
-  - Fichiers modifies: health_report_routes.py, guardian_routes.py, chat_routes.py
+## Key API Endpoints
+- GET /api/health/sleep/analysis - Metriques WHOOP (performance, sufficiency, consistency, efficiency, sleep_stress, recovery, weekly_trend, sleep_need_min, recommended_bedtime)
+- GET /api/health/sleep/history - Historique 7 jours
+- GET /api/health/sleep - Donnees brutes
+- GET /api/health/daily-report - Rapport quotidien IA
+- GET /api/health/section-analysis/:section - Analyse IA par section
 
-## En cours / Prochaines taches
-- [ ] **P1** : Integration Balance & Gilet
-- [ ] **P1** : Systeme de Signature Electronique (Admin -> Documents)
-- [ ] **BLOQUE** : CRC32 pour serveur TCP J2358 (attente fabricant)
+## Key Architecture
+```
+/app/frontend/app/health-detail.tsx - Page detail sante (sommeil WHOOP integre)
+/app/backend/routes/health_sleep_routes.py - Endpoint analyse sommeil
+/app/frontend/src/components/health/SleepCard.tsx - Widget sommeil dashboard
+/app/frontend/src/components/health/SleepHypnogram.tsx - Graphique phases SVG
+```
 
-## Backlog futur
-- [ ] P2 : Systeme de parrainage Gardien
-- [ ] P2 : Essai gratuit 7 jours
-- [ ] P2 : Integration test urinaire Vivoo
+## Test Credentials
+- Beneficiaire: 0651245918 / test123
+- Gardien: +33612345678 / test123
 
-## Identifiants de test
-- Beneficiaire : `0651245918` / `test123`
-- Gardien : `+33612345678` / `test123`
-
-## Integrations tierces
-- OpenAI GPT-4o — Emergent LLM Key
-- Stripe (Payments) — cle API utilisateur requise
-
-## Notes techniques importantes
-- Le frontend tourne sur React 19.1.0 (batching asynchrone automatique)
-- `api.ts` utilise `cache: 'no-store'` et gere le deduplicate inflight
-- Les popups enfants doivent gerer leur propre etat local pour eviter les problemes de synchronisation React 19
+## Important Technical Notes
+- Metro est en mode CI: redemarrer expo + clear cache pour appliquer les changements
+- Duration API retournee en heures (pas minutes) - conversion necessaire frontend
+- AsyncStorage utilise localStorage sur web avec cle 'vl_token'
+- apiFetch a un systeme de dedup et cache integre
