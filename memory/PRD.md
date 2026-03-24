@@ -1,69 +1,69 @@
-# Chutex Care — Product Requirements Document
+# Chutex Care Watch — PRD
 
-## Original Problem Statement
-Pixel-perfect redesign of the Beneficiary and Guardian dashboards, Health, Programs, and Profile pages. Implement Light/Dark mode toggle, overlapping layouts, Guardian dashboard cleanup, Balance & Vest integration, and electronic signatures on Admin Documents.
+## Objectif
+Application de téléassistance et de suivi de santé préventif pour les personnes âgées. Inclut le suivi des constantes vitales, la détection de chutes, l'assistance 24/7, et des recommandations IA (Nora).
+
+## Stack technique
+- **Frontend** : React Native Web (Expo Router)
+- **Backend** : FastAPI + MongoDB
+- **IA** : OpenAI GPT-4o (via Emergent LLM Key)
+- **IoT** : Serveur TCP asyncio pour bracelet J2358 4G
+- **Paiements** : Stripe (clé utilisateur requise)
 
 ## Architecture
-- **Frontend**: React Native Web (Expo Router), inline conditional Light/Dark styling
-- **Backend**: FastAPI + MongoDB
-- **Theming**: localStorage polling (`chutex_dark`) via setInterval
 
-## Completed Features
-- [x] Light/Dark mode reactive toggle across all pages
-- [x] Redesign Beneficiary/Guardian Dashboards, Health, Programs, Profile
-- [x] Navbar (GlassTabBar) GPU fix + icons only
-- [x] Subscription detail cards + In-app Contract Viewer
-- [x] Teleconsultation UI
-- [x] Guardian permissions system (9 alert types, 7 health types, 3 location modes)
-- [x] Guardian-detail refonte + permissions interactives
-- [x] Beneficiary-detail REFONTE v4 — Style Clinique Premium
-- [x] Health Readonly — Page Sante Gardien
-- [x] J2358 Bracelet V6 4G — TCP Server (port 9001)
-- [x] P0 Fix: Bouton Retour Gardien (fallback window.location.search)
-- [x] Cartes Grises Claires — Fiche Beneficiaire
-- [x] Navigation Gardien → Page Detail Gardien (slide-to-call, mode lecture seule)
-- [x] **Champs Adresse Separes** (Mar 24, 2026):
-  - Modele Pydantic `UserRegister`: postal_code, city, country ajoutes
-  - Backend register: stocke les 3 champs en DB
-  - SAFE_FIELDS: postal_code, city, country ajoutes (retournes par GET /auth/me)
-  - GET /api/guardians/my: renvoie postal_code, city, country par gardien
-  - beneficiary-detail: 4 lignes separees (Adresse, Code postal, Ville, Pays)
-  - guardian-detail: coordonnees avec 6 champs (tel, email, adresse, cp, ville, pays)
-  - Teste: iteration_145 — 100% PASS (5/5 backend + code review frontend)
+### Backend (`/app/backend/`)
+- `server.py` — Point d'entrée FastAPI
+- `routes/`
+  - `auth_routes.py` — Authentification, inscription
+  - `program_routes.py` (886 lignes) — Routes principales programmes
+  - `program_seed_data.py` — Données statiques SEED_PROGRAMS
+  - `program_helpers.py` — Fonctions utilitaires (transform_task_text, enrich_tasks_interactive)
+  - `program_team_routes.py` — Routes équipes (création, invitation, leaderboard)
+  - `teleassistance_routes.py` (458 lignes) — Routes téléassistance + Twilio/ElevenLabs
+  - `escalation_routes.py` — Routes d'escalade + auto_escalation_protocol
+  - `intervention_routes.py` — Routes interventions CARE
+  - `guardian_routes.py` — Routes gardien
+  - Et autres...
+- `services/` — Services externes (ElevenLabs, VAPI, J2358 TCP)
+- `models.py` — Modèles Pydantic
+- `auth.py` — Authentification JWT + SAFE_FIELDS
 
-## P0 — Upcoming
-- [ ] Balance & Vest Integration (verify data flow from scale/vest alongside bracelet data)
+### Frontend (`/app/frontend/`)
+- `app/(tabs)/` — Pages principaux (dashboard, santé, programmes, profil)
+- `app/(tabs)/profile.tsx` (772 lignes) — Page profil (refactorisée)
+- `src/components/profile/` — Composants profil extraits :
+  - `ProfileMedicalPopup.tsx` — Popup dossier médical
+  - `ProfileLegalPopups.tsx` — RGPD, Confidentialité, CGU, Mentions
+  - `ProfileBenActivation.tsx` — Activation espace bénéficiaire
+- `app/beneficiary-detail.tsx` (484 lignes) — Fiche bénéficiaire
 
-## P1
-- [ ] Electronic Signature System (Admin -> Documents)
+## Fonctionnalités terminées
+- [x] Design clinique (cartes grises, thème sombre)
+- [x] Tableaux de bord Bénéficiaire et Gardien
+- [x] Vue santé read-only pour les gardiens
+- [x] Fiche gardien dédiée (`guardian-detail.tsx`)
+- [x] Séparation des champs d'adresse (adresse, code postal, ville, pays)
+- [x] Navigation gardien (page dédiée avec slide-to-call)
+- [x] Refactoring des fichiers monolithiques (P0 - Mars 2026)
+  - program_routes.py : 1866 → 886 lignes (-53%)
+  - teleassistance_routes.py : 1131 → 458 lignes (-60%)
+  - profile.tsx : 1071 → 772 lignes (-28%)
 
-## Blocked
-- [ ] CRC32 Custom Validation for J2358 TCP Server (waiting manufacturer sample)
+## En cours / Prochaines tâches
+- [ ] **P0** : Intégration Balance & Gilet (à démarrer)
+- [ ] **P1** : Système de Signature Électronique (Admin → Documents)
+- [ ] **BLOQUÉ** : CRC32 pour serveur TCP J2358 (attente fabricant)
 
-## P2 — Future/Backlog
-- [ ] Guardian Referral System
-- [ ] Free 7-Day Trial Flow
-- [ ] Vivoo Urine Test Integration
-- [ ] Refactoring: Backend routes + profile.tsx + beneficiary-detail.tsx
+## Backlog futur
+- [ ] P2 : Système de parrainage Gardien
+- [ ] P2 : Essai gratuit 7 jours
+- [ ] P2 : Intégration test urinaire Vivoo
 
-## Test Credentials
-| Role | Email/Phone | Password |
-|------|------------|----------|
-| Beneficiary (Josette) | 0651245918 | test123 |
-| Guardian (Claire) | +33612345678 | test123 |
+## Identifiants de test
+- Bénéficiaire : `0651245918` / `test123`
+- Gardien : `+33612345678` / `test123`
 
-## Key Files
-- `/app/frontend/app/beneficiary-detail.tsx`
-- `/app/frontend/app/guardian-detail.tsx`
-- `/app/frontend/app/health-readonly.tsx`
-- `/app/frontend/app/metric-detail.tsx`
-- `/app/frontend/app/health-detail.tsx`
-- `/app/backend/models.py`
-- `/app/backend/auth.py`
-- `/app/backend/routes/auth_routes.py`
-- `/app/backend/routes/guardian_routes.py`
-- `/app/backend/services/j2358_tcp_server.py`
-
-## 3rd Party Integrations
-- OpenAI GPT-4o (Emergent LLM Key)
-- Stripe (Payments) — requires User API Key
+## Intégrations tierces
+- OpenAI GPT-4o — Emergent LLM Key
+- Stripe (Payments) — clé API utilisateur requise
