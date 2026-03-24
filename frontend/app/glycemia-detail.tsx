@@ -245,14 +245,14 @@ export default function GlycemiaDetailPage() {
                 {/* Input + button — responsive */}
                 <div style={{ display: 'flex', gap: 8 } as any}>
                   <input data-testid="glycemia-input" type="number" step="0.01" placeholder="Ex: 1.05 g/L" value={calibValue} onChange={(e: any) => setCalibValue(e.target.value)} style={{ flex: 1, minWidth: 0, padding: '12px 14px', borderRadius: 12, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', color: '#FFF', fontSize: 15, fontWeight: 700, fontFamily: 'inherit', outline: 'none', boxSizing: 'border-box' } as any} />
-                  <div data-testid="save-calibration" onClick={saveCalibration} style={{ padding: '12px 18px', borderRadius: 12, background: saving ? 'rgba(255,255,255,0.04)' : 'rgba(255,255,255,0.12)', border: '1px solid rgba(255,255,255,0.2)', cursor: saving ? 'wait' : 'pointer', fontSize: 13, fontWeight: 800, color: '#FFF', display: 'flex', alignItems: 'center', gap: 5, flexShrink: 0, whiteSpace: 'nowrap' } as any}>
+                  <div data-testid="save-calibration" onClick={saveCalibration} style={{ padding: '12px 18px', borderRadius: 999, background: saving ? 'rgba(255,255,255,0.04)' : 'rgba(255,255,255,0.12)', border: '1px solid rgba(255,255,255,0.2)', cursor: saving ? 'wait' : 'pointer', fontSize: 13, fontWeight: 800, color: '#FFF', display: 'flex', alignItems: 'center', gap: 5, flexShrink: 0, whiteSpace: 'nowrap' } as any}>
                     <i className="ri-add-line" style={{ fontSize: 15 }} />{saving ? '...' : 'Ajouter'}
                   </div>
                 </div>
 
                 {/* History */}
                 {calibrations.length > 0 && (
-                  <div data-testid="show-history" onClick={() => setShowHistory(true)} style={{ textAlign: 'center', padding: '10px', marginTop: 10, borderRadius: 12, background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)', cursor: 'pointer', fontSize: 11, fontWeight: 700, color: P } as any}>
+                  <div data-testid="show-history" onClick={() => setShowHistory(true)} style={{ textAlign: 'center', padding: '10px', marginTop: 10, borderRadius: 999, background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)', cursor: 'pointer', fontSize: 11, fontWeight: 700, color: P } as any}>
                     <i className="ri-history-line" style={{ fontSize: 13, marginRight: 6 }} />Voir l'historique
                   </div>
                 )}

@@ -87,8 +87,8 @@ export function NotificationsPopup({ show, onClose, activeAlerts, guardianReques
               </div>
             </div>
             <div style={{ display: 'flex', gap: 8 } as any}>
-              <div onClick={() => handleAccept(r.id)} style={{ flex: 1, padding: '11px', borderRadius: 12, background: 'rgba(16,185,129,0.12)', border: '1px solid rgba(16,185,129,0.2)', cursor: processing === r.id ? 'wait' : 'pointer', textAlign: 'center', fontSize: 13, fontWeight: 700, color: '#10B981' } as any}>{processing === r.id ? '...' : 'Accepter'}</div>
-              <div onClick={() => handleReject(r.id)} style={{ flex: 1, padding: '11px', borderRadius: 12, background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.15)', cursor: processing === r.id ? 'wait' : 'pointer', textAlign: 'center', fontSize: 13, fontWeight: 700, color: '#EF4444' } as any}>{processing === r.id ? '...' : 'Refuser'}</div>
+              <div onClick={() => handleAccept(r.id)} style={{ flex: 1, padding: '11px', borderRadius: 999, background: 'rgba(16,185,129,0.12)', border: '1px solid rgba(16,185,129,0.2)', cursor: processing === r.id ? 'wait' : 'pointer', textAlign: 'center', fontSize: 13, fontWeight: 700, color: '#10B981' } as any}>{processing === r.id ? '...' : 'Accepter'}</div>
+              <div onClick={() => handleReject(r.id)} style={{ flex: 1, padding: '11px', borderRadius: 999, background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.15)', cursor: processing === r.id ? 'wait' : 'pointer', textAlign: 'center', fontSize: 13, fontWeight: 700, color: '#EF4444' } as any}>{processing === r.id ? '...' : 'Refuser'}</div>
             </div>
           </div>
         ))}
@@ -221,9 +221,9 @@ export function ReminderCRUDPopup({ show, editReminder, setEditReminder, onClose
               <div onClick={async () => {
                 const r = typeRems.find((r: any) => r.id === editingId);
                 if (!r) return;
-                try { await apiFetch(`/api/reminders/${r.id}`, { method: 'PUT', body: JSON.stringify({ ...editingData, reminder_type: popupType, title: editingData.notes || meta.label }) }, token); fetchData(); setEditReminder({ ...editReminder, _editingId: null, _editingData: null }); } catch {}
-              }} style={{ flex: 1, padding: '14px', borderRadius: 14, background: accent, cursor: 'pointer', textAlign: 'center', fontSize: 14, fontWeight: 800, color: '#FFF' } as any}>Sauvegarder</div>
-              <div onClick={() => setEditReminder({ ...editReminder, _editingId: null, _editingData: null })} style={{ padding: '14px 20px', borderRadius: 14, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', cursor: 'pointer', fontSize: 14, fontWeight: 700, color: 'rgba(255,255,255,0.4)' } as any}>Annuler</div>
+                try { await apiFetch(`/api/reminders/${r.id}`, { method: 'PUT', body: JSON.stringify({ ...editingData, reminder_type: popupType, title: editingData.notes || meta.label }) }, token); await fetchData(); setEditReminder({ ...editReminder, _editingId: null, _editingData: null }); } catch {}
+              }} style={{ flex: 1, padding: '14px', borderRadius: 999, background: accent, cursor: 'pointer', textAlign: 'center', fontSize: 14, fontWeight: 800, color: '#FFF' } as any}>Sauvegarder</div>
+              <div onClick={() => setEditReminder({ ...editReminder, _editingId: null, _editingData: null })} style={{ padding: '14px 20px', borderRadius: 999, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', cursor: 'pointer', fontSize: 14, fontWeight: 700, color: 'rgba(255,255,255,0.4)' } as any}>Annuler</div>
             </div>
           </div>
         ) : (
@@ -239,7 +239,7 @@ export function ReminderCRUDPopup({ show, editReminder, setEditReminder, onClose
                     <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)', marginTop: 2 }}>{daysStr}{r.notes ? ` · ${r.notes}` : ''}</div>
                   </div>
                   {/* Toggle */}
-                  <div onClick={async () => { try { await apiFetch(`/api/reminders/${r.id}/toggle`, { method: 'PUT' }, token); fetchData(); } catch {} }} style={{ width: 48, height: 26, borderRadius: 13, background: r.active ? `${accent}40` : 'rgba(255,255,255,0.08)', border: `1px solid ${r.active ? accent : 'rgba(255,255,255,0.12)'}`, cursor: 'pointer', position: 'relative', flexShrink: 0, transition: 'all 0.2s' } as any}>
+                  <div onClick={async () => { try { await apiFetch(`/api/reminders/${r.id}/toggle`, { method: 'PUT' }, token); await fetchData(); } catch {} }} style={{ width: 48, height: 26, borderRadius: 13, background: r.active ? `${accent}40` : 'rgba(255,255,255,0.08)', border: `1px solid ${r.active ? accent : 'rgba(255,255,255,0.12)'}`, cursor: 'pointer', position: 'relative', flexShrink: 0, transition: 'all 0.2s' } as any}>
                     <div style={{ width: 20, height: 20, borderRadius: 10, background: r.active ? accent : 'rgba(255,255,255,0.3)', position: 'absolute', top: 2, left: r.active ? 24 : 2, transition: 'left 0.2s' } as any} />
                   </div>
                   {/* Delete */}
@@ -259,7 +259,7 @@ export function ReminderCRUDPopup({ show, editReminder, setEditReminder, onClose
             )}
 
             {/* Add button */}
-            <div onClick={async () => { try { await apiFetch('/api/reminders', { method: 'POST', body: JSON.stringify({ reminder_type: popupType, title: meta.label, time: '08:00', days: ['lun','mar','mer','jeu','ven','sam','dim'], notes: '', active: true }) }, token); fetchData(); } catch {} }} style={{ padding: '14px', borderRadius: 14, background: `${accent}15`, border: `1px solid ${accent}30`, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, marginTop: 4, transition: 'background 0.15s' } as any}
+            <div onClick={async () => { try { await apiFetch('/api/reminders', { method: 'POST', body: JSON.stringify({ reminder_type: popupType, title: meta.label, time: '08:00', days: ['lun','mar','mer','jeu','ven','sam','dim'], notes: '', active: true }) }, token); await fetchData(); } catch {} }} style={{ padding: '14px', borderRadius: 999, background: `${accent}15`, border: `1px solid ${accent}30`, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, marginTop: 4, transition: 'background 0.15s' } as any}
               onMouseEnter={(e: any) => { e.currentTarget.style.background = `${accent}25`; }}
               onMouseLeave={(e: any) => { e.currentTarget.style.background = `${accent}15`; }}>
               <i className="ri-add-line" style={{ fontSize: 18, color: accent }} />
@@ -285,10 +285,10 @@ export function ReminderNotifPopup({ reminderNotif, setReminderNotif, reminderMe
           <div style={{ fontSize: 22, fontWeight: 900, color: '#FFF', marginBottom: 6 }}>{meta.label}</div>
           {reminderNotif.notes && <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)', marginBottom: 6 }}>{reminderNotif.notes}</div>}
           <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.35)', marginBottom: 24, lineHeight: 1.5 }}>{meta.question}</div>
-          <div onClick={async () => { try { await apiFetch(`/api/reminders/${reminderNotif.id}/complete`, { method: 'PUT' }, token); } catch {} setReminderNotif(null); fetchData(); }} style={{ padding: '14px', borderRadius: 14, background: '#10B981', cursor: 'pointer', fontSize: 15, fontWeight: 800, color: '#FFF', marginBottom: 10 } as any}>
+          <div onClick={async () => { try { await apiFetch(`/api/reminders/${reminderNotif.id}/complete`, { method: 'PUT' }, token); } catch {} setReminderNotif(null); await fetchData(); }} style={{ padding: '14px', borderRadius: 999, background: '#10B981', cursor: 'pointer', fontSize: 15, fontWeight: 800, color: '#FFF', marginBottom: 10 } as any}>
             Confirmer
           </div>
-          <div onClick={() => setReminderNotif(null)} style={{ padding: '12px', borderRadius: 14, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', cursor: 'pointer', fontSize: 13, fontWeight: 700, color: 'rgba(255,255,255,0.4)' } as any}>Plus tard</div>
+          <div onClick={() => setReminderNotif(null)} style={{ padding: '12px', borderRadius: 999, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', cursor: 'pointer', fontSize: 13, fontWeight: 700, color: 'rgba(255,255,255,0.4)' } as any}>Plus tard</div>
         </div>
       </div>
     </div>
@@ -351,7 +351,7 @@ export function AddGuardianPopup({ show, onClose, phone, setPhone, relationship,
             setMsg(res.message || 'Invitation envoyee !');
             if (res.status !== 'error') { fetchData(); setTimeout(onClose, 2500); }
           } catch (e: any) { setMsg(`Erreur : ${(e as any).message}`); } finally { setIsLoading(false); }
-        }} style={{ padding: '14px', borderRadius: 12, textAlign: 'center', cursor: phone.trim() ? 'pointer' : 'not-allowed', background: phone.trim() ? 'linear-gradient(135deg, rgba(14,116,144,0.4), rgba(34,211,238,0.2))' : 'rgba(255,255,255,0.03)', border: `1px solid ${phone.trim() ? 'rgba(34,211,238,0.3)' : 'rgba(255,255,255,0.06)'}`, color: phone.trim() ? '#FFF' : 'rgba(255,255,255,0.3)', fontSize: 14, fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 } as any}>
+        }} style={{ padding: '14px', borderRadius: 999, textAlign: 'center', cursor: phone.trim() ? 'pointer' : 'not-allowed', background: phone.trim() ? 'linear-gradient(135deg, rgba(14,116,144,0.4), rgba(34,211,238,0.2))' : 'rgba(255,255,255,0.03)', border: `1px solid ${phone.trim() ? 'rgba(34,211,238,0.3)' : 'rgba(255,255,255,0.06)'}`, color: phone.trim() ? '#FFF' : 'rgba(255,255,255,0.3)', fontSize: 14, fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 } as any}>
           {isLoading ? 'Envoi...' : <><i className="ri-send-plane-line" style={{ fontSize: 15 }} />Envoyer l'invitation</>}
         </div>
       </div>
@@ -394,7 +394,7 @@ export function CheckinPopup({ show, onClose, activeProgram, mood, setMood, note
               if (sending) return;
               setSending(true);
               try { const res = await apiFetch('/api/programs/checkin', { method: 'POST', body: JSON.stringify({ mood, note }) }, token); setFeedback(res.feedback || 'Bravo !'); fetchData(); } catch {} finally { setSending(false); }
-            }} style={{ padding: '14px', borderRadius: 14, textAlign: 'center', cursor: 'pointer', background: `linear-gradient(135deg, ${activeProgram.program?.color || '#22D3EE'}40, ${activeProgram.program?.color || '#22D3EE'}20)`, border: `1px solid ${activeProgram.program?.color || '#22D3EE'}30`, fontSize: 14, fontWeight: 700, color: '#FFF' } as any}>
+            }} style={{ padding: '14px', borderRadius: 999, textAlign: 'center', cursor: 'pointer', background: `linear-gradient(135deg, ${activeProgram.program?.color || '#22D3EE'}40, ${activeProgram.program?.color || '#22D3EE'}20)`, border: `1px solid ${activeProgram.program?.color || '#22D3EE'}30`, fontSize: 14, fontWeight: 700, color: '#FFF' } as any}>
               {sending ? 'Envoi...' : 'Valider mon check-in'}
             </div>
           </>
@@ -403,7 +403,7 @@ export function CheckinPopup({ show, onClose, activeProgram, mood, setMood, note
             <div style={{ fontSize: 48, marginBottom: 16 }}>{'\u{1F389}'}</div>
             <div style={{ fontSize: 18, fontWeight: 900, color: '#FFF', marginBottom: 12 }}>Check-in valide !</div>
             <div style={{ fontSize: 14, color: 'rgba(255,255,255,0.5)', lineHeight: 1.5, marginBottom: 20, padding: '14px', borderRadius: 14, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)' } as any}>"{feedback}"</div>
-            <div onClick={() => { onClose(); setFeedback(''); setNote(''); setMood(3); }} style={{ padding: '12px', borderRadius: 14, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', cursor: 'pointer', fontSize: 14, fontWeight: 700, color: '#FFF' } as any}>Fermer</div>
+            <div onClick={() => { onClose(); setFeedback(''); setNote(''); setMood(3); }} style={{ padding: '12px', borderRadius: 999, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', cursor: 'pointer', fontSize: 14, fontWeight: 700, color: '#FFF' } as any}>Fermer</div>
           </div>
         )}
       </div>
@@ -440,7 +440,7 @@ export function GuardianActivationPopup({ show, onClose, step, setStep, alertSms
                 <div><div style={{ fontSize: 13, fontWeight: 700, color: '#FFF', marginBottom: 2 }}>{f.title}</div><div style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)', lineHeight: 1.4 }}>{f.desc}</div></div>
               </div>
             ))}
-            <div data-testid="guardian-activation-next" onClick={() => setStep(1)} style={{ marginTop: 24, padding: '14px', borderRadius: 14, textAlign: 'center', cursor: 'pointer', background: 'linear-gradient(135deg, rgba(167,139,250,0.2), rgba(139,92,246,0.1))', border: '1px solid rgba(167,139,250,0.25)', fontSize: 14, fontWeight: 700, color: '#FFF', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 } as any}>
+            <div data-testid="guardian-activation-next" onClick={() => setStep(1)} style={{ marginTop: 24, padding: '14px', borderRadius: 999, textAlign: 'center', cursor: 'pointer', background: 'linear-gradient(135deg, rgba(167,139,250,0.2), rgba(139,92,246,0.1))', border: '1px solid rgba(167,139,250,0.25)', fontSize: 14, fontWeight: 700, color: '#FFF', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 } as any}>
               <span>Continuer</span><i className="ri-arrow-right-line" style={{ fontSize: 16 }} />
             </div>
           </>
@@ -470,7 +470,7 @@ export function GuardianActivationPopup({ show, onClose, step, setStep, alertSms
                 <div style={{ width: 20, height: 20, borderRadius: 10, background: alertEmail ? '#38BDF8' : 'rgba(255,255,255,0.4)', position: 'absolute', top: 2, left: alertEmail ? 24 : 2, transition: 'left 0.2s' } as any} />
               </div>
             </div>
-            <div data-testid="activate-guardian-btn" onClick={onActivate} style={{ padding: '16px', borderRadius: 14, textAlign: 'center', cursor: activating ? 'wait' : 'pointer', background: 'linear-gradient(135deg, rgba(167,139,250,0.25), rgba(139,92,246,0.15))', border: '1px solid rgba(167,139,250,0.3)', boxShadow: '0 4px 20px rgba(139,92,246,0.2)', fontSize: 15, fontWeight: 800, color: '#FFF', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10 } as any}>
+            <div data-testid="activate-guardian-btn" onClick={onActivate} style={{ padding: '16px', borderRadius: 999, textAlign: 'center', cursor: activating ? 'wait' : 'pointer', background: 'linear-gradient(135deg, rgba(167,139,250,0.25), rgba(139,92,246,0.15))', border: '1px solid rgba(167,139,250,0.3)', boxShadow: '0 4px 20px rgba(139,92,246,0.2)', fontSize: 15, fontWeight: 800, color: '#FFF', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10 } as any}>
               {activating ? <span>Activation en cours...</span> : <><i className="ri-shield-check-line" style={{ fontSize: 18 }} /><span>Activer l'espace aidant</span></>}
             </div>
             <div onClick={() => setStep(0)} style={{ marginTop: 12, padding: '10px', borderRadius: 10, textAlign: 'center', cursor: 'pointer', fontSize: 12, fontWeight: 600, color: 'rgba(255,255,255,0.3)' } as any}><i className="ri-arrow-left-line" style={{ marginRight: 4 }} />Retour</div>

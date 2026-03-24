@@ -209,12 +209,16 @@ export function BeneficiaryHome({ token, user }: { token: string; user: any }) {
       } else {
         await apiFetch('/api/reminders', { method: 'POST', body: JSON.stringify(remForm) }, token);
       }
-      setShowReminderCRUD(false); setEditReminder(null); fetchData();
+      setShowReminderCRUD(false); setEditReminder(null); await fetchData();
     } catch {}
   };
 
   const deleteReminder = async (id: string) => {
-    try { await apiFetch(`/api/reminders/${id}`, { method: 'DELETE' }, token); fetchData(); } catch {}
+    try {
+      await apiFetch(`/api/reminders/${id}`, { method: 'DELETE' }, token);
+      setReminders(prev => prev.filter(r => r.id !== id));
+      fetchData();
+    } catch {}
   };
 
   const handleSOS = async () => {
@@ -354,10 +358,10 @@ export function BeneficiaryHome({ token, user }: { token: string; user: any }) {
               <div style={{ display: 'flex', gap: 8 } as any}>
                 <div data-testid={`accept-team-${inv.id}`} onClick={async () => {
                   try { await apiFetch(`/api/programs/team/invitations/${inv.id}/accept`, { method: 'POST' }, token); setTeamInvitations(prev => prev.filter(i => i.id !== inv.id)); fetchData(); } catch {}
-                }} style={{ flex: 1, padding: '12px', borderRadius: 10, background: 'rgba(16,185,129,0.08)', border: '1px solid rgba(16,185,129,0.15)', textAlign: 'center', cursor: 'pointer', fontSize: 13, fontWeight: 700, color: '#10B981' } as any}>Accepter</div>
+                }} style={{ flex: 1, padding: '12px', borderRadius: 999, background: 'rgba(16,185,129,0.08)', border: '1px solid rgba(16,185,129,0.15)', textAlign: 'center', cursor: 'pointer', fontSize: 13, fontWeight: 700, color: '#10B981' } as any}>Accepter</div>
                 <div data-testid={`reject-team-${inv.id}`} onClick={async () => {
                   try { await apiFetch(`/api/programs/team/invitations/${inv.id}/reject`, { method: 'POST' }, token); setTeamInvitations(prev => prev.filter(i => i.id !== inv.id)); } catch {}
-                }} style={{ flex: 1, padding: '12px', borderRadius: 10, background: C.card, border: `1px solid ${C.border}`, textAlign: 'center', cursor: 'pointer', fontSize: 13, fontWeight: 600, color: C.sub } as any}>Refuser</div>
+                }} style={{ flex: 1, padding: '12px', borderRadius: 999, background: C.card, border: `1px solid ${C.border}`, textAlign: 'center', cursor: 'pointer', fontSize: 13, fontWeight: 600, color: C.sub } as any}>Refuser</div>
               </div>
             </div>
           ))}

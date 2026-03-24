@@ -564,15 +564,15 @@ export default function MetricDetailScreen() {
                       </div>
                     )}
                   </div>
-                  <div onClick={() => { setThEdit(true); setThMax(threshold?.goal || threshold?.max_val?.toString() || goal?.value || ''); }} style={{ padding: '12px', borderRadius: 12, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', cursor: 'pointer', textAlign: 'center', fontSize: 13, fontWeight: 700, color: 'rgba(255,255,255,0.5)' } as any}>Modifier l'objectif</div>
+                  <div onClick={() => { setThEdit(true); setThMax(threshold?.goal || threshold?.max_val?.toString() || goal?.value || ''); }} style={{ padding: '12px', borderRadius: 999, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', cursor: 'pointer', textAlign: 'center', fontSize: 13, fontWeight: 700, color: 'rgba(255,255,255,0.5)' } as any}>Modifier l'objectif</div>
                 </>
               ) : (
                 <div>
                   <div style={{ fontSize: 9, fontWeight: 700, color: 'rgba(16,185,129,0.7)', textTransform: 'uppercase', marginBottom: 6 }}>Nouvel objectif ({goal?.label || m.unit})</div>
                   <input type="number" step="1" value={thMax} onChange={(e: any) => setThMax(e.target.value)} placeholder={goal?.value || '0'} style={{ width: '100%', padding: '14px', borderRadius: 12, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(16,185,129,0.2)', color: '#FFF', fontSize: 20, fontWeight: 800, fontFamily: 'inherit', boxSizing: 'border-box', outline: 'none', textAlign: 'center', marginBottom: 12 } as any} />
                   <div style={{ display: 'flex', gap: 8 } as any}>
-                    <div onClick={async () => { setThSaving(true); try { await apiFetch('/api/health/thresholds', { method: 'POST', body: JSON.stringify({ metric_id: key, goal: thMax ? parseFloat(thMax) : null, max_val: thMax ? parseFloat(thMax) : null }) }, token); setThreshold({ metric_id: key, goal: thMax ? parseFloat(thMax) : null, max_val: thMax ? parseFloat(thMax) : null }); setThEdit(false); } catch {} finally { setThSaving(false); } }} style={{ flex: 1, padding: '12px', borderRadius: 12, background: '#10B981', cursor: 'pointer', textAlign: 'center', fontSize: 14, fontWeight: 800, color: '#FFF' } as any}>{thSaving ? '...' : 'Sauvegarder'}</div>
-                    <div onClick={() => setThEdit(false)} style={{ padding: '12px 16px', borderRadius: 12, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', cursor: 'pointer', fontSize: 13, fontWeight: 700, color: 'rgba(255,255,255,0.4)' } as any}>Annuler</div>
+                    <div onClick={async () => { setThSaving(true); try { await apiFetch('/api/health/thresholds', { method: 'POST', body: JSON.stringify({ metric_id: key, goal: thMax ? parseFloat(thMax) : null, max_val: thMax ? parseFloat(thMax) : null }) }, token); setThreshold({ metric_id: key, goal: thMax ? parseFloat(thMax) : null, max_val: thMax ? parseFloat(thMax) : null }); setThEdit(false); } catch {} finally { setThSaving(false); } }} style={{ flex: 1, padding: '12px', borderRadius: 999, background: '#10B981', cursor: 'pointer', textAlign: 'center', fontSize: 14, fontWeight: 800, color: '#FFF' } as any}>{thSaving ? '...' : 'Sauvegarder'}</div>
+                    <div onClick={() => setThEdit(false)} style={{ padding: '12px 16px', borderRadius: 999, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', cursor: 'pointer', fontSize: 13, fontWeight: 700, color: 'rgba(255,255,255,0.4)' } as any}>Annuler</div>
                   </div>
                 </div>
               )}
@@ -608,7 +608,7 @@ export default function MetricDetailScreen() {
                   if (!thMin && nMin != null) setThMin(String(nMin));
                   if (!thMax && nMax != null) setThMax(String(nMax));
                 }
-              }} style={{ padding: '6px 14px', borderRadius: 10, background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)', cursor: 'pointer', fontSize: 11, fontWeight: 700, color: '#FFF' } as any}>
+              }} style={{ padding: '6px 14px', borderRadius: 999, background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)', cursor: 'pointer', fontSize: 11, fontWeight: 700, color: '#FFF' } as any}>
                 {threshold?.min_val != null ? 'Modifier' : 'Configurer'}
               </div>
             )}
@@ -660,8 +660,8 @@ export default function MetricDetailScreen() {
                     setThreshold({ metric_id: key, min_val: thMin ? parseFloat(thMin) : null, max_val: thMax ? parseFloat(thMax) : null });
                     setThEdit(false);
                   } catch {} finally { setThSaving(false); }
-                }} style={{ flex: 1, padding: '12px', borderRadius: 12, background: color, cursor: 'pointer', textAlign: 'center', fontSize: 14, fontWeight: 800, color: '#FFF' } as any}>{thSaving ? '...' : 'Sauvegarder'}</div>
-                <div onClick={() => setThEdit(false)} style={{ padding: '12px 16px', borderRadius: 12, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', cursor: 'pointer', fontSize: 13, fontWeight: 700, color: 'rgba(255,255,255,0.4)' } as any}>Annuler</div>
+                }} style={{ flex: 1, padding: '12px', borderRadius: 999, background: color, cursor: 'pointer', textAlign: 'center', fontSize: 14, fontWeight: 800, color: '#FFF' } as any}>{thSaving ? '...' : 'Sauvegarder'}</div>
+                <div onClick={() => setThEdit(false)} style={{ padding: '12px 16px', borderRadius: 999, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', cursor: 'pointer', fontSize: 13, fontWeight: 700, color: 'rgba(255,255,255,0.4)' } as any}>Annuler</div>
               </div>
             </div>
           )}

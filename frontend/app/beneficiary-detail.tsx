@@ -282,7 +282,7 @@ export default function BeneficiaryDetailScreen() {
           </>)}
 
           {/* CTA: voir page sante — NOIR + icone ADN blanc */}
-          <div data-testid="view-health-page-btn" onClick={() => router.push({ pathname: '/health-readonly' as any, params: { beneficiaryId: activeBid } })} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10, padding: '14px 0', borderRadius: 14, background: isDark ? '#FFF' : '#111', cursor: 'pointer', marginBottom: 4, transition: 'opacity 0.15s' } as any}
+          <div data-testid="view-health-page-btn" onClick={() => router.push({ pathname: '/health-readonly' as any, params: { beneficiaryId: activeBid } })} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10, padding: '14px 0', borderRadius: 999, background: isDark ? '#FFF' : '#111', cursor: 'pointer', marginBottom: 4, transition: 'opacity 0.15s' } as any}
             onMouseEnter={(e: any) => e.currentTarget.style.opacity = '0.85'} onMouseLeave={(e: any) => e.currentTarget.style.opacity = '1'}>
             <i className="ri-dna-line" style={{ fontSize: 18, color: isDark ? '#111' : '#FFF' }} />
             <span style={{ fontSize: 14, fontWeight: 700, color: isDark ? '#111' : '#FFF', letterSpacing: 0.2 }}>Voir la page sante</span>

@@ -194,10 +194,10 @@ export default function ECGScreen() {
               ))}
             </div>
 
-            <div data-testid="ecg-view-report" onClick={() => router.push({ pathname: '/ecg-detail' as any, params: { id: result.id } })} style={{ padding: '16px', borderRadius: 16, background: 'rgba(255,255,255,0.12)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', border: '1px solid rgba(255,255,255,0.2)', cursor: 'pointer', fontSize: 16, fontWeight: 800, color: '#FFF', textAlign: 'center', marginBottom: 10 } as any}>
+            <div data-testid="ecg-view-report" onClick={() => router.push({ pathname: '/ecg-detail' as any, params: { id: result.id } })} style={{ padding: '16px', borderRadius: 999, background: 'rgba(255,255,255,0.12)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', border: '1px solid rgba(255,255,255,0.2)', cursor: 'pointer', fontSize: 16, fontWeight: 800, color: '#FFF', textAlign: 'center', marginBottom: 10 } as any}>
               Voir le rapport detaille
             </div>
-            <div onClick={() => { setStep(0); setResult(null); }} style={{ padding: '12px', borderRadius: 14, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', cursor: 'pointer', fontSize: 13, fontWeight: 700, color: 'rgba(255,255,255,0.4)', textAlign: 'center' } as any}>Nouvel ECG</div>
+            <div onClick={() => { setStep(0); setResult(null); }} style={{ padding: '12px', borderRadius: 999, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', cursor: 'pointer', fontSize: 13, fontWeight: 700, color: 'rgba(255,255,255,0.4)', textAlign: 'center' } as any}>Nouvel ECG</div>
             <div onClick={() => router.back()} style={{ marginTop: 10, padding: '10px', cursor: 'pointer', fontSize: 12, color: 'rgba(255,255,255,0.25)', textAlign: 'center' } as any}>Retour</div>
           </div>
         )}
