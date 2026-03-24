@@ -51,6 +51,12 @@ Refonte complete des tableaux de bord Beneficiaire et Gardien, des pages Sante, 
   - Cause racine: useEffect cleanup ne fonctionne pas car onglets Expo Router ne se demontent pas
   - Solution: GlassTabBar gere son propre style via route active (forceNavDark)
   - Ajout nettoyage defensif dans GlassTabBar pour styles residuels
+- [x] **Autorisations Gardiens - Partage Sante** (Mars 2026):
+  - 3 options sante: Donnees vitales uniquement (pouls, tension, temp, SpO2), Toutes les donnees, Aucune
+  - Toggles Localisation et Alertes
+  - Page data-sharing.tsx redessinee avec design premium dark
+  - Lien "Autorisations gardiens" ajoute dans profil beneficiaire
+  - Backend DataSharingPrefs mis a jour (health_sharing: all/vitals_only/none)
 
 ## Prioritized Backlog
 ### P1
