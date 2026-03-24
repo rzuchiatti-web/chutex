@@ -47,6 +47,13 @@ Pixel-perfect redesign of the Beneficiary and Guardian dashboards, Health, Progr
 ## P1
 - [ ] Electronic Signature System (Admin -> Documents)
 
+## Recently Completed
+- [x] **J2358 Bracelet V6 4G — TCP Server** (Mar 24, 2026):
+  - Serveur TCP asyncio sur port 9001, protocole binaire J2358
+  - Parse: heartbeat, GPS, santé (FC/SpO2/HRV/tension/temp/pas/calories), SOS, sommeil, batterie
+  - Routes HTTP: firmware upload/download, device register, TCP status
+  - Alertes SOS auto avec geolocalisation
+
 ## P2 — Future/Backlog
 - [ ] Guardian Referral System
 - [ ] Free 7-Day Trial Flow
@@ -61,9 +68,12 @@ Pixel-perfect redesign of the Beneficiary and Guardian dashboards, Health, Progr
 
 ## Key Files
 - `/app/frontend/app/beneficiary-detail.tsx` (REFONTE v4 - style clinique)
+- `/app/frontend/app/health-readonly.tsx` (Page santé gardien lecture seule)
 - `/app/frontend/src/components/dashboard/BeneficiaryHome.tsx`
 - `/app/frontend/src/components/GlassTabBar.tsx`
 - `/app/backend/routes/guardian_routes.py`
+- `/app/backend/services/j2358_tcp_server.py` (Serveur TCP bracelet V6)
+- `/app/backend/routes/j2358_routes.py` (Routes firmware/device V6)
 
 ## 3rd Party Integrations
 - OpenAI GPT-4o (Emergent LLM Key)

@@ -36,6 +36,7 @@ from routes.minceur_routes import router as minceur_router
 from routes.glycemia_routes import router as glycemia_router
 from routes.batch_routes import router as batch_router
 from routes.live_status_routes import router as live_status_router
+from routes.j2358_routes import router as j2358_router
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -72,6 +73,7 @@ api_router.include_router(minceur_router)
 api_router.include_router(glycemia_router)
 api_router.include_router(batch_router)
 api_router.include_router(live_status_router)
+api_router.include_router(j2358_router)
 
 app.include_router(api_router)
 app.add_middleware(CORSMiddleware, allow_credentials=True, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
@@ -308,3 +310,14 @@ async def seed_demo_data():
 @app.on_event("shutdown")
 async def shutdown_db_client():
     client.close()
+
+
+# ── J2358 TCP Server — launch in background on startup ──
+@app.on_event("startup")
+async def start_j2358_tcp():
+    """Start the J2358 V6 bracelet TCP server as a background task."""
+    import asyncio
+    from services.j2358_tcp_server import start_tcp_server
+    asyncio.create_task(start_tcp_server())
+    logger.info("J2358 TCP server task launched")
+
