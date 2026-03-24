@@ -94,8 +94,8 @@ export default function BeneficiaryDetailScreen() {
   const bracelet = devices?.bracelet || null; const scale = devices?.scale || null; const vest = devices?.vest || null;
 
   const C = isDark
-    ? { text: '#FFF', sub: 'rgba(255,255,255,0.5)', muted: 'rgba(255,255,255,0.28)', faint: 'rgba(255,255,255,0.15)', sep: 'rgba(255,255,255,0.07)', row: 'rgba(255,255,255,0.03)', toggleBg: 'rgba(255,255,255,0.08)', contentBg: 'linear-gradient(180deg, #0C0C14 0%, #1C1C24 100%)', border: 'rgba(255,255,255,0.07)', grey: 'rgba(255,255,255,0.05)' }
-    : { text: '#111827', sub: 'rgba(0,0,0,0.5)', muted: 'rgba(0,0,0,0.28)', faint: 'rgba(0,0,0,0.08)', sep: 'rgba(0,0,0,0.06)', row: 'rgba(0,0,0,0.02)', toggleBg: 'rgba(0,0,0,0.06)', contentBg: '#FAFAFA', border: 'rgba(0,0,0,0.06)', grey: 'rgba(0,0,0,0.04)' };
+    ? { text: '#FFF', sub: 'rgba(255,255,255,0.5)', muted: 'rgba(255,255,255,0.28)', faint: 'rgba(255,255,255,0.15)', sep: 'rgba(255,255,255,0.07)', row: 'rgba(255,255,255,0.03)', toggleBg: 'rgba(255,255,255,0.08)', contentBg: 'linear-gradient(180deg, #0C0C14 0%, #1C1C24 100%)', border: 'rgba(255,255,255,0.07)', grey: 'rgba(255,255,255,0.05)', cardGrey: 'rgba(255,255,255,0.07)', cardBorder: 'rgba(255,255,255,0.10)' }
+    : { text: '#111827', sub: 'rgba(0,0,0,0.5)', muted: 'rgba(0,0,0,0.28)', faint: 'rgba(0,0,0,0.08)', sep: 'rgba(0,0,0,0.06)', row: 'rgba(0,0,0,0.02)', toggleBg: 'rgba(0,0,0,0.06)', contentBg: '#FAFAFA', border: 'rgba(0,0,0,0.06)', grey: 'rgba(0,0,0,0.04)', cardGrey: '#ECEDF0', cardBorder: '#DDDEE2' };
 
   const guardiansList = Array.isArray(subInfo?.guardians) ? subInfo.guardians : [];
   const contract = subInfo?.contract || null;
@@ -223,7 +223,7 @@ export default function BeneficiaryDetailScreen() {
 
           {/* ── 1. INFOS PERSONNELLES ── */}
           <div style={SL}>Informations personnelles</div>
-          <div style={{ borderRadius: 16, background: isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.04)', border: `1px solid ${isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.06)'}`, padding: '4px 16px', marginBottom: 4 } as any}>
+          <div style={{ borderRadius: 16, background: C.cardGrey, border: `1px solid ${C.cardBorder}`, padding: '4px 16px', marginBottom: 4 } as any}>
             <div style={rowS}><span style={lbS}>Prenom</span><span style={vlS}>{firstName}</span></div>
             <div style={rowS}><span style={lbS}>Nom</span><span style={vlS}>{lastName}</span></div>
             {ageYears && <div style={rowS}><span style={lbS}>Age</span><span style={vlS}>{ageYears} ans</span></div>}
@@ -240,7 +240,7 @@ export default function BeneficiaryDetailScreen() {
 
           {/* ── 2. DOSSIER MEDICAL ── */}
           <div style={SL}>Dossier medical</div>
-          <div style={{ borderRadius: 16, background: isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.04)', border: `1px solid ${isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.06)'}`, padding: '4px 16px', marginBottom: 4 } as any}>
+          <div style={{ borderRadius: 16, background: C.cardGrey, border: `1px solid ${C.cardBorder}`, padding: '4px 16px', marginBottom: 4 } as any}>
             <div style={rowS}><span style={lbS}>Groupe sanguin</span><span style={vlS}>{data.blood_type || '--'}</span></div>
             <div style={{ ...rowS, flexDirection: 'column', alignItems: 'flex-start', gap: 2 } as any}><span style={lbS}>Pathologies</span><span style={{ fontSize: 13, color: C.text, fontWeight: 600, marginTop: 2 }}>{data.medical_conditions || 'Aucune'}</span></div>
             <div style={{ ...rowS, flexDirection: 'column', alignItems: 'flex-start', gap: 2, borderBottom: 'none' } as any}><span style={lbS}>Allergies</span><span style={{ fontSize: 13, color: C.text, fontWeight: 600, marginTop: 2 }}>{data.allergies || 'Aucune'}</span></div>

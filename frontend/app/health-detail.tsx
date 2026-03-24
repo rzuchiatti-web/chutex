@@ -72,9 +72,13 @@ const BG_VIOLET = 'https://customer-assets.emergentagent.com/job_8afdc991-0ab2-4
 const BG_RED = 'https://customer-assets.emergentagent.com/job_443c9c6e-0feb-4920-a358-fe7cc1a6289b/artifacts/mhh7xwy3_ChatGPT%20Image%2017%20f%C3%A9vr.%202026%2C%2014_08_43.png';
 
 export default function HealthDetailScreen() {
-  const { metricId, beneficiaryId } = useLocalSearchParams<{ metricId: string; beneficiaryId?: string }>();
+  const params = useLocalSearchParams<{ metricId: string; beneficiaryId?: string }>();
   const { token } = useAuth();
   const router = useRouter();
+  // Expo Router useLocalSearchParams is unreliable on web — fallback to window.location.search
+  const webBeneficiaryId = (() => { try { if (typeof window !== 'undefined' && window.location?.search) return new URLSearchParams(window.location.search).get('beneficiaryId') || ''; } catch {} return ''; })();
+  const metricId = params.metricId;
+  const beneficiaryId = params.beneficiaryId || webBeneficiaryId || undefined;
   const isReadonly = !!beneficiaryId;
   const [report, setReport] = useState<any>(null);
   const [sectionAi, setSectionAi] = useState<any>(null);

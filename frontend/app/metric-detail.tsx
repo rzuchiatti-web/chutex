@@ -107,9 +107,13 @@ function noraText(key: string, m: any, val: any, avg: string, isNormal: boolean,
 }
 
 export default function MetricDetailScreen() {
-  const { key, beneficiaryId } = useLocalSearchParams<{ key: string; beneficiaryId?: string }>();
+  const params = useLocalSearchParams<{ key: string; beneficiaryId?: string }>();
   const { token } = useAuth();
   const router = useRouter();
+  // Expo Router useLocalSearchParams is unreliable on web — fallback to window.location.search
+  const webBeneficiaryId = (() => { try { if (typeof window !== 'undefined' && window.location?.search) return new URLSearchParams(window.location.search).get('beneficiaryId') || ''; } catch {} return ''; })();
+  const key = params.key;
+  const beneficiaryId = params.beneficiaryId || webBeneficiaryId || undefined;
   const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [range, setRange] = useState('7j');

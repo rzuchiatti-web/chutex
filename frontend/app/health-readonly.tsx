@@ -11,9 +11,12 @@ import SleepCard from '../src/components/health/SleepCard';
 import HealthSections from '../src/components/health/HealthSections';
 
 export default function HealthReadonlyScreen() {
-  const { beneficiaryId } = useLocalSearchParams<{ beneficiaryId: string }>();
+  const params = useLocalSearchParams<{ beneficiaryId: string }>();
   const { token } = useAuth();
   const router = useRouter();
+  // Expo Router useLocalSearchParams is unreliable on web — fallback to window.location.search
+  const webBeneficiaryId = (() => { try { if (typeof window !== 'undefined' && window.location?.search) return new URLSearchParams(window.location.search).get('beneficiaryId') || ''; } catch {} return ''; })();
+  const beneficiaryId = params.beneficiaryId || webBeneficiaryId || '';
   const [report, setReport] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [showScoreDetail, setShowScoreDetail] = useState(false);
