@@ -15,7 +15,7 @@ export default function Dashboard() {
   switch (r) {
     case 'beneficiary': return <BeneficiaryHome token={token} user={user} />;
     case 'guardian': return <GuardianHome token={token} user={user} />;
-    case 'professional': return <ProHome token={token} user={user} />;
+    case 'professional': return <GuardianHome token={token} user={user} />;
     case 'teleassistance': return <TeleassistanceHome token={token} user={user} />;
     case 'admin': return <AdminHome token={token} user={user} />;
     case 'prescriber_company':

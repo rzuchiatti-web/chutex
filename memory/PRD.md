@@ -68,7 +68,12 @@ Refonte complete des tableaux de bord Beneficiaire et Gardien, des pages Sante, 
   - Backend: Nouveau role 'professional' avec type coach/physio
   - Routes /api/pro/* (dashboard, beneficiaries, profile, programs, sessions CRUD)
   - Pros accedent aux endpoints gardien (guardian-like access)
-  - ProHome dashboard, ProSpace programmes, GlassTabBar config pro
+  - Dashboard Pro = GuardianHome (meme vue beneficiaires, alertes, sante temps reel)
+  - Espace Programmes: selection patient, vitales rapides, CRUD programmes/exercices
+  - Exercices avec categories (cardio, renforcement, souplesse, equilibre, reeducation)
+  - Suivi validation (fait/partiel/passe), suivi douleur physio
+  - GlassTabBar config pro (Accueil, Programmes, Prescriptions, Plus)
+  - Design coherent avec le reste de l'app (glass cards, dark premium)
   - Compte test: +33655443322 / test123
 - [ ] Role Professional - Phase 3: Seances detaillees, suivi douleur physio, media video
 - [ ] Role Professional - Phase 4: Prescription abonnements
