@@ -1,5 +1,7 @@
-from fastapi import APIRouter, Depends
 from datetime import datetime, timezone
+from datetime import timedelta
+import math
+from fastapi import APIRouter, Depends
 from database import db
 from auth import get_current_user
 
@@ -52,23 +54,166 @@ async def get_sleep_data(user=Depends(get_current_user)):
 async def get_sleep_history(user=Depends(get_current_user)):
     uid = user['id']
     readings = await db.device_readings.find(
-        {"user_id": uid, "device_type": "bracelet", "data.sleep": {"$exists": True}},
+        {"user_id": uid, "device_type": "bracelet", "data.sleep_duration_min": {"$gt": 0}},
         {"_id": 0}
-    ).sort("timestamp", -1).to_list(7)
+    ).sort("timestamp", -1).to_list(14)
     history = []
-    for r in reversed(readings):
-        s = r['data']['sleep']
-        history.append({"date": r['timestamp'], "duration": s.get('sleep_duration', 0), "quality": s.get('sleep_quality', 0), "deep": s.get('deep_minutes', 0), "light": s.get('light_minutes', 0), "rem": s.get('rem_minutes', 0), "awake": s.get('awake_minutes', 0), "interruptions": s.get('sleep_interruptions', 0)})
-    if len(history) < 7:
-        extra = await db.device_readings.find(
-            {"user_id": uid, "device_type": "bracelet", "data.sleep_duration_min": {"$gt": 0}},
-            {"_id": 0}
-        ).sort("timestamp", -1).to_list(7)
-        existing_dates = set(h.get("date", "")[:10] for h in history)
-        for r in reversed(extra):
-            dd = r.get("data", {})
-            dt = r.get("timestamp", "")
-            if dt[:10] not in existing_dates:
-                history.append({"date": dt, "duration": dd.get("sleep_duration_min", 0), "quality": dd.get("sleep_quality", 0), "deep": dd.get("deep_sleep_min", 0), "light": dd.get("light_sleep_min", 0), "rem": dd.get("rem_sleep_min", 0), "awake": dd.get("sleep_interruptions", 0)})
-                existing_dates.add(dt[:10])
+    seen_dates = set()
+    for r in readings:
+        dd = r.get("data", {})
+        dt = r.get("timestamp", "")[:10]
+        if dt in seen_dates:
+            continue
+        seen_dates.add(dt)
+        deep = dd.get("deep_sleep_min", 0)
+        light = dd.get("light_sleep_min", 0)
+        rem = dd.get("rem_sleep_min", 0)
+        total = dd.get("sleep_duration_min", 0)
+        quality = dd.get("sleep_quality", 0)
+        inter = dd.get("sleep_interruptions", 0)
+        history.append({
+            "date": dt, "duration": round(total / 60, 1),
+            "deep": deep, "light": light, "rem": rem, "awake": inter,
+            "quality": quality, "cycles": max(1, round(total / 90))
+        })
     return sorted(history, key=lambda h: h.get("date", ""))[-7:]
+
+
+@router.get("/health/sleep/analysis")
+async def get_sleep_analysis(user=Depends(get_current_user)):
+    """WHOOP-inspired sleep analysis computed from the same data as /health/sleep."""
+    sleep_data = await get_sleep_data(user)
+    sleep_history_data = await get_sleep_history(user)
+
+    total_min = sleep_data.get("total_minutes", 0)
+    quality = sleep_data.get("sleep_quality", 0)
+    deep = sleep_data.get("deep_minutes", 0)
+    light = sleep_data.get("light_minutes", 0)
+    rem = sleep_data.get("rem_minutes", 0)
+    awake = sleep_data.get("awake_minutes", 0)
+
+    empty_response = {
+        "has_data": False, "performance_score": 0,
+        "sufficiency": {"score": 0, "actual_min": 0, "need_min": 480, "pct": 0},
+        "consistency": {"score": 0, "detail": "Pas assez de donnees"},
+        "efficiency": {"score": 0, "pct": 0},
+        "sleep_stress": {"score": 0, "level": "inconnu"},
+        "debt": {"total_min": 0, "days": []},
+        "recovery": {"score": 0, "zone": "grey", "hrv": 0, "rhr": 0},
+        "stages_avg": {"deep_pct": 0, "light_pct": 0, "rem_pct": 0, "awake_pct": 0},
+        "sleep_need_min": 480, "recommended_bedtime": "22:30", "weekly_trend": [],
+    }
+
+    if total_min <= 0:
+        return empty_response
+
+    # Get latest vitals
+    uid = user['id']
+    latest_vitals = await db.device_readings.find_one(
+        {"user_id": uid, "device_type": "bracelet"}, {"_id": 0}, sort=[("timestamp", -1)]
+    )
+    vitals = latest_vitals.get("data", {}) if latest_vitals else {}
+    steps = vitals.get("steps", 0) or 0
+    hrv_val = vitals.get("hrv", 0) or 0
+    rhr_val = vitals.get("resting_heart_rate", vitals.get("heart_rate", 0)) or 0
+    stress_val = vitals.get("stress_level", 0) or 0
+
+    # Sleep Need
+    base_need = 480
+    strain_bonus = min(60, int(steps / 1000) * 5)
+    sleep_need = base_need + strain_bonus
+
+    # Sufficiency
+    sufficiency_pct = min(100, round(total_min / max(sleep_need, 1) * 100))
+
+    # Consistency
+    if len(sleep_history_data) >= 2:
+        durations_raw = [h.get("duration", 0) for h in sleep_history_data[-4:]]
+        durations = [d * 60 if isinstance(d, float) and d < 24 else d for d in durations_raw if d > 0]
+        if len(durations) >= 2:
+            mean_dur = sum(durations) / len(durations)
+            variance = sum((d - mean_dur) ** 2 for d in durations) / len(durations)
+            std_dev = math.sqrt(variance)
+            consistency_score = max(0, min(100, round(100 - std_dev * 1.67)))
+        else:
+            consistency_score = 65
+    else:
+        consistency_score = 65 if quality >= 60 else 40
+
+    # Efficiency
+    total_in_bed = total_min + awake
+    efficiency_pct = round(total_min / max(total_in_bed, 1) * 100)
+
+    # Sleep Stress
+    awake_penalty = min(40, awake * 8)
+    if stress_val > 60:
+        stress_score = max(0, 100 - stress_val)
+    elif stress_val > 30:
+        stress_score = max(30, 100 - stress_val)
+    else:
+        stress_score = max(0, min(100, 100 - stress_val - awake_penalty))
+    stress_level = "eleve" if stress_score < 40 else "modere" if stress_score < 70 else "faible"
+
+    # Performance Score
+    performance = round(sufficiency_pct * 0.40 + consistency_score * 0.20 + efficiency_pct * 0.25 + stress_score * 0.15)
+
+    # Sleep Debt
+    debt_days = []
+    total_debt = 0
+    for h in sleep_history_data:
+        dur = h.get("duration", 0)
+        dur_min = dur * 60 if isinstance(dur, float) and dur < 24 else dur
+        deficit = max(0, sleep_need - dur_min)
+        total_debt += deficit
+        debt_days.append({"date": h.get("date", ""), "deficit_min": round(deficit), "actual": round(dur_min), "need": sleep_need})
+
+    # Recovery
+    recovery_base = min(100, performance * 0.5 + (hrv_val * 0.3 if hrv_val > 0 else 25) + max(0, (80 - rhr_val) * 0.5 if rhr_val > 0 else 15))
+    recovery_score = round(max(0, min(100, recovery_base)))
+    recovery_zone = "green" if recovery_score >= 67 else "yellow" if recovery_score >= 34 else "red"
+
+    # Stage averages
+    total_stages = deep + light + rem + awake
+    stages_avg = {
+        "deep_pct": round(deep / max(total_stages, 1) * 100),
+        "light_pct": round(light / max(total_stages, 1) * 100),
+        "rem_pct": round(rem / max(total_stages, 1) * 100),
+        "awake_pct": round(awake / max(total_stages, 1) * 100),
+    }
+
+    # Recommended bedtime
+    needed_hours = sleep_need / 60
+    bed_hour = 7 - needed_hours
+    if bed_hour < 0:
+        bed_hour += 24
+    recommended_bedtime = f"{int(bed_hour):02d}:{int((bed_hour % 1) * 60):02d}"
+
+    # Weekly trend
+    weekly_trend = []
+    for h in sleep_history_data:
+        dur = h.get("duration", 0)
+        dur_min = dur * 60 if isinstance(dur, float) and dur < 24 else dur
+        d_deep = h.get("deep", 0)
+        d_light = h.get("light", 0)
+        d_rem = h.get("rem", 0)
+        d_awake = h.get("awake", 0)
+        ts = d_deep + d_light + d_rem + d_awake
+        weekly_trend.append({
+            "date": h.get("date", ""), "duration": round(dur_min), "quality": h.get("quality", 0),
+            "deep_pct": round(d_deep / max(ts, 1) * 100) if ts > 0 else 0,
+            "light_pct": round(d_light / max(ts, 1) * 100) if ts > 0 else 0,
+            "rem_pct": round(d_rem / max(ts, 1) * 100) if ts > 0 else 0,
+            "awake_pct": round(d_awake / max(ts, 1) * 100) if ts > 0 else 0,
+        })
+
+    return {
+        "has_data": True, "performance_score": performance,
+        "sufficiency": {"score": sufficiency_pct, "actual_min": total_min, "need_min": sleep_need, "pct": sufficiency_pct},
+        "consistency": {"score": consistency_score, "detail": f"Sur {len(sleep_history_data)} nuits"},
+        "efficiency": {"score": efficiency_pct, "pct": efficiency_pct},
+        "sleep_stress": {"score": stress_score, "level": stress_level},
+        "debt": {"total_min": round(total_debt), "days": debt_days},
+        "recovery": {"score": recovery_score, "zone": recovery_zone, "hrv": hrv_val, "rhr": rhr_val},
+        "stages_avg": stages_avg, "sleep_need_min": sleep_need,
+        "recommended_bedtime": recommended_bedtime, "weekly_trend": weekly_trend,
+    }

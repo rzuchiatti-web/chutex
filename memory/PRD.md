@@ -62,6 +62,17 @@ Application de teleassistance et de suivi de sante preventif pour les personnes 
 - [x] UI: Suppression du bouton "Envoyer un SMS" de la page gardien detail (Mars 2026)
 - [x] UI: Suppression de la carte CorrelationsCard de la page sante beneficiaire (Mars 2026)
 - [x] Nora parle a la 3eme personne avec le prenom du beneficiaire pour les gardiens (Mars 2026)
+- [x] Page Sommeil complete style WHOOP (Mars 2026)
+  - Score Performance composite (suffisance, regularite, efficacite, stress)
+  - Hypnogramme 3D SVG avec labels
+  - Repartition des phases (stacked bar + grid 2x2)
+  - Besoin vs Obtenu + dette de sommeil cumulee
+  - Recuperation (VFC, FC repos, zone couleur)
+  - Planificateur de sommeil (coucher, reveil, besoin)
+  - 7 derniers jours (barres empilees colorees + qualite %)
+  - Risque d'apnee du sommeil
+  - Backend: /api/health/sleep/analysis (calculs WHOOP-inspired)
+  - Fichiers: sleep.tsx, health_sleep_routes.py
   - gen_ai: parametre guardian_view_name pour modifier le prompt
   - Chat Nora: prompt gardien ameliore avec prenoms des beneficiaires
   - Fichiers modifies: health_report_routes.py, guardian_routes.py, chat_routes.py
