@@ -64,6 +64,14 @@ Refonte complete des tableaux de bord Beneficiaire et Gardien, des pages Sante, 
 
 ## Prioritized Backlog
 ### P1
+- [x] **Role Professional (Coach/Kine) - Phase 1+2** (Mars 2026):
+  - Backend: Nouveau role 'professional' avec type coach/physio
+  - Routes /api/pro/* (dashboard, beneficiaries, profile, programs, sessions CRUD)
+  - Pros accedent aux endpoints gardien (guardian-like access)
+  - ProHome dashboard, ProSpace programmes, GlassTabBar config pro
+  - Compte test: +33655443322 / test123
+- [ ] Role Professional - Phase 3: Seances detaillees, suivi douleur physio, media video
+- [ ] Role Professional - Phase 4: Prescription abonnements
 - [ ] Integration Balance & Gilet connecte
 - [ ] Systeme de Signature Electronique (Admin -> Documents)
 
