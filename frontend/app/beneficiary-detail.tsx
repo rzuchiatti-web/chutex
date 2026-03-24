@@ -113,6 +113,10 @@ export default function BeneficiaryDetailScreen() {
     { label: 'Temperature', val: (v.temperature && v.temperature > 30) ? v.temperature : null, unit: '\u00b0C', icon: 'ri-temp-hot-line', color: '#F97316' },
   ];
 
+  const healthSharing = data.data_sharing_prefs?.health_sharing || 'all';
+  const showVitals = healthSharing !== 'none';
+  const showFullHealth = healthSharing === 'all';
+
   const activityMetrics = [
     { label: 'Pas', val: v.steps || null, unit: 'pas', icon: 'ri-footprint-line', color: '#10B981' },
     { label: 'Calories', val: v.calories || null, unit: 'kcal', icon: 'ri-fire-line', color: '#F59E0B' },
@@ -249,44 +253,64 @@ export default function BeneficiaryDetailScreen() {
 
           <div style={{ height: 1, background: C.sep, margin: '8px 0' } as any} />
 
-          {/* ── 3. DONNEES DE SANTE (4 vitales) ── */}
+          {/* ── 3. DONNEES DE SANTE (conditionnelles selon autorisations) ── */}
           <div style={SL}>Donnees de sante</div>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 1, borderRadius: 16, overflow: 'hidden', border: `1px solid ${C.sep}`, marginBottom: 12 } as any}>
-            {healthVitals.map((m, i) => (
-              <div key={i} data-testid={`beneficiary-vital-card-${m.label.toLowerCase().replace(/\s+/g, '-')}`} style={{ padding: '16px 14px', background: C.row, borderRight: i % 2 === 0 ? `1px solid ${C.sep}` : 'none', borderBottom: i < 2 ? `1px solid ${C.sep}` : 'none' } as any}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 8 } as any}>
-                  <i className={m.icon} style={{ fontSize: 14, color: m.color }} />
-                  <span style={{ fontSize: 10, fontWeight: 600, color: C.sub, textTransform: 'uppercase', letterSpacing: 0.5 }}>{m.label}</span>
-                </div>
-                <div style={{ fontSize: 28, fontWeight: 800, color: m.val != null ? C.text : C.faint, lineHeight: 1, letterSpacing: -1 }}>{m.val != null ? m.val : '--'}</div>
-                <div style={{ fontSize: 10, color: C.muted, marginTop: 4 }}>{m.unit}</div>
-              </div>
-            ))}
-          </div>
 
-          {/* Nora */}
-          {noraAnalysis && <div style={{ marginBottom: 12 } as any}><NoraCard title="Analyse de Nora" text={noraAnalysis} /></div>}
-
-          {/* ── 4. ACTIVITE PHYSIQUE ── */}
-          {activityMetrics.length > 0 && (<>
-            <div style={SL}>Activite physique</div>
-            <div style={{ display: 'grid', gridTemplateColumns: `repeat(${activityMetrics.length}, 1fr)`, gap: 1, borderRadius: 14, overflow: 'hidden', border: `1px solid ${C.sep}`, marginBottom: 12 } as any}>
-              {activityMetrics.map((m, i) => (
-                <div key={i} data-testid={`beneficiary-activity-card-${m.label.toLowerCase()}`} style={{ padding: '14px 10px', background: C.row, textAlign: 'center', borderRight: i < activityMetrics.length - 1 ? `1px solid ${C.sep}` : 'none' } as any}>
-                  <i className={m.icon} style={{ fontSize: 16, color: m.color, marginBottom: 6, display: 'block' }} />
-                  <div style={{ fontSize: 22, fontWeight: 800, color: C.text, lineHeight: 1 }}>{m.val}</div>
-                  <div style={{ fontSize: 9, color: C.muted, marginTop: 3, fontWeight: 600, textTransform: 'uppercase' }}>{m.label}</div>
-                </div>
-              ))}
+          {healthSharing === 'none' ? (
+            <div data-testid="health-no-access" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10, padding: '32px 20px', borderRadius: 18, background: C.row, border: `1px solid ${C.sep}`, marginBottom: 12 } as any}>
+              <i className="ri-eye-off-line" style={{ fontSize: 28, color: C.muted }} />
+              <span style={{ fontSize: 14, fontWeight: 700, color: C.sub }}>Acces restreint</span>
+              <span style={{ fontSize: 12, color: C.muted, textAlign: 'center' }}>Le beneficiaire n'a pas autorise le partage de ses donnees de sante.</span>
             </div>
-          </>)}
+          ) : (
+            <>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 1, borderRadius: 16, overflow: 'hidden', border: `1px solid ${C.sep}`, marginBottom: 12 } as any}>
+                {healthVitals.map((m, i) => (
+                  <div key={i} data-testid={`beneficiary-vital-card-${m.label.toLowerCase().replace(/\s+/g, '-')}`} style={{ padding: '16px 14px', background: C.row, borderRight: i % 2 === 0 ? `1px solid ${C.sep}` : 'none', borderBottom: i < 2 ? `1px solid ${C.sep}` : 'none' } as any}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 8 } as any}>
+                      <i className={m.icon} style={{ fontSize: 14, color: m.color }} />
+                      <span style={{ fontSize: 10, fontWeight: 600, color: C.sub, textTransform: 'uppercase', letterSpacing: 0.5 }}>{m.label}</span>
+                    </div>
+                    <div style={{ fontSize: 28, fontWeight: 800, color: m.val != null ? C.text : C.faint, lineHeight: 1, letterSpacing: -1 }}>{m.val != null ? m.val : '--'}</div>
+                    <div style={{ fontSize: 10, color: C.muted, marginTop: 4 }}>{m.unit}</div>
+                  </div>
+                ))}
+              </div>
 
-          {/* CTA: voir page sante — NOIR + icone ADN blanc */}
-          <div data-testid="view-health-page-btn" onClick={() => router.push({ pathname: '/health-readonly' as any, params: { beneficiaryId: activeBid } })} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10, padding: '14px 0', borderRadius: 999, background: isDark ? '#FFF' : '#111', cursor: 'pointer', marginBottom: 4, transition: 'opacity 0.15s' } as any}
-            onMouseEnter={(e: any) => e.currentTarget.style.opacity = '0.85'} onMouseLeave={(e: any) => e.currentTarget.style.opacity = '1'}>
-            <i className="ri-dna-line" style={{ fontSize: 18, color: isDark ? '#111' : '#FFF' }} />
-            <span style={{ fontSize: 14, fontWeight: 700, color: isDark ? '#111' : '#FFF', letterSpacing: 0.2 }}>Voir la page sante</span>
-          </div>
+              {/* Nora - only with full access */}
+              {showFullHealth && noraAnalysis && <div style={{ marginBottom: 12 } as any}><NoraCard title="Analyse de Nora" text={noraAnalysis} /></div>}
+
+              {/* ── 4. ACTIVITE PHYSIQUE - only with full access ── */}
+              {showFullHealth && activityMetrics.length > 0 && (<>
+                <div style={SL}>Activite physique</div>
+                <div style={{ display: 'grid', gridTemplateColumns: `repeat(${activityMetrics.length}, 1fr)`, gap: 1, borderRadius: 14, overflow: 'hidden', border: `1px solid ${C.sep}`, marginBottom: 12 } as any}>
+                  {activityMetrics.map((m, i) => (
+                    <div key={i} data-testid={`beneficiary-activity-card-${m.label.toLowerCase()}`} style={{ padding: '14px 10px', background: C.row, textAlign: 'center', borderRight: i < activityMetrics.length - 1 ? `1px solid ${C.sep}` : 'none' } as any}>
+                      <i className={m.icon} style={{ fontSize: 16, color: m.color, marginBottom: 6, display: 'block' }} />
+                      <div style={{ fontSize: 22, fontWeight: 800, color: C.text, lineHeight: 1 }}>{m.val}</div>
+                      <div style={{ fontSize: 9, color: C.muted, marginTop: 3, fontWeight: 600, textTransform: 'uppercase' }}>{m.label}</div>
+                    </div>
+                  ))}
+                </div>
+              </>)}
+
+              {/* CTA: voir page sante — seulement si acces complet */}
+              {showFullHealth && (
+                <div data-testid="view-health-page-btn" onClick={() => router.push({ pathname: '/health-readonly' as any, params: { beneficiaryId: activeBid } })} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10, padding: '14px 0', borderRadius: 999, background: isDark ? '#FFF' : '#111', cursor: 'pointer', marginBottom: 4, transition: 'opacity 0.15s' } as any}
+                  onMouseEnter={(e: any) => e.currentTarget.style.opacity = '0.85'} onMouseLeave={(e: any) => e.currentTarget.style.opacity = '1'}>
+                  <i className="ri-dna-line" style={{ fontSize: 18, color: isDark ? '#111' : '#FFF' }} />
+                  <span style={{ fontSize: 14, fontWeight: 700, color: isDark ? '#111' : '#FFF', letterSpacing: 0.2 }}>Voir la page sante</span>
+                </div>
+              )}
+
+              {!showFullHealth && (
+                <div data-testid="health-vitals-only-notice" style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '10px 14px', borderRadius: 14, background: 'rgba(59,130,246,0.06)', border: '1px solid rgba(59,130,246,0.12)', marginBottom: 4 } as any}>
+                  <i className="ri-information-line" style={{ fontSize: 14, color: '#3B82F6', flexShrink: 0 }} />
+                  <span style={{ fontSize: 11, color: '#3B82F6', fontWeight: 500 }}>Acces limite aux donnees vitales uniquement</span>
+                </div>
+              )}
+            </>
+          )}
 
           <div style={{ height: 1, background: C.sep, margin: '8px 0' } as any} />
 

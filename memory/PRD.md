@@ -57,6 +57,10 @@ Refonte complete des tableaux de bord Beneficiaire et Gardien, des pages Sante, 
   - Page data-sharing.tsx redessinee avec design premium dark
   - Lien "Autorisations gardiens" ajoute dans profil beneficiaire
   - Backend DataSharingPrefs mis a jour (health_sharing: all/vitals_only/none)
+  - Filtrage cote gardien dans beneficiary-detail.tsx:
+    - none: bloc "Acces restreint" - aucune donnee de sante visible
+    - vitals_only: 4 vitales affichees + bandeau "Acces limite", pas de Nora/activite/bouton sante
+    - all: toutes les donnees + bouton "Voir la page sante" actif
 
 ## Prioritized Backlog
 ### P1
