@@ -1,74 +1,74 @@
 <analysis>**original_problem_statement**: 
-L'objectif principal de l'utilisateur est une refonte complète de la page  (vue détaillée du bénéficiaire depuis l'espace Gardien). L'utilisateur a explicitement demandé de :
-1. Supprimer l'affichage du contrat et la navigation par onglets (tout mettre sur une seule page scrollable).
-2. Adopter un style clinique et premium (pas de cartes imbriquées, séparateurs fins, lignes épurées).
-3. Intégrer un bouton d'appel de type Slide to call (glisser pour appeler) prenant toute la largeur du header.
-4. Afficher l'activité physique au-dessus d'un bouton noir Voir la page santé avec une icône ADN.
-5. Placer les alertes et les gardiens dans des cartes grises.
-6. Refondre totalement l'UI/UX de la Gestion des zones qui n'était pas claire.
+L'objectif principal est la refonte complète des tableaux de bord Bénéficiaire et Gardien, des pages Santé, Programmes et Profil avec un design clinique et premium. D'autres exigences incluent l'intégration de la Balance & Gilet, la signature électronique pour les documents admin, et l'intégration du serveur TCP pour le bracelet V6 4G (J2358).
 
-PRODUCT REQUIREMENTS:
-1. Implement a reactive Light/Dark mode toggle across all main pages. (DONE)
-2. Fix Navbar rendering bug. (DONE)
-3. Flatten  into a clean, clinical, single-page scrollable view with a true slide-to-call button and redesigned zone management. (IN PROGRESS)
-4. Finalize Balance & Vest integration. (PENDING)
-5. Add electronic signatures to Admin Documents. (PENDING)
+PRODUCT REQUIREMENTS: 
+1. Finalize Beneficiary and Guardian dashboards/health pages redesign.
+2. Finalize Balance & Vest integration. 
+3. Add electronic signatures to Admin Documents.
 
 **User's preferred language**: French (INSTRUCT NEXT AGENT TO RESPOND IN FRENCH ONLY)
 
 **what currently exists?** 
-Une application full-stack avec un frontend React Native Web (Expo) et un backend FastAPI + MongoDB. La page  a subi plusieurs itérations. Le design a été aplani, les onglets ont été retirés, et la structure suit désormais celle du dashboard (header rouge avec image, carte arrondie). L'agent vient d'injecter le code pour répondre aux ultimes exigences de l'utilisateur (vrai bouton slide-to-call, bouton santé noir avec icône ADN, cartes grises pour alertes/gardiens, et refonte de l'UI/UX des zones).
+Une application full-stack (Expo React Native Web + FastAPI + MongoDB). Le design clinique est en place avec des cartes grises. La vue santé read-only pour les gardiens est fonctionnelle. La fiche détaillée du gardien a été extraite d'une modale vers une page dédiée complète (). La gestion des adresses a été scindée en 4 champs distincts (Adresse, Code Postal, Ville, Pays) de l'inscription jusqu'à l'affichage. Un serveur TCP tourne pour le nouveau bracelet mais attend un ajustement du CRC32.
 
 **Last working item**: 
-    - Last item agent was working: Implémentation des derniers retours UI/UX sur  (bouton slide-to-call, ordre d'affichage, cartes grises pour alertes, refonte de la section Gestion des zones). L'agent vient d'écraser le fichier avec le nouveau code, mais la session s'est terminée avant les tests.
+    - Last item agent was working: Refactoring des fichiers monolithiques (Frontend : ,  / Backend : , ) à la demande expresse de l'utilisateur avant d'attaquer l'intégration de la Balance.
     - Status: IN PROGRESS
-    - Agent Testing Done: N (Pour la toute dernière modification)
-    - Which testing method agent to use? Frontend testing agent / screenshot tool
+    - Agent Testing Done: N
+    - Which testing method agent to use? testing_agent_v3_fork (Backend et Frontend après le refactoring pour s'assurer d'aucune régression).
     - User Testing Done: N
 
 **All Pending/In progress Issue list**: 
-  Issue 1: Expo Metro Bundler Caching Issues (P0)
-     - Attempted fixes: Relancer le bundler avec expo: ERROR (not running)
-expo: ERROR (abnormal termination)
-     - Next debug checklist: Toujours redémarrer Expo après une grosse modification UI avant de prendre un screenshot pour s'assurer que la version CI/mise en cache est bien actualisée.
-     - Why fix this issue and what will be achieved with the fix? Garantit que les tests visuels reflètent le vrai code.
-     - Status: IN PROGRESS
-     - Is recurring issue? Y
-     - Should Test frontend/backend/both after fix? Frontend
-     - Blocked on other issue: None
+  Issue 1: Custom CRC32 Validation for J2358 TCP Server (P1)
+     - Attempted fixes: Serveur créé, mais attente d'un paquet hexadécimal brut du fabricant pour finaliser le reverse engineering du CRC32.
+     - Next debug checklist: Dans , mettre à jour l'algorithme CRC dès que le fabricant fournit l'exemple.
+     - Why fix this issue and what will be achieved with the fix? Validera de façon sécurisée les données de santé envoyées par le bracelet 4G.
+     - Status: BLOCKED
+     - Is recurring issue? N
+     - Should Test frontend/backend/both after fix? Backend
+     - Blocked on other issue: Attente de la réponse du fabricant.
 
 **In progress Task List**: 
-  Task 1: Validation de la refonte UI/UX de  (P0)
-     - Where to resume: L'agent précédent vient de modifier . Il faut redémarrer l'environnement Expo, utiliser le screenshot tool pour vérifier visuellement le bouton Slide to call, le bouton santé (noir/ADN), les cartes grises et la nouvelle gestion des zones, puis lancer le .
-     - What will be achieved with this? Clôturer définitivement la refonte de la vue détaillée du bénéficiaire selon les standards stricts de l'utilisateur.
-     - Status: TESTING PENDING
-     - Should Test frontend/backend/both after fix? Frontend
-     - Blocked on something: None
+  Task 1: Refactoring des fichiers monolithiques (P0)
+     - Where to resume: L'agent précédent a identifié les cibles. 
+       Frontend : extraire les modales de  (1071 lignes) et les composants SafeZone/SlideToCall de  (485 lignes).
+       Backend : extraire les fonctions IA/helpers de  (1866 lignes) et séparer l'escalade des interventions dans  (1131 lignes).
+     - What will be achieved with this? Un code plus propre et maintenable avant d'ajouter de nouvelles fonctionnalités complexes.
+     - Status: IN PROGRESS
+     - Should Test frontend/backend/both after fix? Both
+     - Blocked on something: None.
+
+  Task 2: Finaliser l'intégration Balance & Vest (P0)
+     - Where to resume: À démarrer **immédiatement après le refactoring** (demande de l'utilisateur : fait les refactorings, puis ensuite on vas finaliser la balance).
+     - What will be achieved with this? Affichage et gestion des données provenant de la balance connectée et du gilet de protection.
+     - Status: NOT STARTED
+     - Should Test frontend/backend/both after fix? Both
+     - Blocked on something: Task 1 (Refactoring).
 
 **Upcoming and Future Tasks**
     Upcoming Tasks:
-    - P0: Finalize Balance & Vest Integration (Verify data flow from scale/vest alongside the new V8 bracelet data).
     - P1: Electronic Signature System (Admin panel -> Documents tab).
 
     Future Tasks:
     - P2: Guardian Referral System.
     - P2: Free 7-Day Trial flow.
     - P2: Vivoo Urine Test Integration.
-    - Refactoring: Backend monolithic route files (, ).
-    - Refactoring: Break down  (> 1000 lines).
 
 **Completed work in this session**
-- : Suppression des onglets, suppression du contrat, correction des débordements. (DONE)
-- : Application de la structure du Dashboard (Header image, layout arrondi). (DONE)
-- : Passage à un design clinique / plat pour les sections principales. (DONE)
+- Fix P0 Bug Navigation: Correction du fallback du bouton retour sur  et  vers  en utilisant . (DONE)
+- Design Clinique : Ajout de cartes grises claires pour les sections Informations personnelles et Dossier médical sur la fiche bénéficiaire. (DONE)
+- Navigation Gardien : Suppression de la modale Gardien dans  remplacée par une redirection vers la page complète  (adaptée avec un mode lecture seule et slide-to-call). (DONE)
+- Séparation des champs d'adresse : Modification du modèle Pydantic , de l'endpoint d'inscription, de la constante , et des UIs pour gérer distinctement : , , , . (DONE)
 
 **Earlier issues found/mentioned but not fixed**
 None.
 
 **Known issue recurrence from previous fork**
-  - Issue recurrence in previous fork: Expo Metro Bundler Caching Issues.
-  - Recurrence count: Élevé.
+  - Issue recurrence in previous fork: Expo Metro Bundler Caching Issues / Tunnel timeouts.
+  - Recurrence count: High
   - Status: IN PROGRESS
+  Note: Utilisez expo: ERROR (not running)
+expo: started si le bundler plante ou si les modifications UI ne sont pas prises en compte.
 
 **Code Architecture**
 
@@ -76,33 +76,37 @@ None.
 **Key Technical Concepts**
 - Frontend: React Native Web (Expo Router)
 - Backend: FastAPI, MongoDB
-- Theming: Reactive Theming via Polling ()
+- Asyncio TCP Socket pour l'IoT (J2358)
 
 **key DB schema**
-  - : User accounts
-  - : Links guardians to beneficiaries
-  - : Gère les autorisations
+  - : Possède désormais explicitement les champs , , ,  dès l'inscription.
+  - : Stocke les métriques de santé des bracelets.
 
 **changes in tech stack**
-  - None 
+  - Aucun changement majeur, l'architecture reste identique.
 
 **All files of reference** 
--  (Fichier mis à jour pour intégrer le slide-to-call et la nouvelle gestion des zones).
-- 
+-  et  (Cibles prioritaires pour le refactoring).
+-  &  (Modifiés pour la gestion des adresses).
+-  (Dernier rapport de test des adresses).
 
 **Areas that need refactoring**: 
--  : Le fichier reste massif, il faudra le scinder en sous-composants une fois validé.
--  : Plus de 1000 lignes.
+-  (> 1000 lignes)
+- 
+-  (> 1800 lignes)
+-  (> 1100 lignes)
+*(C'est la tâche actuelle).*
 
 **key api endpoints**
 - 
 - 
+- 
+- 
 
 **Critical Info for New Agent** 
-- **Langue** : L'utilisateur parle exclusivement Français.
-- **Expo Cache** : L'environnement CI d'Expo ne gère pas toujours le hot-reload correctement sur le web. Faites systématiquement un expo: ERROR (not running)
-expo: started après vos modifications sur le fichier avant de prendre des screenshots.
-- Le dernier code poussé inclut un Slide to call natif/web. Assurez-vous que le composant fonctionne correctement sur la version Web avant de déclarer la tâche terminée.
+- L'utilisateur parle exclusivement Français.
+- **Règle d'or MongoDB** : Toujours exclure  des requêtes.
+- **Plan d'action immédiat** : L'utilisateur a demandé explicitement de scinder les gros fichiers en plus petits composants/modules d'abord. N'implémentez pas la fonctionnalité Balance/Vest avant d'avoir terminé et testé ce refactoring. 
 
 **documents and test reports created in this job** 
   - 
@@ -111,33 +115,27 @@ expo: started après vos modifications sur le fichier avant de prendre des scree
   - 
 
 **Last 10 User Messages and any pending HUMAN messages** 
-1. **User**: le bouton nest aps slide, fait le bien slide, met lactivité physique au dessus du bouton voir la page de santé, et fait la page avec bouton noir et icon blanc, met un icon adn. Ensuite les alerte met dans une carte grise, gardien aussi. Gestion des zone, je comprend rien, cest aps du tout explicite, refonte laffiche et UI/UX
-2. **Agent**: Propose les changements (bouton slide, inversion de l'ordre, bouton santé noir, UI des alertes/gardiens, refonte de la gestion des zones) et lance l'écriture du fichier . (Fin de session)
+1. **User**: Fait P0 et les fiche bénéficiaire, les inforamtion poersonelle et dossier médical, met bien dans une carte grisee claire -> Fait et testé.
+2. **User**: Dans la fiche bénéficaire, on as la liste des gardiens... refait juste le même bouton slide pour appeler... -> Fait via navigation vers .
+3. **User**: Pour ladresse postale, fait 3 champ, adresse, code postall et ville, puis rajoute pays aussi, recupère tous depuis linscription... -> Ajouté dans les modèles, backend et UI. Testé.
+4. **User**: fait les refactorings, puis ensuite on vas finaliser la balance -> **PENDING** (L'agent a analysé les fichiers mais n'a pas commencé le refactoring).
 
 **Project Health Check:**
-Broken (Refonte majeure de  non testée suite au dernier create_file)
-Mocked (Données de santé Josette utilisées pour la vue Gardien)
+Working. (Mocked data used for some guardian views).
 
 **3rd Party Integrations** 
 	 •	OpenAI GPT-4o — uses Emergent LLM Key
 	 •	Stripe (Payments) — requires User API Key
 
 **Testing status**
-  - Testing agent used after significant changes: YES (itérations 140, 141, 142)
+  - Testing agent used after significant changes: YES
   - Troubleshoot agent used after agent stuck in loop: NO
-  - Test files created: 
-  - Known regressions: Expo Web caching issues require restart.
+  - Test files created: None
+  - Known regressions: None
 
 **Credentials to test flow:**
-| Role | Phone | Password |
-| :--- | :--- | :--- |
-| **Beneficiary**|  |  |
-| **Guardian** |  |  |
-*(Pour tester la vue: login Guardian -> naviguer vers )*
+Beneficiary:  / 
+Guardian:  / 
 
 **What agent forgot to execute**
-L'agent précédent a généré la dernière version de  avec les composants complexes (slide-to-call, refonte UX des zones) mais la session s'est coupée. Il a oublié de :
-1. Redémarrer Expo (expo: stopped
-expo: started).
-2. Prendre un screenshot de contrôle.
-3. Lancer le sous-agent de test pour valider cette ultime refonte.</analysis>
+L'agent a reçu la consigne de faire le refactoring, a analysé la taille des fichiers avec       0       0       0 et lu quelques lignes, mais la session s'est terminée avant qu'il ne modifie ou ne crée le moindre composant extrait. Reprenez la tâche de refactoring sur les 4 fichiers identifiés.</analysis>

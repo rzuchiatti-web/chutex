@@ -31,14 +31,14 @@
       "status": "PASS",
       "test_flow": "health-readonly -> metric-detail?key=heart_rate&beneficiaryId=XXX -> Click 'Retour'",
       "expected_url": "/health-readonly?beneficiaryId=XXX",
-      "actual_url": "/health-readonly?beneficiaryId=495e5e38-3591-474b-abe5-c932574bb609",
+      "actual_url": "/health-readonly?beneficiaryId=guardian-portal-8",
       "incorrect_url_avoided": "/(tabs)/health"
     },
     "health_detail_back_button_navigation": {
       "status": "PASS",
       "test_flow": "health-readonly -> health-detail?metricId=cardio&beneficiaryId=XXX -> Click 'Retour'",
       "expected_url": "/health-readonly?beneficiaryId=XXX",
-      "actual_url": "/health-readonly?beneficiaryId=495e5e38-3591-474b-abe5-c932574bb609",
+      "actual_url": "/health-readonly?beneficiaryId=guardian-portal-8",
       "incorrect_url_avoided": "/(tabs)/health"
     },
     "beneficiary_detail_grey_cards_visibility": {
@@ -58,7 +58,7 @@
     },
     "voir_page_sante_button_navigation": {
       "status": "PASS",
-      "navigates_to": "/health-readonly?beneficiaryId=495e5e38-3591-474b-abe5-c932574bb609"
+      "navigates_to": "/health-readonly?beneficiaryId=guardian-portal-8"
     }
   }
 }

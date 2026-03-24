@@ -33,7 +33,7 @@
       "status": "PASS",
       "test_flow": "beneficiary-detail -> click guardian card -> guardian-detail",
       "expected_url_pattern": "/guardian-detail?guardianId=XXX&gName=...&fromBeneficiary=YYY",
-      "actual_url": "/guardian-detail?guardianId=51216250-ae30-4907-ab77-b6e13cde75d9&gName=Claire%20Martin&gPhone=%2B33612345678&gEmail=&gRelationship=Fille&gType=particular&fromBeneficiary=495e5e38-3591-474b-abe5-c932574bb609"
+      "actual_url": "/guardian-detail?guardianId=guardian-portal-8&gName=Claire%20Martin&gPhone=%2B33612345678&gEmail=&gRelationship=Fille&gType=particular&fromBeneficiary=guardian-portal-8"
     },
     "guardian_detail_page_elements": {
       "status": "PASS",
@@ -54,8 +54,8 @@
     },
     "back_button_navigation": {
       "status": "PASS",
-      "expected_url": "/beneficiary-detail?beneficiaryId=495e5e38-3591-474b-abe5-c932574bb609",
-      "actual_url": "/beneficiary-detail?beneficiaryId=495e5e38-3591-474b-abe5-c932574bb609"
+      "expected_url": "/beneficiary-detail?beneficiaryId=guardian-portal-8",
+      "actual_url": "/beneficiary-detail?beneficiaryId=guardian-portal-8"
     }
   }
 }
