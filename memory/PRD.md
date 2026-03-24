@@ -35,6 +35,12 @@ Refonte complete des tableaux de bord Beneficiaire et Gardien, des pages Sante, 
   - Auto-selection derniere date avec donnees
   - Bug floating-point dette corrige
   - Endpoint backend /api/health/sleep/analysis
+- [x] **Animation Nora Premium** (Mars 2026):
+  - Effet blur-to-clear ligne par ligne (remplace typewriter)
+  - Contenu reecrit: concis, moderne, sans "bien vieillir/longevite"
+  - Badge Nora avec animation d'entree
+  - Point pulsant vert "Nora s'adresse a vous"
+  - Cartes fonctionnalites avec slide-up animation
 
 ## Prioritized Backlog
 ### P1
