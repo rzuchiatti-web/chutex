@@ -11,6 +11,9 @@ class UserRegister(BaseModel):
     date_of_birth: str = ""
     gender: str = ""
     address: str = ""
+    postal_code: str = ""
+    city: str = ""
+    country: str = ""
     height_cm: Optional[float] = None
     weight_kg: Optional[float] = None
     blood_type: str = ""

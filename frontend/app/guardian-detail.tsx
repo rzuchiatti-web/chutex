@@ -28,12 +28,12 @@ const LOC_OPTIONS = [
 ];
 
 export default function GuardianDetailScreen() {
-  const params = useLocalSearchParams<{ guardianId: string; gName?: string; gPhone?: string; gEmail?: string; gRelationship?: string; gType?: string; fromBeneficiary?: string }>();
+  const params = useLocalSearchParams<{ guardianId: string; gName?: string; gPhone?: string; gEmail?: string; gRelationship?: string; gType?: string; gAddress?: string; gPostalCode?: string; gCity?: string; gCountry?: string; fromBeneficiary?: string }>();
   const { token, user } = useAuth();
   const router = useRouter();
 
   // Expo Router web fallback
-  const webParams = (() => { try { if (typeof window !== 'undefined' && window.location?.search) { const u = new URLSearchParams(window.location.search); return { guardianId: u.get('guardianId') || '', gName: u.get('gName') || '', gPhone: u.get('gPhone') || '', gEmail: u.get('gEmail') || '', gRelationship: u.get('gRelationship') || '', gType: u.get('gType') || '', fromBeneficiary: u.get('fromBeneficiary') || '' }; } } catch {} return { guardianId: '', gName: '', gPhone: '', gEmail: '', gRelationship: '', gType: '', fromBeneficiary: '' }; })();
+  const webParams = (() => { try { if (typeof window !== 'undefined' && window.location?.search) { const u = new URLSearchParams(window.location.search); return { guardianId: u.get('guardianId') || '', gName: u.get('gName') || '', gPhone: u.get('gPhone') || '', gEmail: u.get('gEmail') || '', gRelationship: u.get('gRelationship') || '', gType: u.get('gType') || '', gAddress: u.get('gAddress') || '', gPostalCode: u.get('gPostalCode') || '', gCity: u.get('gCity') || '', gCountry: u.get('gCountry') || '', fromBeneficiary: u.get('fromBeneficiary') || '' }; } } catch {} return { guardianId: '', gName: '', gPhone: '', gEmail: '', gRelationship: '', gType: '', gAddress: '', gPostalCode: '', gCity: '', gCountry: '', fromBeneficiary: '' }; })();
 
   const guardianId = params.guardianId || webParams.guardianId;
   const fromBeneficiary = params.fromBeneficiary || webParams.fromBeneficiary;
@@ -87,6 +87,10 @@ export default function GuardianDetailScreen() {
               email: decodeURIComponent(params.gEmail || webParams.gEmail || ''),
               relationship: decodeURIComponent(params.gRelationship || webParams.gRelationship || ''),
               guardian_type: decodeURIComponent(params.gType || webParams.gType || ''),
+              address: decodeURIComponent(params.gAddress || webParams.gAddress || ''),
+              postal_code: decodeURIComponent(params.gPostalCode || webParams.gPostalCode || ''),
+              city: decodeURIComponent(params.gCity || webParams.gCity || ''),
+              country: decodeURIComponent(params.gCountry || webParams.gCountry || ''),
             };
           }
         }
@@ -226,6 +230,9 @@ export default function GuardianDetailScreen() {
             guardian.phone && { icon: 'ri-phone-line', label: 'Telephone', value: guardian.phone, color: '#10B981' },
             guardian.email && { icon: 'ri-mail-line', label: 'Email', value: guardian.email, color: '#38BDF8' },
             guardian.address && { icon: 'ri-map-pin-line', label: 'Adresse', value: guardian.address, color: '#F59E0B' },
+            guardian.postal_code && { icon: 'ri-hashtag', label: 'Code postal', value: guardian.postal_code, color: '#F59E0B' },
+            guardian.city && { icon: 'ri-building-line', label: 'Ville', value: guardian.city, color: '#F59E0B' },
+            guardian.country && { icon: 'ri-earth-line', label: 'Pays', value: guardian.country, color: '#F59E0B' },
           ].filter(Boolean).map((item: any, i: number) => (
             <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 0', borderTop: i > 0 ? `1px solid ${C.sep}` : 'none' } as any}>
               <div style={{ width: 36, height: 36, borderRadius: 10, background: `${item.color}15`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}>

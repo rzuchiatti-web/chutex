@@ -184,6 +184,7 @@ async def register(data: UserRegister):
         "created_at": datetime.now(timezone.utc).isoformat(),
         "beneficiaries": [], "guardians": [], "location_sharing": "alert_only",
         "date_of_birth": data.date_of_birth, "gender": data.gender, "address": data.address,
+        "postal_code": data.postal_code, "city": data.city, "country": data.country,
         "height_cm": data.height_cm, "weight_kg": data.weight_kg, "blood_type": data.blood_type,
         "allergies": data.allergies, "medical_conditions": data.medical_conditions,
         "emergency_contact_name": data.emergency_contact_name,

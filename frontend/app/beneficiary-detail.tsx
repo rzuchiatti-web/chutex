@@ -228,7 +228,10 @@ export default function BeneficiaryDetailScreen() {
             <div style={rowS}><span style={lbS}>Genre</span><span style={vlS}>{genderLabel}</span></div>
             {data.date_of_birth && <div style={rowS}><span style={lbS}>Date de naissance</span><span style={vlS}>{new Date(data.date_of_birth).toLocaleDateString('fr-FR')}</span></div>}
             {data.phone && <div style={rowS}><span style={lbS}>Telephone</span><span style={vlS}>{data.phone}</span></div>}
-            <div style={{ ...rowS, flexDirection: 'column', alignItems: 'flex-start', gap: 2 } as any}><span style={lbS}>Adresse</span><span data-testid="beneficiary-profile-address-value" style={{ fontSize: 13, color: C.text, fontWeight: 600, marginTop: 2 }}>{data.address || '-'}{(data.postal_code || data.city) ? `, ${[data.postal_code, data.city].filter(Boolean).join(' ')}` : ''}</span></div>
+            <div style={{ ...rowS, flexDirection: 'column', alignItems: 'flex-start', gap: 2 } as any}><span style={lbS}>Adresse</span><span data-testid="beneficiary-profile-address-value" style={{ fontSize: 13, color: C.text, fontWeight: 600, marginTop: 2 }}>{data.address || '-'}</span></div>
+            {data.postal_code && <div style={rowS}><span style={lbS}>Code postal</span><span data-testid="beneficiary-profile-postal-value" style={vlS}>{data.postal_code}</span></div>}
+            {data.city && <div style={rowS}><span style={lbS}>Ville</span><span data-testid="beneficiary-profile-city-value" style={vlS}>{data.city}</span></div>}
+            {data.country && <div style={rowS}><span style={lbS}>Pays</span><span data-testid="beneficiary-profile-country-value" style={vlS}>{data.country}</span></div>}
             {data.height_cm && <div style={rowS}><span style={lbS}>Taille</span><span data-testid="beneficiary-profile-height-value" style={vlS}>{data.height_cm} cm</span></div>}
             {profileWeight && <div style={rowS}><span style={lbS}>Poids</span><span data-testid="beneficiary-profile-weight-value" style={vlS}>{profileWeight} kg</span></div>}
             {data.height_cm && profileWeight && <div style={{ ...rowS, borderBottom: 'none' }}><span style={lbS}>IMC</span><span style={vlS}>{(profileWeight / Math.pow(data.height_cm / 100, 2)).toFixed(1)}</span></div>}
@@ -332,7 +335,7 @@ export default function BeneficiaryDetailScreen() {
           <div style={SL}>Gardiens ({guardiansList.length})</div>
           <div style={{ ...greyCard, padding: 0, overflow: 'hidden' }}>
             {guardiansList.length > 0 ? guardiansList.map((g: any, i: number) => (
-              <div key={g.id || i} data-testid={`beneficiary-guardian-card-${g.id || i}`} onClick={() => router.push({ pathname: '/guardian-detail' as any, params: { guardianId: g.id || '', gName: g.name || '', gPhone: g.phone || '', gEmail: g.email || '', gRelationship: g.relationship || g.guardian_type || '', gType: g.guardian_type || '', fromBeneficiary: activeBid } })}
+              <div key={g.id || i} data-testid={`beneficiary-guardian-card-${g.id || i}`} onClick={() => router.push({ pathname: '/guardian-detail' as any, params: { guardianId: g.id || '', gName: g.name || '', gPhone: g.phone || '', gEmail: g.email || '', gRelationship: g.relationship || g.guardian_type || '', gType: g.guardian_type || '', gAddress: g.address || '', gPostalCode: g.postal_code || '', gCity: g.city || '', gCountry: g.country || '', fromBeneficiary: activeBid } })}
                 style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '13px 16px', borderBottom: i < guardiansList.length - 1 ? `1px solid ${C.sep}` : 'none', cursor: 'pointer', transition: 'opacity 0.15s' } as any}
                 onMouseEnter={(e: any) => e.currentTarget.style.opacity = '0.7'} onMouseLeave={(e: any) => e.currentTarget.style.opacity = '1'}>
                 <div style={{ width: 36, height: 36, borderRadius: 10, background: isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.06)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}><span style={{ fontSize: 14, fontWeight: 700, color: C.text }}>{g.name?.charAt(0)}</span></div>

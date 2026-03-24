@@ -97,7 +97,8 @@ async def get_my_guardians(user=Depends(get_current_user)):
             )
             rel = rel_doc.get('relationship', '') if rel_doc else g.get('relationship', '')
             guardians.append({"id": g['id'], "name": g['name'], "email": g.get('email', ''), "phone": g.get('phone', ''),
-                "address": g.get('address', ''), "profession": g.get('profession', ''), "structure_name": g.get('structure_name', ''),
+                "address": g.get('address', ''), "postal_code": g.get('postal_code', ''), "city": g.get('city', ''), "country": g.get('country', ''),
+                "profession": g.get('profession', ''), "structure_name": g.get('structure_name', ''),
                 "guardian_type": g.get('guardian_type', ''), "relationship": rel,
                 "is_intervention_provider": g.get('is_intervention_provider', False), "is_prescriber": g.get('is_prescriber', False),
                 "latitude": g.get('latitude'), "longitude": g.get('longitude')})
