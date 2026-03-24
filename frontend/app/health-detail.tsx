@@ -86,6 +86,7 @@ export default function HealthDetailScreen() {
   const [expanded, setExpanded] = useState<string | null>(null);
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [showSleepInfo, setShowSleepInfo] = useState(false);
+  const [sleepAnalysis, setSleepAnalysis] = useState<any>(null);
 
   /* ── Per-night sleep data: uses REAL bracelet data only ── */
   const [sleepData, setSleepData] = useState<any>(null);
@@ -105,6 +106,17 @@ export default function HealthDetailScreen() {
     })();
   }, [token, metricId, beneficiaryId]);
 
+  /* ── WHOOP analysis data ── */
+  useEffect(() => {
+    (async () => {
+      try {
+        if (metricId !== 'sleep' || !token || beneficiaryId) return;
+        const data = await apiFetch('/api/health/sleep/analysis', {}, token);
+        if (data && data.has_data) setSleepAnalysis(data);
+      } catch {}
+    })();
+  }, [token, metricId, beneficiaryId]);
+
   // Find sleep data for the selected date
   const getSleepForDate = (dt: Date) => {
     if (!sleepData || sleepData.length === 0) return null;
@@ -117,7 +129,7 @@ export default function HealthDetailScreen() {
     const remMin = match.rem || 0;
     const awakeMin = match.awake || 0;
     const totalSleep = deepMin + lightMin + remMin;
-    const duration = match.duration || (totalSleep + awakeMin);
+    const duration = match.duration ? (match.duration < 24 ? Math.round(match.duration * 60) : match.duration) : (totalSleep + awakeMin);
     const quality = match.quality || (totalSleep > 0 ? Math.min(100, Math.round((deepMin * 2 + remMin * 1.5 + lightMin * 0.8) / totalSleep * 100)) : 0);
     const interruptions = match.sleep_interruptions || 0;
 
@@ -139,6 +151,18 @@ export default function HealthDetailScreen() {
   };
 
   const sleepNightData = getSleepForDate(selectedDate);
+
+  // Auto-select latest date with sleep data if today has none
+  useEffect(() => {
+    if (metricId === 'sleep' && sleepData && sleepData.length > 0) {
+      const todayStr = new Date().toISOString().split('T')[0];
+      const hasToday = sleepData.some((s: any) => s.date?.startsWith(todayStr));
+      if (!hasToday) {
+        const latest = sleepData[sleepData.length - 1];
+        if (latest?.date) setSelectedDate(new Date(latest.date + 'T12:00:00'));
+      }
+    }
+  }, [sleepData, metricId]);
 
   const changeDate = (offset: number) => {
     const d = new Date(selectedDate);
@@ -223,18 +247,77 @@ export default function HealthDetailScreen() {
 
         {/* Sleep section: Hypnogram hero + apnea risk */}
         {metricId === 'sleep' && (() => {
-          if (!sleepNightData) return (
+          if (!sleepNightData && !sleepAnalysis) return (
             <div style={{ borderRadius: 22, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', marginBottom: 14, padding: 24, textAlign: 'center' } as any}>
               <i className="ri-moon-line" style={{ fontSize: 36, color: 'rgba(255,255,255,0.2)', marginBottom: 12, display: 'block' }} />
               <div style={{ fontSize: 15, fontWeight: 700, color: 'rgba(255,255,255,0.5)', marginBottom: 6 }}>Aucune donnee de sommeil</div>
               <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.3)', lineHeight: 1.5 }}>Portez votre bracelet Elio pendant la nuit pour obtenir une analyse detaillee de votre sommeil.</div>
             </div>
           );
-          const { session: sleepSession, deepMin: nightDeepMin, lightMin: nightLightMin, remMin: nightRemMin, awakeMin: nightAwakeMin, totalSleep: nightTotalSleep, duration: nightDuration, quality: nightQuality, interruptions: nightInterruptions, apnea: nightApnea } = sleepNightData;
-          const deepPct = nightTotalSleep > 0 ? Math.round(nightDeepMin / nightTotalSleep * 100) : 0;
+          const nightData = sleepNightData;
+          const deepPct = nightData && nightData.totalSleep > 0 ? Math.round(nightData.deepMin / nightData.totalSleep * 100) : 0;
+          const sleepSession = nightData?.session;
+          const nightDeepMin = nightData?.deepMin || 0;
+          const nightLightMin = nightData?.lightMin || 0;
+          const nightRemMin = nightData?.remMin || 0;
+          const nightAwakeMin = nightData?.awakeMin || 0;
+          const nightTotalSleep = nightData?.totalSleep || 0;
+          const nightDuration = nightData?.duration || 0;
+          const nightQuality = nightData?.quality || 0;
+          const nightInterruptions = nightData?.interruptions || 0;
+          const nightApnea = nightData?.apnea || 0;
           return (
             <div key={`sleep-${selectedDate.getTime()}`}>
+
+            {/* WHOOP Performance Score */}
+            {sleepAnalysis && (() => {
+              const a = sleepAnalysis;
+              const perf = a.performance_score;
+              const perfColor = perf >= 67 ? '#10B981' : perf >= 34 ? '#F59E0B' : '#EF4444';
+              const perfLabel = perf >= 80 ? 'Optimal' : perf >= 67 ? 'Bon' : perf >= 50 ? 'Correct' : perf >= 34 ? 'A ameliorer' : 'Insuffisant';
+              const circumference = 2 * Math.PI * 72;
+              const dashLen = (perf / 100) * circumference;
+              const subScores = [
+                { label: 'Suffisance', score: a.sufficiency.score, icon: 'ri-battery-charge-line', sub: `${Math.floor(a.sufficiency.actual_min / 60)}h${String(a.sufficiency.actual_min % 60).padStart(2, '0')} / ${Math.floor(a.sufficiency.need_min / 60)}h${String(a.sufficiency.need_min % 60).padStart(2, '0')}` },
+                { label: 'Regularite', score: a.consistency.score, icon: 'ri-rhythm-line', sub: a.consistency.detail },
+                { label: 'Efficacite', score: a.efficiency.score, icon: 'ri-flashlight-line', sub: `${a.efficiency.pct}% du temps au lit` },
+                { label: 'Stress sommeil', score: a.sleep_stress.score, icon: 'ri-mental-health-line', sub: `Niveau ${a.sleep_stress.level}` },
+              ];
+              return (
+                <div data-testid="sleep-performance-card" style={{ borderRadius: 22, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', marginBottom: 14, padding: '24px 16px 16px', textAlign: 'center' } as any}>
+                  <svg width="160" height="160" viewBox="0 0 160 160" style={{ display: 'block', margin: '0 auto' }}>
+                    <circle cx="80" cy="80" r="72" fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth="8" />
+                    <circle cx="80" cy="80" r="72" fill="none" stroke={perfColor} strokeWidth="8" strokeLinecap="round"
+                      strokeDasharray={`${dashLen} ${circumference}`} transform="rotate(-90 80 80)"
+                      style={{ transition: 'stroke-dasharray 1.5s cubic-bezier(.22,.61,.36,1)' } as any} />
+                    <text x="80" y="72" textAnchor="middle" fill="#FFF" fontSize="38" fontWeight="900" fontFamily="Inter, system-ui, sans-serif">{perf}</text>
+                    <text x="80" y="96" textAnchor="middle" fill={perfColor} fontSize="12" fontWeight="700" fontFamily="Inter, system-ui, sans-serif">{perfLabel}</text>
+                  </svg>
+                  <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.3)', marginBottom: 16 }}>Score de performance sommeil</div>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 } as any}>
+                    {subScores.map((s, i) => {
+                      const sc = s.score >= 70 ? '#10B981' : s.score >= 50 ? '#F59E0B' : '#EF4444';
+                      const rad = 20; const circ = 2 * Math.PI * rad; const dash = (s.score / 100) * circ;
+                      return (
+                        <div key={i} style={{ padding: '14px 10px', borderRadius: 14, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.06)', textAlign: 'center' } as any}>
+                          <svg width="50" height="50" viewBox="0 0 50 50" style={{ display: 'block', margin: '0 auto 6px' }}>
+                            <circle cx="25" cy="25" r={rad} fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth="4" />
+                            <circle cx="25" cy="25" r={rad} fill="none" stroke={sc} strokeWidth="4" strokeLinecap="round"
+                              strokeDasharray={`${dash} ${circ}`} transform="rotate(-90 25 25)" />
+                            <text x="25" y="29" textAnchor="middle" fill="#FFF" fontSize="14" fontWeight="800" fontFamily="Inter, system-ui, sans-serif">{s.score}</text>
+                          </svg>
+                          <div style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.6)', marginBottom: 2 }}>{s.label}</div>
+                          <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.25)' }}>{s.sub}</div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              );
+            })()}
+
             {/* Hypnogram card with blur — image overlaps into this card */}
+            {nightData && sleepSession && (
             <div style={{ borderRadius: 22, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', marginBottom: 14, overflow: 'hidden', position: 'relative', paddingTop: 56 } as any}>
               {/* Duration header + date selector */}
               <div style={{ padding: '0 16px 12px', display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between' } as any}>
@@ -328,10 +411,11 @@ export default function HealthDetailScreen() {
                 </div>
               </div>
             </div>
+            )}
 
             {/* Sleep Debt Card — calculated from 7-day history */}
-            {(() => {
-              const NEED_MIN = 7 * 60 + 30; // 7h30 recommandé senior
+            {nightData && (() => {
+              const NEED_MIN = sleepAnalysis?.sleep_need_min || (7 * 60 + 30);
               // Tonight's effective sleep
               const tonightEffective = nightDuration - nightAwakeMin;
               const tonightDebtMin = Math.max(0, NEED_MIN - tonightEffective);
@@ -342,9 +426,10 @@ export default function HealthDetailScreen() {
               let weekAvgDeep = 0;
               if (sleepData && Array.isArray(sleepData)) {
                 for (const day of sleepData) {
-                  const dur = day.duration || 0;
-                  const aw = day.awake || 0;
-                  const eff = dur - aw;
+                  const deepM = day.deep || 0;
+                  const lightM = day.light || 0;
+                  const remM = day.rem || 0;
+                  const eff = deepM + lightM + remM;
                   weekDebtMin += Math.max(0, NEED_MIN - eff);
                   weekAvgQuality += (day.quality || 0);
                   weekAvgDeep += (day.deep || 0);
@@ -378,7 +463,7 @@ export default function HealthDetailScreen() {
                 <div style={{ marginBottom: 16 } as any}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 6 } as any}>
                     <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)' }}>Sommeil effectif cette nuit</span>
-                    <span style={{ fontSize: 15, fontWeight: 900, color: '#FFF' }}>{effH}h{String(effM).padStart(2, '0')} <span style={{ fontSize: 11, fontWeight: 600, color: 'rgba(255,255,255,0.3)' }}>/ 7h30</span></span>
+                    <span style={{ fontSize: 15, fontWeight: 900, color: '#FFF' }}>{effH}h{String(effM).padStart(2, '0')} <span style={{ fontSize: 11, fontWeight: 600, color: 'rgba(255,255,255,0.3)' }}>/ {Math.floor(NEED_MIN / 60)}h{String(NEED_MIN % 60).padStart(2, '0')}</span></span>
                   </div>
                   <div style={{ height: 12, borderRadius: 6, background: 'rgba(255,255,255,0.04)', overflow: 'hidden', position: 'relative' } as any}>
                     <div style={{ height: 12, borderRadius: 6, width: `${tonightPct}%`, background: tonightPct >= 90 ? 'linear-gradient(90deg, #059669, #10B981, #34D399)' : tonightPct >= 75 ? 'linear-gradient(90deg, #D97706, #F59E0B, #FBBF24)' : 'linear-gradient(90deg, #DC2626, #EF4444, #F87171)', transition: 'width 1.2s cubic-bezier(.22,.61,.36,1)', boxShadow: `0 0 16px ${tonightColor}33, inset 0 1px 0 rgba(255,255,255,0.15)` } as any} />
@@ -427,8 +512,123 @@ export default function HealthDetailScreen() {
               );
             })()}
 
+            {/* Recovery Card */}
+            {sleepAnalysis && (() => {
+              const rec = sleepAnalysis.recovery;
+              const zoneColors: Record<string, string> = { green: '#10B981', yellow: '#F59E0B', red: '#EF4444' };
+              const zoneLabels: Record<string, string> = { green: 'Optimale', yellow: 'Moderee', red: 'Faible' };
+              const zc = zoneColors[rec.zone] || '#6B7280';
+              const zl = zoneLabels[rec.zone] || 'Inconnue';
+              const rCirc = 2 * Math.PI * 36;
+              const rDash = (rec.score / 100) * rCirc;
+              return (
+                <div data-testid="sleep-recovery-card" style={{ borderRadius: 18, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', padding: '16px 18px', marginBottom: 14 } as any}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 14 } as any}>
+                    <i className="ri-heart-pulse-line" style={{ fontSize: 16, color: zc }} />
+                    <span style={{ fontSize: 14, fontWeight: 800, color: '#FFF' }}>Recuperation</span>
+                    <span style={{ marginLeft: 'auto', padding: '3px 10px', borderRadius: 999, background: `${zc}18`, fontSize: 10, fontWeight: 700, color: zc }}>{zl}</span>
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 16 } as any}>
+                    <svg width="90" height="90" viewBox="0 0 90 90" style={{ flexShrink: 0 }}>
+                      <circle cx="45" cy="45" r="36" fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth="6" />
+                      <circle cx="45" cy="45" r="36" fill="none" stroke={zc} strokeWidth="6" strokeLinecap="round"
+                        strokeDasharray={`${rDash} ${rCirc}`} transform="rotate(-90 45 45)"
+                        style={{ transition: 'stroke-dasharray 1.2s ease' } as any} />
+                      <text x="45" y="42" textAnchor="middle" fill="#FFF" fontSize="22" fontWeight="900" fontFamily="Inter, system-ui, sans-serif">{rec.score}</text>
+                      <text x="45" y="56" textAnchor="middle" fill="rgba(255,255,255,0.35)" fontSize="9" fontFamily="Inter, system-ui, sans-serif">/100</text>
+                    </svg>
+                    <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 8 } as any}>
+                      {rec.hrv > 0 && (
+                        <div style={{ padding: '8px 10px', borderRadius: 10, background: 'rgba(255,255,255,0.04)' } as any}>
+                          <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.35)', marginBottom: 2 }}>Variabilite cardiaque (VFC)</div>
+                          <div style={{ fontSize: 16, fontWeight: 800, color: '#A78BFA' }}>{rec.hrv} <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)' }}>ms</span></div>
+                        </div>
+                      )}
+                      {rec.rhr > 0 && (
+                        <div style={{ padding: '8px 10px', borderRadius: 10, background: 'rgba(255,255,255,0.04)' } as any}>
+                          <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.35)', marginBottom: 2 }}>FC au repos</div>
+                          <div style={{ fontSize: 16, fontWeight: 800, color: '#EF4444' }}>{rec.rhr} <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)' }}>bpm</span></div>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                  <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.25)', marginTop: 10, lineHeight: 1.5 }}>
+                    Base sur : performance sommeil, variabilite cardiaque et frequence cardiaque au repos.
+                  </div>
+                </div>
+              );
+            })()}
+
+            {/* Weekly Trend */}
+            {sleepAnalysis && sleepAnalysis.weekly_trend && sleepAnalysis.weekly_trend.length > 1 && (() => {
+              const trend = sleepAnalysis.weekly_trend;
+              const maxDur = Math.max(...trend.map((dd: any) => dd.duration));
+              const need = sleepAnalysis.sleep_need_min || 480;
+              const ref = Math.max(maxDur, need);
+              return (
+                <div data-testid="sleep-weekly-trend" style={{ borderRadius: 18, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', padding: '16px 18px', marginBottom: 14 } as any}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 14 } as any}>
+                    <i className="ri-bar-chart-grouped-line" style={{ fontSize: 16, color: '#818CF8' }} />
+                    <span style={{ fontSize: 14, fontWeight: 800, color: '#FFF' }}>7 derniers jours</span>
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'flex-end', gap: 6, height: 110, padding: '0 2px' } as any}>
+                    {trend.map((day: any, i: number) => {
+                      const barH = Math.max(16, Math.round((day.duration / ref) * 100));
+                      const qColor = day.quality >= 75 ? '#10B981' : day.quality >= 55 ? '#F59E0B' : '#EF4444';
+                      return (
+                        <div key={i} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 3 } as any}>
+                          <div style={{ fontSize: 8, fontWeight: 700, color: qColor }}>{day.quality}%</div>
+                          <div style={{ width: '100%', maxWidth: 22, height: barH, borderRadius: 5, overflow: 'hidden', display: 'flex', flexDirection: 'column' } as any}>
+                            {day.awake_pct > 0 && <div style={{ flex: day.awake_pct, background: '#F87171' } as any} />}
+                            <div style={{ flex: day.rem_pct || 1, background: '#C4B5FD' } as any} />
+                            <div style={{ flex: day.light_pct || 1, background: '#818CF8' } as any} />
+                            <div style={{ flex: day.deep_pct || 1, background: '#4338CA' } as any} />
+                          </div>
+                          <div style={{ fontSize: 8, color: 'rgba(255,255,255,0.25)' }}>{day.date.slice(8)}/{day.date.slice(5, 7)}</div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                  <div style={{ display: 'flex', justifyContent: 'center', gap: 12, marginTop: 10, flexWrap: 'wrap' } as any}>
+                    {[
+                      { l: 'Profond', c: '#4338CA' }, { l: 'Leger', c: '#818CF8' },
+                      { l: 'REM', c: '#C4B5FD' }, { l: 'Eveil', c: '#F87171' },
+                    ].map((s, i) => (
+                      <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 4 } as any}>
+                        <div style={{ width: 8, height: 8, borderRadius: 2, background: s.c } as any} />
+                        <span style={{ fontSize: 9, color: 'rgba(255,255,255,0.35)' }}>{s.l}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              );
+            })()}
+
+            {/* Sleep Planner */}
+            {sleepAnalysis && (
+              <div data-testid="sleep-planner" style={{ borderRadius: 18, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', padding: '16px 18px', marginBottom: 14 } as any}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 14 } as any}>
+                  <i className="ri-time-line" style={{ fontSize: 16, color: '#818CF8' }} />
+                  <span style={{ fontSize: 14, fontWeight: 800, color: '#FFF' }}>Planification du sommeil</span>
+                </div>
+                <div style={{ display: 'flex', gap: 8 } as any}>
+                  {[
+                    { icon: 'ri-moon-line', label: 'Besoin', value: `${Math.floor(sleepAnalysis.sleep_need_min / 60)}h${String(sleepAnalysis.sleep_need_min % 60).padStart(2, '0')}`, c: '#A78BFA' },
+                    { icon: 'ri-moon-cloudy-line', label: 'Coucher', value: sleepAnalysis.recommended_bedtime, c: '#818CF8' },
+                    { icon: 'ri-sun-line', label: 'Reveil', value: '07:00', c: '#F59E0B' },
+                  ].map((item, i) => (
+                    <div key={i} style={{ flex: 1, padding: '12px 8px', borderRadius: 12, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.06)', textAlign: 'center' } as any}>
+                      <i className={item.icon} style={{ fontSize: 20, color: item.c, marginBottom: 6, display: 'block' }} />
+                      <div style={{ fontSize: 16, fontWeight: 900, color: '#FFF' }}>{item.value}</div>
+                      <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.3)', marginTop: 2 }}>{item.label}</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
             {/* Apnea risk — separate card with Nora analysis */}
-            {(() => {
+            {nightData && (() => {
               return (
             <div style={{ borderRadius: 18, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', padding: '16px 18px', marginBottom: 14 } as any}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 } as any}>

@@ -1,0 +1,75 @@
+{
+  "summary": "Tested WHOOP-inspired sleep analysis features in health-detail.tsx. Backend APIs (/api/health/sleep/analysis, /api/health/sleep/history) working correctly. Frontend renders all WHOOP components: performance score ring, 4 sub-scores, recovery card, weekly trend chart, sleep planner, hypnogram, apnea risk. Navigation from SleepCard to sleep detail page works. Auto-date selection correctly picks March 17 (latest date with data).",
+  "backend_issues": {
+    "critical": [],
+    "minor": []
+  },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": [
+      {
+        "screen": "Sleep debt calculation",
+        "issues": ["Frontend calculates debt using effective sleep (deep+light+rem) = 18h46m, while backend API returns debt using total duration = 9h24m. This is a design inconsistency, not a bug - frontend approach is more accurate but differs from API."]
+      }
+    ]
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_sleep_whoop.py",
+    "/app/test_reports/pytest/pytest_results_iter150_sleep_whoop.xml"
+  ],
+  "action_items": [
+    "OPTIONAL: Align frontend debt calculation with backend API (use sleepAnalysis.debt.total_min instead of recalculating from history)"
+  ],
+  "critical_code_review_comments": [
+    "health-detail.tsx line 433: Frontend calculates weekDebtMin from sleepData (deep+light+rem) which differs from backend calculation using duration. Consider using sleepAnalysis.debt.total_min for consistency."
+  ],
+  "updated_files": [
+    "/app/backend/tests/test_sleep_whoop.py"
+  ],
+  "success_rate": {
+    "backend": "100% (12/12 tests passed)",
+    "frontend": "100% (all WHOOP components render correctly)"
+  },
+  "test_credentials": {
+    "beneficiary": "email: 0651245918 / password: test123"
+  },
+  "seed_data_creation": "None - used existing sleep data from March 11-17, 2026",
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "WHOOP sleep features fully tested and working. Backend APIs return all required metrics. Frontend renders performance score (81), sub-scores (Suffisance 83, Regularite 54, Efficacite 99, Stress sommeil 84), recovery (57, yellow zone), weekly trend (7 days), sleep planner (Besoin 8h00, Coucher 23:00, Reveil 07:00), hypnogram, and apnea risk. Auto-date selection works - picks March 17 when today has no data.",
+  "tests_performed": {
+    "backend_api_tests": [
+      "GET /api/health/sleep/analysis - PASS (200 OK, all WHOOP metrics present)",
+      "GET /api/health/sleep/history - PASS (200 OK, 7 days of data)",
+      "Performance score calculation - PASS (81 = 40%*83 + 20%*54 + 25%*99 + 15%*84)",
+      "Recovery zone assignment - PASS (57 = yellow zone)",
+      "Authentication required - PASS (401 without token)",
+      "Invalid token rejected - PASS (401 with invalid token)"
+    ],
+    "frontend_ui_tests": [
+      "sleep-performance-card renders - PASS (score 81, Optimal label)",
+      "4 sub-scores render - PASS (Suffisance 83, Regularite 54, Efficacite 99, Stress sommeil 84)",
+      "sleep-recovery-card renders - PASS (score 57, Moderee, VFC 38ms, FC 70bpm)",
+      "sleep-weekly-trend renders - PASS (7 days stacked bar chart)",
+      "sleep-planner renders - PASS (Besoin 8h00, Coucher 23:00, Reveil 07:00)",
+      "Hypnogram renders - PASS (phases, time labels, legend)",
+      "Apnea risk card renders - PASS (Faible with Nora analysis)",
+      "Auto-date selection - PASS (selected March 17 as latest date)",
+      "Navigation from SleepCard - PASS (health tab -> health-detail?metricId=sleep)"
+    ]
+  },
+  "features_verified": {
+    "performance_score": "81 (Optimal) - correctly calculated from 4 sub-scores",
+    "sufficiency": "83 (6h37 actual / 8h00 need)",
+    "consistency": "54 (Sur 7 nuits)",
+    "efficiency": "99 (99% du temps au lit)",
+    "sleep_stress": "84 (Niveau faible)",
+    "recovery": "57 (Moderee zone, VFC 38ms, FC 70bpm)",
+    "weekly_trend": "7 days with quality percentages (82%, 73%, 70%, 67%, 68%, 78%, 72%)",
+    "sleep_planner": "Besoin 8h00, Coucher 23:00, Reveil 07:00",
+    "hypnogram": "Full sleep phases visualization with time labels",
+    "apnea_risk": "Faible with Nora AI analysis",
+    "auto_date_selection": "Correctly selects March 17 (latest date with data)"
+  }
+}
