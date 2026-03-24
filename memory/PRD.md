@@ -17,48 +17,40 @@ Pixel-perfect redesign of the Beneficiary and Guardian dashboards, Health, Progr
 - [x] Guardian permissions system (9 alert types, 7 health types, 3 location modes)
 - [x] Guardian-detail refonte + permissions interactives
 - [x] **Beneficiary-detail REFONTE v4 — Style Clinique Premium** (Mar 23, 2026):
-  - Header: BG_RED image (URL fixée 2025→2026), nom centre, bouton "Appeler" slide pleine largeur, SANS pilules
-  - Safe Zones: texte explicatif clarifie position actuelle, popups aide/formulaire directement sur fond floute (sans carte)
-  - Séparateurs visuels entre chaque section (ligne fine horizontale)
-  - Style plat/clinique: lignes key-value simples, ZERO cartes imbriquees
-  - Teste: 15/15 features (100% - iteration_142)
-- [x] **Health Readonly — Page Santé Gardien** (Mar 23, 2026):
-  - Endpoint: `GET /api/guardian/beneficiary/{bid}/daily-report`
-  - Endpoint: `GET /api/guardian/beneficiary/{bid}/metric-history/{key}`
-  - Page identique au bénéficiaire: HeroScore, ActivityCard, SleepCard, HealthSections, Poids, Pesées, ECG
-  - Badge "LECTURE SEULE", header centré avec avatar du bénéficiaire
-  - Navigation complète vers metric-detail, health-detail (sections), toutes avec beneficiaryId
-  - Seuils/objectifs masqués en mode readonly
-    1. Informations personnelles (flat rows: prenom/nom/age/genre/naissance/tel/adresse/taille/poids/IMC)
-    2. Dossier medical (groupe sanguin/pathologies/allergies)
-    3. Donnees de sante: grille 2x2 des 4 vitales (Pouls/SpO2/Tension/Temperature) — placeholder "--" si pas de donnee
-    4. Bouton "Voir la page sante" sous les vitales
-    5. Activite physique (pas/kcal/distance) si disponible
-    6. Dispositifs (3 en grille plate)
-    7. Preferences (toggles + customisation alertes)
-    8. Gardiens (liste plate, modal detail)
-    9. Gestion des zones + popup glass explicative
-  - Palette dark: gradient linear(#0C0C14 -> #1C1C24), light: #FAFAFA
-  - Teste: 15/15 features (100% - iteration_142)
+  - Header: BG_RED image, nom centre, bouton "Appeler" slide pleine largeur
+  - Safe Zones: texte explicatif, popups aide/formulaire directement sur fond floute
+  - Separateurs visuels entre chaque section
+  - Style plat/clinique: lignes key-value simples
+- [x] **Health Readonly — Page Sante Gardien** (Mar 23, 2026):
+  - Endpoints: `GET /api/guardian/beneficiary/{bid}/daily-report` et `metric-history/{key}`
+  - Page identique au beneficiaire: HeroScore, ActivityCard, SleepCard, HealthSections
+  - Badge "LECTURE SEULE", navigation complete vers metric-detail/health-detail
+- [x] **J2358 Bracelet V6 4G — TCP Server** (Mar 24, 2026):
+  - Serveur TCP asyncio sur port 9001, protocole binaire J2358
+  - Routes HTTP: firmware upload/download, device register, TCP status
+- [x] **P0 Fix: Bouton Retour Gardien** (Mar 24, 2026):
+  - Ajout fallback `window.location.search` pour `beneficiaryId` dans metric-detail.tsx, health-detail.tsx et health-readonly.tsx
+  - Le bouton Retour redirige correctement vers `/health-readonly?beneficiaryId=...` au lieu de `/(tabs)/health`
+  - Teste: iteration_143 — 100% PASS
+- [x] **Cartes Grises Claires — Fiche Beneficiaire** (Mar 24, 2026):
+  - Sections "Informations personnelles" et "Dossier medical" dans des cartes grises arronies (cardGrey/cardBorder)
+  - Dark: rgba(255,255,255,0.07), Light: #ECEDF0
+  - Teste: iteration_143 — 100% PASS
 
 ## P0 — Upcoming
-- [ ] Balance & Vest Integration
+- [ ] Balance & Vest Integration (verify data flow from scale/vest alongside bracelet data)
 
 ## P1
 - [ ] Electronic Signature System (Admin -> Documents)
 
-## Recently Completed
-- [x] **J2358 Bracelet V6 4G — TCP Server** (Mar 24, 2026):
-  - Serveur TCP asyncio sur port 9001, protocole binaire J2358
-  - Parse: heartbeat, GPS, santé (FC/SpO2/HRV/tension/temp/pas/calories), SOS, sommeil, batterie
-  - Routes HTTP: firmware upload/download, device register, TCP status
-  - Alertes SOS auto avec geolocalisation
+## Blocked
+- [ ] CRC32 Custom Validation for J2358 TCP Server (waiting manufacturer sample)
 
 ## P2 — Future/Backlog
 - [ ] Guardian Referral System
 - [ ] Free 7-Day Trial Flow
 - [ ] Vivoo Urine Test Integration
-- [ ] Refactoring: Backend routes + profile.tsx
+- [ ] Refactoring: Backend routes + profile.tsx + beneficiary-detail.tsx
 
 ## Test Credentials
 | Role | Email/Phone | Password |
@@ -68,7 +60,9 @@ Pixel-perfect redesign of the Beneficiary and Guardian dashboards, Health, Progr
 
 ## Key Files
 - `/app/frontend/app/beneficiary-detail.tsx` (REFONTE v4 - style clinique)
-- `/app/frontend/app/health-readonly.tsx` (Page santé gardien lecture seule)
+- `/app/frontend/app/health-readonly.tsx` (Page sante gardien lecture seule)
+- `/app/frontend/app/metric-detail.tsx` (Detail metrique avec back button fix)
+- `/app/frontend/app/health-detail.tsx` (Detail section sante avec back button fix)
 - `/app/frontend/src/components/dashboard/BeneficiaryHome.tsx`
 - `/app/frontend/src/components/GlassTabBar.tsx`
 - `/app/backend/routes/guardian_routes.py`
