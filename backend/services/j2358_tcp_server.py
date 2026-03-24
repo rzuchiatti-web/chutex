@@ -27,11 +27,43 @@ HEADER_LEN = 21  # 2(start) + 1(enc) + 1(resp) + 1(type) + 6(dev_type) + 8(dev_i
 CRC_LEN = 4
 FOOTER_LEN = 2
 
-# ── CRC32 (standard ISO 3309, same as zlib) ──
+# J2358 device type: "235809" = hex 32 33 35 38 30 39
+DEVICE_TYPE_J2358 = b'\x32\x33\x35\x38\x30\x39'
+
+# ── CRC32 variants — manufacturer says "custom", we try multiple until confirmed ──
 import zlib
 
-def crc32(data: bytes) -> int:
+def crc32_standard(data: bytes) -> int:
     return zlib.crc32(data) & 0xFFFFFFFF
+
+def crc32_mpeg2(data: bytes) -> int:
+    crc = 0xFFFFFFFF
+    for byte in data:
+        crc ^= byte << 24
+        for _ in range(8):
+            if crc & 0x80000000:
+                crc = (crc << 1) ^ 0x04C11DB7
+            else:
+                crc <<= 1
+            crc &= 0xFFFFFFFF
+    return crc
+
+def crc32_init0(data: bytes) -> int:
+    crc = 0x00000000
+    for byte in data:
+        crc ^= byte << 24
+        for _ in range(8):
+            if crc & 0x80000000:
+                crc = (crc << 1) ^ 0x04C11DB7
+            else:
+                crc <<= 1
+            crc &= 0xFFFFFFFF
+    return crc
+
+CRC_FUNCS = [crc32_standard, crc32_mpeg2, crc32_init0]
+
+def crc32(data: bytes) -> int:
+    return crc32_standard(data)
 
 # ── Packet parser ──
 def parse_packet(raw: bytes) -> dict | None:
@@ -50,12 +82,17 @@ def parse_packet(raw: bytes) -> dict | None:
     biz_data = raw[21:21 + biz_len]
     crc_received = struct.unpack(">I", raw[21 + biz_len:21 + biz_len + 4])[0]
 
-    # Verify CRC32
+    # Verify CRC32 — try multiple variants to identify which one the device uses
     crc_payload = raw[19:21 + biz_len]  # biz_len bytes + biz_data
-    crc_calc = crc32(crc_payload)
-    if crc_calc != crc_received:
-        logger.warning(f"CRC mismatch: calc={crc_calc:#010x} recv={crc_received:#010x}")
-        # Don't reject — some devices use non-standard CRC. Log and continue.
+    crc_match = False
+    for fn in CRC_FUNCS:
+        if fn(crc_payload) == crc_received:
+            crc_match = True
+            if fn.__name__ != 'crc32_standard':
+                logger.info(f"CRC matched with {fn.__name__}")
+            break
+    if not crc_match:
+        logger.warning(f"CRC mismatch: recv={crc_received:#010x} | std={crc32_standard(crc_payload):#010x} mpeg2={crc32_mpeg2(crc_payload):#010x} init0={crc32_init0(crc_payload):#010x}")
 
     # Device ID: try to decode as ASCII (IMEI) or hex
     try:
@@ -82,11 +119,12 @@ def build_response(device_type_bytes: bytes, device_id_bytes: bytes, biz_data: b
     """Build a response frame to send back to the device."""
     biz_len = struct.pack(">H", len(biz_data))
     crc_payload = biz_len + biz_data
+    # Use standard CRC32 for responses — will adjust once we identify the device's CRC variant
     crc = struct.pack(">I", crc32(crc_payload))
     frame = (FRAME_START +
-             b'\x00' +  # no encryption
+             b'\x00' +  # plaintext (confirmed by manufacturer)
              b'\x00' +  # no response needed
-             b'\x01' +  # data_type=1 (command reply)
+             b'\x01' +  # data_type=1 (server reply)
              device_type_bytes +
              device_id_bytes +
              biz_len +
