@@ -16,6 +16,16 @@ export function BeneficiaryTeleconsult({ token }: { token: string }) {
   const [freeText, setFreeText] = useState('');
   const [painLevel, setPainLevel] = useState(3);
 
+  /* Dark navbar — inject on mount, remove on unmount */
+  useEffect(() => {
+    if (Platform.OS !== 'web') return;
+    const style = document.createElement('style');
+    style.id = 'teleconsult-dark-nav';
+    style.textContent = '.glass-tab-bar-root { background: rgba(0,0,0,0.7) !important; border-color: rgba(255,255,255,0.06) !important; } .glass-tab-bar-root i { color: rgba(255,255,255,0.5) !important; } .glass-tab-bar-root .active-tab i { color: #FFF !important; }';
+    document.head.appendChild(style);
+    return () => { style.remove(); };
+  }, []);
+
   useEffect(() => { (async () => { try { const q = await apiFetch('/api/teleconsult/questions', {}, token); setQuestions(q); } catch {} finally { setLoading(false); } })(); }, []);
 
   const submitQCM = async () => {
@@ -32,8 +42,6 @@ export function BeneficiaryTeleconsult({ token }: { token: string }) {
   if (submitted && callInfo && Platform.OS === 'web') {
     return (
       <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, display: 'flex', flexDirection: 'column', fontFamily: 'Inter, system-ui, sans-serif', overflow: 'hidden' } as any}>
-        {/* Force dark navbar on teleconsultation */}
-        <style>{`.glass-tab-bar-root { background: rgba(0,0,0,0.7) !important; border-color: rgba(255,255,255,0.06) !important; } .glass-tab-bar-root i { color: rgba(255,255,255,0.5) !important; } .glass-tab-bar-root .active-tab i { color: #FFF !important; }`}</style>
         <img src={BG_BLUE} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 } as any} />
         <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.3)', zIndex: 1 } as any} />
         <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', position: 'relative', zIndex: 5, padding: '0 28px' } as any}>
@@ -63,8 +71,6 @@ export function BeneficiaryTeleconsult({ token }: { token: string }) {
     const q = questions[step];
     return (
       <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, display: 'flex', flexDirection: 'column', fontFamily: 'Inter, system-ui, sans-serif', overflow: 'hidden' } as any}>
-        {/* Force dark navbar on teleconsultation */}
-        <style>{`.glass-tab-bar-root { background: rgba(0,0,0,0.7) !important; border-color: rgba(255,255,255,0.06) !important; } .glass-tab-bar-root i { color: rgba(255,255,255,0.5) !important; } .glass-tab-bar-root .active-tab i { color: #FFF !important; }`}</style>
         <img src={BG_BLUE} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 } as any} />
         <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.3)', zIndex: 1 } as any} />
 
