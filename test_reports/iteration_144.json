@@ -1,0 +1,61 @@
+{
+  "summary": "Frontend testing of guardian detail navigation from beneficiary-detail page. ALL TESTS PASSED. (1) Clicking guardian in beneficiary-detail guardians list navigates to /guardian-detail with correct URL params (guardianId, gName, gPhone, gRelationship, gType, fromBeneficiary). (2) Guardian-detail page displays: name, avatar, relationship badge ('Fille'), type badge ('Particulier'), slide-to-call button, Coordonnees card with phone, SMS button, Retour button. (3) Read-only mode verified: NO Autorisations section, NO delete button when fromBeneficiary is set. (4) Back button correctly navigates to /beneficiary-detail?beneficiaryId=XXX.",
+  "backend_issues": {
+    "critical": [],
+    "minor": []
+  },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": ["/app/test_reports/iteration_144.json"],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "Code review confirms correct implementation: beneficiary-detail.tsx lines 333-345 use router.push to /guardian-detail with all required params including fromBeneficiary",
+    "Code review confirms guardian-detail.tsx correctly handles URL params fallback (lines 36-93) for when accessed from beneficiary-detail",
+    "Code review confirms read-only mode: guardian-detail.tsx line 251 checks !isFromBeneficiary before rendering Autorisations section",
+    "Code review confirms delete button hidden: guardian-detail.tsx line 331 checks !isFromBeneficiary before rendering delete button",
+    "Code review confirms back button navigation: guardian-detail.tsx lines 176-181 check isFromBeneficiary to navigate to /beneficiary-detail with beneficiaryId"
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "N/A (skipped)", "frontend": "100%"},
+  "test_credentials": {
+    "guardian_login": {"phone": "+33612345678", "password": "test123"},
+    "beneficiary_id": "495e5e38-3591-474b-abe5-c932574bb609"
+  },
+  "seed_data_creation": "None",
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "Guardian detail navigation from beneficiary-detail verified working. Test flow: Login as guardian (+33612345678/test123) -> Click beneficiary card (Josette Zuchiatti) -> Scroll to Gardiens section -> Click guardian card -> Verify guardian-detail page shows name, slide-to-call, coordonnees, SMS button, NO autorisations, NO delete button -> Click Retour -> Verify back to beneficiary-detail.",
+  "features_tested": {
+    "guardian_list_click_navigation": {
+      "status": "PASS",
+      "test_flow": "beneficiary-detail -> click guardian card -> guardian-detail",
+      "expected_url_pattern": "/guardian-detail?guardianId=XXX&gName=...&fromBeneficiary=YYY",
+      "actual_url": "/guardian-detail?guardianId=51216250-ae30-4907-ab77-b6e13cde75d9&gName=Claire%20Martin&gPhone=%2B33612345678&gEmail=&gRelationship=Fille&gType=particular&fromBeneficiary=495e5e38-3591-474b-abe5-c932574bb609"
+    },
+    "guardian_detail_page_elements": {
+      "status": "PASS",
+      "guardian_detail_screen": "FOUND",
+      "guardian_name": "Claire Martin",
+      "slide_to_call_button": "FOUND",
+      "sms_button": "FOUND",
+      "back_button": "FOUND",
+      "coordonnees_section": "FOUND with phone +33612345678",
+      "relationship_badge": "Fille",
+      "type_badge": "Particulier"
+    },
+    "read_only_mode_verification": {
+      "status": "PASS",
+      "autorisations_section": "NOT FOUND (correct)",
+      "delete_button": "NOT FOUND (correct)",
+      "reason": "fromBeneficiary param is set, so guardian-detail renders in read-only mode"
+    },
+    "back_button_navigation": {
+      "status": "PASS",
+      "expected_url": "/beneficiary-detail?beneficiaryId=495e5e38-3591-474b-abe5-c932574bb609",
+      "actual_url": "/beneficiary-detail?beneficiaryId=495e5e38-3591-474b-abe5-c932574bb609"
+    }
+  }
+}

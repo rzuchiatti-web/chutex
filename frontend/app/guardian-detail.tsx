@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import FullScreenLoader from '../src/components/FullScreenLoader';
 import { View, Text, Platform } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -28,15 +28,32 @@ const LOC_OPTIONS = [
 ];
 
 export default function GuardianDetailScreen() {
-  const { guardianId } = useLocalSearchParams<{ guardianId: string }>();
+  const params = useLocalSearchParams<{ guardianId: string; gName?: string; gPhone?: string; gEmail?: string; gRelationship?: string; gType?: string; fromBeneficiary?: string }>();
   const { token, user } = useAuth();
   const router = useRouter();
+
+  // Expo Router web fallback
+  const webParams = (() => { try { if (typeof window !== 'undefined' && window.location?.search) { const u = new URLSearchParams(window.location.search); return { guardianId: u.get('guardianId') || '', gName: u.get('gName') || '', gPhone: u.get('gPhone') || '', gEmail: u.get('gEmail') || '', gRelationship: u.get('gRelationship') || '', gType: u.get('gType') || '', fromBeneficiary: u.get('fromBeneficiary') || '' }; } } catch {} return { guardianId: '', gName: '', gPhone: '', gEmail: '', gRelationship: '', gType: '', fromBeneficiary: '' }; })();
+
+  const guardianId = params.guardianId || webParams.guardianId;
+  const fromBeneficiary = params.fromBeneficiary || webParams.fromBeneficiary;
+  const isFromBeneficiary = !!fromBeneficiary;
+
   const [guardian, setGuardian] = useState<any>(null);
   const [perms, setPerms] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [isDark, setIsDark] = useState(true);
   const [expandedSection, setExpandedSection] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
+
+  /* slide-to-call state */
+  const [slideX, setSlideX] = useState(0);
+  const [sliding, setSliding] = useState(false);
+  const slideRef = useRef<HTMLDivElement>(null);
+  const slideStartX = useRef(0);
+  const slideTrackW = useRef(0);
+  const THUMB = 48;
+  const THRESHOLD = 0.75;
 
   useEffect(() => {
     if (typeof localStorage !== 'undefined') {
@@ -50,6 +67,7 @@ export default function GuardianDetailScreen() {
   useEffect(() => {
     (async () => {
       try {
+        // Try loading from beneficiary's guardians API first
         const guards = await apiFetch('/api/guardians/my', {}, token).catch(() => []);
         let found = (guards || []).find((g: any) => g.id === guardianId);
         if (!found) {
@@ -57,8 +75,24 @@ export default function GuardianDetailScreen() {
           if (res?.prescriber) found = { ...res.prescriber, agency: res.agency };
           else if (res?.id || res?.name) found = res;
         }
+        // Fallback: use URL params (when accessed from beneficiary-detail by a guardian)
+        if (!found && isFromBeneficiary) {
+          const fallbackName = params.gName || webParams.gName;
+          const fallbackPhone = params.gPhone || webParams.gPhone;
+          if (fallbackName) {
+            found = {
+              id: guardianId,
+              name: decodeURIComponent(fallbackName),
+              phone: decodeURIComponent(fallbackPhone || ''),
+              email: decodeURIComponent(params.gEmail || webParams.gEmail || ''),
+              relationship: decodeURIComponent(params.gRelationship || webParams.gRelationship || ''),
+              guardian_type: decodeURIComponent(params.gType || webParams.gType || ''),
+            };
+          }
+        }
         setGuardian(found || null);
-        if (found && user?.id) {
+        // Load permissions only when beneficiary is viewing their own guardian
+        if (found && user?.id && !isFromBeneficiary) {
           const p = await apiFetch(`/api/guardian-permissions/${guardianId}/${user.id}`, {}, token).catch(() => null);
           setPerms(p);
         }
@@ -67,7 +101,7 @@ export default function GuardianDetailScreen() {
   }, [guardianId, token]);
 
   const savePerms = async (updates: any) => {
-    if (!user?.id || saving) return;
+    if (!user?.id || saving || isFromBeneficiary) return;
     setSaving(true);
     try {
       const res = await apiFetch(`/api/guardian-permissions/${guardianId}/${user.id}/beneficiary`, {
@@ -77,16 +111,38 @@ export default function GuardianDetailScreen() {
     } catch {} finally { setSaving(false); }
   };
 
+  /* slide handlers */
+  const onSlideStart = (e: any) => {
+    const el = slideRef.current; if (!el) return;
+    const rect = el.getBoundingClientRect();
+    slideTrackW.current = rect.width - THUMB;
+    const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+    slideStartX.current = clientX;
+    setSliding(true);
+    const move = (ev: any) => { const cx = ev.touches ? ev.touches[0].clientX : ev.clientX; const dx = Math.max(0, Math.min(cx - slideStartX.current, slideTrackW.current)); setSlideX(dx); };
+    const end = () => {
+      document.removeEventListener('mousemove', move); document.removeEventListener('mouseup', end);
+      document.removeEventListener('touchmove', move); document.removeEventListener('touchend', end);
+      setSliding(false);
+      if (slideX / slideTrackW.current >= THRESHOLD && guardian?.phone) { window.open(`tel:${guardian.phone}`, '_self'); }
+      setSlideX(0);
+    };
+    document.addEventListener('mousemove', move); document.addEventListener('mouseup', end);
+    document.addEventListener('touchmove', move); document.addEventListener('touchend', end);
+  };
+  const slideProgress = slideTrackW.current > 0 ? slideX / slideTrackW.current : 0;
+
   if (loading) return <FullScreenLoader />;
   if (!guardian) return <SafeAreaView style={{ flex: 1, backgroundColor: isDark ? '#000' : '#F5F5F5', justifyContent: 'center', alignItems: 'center' }}><Text style={{ color: isDark ? 'rgba(255,255,255,0.5)' : 'rgba(0,0,0,0.4)' }}>Gardien non trouve</Text></SafeAreaView>;
 
-  const isPro = guardian.guardian_type === 'professional';
+  const isPro = guardian.guardian_type === 'professional' || guardian.guardian_type === 'saad' || guardian.guardian_type === 'company';
   if (Platform.OS !== 'web') return <NativePageView path="/guardian-detail" />;
 
   const C = isDark
     ? { bg: 'linear-gradient(180deg, #1a1a24 0%, #111118 100%)', card: 'rgba(70,70,78,0.85)', text: '#FFF', sub: 'rgba(255,255,255,0.4)', sep: 'rgba(255,255,255,0.04)', label: 'rgba(255,255,255,0.3)', toggleBg: 'rgba(255,255,255,0.08)', toggleActive: '#10B981' }
     : { bg: '#F5F5F5', card: '#E8E8EA', text: '#1A1A2E', sub: 'rgba(0,0,0,0.4)', sep: 'rgba(0,0,0,0.06)', label: 'rgba(0,0,0,0.3)', toggleBg: 'rgba(0,0,0,0.06)', toggleActive: '#10B981' };
   const glass = { backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' };
+  const guardianFirstName = (guardian.name || '').split(' ')[0] || guardian.name || '';
 
   const Toggle = ({ on, onToggle, disabled }: { on: boolean; onToggle: () => void; disabled?: boolean }) => (
     <div onClick={disabled ? undefined : onToggle} style={{ width: 44, height: 26, borderRadius: 13, background: on ? C.toggleActive : C.toggleBg, cursor: disabled ? 'default' : 'pointer', position: 'relative', transition: 'background 0.2s', opacity: disabled ? 0.4 : 1, flexShrink: 0 } as any}>
@@ -112,11 +168,18 @@ export default function GuardianDetailScreen() {
   );
 
   return (
-    <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, display: 'flex', flexDirection: 'column', fontFamily: "'Inter', system-ui, sans-serif", overflow: 'hidden', background: C.bg } as any}>
+    <div data-testid="guardian-detail-screen" style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, display: 'flex', flexDirection: 'column', fontFamily: "'Inter', system-ui, sans-serif", overflow: 'hidden', background: C.bg } as any}>
+      <style>{`@keyframes gd-chevron{0%,100%{transform:translateX(0);opacity:.4}50%{transform:translateX(6px);opacity:1}}`}</style>
       <div style={{ flex: 1, overflowY: 'auto', padding: '20px 20px 100px', WebkitOverflowScrolling: 'touch' } as any}>
 
         {/* Back */}
-        <div onClick={() => router.back()} data-testid="guardian-back-btn" style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '8px 14px', borderRadius: 999, background: C.card, border: `1px solid ${C.sep}`, ...glass, cursor: 'pointer', marginBottom: 20 } as any}>
+        <div onClick={() => {
+          if (isFromBeneficiary && fromBeneficiary) {
+            router.push({ pathname: '/beneficiary-detail' as any, params: { beneficiaryId: fromBeneficiary } });
+          } else {
+            try { router.back(); } catch { router.push('/(tabs)/home' as any); }
+          }
+        }} data-testid="guardian-back-btn" style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '8px 14px', borderRadius: 999, background: C.card, border: `1px solid ${C.sep}`, ...glass, cursor: 'pointer', marginBottom: 20 } as any}>
           <i className="ri-arrow-left-line" style={{ fontSize: 16, color: C.sub }} />
           <span style={{ fontSize: 12, fontWeight: 600, color: C.sub }}>Retour</span>
         </div>
@@ -128,7 +191,7 @@ export default function GuardianDetailScreen() {
               ? <img src={guardian.avatar_url} style={{ width: 88, height: 88, objectFit: 'cover', borderRadius: 999 } as any} />
               : <span style={{ fontSize: 36, fontWeight: 800, color: '#FFF' }}>{guardian.name?.charAt(0)}</span>}
           </div>
-          <div style={{ fontSize: 24, fontWeight: 900, color: C.text, marginBottom: 4 }}>{guardian.name}</div>
+          <div data-testid="guardian-detail-name" style={{ fontSize: 24, fontWeight: 900, color: C.text, marginBottom: 4 }}>{guardian.name}</div>
           <div style={{ display: 'flex', justifyContent: 'center', gap: 8, marginTop: 8 } as any}>
             <div style={{ padding: '5px 14px', borderRadius: 999, background: isPro ? 'rgba(124,92,255,0.12)' : (isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.04)'), border: `1px solid ${isPro ? 'rgba(124,92,255,0.2)' : C.sep}` } as any}>
               <span style={{ fontSize: 11, fontWeight: 700, color: isPro ? '#A78BFA' : C.sub }}>{isPro ? 'Professionnel' : 'Particulier'}</span>
@@ -141,21 +204,20 @@ export default function GuardianDetailScreen() {
           </div>
         </div>
 
-        {/* Quick actions */}
-        <div style={{ display: 'flex', gap: 10, marginBottom: 20 } as any}>
-          {guardian.phone && (
-            <div onClick={() => window.location.href = `tel:${guardian.phone}`} style={{ flex: 1, borderRadius: 20, background: C.card, border: `1px solid ${C.sep}`, ...glass, padding: '14px', textAlign: 'center', cursor: 'pointer' } as any}>
-              <i className="ri-phone-line" style={{ fontSize: 20, color: '#10B981', display: 'block', marginBottom: 6 }} />
-              <div style={{ fontSize: 11, fontWeight: 700, color: '#10B981' }}>Appeler</div>
+        {/* ── SLIDE TO CALL ── */}
+        {guardian.phone && (
+          <div ref={slideRef} data-testid="guardian-slide-call-btn" style={{ position: 'relative', width: '100%', height: THUMB + 4, borderRadius: THUMB / 2 + 2, background: isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.06)', overflow: 'hidden', cursor: 'grab', userSelect: 'none', WebkitUserSelect: 'none', marginBottom: 20 } as any}>
+            <div style={{ position: 'absolute', top: 0, left: 0, height: '100%', width: `${slideX + THUMB}px`, borderRadius: THUMB / 2 + 2, background: `rgba(16,185,129,${0.15 + slideProgress * 0.5})`, transition: sliding ? 'none' : 'width 0.3s ease, background 0.3s ease' } as any} />
+            <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, opacity: 1 - slideProgress * 1.5, transition: sliding ? 'none' : 'opacity 0.3s' } as any}>
+              <span style={{ fontSize: 13, fontWeight: 600, color: C.sub, letterSpacing: 0.3 }}>Glisser pour appeler {guardianFirstName}</span>
+              <i className="ri-arrow-right-double-line" style={{ fontSize: 16, color: C.sub, animation: 'gd-chevron 1.5s ease-in-out infinite' }} />
             </div>
-          )}
-          {guardian.email && (
-            <div onClick={() => window.location.href = `mailto:${guardian.email}`} style={{ flex: 1, borderRadius: 20, background: C.card, border: `1px solid ${C.sep}`, ...glass, padding: '14px', textAlign: 'center', cursor: 'pointer' } as any}>
-              <i className="ri-mail-line" style={{ fontSize: 20, color: '#38BDF8', display: 'block', marginBottom: 6 }} />
-              <div style={{ fontSize: 11, fontWeight: 700, color: '#38BDF8' }}>Email</div>
+            <div onMouseDown={onSlideStart} onTouchStart={onSlideStart} style={{ position: 'absolute', top: 2, left: 2 + slideX, width: THUMB, height: THUMB, borderRadius: THUMB / 2, background: '#FFF', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 2px 8px rgba(0,0,0,0.25)', cursor: 'grab', transition: sliding ? 'none' : 'left 0.3s ease', zIndex: 2 } as any}>
+              <i className="ri-phone-fill" style={{ fontSize: 20, color: '#10B981' }} />
             </div>
-          )}
-        </div>
+            {slideProgress >= THRESHOLD && <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(16,185,129,0.35)', borderRadius: THUMB / 2 + 2 } as any}><span style={{ fontSize: 14, fontWeight: 700, color: '#FFF' }}>Appel en cours...</span></div>}
+          </div>
+        )}
 
         {/* Coordonnees */}
         <div style={{ borderRadius: 20, background: C.card, border: `1px solid ${C.sep}`, ...glass, padding: '16px 18px', marginBottom: 14 } as any}>
@@ -177,10 +239,18 @@ export default function GuardianDetailScreen() {
           ))}
         </div>
 
-        {/* ─── AUTORISATIONS ─── */}
-        <div style={{ fontSize: 12, fontWeight: 700, color: C.label, textTransform: 'uppercase', letterSpacing: 1, marginBottom: 10, marginTop: 10 }}>Autorisations</div>
+        {/* SMS button */}
+        {guardian.phone && (
+          <div data-testid="guardian-sms-btn" onClick={() => window.open(`sms:${guardian.phone}`, '_self')} style={{ borderRadius: 20, background: C.card, border: `1px solid ${C.sep}`, ...glass, padding: '14px', textAlign: 'center', cursor: 'pointer', marginBottom: 14, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 } as any}>
+            <i className="ri-message-3-line" style={{ fontSize: 18, color: '#38BDF8' }} />
+            <span style={{ fontSize: 13, fontWeight: 700, color: '#38BDF8' }}>Envoyer un SMS</span>
+          </div>
+        )}
 
-        {perms && (<>
+        {/* ─── AUTORISATIONS (only for beneficiary viewing their own guardian) ─── */}
+        {!isFromBeneficiary && perms && (<>
+          <div style={{ fontSize: 12, fontWeight: 700, color: C.label, textTransform: 'uppercase', letterSpacing: 1, marginBottom: 10, marginTop: 10 }}>Autorisations</div>
+
           {/* Alertes */}
           <SectionCard title="Alertes" icon="ri-alarm-warning-line"
             expanded={expandedSection === 'alerts'} onToggle={() => setExpandedSection(expandedSection === 'alerts' ? null : 'alerts')}
@@ -195,7 +265,7 @@ export default function GuardianDetailScreen() {
               ))}
               {!perms.guardian_alerts_enabled && (
                 <div style={{ marginTop: 10, padding: '10px 14px', borderRadius: 12, background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.15)' } as any}>
-                  <div style={{ fontSize: 11, color: '#EF4444', fontWeight: 600 }}><i className="ri-information-line" style={{ marginRight: 6 }} />{guardian.name?.split(' ')[0]} a desactive la reception des alertes de son cote</div>
+                  <div style={{ fontSize: 11, color: '#EF4444', fontWeight: 600 }}><i className="ri-information-line" style={{ marginRight: 6 }} />{guardianFirstName} a desactive la reception des alertes de son cote</div>
                 </div>
               )}
             </div>
@@ -214,7 +284,7 @@ export default function GuardianDetailScreen() {
               ))}
               {!perms.guardian_health_enabled && (
                 <div style={{ marginTop: 10, padding: '10px 14px', borderRadius: 12, background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.15)' } as any}>
-                  <div style={{ fontSize: 11, color: '#EF4444', fontWeight: 600 }}><i className="ri-information-line" style={{ marginRight: 6 }} />{guardian.name?.split(' ')[0]} ne souhaite pas consulter vos donnees de sante</div>
+                  <div style={{ fontSize: 11, color: '#EF4444', fontWeight: 600 }}><i className="ri-information-line" style={{ marginRight: 6 }} />{guardianFirstName} ne souhaite pas consulter vos donnees de sante</div>
                 </div>
               )}
             </div>
@@ -243,7 +313,7 @@ export default function GuardianDetailScreen() {
             </div>
             {!perms.guardian_location_accepted && (
               <div style={{ marginTop: 10, padding: '10px 14px', borderRadius: 12, background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.15)' } as any}>
-                <div style={{ fontSize: 11, color: '#EF4444', fontWeight: 600 }}><i className="ri-information-line" style={{ marginRight: 6 }} />{guardian.name?.split(' ')[0]} a refuse l'acces a votre localisation</div>
+                <div style={{ fontSize: 11, color: '#EF4444', fontWeight: 600 }}><i className="ri-information-line" style={{ marginRight: 6 }} />{guardianFirstName} a refuse l'acces a votre localisation</div>
               </div>
             )}
           </div>
@@ -257,12 +327,14 @@ export default function GuardianDetailScreen() {
           </div>
         </div>
 
-        {/* Delete */}
-        <div onClick={() => { if (window.confirm(`Supprimer ${guardian.name} comme gardien ?`)) { apiFetch(`/api/guardians/${guardian.id}/unlink`, { method: 'POST' }, token).then(() => router.back()).catch(() => {}); } }}
-          data-testid="guardian-delete-btn"
-          style={{ padding: '16px', borderRadius: 999, textAlign: 'center', cursor: 'pointer', background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.15)', color: '#EF4444', fontSize: 13, fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 } as any}>
-          <i className="ri-delete-bin-line" style={{ fontSize: 14 }} />Supprimer ce gardien
-        </div>
+        {/* Delete — only for beneficiary managing their own guardian */}
+        {!isFromBeneficiary && (
+          <div onClick={() => { if (window.confirm(`Supprimer ${guardian.name} comme gardien ?`)) { apiFetch(`/api/guardians/${guardian.id}/unlink`, { method: 'POST' }, token).then(() => router.back()).catch(() => {}); } }}
+            data-testid="guardian-delete-btn"
+            style={{ padding: '16px', borderRadius: 999, textAlign: 'center', cursor: 'pointer', background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.15)', color: '#EF4444', fontSize: 13, fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 } as any}>
+            <i className="ri-delete-bin-line" style={{ fontSize: 14 }} />Supprimer ce gardien
+          </div>
+        )}
       </div>
     </div>
   );

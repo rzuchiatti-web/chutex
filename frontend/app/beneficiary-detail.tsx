@@ -40,7 +40,6 @@ export default function BeneficiaryDetailScreen() {
   const [geoFormLng, setGeoFormLng] = useState('');
   const [geoFormRadius, setGeoFormRadius] = useState('500');
   const [geoFormSaving, setGeoFormSaving] = useState(false);
-  const [selectedGuardian, setSelectedGuardian] = useState<any | null>(null);
   const [guardianPerms, setGuardianPerms] = useState<any>(null);
   const [expandedPerm, setExpandedPerm] = useState<string | null>(null);
   const [resolvedBid, setResolvedBid] = useState('');
@@ -127,7 +126,6 @@ export default function BeneficiaryDetailScreen() {
   ];
 
   const getGuardianContractDetails = (g: any) => { const cg = Array.isArray(contract?.guardians) ? contract.guardians : []; const n = (s: string) => (s || '').replace(/\D/g, ''); return cg.find((x: any) => n(x.phone || '') === n(g?.phone || '')) || null; };
-  const getGuardianActivity = (g: any) => { const r = alerts.filter((a: any) => a?.resolved_by === g?.id || a?.acknowledged_by === g?.id || a?.assigned_to === g?.id); const l = r.sort((a: any, b: any) => new Date(b.updated_at || b.created_at).getTime() - new Date(a.updated_at || a.created_at).getTime())[0]; return { count: r.length, lastActionAt: l?.updated_at || l?.created_at || null, recentAlerts: r.slice(0, 4) }; };
 
   const refreshGeofences = async () => { if (!activeBid) return; try { const g = await apiFetch(`/api/guardian/beneficiary/${activeBid}/geofence`, {}, token); setGeoZones(Array.isArray(g?.zones) ? g.zones : []); setGeoLocation(g?.current_location || null); } catch {} };
   const openCreateZonePopup = () => { if (geoLocation?.latitude == null || geoLocation?.longitude == null) return; setGeoEditingId(null); setGeoFormName(`Zone ${geoZones.length + 1}`); setGeoFormLat(String(geoLocation.latitude)); setGeoFormLng(String(geoLocation.longitude)); setGeoFormRadius('300'); setGeoFormOpen(true); };
@@ -334,7 +332,7 @@ export default function BeneficiaryDetailScreen() {
           <div style={SL}>Gardiens ({guardiansList.length})</div>
           <div style={{ ...greyCard, padding: 0, overflow: 'hidden' }}>
             {guardiansList.length > 0 ? guardiansList.map((g: any, i: number) => (
-              <div key={g.id || i} data-testid={`beneficiary-guardian-card-${g.id || i}`} onClick={() => setSelectedGuardian(g)}
+              <div key={g.id || i} data-testid={`beneficiary-guardian-card-${g.id || i}`} onClick={() => router.push({ pathname: '/guardian-detail' as any, params: { guardianId: g.id || '', gName: g.name || '', gPhone: g.phone || '', gEmail: g.email || '', gRelationship: g.relationship || g.guardian_type || '', gType: g.guardian_type || '', fromBeneficiary: activeBid } })}
                 style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '13px 16px', borderBottom: i < guardiansList.length - 1 ? `1px solid ${C.sep}` : 'none', cursor: 'pointer', transition: 'opacity 0.15s' } as any}
                 onMouseEnter={(e: any) => e.currentTarget.style.opacity = '0.7'} onMouseLeave={(e: any) => e.currentTarget.style.opacity = '1'}>
                 <div style={{ width: 36, height: 36, borderRadius: 10, background: isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.06)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}><span style={{ fontSize: 14, fontWeight: 700, color: C.text }}>{g.name?.charAt(0)}</span></div>
@@ -444,37 +442,6 @@ export default function BeneficiaryDetailScreen() {
           </div>
         </div>
       )}
-
-      {/* guardian modal */}
-      {selectedGuardian && (() => {
-        const activity = getGuardianActivity(selectedGuardian); const extra = getGuardianContractDetails(selectedGuardian);
-        const gN = selectedGuardian.name || ''; const gI = gN.split(' ').map((w: string) => w.charAt(0)).join('').toUpperCase().slice(0, 2);
-        const gP = selectedGuardian.phone || extra?.phone || ''; const gE = extra?.email || selectedGuardian.email || '';
-        const gA = [extra?.address, extra?.postal_code, extra?.city].filter(Boolean).join(', ');
-        const gR = selectedGuardian.relationship || selectedGuardian.guardian_type || 'Gardien';
-        return (
-          <div data-testid="guardian-detail-modal" onClick={() => setSelectedGuardian(null)} style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 1190, backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)', background: isDark ? 'rgba(0,0,0,0.55)' : 'rgba(0,0,0,0.3)', overflowY: 'auto', animation: 'bd-fade 200ms ease' } as any}>
-            <div onClick={(e: any) => e.stopPropagation()} style={{ width: '100%', maxWidth: 420, margin: '0 auto', padding: '40px 24px 120px' } as any}>
-              <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 14 } as any}><div data-testid="guardian-detail-close-btn" onClick={() => setSelectedGuardian(null)} style={{ width: 34, height: 34, borderRadius: 10, background: isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.05)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}><i className="ri-close-line" style={{ fontSize: 16, color: C.sub }} /></div></div>
-              <div style={{ borderRadius: 18, background: isDark ? 'rgba(30,30,38,0.95)' : 'rgba(255,255,255,0.97)', border: `1px solid ${C.border}`, padding: '24px 20px', animation: 'bd-pop 220ms ease both' } as any}>
-                <div style={{ textAlign: 'center', marginBottom: 16 } as any}><div style={{ width: 52, height: 52, borderRadius: 14, background: C.row, display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 10px' } as any}><span style={{ fontSize: 19, fontWeight: 800, color: C.text }}>{gI}</span></div><div data-testid="guardian-detail-name" style={{ fontSize: 19, fontWeight: 800, color: C.text, marginBottom: 4 }}>{gN}</div><div data-testid="guardian-detail-role" style={{ fontSize: 12, color: C.sub }}>{gR}</div></div>
-                {gP && <div data-testid="guardian-detail-phone" style={rowS}><span style={lbS}>Telephone</span><span style={vlS}>{gP}</span></div>}
-                {gE && <div data-testid="guardian-detail-email" style={{ ...rowS, cursor: 'pointer' }} onClick={() => window.open(`mailto:${gE}`, '_blank')}><span style={lbS}>Email</span><span style={vlS}>{gE}</span></div>}
-                {gA && <div data-testid="guardian-detail-address" style={{ ...rowS, flexDirection: 'column', alignItems: 'flex-start', gap: 2 } as any}><span style={lbS}>Adresse</span><span style={{ fontSize: 13, color: C.text, fontWeight: 600, marginTop: 2 }}>{gA}</span></div>}
-                <div data-testid="guardian-detail-type" style={rowS}><span style={lbS}>Type</span><span style={vlS}>{selectedGuardian.guardian_type === 'saad' ? 'SAAD' : selectedGuardian.guardian_type === 'company' ? 'Entreprise' : 'Particulier'}</span></div>
-                <div style={{ display: 'flex', gap: 8, margin: '16px 0 14px' } as any}>
-                  {gP && <div data-testid="guardian-call-btn" onClick={() => window.open(`tel:${gP}`, '_self')} style={{ flex: 1, padding: '12px', borderRadius: 12, cursor: 'pointer', background: 'rgba(16,185,129,0.08)', border: '1px solid rgba(16,185,129,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, fontSize: 13, fontWeight: 700, color: '#10B981' } as any}><i className="ri-phone-fill" style={{ fontSize: 14 }} />Appeler</div>}
-                  {gP && <div data-testid="guardian-sms-btn" onClick={() => window.open(`sms:${gP}`, '_self')} style={{ flex: 1, padding: '12px', borderRadius: 12, cursor: 'pointer', border: `1px solid ${C.sep}`, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, fontSize: 13, fontWeight: 700, color: C.text } as any}><i className="ri-message-3-line" style={{ fontSize: 14 }} />SMS</div>}
-                </div>
-                <div style={{ fontSize: 10, fontWeight: 700, color: C.muted, textTransform: 'uppercase', letterSpacing: 1, marginBottom: 8 }}>Activite</div>
-                <div style={rowS}><span style={lbS}>Actions</span><span data-testid="guardian-detail-activity-count" style={vlS}>{activity.count}</span></div>
-                <div style={rowS}><span style={lbS}>Derniere</span><span data-testid="guardian-detail-last-action" style={vlS}>{activity.lastActionAt ? new Date(activity.lastActionAt).toLocaleString('fr-FR') : 'Aucune'}</span></div>
-                {activity.recentAlerts.length > 0 ? activity.recentAlerts.map((a: any) => (<div key={a.id} data-testid={`guardian-detail-activity-item-${a.id}`} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '7px 0', borderBottom: `1px solid ${C.sep}` } as any}><div style={{ width: 4, height: 4, borderRadius: 2, background: C.muted, flexShrink: 0 } as any} /><span style={{ fontSize: 11, color: C.sub, flex: 1 }}>{a.message || a.alert_type}</span><span style={{ fontSize: 9, color: C.muted }}>{new Date(a.created_at).toLocaleDateString('fr-FR')}</span></div>)) : <div data-testid="guardian-detail-activity-empty" style={{ fontSize: 11, color: C.faint, padding: '8px 0' }}>Aucune action</div>}
-              </div>
-            </div>
-          </div>
-        );
-      })()}
 
       {/* safe zone form — elements directly on blurred backdrop */}
       {geoFormOpen && (
