@@ -15,7 +15,7 @@ import { HeroCard, StatusBadge, Card, SectionHeader, IconBtn, QuickAction, Langu
 import { useRouter } from 'expo-router';
 import { useAuth } from '../../context/AuthContext';
 import { useI18n } from '../../context/I18nContext';
-import { apiFetch } from '../../services/api';
+import { apiFetch, clearApiCache } from '../../services/api';
 import { requestNotificationPermission, startReminderChecker, notifyAlert } from '../../services/notifications';
 import { SubscriptionBanner, SubscriptionGate } from '../SubscriptionGate';
 import WeightGoalDashCard from './WeightGoalDashCard';
@@ -206,18 +206,21 @@ export function BeneficiaryHome({ token, user }: { token: string; user: any }) {
     try {
       if (editReminder?.id) {
         await apiFetch(`/api/reminders/${editReminder.id}`, { method: 'PUT', body: JSON.stringify(remForm) }, token);
+        setReminders(prev => prev.map(r => r.id === editReminder.id ? { ...r, ...remForm } : r));
       } else {
-        await apiFetch('/api/reminders', { method: 'POST', body: JSON.stringify(remForm) }, token);
+        const newRem = await apiFetch('/api/reminders', { method: 'POST', body: JSON.stringify(remForm) }, token);
+        if (newRem && newRem.id) setReminders(prev => [...prev, newRem]);
       }
-      setShowReminderCRUD(false); setEditReminder(null); await fetchData();
+      clearApiCache(/dashboard/);
+      setShowReminderCRUD(false); setEditReminder(null);
     } catch {}
   };
 
   const deleteReminder = async (id: string) => {
     try {
       await apiFetch(`/api/reminders/${id}`, { method: 'DELETE' }, token);
+      clearApiCache(/dashboard/);
       setReminders(prev => prev.filter(r => r.id !== id));
-      fetchData();
     } catch {}
   };
 
@@ -522,7 +525,7 @@ export function BeneficiaryHome({ token, user }: { token: string; user: any }) {
         </div>{/* end scroll container */}
 
         {/* ═══ POPUPS — outside scroll/content card to avoid stacking context ═══ */}
-        <ReminderCRUDPopup show={showReminderCRUD} editReminder={editReminder} setEditReminder={setEditReminder} onClose={() => { setShowReminderCRUD(false); setEditReminder(null); }} reminders={reminders} reminderMeta={reminderMeta} token={token} fetchData={fetchData} deleteReminder={deleteReminder} />
+        <ReminderCRUDPopup show={showReminderCRUD} editReminder={editReminder} setEditReminder={setEditReminder} onClose={() => { setShowReminderCRUD(false); setEditReminder(null); }} reminders={reminders} reminderMeta={reminderMeta} token={token} fetchData={fetchData} deleteReminder={deleteReminder} setReminders={setReminders} />
         <ReminderNotifPopup reminderNotif={reminderNotif} setReminderNotif={setReminderNotif} reminderMeta={reminderMeta} token={token} fetchData={fetchData} />
         <AddGuardianPopup show={showAddGuardianPopup} onClose={() => { setShowAddGuardianPopup(false); setInviteGuardPhone(""); setInviteGuardRelationship(""); setInviteGuardMsg(""); }} phone={inviteGuardPhone} setPhone={setInviteGuardPhone} relationship={inviteGuardRelationship} setRelationship={setInviteGuardRelationship} msg={inviteGuardMsg} setMsg={setInviteGuardMsg} loading={inviteGuardLoading} setLoading={setInviteGuardLoading} token={token} fetchData={fetchData} />
         <CheckinPopup show={showCheckin} onClose={() => setShowCheckin(false)} activeProgram={activeProgram} mood={checkinMood} setMood={setCheckinMood} note={checkinNote} setNote={setCheckinNote} sending={checkinSending} setSending={setCheckinSending} feedback={checkinFeedback} setFeedback={setCheckinFeedback} token={token} fetchData={fetchData} />
