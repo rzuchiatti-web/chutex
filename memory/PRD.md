@@ -23,8 +23,8 @@ Application de téléassistance et de suivi de santé préventif pour les person
   - `teleassistance_routes.py` (458 lignes) — Routes téléassistance + Twilio/ElevenLabs
   - `escalation_routes.py` — Routes d'escalade + auto_escalation_protocol
   - `intervention_routes.py` — Routes interventions CARE
+  - `minceur_routes.py` — Poids & Nutrition (supporte `beneficiary_id` pour vue gardien)
   - `guardian_routes.py` — Routes gardien
-  - Et autres...
 - `services/` — Services externes (ElevenLabs, VAPI, J2358 TCP)
 - `models.py` — Modèles Pydantic
 - `auth.py` — Authentification JWT + SAFE_FIELDS
@@ -32,11 +32,12 @@ Application de téléassistance et de suivi de santé préventif pour les person
 ### Frontend (`/app/frontend/`)
 - `app/(tabs)/` — Pages principaux (dashboard, santé, programmes, profil)
 - `app/(tabs)/profile.tsx` (772 lignes) — Page profil (refactorisée)
+- `app/minceur.tsx` — Page Poids & Nutrition (supporte beneficiaryId param)
+- `app/health-readonly.tsx` — Vue santé gardien (Poids card → /minceur)
 - `src/components/profile/` — Composants profil extraits :
   - `ProfileMedicalPopup.tsx` — Popup dossier médical
   - `ProfileLegalPopups.tsx` — RGPD, Confidentialité, CGU, Mentions
   - `ProfileBenActivation.tsx` — Activation espace bénéficiaire
-- `app/beneficiary-detail.tsx` (484 lignes) — Fiche bénéficiaire
 
 ## Fonctionnalités terminées
 - [x] Design clinique (cartes grises, thème sombre)
@@ -45,10 +46,13 @@ Application de téléassistance et de suivi de santé préventif pour les person
 - [x] Fiche gardien dédiée (`guardian-detail.tsx`)
 - [x] Séparation des champs d'adresse (adresse, code postal, ville, pays)
 - [x] Navigation gardien (page dédiée avec slide-to-call)
-- [x] Refactoring des fichiers monolithiques (P0 - Mars 2026)
+- [x] Refactoring des fichiers monolithiques (Mars 2026)
   - program_routes.py : 1866 → 886 lignes (-53%)
   - teleassistance_routes.py : 1131 → 458 lignes (-60%)
   - profile.tsx : 1071 → 772 lignes (-28%)
+- [x] Bug Fix: Carte "Poids & Nutrition" (gardien) → ouvre /minceur au lieu de metric-detail (Mars 2026)
+  - Backend: ajout `beneficiary_id` param à `/api/minceur/weight-details`
+  - Frontend: navigation vers `/minceur?beneficiaryId=X` + mode lecture seule
 
 ## En cours / Prochaines tâches
 - [ ] **P0** : Intégration Balance & Gilet (à démarrer)

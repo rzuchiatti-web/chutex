@@ -273,9 +273,19 @@ REGLES STRICTES:
 
 
 @router.get("/minceur/weight-details")
-async def get_weight_details(user=Depends(get_current_user)):
-    """Main endpoint: returns complete weight & nutrition dashboard data"""
+async def get_weight_details(beneficiary_id: str = None, user=Depends(get_current_user)):
+    """Main endpoint: returns complete weight & nutrition dashboard data.
+    Guardians can pass beneficiary_id to view a beneficiary's data (read-only)."""
     uid = user["id"]
+    readonly = False
+    if beneficiary_id:
+        # Verify guardian has access to this beneficiary via their beneficiaries array
+        guardian_doc = await db.users.find_one({"id": uid}, {"_id": 0, "beneficiaries": 1})
+        beneficiary_ids = guardian_doc.get('beneficiaries', []) if guardian_doc else []
+        if beneficiary_id not in beneficiary_ids:
+            raise HTTPException(403, "Acces refuse a ce beneficiaire")
+        uid = beneficiary_id
+        readonly = True
     u = await db.users.find_one({"id": uid}, {"_id": 0})
     if not u:
         raise HTTPException(404, "Utilisateur introuvable")
@@ -386,6 +396,7 @@ async def get_weight_details(user=Depends(get_current_user)):
         "recommendations": recommendations,
         "tracking": {"completed": completed, "streak": streak},
         "last_reading_date": history[0].get("date") if history else None,
+        "readonly": readonly,
     }
 
 

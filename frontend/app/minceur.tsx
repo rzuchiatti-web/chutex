@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Platform } from 'react-native';
-import { useRouter } from 'expo-router';
+import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useAuth } from '../src/context/AuthContext';
 import { apiFetch } from '../src/services/api';
 import NoraCard from '../src/components/shared/NoraCard';
@@ -168,6 +168,10 @@ function SwipePicker({ values, selected, onChange, unit, color }: { values: numb
 export default function MinceurPage() {
   const { token } = useAuth();
   const router = useRouter();
+  // Support guardian readonly mode via beneficiaryId param
+  const params = useLocalSearchParams();
+  const beneficiaryId = (params.beneficiaryId as string) || null;
+  const isReadonly = !!beneficiaryId;
   const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -190,7 +194,8 @@ export default function MinceurPage() {
   const fetchData = async () => {
     if (!token) return;
     try {
-      const d = await apiFetch('/api/minceur/weight-details', {}, token);
+      const url = beneficiaryId ? `/api/minceur/weight-details?beneficiary_id=${beneficiaryId}` : '/api/minceur/weight-details';
+      const d = await apiFetch(url, {}, token);
       setData(d);
       if (d.tracking?.completed) setTracked(d.tracking.completed);
       if (d.tracking?.streak) setStreak(d.tracking.streak);
@@ -246,7 +251,7 @@ export default function MinceurPage() {
           {/* Header */}
           <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 20, ...fade(0) } as any}>
             <div data-testid="back-button" onClick={() => router.back()} style={{ width: 44, height: 44, borderRadius: 14, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}><i className="ri-arrow-left-line" style={{ fontSize: 18, color: '#FFF' }} /></div>
-            <div style={{ flex: 1 } as any}><div style={{ fontSize: 22, fontWeight: 900, color: '#FFF', letterSpacing: -0.3 }}>Poids & Nutrition</div><div style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)' }}>Tableau de bord sante</div></div>
+            <div style={{ flex: 1 } as any}><div style={{ fontSize: 22, fontWeight: 900, color: '#FFF', letterSpacing: -0.3 }}>Poids & Nutrition</div><div style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)' }}>{isReadonly ? 'Vue gardien (lecture seule)' : 'Tableau de bord sante'}</div></div>
             {/* Streak pill */}
             {recs && total > 0 && (
               <div data-testid="daily-progress" onClick={() => setShowStreakInfo(true)} style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '6px 12px', borderRadius: 999, background: done === total ? 'rgba(16,185,129,0.12)' : 'rgba(255,255,255,0.06)', border: `1px solid ${done === total ? 'rgba(16,185,129,0.25)' : 'rgba(255,255,255,0.08)'}`, cursor: 'pointer' } as any}>
@@ -255,7 +260,7 @@ export default function MinceurPage() {
                 {done === total && <i className="ri-check-double-line" style={{ fontSize: 12, color: G }} />}
               </div>
             )}
-            <div data-testid="refresh-button" onClick={refreshRecs} style={{ width: 38, height: 38, borderRadius: 12, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}><i className="ri-refresh-line" style={{ fontSize: 15, color: 'rgba(255,255,255,0.35)', animation: refreshing ? 'spin 1s linear infinite' : 'none' }} /></div>
+            {!isReadonly && <div data-testid="refresh-button" onClick={refreshRecs} style={{ width: 38, height: 38, borderRadius: 12, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}><i className="ri-refresh-line" style={{ fontSize: 15, color: 'rgba(255,255,255,0.35)', animation: refreshing ? 'spin 1s linear infinite' : 'none' }} /></div>}
           </div>
 
           {/* ===== STREAK INFO POPUP — full-screen glass (profile page style) ===== */}
@@ -370,7 +375,7 @@ export default function MinceurPage() {
 
                 {/* ── Goal / Objectif section (inside same card) ── */}
                 <div data-testid="goal-card">
-                {!goal && !showGoalForm && (
+                {!goal && !showGoalForm && !isReadonly && (
                   <div data-testid="set-goal-button" onClick={() => setShowGoalForm(true)} style={{ padding: '10px 0', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 12 } as any}>
                     <img src="https://customer-assets.emergentagent.com/job_e5e873d0-c3a6-4073-8807-5b369c712c84/artifacts/d7demq52_img_objectif_poids.png" alt="" style={{ width: 44, height: 44, objectFit: 'contain', flexShrink: 0 } as any} />
                     <div style={{ flex: 1 } as any}>
@@ -444,7 +449,7 @@ export default function MinceurPage() {
                     </div>
                   );
                 })()}
-                {showGoalForm && (() => {
+                {showGoalForm && !isReadonly && (() => {
                   const diff = cr.weight > 0 ? cr.weight - targetKg : 0;
                   const kgPerWeek = goalWeeks > 0 ? Math.abs(diff) / goalWeeks : 0;
                   const tooFast = diff > 0 && kgPerWeek > 0.7;

@@ -223,8 +223,8 @@ export default function HealthReadonlyScreen() {
 
         <div style={{ height: 1, background: sepColor, margin: '12px 0 16px' } as any} />
 
-        {/* Poids & Nutrition — clickable to weight metric */}
-        <div onClick={() => goToMetric('weight')} style={{ borderRadius: 18, overflow: 'hidden', marginBottom: 14, position: 'relative', cursor: 'pointer', border: isDark ? '1.5px solid rgba(255,255,255,0.25)' : '1.5px solid rgba(0,0,0,0.08)', boxShadow: isDark ? '0 0 30px rgba(255,255,255,0.08), 0 8px 40px rgba(0,0,0,0.5)' : '0 4px 20px rgba(0,0,0,0.08)' } as any}>
+        {/* Poids & Nutrition — clickable to dedicated page */}
+        <div onClick={() => router.push({ pathname: '/minceur' as any, params: { beneficiaryId } })} style={{ borderRadius: 18, overflow: 'hidden', marginBottom: 14, position: 'relative', cursor: 'pointer', border: isDark ? '1.5px solid rgba(255,255,255,0.25)' : '1.5px solid rgba(0,0,0,0.08)', boxShadow: isDark ? '0 0 30px rgba(255,255,255,0.08), 0 8px 40px rgba(0,0,0,0.5)' : '0 4px 20px rgba(0,0,0,0.08)' } as any}>
           <img src={NUTRITION_BG} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 } as any} />
           <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.4)', zIndex: 1 } as any} />
           <div style={{ position: 'relative', zIndex: 2 } as any}>
@@ -270,7 +270,7 @@ export default function HealthReadonlyScreen() {
           <div style={{ padding: '0 16px' } as any}>
             {weighings.length === 0 && <div style={{ textAlign: 'center', padding: '12px 0', fontSize: 11, color: subColor }}>Aucune pesee</div>}
             {weighings.slice(0, 5).map((w: any, i: number) => (
-              <div key={i} onClick={() => goToMetric('weight')} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 0', borderTop: i > 0 ? `1px solid ${sepColor}` : 'none', cursor: 'pointer' } as any}>
+              <div key={i} onClick={() => router.push({ pathname: '/minceur' as any, params: { beneficiaryId } })} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 0', borderTop: i > 0 ? `1px solid ${sepColor}` : 'none', cursor: 'pointer' } as any}>
                 <div style={{ flex: 1 } as any}><span style={{ fontSize: 14, fontWeight: 800, color: textColor }}>{w.weight} kg</span><span style={{ fontSize: 10, color: subColor, marginLeft: 8 }}>{new Date(w.date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })}</span></div>
                 <span style={{ padding: '2px 8px', borderRadius: 999, background: w.status === 'Bonne' ? 'rgba(16,185,129,0.12)' : 'rgba(245,158,11,0.12)', fontSize: 9, fontWeight: 700, color: w.status === 'Bonne' ? '#10B981' : '#F59E0B' }}>{w.status}</span>
                 <i className="ri-arrow-right-s-line" style={{ fontSize: 14, color: subColor }} />
