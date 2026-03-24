@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Platform } from 'react-native';
 import { useRouter } from 'expo-router';
 import { apiFetch, clearApiCache } from '../../services/api';
@@ -135,15 +135,19 @@ export function LanguagePopup({ show, onClose, lang, setLang }: any) {
 }
 
 /* ─── REMINDER CRUD POPUP ─── */
-export function ReminderCRUDPopup({ show, editReminder, setEditReminder, onClose, reminders, reminderMeta, token, fetchData, deleteReminder, setReminders }: any) {
+export function ReminderCRUDPopup({ show, editReminder, setEditReminder, onClose, reminders: parentReminders, reminderMeta, token, fetchData, deleteReminder, setReminders }: any) {
+  const [localRems, setLocalRems] = useState<any[]>(parentReminders || []);
+  useEffect(() => { setLocalRems(parentReminders || []); }, [parentReminders]);
   if (!show || !editReminder) return null;
   const popupType = editReminder._type || 'hydration';
   const meta = reminderMeta[popupType] || reminderMeta.hydration;
-  const typeRems = reminders.filter((r: any) => r.reminder_type === popupType);
+  const typeRems = localRems.filter((r: any) => r.reminder_type === popupType);
   const editingId = editReminder._editingId || null;
   const editingData = editReminder._editingData || null;
   const colors: Record<string, string> = { hydration: '#38BDF8', medication: '#F59E0B', alarm: '#EF4444' };
   const accent = colors[popupType] || '#38BDF8';
+
+  const updateRems = (fn: (prev: any[]) => any[]) => { setLocalRems(fn); setReminders(fn); };
 
   const setTime = (h: number, m: number) => setEditReminder({ ...editReminder, _editingData: { ...editingData, time: `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}` } });
   const hr = editingData ? parseInt((editingData.time || '08:00').split(':')[0]) || 8 : 8;
@@ -221,7 +225,7 @@ export function ReminderCRUDPopup({ show, editReminder, setEditReminder, onClose
               <div onClick={async () => {
                 const r = typeRems.find((r: any) => r.id === editingId);
                 if (!r) return;
-                try { const res = await apiFetch(`/api/reminders/${r.id}`, { method: 'PUT', body: JSON.stringify({ ...editingData, reminder_type: popupType, title: editingData.notes || meta.label }) }, token); clearApiCache(/dashboard/); setReminders((prev: any[]) => prev.map((rem: any) => rem.id === r.id ? { ...rem, ...editingData, reminder_type: popupType, title: editingData.notes || meta.label } : rem)); setEditReminder({ ...editReminder, _editingId: null, _editingData: null }); } catch {}
+                try { const res = await apiFetch(`/api/reminders/${r.id}`, { method: 'PUT', body: JSON.stringify({ ...editingData, reminder_type: popupType, title: editingData.notes || meta.label }) }, token); clearApiCache(/dashboard/); updateRems((prev: any[]) => prev.map((rem: any) => rem.id === r.id ? { ...rem, ...editingData, reminder_type: popupType, title: editingData.notes || meta.label } : rem)); setEditReminder({ ...editReminder, _editingId: null, _editingData: null }); } catch {}
               }} style={{ flex: 1, padding: '14px', borderRadius: 999, background: accent, cursor: 'pointer', textAlign: 'center', fontSize: 14, fontWeight: 800, color: '#FFF' } as any}>Sauvegarder</div>
               <div onClick={() => setEditReminder({ ...editReminder, _editingId: null, _editingData: null })} style={{ padding: '14px 20px', borderRadius: 999, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', cursor: 'pointer', fontSize: 14, fontWeight: 700, color: 'rgba(255,255,255,0.4)' } as any}>Annuler</div>
             </div>
@@ -239,11 +243,11 @@ export function ReminderCRUDPopup({ show, editReminder, setEditReminder, onClose
                     <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)', marginTop: 2 }}>{daysStr}{r.notes ? ` · ${r.notes}` : ''}</div>
                   </div>
                   {/* Toggle */}
-                  <div onClick={async () => { try { await apiFetch(`/api/reminders/${r.id}/toggle`, { method: 'PUT' }, token); clearApiCache(/dashboard/); setReminders((prev: any[]) => prev.map((rem: any) => rem.id === r.id ? { ...rem, active: !rem.active } : rem)); } catch {} }} style={{ width: 48, height: 26, borderRadius: 13, background: r.active ? `${accent}40` : 'rgba(255,255,255,0.08)', border: `1px solid ${r.active ? accent : 'rgba(255,255,255,0.12)'}`, cursor: 'pointer', position: 'relative', flexShrink: 0, transition: 'all 0.2s' } as any}>
+                  <div onClick={async () => { try { await apiFetch(`/api/reminders/${r.id}/toggle`, { method: 'PUT' }, token); clearApiCache(/dashboard/); updateRems((prev: any[]) => prev.map((rem: any) => rem.id === r.id ? { ...rem, active: !rem.active } : rem)); } catch {} }} style={{ width: 48, height: 26, borderRadius: 13, background: r.active ? `${accent}40` : 'rgba(255,255,255,0.08)', border: `1px solid ${r.active ? accent : 'rgba(255,255,255,0.12)'}`, cursor: 'pointer', position: 'relative', flexShrink: 0, transition: 'all 0.2s' } as any}>
                     <div style={{ width: 20, height: 20, borderRadius: 10, background: r.active ? accent : 'rgba(255,255,255,0.3)', position: 'absolute', top: 2, left: r.active ? 24 : 2, transition: 'left 0.2s' } as any} />
                   </div>
                   {/* Delete */}
-                  <div onClick={async () => { await deleteReminder(r.id); }} style={{ cursor: 'pointer', padding: '6px' } as any}>
+                  <div onClick={async () => { setLocalRems(prev => prev.filter((rem: any) => rem.id !== r.id)); await deleteReminder(r.id); }} style={{ cursor: 'pointer', padding: '6px' } as any}>
                     <i className="ri-delete-bin-line" style={{ fontSize: 16, color: 'rgba(239,68,68,0.4)' }} />
                   </div>
                 </div>
@@ -259,7 +263,7 @@ export function ReminderCRUDPopup({ show, editReminder, setEditReminder, onClose
             )}
 
             {/* Add button */}
-            <div onClick={async () => { try { const newRem = await apiFetch('/api/reminders', { method: 'POST', body: JSON.stringify({ reminder_type: popupType, title: meta.label, time: '08:00', days: ['lun','mar','mer','jeu','ven','sam','dim'], notes: '', active: true }) }, token); clearApiCache(/dashboard/); if (newRem && newRem.id) { setReminders((prev: any[]) => [...prev, newRem]); } else { await fetchData(); } } catch {} }} style={{ padding: '14px', borderRadius: 999, background: `${accent}15`, border: `1px solid ${accent}30`, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, marginTop: 4, transition: 'background 0.15s' } as any}
+            <div onClick={async () => { try { const newRem = await apiFetch('/api/reminders', { method: 'POST', body: JSON.stringify({ reminder_type: popupType, title: meta.label, time: '08:00', days: ['lun','mar','mer','jeu','ven','sam','dim'], notes: '', active: true }) }, token); clearApiCache(/dashboard/); if (newRem && newRem.id) { updateRems((prev: any[]) => [...prev, newRem]); } } catch {} }} style={{ padding: '14px', borderRadius: 999, background: `${accent}15`, border: `1px solid ${accent}30`, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, marginTop: 4, transition: 'background 0.15s' } as any}
               onMouseEnter={(e: any) => { e.currentTarget.style.background = `${accent}25`; }}
               onMouseLeave={(e: any) => { e.currentTarget.style.background = `${accent}15`; }}>
               <i className="ri-add-line" style={{ fontSize: 18, color: accent }} />
