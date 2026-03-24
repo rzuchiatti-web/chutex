@@ -454,7 +454,7 @@ async def update_data_sharing(data: DataSharingPrefs, user=Depends(get_current_u
 @router.get("/settings/data-sharing")
 async def get_data_sharing(user=Depends(get_current_user)):
     u = await db.users.find_one({"id": user['id']}, {"_id": 0})
-    return u.get('data_sharing_prefs', {"share_vitals": True, "share_location": True, "share_alerts": True, "share_medications": True, "share_devices": True, "share_reports": True})
+    return u.get('data_sharing_prefs', {"health_sharing": "all", "share_location": True, "share_alerts": True})
 
 
 # ==================== LINK CODE ====================

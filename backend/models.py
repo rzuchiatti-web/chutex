@@ -196,12 +196,9 @@ class ReminderCreate(BaseModel):
 
 
 class DataSharingPrefs(BaseModel):
-    share_vitals: bool = True
+    health_sharing: str = "all"  # "all", "vitals_only", "none"
     share_location: bool = True
     share_alerts: bool = True
-    share_medications: bool = True
-    share_devices: bool = True
-    share_reports: bool = True
 
 
 class GeofenceCreate(BaseModel):
