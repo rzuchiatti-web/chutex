@@ -1,141 +1,152 @@
-<analysis>**original_problem_statement**: 
-L'objectif principal est la refonte complète des tableaux de bord Bénéficiaire et Gardien, des pages Santé, Programmes et Profil avec un design clinique et premium. D'autres exigences incluent l'intégration de la Balance & Gilet, la signature électronique pour les documents admin, et l'intégration du serveur TCP pour le bracelet V6 4G (J2358).
+<analysis>**original_problem_statement**:
+L'utilisateur a initialement signalé un bug persistant de la barre de navigation. Après la résolution, l'utilisateur a demandé une nouvelle fonctionnalité pour les autorisations de partage de données de santé entre un bénéficiaire et ses gardiens.
 
-PRODUCT REQUIREMENTS: 
-1. Finalize Beneficiary and Guardian dashboards/health pages redesign.
-2. Finalize Balance & Vest integration. 
-3. Add electronic signatures to Admin Documents.
+Ensuite, l'utilisateur a fourni un cahier des charges détaillé et a demandé la création de nouveaux rôles Coach et Kiné. Une première implémentation de ces rôles a été vivement critiquée par l'utilisateur car elle ne respectait ni la direction artistique de l'application ni le concept de base.
+
+L'utilisateur a clarifié sa vision : un **Professionnel (Coach/Kiné)** doit être un **Gardien enrichi**. Il doit avoir accès au même tableau de bord que le gardien pour suivre ses patients (bénéficiaires), mais avec un espace supplémentaire pour prescrire des programmes d'exercices, des compléments alimentaires et générer des bilans. Les paiements pour ces services pro doivent transiter par la plateforme (via Mollie) qui prélève une commission.
+
+La dernière demande de l'utilisateur était de commencer la **Phase 3** de ce module Professionnel.
 
 **User's preferred language**: French (INSTRUCT NEXT AGENT TO RESPOND IN FRENCH ONLY)
 
-**what currently exists?** 
-Une application full-stack (Expo React Native Web + FastAPI + MongoDB). Le design clinique est en place avec des cartes grises. La vue santé read-only pour les gardiens est fonctionnelle. La fiche détaillée du gardien a été extraite d'une modale vers une page dédiée complète (). La gestion des adresses a été scindée en 4 champs distincts (Adresse, Code Postal, Ville, Pays) de l'inscription jusqu'à l'affichage. Un serveur TCP tourne pour le nouveau bracelet mais attend un ajustement du CRC32.
+**what currently exists?**
+Une application full-stack (React Native Web + FastAPI + MongoDB).
+- **Bug de la barre de navigation (Corrigé)** : Le bug visuel où le style sombre de la barre de navigation persistait de manière incorrecte a été définitivement corrigé et validé.
+- **Fonctionnalité Autorisations de Partage (Terminée)** : Une nouvelle page  permet aux bénéficiaires de définir des permissions de partage de données de santé (, , ). La vue du gardien () respecte désormais ces permissions. La fonctionnalité a été entièrement testée.
+- **Module Professionnel (Phases 1 & 2 - Terminées)** :
+    - **Backend** : Un nouveau rôle  (avec un : 'coach' ou 'physio') a été créé. De nouvelles routes () gèrent le CRUD des programmes et des exercices. Les routes des gardiens ont été mises à jour pour accorder l'accès aux professionnels.
+    - **Frontend** : Le tableau de bord du professionnel () réutilise désormais correctement le tableau de bord du gardien (). L'espace de gestion des programmes () a été entièrement reconstruit pour correspondre à la direction artistique de l'application. La navigation gère correctement le nouveau rôle.
 
-**Last working item**: 
-    - Last item agent was working: Refactoring des fichiers monolithiques (Frontend : ,  / Backend : , ) à la demande expresse de l'utilisateur avant d'attaquer l'intégration de la Balance.
+**Last working item**:
+    - Last item agent was working: Démarrage de l'implémentation de la **Phase 3 du Module Professionnel**. L'agent a commencé par ajouter les endpoints nécessaires au backend pour la gestion des compléments alimentaires et la génération de bilans par Nora.
     - Status: IN PROGRESS
     - Agent Testing Done: N
-    - Which testing method agent to use? testing_agent_v3_fork (Backend et Frontend après le refactoring pour s'assurer d'aucune régression).
+    - Which testing method agent to use? both
     - User Testing Done: N
 
-**All Pending/In progress Issue list**: 
-  Issue 1: Custom CRC32 Validation for J2358 TCP Server (P1)
-     - Attempted fixes: Serveur créé, mais attente d'un paquet hexadécimal brut du fabricant pour finaliser le reverse engineering du CRC32.
-     - Next debug checklist: Dans , mettre à jour l'algorithme CRC dès que le fabricant fournit l'exemple.
-     - Why fix this issue and what will be achieved with the fix? Validera de façon sécurisée les données de santé envoyées par le bracelet 4G.
-     - Status: BLOCKED
-     - Is recurring issue? N
-     - Should Test frontend/backend/both after fix? Backend
-     - Blocked on other issue: Attente de la réponse du fabricant.
+**All Pending/In progress Issue list**:
+  - None
 
-**In progress Task List**: 
-  Task 1: Refactoring des fichiers monolithiques (P0)
-     - Where to resume: L'agent précédent a identifié les cibles. 
-       Frontend : extraire les modales de  (1071 lignes) et les composants SafeZone/SlideToCall de  (485 lignes).
-       Backend : extraire les fonctions IA/helpers de  (1866 lignes) et séparer l'escalade des interventions dans  (1131 lignes).
-     - What will be achieved with this? Un code plus propre et maintenable avant d'ajouter de nouvelles fonctionnalités complexes.
+**In progress Task List**:
+  - Task 1: (P0) Implémenter la Phase 3 du Module Professionnel.
+     - Where to resume: Le backend () a été préparé avec les nouveaux endpoints. Les prochaines étapes sont principalement sur le frontend :
+        1.  **Page Activité du Bénéficiaire ()** : Intégrer une nouvelle section pour afficher les programmes et exercices prescrits par un professionnel, permettant au bénéficiaire de valider leur complétion.
+        2.  **Espace Pro ()** : Ajouter une nouvelle section pour la prescription de compléments alimentaires (création, assignation).
+        3.  **Côté Bénéficiaire** : Afficher les compléments prescrits (par exemple dans les rappels ou une nouvelle carte sur le dashboard) et permettre leur validation.
+        4.  **Bilans Nora (Backend & Frontend)** : Implémenter la logique de génération de bilans de santé (hebdomadaires/mensuels) via l'API et créer les composants UI pour les afficher côté Pro et côté Bénéficiaire.
+     - What will be achieved with this? Le module Pro deviendra un outil fonctionnel permettant aux coachs/kinés de prescrire et suivre des exercices et des compléments, et de consulter des bilans de santé automatisés, répondant ainsi à la demande de l'utilisateur.
      - Status: IN PROGRESS
      - Should Test frontend/backend/both after fix? Both
-     - Blocked on something: None.
-
-  Task 2: Finaliser l'intégration Balance & Vest (P0)
-     - Where to resume: À démarrer **immédiatement après le refactoring** (demande de l'utilisateur : fait les refactorings, puis ensuite on vas finaliser la balance).
-     - What will be achieved with this? Affichage et gestion des données provenant de la balance connectée et du gilet de protection.
-     - Status: NOT STARTED
-     - Should Test frontend/backend/both after fix? Both
-     - Blocked on something: Task 1 (Refactoring).
+     - Blocked on something: None
 
 **Upcoming and Future Tasks**
     Upcoming Tasks:
-    - P1: Electronic Signature System (Admin panel -> Documents tab).
+    - P1: Phase 4 (Module Pro) : Prescription d'abonnements Sport/Physio par les pros.
+    - P1: Phase 5 (Module Pro) : Intégration de Mollie pour les paiements et commissions.
+    - P1: Phase 6 (Module Pro) : Messagerie Pro ↔ Bénéficiaire.
 
     Future Tasks:
-    - P2: Guardian Referral System.
-    - P2: Free 7-Day Trial flow.
-    - P2: Vivoo Urine Test Integration.
+    - P2: Intégration Balance & Gilet connecté.
+    - P2: Système de Signature Électronique (Admin -> Documents).
+    - P2: Système de parrainage pour les Gardiens.
+    - P2: Flux d'essai gratuit de 7 jours.
+    - P2: Intégration du test urinaire Vivoo.
+    - BLOQUÉ: Validation CRC32 pour le serveur TCP J2358.
 
 **Completed work in this session**
-- Fix P0 Bug Navigation: Correction du fallback du bouton retour sur  et  vers  en utilisant . (DONE)
-- Design Clinique : Ajout de cartes grises claires pour les sections Informations personnelles et Dossier médical sur la fiche bénéficiaire. (DONE)
-- Navigation Gardien : Suppression de la modale Gardien dans  remplacée par une redirection vers la page complète  (adaptée avec un mode lecture seule et slide-to-call). (DONE)
-- Séparation des champs d'adresse : Modification du modèle Pydantic , de l'endpoint d'inscription, de la constante , et des UIs pour gérer distinctement : , , , . (DONE)
+- **Bug Fix (Navbar)**: Le bug de style persistant sur la barre de navigation a été corrigé en centralisant la logique dans . (DONE, TESTED)
+- **Feature (Autorisations Partage Santé)**: Le bénéficiaire peut désormais choisir de partager toutes ses données, seulement les vitales, ou aucune donnée avec ses gardiens via la page . (DONE, TESTED)
+- **Feature (Module Pro - Phase 1+2)**: Le rôle  a été créé. Le dashboard pro réutilise maintenant la vue gardien. L'espace de création de programmes a été entièrement redesigné pour s'aligner sur la DA de l'app. (DONE, TESTED)
+- **Feature (Filtrage Santé Gardien)**: La fiche détaillée du bénéficiaire côté gardien () affiche les données de santé de manière conditionnelle en fonction des autorisations définies par le bénéficiaire. (DONE, TESTED)
 
 **Earlier issues found/mentioned but not fixed**
-None.
+   - None
 
 **Known issue recurrence from previous fork**
-  - Issue recurrence in previous fork: Expo Metro Bundler Caching Issues / Tunnel timeouts.
-  - Recurrence count: High
-  - Status: IN PROGRESS
-  Note: Utilisez expo: ERROR (not running)
-expo: started si le bundler plante ou si les modifications UI ne sont pas prises en compte.
+  - None
 
 **Code Architecture**
 
 
 **Key Technical Concepts**
-- Frontend: React Native Web (Expo Router)
-- Backend: FastAPI, MongoDB
-- Asyncio TCP Socket pour l'IoT (J2358)
+- **Role-Based Access Control (RBAC)**: Le système de rôles ( et ) a été étendu pour inclure le rôle , qui hérite des accès du rôle  tout en ayant des vues spécifiques.
+- **Component Reusability**: Suite aux retours de l'utilisateur, le dashboard du professionnel () réutilise maintenant directement le composant  pour assurer la cohérence.
+- **Dynamic Navigation**: La navigation par onglets () a été mise à jour pour afficher une configuration d'onglets spécifique au rôle , en utilisant .
 
 **key DB schema**
-  - : Possède désormais explicitement les champs , , ,  dès l'inscription.
-  - : Stocke les métriques de santé des bracelets.
+- **users collection**:
+  - Le champ  peut maintenant être .
+  - Nouveau champ  ( ou ).
+  - Le champ  contient maintenant .
+- **New collections**:
+  - : Stocke les programmes créés par les professionnels.
+  - : Stocke les exercices d'un programme.
+  -  (À venir): Stockera les compléments alimentaires prescrits.
+  -  (À venir): Stockera les bilans générés par Nora.
 
 **changes in tech stack**
-  - Aucun changement majeur, l'architecture reste identique.
+- L'utilisateur a demandé de remplacer **Stripe** par **Mollie** pour les futures implémentations de paiement.
 
-**All files of reference** 
--  et  (Cibles prioritaires pour le refactoring).
--  &  (Modifiés pour la gestion des adresses).
--  (Dernier rapport de test des adresses).
+**All files of reference**
+- : Point d'entrée pour toute la logique métier des professionnels.
+- : UI de l'espace de gestion des programmes.
+- : Page où les exercices prescrits doivent être affichés pour le bénéficiaire.
+- : Page de référence pour les permissions.
+- : Page de référence pour l'affichage conditionnel des données.
 
-**Areas that need refactoring**: 
--  (> 1000 lignes)
-- 
--  (> 1800 lignes)
--  (> 1100 lignes)
-*(C'est la tâche actuelle).*
+**Areas that need refactoring**:
+- None. Un refactoring majeur a déjà été effectué pour que le dashboard Pro réutilise le dashboard Gardien, suite à la demande de l'utilisateur.
 
 **key api endpoints**
-- 
-- 
-- 
-- 
+- : Définit les préférences de partage du bénéficiaire.
+- : Récupère les données du tableau de bord pour un professionnel.
+- : Liste les programmes d'un bénéficiaire.
+- : Crée un programme.
+- : Ajoute un exercice à un programme.
+- : (Nouveau) Pour prescrire un complément.
+- : (Nouveau) Pour générer un bilan Nora.
 
-**Critical Info for New Agent** 
-- L'utilisateur parle exclusivement Français.
-- **Règle d'or MongoDB** : Toujours exclure  des requêtes.
-- **Plan d'action immédiat** : L'utilisateur a demandé explicitement de scinder les gros fichiers en plus petits composants/modules d'abord. N'implémentez pas la fonctionnalité Balance/Vest avant d'avoir terminé et testé ce refactoring. 
+**Critical Info for New Agent**
+- **Langue de l'utilisateur : Français.** La communication doit impérativement se faire en français.
+- **Vision Produit de l'Utilisateur** : L'utilisateur a une vision très claire et a été très insatisfait d'une implémentation qui s'en écartait. **Le principe clé est : un Pro EST un Gardien enrichi.** Il faut donc réutiliser au maximum les composants et la logique du gardien, en y ajoutant les outils spécifiques aux professionnels (programmes, bilans, etc.), tout en respectant scrupuleusement la direction artistique premium de l'application.
+- **Changement de Stack Paiement** : Pour les futures tâches liées au paiement, utiliser **Mollie** et non Stripe.
+- **Priorité Actuelle** : La tâche immédiate et prioritaire (P0) est de finaliser la **Phase 3** du module professionnel.
 
-**documents and test reports created in this job** 
-  - 
+**documents and test reports created in this job**
   - 
   - 
   - 
 
-**Last 10 User Messages and any pending HUMAN messages** 
-1. **User**: Fait P0 et les fiche bénéficiaire, les inforamtion poersonelle et dossier médical, met bien dans une carte grisee claire -> Fait et testé.
-2. **User**: Dans la fiche bénéficaire, on as la liste des gardiens... refait juste le même bouton slide pour appeler... -> Fait via navigation vers .
-3. **User**: Pour ladresse postale, fait 3 champ, adresse, code postall et ville, puis rajoute pays aussi, recupère tous depuis linscription... -> Ajouté dans les modèles, backend et UI. Testé.
-4. **User**: fait les refactorings, puis ensuite on vas finaliser la balance -> **PENDING** (L'agent a analysé les fichiers mais n'a pas commencé le refactoring).
+**Last 10 User Messages and any pending HUMAN messages**
+1.  **User**: Demande de commencer l'implémentation de la Phase 3 (exercices chez le patient, compléments, bilans). (PENDING)
+2.  **Assistant**: Résume la réussite de la refonte des Phases 1 et 2 du module Pro et met à jour le PRD.
+3.  **User**: Exprime sa colère et son incompréhension face à la première version de l'espace pro, la qualifiant de merde et non conforme à la DA ni à l'idée de base. (ADDRESSED)
+4.  **Assistant**: Demande des précisions sur ce que l'utilisateur attend de l'espace pro. (ADDRESSED)
+5.  **User**: Clarifie en détail sa vision : un pro est un gardien enrichi, les paiements transitent par Chutex, et les exercices prescrits doivent apparaître dans la page d'activité existante du bénéficiaire. (ADDRESSED)
+6.  **Assistant**: Comprend la vision et propose un nouveau plan aligné, en réutilisant le dashboard gardien. (ADDRESSED)
+7.  **User**: Approuve le nouveau plan et demande de commencer. (ADDRESSED)
+8.  **Assistant**: Met à jour le PRD avec le module pro terminé et propose les prochaines étapes. (ADDRESSED)
+9.  **User**: Demande comment suivre ce qui est fait. (ADDRESSED)
+10. **Assistant**: Fournit un résumé clair des fonctionnalités livrées et les identifiants de test. (ADDRESSED)
 
 **Project Health Check:**
-Working. (Mocked data used for some guardian views).
+- **Broken**: None
+- **Mocked**: None
 
-**3rd Party Integrations** 
+**3rd Party Integrations**
 	 •	OpenAI GPT-4o — uses Emergent LLM Key
-	 •	Stripe (Payments) — requires User API Key
+	 •	Stripe (Payments) — To be replaced by **Mollie** in future tasks.
 
 **Testing status**
-  - Testing agent used after significant changes: YES
+  - Testing agent used after significant changes: YES (pour le module Data Sharing et le module Pro)
   - Troubleshoot agent used after agent stuck in loop: NO
-  - Test files created: None
+  - Test files created: []
   - Known regressions: None
 
 **Credentials to test flow:**
-Beneficiary:  / 
-Guardian:  / 
+- Beneficiary:  / 
+- Guardian:  / 
+- Professional (Coach):  / 
 
 **What agent forgot to execute**
-L'agent a reçu la consigne de faire le refactoring, a analysé la taille des fichiers avec       0       0       0 et lu quelques lignes, mais la session s'est terminée avant qu'il ne modifie ou ne crée le moindre composant extrait. Reprenez la tâche de refactoring sur les 4 fichiers identifiés.</analysis>
+L'agent a initialement mal interprété la demande de l'utilisateur pour l'espace professionnel, créant une interface entièrement nouvelle et déconnectée du reste de l'application. Cela a provoqué une forte frustration de l'utilisateur. L'agent a dû supprimer son travail et recommencer en suivant la nouvelle directive claire de l'utilisateur : **réutiliser le dashboard du gardien**. Cette erreur est une leçon critique pour le prochain agent sur l'importance d'écouter et de s'aligner sur la vision du produit.</analysis>
