@@ -459,9 +459,7 @@ export function BeneficiaryHome({ token, user }: { token: string; user: any }) {
                     style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '14px 16px', borderRadius: 18, background: C.card, cursor: 'pointer', transition: 'transform 0.15s', ...glass } as any}
                     onMouseEnter={(e: any) => { e.currentTarget.style.transform = 'translateY(-2px)'; }}
                     onMouseLeave={(e: any) => { e.currentTarget.style.transform = ''; }}>
-                    <div style={{ width: 50, height: 50, borderRadius: 999, background: `${cat.color}18`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}>
-                      <img src={cat.img} alt={cat.label} style={{ width: 30, height: 30, objectFit: 'contain' } as any} />
-                    </div>
+                    <img src={cat.img} alt={cat.label} style={{ width: 46, height: 46, objectFit: 'contain', flexShrink: 0 } as any} />
                     <div style={{ flex: 1 } as any}>
                       <div style={{ fontSize: 15, fontWeight: 700, color: C.text }}>{cat.label}</div>
                       <div style={{ fontSize: 12, color: activeCount > 0 ? cat.color : C.sub, fontWeight: 500, marginTop: 2 }}>
