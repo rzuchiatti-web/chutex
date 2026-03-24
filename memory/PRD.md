@@ -54,6 +54,11 @@ Application de teleassistance et de suivi de sante preventif pour les personnes 
   - borderRadius: 999 applique sur tous les boutons d'action
 - [x] Fix API: Cache bypass dans api.ts (cache: no-store, nettoyage inflight)
 
+- [x] UI: Header avec image en fond sur la page gardien detail (Mars 2026)
+  - Meme pattern que beneficiary-detail: BG_RED, avatar, nom, badges, slide-to-call
+  - Contenu en carte arrondie chevauchant le header
+  - Fichier modifie: `guardian-detail.tsx`
+
 ## En cours / Prochaines taches
 - [ ] **P1** : Integration Balance & Gilet
 - [ ] **P1** : Systeme de Signature Electronique (Admin -> Documents)
