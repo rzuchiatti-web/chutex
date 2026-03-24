@@ -12,6 +12,9 @@ import { apiFetch, API_URL } from '../../src/services/api';
 import { useI18n } from '../../src/context/I18nContext';
 import { HelpCenter } from '../../src/components/HelpSystem';
 import AnimatedDarkBg from '../../src/components/AnimatedDarkBg';
+import { ProfileMedicalPopup } from '../../src/components/profile/ProfileMedicalPopup';
+import { RGPDPopup, PrivacyPopup, CGUPopup, MentionsPopup } from '../../src/components/profile/ProfileLegalPopups';
+import { ProfileBenActivation } from '../../src/components/profile/ProfileBenActivation';
 
 const portalMount = (node: React.ReactNode) => {
   if (Platform.OS === 'web' && typeof document !== 'undefined') {
@@ -115,10 +118,6 @@ export default function ProfileScreen() {
   const [editEmergencyPhone, setEditEmergencyPhone] = useState(user?.emergency_contact_phone || '');
   const [editDoctor, setEditDoctor] = useState(user?.doctor_name || '');
   const [showActivateBenPopup, setShowActivateBenPopup] = useState(false);
-  const [benStep, setBenStep] = useState(1);
-  const [benForm, setBenForm] = useState<any>({ firstName: user.name?.split(' ').slice(1).join(' ') || '', lastName: user.name?.split(' ')[0] || '', dob_day: user.date_of_birth ? new Date(user.date_of_birth).getDate().toString() : '', dob_month: user.date_of_birth ? (new Date(user.date_of_birth).getMonth() + 1).toString() : '', dob_year: user.date_of_birth ? new Date(user.date_of_birth).getFullYear().toString() : '', gender: user.gender || '', height_cm: user.height_cm || '', weight_kg: user.weight_kg || '', address: user.address || '', postal_code: user.postal_code || '', city: user.city || '', emergency_name: user.emergency_contact_name || '', emergency_phone: user.emergency_contact_phone || '', blood_type: user.blood_type || '', medical_conditions: [] as string[], allergies: [] as string[], other_condition: '', had_avc: '', pacemaker: '', stents: '', thyroid: '', had_surgery: '', surgeries: [] as any[], family_history: [] as string[] });
-  const [benError, setBenError] = useState('');
-  const [benSaving, setBenSaving] = useState(false);
   const [editSiret, setEditSiret] = useState(user?.siret || '');
   const [editStructure, setEditStructure] = useState(user?.structure_name || '');
   const [saving, setSaving] = useState(false);
@@ -675,219 +674,16 @@ const BG_PROFILE = 'https://customer-assets.emergentagent.com/job_9950a869-9328-
             </div>
           )}
 
-          {/* Medical Record Popup */}
-          {showMedical && Platform.OS === 'web' && portalMount(
-            <div style={POP as any}>
-              <div style={{ width: '100%', maxWidth: 400, margin: '0 auto', padding: '40px 28px 120px', boxSizing: 'border-box' } as any}>
-                <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 20 } as any}>
-                  <div onClick={() => setShowMedical(false)} style={{ width: 38, height: 38, borderRadius: 999, background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}><i className="ri-close-line" style={{ fontSize: 18, color: 'rgba(255,255,255,0.8)' }} /></div>
-                </div>
-                <div style={{ textAlign: 'center', marginBottom: 24 } as any}>
-                  <div style={{ width: 56, height: 56, borderRadius: 16, background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.2)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', marginBottom: 14 } as any}>
-                    <i className="ri-heart-pulse-line" style={{ fontSize: 28, color: '#EF4444' }} />
-                  </div>
-                  <div style={{ fontSize: 24, fontWeight: 900, color: '#FFF' }}>Dossier medical</div>
-                  <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.35)', marginTop: 6 }}>Modifiez vos informations medicales</div>
-                </div>
-
-                {/* Blood type */}
-                <div style={{ marginBottom: 14 } as any}>
-                  <div style={{ fontSize: 9, fontWeight: 700, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 5 }}>Groupe sanguin</div>
-                  <select value={medForm.blood_type} onChange={(e: any) => setMedForm({ ...medForm, blood_type: e.target.value })} style={{ width: '100%', padding: '13px 16px', borderRadius: 14, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)', color: '#FFF', fontSize: 14, fontFamily: 'inherit', boxSizing: 'border-box', outline: 'none', appearance: 'none', cursor: 'pointer', colorScheme: 'dark' } as any}>
-                    <option value="" style={{ background: '#0a0f1a' }}>Selectionner</option>
-                    {['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-', 'Je ne sais pas'].map(bt => <option key={bt} value={bt} style={{ background: '#0a0f1a' }}>{bt}</option>)}
-                  </select>
-                </div>
-
-                {/* Pathologies */}
-                <div style={{ fontSize: 9, fontWeight: 700, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 8 }}>Pathologies</div>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 6, marginBottom: 14 } as any}>
-                  {['Diabete', 'Hypertension', 'Cholesterol', 'Arthrose', 'Insuffisance cardiaque', 'AVC', 'Asthme', 'Osteoporose', 'Parkinson', 'Alzheimer', 'Depression', 'Hemophilie', 'Epilepsie', 'Aucune'].map(c => (
-                    <div key={c} onClick={() => { if (c === 'Aucune') setMedForm({ ...medForm, conditions: ['Aucune'] }); else setMedForm({ ...medForm, conditions: medForm.conditions.includes(c) ? medForm.conditions.filter(x => x !== c) : [...medForm.conditions.filter(x => x !== 'Aucune'), c] }); }} style={{ padding: '10px 12px', borderRadius: 12, background: medForm.conditions.includes(c) ? 'rgba(255,255,255,0.1)' : 'rgba(255,255,255,0.03)', border: `1px solid ${medForm.conditions.includes(c) ? 'rgba(255,255,255,0.25)' : 'rgba(255,255,255,0.06)'}`, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8 } as any}>
-                      <div style={{ width: 18, height: 18, borderRadius: 5, background: medForm.conditions.includes(c) ? '#10B981' : 'rgba(255,255,255,0.06)', border: `1px solid ${medForm.conditions.includes(c) ? '#10B981' : 'rgba(255,255,255,0.15)'}`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}>
-                        {medForm.conditions.includes(c) && <i className="ri-check-line" style={{ fontSize: 11, color: '#FFF' }} />}
-                      </div>
-                      <span style={{ fontSize: 12, color: medForm.conditions.includes(c) ? '#FFF' : 'rgba(255,255,255,0.35)' }}>{c}</span>
-                    </div>
-                  ))}
-                </div>
-
-                {/* Allergies */}
-                <div style={{ fontSize: 9, fontWeight: 700, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 8 }}>Allergies</div>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 6, marginBottom: 14 } as any}>
-                  {['Penicilline', 'Aspirine', 'Latex', 'Arachides', 'Gluten', 'Lactose', 'Iode', 'Aucune'].map(a => (
-                    <div key={a} onClick={() => { if (a === 'Aucune') setMedForm({ ...medForm, allergies: ['Aucune'] }); else setMedForm({ ...medForm, allergies: medForm.allergies.includes(a) ? medForm.allergies.filter(x => x !== a) : [...medForm.allergies.filter(x => x !== 'Aucune'), a] }); }} style={{ padding: '10px 12px', borderRadius: 12, background: medForm.allergies.includes(a) ? 'rgba(255,255,255,0.1)' : 'rgba(255,255,255,0.03)', border: `1px solid ${medForm.allergies.includes(a) ? 'rgba(255,255,255,0.25)' : 'rgba(255,255,255,0.06)'}`, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8 } as any}>
-                      <div style={{ width: 18, height: 18, borderRadius: 5, background: medForm.allergies.includes(a) ? '#10B981' : 'rgba(255,255,255,0.06)', border: `1px solid ${medForm.allergies.includes(a) ? '#10B981' : 'rgba(255,255,255,0.15)'}`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}>
-                        {medForm.allergies.includes(a) && <i className="ri-check-line" style={{ fontSize: 11, color: '#FFF' }} />}
-                      </div>
-                      <span style={{ fontSize: 12, color: medForm.allergies.includes(a) ? '#FFF' : 'rgba(255,255,255,0.35)' }}>{a}</span>
-                    </div>
-                  ))}
-                </div>
-
-                {/* Pacemaker / Stents / Thyroid */}
-                {[
-                  { key: 'pacemaker', label: 'Portez-vous un pacemaker ?' },
-                  { key: 'stents', label: 'Avez-vous des stents ?' },
-                  { key: 'thyroid', label: 'Probleme de thyroide ?' },
-                ].map(q => (
-                  <div key={q.key} style={{ marginBottom: 14 } as any}>
-                    <div style={{ fontSize: 13, fontWeight: 700, color: '#FFF', marginBottom: 8 }}>{q.label}</div>
-                    <div style={{ display: 'flex', gap: 8 } as any}>
-                      {['oui', 'non'].map(v => (
-                        <div key={v} onClick={() => setMedForm({ ...medForm, [q.key]: v })} style={{ flex: 1, padding: '12px', borderRadius: 14, background: (medForm as any)[q.key] === v ? 'rgba(255,255,255,0.1)' : 'rgba(255,255,255,0.03)', border: `1px solid ${(medForm as any)[q.key] === v ? 'rgba(255,255,255,0.25)' : 'rgba(255,255,255,0.06)'}`, cursor: 'pointer', textAlign: 'center', fontSize: 13, fontWeight: 700, color: (medForm as any)[q.key] === v ? '#FFF' : 'rgba(255,255,255,0.35)' } as any}>{v === 'oui' ? 'Oui' : 'Non'}</div>
-                      ))}
-                    </div>
-                  </div>
-                ))}
-
-                {/* Surgeries */}
-                <div style={{ fontSize: 13, fontWeight: 700, color: '#FFF', marginBottom: 8, marginTop: 4 }}>Operations chirurgicales</div>
-                {(medForm.surgeries || []).map((s: any, idx: number) => (
-                  <div key={idx} style={{ padding: '12px 14px', borderRadius: 14, background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)', marginBottom: 8 } as any}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 } as any}>
-                      <span style={{ fontSize: 11, fontWeight: 700, color: '#FFF' }}>Operation {idx + 1}</span>
-                      <div onClick={() => setMedForm({ ...medForm, surgeries: (medForm.surgeries || []).filter((_: any, i: number) => i !== idx) })} style={{ cursor: 'pointer', fontSize: 11, color: '#EF4444', fontWeight: 700 } as any}>Supprimer</div>
-                    </div>
-                    <input placeholder="Zone operee (ex: genou droit)" value={s.zone} onChange={(e: any) => { const arr = [...(medForm.surgeries || [])]; arr[idx] = { ...arr[idx], zone: e.target.value }; setMedForm({ ...medForm, surgeries: arr }); }}
-                      style={{ width: '100%', padding: '10px 14px', borderRadius: 12, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)', color: '#FFF', fontSize: 13, fontFamily: 'inherit', boxSizing: 'border-box', outline: 'none', marginBottom: 6 } as any} />
-                    <input placeholder="Date (ex: Mars 2022)" value={s.date} onChange={(e: any) => { const arr = [...(medForm.surgeries || [])]; arr[idx] = { ...arr[idx], date: e.target.value }; setMedForm({ ...medForm, surgeries: arr }); }}
-                      style={{ width: '100%', padding: '10px 14px', borderRadius: 12, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)', color: '#FFF', fontSize: 13, fontFamily: 'inherit', boxSizing: 'border-box', outline: 'none' } as any} />
-                  </div>
-                ))}
-                <div onClick={() => setMedForm({ ...medForm, surgeries: [...(medForm.surgeries || []), { zone: '', date: '' }] })} style={{ padding: '12px', borderRadius: 999, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, marginBottom: 14 } as any}>
-                  <i className="ri-add-line" style={{ fontSize: 16, color: 'rgba(255,255,255,0.4)' }} />
-                  <span style={{ fontSize: 13, fontWeight: 700, color: 'rgba(255,255,255,0.4)' }}>Ajouter une operation</span>
-                </div>
-
-                {/* Save */}
-                {medSaved && <div style={{ padding: '10px 14px', borderRadius: 999, background: 'rgba(16,185,129,0.12)', border: '1px solid rgba(16,185,129,0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, marginBottom: 12 } as any}><i className="ri-checkbox-circle-line" style={{ fontSize: 16, color: '#10B981' }} /><span style={{ fontSize: 13, fontWeight: 700, color: '#10B981' }}>Sauvegarde !</span></div>}
-                <div onClick={async () => {
-                  setMedSaving(true);
-                  try {
-                    await apiFetch('/api/auth/update-profile', { method: 'PUT', body: JSON.stringify({
-                      blood_type: medForm.blood_type, medical_conditions: medForm.conditions.join(', '),
-                      allergies: medForm.allergies.join(', '), pacemaker: medForm.pacemaker,
-                      stents: medForm.stents, thyroid: medForm.thyroid,
-                    }) }, token);
-                    setMedSaved(true); setTimeout(() => setMedSaved(false), 3000);
-                  } catch {} finally { setMedSaving(false); }
-                }} style={{ padding: '16px', borderRadius: 999, background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)', cursor: 'pointer', textAlign: 'center', fontSize: 14, fontWeight: 700, color: '#FFF', opacity: medSaving ? 0.6 : 1 } as any}>{medSaving ? 'Sauvegarde...' : 'Sauvegarder'}</div>
-              </div>
-            </div>
-          )}
+          {/* Medical Record Popup — extracted component */}
+          <ProfileMedicalPopup visible={showMedical} onClose={() => setShowMedical(false)} medForm={medForm} setMedForm={setMedForm} medSaving={medSaving} setMedSaving={setMedSaving} medSaved={medSaved} setMedSaved={setMedSaved} apiFetch={apiFetch} token={token} />
 
           <HelpCenter visible={showHelp} onClose={() => setShowHelp(false)} role={user?.active_role || user?.role} />
 
-          {/* RGPD - Gestion des donnees */}
-          {showRGPD && (
-            <ProfileGlassPopup visible={showRGPD} onClose={() => setShowRGPD(false)}>
-              <div style={{ textAlign: 'center', marginBottom: 24 } as any}>
-                <div style={{ width: 56, height: 56, borderRadius: 16, background: 'rgba(56,189,248,0.1)', border: '1px solid rgba(56,189,248,0.2)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', marginBottom: 14 } as any}>
-                  <i className="ri-shield-check-line" style={{ fontSize: 28, color: '#38BDF8' }} />
-                </div>
-                <div style={{ fontSize: 22, fontWeight: 900, color: '#FFF' }}>Gestion des donnees</div>
-                <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.35)', marginTop: 6 }}>Exercez vos droits RGPD</div>
-              </div>
-              {!rgpdSent ? (
-                <>
-                  <div style={{ fontSize: 9, fontWeight: 700, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 8 }}>Type de demande</div>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: 6, marginBottom: 16 } as any}>
-                    {[
-                      { key: 'access', label: "Droit d'acces", desc: 'Obtenir une copie de vos donnees personnelles', icon: 'ri-eye-line' },
-                      { key: 'deletion', label: 'Droit a la suppression', desc: 'Demander l\'effacement de vos donnees', icon: 'ri-delete-bin-line' },
-                      { key: 'opposition', label: "Droit d'opposition", desc: 'Vous opposer au traitement de vos donnees', icon: 'ri-hand-heart-line' },
-                      { key: 'portability', label: 'Droit a la portabilite', desc: 'Recevoir vos donnees dans un format structure', icon: 'ri-download-2-line' },
-                    ].map(r => (
-                      <div key={r.key} data-testid={`rgpd-right-${r.key}`} onClick={() => setRgpdRight(r.key)} style={{ padding: '14px 16px', borderRadius: 14, background: rgpdRight === r.key ? 'rgba(56,189,248,0.1)' : 'rgba(255,255,255,0.03)', border: `1px solid ${rgpdRight === r.key ? 'rgba(56,189,248,0.3)' : 'rgba(255,255,255,0.06)'}`, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 12 } as any}>
-                        <div style={{ width: 36, height: 36, borderRadius: 10, background: rgpdRight === r.key ? 'rgba(56,189,248,0.15)' : 'rgba(255,255,255,0.04)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}>
-                          <i className={r.icon} style={{ fontSize: 16, color: rgpdRight === r.key ? '#38BDF8' : 'rgba(255,255,255,0.3)' }} />
-                        </div>
-                        <div style={{ flex: 1 } as any}>
-                          <div style={{ fontSize: 14, fontWeight: 700, color: rgpdRight === r.key ? '#FFF' : 'rgba(255,255,255,0.5)' }}>{r.label}</div>
-                          <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.25)', marginTop: 2 }}>{r.desc}</div>
-                        </div>
-                        {rgpdRight === r.key && <i className="ri-check-line" style={{ fontSize: 16, color: '#38BDF8' }} />}
-                      </div>
-                    ))}
-                  </div>
-                  <div style={{ fontSize: 9, fontWeight: 700, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 6 }}>Message complementaire (optionnel)</div>
-                  <textarea value={rgpdMsg} onChange={(e: any) => setRgpdMsg(e.target.value)} placeholder="Precisions sur votre demande..." rows={3} style={{ width: '100%', padding: '12px 14px', borderRadius: 14, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)', color: '#FFF', fontSize: 13, fontFamily: 'inherit', resize: 'none', boxSizing: 'border-box', outline: 'none', marginBottom: 12 } as any} />
-                  <div style={{ padding: '10px 14px', borderRadius: 12, background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)', marginBottom: 16 } as any}>
-                    <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)', lineHeight: 1.6 }}>
-                      Votre demande sera envoyee a <strong style={{ color: 'rgba(255,255,255,0.5)' }}>contact@chutex-innovation.com</strong> avec l'objet : <strong style={{ color: 'rgba(255,255,255,0.5)' }}>RGPD - {{'access': "Droit d'acces", 'deletion': 'Droit a la suppression', 'opposition': "Droit d'opposition", 'portability': 'Droit a la portabilite'}[rgpdRight]}</strong>. Delai legal de reponse : 30 jours maximum.
-                    </div>
-                  </div>
-                  <div data-testid="rgpd-submit-btn" onClick={async () => {
-                    setRgpdSending(true);
-                    try {
-                      const res = await apiFetch('/api/rgpd/request', { method: 'POST', body: JSON.stringify({ right_type: rgpdRight, message: rgpdMsg }) }, token);
-                      setRgpdRef(res.request_id || '');
-                      setRgpdSent(true);
-                    } catch (e: any) { Alert.alert('Erreur', e.message); } finally { setRgpdSending(false); }
-                  }} style={{ padding: '16px', borderRadius: 999, background: 'rgba(56,189,248,0.12)', border: '1px solid rgba(56,189,248,0.25)', cursor: rgpdSending ? 'wait' : 'pointer', textAlign: 'center', fontSize: 15, fontWeight: 800, color: '#38BDF8' } as any}>
-                    {rgpdSending ? 'Envoi en cours...' : 'Envoyer ma demande'}
-                  </div>
-                </>
-              ) : (
-                <div style={{ textAlign: 'center' } as any}>
-                  <div style={{ width: 56, height: 56, borderRadius: 16, background: 'rgba(16,185,129,0.1)', border: '1px solid rgba(16,185,129,0.2)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', marginBottom: 16 } as any}>
-                    <i className="ri-check-double-line" style={{ fontSize: 28, color: '#10B981' }} />
-                  </div>
-                  <div style={{ fontSize: 18, fontWeight: 900, color: '#FFF', marginBottom: 8 }}>Demande envoyee</div>
-                  <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)', lineHeight: 1.6, marginBottom: 16 }}>
-                    Votre demande a ete enregistree sous la reference <strong style={{ color: '#38BDF8' }}>{rgpdRef}</strong>. Nous vous repondrons sous 30 jours maximum conformement au RGPD.
-                  </div>
-                  <div onClick={() => setShowRGPD(false)} style={{ padding: '14px', borderRadius: 999, background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.15)', cursor: 'pointer', fontSize: 14, fontWeight: 700, color: '#FFF' } as any}>Fermer</div>
-                </div>
-              )}
-            </ProfileGlassPopup>
-          )}
-
-          {/* Politique de confidentialite */}
-          {showPrivacy && (
-            <ProfileGlassPopup visible={showPrivacy} onClose={() => setShowPrivacy(false)}>
-              <div style={{ textAlign: 'center', marginBottom: 20 } as any}>
-                <div style={{ width: 56, height: 56, borderRadius: 16, background: 'rgba(167,139,250,0.1)', border: '1px solid rgba(167,139,250,0.2)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', marginBottom: 14 } as any}>
-                  <i className="ri-file-shield-2-line" style={{ fontSize: 28, color: '#A78BFA' }} />
-                </div>
-                <div style={{ fontSize: 22, fontWeight: 900, color: '#FFF' }}>Politique de confidentialite</div>
-              </div>
-              <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.6)', lineHeight: 1.8, whiteSpace: 'pre-wrap' } as any}>
-                {`POLITIQUE DE CONFIDENTIALITE - CARE WATCH\n\nDerniere mise a jour : Fevrier 2026\n\n1. RESPONSABLE DU TRAITEMENT\nChutex Innovation SAS\nEmail DPO : contact@chutex-innovation.com\n\n2. DONNEES COLLECTEES\n- Donnees d'identification : nom, prenom, email, telephone\n- Donnees de sante (Art. 9 RGPD) : frequence cardiaque, tension, SpO2, temperature, poids, sommeil, ECG\n- Donnees de geolocalisation : position GPS\n- Donnees de connexion : logs, adresse IP\n\n3. FINALITES\n- Suivi de sante preventif et personnalise\n- Detection d'anomalies et alertes\n- Teleassistance et envoi d'intervenants\n- Analyse IA (assistant Nora)\n\n4. BASE LEGALE\n- Consentement explicite (Art. 6.1.a et Art. 9.2.a)\n- Execution du contrat (Art. 6.1.b)\n\n5. DUREE DE CONSERVATION\n- Donnees de sante : 5 ans apres derniere utilisation\n- Donnees de compte : duree du contrat + 3 ans\n- Logs : 12 mois\n\n6. DESTINATAIRES\n- Equipe Chutex Innovation\n- Gardiens/prescripteurs designes\n- Plateaux d'ecoute\n- Aucune vente a des tiers\n\n7. VOS DROITS (Art. 15 a 22 RGPD)\nAcces, rectification, effacement, opposition, portabilite, retrait du consentement.\nContact : contact@chutex-innovation.com\nDelai : 30 jours maximum.\n\n8. SECURITE\nChiffrement, controle d'acces, pseudonymisation.\n\n9. RECLAMATION CNIL\nwww.cnil.fr`}
-              </div>
-            </ProfileGlassPopup>
-          )}
-
-          {/* CGU */}
-          {showCGU && (
-            <ProfileGlassPopup visible={showCGU} onClose={() => setShowCGU(false)}>
-              <div style={{ textAlign: 'center', marginBottom: 20 } as any}>
-                <div style={{ width: 56, height: 56, borderRadius: 16, background: 'rgba(245,158,11,0.1)', border: '1px solid rgba(245,158,11,0.2)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', marginBottom: 14 } as any}>
-                  <i className="ri-file-text-line" style={{ fontSize: 28, color: '#F59E0B' }} />
-                </div>
-                <div style={{ fontSize: 22, fontWeight: 900, color: '#FFF' }}>Conditions generales</div>
-              </div>
-              <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.6)', lineHeight: 1.8, whiteSpace: 'pre-wrap' } as any}>
-                {`CONDITIONS GENERALES D'UTILISATION - CARE WATCH\n\nDerniere mise a jour : Fevrier 2026\n\n1. OBJET\nLes presentes CGU regissent l'utilisation de l'application CARE WATCH editee par Chutex Innovation SAS.\n\n2. DESCRIPTION DU SERVICE\nCARE WATCH est une application de teleassistance et de suivi de sante preventif : suivi des constantes vitales, detection de chutes, assistance 24/7, recommandations IA.\n\n3. INSCRIPTION\nL'utilisateur fournit des informations exactes et est responsable de la confidentialite de ses identifiants.\n\n4. DONNEES DE SANTE\nL'utilisateur consent explicitement au traitement de ses donnees de sante. Ce consentement peut etre retire a tout moment.\n\n5. RESPONSABILITES\nCARE WATCH est un outil d'aide, pas un substitut medical. Les recommandations IA sont informatives.\n\n6. PROPRIETE INTELLECTUELLE\nL'application est la propriete de Chutex Innovation SAS.\n\n7. RESILIATION\nSuppression du compte possible a tout moment.\n\n8. LOI APPLICABLE\nDroit francais. Competence des tribunaux francais.`}
-              </div>
-            </ProfileGlassPopup>
-          )}
-
-          {/* Mentions legales */}
-          {showMentions && (
-            <ProfileGlassPopup visible={showMentions} onClose={() => setShowMentions(false)}>
-              <div style={{ textAlign: 'center', marginBottom: 20 } as any}>
-                <div style={{ width: 56, height: 56, borderRadius: 16, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', marginBottom: 14 } as any}>
-                  <i className="ri-information-line" style={{ fontSize: 28, color: 'rgba(255,255,255,0.6)' }} />
-                </div>
-                <div style={{ fontSize: 22, fontWeight: 900, color: '#FFF' }}>Mentions legales</div>
-              </div>
-              <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.6)', lineHeight: 1.8, whiteSpace: 'pre-wrap' } as any}>
-                {`MENTIONS LEGALES\n\nEDITEUR\nChutex Innovation SAS\nEmail : contact@chutex-innovation.com\nDirecteur de la publication : Chutex Innovation\n\nHEBERGEMENT\nServeurs securises en Europe.\n\nPROPRIETE INTELLECTUELLE\nL'ensemble du contenu de CARE WATCH est protege par le droit de la propriete intellectuelle.\n\nDONNEES PERSONNELLES\nConformement au RGPD et a la loi Informatique et Libertes, vous disposez de droits sur vos donnees. Consultez notre Politique de confidentialite.\n\nCONTACT DPO\ncontact@chutex-innovation.com\n\nRECLAMATION CNIL\nCommission Nationale de l'Informatique et des Libertes\n3 Place de Fontenoy, 75334 Paris\nwww.cnil.fr`}
-              </div>
-            </ProfileGlassPopup>
-          )}
+          {/* Legal popups — extracted components */}
+          <RGPDPopup visible={showRGPD} onClose={() => { setShowRGPD(false); setRgpdSent(false); }} rgpdRight={rgpdRight} setRgpdRight={setRgpdRight} rgpdMsg={rgpdMsg} setRgpdMsg={setRgpdMsg} rgpdSending={rgpdSending} setRgpdSending={setRgpdSending} rgpdSent={rgpdSent} setRgpdSent={setRgpdSent} rgpdRef={rgpdRef} setRgpdRef={setRgpdRef} apiFetch={apiFetch} token={token} />
+          <PrivacyPopup visible={showPrivacy} onClose={() => setShowPrivacy(false)} />
+          <CGUPopup visible={showCGU} onClose={() => setShowCGU(false)} />
+          <MentionsPopup visible={showMentions} onClose={() => setShowMentions(false)} />
 
           {/* Language popup glass */}
           {showLangPicker && portalMount(<div onClick={() => setShowLangPicker(false)} style={POP as any}>
@@ -918,103 +714,8 @@ const BG_PROFILE = 'https://customer-assets.emergentagent.com/job_9950a869-9328-
             </div>
           )}
 
-          {/* Activate Beneficiary Space Popup — full 3-step registration */}
-          {showActivateBenPopup && portalMount(
-            <div style={POP as any}>
-              <div onClick={(e: any) => e.stopPropagation()} style={{ width: '100%', maxWidth: 420, margin: '0 auto', padding: '40px 28px 120px', boxSizing: 'border-box' } as any}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 } as any}>
-                  {benStep > 1 ? <div onClick={() => { setBenStep(benStep - 1); setBenError(''); }} style={{ width: 38, height: 38, borderRadius: 999, background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}><i className="ri-arrow-left-s-line" style={{ fontSize: 18, color: '#FFF' }} /></div> : <div />}
-                  <div style={{ display: 'flex', gap: 6 } as any}>{[1,2,3].map(s => <div key={s} style={{ width: 8, height: 8, borderRadius: 4, background: benStep >= s ? '#3B82F6' : 'rgba(255,255,255,0.15)' } as any} />)}</div>
-                  <div onClick={() => { setShowActivateBenPopup(false); setBenStep(1); setBenError(''); }} style={{ width: 38, height: 38, borderRadius: 999, background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}><i className="ri-close-line" style={{ fontSize: 18, color: 'rgba(255,255,255,0.8)' }} /></div>
-                </div>
-                {benError && <div style={{ padding: '10px 14px', borderRadius: 12, background: 'rgba(239,68,68,0.12)', border: '1px solid rgba(239,68,68,0.25)', marginBottom: 14, fontSize: 12, color: '#FCA5A5' } as any}>{benError}</div>}
-                {(() => {
-                  const uf = (k: string, v: any) => setBenForm({ ...benForm, [k]: v });
-                  const toggleArr = (k: string, v: string) => { const arr = benForm[k] || []; setBenForm({ ...benForm, [k]: arr.includes(v) ? arr.filter((x: string) => x !== v) : [...arr.filter((x: string) => x !== 'Aucune' && x !== 'Aucun'), v] }); };
-                  const IST: any = { width: '100%', padding: '13px 16px', borderRadius: 14, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', color: '#FFF', fontSize: 14, fontFamily: 'inherit', boxSizing: 'border-box', outline: 'none' };
-                  const LBL: any = { fontSize: 9, fontWeight: 700, color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 5 };
-                  const GLASS: any = { borderRadius: 22, background: 'rgba(0,0,0,0.25)', border: '1px solid rgba(255,255,255,0.1)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', padding: '18px 16px', marginBottom: 16 };
-                  const Chip = ({ label, sel, click }: any) => <div onClick={click} style={{ padding: '8px 14px', borderRadius: 999, background: sel ? 'rgba(59,130,246,0.2)' : 'rgba(255,255,255,0.05)', border: `1px solid ${sel ? 'rgba(59,130,246,0.4)' : 'rgba(255,255,255,0.1)'}`, cursor: 'pointer', fontSize: 12, fontWeight: 600, color: sel ? '#60A5FA' : 'rgba(255,255,255,0.5)' } as any}>{label}</div>;
-                  const YN = ({ label, val, set }: any) => <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 0', borderBottom: '1px solid rgba(255,255,255,0.06)' } as any}><span style={{ fontSize: 13, color: '#FFF', flex: 1 }}>{label}</span><div style={{ display: 'flex', gap: 6 } as any}>{['oui','non'].map(v => <div key={v} onClick={() => set(v)} style={{ padding: '6px 14px', borderRadius: 999, background: val === v ? (v === 'oui' ? 'rgba(239,68,68,0.15)' : 'rgba(16,185,129,0.15)') : 'rgba(255,255,255,0.05)', border: `1px solid ${val === v ? (v === 'oui' ? 'rgba(239,68,68,0.3)' : 'rgba(16,185,129,0.3)') : 'rgba(255,255,255,0.08)'}`, cursor: 'pointer', fontSize: 11, fontWeight: 700, color: val === v ? '#FFF' : 'rgba(255,255,255,0.4)' } as any}>{v === 'oui' ? 'Oui' : 'Non'}</div>)}</div></div>;
-                  return (<>
-                    {/* STEP 1: Personal info */}
-                    {benStep === 1 && (<>
-                      <div style={{ fontSize: 22, fontWeight: 800, color: '#FFF', marginBottom: 6 }}>Informations personnelles</div>
-                      <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)', marginBottom: 20 }}>Pour personnaliser votre suivi sante</div>
-                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 } as any}>
-                        <div style={{ marginBottom: 12 } as any}><div style={LBL}>Prenom *</div><input value={benForm.firstName} onChange={(e: any) => uf('firstName', e.target.value)} placeholder="Jean" style={IST} /></div>
-                        <div style={{ marginBottom: 12 } as any}><div style={LBL}>Nom *</div><input value={benForm.lastName} onChange={(e: any) => uf('lastName', e.target.value)} placeholder="Dupont" style={IST} /></div>
-                      </div>
-                      <div style={LBL}>Date de naissance *</div>
-                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1.5fr 1fr', gap: 8, marginBottom: 12 } as any}>
-                        <select value={benForm.dob_day} onChange={(e: any) => uf('dob_day', e.target.value)} style={{ ...IST, appearance: 'none', cursor: 'pointer', colorScheme: 'dark' }}><option value="">Jour</option>{Array.from({ length: 31 }, (_, i) => i + 1).map(d => <option key={d} value={String(d)}>{d}</option>)}</select>
-                        <select value={benForm.dob_month} onChange={(e: any) => uf('dob_month', e.target.value)} style={{ ...IST, appearance: 'none', cursor: 'pointer', colorScheme: 'dark' }}><option value="">Mois</option>{['Janvier','Fevrier','Mars','Avril','Mai','Juin','Juillet','Aout','Septembre','Octobre','Novembre','Decembre'].map((m, i) => <option key={i} value={String(i + 1)}>{m}</option>)}</select>
-                        <select value={benForm.dob_year} onChange={(e: any) => uf('dob_year', e.target.value)} style={{ ...IST, appearance: 'none', cursor: 'pointer', colorScheme: 'dark' }}><option value="">Annee</option>{Array.from({ length: 100 }, (_, i) => 2026 - i).map(y => <option key={y} value={String(y)}>{y}</option>)}</select>
-                      </div>
-                      <div style={LBL}>Sexe *</div>
-                      <div style={{ display: 'flex', gap: 8, marginBottom: 14 } as any}>
-                        {[{ v: 'male', l: 'Homme', ic: 'ri-men-line' }, { v: 'female', l: 'Femme', ic: 'ri-women-line' }].map(g => (
-                          <div key={g.v} onClick={() => uf('gender', g.v)} style={{ flex: 1, padding: '14px', borderRadius: 999, background: benForm.gender === g.v ? 'rgba(255,255,255,0.12)' : 'rgba(0,0,0,0.2)', border: `1px solid ${benForm.gender === g.v ? 'rgba(255,255,255,0.25)' : 'rgba(255,255,255,0.08)'}`, cursor: 'pointer', textAlign: 'center' } as any}>
-                            <i className={g.ic} style={{ fontSize: 22, color: benForm.gender === g.v ? '#FFF' : 'rgba(255,255,255,0.4)', display: 'block', marginBottom: 4 }} /><div style={{ fontSize: 12, fontWeight: 700, color: benForm.gender === g.v ? '#FFF' : 'rgba(255,255,255,0.5)' }}>{g.l}</div>
-                          </div>))}
-                      </div>
-                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 } as any}>
-                        <div style={{ marginBottom: 12 } as any}><div style={LBL}>Taille</div><select value={benForm.height_cm} onChange={(e: any) => uf('height_cm', e.target.value)} style={{ ...IST, appearance: 'none', cursor: 'pointer', colorScheme: 'dark' }}><option value="">cm</option>{Array.from({ length: 61 }, (_, i) => 140 + i).map(h => <option key={h} value={String(h)}>{h} cm</option>)}</select></div>
-                        <div style={{ marginBottom: 12 } as any}><div style={LBL}>Poids</div><select value={benForm.weight_kg} onChange={(e: any) => uf('weight_kg', e.target.value)} style={{ ...IST, appearance: 'none', cursor: 'pointer', colorScheme: 'dark' }}><option value="">kg</option>{Array.from({ length: 121 }, (_, i) => 30 + i).map(w => <option key={w} value={String(w)}>{w} kg</option>)}</select></div>
-                      </div>
-                      <div style={{ marginBottom: 12 } as any}><div style={LBL}>Adresse</div><input value={benForm.address} onChange={(e: any) => uf('address', e.target.value)} placeholder="12 rue de la Paix" style={IST} /></div>
-                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 12 } as any}>
-                        <div><div style={LBL}>Code postal</div><input value={benForm.postal_code} onChange={(e: any) => uf('postal_code', e.target.value)} placeholder="75002" style={IST} /></div>
-                        <div><div style={LBL}>Ville</div><input value={benForm.city} onChange={(e: any) => uf('city', e.target.value)} placeholder="Paris" style={IST} /></div>
-                      </div>
-                      <div style={{ height: 1, background: 'rgba(255,255,255,0.08)', margin: '8px 0 14px' } as any} />
-                      <div style={LBL}>Contact d'urgence</div>
-                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 16 } as any}>
-                        <div><input value={benForm.emergency_name} onChange={(e: any) => uf('emergency_name', e.target.value)} placeholder="Nom" style={IST} /></div>
-                        <div><input value={benForm.emergency_phone} onChange={(e: any) => uf('emergency_phone', e.target.value)} placeholder="Telephone" type="tel" style={IST} /></div>
-                      </div>
-                      <div onClick={() => { if (!benForm.firstName.trim() || !benForm.lastName.trim()) { setBenError('Prenom et nom obligatoires'); return; } if (!benForm.dob_day || !benForm.dob_month || !benForm.dob_year) { setBenError('Date de naissance obligatoire'); return; } if (!benForm.gender) { setBenError('Sexe obligatoire'); return; } setBenError(''); setBenStep(2); }} style={{ padding: '17px', borderRadius: 999, background: '#FFF', color: '#111', cursor: 'pointer', textAlign: 'center', fontSize: 16, fontWeight: 800, boxShadow: '0 4px 14px rgba(255,255,255,0.15)' } as any}>Continuer</div>
-                    </>)}
-                    {/* STEP 2: Medical records */}
-                    {benStep === 2 && (<>
-                      <div style={{ fontSize: 22, fontWeight: 800, color: '#FFF', marginBottom: 6 }}>Dossier medical</div>
-                      <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)', marginBottom: 20 }}>Informations confidentielles pour votre suivi</div>
-                      <div style={GLASS}><div style={{ ...LBL, marginBottom: 10 }}>Groupe sanguin</div><select value={benForm.blood_type} onChange={(e: any) => uf('blood_type', e.target.value)} style={{ ...IST, appearance: 'none', cursor: 'pointer', colorScheme: 'dark' }}><option value="">Selectionner</option>{['A+','A-','B+','B-','AB+','AB-','O+','O-','Je ne sais pas'].map(bt => <option key={bt} value={bt}>{bt}</option>)}</select></div>
-                      <div style={GLASS}><div style={{ ...LBL, marginBottom: 10 }}>Pathologies / Antecedents</div><div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 } as any}>{['Diabete','Hypertension','Cholesterol','Arthrose','Insuffisance cardiaque','AVC','Asthme','Osteoporose','Parkinson','Alzheimer','Depression','Aucune'].map(c => <Chip key={c} label={c} sel={benForm.medical_conditions.includes(c)} click={() => { if (c === 'Aucune') uf('medical_conditions', ['Aucune']); else toggleArr('medical_conditions', c); }} />)}</div></div>
-                      <div style={GLASS}><div style={{ ...LBL, marginBottom: 10 }}>Allergies</div><div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 } as any}>{['Penicilline','Aspirine','Latex','Arachides','Gluten','Lactose','Iode','Aucune'].map(a => <Chip key={a} label={a} sel={benForm.allergies.includes(a)} click={() => { if (a === 'Aucune') uf('allergies', ['Aucune']); else toggleArr('allergies', a); }} />)}</div></div>
-                      <div style={GLASS}><div style={{ ...LBL, marginBottom: 10 }}>Questions medicales</div><YN label="Avez-vous deja fait un AVC ?" val={benForm.had_avc} set={(v: string) => uf('had_avc', v)} /><YN label="Portez-vous un pacemaker ?" val={benForm.pacemaker} set={(v: string) => uf('pacemaker', v)} /><YN label="Avez-vous des stents ?" val={benForm.stents} set={(v: string) => uf('stents', v)} /><YN label="Probleme de thyroide ?" val={benForm.thyroid} set={(v: string) => uf('thyroid', v)} /></div>
-                      <div onClick={() => { setBenError(''); setBenStep(3); }} style={{ padding: '17px', borderRadius: 999, background: '#FFF', color: '#111', cursor: 'pointer', textAlign: 'center', fontSize: 16, fontWeight: 800, boxShadow: '0 4px 14px rgba(255,255,255,0.15)' } as any}>Continuer</div>
-                    </>)}
-                    {/* STEP 3: Antecedents + Submit */}
-                    {benStep === 3 && (<>
-                      <div style={{ fontSize: 22, fontWeight: 800, color: '#FFF', marginBottom: 6 }}>Antecedents</div>
-                      <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)', marginBottom: 20 }}>Derniere etape avant l'activation</div>
-                      <div style={GLASS}><div style={{ ...LBL, marginBottom: 10 }}>Operations chirurgicales</div><div style={{ display: 'flex', gap: 8, marginBottom: 10 } as any}>{['oui','non'].map(v => <div key={v} onClick={() => { uf('had_surgery', v); if (v === 'oui' && benForm.surgeries.length === 0) uf('surgeries', [{ zone: '', date: '' }]); }} style={{ flex: 1, padding: '12px', borderRadius: 999, background: benForm.had_surgery === v ? 'rgba(255,255,255,0.12)' : 'rgba(0,0,0,0.2)', border: `1px solid ${benForm.had_surgery === v ? 'rgba(255,255,255,0.25)' : 'rgba(255,255,255,0.08)'}`, cursor: 'pointer', textAlign: 'center', fontSize: 13, fontWeight: 700, color: benForm.had_surgery === v ? '#FFF' : 'rgba(255,255,255,0.5)' } as any}>{v === 'oui' ? 'Oui' : 'Non'}</div>)}</div>{benForm.had_surgery === 'oui' && benForm.surgeries.map((s: any, idx: number) => <div key={idx} style={{ padding: '12px', borderRadius: 14, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', marginBottom: 8 } as any}><div style={LBL}>Zone operee</div><input value={s.zone} onChange={(e: any) => { const arr = [...benForm.surgeries]; arr[idx] = { ...arr[idx], zone: e.target.value }; uf('surgeries', arr); }} placeholder="Ex: genou, hanche..." style={IST} /></div>)}</div>
-                      <div style={GLASS}><div style={{ ...LBL, marginBottom: 10 }}>Antecedents familiaux</div><div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 } as any}>{['Diabete','Hypertension','Maladie cardiaque','AVC','Cancer','Alzheimer','Parkinson','Aucun'].map(f => <Chip key={f} label={f} sel={benForm.family_history.includes(f)} click={() => { if (f === 'Aucun') uf('family_history', ['Aucun']); else toggleArr('family_history', f); }} />)}</div></div>
-                      <div onClick={async () => {
-                        setBenSaving(true); setBenError('');
-                        try {
-                          const dob = `${benForm.dob_year}-${String(benForm.dob_month).padStart(2,'0')}-${String(benForm.dob_day).padStart(2,'0')}`;
-                          await apiFetch('/api/auth/activate-beneficiary', { method: 'POST', body: JSON.stringify({
-                            name: `${benForm.lastName} ${benForm.firstName}`.trim(), date_of_birth: dob, gender: benForm.gender,
-                            height_cm: benForm.height_cm, weight_kg: benForm.weight_kg, address: benForm.address,
-                            postal_code: benForm.postal_code, city: benForm.city,
-                            emergency_contact_name: benForm.emergency_name, emergency_contact_phone: benForm.emergency_phone,
-                            blood_type: benForm.blood_type, medical_conditions: benForm.medical_conditions.join(', '),
-                            allergies: benForm.allergies.join(', '), had_avc: benForm.had_avc, pacemaker: benForm.pacemaker,
-                            stents: benForm.stents, thyroid: benForm.thyroid, other_condition: benForm.other_condition,
-                            surgeries: benForm.surgeries, family_history: benForm.family_history,
-                          }) }, token);
-                          await apiFetch('/api/auth/switch-role', { method: 'POST', body: JSON.stringify({ role: 'beneficiary' }) }, token);
-                          await refreshUser(); setShowActivateBenPopup(false); setBenStep(1);
-                        } catch (e: any) { setBenError(e.message || 'Erreur'); } finally { setBenSaving(false); }
-                      }} style={{ padding: '17px', borderRadius: 999, background: benSaving ? 'rgba(255,255,255,0.2)' : '#FFF', color: benSaving ? 'rgba(0,0,0,0.4)' : '#111', cursor: benSaving ? 'wait' : 'pointer', textAlign: 'center', fontSize: 16, fontWeight: 800, opacity: benSaving ? 0.5 : 1, boxShadow: '0 4px 14px rgba(255,255,255,0.15)' } as any}>{benSaving ? 'Activation...' : 'Activer mon espace beneficiaire'}</div>
-                    </>)}
-                  </>);
-                })()}
-              </div>
-            </div>
-          )}
+          {/* Activate Beneficiary — extracted component */}
+          <ProfileBenActivation show={showActivateBenPopup} onClose={() => setShowActivateBenPopup(false)} user={user} apiFetch={apiFetch} token={token} refreshUser={refreshUser} />
 
         </div>
         </div>
