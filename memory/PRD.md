@@ -1,114 +1,78 @@
 # Chutex Care Watch - PRD
 
-## Original Problem Statement
-Refonte complete des tableaux de bord Beneficiaire et Gardien, des pages Sante, Programmes et Profil avec un design "clinique" et premium. Integration de la Balance & Gilet, signature electronique pour les documents admin, et integration du serveur TCP pour le bracelet V6 4G (J2358).
+## Vision Produit
+Application de suivi santé connecté pour seniors/personnes à risque, avec gardiens et professionnels de santé.
 
-## Tech Stack
-- Frontend: Expo React Native Web (file-based routing via expo-router)
+## Rôles
+- **Bénéficiaire** : Patient porteur de la montre, reçoit exercices, rappels, repas
+- **Gardien** : Famille/proche qui surveille les données vitales
+- **Professionnel (Coach/Kiné)** : Gardien enrichi avec outils de prescription (programmes, rappels, repas, bilans)
+
+## Architecture
+- Frontend: Expo React Native Web
 - Backend: FastAPI + MongoDB
-- AI: GPT-5.2 via Emergent LLM Key (LiteLLM)
-- Charts: Custom SVG (no Recharts for RN Web compat)
+- IA: GPT-5.2 via Emergent LLM Key (Nora)
 
-## User Personas
-- **Beneficiaire**: Personne agee portant le bracelet Elio, accede au tableau de bord sante
-- **Gardien**: Famille/aidant qui surveille le beneficiaire a distance
-- **Admin**: Gestion des utilisateurs, documents, paiements
+## Fonctionnalités Implémentées
 
-## Core Features - DONE
-- [x] Dashboard beneficiaire avec design clinique premium
-- [x] Dashboard gardien coherent avec beneficiaire
-- [x] Page Sante complete (sommeil, activite, signes vitaux, poids)
-- [x] IA Nora pour analyses et rapports personnalises
-- [x] Nora parle a la 3eme personne pour les gardiens
-- [x] Systeme de rappels (CRUD temps reel)
-- [x] Suppression bouton SMS de guardian-detail
-- [x] Suppression carte correlation de sante
-- [x] **Page Sommeil WHOOP** dans health-detail.tsx (Mars 2026):
-  - Score performance sommeil (ring gauge SVG)
-  - 4 sous-scores: Suffisance, Regularite, Efficacite, Stress
-  - Hypnogramme des phases
-  - Bilan dette sommeil (dynamique via backend)
-  - Carte Recuperation (VFC, FC repos, zones)
-  - Graphique 7 derniers jours (barres empilees)
-  - Planification sommeil (besoin, coucher, reveil)
-  - Risque d'apnee avec analyse Nora
-  - Auto-selection derniere date avec donnees
-  - Bug floating-point dette corrige
-  - Endpoint backend /api/health/sleep/analysis
-- [x] **Animation Nora Premium** (Mars 2026):
-  - Effet blur-to-clear ligne par ligne (remplace typewriter)
-  - Contenu reecrit: concis, moderne, sans "bien vieillir/longevite"
-  - Badge Nora avec animation d'entree
-  - Point pulsant vert "Nora s'adresse a vous"
-  - Cartes fonctionnalites avec slide-up animation
-- [x] **Corrections UI multiples** (Mars 2026):
-  - Onboarding NoraIntroSlide: contenu raccourci, sans "longevite/bien vieillir"
-  - Metric-detail Nora cards: fond transparent au lieu de #000
-  - Chat Nora: greeting simplifie + 3 questions prefaites
-  - Suppression page doublon nora-welcome.tsx
-- [x] **Fix bug navbar Teleconsultation** (Mars 2026):
-  - Suppression TeleconsultDarkNav (injection style !important dans teleconsult.tsx)
-  - Cause racine: useEffect cleanup ne fonctionne pas car onglets Expo Router ne se demontent pas
-  - Solution: GlassTabBar gere son propre style via route active (forceNavDark)
-  - Ajout nettoyage defensif dans GlassTabBar pour styles residuels
-- [x] **Autorisations Gardiens - Partage Sante** (Mars 2026):
-  - 3 options sante: Donnees vitales uniquement (pouls, tension, temp, SpO2), Toutes les donnees, Aucune
-  - Toggles Localisation et Alertes
-  - Page data-sharing.tsx redessinee avec design premium dark
-  - Lien "Autorisations gardiens" ajoute dans profil beneficiaire
-  - Backend DataSharingPrefs mis a jour (health_sharing: all/vitals_only/none)
-  - Filtrage cote gardien dans beneficiary-detail.tsx:
-    - none: bloc "Acces restreint" - aucune donnee de sante visible
-    - vitals_only: 4 vitales affichees + bandeau "Acces limite", pas de Nora/activite/bouton sante
-    - all: toutes les donnees + bouton "Voir la page sante" actif
+### Core App (DONE)
+- Onboarding, auth (phone/password)
+- Dashboard bénéficiaire (vitales, rappels, activité, minceur)
+- Dashboard gardien (suivi bénéficiaires, alertes)
+- Chat IA Nora
+- Système de rappels (traitement, hydratation, alarmes)
+- Programme minceur (repas IA, exercices, tracking)
+- Téléconsultation
+- J2358 TCP Server pour montre connectée
 
-## Prioritized Backlog
-### P1
-- [x] **Role Professional (Coach/Kine) - Phase 1+2** (Mars 2026):
-  - Backend: Nouveau role 'professional' avec type coach/physio
-  - Routes /api/pro/* (dashboard, beneficiaries, profile, programs, sessions CRUD)
-  - Pros accedent aux endpoints gardien (guardian-like access)
-  - Dashboard Pro = GuardianHome (meme vue beneficiaires, alertes, sante temps reel)
-  - Espace Programmes: selection patient, vitales rapides, CRUD programmes/exercices
-  - Exercices avec categories (cardio, renforcement, souplesse, equilibre, reeducation)
-  - Suivi validation (fait/partiel/passe), suivi douleur physio
-  - GlassTabBar config pro (Accueil, Programmes, Prescriptions, Plus)
-  - Design coherent avec le reste de l'app (glass cards, dark premium)
-  - Compte test: +33655443322 / test123
-- [ ] Role Professional - Phase 3: Seances detaillees, suivi douleur physio, media video
-- [ ] Role Professional - Phase 4: Prescription abonnements
-- [ ] Integration Balance & Gilet connecte
-- [ ] Systeme de Signature Electronique (Admin -> Documents)
+### Autorisations Partage Santé (DONE)
+- Page `data-sharing.tsx` : bénéficiaire choisit all/vitals_only/none
+- Vue gardien respecte les permissions
 
-### P2
-- [ ] Systeme de parrainage Gardiens
-- [ ] Flux essai gratuit 7 jours
-- [ ] Integration test urinaire Vivoo
+### Module Professionnel - Phase 1+2 (DONE)
+- Rôle `professional` (coach/physio) hérite de gardien
+- Dashboard Pro réutilise GuardianHome
+- ProSpace : création programmes + exercices
 
-### BLOCKED
-- [ ] Validation CRC32 serveur TCP J2358 (attente info fabricant)
+### Module Professionnel - Phase 3 (DONE - 24/03/2026)
+- **Rappels Pro** : Pro prescrit compléments (medication) et hydratation → rappels existants du bénéficiaire
+- **Repas Pro** : Pro voit/ajoute/supprime repas du patient (override minceur)
+- **Exercices chez le patient** : Page activité affiche exercices prescrits avec validation (fait/partiel/passé + douleur)
+- **Masquage exercices minceur** : Si programmes pro actifs, les exercices auto-générés sont masqués
+- **Bilans Nora** : Génération bilans hebdo/mensuels via IA (vitales, programmes, compléments)
+- **ProSpace 4 onglets** : Programmes, Rappels, Repas, Bilans
 
-## Key API Endpoints
-- GET /api/health/sleep/analysis - Metriques WHOOP (performance, sufficiency, consistency, efficiency, sleep_stress, recovery, weekly_trend, sleep_need_min, recommended_bedtime)
-- GET /api/health/sleep/history - Historique 7 jours
-- GET /api/health/sleep - Donnees brutes
-- GET /api/health/daily-report - Rapport quotidien IA
-- GET /api/health/section-analysis/:section - Analyse IA par section
+## Tâches à Venir
 
-## Key Architecture
-```
-/app/frontend/app/health-detail.tsx - Page detail sante (sommeil WHOOP integre)
-/app/backend/routes/health_sleep_routes.py - Endpoint analyse sommeil
-/app/frontend/src/components/health/SleepCard.tsx - Widget sommeil dashboard
-/app/frontend/src/components/health/SleepHypnogram.tsx - Graphique phases SVG
-```
+### P1 - Phase 4 : Abonnements Sport/Physio
+- Prescription d'abonnements par les pros
+- Si abonnement actif, exercices gérés exclusivement par le pro
 
-## Test Credentials
-- Beneficiaire: 0651245918 / test123
-- Gardien: +33612345678 / test123
+### P1 - Phase 5 : Intégration Mollie
+- Paiements pour services pro via Mollie (pas Stripe)
+- Commission plateforme Chutex
 
-## Important Technical Notes
-- Metro est en mode CI: redemarrer expo + clear cache pour appliquer les changements
-- Duration API retournee en heures (pas minutes) - conversion necessaire frontend
-- AsyncStorage utilise localStorage sur web avec cle 'vl_token'
-- apiFetch a un systeme de dedup et cache integre
+### P1 - Phase 6 : Messagerie Pro ↔ Bénéficiaire
+- Chat direct entre pro et patient
+
+### P2 - Backlog
+- Intégration Balance & Gilet connecté
+- Signature Électronique (Admin → Documents)
+- Parrainage Gardiens
+- Essai gratuit 7 jours
+- Test urinaire Vivoo
+- Validation CRC32 J2358 TCP (BLOQUÉ)
+
+## Endpoints Clés Phase 3
+- `POST /api/pro/reminders/{ben_id}` - Prescrire rappel
+- `GET/DELETE /api/pro/reminders/*` - CRUD rappels pro
+- `GET/POST/DELETE /api/pro/meals/{ben_id}` - Gestion repas
+- `GET /api/pro/has-active-programs` - Vérifier programmes actifs
+- `GET /api/pro/my-programs` - Programmes prescrits du bénéficiaire
+- `POST /api/pro/sessions/{prog_id}/{sess_id}/complete` - Validation exercice
+- `GET /api/pro/bilan/{ben_id}` - Générer bilan Nora
+
+## Identifiants de Test
+- Bénéficiaire: `0651245918` / `test123`
+- Gardien: `+33612345678` / `test123`
+- Pro (Coach): `+33655443322` / `test123`
