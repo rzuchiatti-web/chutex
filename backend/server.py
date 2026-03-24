@@ -38,6 +38,7 @@ from routes.batch_routes import router as batch_router
 from routes.live_status_routes import router as live_status_router
 from routes.j2358_routes import router as j2358_router
 from routes.program_team_routes import router as program_team_router
+from routes.professional_routes import router as professional_router
 from routes.escalation_routes import router as escalation_router
 from routes.intervention_routes import router as intervention_router
 
@@ -80,6 +81,7 @@ api_router.include_router(live_status_router)
 api_router.include_router(j2358_router)
 api_router.include_router(program_team_router)
 api_router.include_router(escalation_router)
+api_router.include_router(professional_router)
 
 app.include_router(api_router)
 app.add_middleware(CORSMiddleware, allow_credentials=True, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])

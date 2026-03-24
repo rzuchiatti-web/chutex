@@ -16,8 +16,8 @@ export default function DevicesScreen() {
   const { t } = useI18n();
   if (!user || !token) return null;
   const r = user.active_role || user.role;
-  // Guardian: full screen, no wrapper header
-  if (r === 'guardian') {
+  // Guardian & Professional: full screen prescriptions, no wrapper header
+  if (r === 'guardian' || r === 'professional') {
     return <PrescriptionManagement token={token} user={user} />;
   }
   // Beneficiary: full screen devices page (web)

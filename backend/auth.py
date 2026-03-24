@@ -67,3 +67,8 @@ def sanitize_user(u):
 def get_effective_role(user: dict) -> str:
     """Returns the effective role: active_role if set, otherwise role"""
     return user.get('active_role') or user.get('role', 'beneficiary')
+
+def is_guardian_like(user: dict) -> bool:
+    """Returns True if user has guardian-like access (guardian or professional)"""
+    eff = get_effective_role(user)
+    return eff in ('guardian', 'professional', 'teleassistance')

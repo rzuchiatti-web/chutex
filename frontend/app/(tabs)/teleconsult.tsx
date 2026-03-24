@@ -6,12 +6,13 @@ import { useTheme } from '../../src/context/ThemeContext';
 import { apiFetch } from '../../src/services/api';
 import { s, BG_BLUE } from '../../src/components/teleconsult/teleconsultStyles';
 
-/* ─── Imported sub-components ─── */
+/* Sub-components */
 import { BeneficiaryTeleconsult } from '../../src/components/teleconsult/BeneficiaryTeleconsult';
 import { TeleassistanceDashboard } from '../../src/components/teleconsult/TeleassistanceDashboard';
 import { GuardianInterventions } from '../../src/components/teleconsult/GuardianInterventions';
 import { AdminIntervenants } from '../../src/components/teleconsult/AdminIntervenants';
 import { CompanyInterventionsTab } from '../../src/components/teleconsult/CompanyInterventionsTab';
+import ProSpace from '../../src/components/dashboard/ProSpace';
 
 export default function TeleconsultScreen() {
   const { user, token } = useAuth();
@@ -28,6 +29,11 @@ export default function TeleconsultScreen() {
 
   if (!user || !token) return null;
   const r = user.active_role || user.role;
+
+  // Professional: show ProSpace (programs management)
+  if (r === 'professional') {
+    return <ProSpace token={token} user={user} />;
+  }
 
   // Company sees interventions with intervenants
   if (r === 'prescriber_company') {

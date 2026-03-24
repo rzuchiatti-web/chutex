@@ -21,7 +21,7 @@ router = APIRouter()
 
 async def _ensure_guardian_access_to_beneficiary(bid: str, user: dict) -> dict:
     eff = get_effective_role(user)
-    if eff != 'guardian':
+    if eff not in ('guardian', 'professional'):
         raise HTTPException(status_code=403, detail="Reserve aux gardiens")
 
     guardian_doc = await db.users.find_one({"id": user['id']}, {"_id": 0})
@@ -48,7 +48,7 @@ def _distance_m(lat1: float, lon1: float, lat2: float, lon2: float) -> float:
 @router.post("/guardian/link")
 async def link_beneficiary(data: LinkBeneficiaryRequest, user=Depends(get_current_user)):
     eff = get_effective_role(user)
-    if eff != 'guardian':
+    if eff not in ('guardian', 'professional'):
         raise HTTPException(status_code=403, detail="Reserve aux gardiens")
     b = await db.users.find_one({"email": data.beneficiary_email, "role": "beneficiary"}, {"_id": 0})
     if not b:
@@ -61,7 +61,7 @@ async def link_beneficiary(data: LinkBeneficiaryRequest, user=Depends(get_curren
 @router.get("/guardian/beneficiaries")
 async def get_beneficiaries(user=Depends(get_current_user)):
     eff = get_effective_role(user)
-    if eff != 'guardian':
+    if eff not in ('guardian', 'professional'):
         raise HTTPException(status_code=403, detail="Reserve aux gardiens")
     cu = await db.users.find_one({"id": user['id']}, {"_id": 0})
     result = []
@@ -347,7 +347,7 @@ async def reject_invitation(inv_id: str, user=Depends(get_current_user)):
 @router.post("/guardian/prescriptions")
 async def create_prescription(data: PrescriptionCreate, user=Depends(get_current_user)):
     eff = get_effective_role(user)
-    if eff != 'guardian':
+    if eff not in ('guardian', 'professional'):
         raise HTTPException(status_code=403, detail="Reserve aux gardiens")
     if not user.get('is_prescriber'):
         raise HTTPException(status_code=403, detail="Mode prescripteur non active.")
@@ -427,7 +427,7 @@ async def create_prescription(data: PrescriptionCreate, user=Depends(get_current
 @router.get("/guardian/prescriptions")
 async def get_prescriptions(user=Depends(get_current_user)):
     eff = get_effective_role(user)
-    if eff != 'guardian':
+    if eff not in ('guardian', 'professional'):
         raise HTTPException(status_code=403, detail="Reserve aux gardiens")
     return await db.prescriptions.find({"guardian_id": user['id']}, {"_id": 0}).sort("created_at", -1).to_list(100)
 
@@ -435,7 +435,7 @@ async def get_prescriptions(user=Depends(get_current_user)):
 @router.post("/guardian/activate-prescriber")
 async def activate_prescriber(data: ActivatePrescriberRequest, user=Depends(get_current_user)):
     eff = get_effective_role(user)
-    if eff != 'guardian':
+    if eff not in ('guardian', 'professional'):
         raise HTTPException(status_code=403, detail="Reserve aux gardiens")
     code = await db.activation_codes.find_one({"code": data.code, "active": True}, {"_id": 0})
     if not code:
@@ -881,7 +881,7 @@ async def activate_intervention_provider(data: InterventionProviderActivate, use
 @router.get("/guardian/beneficiaries/map")
 async def guardian_map(user=Depends(get_current_user)):
     eff = get_effective_role(user)
-    if eff != 'guardian':
+    if eff not in ('guardian', 'professional'):
         raise HTTPException(status_code=403, detail="Reserve aux gardiens")
     cu = await db.users.find_one({"id": user['id']}, {"_id": 0})
     result = []

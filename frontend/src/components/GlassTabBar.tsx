@@ -22,6 +22,12 @@ export const TAB_CONFIGS: Record<string, TabConfig[]> = {
     { key: 'devices', icon: 'ri-file-list-3-fill', label: 'Prescriptions' },
     { key: 'profile', icon: 'ri-menu-3-fill', label: 'Plus' },
   ],
+  professional: [
+    { key: 'index', icon: 'ri-home-smile-2-fill', label: 'Accueil' },
+    { key: 'teleconsult', icon: 'ri-calendar-check-fill', label: 'Programmes' },
+    { key: 'devices', icon: 'ri-file-list-3-fill', label: 'Prescriptions' },
+    { key: 'profile', icon: 'ri-menu-3-fill', label: 'Plus' },
+  ],
   teleassistance: [
     { key: 'index', icon: 'ri-dashboard-3-fill', label: 'Dashboard' },
     { key: 'alerts', icon: 'ri-alarm-warning-fill', label: 'Alertes' },
