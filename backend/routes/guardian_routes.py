@@ -696,10 +696,11 @@ async def guardian_beneficiary_daily_report(bid: str, user=Depends(get_current_u
 
     uid = bid
     nora_ctx = await build_nora_context(ben)
+    ben_first_name = (ben.get('name', '') or '').split(' ')[0] or 'le patient'
 
     has_any_readings = await db.device_readings.find_one({"user_id": uid}, {"_id": 0})
     if not has_any_readings:
-        ai_no_data = await gen_ai({}, {"score": 0, "status": "Aucune donnee", "subscores": {"cardio": {"score": 0}, "sleep": {"score": 0}, "activity": {"score": 0}, "metabolism": {"score": 0}, "hydration": {"score": 0}}}, nora_ctx)
+        ai_no_data = await gen_ai({}, {"score": 0, "status": "Aucune donnee", "subscores": {"cardio": {"score": 0}, "sleep": {"score": 0}, "activity": {"score": 0}, "metabolism": {"score": 0}, "hydration": {"score": 0}}}, nora_ctx, guardian_view_name=ben_first_name)
         return {"no_data": True, "data": {}, "score_info": {"score": 0, "status": "Aucune donnee", "status_color": "#6B7280", "subscores": {}, "lifts": [], "limits": []},
                 "ai": ai_no_data, "daily_plan": [], "sparklines": {}, "weighings": [], "readonly": True}
 
@@ -753,13 +754,15 @@ async def guardian_beneficiary_daily_report(bid: str, user=Depends(get_current_u
     si = compute_subscores(d)
 
     if si.get("no_data"):
-        ai_no_data = await gen_ai(d, si, nora_ctx)
+        ai_no_data = await gen_ai(d, si, nora_ctx, guardian_view_name=ben_first_name)
         plan = await compute_daily_plan_async(d, si, uid)
         return {"no_data": True, "data": d, "score_info": si, "score": 0, "status": "Aucune donnee", "status_color": "#6B7280",
                 "subscores": si.get("subscores", {}), "lifts": [], "limits": [],
                 "ai": ai_no_data, "daily_plan": plan, "sparklines": {}, "weighings": [], "readonly": True}
 
-    ai = await gen_ai(d, si, nora_ctx)
+    ben_first_name = (ben.get('name', '') or '').split(' ')[0] or 'le patient'
+
+    ai = await gen_ai(d, si, nora_ctx, guardian_view_name=ben_first_name)
     plan = await compute_daily_plan_async(d, si, uid)
 
     sparks = {}

@@ -439,8 +439,9 @@ async def compute_daily_plan_async(d, score_info, uid):
     return plan
 
 
-async def gen_ai(d, si, nora_ctx=None):
-    """Generate AI analysis. Context-aware: coherent with or without data."""
+async def gen_ai(d, si, nora_ctx=None, guardian_view_name=None):
+    """Generate AI analysis. Context-aware: coherent with or without data.
+    If guardian_view_name is set, Nora speaks in 3rd person about the beneficiary."""
     api_key = os.environ.get("EMERGENT_LLM_KEY")
 
     # Use the robust check: sanitize first, then check for meaningful data
@@ -488,6 +489,16 @@ IMPORTANT: Ne fais des recommandations QUE sur les donnees mesurees. Pour les do
         else:
             data_block = "AUCUNE DONNEE DE SANTE DISPONIBLE. Les appareils ne sont pas connectes ou n'ont pas encore transmis de donnees."
 
+        guardian_instruction = ""
+        if guardian_view_name:
+            guardian_instruction = f"""
+IMPORTANT - VUE GARDIEN:
+- Tu t'adresses a un gardien/aidant qui consulte les donnees de sante de {guardian_view_name}
+- Parle de {guardian_view_name} a la TROISIEME PERSONNE (ex: "{guardian_view_name} presente un rythme cardiaque de...")
+- NE PAS utiliser "vous/votre" pour parler du patient. Utilise "{guardian_view_name}" ou "il/elle" ou "son/sa"
+- hero_line doit mentionner le prenom {guardian_view_name}
+- Le gardien veut un rapport factuel sur l'etat de sante de {guardian_view_name}"""
+
         prompt = f"""Tu es Nora, medecin IA specialiste en prevention et longevite. Analyse et reponds UNIQUEMENT en JSON.
 
 CONTEXTE PATIENT:
@@ -496,9 +507,10 @@ CONTEXTE PATIENT:
 {data_block}
 
 {APP_SERVICES_KNOWLEDGE}
+{guardian_instruction}
 
 CONSIGNES STRICTES:
-- Vouvoiement obligatoire
+- {"Parle de " + guardian_view_name + " a la 3eme personne. Ne dis pas vous/votre pour le patient." if guardian_view_name else "Vouvoiement obligatoire"}
 - Ton medical, professionnel et factuel. Pas d'emoji. Pas d'encouragement excessif
 - Si AUCUNE DONNEE n'est disponible:
   * hero_line doit indiquer clairement l'absence de donnees

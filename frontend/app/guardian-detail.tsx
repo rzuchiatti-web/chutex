@@ -259,14 +259,7 @@ export default function GuardianDetailScreen() {
             ))}
           </div>
 
-          {/* SMS button */}
-          {guardian.phone && (
-            <div data-testid="guardian-sms-btn" onClick={() => window.open(`sms:${guardian.phone}`, '_self')} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, padding: '13px 0', borderRadius: 999, background: 'rgba(56,189,248,0.1)', border: '1px solid rgba(56,189,248,0.2)', cursor: 'pointer', marginTop: 8, marginBottom: 4, transition: 'opacity 0.15s' } as any}
-              onMouseEnter={(e: any) => e.currentTarget.style.opacity = '0.85'} onMouseLeave={(e: any) => e.currentTarget.style.opacity = '1'}>
-              <i className="ri-message-3-line" style={{ fontSize: 16, color: '#38BDF8' }} />
-              <span style={{ fontSize: 13, fontWeight: 700, color: '#38BDF8' }}>Envoyer un SMS</span>
-            </div>
-          )}
+          {/* SMS button removed per user request */}
 
           <div style={{ height: 1, background: C.sep, margin: '8px 0' } as any} />
 

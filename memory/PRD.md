@@ -59,6 +59,13 @@ Application de teleassistance et de suivi de sante preventif pour les personnes 
   - Contenu en carte arrondie chevauchant le header
   - Fichier modifie: `guardian-detail.tsx`
 
+- [x] UI: Suppression du bouton "Envoyer un SMS" de la page gardien detail (Mars 2026)
+- [x] UI: Suppression de la carte CorrelationsCard de la page sante beneficiaire (Mars 2026)
+- [x] Nora parle a la 3eme personne avec le prenom du beneficiaire pour les gardiens (Mars 2026)
+  - gen_ai: parametre guardian_view_name pour modifier le prompt
+  - Chat Nora: prompt gardien ameliore avec prenoms des beneficiaires
+  - Fichiers modifies: health_report_routes.py, guardian_routes.py, chat_routes.py
+
 ## En cours / Prochaines taches
 - [ ] **P1** : Integration Balance & Gilet
 - [ ] **P1** : Systeme de Signature Electronique (Admin -> Documents)

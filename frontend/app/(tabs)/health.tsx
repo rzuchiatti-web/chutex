@@ -11,7 +11,6 @@ import ActivityCard from '../../src/components/dashboard/ActivityCard';
 import NoraCard from '../../src/components/shared/NoraCard';
 import SleepCard from '../../src/components/health/SleepCard';
 import HealthSections from '../../src/components/health/HealthSections';
-import CorrelationsCard from '../../src/components/health/CorrelationsCard';
 
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
@@ -288,9 +287,6 @@ export default function HealthScreen() {
           <HealthSections d={d} subs={subs} />
 
           <div style={{ height: 1, background: sepColor, margin: '12px 0 16px' } as any} />
-
-          {/* Health Correlations */}
-          <CorrelationsCard />
 
           <div style={{ height: 1, background: sepColor, margin: '12px 0 16px' } as any} />
 

@@ -190,7 +190,14 @@ async def send_chat_message(data: dict, user=Depends(get_current_user)):
             from emergentintegrations.llm.chat import LlmChat, UserMessage
             guardian_extra = ""
             if is_guardian:
-                guardian_extra = "\n- L'utilisateur est un GARDIEN/AIDANT. Reponds sur la sante de ses beneficiaires. Aide-le sur l'espace gardien (interventions, alertes, suivi temps reel). Tutoie-le."
+                # Extract beneficiary first names for personalized 3rd person speech
+                ben_names = []
+                for link in (await db.guardian_beneficiaries.find({"guardian_id": uid}, {"_id": 0}).to_list(10)):
+                    b = await db.users.find_one({"id": link.get("beneficiary_id")}, {"_id": 0, "name": 1})
+                    if b and b.get("name"):
+                        ben_names.append(b["name"].split(" ")[0])
+                names_str = ", ".join(ben_names) if ben_names else "ses beneficiaires"
+                guardian_extra = f"\n- L'utilisateur est un GARDIEN/AIDANT de: {names_str}. Quand tu parles des beneficiaires, utilise TOUJOURS leur prenom (ex: \"{ben_names[0] if ben_names else 'Marie'} presente un...\"). NE DIS JAMAIS \"vous\" ou \"votre\" pour parler du patient. Tutoie le gardien."
             system = f"""Tu es Nora, IA de Chutex specialisee en prevention et longevite. Reponds en {lang_name}, ton serieux et factuel, max 3-4 phrases sauf question complexe. L'app s'appelle Chutex (JAMAIS "CareWatch"). Chutex Care = service teleassistance 24/7.
 
 DONNEES SANTE:
