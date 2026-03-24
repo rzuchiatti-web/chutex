@@ -195,7 +195,13 @@ export default function HealthDetailScreen() {
       <div style={{ flex: 1, overflowY: 'auto', position: 'relative', zIndex: 5, padding: '20px 20px 100px', WebkitOverflowScrolling: 'touch' } as any}>
 
         {/* Back */}
-        <div onClick={() => { try { router.back(); } catch { router.push('/(tabs)/health' as any); } }} style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '8px 14px', borderRadius: 999, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', cursor: 'pointer', marginBottom: 20 } as any}>
+        <div onClick={() => {
+          if (isReadonly && beneficiaryId) {
+            router.push({ pathname: '/health-readonly' as any, params: { beneficiaryId } });
+          } else {
+            try { router.back(); } catch { router.push('/(tabs)/health' as any); }
+          }
+        }} style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '8px 14px', borderRadius: 999, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', cursor: 'pointer', marginBottom: 20 } as any}>
           <i className="ri-arrow-left-line" style={{ fontSize: 16, color: 'rgba(255,255,255,0.6)' }} />
           <span style={{ fontSize: 12, fontWeight: 600, color: 'rgba(255,255,255,0.6)' }}>Retour</span>
         </div>
