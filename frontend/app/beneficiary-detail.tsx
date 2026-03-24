@@ -223,24 +223,28 @@ export default function BeneficiaryDetailScreen() {
 
           {/* ── 1. INFOS PERSONNELLES ── */}
           <div style={SL}>Informations personnelles</div>
-          <div style={rowS}><span style={lbS}>Prenom</span><span style={vlS}>{firstName}</span></div>
-          <div style={rowS}><span style={lbS}>Nom</span><span style={vlS}>{lastName}</span></div>
-          {ageYears && <div style={rowS}><span style={lbS}>Age</span><span style={vlS}>{ageYears} ans</span></div>}
-          <div style={rowS}><span style={lbS}>Genre</span><span style={vlS}>{genderLabel}</span></div>
-          {data.date_of_birth && <div style={rowS}><span style={lbS}>Date de naissance</span><span style={vlS}>{new Date(data.date_of_birth).toLocaleDateString('fr-FR')}</span></div>}
-          {data.phone && <div style={rowS}><span style={lbS}>Telephone</span><span style={vlS}>{data.phone}</span></div>}
-          <div style={{ ...rowS, flexDirection: 'column', alignItems: 'flex-start', gap: 2 } as any}><span style={lbS}>Adresse</span><span data-testid="beneficiary-profile-address-value" style={{ fontSize: 13, color: C.text, fontWeight: 600, marginTop: 2 }}>{data.address || '-'}{(data.postal_code || data.city) ? `, ${[data.postal_code, data.city].filter(Boolean).join(' ')}` : ''}</span></div>
-          {data.height_cm && <div style={rowS}><span style={lbS}>Taille</span><span data-testid="beneficiary-profile-height-value" style={vlS}>{data.height_cm} cm</span></div>}
-          {profileWeight && <div style={rowS}><span style={lbS}>Poids</span><span data-testid="beneficiary-profile-weight-value" style={vlS}>{profileWeight} kg</span></div>}
-          {data.height_cm && profileWeight && <div style={{ ...rowS, borderBottom: 'none' }}><span style={lbS}>IMC</span><span style={vlS}>{(profileWeight / Math.pow(data.height_cm / 100, 2)).toFixed(1)}</span></div>}
+          <div style={{ borderRadius: 16, background: isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.04)', border: `1px solid ${isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.06)'}`, padding: '4px 16px', marginBottom: 4 } as any}>
+            <div style={rowS}><span style={lbS}>Prenom</span><span style={vlS}>{firstName}</span></div>
+            <div style={rowS}><span style={lbS}>Nom</span><span style={vlS}>{lastName}</span></div>
+            {ageYears && <div style={rowS}><span style={lbS}>Age</span><span style={vlS}>{ageYears} ans</span></div>}
+            <div style={rowS}><span style={lbS}>Genre</span><span style={vlS}>{genderLabel}</span></div>
+            {data.date_of_birth && <div style={rowS}><span style={lbS}>Date de naissance</span><span style={vlS}>{new Date(data.date_of_birth).toLocaleDateString('fr-FR')}</span></div>}
+            {data.phone && <div style={rowS}><span style={lbS}>Telephone</span><span style={vlS}>{data.phone}</span></div>}
+            <div style={{ ...rowS, flexDirection: 'column', alignItems: 'flex-start', gap: 2 } as any}><span style={lbS}>Adresse</span><span data-testid="beneficiary-profile-address-value" style={{ fontSize: 13, color: C.text, fontWeight: 600, marginTop: 2 }}>{data.address || '-'}{(data.postal_code || data.city) ? `, ${[data.postal_code, data.city].filter(Boolean).join(' ')}` : ''}</span></div>
+            {data.height_cm && <div style={rowS}><span style={lbS}>Taille</span><span data-testid="beneficiary-profile-height-value" style={vlS}>{data.height_cm} cm</span></div>}
+            {profileWeight && <div style={rowS}><span style={lbS}>Poids</span><span data-testid="beneficiary-profile-weight-value" style={vlS}>{profileWeight} kg</span></div>}
+            {data.height_cm && profileWeight && <div style={{ ...rowS, borderBottom: 'none' }}><span style={lbS}>IMC</span><span style={vlS}>{(profileWeight / Math.pow(data.height_cm / 100, 2)).toFixed(1)}</span></div>}
+          </div>
 
           <div style={{ height: 1, background: C.sep, margin: '8px 0' } as any} />
 
           {/* ── 2. DOSSIER MEDICAL ── */}
           <div style={SL}>Dossier medical</div>
-          <div style={rowS}><span style={lbS}>Groupe sanguin</span><span style={vlS}>{data.blood_type || '--'}</span></div>
-          <div style={{ ...rowS, flexDirection: 'column', alignItems: 'flex-start', gap: 2 } as any}><span style={lbS}>Pathologies</span><span style={{ fontSize: 13, color: C.text, fontWeight: 600, marginTop: 2 }}>{data.medical_conditions || 'Aucune'}</span></div>
-          <div style={{ ...rowS, flexDirection: 'column', alignItems: 'flex-start', gap: 2, borderBottom: 'none' } as any}><span style={lbS}>Allergies</span><span style={{ fontSize: 13, color: C.text, fontWeight: 600, marginTop: 2 }}>{data.allergies || 'Aucune'}</span></div>
+          <div style={{ borderRadius: 16, background: isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.04)', border: `1px solid ${isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.06)'}`, padding: '4px 16px', marginBottom: 4 } as any}>
+            <div style={rowS}><span style={lbS}>Groupe sanguin</span><span style={vlS}>{data.blood_type || '--'}</span></div>
+            <div style={{ ...rowS, flexDirection: 'column', alignItems: 'flex-start', gap: 2 } as any}><span style={lbS}>Pathologies</span><span style={{ fontSize: 13, color: C.text, fontWeight: 600, marginTop: 2 }}>{data.medical_conditions || 'Aucune'}</span></div>
+            <div style={{ ...rowS, flexDirection: 'column', alignItems: 'flex-start', gap: 2, borderBottom: 'none' } as any}><span style={lbS}>Allergies</span><span style={{ fontSize: 13, color: C.text, fontWeight: 600, marginTop: 2 }}>{data.allergies || 'Aucune'}</span></div>
+          </div>
 
           <div style={{ height: 1, background: C.sep, margin: '8px 0' } as any} />
 
