@@ -13,6 +13,18 @@ import { GuardianInterventions } from '../../src/components/teleconsult/Guardian
 import { AdminIntervenants } from '../../src/components/teleconsult/AdminIntervenants';
 import { CompanyInterventionsTab } from '../../src/components/teleconsult/CompanyInterventionsTab';
 
+/* Dark navbar helper — injects style on mount, removes on unmount */
+function TeleconsultDarkNav() {
+  React.useEffect(() => {
+    const style = document.createElement('style');
+    style.id = 'teleconsult-dark-nav';
+    style.textContent = '.glass-tab-bar-root { background: rgba(0,0,0,0.7) !important; border-color: rgba(255,255,255,0.06) !important; } .glass-tab-bar-root i { color: rgba(255,255,255,0.5) !important; } .glass-tab-bar-root .active-tab i { color: #FFF !important; }';
+    document.head.appendChild(style);
+    return () => { style.remove(); };
+  }, []);
+  return null;
+}
+
 export default function TeleconsultScreen() {
   const { user, token } = useAuth();
   const { colors } = useTheme();
@@ -47,7 +59,7 @@ export default function TeleconsultScreen() {
       if (Platform.OS === 'web') {
         return (
           <div data-testid="teleconsult-no-sub" style={{ position: 'fixed', inset: 0, display: 'flex', flexDirection: 'column', fontFamily: 'Inter, system-ui, sans-serif', overflow: 'hidden', zIndex: 50 } as any}>
-            <style>{`.glass-tab-bar-root { background: rgba(0,0,0,0.7) !important; border-color: rgba(255,255,255,0.06) !important; } .glass-tab-bar-root i { color: rgba(255,255,255,0.5) !important; } .glass-tab-bar-root .active-tab i { color: #FFF !important; }`}</style>
+            <TeleconsultDarkNav />
             <img src={BG_BLUE} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 } as any} />
             <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.3)', zIndex: 1 } as any} />
             <div style={{ position: 'relative', zIndex: 5, flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: 30, textAlign: 'center' } as any}>

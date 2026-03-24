@@ -66,25 +66,15 @@ function NoraIntroSlide({ onContinue }: { onContinue: () => void }) {
   const lines = [
     'Je suis Nora.',
     '',
-    'Votre intelligence artificielle\ndediee a votre longevite.',
-    '',
-    'Je vous aide a comprendre\nvotre corps.',
-    '',
-    'A mieux vieillir.',
-    '',
-    'A prendre soin de vous,\nchaque jour.',
+    'Votre intelligence sante\npersonnelle.',
     '',
     'Je surveille votre sante\nen temps reel.',
     '',
     'Frequence cardiaque.\nSommeil. Activite.',
     '',
-    'J\'analyse vos donnees\npour vous offrir\ndes recommandations\npersonnalisees.',
-    '',
-    'Nutrition adaptee.\nExercices sur mesure.',
-    '',
     'Vos proches restent\ninformes et rassures.',
     '',
-    'Bienvenue sur Chutex.',
+    'Bienvenue.',
   ];
 
   useEffect(() => {

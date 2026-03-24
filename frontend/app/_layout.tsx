@@ -259,7 +259,6 @@ function RootNav() {
         <Stack.Screen name="minceur" options={{ presentation: 'card' }} />
         <Stack.Screen name="chat-ia" options={{ presentation: 'card', animation: 'slide_from_bottom' }} />
         <Stack.Screen name="morning-briefing" options={{ presentation: 'card', animation: 'fade' }} />
-        <Stack.Screen name="nora-welcome" options={{ presentation: 'card', animation: 'fade' }} />
         <Stack.Screen name="company-agency" options={{ presentation: 'card' }} />
         <Stack.Screen name="register" options={{ animation: 'none' }} />
       </Stack>

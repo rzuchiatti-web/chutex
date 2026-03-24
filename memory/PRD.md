@@ -41,6 +41,12 @@ Refonte complete des tableaux de bord Beneficiaire et Gardien, des pages Sante, 
   - Badge Nora avec animation d'entree
   - Point pulsant vert "Nora s'adresse a vous"
   - Cartes fonctionnalites avec slide-up animation
+- [x] **Corrections UI multiples** (Mars 2026):
+  - Onboarding NoraIntroSlide: contenu raccourci, sans "longevite/bien vieillir"
+  - Teleconsultation navbar: fix style persistant (useEffect cleanup)
+  - Metric-detail Nora cards: fond transparent au lieu de #000
+  - Chat Nora: greeting simplifie + 3 questions prefaites
+  - Suppression page doublon nora-welcome.tsx
 
 ## Prioritized Backlog
 ### P1

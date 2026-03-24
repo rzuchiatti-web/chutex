@@ -42,8 +42,20 @@ export default function ChatIAScreen() {
   const firstName = user?.name?.split(' ')[0] || '';
   const hasMessages = messages.length > 0;
   const descText = role === 'guardian'
-    ? 'Je suis Nora, l\'intelligence artificielle developpee par Chutex pour ameliorer la longevite de vos beneficiaires. Posez-moi vos questions.'
-    : 'Je suis Nora, l\'intelligence artificielle developpee par Chutex pour ameliorer votre longevite. Je connais votre dossier de sante. Posez-moi vos questions.';
+    ? 'Votre assistante sante personnelle. Comment puis-je vous aider aujourd\'hui ?'
+    : 'Votre assistante sante personnelle. Comment puis-je vous aider aujourd\'hui ?';
+
+  const presetQuestions = role === 'guardian'
+    ? [
+        'Comment va mon proche aujourd\'hui ?',
+        'Y a-t-il eu des alertes recemment ?',
+        'Peux-tu me faire un resume de sa semaine ?',
+      ]
+    : [
+        'Comment ai-je dormi cette nuit ?',
+        'Peux-tu me faire un bilan de sante ?',
+        'Quels exercices me recommandes-tu ?',
+      ];
 
   useEffect(() => { loadHistory(); setTimeout(() => setEntered(true), 100); setTimeout(() => setShowText(true), 1400); }, [role]);
   useEffect(() => { bottomRef.current?.scrollIntoView({ behavior: 'smooth' }); }, [messages, typingId]);
@@ -145,6 +157,18 @@ export default function ChatIAScreen() {
             {greetingDone && <div style={{ fontSize: 14, fontWeight: 500, color: 'rgba(255,255,255,0.5)', lineHeight: 1.6, maxWidth: 300, margin: '0 auto' }}>
               {typedDesc}<span style={{ opacity: typedDesc.length < descText.length ? 1 : 0, color: 'rgba(255,255,255,0.2)', transition: 'opacity 0.3s' } as any}>|</span>
             </div>}
+            {/* Preset questions */}
+            {greetingDone && typedDesc.length >= descText.length && (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginTop: 20, maxWidth: 300, margin: '20px auto 0' } as any}>
+                {presetQuestions.map((q, i) => (
+                  <div key={i} data-testid={`preset-q-${i}`} onClick={() => sendMessage(q)} style={{ padding: '11px 16px', borderRadius: 14, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)', cursor: 'pointer', fontSize: 13, fontWeight: 600, color: 'rgba(255,255,255,0.55)', textAlign: 'left', transition: 'all 0.2s', opacity: 0, animation: `chatMsgIn 0.4s ease ${0.1 + i * 0.12}s forwards` } as any}
+                    onMouseEnter={(e: any) => { e.currentTarget.style.background = 'rgba(255,255,255,0.1)'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.15)'; }}
+                    onMouseLeave={(e: any) => { e.currentTarget.style.background = 'rgba(255,255,255,0.06)'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.08)'; }}>
+                    <i className="ri-chat-3-line" style={{ fontSize: 12, marginRight: 8, color: 'rgba(255,255,255,0.25)' }} />{q}
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         )}
 
