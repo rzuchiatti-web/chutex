@@ -88,6 +88,7 @@ export function BeneficiaryHome({ token, user }: { token: string; user: any }) {
   const [editReminder, setEditReminder] = useState<any>(null);
   const [showReminderCRUD, setShowReminderCRUD] = useState(false);
   const [reminderNotif, setReminderNotif] = useState<any>(null);
+  const [remKey, setRemKey] = useState(0);
   const [remForm, setRemForm] = useState({ title: '', time: '08:00', reminder_type: 'hydration', notes: '', days: ['lun','mar','mer','jeu','ven','sam','dim'] });
   const sosPulse = useRef(new Animated.Value(1)).current;
   const { refreshUser } = useAuth();
@@ -206,12 +207,10 @@ export function BeneficiaryHome({ token, user }: { token: string; user: any }) {
     try {
       if (editReminder?.id) {
         await apiFetch(`/api/reminders/${editReminder.id}`, { method: 'PUT', body: JSON.stringify(remForm) }, token);
-        setReminders(prev => prev.map(r => r.id === editReminder.id ? { ...r, ...remForm } : r));
       } else {
-        const newRem = await apiFetch('/api/reminders', { method: 'POST', body: JSON.stringify(remForm) }, token);
-        if (newRem && newRem.id) setReminders(prev => [...prev, newRem]);
+        await apiFetch('/api/reminders', { method: 'POST', body: JSON.stringify(remForm) }, token);
       }
-      clearApiCache(/dashboard/);
+      clearApiCache(); await fetchData();
       setShowReminderCRUD(false); setEditReminder(null);
     } catch {}
   };
@@ -219,9 +218,14 @@ export function BeneficiaryHome({ token, user }: { token: string; user: any }) {
   const deleteReminder = async (id: string) => {
     try {
       await apiFetch(`/api/reminders/${id}`, { method: 'DELETE' }, token);
-      clearApiCache(/dashboard/);
-      setReminders(prev => prev.filter(r => r.id !== id));
+      clearApiCache(); await fetchData();
     } catch {}
+  };
+
+  const onCrudDone = async (type: string) => {
+    clearApiCache();
+    await fetchData();
+    setRemKey(k => k + 1);
   };
 
   const handleSOS = async () => {
@@ -525,7 +529,7 @@ export function BeneficiaryHome({ token, user }: { token: string; user: any }) {
         </div>{/* end scroll container */}
 
         {/* ═══ POPUPS — outside scroll/content card to avoid stacking context ═══ */}
-        <ReminderCRUDPopup show={showReminderCRUD} editReminder={editReminder} setEditReminder={setEditReminder} onClose={() => { setShowReminderCRUD(false); setEditReminder(null); }} reminders={reminders} reminderMeta={reminderMeta} token={token} fetchData={fetchData} deleteReminder={deleteReminder} setReminders={setReminders} />
+        <ReminderCRUDPopup key={remKey} show={showReminderCRUD} editReminder={editReminder} setEditReminder={setEditReminder} onClose={() => { setShowReminderCRUD(false); setEditReminder(null); }} reminders={reminders} reminderMeta={reminderMeta} token={token} fetchData={fetchData} deleteReminder={deleteReminder} setReminders={setReminders} onCrudDone={onCrudDone} />
         <ReminderNotifPopup reminderNotif={reminderNotif} setReminderNotif={setReminderNotif} reminderMeta={reminderMeta} token={token} fetchData={fetchData} />
         <AddGuardianPopup show={showAddGuardianPopup} onClose={() => { setShowAddGuardianPopup(false); setInviteGuardPhone(""); setInviteGuardRelationship(""); setInviteGuardMsg(""); }} phone={inviteGuardPhone} setPhone={setInviteGuardPhone} relationship={inviteGuardRelationship} setRelationship={setInviteGuardRelationship} msg={inviteGuardMsg} setMsg={setInviteGuardMsg} loading={inviteGuardLoading} setLoading={setInviteGuardLoading} token={token} fetchData={fetchData} />
         <CheckinPopup show={showCheckin} onClose={() => setShowCheckin(false)} activeProgram={activeProgram} mood={checkinMood} setMood={setCheckinMood} note={checkinNote} setNote={setCheckinNote} sending={checkinSending} setSending={setCheckinSending} feedback={checkinFeedback} setFeedback={setCheckinFeedback} token={token} fetchData={fetchData} />

@@ -30,8 +30,9 @@ function getTTL(endpoint: string): number {
 }
 
 export function clearApiCache(pattern?: RegExp) {
-  if (!pattern) { cache.clear(); return; }
+  if (!pattern) { cache.clear(); inflight.clear(); return; }
   for (const key of cache.keys()) { if (pattern.test(key)) cache.delete(key); }
+  for (const key of inflight.keys()) { if (pattern.test(key)) inflight.delete(key); }
 }
 
 export const apiFetch = async (
@@ -90,7 +91,7 @@ async function _doFetch(endpoint: string, options: RequestInit, token?: string |
     headers['Authorization'] = `Bearer ${token}`;
   }
   try {
-    const response = await fetch(`${API_URL}${endpoint}`, { ...options, headers });
+    const response = await fetch(`${API_URL}${endpoint}`, { ...options, headers, cache: 'no-store' } as any);
     if (!response.ok) {
       const error = await response.json().catch(() => ({ detail: `Erreur ${response.status}` }));
       throw new Error(error.detail || `Erreur ${response.status}`);
