@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Platform } from 'react-native';
 import { useRouter } from 'expo-router';
-import { apiFetch } from '../../services/api';
+import { apiFetch, clearApiCache } from '../../services/api';
 import { REMINDER_IMAGES } from './constants';
 import { PhoneInputWithPrefix } from '../PhoneInputWithPrefix';
 
@@ -136,10 +136,38 @@ export function LanguagePopup({ show, onClose, lang, setLang }: any) {
 
 /* ─── REMINDER CRUD POPUP ─── */
 export function ReminderCRUDPopup({ show, editReminder, setEditReminder, onClose, reminders, reminderMeta, token, fetchData, deleteReminder, setReminders, onCrudDone }: any) {
+  // Local state: the popup owns its own copy of reminders for instant UI updates
+  const [localReminders, setLocalReminders] = useState<any[]>(reminders || []);
+  const mountedRef = useRef(true);
+
+  // Sync from parent props whenever they change (background refresh, initial load)
+  useEffect(() => {
+    setLocalReminders(reminders || []);
+  }, [reminders]);
+
+  useEffect(() => {
+    mountedRef.current = true;
+    return () => { mountedRef.current = false; };
+  }, []);
+
+  // Direct fetch: the popup refreshes its own data, bypassing parent render timing
+  const refreshLocal = async () => {
+    try {
+      clearApiCache();
+      const batch = await apiFetch('/api/dashboard/batch', {}, token);
+      if (batch && mountedRef.current) {
+        const fresh = Array.isArray(batch.reminders) ? batch.reminders : [];
+        setLocalReminders(fresh);
+        // Also sync parent state in background (no dependency on this for UI)
+        if (setReminders) setReminders(fresh);
+      }
+    } catch {}
+  };
+
   if (!show || !editReminder) return null;
   const popupType = editReminder._type || 'hydration';
   const meta = reminderMeta[popupType] || reminderMeta.hydration;
-  const typeRems = reminders.filter((r: any) => r.reminder_type === popupType);
+  const typeRems = localReminders.filter((r: any) => r.reminder_type === popupType);
   const editingId = editReminder._editingId || null;
   const editingData = editReminder._editingData || null;
   const colors: Record<string, string> = { hydration: '#38BDF8', medication: '#F59E0B', alarm: '#EF4444' };
@@ -155,12 +183,12 @@ export function ReminderCRUDPopup({ show, editReminder, setEditReminder, onClose
 
         {/* Close button */}
         <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 8 } as any}>
-          <div onClick={onClose} style={{ width: 36, height: 36, borderRadius: 10, background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}>
+          <div data-testid="reminder-popup-close" onClick={onClose} style={{ width: 36, height: 36, borderRadius: 10, background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}>
             <i className="ri-close-line" style={{ fontSize: 18, color: 'rgba(255,255,255,0.6)' }} />
           </div>
         </div>
 
-        {/* Big image, no title */}
+        {/* Big image */}
         <div style={{ textAlign: 'center', marginBottom: 20 } as any}>
           <img src={meta.img} alt="" style={{ width: 160, height: 160, objectFit: 'contain', margin: '0 auto', display: 'block', filter: 'drop-shadow(0 12px 32px rgba(0,0,0,0.4))' } as any} />
         </div>
@@ -169,7 +197,7 @@ export function ReminderCRUDPopup({ show, editReminder, setEditReminder, onClose
         {editingId ? (
           <div style={{ borderRadius: 20, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', overflow: 'hidden' } as any}>
 
-            {/* Scroll time picker — transparent, no bg on digits */}
+            {/* Scroll time picker */}
             <div style={{ padding: '20px', borderBottom: '1px solid rgba(255,255,255,0.06)' } as any}>
               <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 14, textAlign: 'center' }}>Heure du rappel</div>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 } as any}>
@@ -185,7 +213,7 @@ export function ReminderCRUDPopup({ show, editReminder, setEditReminder, onClose
                   </div>
                 </div>
                 <span style={{ fontSize: 36, fontWeight: 900, color: 'rgba(255,255,255,0.15)' }}>:</span>
-                {/* Minutes scroll — every minute */}
+                {/* Minutes scroll */}
                 <div style={{ width: 70, height: 150, overflow: 'hidden', position: 'relative', borderRadius: 14 } as any}>
                   <div style={{ position: 'absolute', top: '50%', left: 0, right: 0, height: 44, marginTop: -22, borderTop: `1px solid ${accent}40`, borderBottom: `1px solid ${accent}40`, zIndex: 1, pointerEvents: 'none' } as any} />
                   <div data-testid="minute-scroll" style={{ height: '100%', overflowY: 'scroll', scrollSnapType: 'y mandatory', scrollbarWidth: 'none', position: 'relative', zIndex: 3, paddingTop: 53, paddingBottom: 53 } as any}
@@ -218,10 +246,15 @@ export function ReminderCRUDPopup({ show, editReminder, setEditReminder, onClose
 
             {/* Actions */}
             <div style={{ padding: '16px 20px', display: 'flex', gap: 10 } as any}>
-              <div onClick={async () => {
+              <div data-testid="save-reminder-btn" onClick={async () => {
                 const r = typeRems.find((r: any) => r.id === editingId);
                 if (!r) return;
-                try { await apiFetch(`/api/reminders/${r.id}`, { method: 'PUT', body: JSON.stringify({ ...editingData, reminder_type: popupType, title: editingData.notes || meta.label }) }, token); setEditReminder({ ...editReminder, _editingId: null, _editingData: null }); await onCrudDone(popupType); } catch {}
+                try {
+                  await apiFetch(`/api/reminders/${r.id}`, { method: 'PUT', body: JSON.stringify({ ...editingData, reminder_type: popupType, title: editingData.notes || meta.label }) }, token);
+                  setEditReminder({ ...editReminder, _editingId: null, _editingData: null });
+                  await refreshLocal();
+                  if (onCrudDone) onCrudDone(popupType);
+                } catch {}
               }} style={{ flex: 1, padding: '14px', borderRadius: 999, background: accent, cursor: 'pointer', textAlign: 'center', fontSize: 14, fontWeight: 800, color: '#FFF' } as any}>Sauvegarder</div>
               <div onClick={() => setEditReminder({ ...editReminder, _editingId: null, _editingData: null })} style={{ padding: '14px 20px', borderRadius: 999, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', cursor: 'pointer', fontSize: 14, fontWeight: 700, color: 'rgba(255,255,255,0.4)' } as any}>Annuler</div>
             </div>
@@ -232,18 +265,35 @@ export function ReminderCRUDPopup({ show, editReminder, setEditReminder, onClose
             {typeRems.map((r: any) => {
               const daysStr = (!r.days || r.days.length === 0 || r.days.length === 7) ? 'Tous les jours' : r.days.join(', ').toUpperCase();
               return (
-                <div key={r.id} style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '14px 16px', borderRadius: 16, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', marginBottom: 8 } as any}>
+                <div key={r.id} data-testid={`reminder-item-${r.id}`} style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '14px 16px', borderRadius: 16, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', marginBottom: 8 } as any}>
                   {/* Time + info — click to edit */}
                   <div onClick={() => setEditReminder({ ...editReminder, _editingId: r.id, _editingData: { time: r.time, notes: r.notes || '', days: r.days || ['lun','mar','mer','jeu','ven','sam','dim'] } })} style={{ flex: 1, cursor: 'pointer' } as any}>
                     <div style={{ fontSize: 24, fontWeight: 900, color: r.active ? '#FFF' : 'rgba(255,255,255,0.25)' }}>{r.time}</div>
                     <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)', marginTop: 2 }}>{daysStr}{r.notes ? ` · ${r.notes}` : ''}</div>
                   </div>
                   {/* Toggle */}
-                  <div onClick={async () => { try { await apiFetch(`/api/reminders/${r.id}/toggle`, { method: 'PUT' }, token); await onCrudDone(popupType); } catch {} }} style={{ width: 48, height: 26, borderRadius: 13, background: r.active ? `${accent}40` : 'rgba(255,255,255,0.08)', border: `1px solid ${r.active ? accent : 'rgba(255,255,255,0.12)'}`, cursor: 'pointer', position: 'relative', flexShrink: 0, transition: 'all 0.2s' } as any}>
+                  <div data-testid={`toggle-reminder-${r.id}`} onClick={async () => {
+                    // Optimistic toggle
+                    setLocalReminders(prev => prev.map(rem => rem.id === r.id ? { ...rem, active: !rem.active } : rem));
+                    try {
+                      await apiFetch(`/api/reminders/${r.id}/toggle`, { method: 'PUT' }, token);
+                      await refreshLocal();
+                      if (onCrudDone) onCrudDone(popupType);
+                    } catch { await refreshLocal(); }
+                  }} style={{ width: 48, height: 26, borderRadius: 13, background: r.active ? `${accent}40` : 'rgba(255,255,255,0.08)', border: `1px solid ${r.active ? accent : 'rgba(255,255,255,0.12)'}`, cursor: 'pointer', position: 'relative', flexShrink: 0, transition: 'all 0.2s' } as any}>
                     <div style={{ width: 20, height: 20, borderRadius: 10, background: r.active ? accent : 'rgba(255,255,255,0.3)', position: 'absolute', top: 2, left: r.active ? 24 : 2, transition: 'left 0.2s' } as any} />
                   </div>
                   {/* Delete */}
-                  <div onClick={async () => { await deleteReminder(r.id); await onCrudDone(popupType); }} style={{ cursor: 'pointer', padding: '6px' } as any}>
+                  <div data-testid={`delete-reminder-${r.id}`} onClick={async () => {
+                    // Optimistic delete: remove from local immediately
+                    setLocalReminders(prev => prev.filter(rem => rem.id !== r.id));
+                    try {
+                      await apiFetch(`/api/reminders/${r.id}`, { method: 'DELETE' }, token);
+                      clearApiCache();
+                      await refreshLocal();
+                      if (onCrudDone) onCrudDone(popupType);
+                    } catch { await refreshLocal(); }
+                  }} style={{ cursor: 'pointer', padding: '6px' } as any}>
                     <i className="ri-delete-bin-line" style={{ fontSize: 16, color: 'rgba(239,68,68,0.4)' }} />
                   </div>
                 </div>
@@ -259,7 +309,14 @@ export function ReminderCRUDPopup({ show, editReminder, setEditReminder, onClose
             )}
 
             {/* Add button */}
-            <div onClick={async () => { try { await apiFetch('/api/reminders', { method: 'POST', body: JSON.stringify({ reminder_type: popupType, title: meta.label, time: '08:00', days: ['lun','mar','mer','jeu','ven','sam','dim'], notes: '', active: true }) }, token); await onCrudDone(popupType); } catch (err: any) { console.error('[REM] Error adding reminder:', err?.message || err); } }} style={{ padding: '14px', borderRadius: 999, background: `${accent}15`, border: `1px solid ${accent}30`, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, marginTop: 4, transition: 'background 0.15s' } as any}
+            <div data-testid="add-reminder-btn" onClick={async () => {
+              try {
+                await apiFetch('/api/reminders', { method: 'POST', body: JSON.stringify({ reminder_type: popupType, title: meta.label, time: '08:00', days: ['lun','mar','mer','jeu','ven','sam','dim'], notes: '', active: true }) }, token);
+                // Directly refresh local state — no dependency on parent re-render
+                await refreshLocal();
+                if (onCrudDone) onCrudDone(popupType);
+              } catch (err: any) { console.error('[REM] Error adding reminder:', err?.message || err); }
+            }} style={{ padding: '14px', borderRadius: 999, background: `${accent}15`, border: `1px solid ${accent}30`, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, marginTop: 4, transition: 'background 0.15s' } as any}
               onMouseEnter={(e: any) => { e.currentTarget.style.background = `${accent}25`; }}
               onMouseLeave={(e: any) => { e.currentTarget.style.background = `${accent}15`; }}>
               <i className="ri-add-line" style={{ fontSize: 18, color: accent }} />
