@@ -356,7 +356,14 @@ async def update_payment_config(data: PaymentConfigUpdate, user=Depends(get_curr
         "bic": data.bic.replace(' ', '').upper(),
         "iban_updated_at": datetime.now(timezone.utc).isoformat(),
     }})
-    return {"status": "ok", "iban_configured": True}
+    # Send SMS confirmation
+    cu = await db.users.find_one({"id": user['id']}, {"_id": 0})
+    phone = cu.get('phone', '')
+    if phone:
+        from services.smsmode_service import send_sms
+        masked = iban[:4] + '****' + iban[-4:]
+        await send_sms(phone, f"CHUTEX - Votre IBAN {masked} a ete enregistre avec succes. Vos revenus seront verses sur ce compte.")
+    return {"status": "ok", "iban_configured": True, "sms_sent": bool(phone)}
 
 # Simulate payment for testing (since Mollie test mode needs browser redirect)
 @router.post("/pro/subscriptions/{subscription_id}/simulate-payment")

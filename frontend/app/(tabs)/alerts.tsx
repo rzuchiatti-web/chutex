@@ -746,6 +746,7 @@ function ProMessaging({ token, user }: { token: string; user: any }) {
   const [messages, setMessages] = useState<any[]>([]);
   const [newMsg, setNewMsg] = useState('');
   const [sending, setSending] = useState(false);
+  const [msgTab, setMsgTab] = useState<'conversations' | 'history'>('conversations');
   const [loading, setLoading] = useState(true);
   const msgEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -805,17 +806,33 @@ function ProMessaging({ token, user }: { token: string; user: any }) {
       {!activeConvo ? (
         /* CONVERSATION LIST VIEW */
         <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' } as any}>
-          {/* Header */}
+          {/* Header - centré vertical */}
           <div style={{ position: 'relative', zIndex: 1, flexShrink: 0 } as any}>
             <img src={BG_IMAGE} alt="" style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 } as any} />
-            <div style={{ position: 'relative', zIndex: 2, padding: '22px 20px 32px' } as any}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 12 } as any}>
-                <div style={{ width: 44, height: 44, borderRadius: 22, background: 'rgba(255,255,255,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}>
-                  <i className="ri-chat-3-fill" style={{ fontSize: 22, color: '#FFF' }} />
+            <div style={{ position: 'relative', zIndex: 2, padding: '28px 20px 36px', display: 'flex', flexDirection: 'column', alignItems: 'center' } as any}>
+              <div style={{ width: 48, height: 48, borderRadius: 16, background: 'rgba(255,255,255,0.15)', backdropFilter: 'blur(8px)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 12, border: '1px solid rgba(255,255,255,0.2)' } as any}>
+                <i className="ri-chat-3-fill" style={{ fontSize: 22, color: '#FFF' }} />
+              </div>
+              <div style={{ fontSize: 26, fontWeight: 900, color: '#FFF', letterSpacing: -0.5, marginBottom: 4 }}>Messagerie</div>
+              <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.55)', marginBottom: 18 }}>{conversations.length} conversation{conversations.length !== 1 ? 's' : ''}</div>
+
+              {/* Pill tabs Conversations / Historique */}
+              <div data-testid="msg-tabs" style={{ display: 'inline-flex', borderRadius: 999, background: 'rgba(0,0,0,0.2)', padding: 3, gap: 3 } as any}>
+                <div data-testid="msg-tab-convos" onClick={() => setMsgTab('conversations')}
+                  style={{ padding: '9px 24px', borderRadius: 999, cursor: 'pointer', fontSize: 13, fontWeight: 700, transition: 'all 0.2s',
+                    background: msgTab === 'conversations' ? '#FFF' : 'transparent',
+                    color: msgTab === 'conversations' ? '#111' : 'rgba(255,255,255,0.55)',
+                    boxShadow: msgTab === 'conversations' ? '0 2px 8px rgba(0,0,0,0.1)' : 'none',
+                  } as any}>
+                  Conversations
                 </div>
-                <div>
-                  <div style={{ fontSize: 18, fontWeight: 800, color: '#FFF', letterSpacing: -0.5 }}>Messagerie</div>
-                  <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.6)', fontWeight: 500 }}>{conversations.length} conversation{conversations.length !== 1 ? 's' : ''}</div>
+                <div data-testid="msg-tab-history" onClick={() => setMsgTab('history')}
+                  style={{ padding: '9px 24px', borderRadius: 999, cursor: 'pointer', fontSize: 13, fontWeight: 700, transition: 'all 0.2s',
+                    background: msgTab === 'history' ? '#FFF' : 'transparent',
+                    color: msgTab === 'history' ? '#111' : 'rgba(255,255,255,0.55)',
+                    boxShadow: msgTab === 'history' ? '0 2px 8px rgba(0,0,0,0.1)' : 'none',
+                  } as any}>
+                  Historique
                 </div>
               </div>
             </div>
@@ -823,6 +840,17 @@ function ProMessaging({ token, user }: { token: string; user: any }) {
 
           {/* Content card with rounded top */}
           <div data-testid="convo-list" style={{ flex: 1, overflowY: 'auto', marginTop: -16, borderRadius: '24px 24px 0 0', background: '#FFF', position: 'relative', zIndex: 10, borderTop: '1px solid rgba(0,0,0,0.08)', padding: '20px 16px 80px' } as any}>
+
+          {msgTab === 'history' ? (
+            <div style={{ textAlign: 'center', padding: '60px 20px' } as any}>
+              <div style={{ width: 64, height: 64, borderRadius: '50%', background: 'rgba(0,0,0,0.04)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px' } as any}>
+                <i className="ri-history-line" style={{ fontSize: 28, color: '#9CA3AF' }} />
+              </div>
+              <div style={{ fontSize: 16, fontWeight: 700, color: '#111', marginBottom: 6 }}>Historique des conversations</div>
+              <div style={{ fontSize: 13, color: '#6B7280', lineHeight: 1.5 }}>Les conversations archivees apparaitront ici.</div>
+            </div>
+          ) : (
+            <>
           {conversations.length === 0 ? (
             <div style={{ textAlign: 'center', padding: '60px 20px' } as any}>
               <div style={{ width: 64, height: 64, borderRadius: '50%', background: 'rgba(0,0,0,0.04)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px' } as any}>
@@ -862,6 +890,8 @@ function ProMessaging({ token, user }: { token: string; user: any }) {
                 </div>
               );
             })
+          )}
+            </>
           )}
           </div>
         </div>
