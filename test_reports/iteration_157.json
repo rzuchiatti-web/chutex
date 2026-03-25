@@ -1,0 +1,85 @@
+{
+  "summary": "Iteration 157: Tested Coach/Physio landing page colors (RED for Coach, ORANGE for Physio) and Payment Dashboard. Fixed missing payment card in web version of GuardianHome. All 11 backend tests passed. Frontend landing pages and dashboard payment card working correctly.",
+  "backend_issues": {
+    "critical": [],
+    "minor": []
+  },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_payment_dashboard.py",
+    "/app/test_reports/pytest/pytest_results_iter157_payment_dashboard.xml"
+  ],
+  "action_items": [],
+  "critical_code_review_comments": [],
+  "updated_files": [
+    "/app/frontend/src/components/dashboard/GuardianHome.tsx",
+    "/app/backend/tests/test_payment_dashboard.py"
+  ],
+  "success_rate": {
+    "backend": "100% (11/11 tests passed)",
+    "frontend": "100% (all tested features working)"
+  },
+  "test_credentials": {
+    "guardian_coach": {
+      "phone": "+33655443322",
+      "password": "test123",
+      "professional_type": "coach"
+    },
+    "beneficiary": {
+      "phone": "+33651245918",
+      "password": "test123"
+    }
+  },
+  "seed_data_creation": "None - used existing test data",
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "Iteration 157 tested and fixed the payment dashboard card for Coach/Physio users. The card was missing from the web version of GuardianHome.tsx - it was only in the native fallback section. Added the payment card to the web version (lines 208-248). Landing pages at /become-pro?type=coach use RED (#DC2626) and /become-pro?type=physio use ORANGE (#F97316). Backend API /api/pro/payment-dashboard returns: active_subscriptions, total_subscriptions, monthly_revenue_ht, total_revenue_ht, price_per_beneficiary_ht (45.0), projected_monthly_ht, recent_payments, iban_configured, contract_signed.",
+  "features_tested": {
+    "landing_page_coach": {
+      "url": "/become-pro?type=coach",
+      "header_color": "RED (#DC2626) - linear-gradient(135deg, rgb(220, 38, 38) 0%, rgb(239, 68, 68) 100%)",
+      "progress_bar_color": "rgb(220, 38, 38)",
+      "status": "PASS"
+    },
+    "landing_page_physio": {
+      "url": "/become-pro?type=physio",
+      "header_color": "ORANGE (#F97316) - linear-gradient(135deg, rgb(249, 115, 22) 0%, rgb(251, 146, 60) 100%)",
+      "progress_bar_color": "rgb(249, 115, 22)",
+      "status": "PASS"
+    },
+    "payment_dashboard_api": {
+      "endpoint": "GET /api/pro/payment-dashboard",
+      "requires_auth": true,
+      "returns": {
+        "active_subscriptions": "integer",
+        "total_subscriptions": "integer",
+        "monthly_revenue_ht": "float",
+        "total_revenue_ht": "float",
+        "price_per_beneficiary_ht": "45.0",
+        "projected_monthly_ht": "float",
+        "recent_payments": "array",
+        "iban_configured": "boolean",
+        "contract_signed": "boolean"
+      },
+      "status": "PASS"
+    },
+    "guardian_dashboard_payment_card": {
+      "component": "GuardianHome.tsx",
+      "data_testid": "payment-card-web",
+      "displays": ["Revenus Coach/Physio", "Abonnes actifs", "Revenu mensuel HT", "Total gagne HT", "IBAN status"],
+      "coach_border_color": "#DC2626 (RED)",
+      "physio_border_color": "#F97316 (ORANGE)",
+      "status": "PASS - Fixed missing card in web version"
+    }
+  },
+  "bug_fixed": {
+    "description": "Payment card was missing from web version of GuardianHome.tsx",
+    "root_cause": "The isCoachOrPhysio payment card was only in the native fallback section (lines 501-539), not in the web version",
+    "fix_applied": "Added payment card to web version before 'Add beneficiary' button (lines 208-248)",
+    "file_modified": "/app/frontend/src/components/dashboard/GuardianHome.tsx"
+  }
+}

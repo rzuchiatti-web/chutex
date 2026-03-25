@@ -50,6 +50,10 @@ export default function GuardianHome({ token, user }: { token: string; user: any
       setPendingInterventions(Array.isArray(piv) ? piv : []);
       setSaadInvitations(Array.isArray(saadInv) ? saadInv : []);
       setSaadLink(saadLk || null);
+      // Fetch payment dashboard for coach/physio
+      if (user?.professional_type === 'coach' || user?.professional_type === 'physio') {
+        apiFetch('/api/pro/payment-dashboard', {}, token).then(d => setPaymentDash(d)).catch(() => {});
+      }
     } catch {} finally { setLoading(false); setRefreshing(false); }
   }, [token]);
 
@@ -79,6 +83,8 @@ export default function GuardianHome({ token, user }: { token: string; user: any
   const [linkRelationship, setLinkRelationship] = useState('');
   const [linkingBen, setLinkingBen] = useState(false);
   const [linkMessage, setLinkMessage] = useState('');
+  const [paymentDash, setPaymentDash] = useState<any>(null);
+  const isCoachOrPhysio = user?.professional_type === 'coach' || user?.professional_type === 'physio';
   const [isDark, setIsDark] = React.useState(() => {
     if (typeof localStorage !== 'undefined') return localStorage.getItem('chutex_dark') === '1';
     return false;
@@ -200,6 +206,47 @@ export default function GuardianHome({ token, user }: { token: string; user: any
               </div>
             ))}
             {bens.length === 0 && <div style={{ textAlign: 'center', padding: '30px', borderRadius: 20, background: cardBg, marginBottom: 10 } as any}><i className="ri-group-line" style={{ fontSize: 36, color: subColor }} /><div style={{ fontSize: 15, fontWeight: 700, color: textColor, marginTop: 10 }}>Aucun beneficiaire</div></div>}
+
+            {/* Payment Dashboard Card for Coach/Physio - WEB VERSION */}
+            {isCoachOrPhysio && (
+              <div data-testid="payment-card-web" style={{ borderRadius: 18, background: cardBg, marginBottom: 16, padding: 18, borderLeft: `4px solid ${user?.professional_type === 'coach' ? '#DC2626' : '#F97316'}` } as any}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 14 } as any}>
+                  <div style={{ width: 40, height: 40, borderRadius: 12, background: user?.professional_type === 'coach' ? 'rgba(220,38,38,0.1)' : 'rgba(249,115,22,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}>
+                    <i className="ri-wallet-3-line" style={{ fontSize: 20, color: user?.professional_type === 'coach' ? '#DC2626' : '#F97316' }} />
+                  </div>
+                  <div style={{ flex: 1 } as any}>
+                    <div style={{ fontSize: 12, fontWeight: 700, color: user?.professional_type === 'coach' ? '#DC2626' : '#F97316', textTransform: 'uppercase', letterSpacing: 1 }}>
+                      {user?.professional_type === 'coach' ? 'Revenus Coach' : 'Revenus Physio'}
+                    </div>
+                  </div>
+                  <i className="ri-arrow-right-s-line" style={{ fontSize: 18, color: subColor }} />
+                </div>
+                <div style={{ display: 'flex', gap: 12, marginBottom: 14 } as any}>
+                  <div style={{ flex: 1, background: isDark ? 'rgba(255,255,255,0.05)' : '#F9FAFB', borderRadius: 12, padding: 12, textAlign: 'center' } as any}>
+                    <div style={{ fontSize: 22, fontWeight: 900, color: textColor }}>{paymentDash?.active_subscriptions || 0}</div>
+                    <div style={{ fontSize: 10, color: subColor, marginTop: 2 }}>Abonnes actifs</div>
+                  </div>
+                  <div style={{ flex: 1, background: isDark ? 'rgba(255,255,255,0.05)' : '#F9FAFB', borderRadius: 12, padding: 12, textAlign: 'center' } as any}>
+                    <div style={{ fontSize: 22, fontWeight: 900, color: textColor }}>{paymentDash?.projected_monthly_ht || 0} €</div>
+                    <div style={{ fontSize: 10, color: subColor, marginTop: 2 }}>Revenu mensuel HT</div>
+                  </div>
+                  <div style={{ flex: 1, background: isDark ? 'rgba(255,255,255,0.05)' : '#F9FAFB', borderRadius: 12, padding: 12, textAlign: 'center' } as any}>
+                    <div style={{ fontSize: 22, fontWeight: 900, color: '#10B981' }}>{paymentDash?.total_revenue_ht || 0} €</div>
+                    <div style={{ fontSize: 10, color: subColor, marginTop: 2 }}>Total gagne HT</div>
+                  </div>
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingTop: 12, borderTop: `1px solid ${sepColor}` } as any}>
+                  <span style={{ fontSize: 11, color: subColor }}>45 € HT / beneficiaire / mois</span>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 6 } as any}>
+                    <span style={{ width: 6, height: 6, borderRadius: 3, background: paymentDash?.iban_configured ? '#10B981' : '#F59E0B' } as any} />
+                    <span style={{ fontSize: 11, fontWeight: 600, color: paymentDash?.iban_configured ? '#10B981' : '#F59E0B' }}>
+                      {paymentDash?.iban_configured ? 'IBAN configure' : 'IBAN non configure'}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            )}
+
             <div onClick={() => setShowAddBenPopup(true)} style={{ marginTop: 14, padding: '16px', borderRadius: 999, textAlign: 'center', cursor: 'pointer', background: isDark ? '#FFF' : '#000', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10, transition: 'opacity 0.15s' } as any}
               onMouseEnter={(e: any) => { e.currentTarget.style.opacity = '0.85'; }}
               onMouseLeave={(e: any) => { e.currentTarget.style.opacity = '1'; }}>
@@ -491,6 +538,46 @@ export default function GuardianHome({ token, user }: { token: string; user: any
           </View>
         </Card>
       ))}
+
+      {/* Payment Dashboard Card for Coach/Physio */}
+      {isCoachOrPhysio && (
+        <Card style={{ borderLeftWidth: 3, borderLeftColor: user?.professional_type === 'coach' ? '#DC2626' : '#F97316', padding: 18 }}>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 12 }}>
+            <View style={{ width: 36, height: 36, borderRadius: 12, backgroundColor: user?.professional_type === 'coach' ? 'rgba(220,38,38,0.08)' : 'rgba(249,115,22,0.08)', justifyContent: 'center', alignItems: 'center' }}>
+              <Icon name="wallet-outline" size={18} color={user?.professional_type === 'coach' ? '#DC2626' : '#F97316'} />
+            </View>
+            <View style={{ flex: 1 }}>
+              <Text style={{ fontSize: 11, fontWeight: '700', color: user?.professional_type === 'coach' ? '#DC2626' : '#F97316', textTransform: 'uppercase', letterSpacing: 1 }}>
+                {user?.professional_type === 'coach' ? 'Revenus Coach' : 'Revenus Physio'}
+              </Text>
+            </View>
+            <Icon name="chevron-forward" size={16} color="#9CA3AF" />
+          </View>
+          <View style={{ flexDirection: 'row', gap: 16, marginBottom: 12 }}>
+            <View style={{ flex: 1, backgroundColor: '#F9FAFB', borderRadius: 12, padding: 12, alignItems: 'center' }}>
+              <Text style={{ fontSize: 20, fontWeight: '900', color: '#111827' }}>{paymentDash?.active_subscriptions || 0}</Text>
+              <Text style={{ fontSize: 10, color: '#6B7280', marginTop: 2 }}>Abonnes actifs</Text>
+            </View>
+            <View style={{ flex: 1, backgroundColor: '#F9FAFB', borderRadius: 12, padding: 12, alignItems: 'center' }}>
+              <Text style={{ fontSize: 20, fontWeight: '900', color: '#111827' }}>{paymentDash?.projected_monthly_ht || 0} EUR</Text>
+              <Text style={{ fontSize: 10, color: '#6B7280', marginTop: 2 }}>Revenu mensuel HT</Text>
+            </View>
+            <View style={{ flex: 1, backgroundColor: '#F9FAFB', borderRadius: 12, padding: 12, alignItems: 'center' }}>
+              <Text style={{ fontSize: 20, fontWeight: '900', color: '#10B981' }}>{paymentDash?.total_revenue_ht || 0} EUR</Text>
+              <Text style={{ fontSize: 10, color: '#6B7280', marginTop: 2 }}>Total gagne HT</Text>
+            </View>
+          </View>
+          <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingTop: 10, borderTopWidth: 1, borderTopColor: '#F3F4F6' }}>
+            <Text style={{ fontSize: 11, color: '#6B7280' }}>45 EUR HT / beneficiaire / mois</Text>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
+              <View style={{ width: 6, height: 6, borderRadius: 3, backgroundColor: paymentDash?.iban_configured ? '#10B981' : '#F59E0B' }} />
+              <Text style={{ fontSize: 11, fontWeight: '600', color: paymentDash?.iban_configured ? '#10B981' : '#F59E0B' }}>
+                {paymentDash?.iban_configured ? 'IBAN configure' : 'IBAN non configure'}
+              </Text>
+            </View>
+          </View>
+        </Card>
+      )}
 
       {/* Beneficiary Cards */}
       <SectionHeader title="Mes beneficiaires" />
