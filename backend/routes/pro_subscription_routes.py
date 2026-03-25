@@ -282,6 +282,40 @@ async def get_payment_history(user=Depends(get_current_user)):
     ).sort("date", -1).to_list(50)
     return payments
 
+@router.get("/pro/payment-dashboard")
+async def get_payment_dashboard(user=Depends(get_current_user)):
+    """Pro gets their payment dashboard summary: earnings, active subs, payment config"""
+    require_pro(user)
+    uid = user['id']
+    active_subs = await db.pro_subscriptions.find(
+        {"professional_id": uid, "status": "active"}, {"_id": 0}
+    ).to_list(100)
+    all_subs = await db.pro_subscriptions.find(
+        {"professional_id": uid}, {"_id": 0}
+    ).to_list(200)
+    payments = await db.payment_history.find(
+        {"professional_id": uid, "status": "paid"}, {"_id": 0}
+    ).sort("date", -1).to_list(100)
+
+    total_earned_ht = sum(p.get('amount_ht', 0) for p in payments)
+    current_month_payments = [p for p in payments if p.get('date', '').startswith(datetime.now(timezone.utc).strftime('%Y-%m'))]
+    monthly_earned_ht = sum(p.get('amount_ht', 0) for p in current_month_payments)
+
+    cu = await db.users.find_one({"id": uid}, {"_id": 0})
+    pro_app = await db.pro_applications.find_one({"phone": cu.get('phone', ''), "status": {"$in": ["activated", "approved"]}}, {"_id": 0})
+
+    return {
+        "active_subscriptions": len(active_subs),
+        "total_subscriptions": len(all_subs),
+        "monthly_revenue_ht": monthly_earned_ht,
+        "total_revenue_ht": total_earned_ht,
+        "price_per_beneficiary_ht": SUBSCRIPTION_PRICE_HT,
+        "projected_monthly_ht": len(active_subs) * SUBSCRIPTION_PRICE_HT,
+        "recent_payments": payments[:5],
+        "iban_configured": bool(cu.get('iban')),
+        "contract_signed": bool(pro_app),
+    }
+
 # Simulate payment for testing (since Mollie test mode needs browser redirect)
 @router.post("/pro/subscriptions/{subscription_id}/simulate-payment")
 async def simulate_payment(subscription_id: str, user=Depends(get_current_user)):

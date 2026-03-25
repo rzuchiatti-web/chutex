@@ -4,11 +4,12 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 
 const API = process.env.EXPO_PUBLIC_BACKEND_URL || '';
 
-const V = '#7C3AED';
-const C = { bg: '#FFFFFF', card: '#F4F4F5', border: '#E4E4E7', accent: V, green: '#059669', text: '#18181B', muted: '#71717A', light: '#A1A1AA', white: '#FFF', pill: 999, r: 16, font: "'Inter', system-ui, sans-serif" };
+const COACH_COLOR = '#DC2626';
+const PHYSIO_COLOR = '#F97316';
+const C = { bg: '#FFFFFF', card: '#F4F4F5', border: '#E4E4E7', text: '#18181B', muted: '#71717A', light: '#A1A1AA', white: '#FFF', pill: 999, r: 16, font: "'Inter', system-ui, sans-serif" };
 const inp: any = { width: '100%', padding: '13px 16px', borderRadius: 12, background: '#FFF', border: `1.5px solid ${C.border}`, color: C.text, fontSize: 15, fontFamily: C.font, boxSizing: 'border-box', outline: 'none', transition: 'border-color 0.2s' };
 const lbl: any = { fontSize: 11, fontWeight: 700, color: C.muted, marginBottom: 5, display: 'block', letterSpacing: 0.8, textTransform: 'uppercase' };
-const req: any = { color: V, marginLeft: 2 };
+const req: any = { color: COACH_COLOR, marginLeft: 2 };
 const sel: any = { ...inp, appearance: 'none', WebkitAppearance: 'none', backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%2371717A' viewBox='0 0 16 16'%3E%3Cpath d='M8 11L3 6h10z'/%3E%3C/svg%3E")`, backgroundRepeat: 'no-repeat', backgroundPosition: 'right 14px center' };
 
 const SITUATIONS = ['Independant / Liberal', 'Salarie en salle de sport', 'Salarie en clinique', 'Auto-entrepreneur', 'Autre'];
@@ -52,6 +53,9 @@ export default function BecomeProPage() {
     ? 'Rejoignez le reseau Chutex et accompagnez les beneficiaires dans leur reeducation physique.'
     : 'Rejoignez le reseau Chutex et accompagnez les beneficiaires dans leur activite sportive.';
   const SPECS = isPhysio ? SPECIALISATIONS_PHYSIO : SPECIALISATIONS_COACH;
+  const AC = isPhysio ? PHYSIO_COLOR : COACH_COLOR;
+  const AC_LIGHT = isPhysio ? '#FDBA74' : '#FCA5A5';
+  const AC_GRADIENT = isPhysio ? `linear-gradient(135deg, ${PHYSIO_COLOR} 0%, #FB923C 100%)` : `linear-gradient(135deg, ${COACH_COLOR} 0%, #EF4444 100%)`;
 
   const upd = (k: keyof ProFormData, v: any) => setForm({ ...form, [k]: v });
 
@@ -132,7 +136,7 @@ export default function BecomeProPage() {
     <div data-testid="become-pro-page" style={{ minHeight: '100vh', background: C.bg, fontFamily: C.font, display: 'flex', flexDirection: 'column', alignItems: 'center' } as any}>
 
       {/* Header */}
-      <div style={{ width: '100%', background: `linear-gradient(135deg, ${isPhysio ? '#059669' : V} 0%, ${isPhysio ? '#10B981' : '#8B5CF6'} 100%)`, padding: '40px 20px 50px', textAlign: 'center' } as any}>
+      <div style={{ width: '100%', background: AC_GRADIENT, padding: '40px 20px 50px', textAlign: 'center' } as any}>
         <div data-testid="pro-logo" onClick={() => router.push('/' as any)} style={{ cursor: 'pointer', marginBottom: 16 } as any}>
           <i className={isPhysio ? 'ri-stethoscope-line' : 'ri-run-line'} style={{ fontSize: 40, color: '#FFF' }} />
         </div>
@@ -149,7 +153,7 @@ export default function BecomeProPage() {
         <div style={{ width: '100%', maxWidth: 560, padding: '20px 24px 0' } as any}>
           <div style={{ display: 'flex', gap: 8, marginBottom: 6 } as any}>
             {STEPS.map((s, i) => (
-              <div key={i} style={{ flex: 1, height: 4, borderRadius: 2, background: step > i ? (isPhysio ? '#059669' : V) : C.border, transition: 'background 0.3s' } as any} />
+              <div key={i} style={{ flex: 1, height: 4, borderRadius: 2, background: step > i ? (AC) : C.border, transition: 'background 0.3s' } as any} />
             ))}
           </div>
           <div style={{ display: 'flex', justifyContent: 'space-between' } as any}>
@@ -201,7 +205,7 @@ export default function BecomeProPage() {
 
             <div data-testid="btn-next-1" onClick={canAdvance1 ? () => setStep(2) : undefined}
               style={{ padding: '16px', borderRadius: C.r, textAlign: 'center', cursor: canAdvance1 ? 'pointer' : 'default',
-                background: canAdvance1 ? (isPhysio ? '#059669' : V) : C.border, color: canAdvance1 ? '#FFF' : C.light,
+                background: canAdvance1 ? (AC) : C.border, color: canAdvance1 ? '#FFF' : C.light,
                 fontSize: 15, fontWeight: 800, marginTop: 8, transition: 'all 0.2s',
               } as any}>
               Continuer
@@ -269,7 +273,7 @@ export default function BecomeProPage() {
               <div onClick={() => setStep(1)} style={{ flex: 1, padding: '16px', borderRadius: C.r, textAlign: 'center', cursor: 'pointer', border: `1.5px solid ${C.border}`, color: C.text, fontSize: 15, fontWeight: 700 } as any}>Retour</div>
               <div data-testid="btn-next-2" onClick={canAdvance2 ? () => { setStep(3); fetchContract(); } : undefined}
                 style={{ flex: 2, padding: '16px', borderRadius: C.r, textAlign: 'center', cursor: canAdvance2 ? 'pointer' : 'default',
-                  background: canAdvance2 ? (isPhysio ? '#059669' : V) : C.border, color: canAdvance2 ? '#FFF' : C.light,
+                  background: canAdvance2 ? (AC) : C.border, color: canAdvance2 ? '#FFF' : C.light,
                   fontSize: 15, fontWeight: 800, transition: 'all 0.2s',
                 } as any}>
                 Continuer
@@ -292,8 +296,8 @@ export default function BecomeProPage() {
             </div>
 
             {/* Key terms highlight */}
-            <div style={{ background: `${isPhysio ? '#059669' : V}08`, borderRadius: C.r, padding: '16px', marginBottom: 20, border: `1px solid ${isPhysio ? '#059669' : V}20` } as any}>
-              <div style={{ fontSize: 13, fontWeight: 700, color: isPhysio ? '#059669' : V, marginBottom: 8 }}>Points cles du contrat</div>
+            <div style={{ background: `${AC}08`, borderRadius: C.r, padding: '16px', marginBottom: 20, border: `1px solid ${AC}20` } as any}>
+              <div style={{ fontSize: 13, fontWeight: 700, color: AC, marginBottom: 8 }}>Points cles du contrat</div>
               <div style={{ fontSize: 12, color: C.text, lineHeight: 1.6 }}>
                 - Remuneration : <strong>45 EUR HT / mois / beneficiaire actif</strong><br />
                 - Paiement mensuel par virement bancaire<br />
@@ -311,7 +315,7 @@ export default function BecomeProPage() {
 
             <div style={{ marginBottom: 16 }}>
               <label style={lbl}>Signature electronique<span style={req}>*</span></label>
-              <div style={{ border: `2px solid ${hasSignature ? (isPhysio ? '#059669' : V) : C.border}`, borderRadius: C.r, overflow: 'hidden', position: 'relative', background: '#FAFAFA', transition: 'border-color 0.2s' } as any}>
+              <div style={{ border: `2px solid ${hasSignature ? (AC) : C.border}`, borderRadius: C.r, overflow: 'hidden', position: 'relative', background: '#FAFAFA', transition: 'border-color 0.2s' } as any}>
                 <canvas ref={canvasRef} width={500} height={150}
                   onMouseDown={startDraw} onMouseMove={draw} onMouseUp={stopDraw} onMouseLeave={stopDraw}
                   style={{ width: '100%', height: 150, cursor: 'crosshair', display: 'block' } as any} />
@@ -322,7 +326,7 @@ export default function BecomeProPage() {
                 )}
               </div>
               {hasSignature && (
-                <div data-testid="clear-signature" onClick={clearSignature} style={{ fontSize: 11, color: V, cursor: 'pointer', marginTop: 6, fontWeight: 600 } as any}>
+                <div data-testid="clear-signature" onClick={clearSignature} style={{ fontSize: 11, color: AC, cursor: 'pointer', marginTop: 6, fontWeight: 600 } as any}>
                   Effacer la signature
                 </div>
               )}
@@ -330,9 +334,9 @@ export default function BecomeProPage() {
 
             {/* Checkbox accept */}
             <div onClick={() => setContractAccepted(!contractAccepted)}
-              style={{ display: 'flex', gap: 12, alignItems: 'flex-start', cursor: 'pointer', padding: '14px 16px', borderRadius: C.r, background: contractAccepted ? `${isPhysio ? '#059669' : V}06` : C.card, border: `1.5px solid ${contractAccepted ? (isPhysio ? '#059669' : V) : C.border}`, marginBottom: 20, transition: 'all 0.2s' } as any}>
+              style={{ display: 'flex', gap: 12, alignItems: 'flex-start', cursor: 'pointer', padding: '14px 16px', borderRadius: C.r, background: contractAccepted ? `${AC}06` : C.card, border: `1.5px solid ${contractAccepted ? (AC) : C.border}`, marginBottom: 20, transition: 'all 0.2s' } as any}>
               <div data-testid="checkbox-accept" style={{ width: 22, height: 22, borderRadius: 6, flexShrink: 0, marginTop: 1, display: 'flex', alignItems: 'center', justifyContent: 'center',
-                background: contractAccepted ? (isPhysio ? '#059669' : V) : '#FFF', border: `2px solid ${contractAccepted ? (isPhysio ? '#059669' : V) : C.border}`, transition: 'all 0.2s',
+                background: contractAccepted ? (AC) : '#FFF', border: `2px solid ${contractAccepted ? (AC) : C.border}`, transition: 'all 0.2s',
               } as any}>
                 {contractAccepted && <i className="ri-check-line" style={{ fontSize: 14, color: '#FFF' }} />}
               </div>
@@ -348,7 +352,7 @@ export default function BecomeProPage() {
               <div onClick={() => setStep(2)} style={{ flex: 1, padding: '16px', borderRadius: C.r, textAlign: 'center', cursor: 'pointer', border: `1.5px solid ${C.border}`, color: C.text, fontSize: 15, fontWeight: 700 } as any}>Retour</div>
               <div data-testid="btn-submit" onClick={canSubmit && !saving ? submitApplication : undefined}
                 style={{ flex: 2, padding: '16px', borderRadius: C.r, textAlign: 'center', cursor: canSubmit && !saving ? 'pointer' : 'default',
-                  background: canSubmit ? (isPhysio ? '#059669' : V) : C.border, color: canSubmit ? '#FFF' : C.light,
+                  background: canSubmit ? (AC) : C.border, color: canSubmit ? '#FFF' : C.light,
                   fontSize: 15, fontWeight: 800, opacity: saving ? 0.6 : 1, transition: 'all 0.2s',
                 } as any}>
                 {saving ? 'Envoi en cours...' : 'Signer et envoyer'}
@@ -360,8 +364,8 @@ export default function BecomeProPage() {
         {/* Step 4: Success */}
         {step === 4 && (
           <div data-testid="step-4-success" style={{ textAlign: 'center', padding: '40px 0' } as any}>
-            <div style={{ width: 72, height: 72, borderRadius: '50%', background: `${isPhysio ? '#059669' : V}12`, display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 20px' } as any}>
-              <i className="ri-check-double-line" style={{ fontSize: 36, color: isPhysio ? '#059669' : V }} />
+            <div style={{ width: 72, height: 72, borderRadius: '50%', background: `${AC}12`, display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 20px' } as any}>
+              <i className="ri-check-double-line" style={{ fontSize: 36, color: AC }} />
             </div>
             <div style={{ fontSize: 22, fontWeight: 900, color: C.text, marginBottom: 12 }}>Candidature validee !</div>
             <div style={{ fontSize: 14, color: C.muted, lineHeight: 1.7, maxWidth: 420, margin: '0 auto 24px' }}>
@@ -377,8 +381,8 @@ export default function BecomeProPage() {
                   { icon: 'ri-magic-line', text: `Votre espace ${isPhysio ? 'kinesitherapeute' : 'coach sportif'} sera automatiquement active` },
                 ].map((s, i) => (
                   <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 12 } as any}>
-                    <div style={{ width: 32, height: 32, borderRadius: 10, background: `${isPhysio ? '#059669' : V}10`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}>
-                      <i className={s.icon} style={{ fontSize: 16, color: isPhysio ? '#059669' : V }} />
+                    <div style={{ width: 32, height: 32, borderRadius: 10, background: `${AC}10`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}>
+                      <i className={s.icon} style={{ fontSize: 16, color: AC }} />
                     </div>
                     <span style={{ fontSize: 13, color: C.text }}>{s.text}</span>
                   </div>
@@ -387,7 +391,7 @@ export default function BecomeProPage() {
             </div>
 
             <div data-testid="btn-go-app" onClick={() => router.push('/login' as any)}
-              style={{ padding: '16px 32px', borderRadius: C.r, background: isPhysio ? '#059669' : V, color: '#FFF', fontSize: 15, fontWeight: 800, cursor: 'pointer', display: 'inline-block' } as any}>
+              style={{ padding: '16px 32px', borderRadius: C.r, background: AC, color: '#FFF', fontSize: 15, fontWeight: 800, cursor: 'pointer', display: 'inline-block' } as any}>
               Aller sur l'application
             </div>
           </div>
