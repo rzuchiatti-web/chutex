@@ -157,6 +157,47 @@ async def create_program(beneficiary_id: str, data: ProgramCreate, user=Depends(
     program.pop('_id', None)
     return program
 
+@router.post("/pro/programs/duplicate/{program_id}/{beneficiary_id}")
+async def duplicate_program(program_id: str, beneficiary_id: str, user=Depends(get_current_user)):
+    """Duplicate an existing program and assign it to a different beneficiary"""
+    require_pro(user)
+    cu = await db.users.find_one({"id": user['id']}, {"_id": 0})
+    if beneficiary_id not in cu.get('beneficiaries', []):
+        raise HTTPException(status_code=403, detail="Beneficiaire non rattache")
+    src = await db.pro_programs.find_one({"id": program_id, "professional_id": user['id']}, {"_id": 0})
+    if not src:
+        raise HTTPException(status_code=404, detail="Programme source non trouve")
+    ben = await db.users.find_one({"id": beneficiary_id}, {"_id": 0, "name": 1})
+    now = datetime.now(timezone.utc).isoformat()
+    new_prog = {
+        **src,
+        "id": str(uuid.uuid4()),
+        "beneficiary_id": beneficiary_id,
+        "beneficiary_name": ben.get('name', '') if ben else '',
+        "status": "active",
+        "sessions": [
+            {**s, "id": str(uuid.uuid4()), "completed": False, "completed_at": None}
+            for s in src.get('sessions', [])
+        ],
+        "created_at": now,
+        "updated_at": now,
+        "duplicated_from": program_id,
+    }
+    await db.pro_programs.insert_one(new_prog)
+    new_prog.pop('_id', None)
+    return new_prog
+
+
+@router.get("/pro/all-programs")
+async def get_all_pro_programs(user=Depends(get_current_user)):
+    """Get ALL programs created by this professional (for template reuse)"""
+    require_pro(user)
+    programs = await db.pro_programs.find(
+        {"professional_id": user['id']}, {"_id": 0}
+    ).sort("created_at", -1).to_list(200)
+    return programs
+
+
 @router.put("/pro/programs/edit/{program_id}")
 async def update_program(program_id: str, data: ProgramCreate, user=Depends(get_current_user)):
     require_pro(user)

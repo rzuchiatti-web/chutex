@@ -1,971 +1,492 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Platform, Alert } from 'react-native';
 import { useRouter } from 'expo-router';
-import { apiFetch } from '../../services/api';
-import FullScreenLoader from '../FullScreenLoader';
 
-const GL: any = { borderRadius: 20, background: 'rgba(0,0,0,0.04)', border: '1px solid rgba(0,0,0,0.06)' };
-const C = { text: '#1A1A2E', sub: 'rgba(0,0,0,0.5)', muted: 'rgba(0,0,0,0.3)', faint: 'rgba(0,0,0,0.04)', accent: '#3B82F6', green: '#10B981', amber: '#F59E0B', red: '#EF4444', purple: '#A78BFA' };
-
-const CATEGORIES: Record<string, { icon: string; label: string; color: string }> = {
-  cardio: { icon: 'ri-heart-pulse-line', label: 'Cardio', color: C.red },
-  renforcement: { icon: 'ri-boxing-line', label: 'Renforcement', color: C.amber },
-  souplesse: { icon: 'ri-body-scan-line', label: 'Souplesse', color: C.purple },
-  equilibre: { icon: 'ri-walk-line', label: 'Equilibre', color: C.accent },
-  reeducation: { icon: 'ri-heart-add-line', label: 'Reeducation', color: C.green },
+const API = process.env.EXPO_PUBLIC_BACKEND_URL || '';
+const apiFetch = async (url: string, opts: any = {}, token: string) => {
+  const r = await fetch(`${API}${url}`, { ...opts, headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}`, ...opts.headers } });
+  if (!r.ok) throw new Error((await r.json().catch(() => ({}))).detail || r.statusText);
+  return r.json();
 };
 
-const ALL_TABS = [
-  { key: 'programs', icon: 'ri-file-list-3-line', label: 'Programmes' },
-  { key: 'reminders', icon: 'ri-capsule-line', label: 'Rappels' },
-  { key: 'meals', icon: 'ri-restaurant-line', label: 'Repas' },
-  { key: 'bilans', icon: 'ri-bar-chart-box-line', label: 'Bilans' },
-];
+const BG = 'https://customer-assets.emergentagent.com/job_443c9c6e-0feb-4920-a358-fe7cc1a6289b/artifacts/mhh7xwy3_ChatGPT%20Image%2017%20f%C3%A9vr.%202026%2C%2014_08_43.png';
 
-function SL({ children, icon, color }: any) {
-  return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: 8, margin: '20px 0 10px' } as any}>
-      {icon && <i className={icon} style={{ fontSize: 14, color: color || C.muted }} />}
-      <span style={{ fontSize: 11, fontWeight: 700, color: C.muted, textTransform: 'uppercase', letterSpacing: 1 } as any}>{children}</span>
-    </div>
-  );
-}
-
-function ExerciseCard({ ex, onDelete }: any) {
-  const cat = CATEGORIES[ex.category] || CATEGORIES.renforcement;
-  const completions = ex.completions || [];
-  const lastDone = completions.length > 0 ? completions[completions.length - 1] : null;
-  return (
-    <div data-testid={`exercise-${ex.id}`} style={{ ...GL, padding: '16px', marginBottom: 8, position: 'relative' } as any}>
-      <div style={{ display: 'flex', gap: 12 } as any}>
-        <div style={{ width: 48, height: 48, borderRadius: 14, background: `${cat.color}15`, border: `1px solid ${cat.color}25`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}>
-          <i className={cat.icon} style={{ fontSize: 22, color: cat.color }} />
-        </div>
-        <div style={{ flex: 1, minWidth: 0 }}>
-          <div style={{ fontSize: 14, fontWeight: 700, color: C.text }}>{ex.title}</div>
-          {ex.description && <div style={{ fontSize: 11, color: C.sub, marginTop: 2, lineHeight: 1.4 }}>{ex.description}</div>}
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginTop: 8 } as any}>
-            {ex.sets > 0 && <span style={{ fontSize: 10, color: C.muted, background: C.faint, padding: '3px 8px', borderRadius: 6 }}>{ex.sets} series</span>}
-            {ex.repetitions > 0 && <span style={{ fontSize: 10, color: C.muted, background: C.faint, padding: '3px 8px', borderRadius: 6 }}>{ex.repetitions} reps</span>}
-            {ex.duration_min > 0 && <span style={{ fontSize: 10, color: C.muted, background: C.faint, padding: '3px 8px', borderRadius: 6 }}>{ex.duration_min} min</span>}
-            {ex.rest_sec > 0 && <span style={{ fontSize: 10, color: C.muted, background: C.faint, padding: '3px 8px', borderRadius: 6 }}>{ex.rest_sec}s repos</span>}
-          </div>
-        </div>
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 6, flexShrink: 0 } as any}>
-          {lastDone ? (
-            <div style={{ padding: '3px 8px', borderRadius: 8, background: lastDone.status === 'done' ? `${C.green}15` : `${C.amber}15`, border: `1px solid ${lastDone.status === 'done' ? `${C.green}30` : `${C.amber}30`}` }}>
-              <span style={{ fontSize: 9, fontWeight: 700, color: lastDone.status === 'done' ? C.green : C.amber }}>{lastDone.status === 'done' ? 'Fait' : lastDone.status === 'partial' ? 'Partiel' : 'Passe'}</span>
-            </div>
-          ) : (
-            <div style={{ padding: '3px 8px', borderRadius: 8, background: C.faint }}>
-              <span style={{ fontSize: 9, fontWeight: 700, color: C.muted }}>En attente</span>
-            </div>
-          )}
-          <div onClick={(e) => { e.stopPropagation(); onDelete(); }} style={{ width: 28, height: 28, borderRadius: 8, background: 'rgba(239,68,68,0.06)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}>
-            <i className="ri-delete-bin-line" style={{ fontSize: 12, color: C.red }} />
-          </div>
-        </div>
-      </div>
-      {lastDone && lastDone.pain_level != null && (
-        <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 8, padding: '6px 10px', borderRadius: 10, background: C.faint } as any}>
-          <i className="ri-emotion-sad-line" style={{ fontSize: 12, color: C.amber }} />
-          <span style={{ fontSize: 10, color: C.sub }}>Douleur: {lastDone.pain_level}/10</span>
-          {lastDone.patient_notes && <span style={{ fontSize: 10, color: C.muted, marginLeft: 8 }}>"{lastDone.patient_notes}"</span>}
-        </div>
-      )}
-    </div>
-  );
-}
-
-/* ── Reminders Tab Content ── */
-function RemindersTab({ token, activeBen, activeBenData }: any) {
-  const [reminders, setReminders] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [showAdd, setShowAdd] = useState(false);
-  const [saving, setSaving] = useState(false);
-  const [form, setForm] = useState({ reminder_type: 'medication', title: '', time: '08:00', dosage: '', notes: '', days: ['lun', 'mar', 'mer', 'jeu', 'ven', 'sam', 'dim'] });
-
-  const fetchReminders = useCallback(async () => {
-    if (!activeBen) return;
-    try {
-      const rems = await apiFetch(`/api/pro/reminders/${activeBen}`, {}, token);
-      setReminders(rems);
-    } catch { setReminders([]); }
-    finally { setLoading(false); }
-  }, [token, activeBen]);
-
-  useEffect(() => { setLoading(true); fetchReminders(); }, [fetchReminders]);
-
-  const createReminder = async () => {
-    if (!form.title) return;
-    setSaving(true);
-    try {
-      await apiFetch(`/api/pro/reminders/${activeBen}`, { method: 'POST', body: JSON.stringify(form) }, token);
-      setShowAdd(false);
-      setForm({ reminder_type: 'medication', title: '', time: '08:00', dosage: '', notes: '', days: ['lun', 'mar', 'mer', 'jeu', 'ven', 'sam', 'dim'] });
-      fetchReminders();
-    } catch (e: any) { Alert.alert('Erreur', e.message); }
-    finally { setSaving(false); }
-  };
-
-  const deleteReminder = async (id: string) => {
-    try {
-      await apiFetch(`/api/pro/reminders/${id}`, { method: 'DELETE' }, token);
-      fetchReminders();
-    } catch {}
-  };
-
-  const TYPES = [
-    { key: 'medication', icon: 'ri-capsule-line', label: 'Complement / Traitement', color: C.amber },
-    { key: 'hydration', icon: 'ri-drop-line', label: 'Hydratation', color: '#38BDF8' },
-  ];
-
-  if (loading) return <div style={{ textAlign: 'center', padding: 40 } as any}><div style={{ width: 30, height: 30, borderRadius: '50%', border: '3px solid rgba(0,0,0,0.06)', borderTopColor: C.accent, animation: 'spin 0.8s linear infinite', margin: '0 auto' } as any} /></div>;
-
-  return (
-    <div>
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' } as any}>
-        <SL icon="ri-capsule-line" color={C.amber}>Rappels prescrits</SL>
-        <div data-testid="add-reminder-btn" onClick={() => setShowAdd(true)} style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '6px 12px', borderRadius: 999, background: 'rgba(245,158,11,0.1)', border: '1px solid rgba(245,158,11,0.2)', cursor: 'pointer' } as any}>
-          <i className="ri-add-line" style={{ fontSize: 14, color: C.amber }} />
-          <span style={{ fontSize: 11, fontWeight: 700, color: C.amber }}>Prescrire</span>
-        </div>
-      </div>
-
-      <div style={{ fontSize: 12, color: C.sub, marginBottom: 12, lineHeight: 1.5 }}>
-        Les rappels prescrits apparaissent directement dans l'espace "Mes rappels" de {activeBenData?.name || 'votre patient'}.
-      </div>
-
-      {reminders.length === 0 && (
-        <div style={{ ...GL, padding: '32px 20px', textAlign: 'center' } as any}>
-          <i className="ri-capsule-line" style={{ fontSize: 28, color: C.muted, display: 'block', marginBottom: 8 }} />
-          <div style={{ fontSize: 13, fontWeight: 600, color: C.sub }}>Aucun rappel prescrit</div>
-          <div style={{ fontSize: 11, color: C.muted, marginTop: 4 }}>Prescrivez des complements ou rappels d'hydratation</div>
-        </div>
-      )}
-
-      {reminders.map((rem) => {
-        const t = TYPES.find(tt => tt.key === rem.reminder_type) || TYPES[0];
-        return (
-          <div key={rem.id} data-testid={`pro-reminder-${rem.id}`} style={{ ...GL, padding: '14px 16px', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 12 } as any}>
-            <div style={{ width: 42, height: 42, borderRadius: 12, background: `${t.color}12`, border: `1px solid ${t.color}25`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}>
-              <i className={t.icon} style={{ fontSize: 20, color: t.color }} />
-            </div>
-            <div style={{ flex: 1, minWidth: 0 }}>
-              <div style={{ fontSize: 14, fontWeight: 700, color: C.text }}>{rem.title}</div>
-              <div style={{ fontSize: 11, color: C.sub, marginTop: 2 }}>
-                {rem.time} {rem.dosage ? `· ${rem.dosage}` : ''} {rem.notes ? `· ${rem.notes}` : ''}
-              </div>
-              <div style={{ fontSize: 10, color: C.muted, marginTop: 2 }}>
-                {rem.days?.join(', ')}
-              </div>
-            </div>
-            <div onClick={() => deleteReminder(rem.id)} style={{ width: 30, height: 30, borderRadius: 8, background: 'rgba(239,68,68,0.06)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', flexShrink: 0 } as any}>
-              <i className="ri-delete-bin-line" style={{ fontSize: 13, color: C.red }} />
-            </div>
-          </div>
-        );
-      })}
-
-      {/* Add reminder modal */}
-      {showAdd && (
-        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.7)', zIndex: 9999, display: 'flex', alignItems: 'flex-end' } as any} onClick={() => setShowAdd(false)}>
-          <div onClick={(e) => e.stopPropagation()} style={{ width: '100%', maxWidth: 420, margin: '0 auto', background: '#12121E', borderRadius: '24px 24px 0 0', padding: '24px 20px 36px', maxHeight: '80vh', overflowY: 'auto' } as any}>
-            <div style={{ fontSize: 17, fontWeight: 800, color: C.text, marginBottom: 18 }}>Prescrire un rappel</div>
-
-            {/* Type selector */}
-            <div style={{ display: 'flex', gap: 8, marginBottom: 14 } as any}>
-              {TYPES.map((t) => {
-                const sel = form.reminder_type === t.key;
-                return (
-                  <div key={t.key} onClick={() => setForm({ ...form, reminder_type: t.key })}
-                    style={{ flex: 1, padding: '12px 10px', borderRadius: 14, cursor: 'pointer', textAlign: 'center',
-                      background: sel ? `${t.color}12` : C.faint, border: `1.5px solid ${sel ? t.color : 'transparent'}`,
-                    } as any}>
-                    <i className={t.icon} style={{ fontSize: 18, color: sel ? t.color : C.muted, display: 'block', marginBottom: 4 }} />
-                    <div style={{ fontSize: 10, fontWeight: 700, color: sel ? t.color : C.muted }}>{t.label}</div>
-                  </div>
-                );
-              })}
-            </div>
-
-            <input data-testid="reminder-title" value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })}
-              placeholder={form.reminder_type === 'medication' ? "Nom du complement / traitement" : "Rappel hydratation"}
-              style={{ width: '100%', padding: '13px 14px', borderRadius: 14, background: C.faint, border: '1px solid rgba(0,0,0,0.06)', color: C.text, fontSize: 14, outline: 'none', marginBottom: 10 } as any} />
-
-            {form.reminder_type === 'medication' && (
-              <input value={form.dosage} onChange={(e) => setForm({ ...form, dosage: e.target.value })}
-                placeholder="Dosage (ex: 1 gelule)"
-                style={{ width: '100%', padding: '13px 14px', borderRadius: 14, background: C.faint, border: '1px solid rgba(0,0,0,0.06)', color: C.text, fontSize: 14, outline: 'none', marginBottom: 10 } as any} />
-            )}
-
-            <div style={{ display: 'flex', gap: 8, marginBottom: 10 } as any}>
-              <div style={{ flex: 1 }}>
-                <label style={{ fontSize: 10, color: C.muted, fontWeight: 600, display: 'block', marginBottom: 4 } as any}>Heure</label>
-                <input type="time" value={form.time} onChange={(e) => setForm({ ...form, time: e.target.value })}
-                  style={{ width: '100%', padding: '11px 14px', borderRadius: 14, background: C.faint, border: '1px solid rgba(0,0,0,0.06)', color: C.text, fontSize: 14, outline: 'none' } as any} />
-              </div>
-            </div>
-
-            <textarea value={form.notes} onChange={(e) => setForm({ ...form, notes: e.target.value })}
-              placeholder="Notes (optionnel)"
-              style={{ width: '100%', padding: '13px 14px', borderRadius: 14, background: C.faint, border: '1px solid rgba(0,0,0,0.06)', color: C.text, fontSize: 14, outline: 'none', minHeight: 50, resize: 'vertical', marginBottom: 14 } as any} />
-
-            {/* Days selector */}
-            <div style={{ display: 'flex', gap: 4, marginBottom: 18 } as any}>
-              {['lun', 'mar', 'mer', 'jeu', 'ven', 'sam', 'dim'].map((d) => {
-                const sel = form.days.includes(d);
-                return (
-                  <div key={d} onClick={() => setForm({ ...form, days: sel ? form.days.filter(dd => dd !== d) : [...form.days, d] })}
-                    style={{ flex: 1, padding: '8px 0', borderRadius: 10, textAlign: 'center', cursor: 'pointer', fontSize: 11, fontWeight: 700,
-                      background: sel ? 'rgba(59,130,246,0.12)' : C.faint, border: `1.5px solid ${sel ? 'rgba(59,130,246,0.3)' : 'transparent'}`,
-                      color: sel ? C.accent : C.muted,
-                    } as any}>
-                    {d.charAt(0).toUpperCase() + d.slice(1, 3)}
-                  </div>
-                );
-              })}
-            </div>
-
-            <div data-testid="submit-reminder" onClick={saving ? undefined : createReminder}
-              style={{ padding: '15px', borderRadius: 999, textAlign: 'center', cursor: 'pointer', background: form.title ? C.amber : C.faint, color: form.title ? '#FFF' : C.muted, fontSize: 14, fontWeight: 800, opacity: saving ? 0.5 : 1 } as any}>
-              {saving ? 'Prescription...' : 'Prescrire le rappel'}
-            </div>
-          </div>
-        </div>
-      )}
-      <style dangerouslySetInnerHTML={{ __html: `@keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}` }} />
-    </div>
-  );
-}
-
-/* ── Meals Tab Content ── */
-function MealsTab({ token, activeBen, activeBenData }: any) {
-  const [meals, setMeals] = useState<any[]>([]);
-  const [source, setSource] = useState('');
-  const [loading, setLoading] = useState(true);
-  const [showAdd, setShowAdd] = useState(false);
-  const [saving, setSaving] = useState(false);
-  const [form, setForm] = useState({ type: 'lunch', label: 'Dejeuner', name: '', description: '', calories: 0, time: '12:30', prep_time: '', proteines_g: 0, glucides_g: 0, lipides_g: 0 });
-
-  const MEAL_TYPES = [
-    { type: 'breakfast', label: 'Petit-dej', icon: 'ri-sun-line', color: C.amber },
-    { type: 'lunch', label: 'Dejeuner', icon: 'ri-restaurant-line', color: C.green },
-    { type: 'snack', label: 'Collation', icon: 'ri-cup-line', color: C.purple },
-    { type: 'dinner', label: 'Diner', icon: 'ri-moon-line', color: C.accent },
-  ];
-
-  const fetchMeals = useCallback(async () => {
-    if (!activeBen) return;
-    try {
-      const data = await apiFetch(`/api/pro/meals/${activeBen}`, {}, token);
-      setMeals(data.meals || []);
-      setSource(data.source || 'none');
-    } catch { setMeals([]); }
-    finally { setLoading(false); }
-  }, [token, activeBen]);
-
-  useEffect(() => { setLoading(true); fetchMeals(); }, [fetchMeals]);
-
-  const addMeal = async () => {
-    if (!form.name) return;
-    setSaving(true);
-    try {
-      await apiFetch(`/api/pro/meals/${activeBen}`, { method: 'POST', body: JSON.stringify(form) }, token);
-      setShowAdd(false);
-      setForm({ type: 'lunch', label: 'Dejeuner', name: '', description: '', calories: 0, time: '12:30', prep_time: '', proteines_g: 0, glucides_g: 0, lipides_g: 0 });
-      fetchMeals();
-    } catch (e: any) { Alert.alert('Erreur', e.message); }
-    finally { setSaving(false); }
-  };
-
-  const deleteMeal = async (idx: number) => {
-    try {
-      await apiFetch(`/api/pro/meals/${activeBen}/${idx}`, { method: 'DELETE' }, token);
-      fetchMeals();
-    } catch {}
-  };
-
-  if (loading) return <div style={{ textAlign: 'center', padding: 40 } as any}><div style={{ width: 30, height: 30, borderRadius: '50%', border: '3px solid rgba(0,0,0,0.06)', borderTopColor: C.green, animation: 'spin 0.8s linear infinite', margin: '0 auto' } as any} /></div>;
-
-  return (
-    <div>
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' } as any}>
-        <SL icon="ri-restaurant-line" color={C.green}>Plan repas du jour</SL>
-        <div data-testid="add-meal-btn" onClick={() => setShowAdd(true)} style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '6px 12px', borderRadius: 999, background: 'rgba(16,185,129,0.1)', border: '1px solid rgba(16,185,129,0.2)', cursor: 'pointer' } as any}>
-          <i className="ri-add-line" style={{ fontSize: 14, color: C.green }} />
-          <span style={{ fontSize: 11, fontWeight: 700, color: C.green }}>Repas</span>
-        </div>
-      </div>
-
-      {source && (
-        <div style={{ fontSize: 10, color: C.muted, marginBottom: 10 }}>
-          {source === 'pro' ? 'Plan personnalise par vous' : source === 'minceur' ? 'Plan genere par Nora (modifiable)' : 'Aucun plan disponible'}
-        </div>
-      )}
-
-      {meals.length === 0 && (
-        <div style={{ ...GL, padding: '32px 20px', textAlign: 'center' } as any}>
-          <i className="ri-restaurant-line" style={{ fontSize: 28, color: C.muted, display: 'block', marginBottom: 8 }} />
-          <div style={{ fontSize: 13, fontWeight: 600, color: C.sub }}>Aucun repas pour aujourd'hui</div>
-        </div>
-      )}
-
-      {meals.map((meal: any, idx: number) => {
-        const mt = MEAL_TYPES.find(m => m.type === meal.type) || MEAL_TYPES[1];
-        return (
-          <div key={idx} data-testid={`meal-${idx}`} style={{ ...GL, padding: '14px 16px', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 12 } as any}>
-            <div style={{ width: 42, height: 42, borderRadius: 12, background: `${mt.color}12`, border: `1px solid ${mt.color}25`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}>
-              <i className={mt.icon} style={{ fontSize: 20, color: mt.color }} />
-            </div>
-            <div style={{ flex: 1, minWidth: 0 }}>
-              <div style={{ fontSize: 13, fontWeight: 700, color: C.text }}>{meal.name}</div>
-              <div style={{ fontSize: 11, color: C.sub, marginTop: 2 }}>
-                {meal.label || mt.label} {meal.time ? `· ${meal.time}` : ''} {meal.calories ? `· ${meal.calories} kcal` : ''}
-              </div>
-              {meal.description && <div style={{ fontSize: 10, color: C.muted, marginTop: 2 }}>{meal.description}</div>}
-              {meal.created_by_pro && <span style={{ fontSize: 9, color: C.accent, fontWeight: 700 }}>Prescrit par vous</span>}
-            </div>
-            <div onClick={() => deleteMeal(idx)} style={{ width: 30, height: 30, borderRadius: 8, background: 'rgba(239,68,68,0.06)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', flexShrink: 0 } as any}>
-              <i className="ri-delete-bin-line" style={{ fontSize: 13, color: C.red }} />
-            </div>
-          </div>
-        );
-      })}
-
-      {/* Add meal modal */}
-      {showAdd && (
-        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.7)', zIndex: 9999, display: 'flex', alignItems: 'flex-end' } as any} onClick={() => setShowAdd(false)}>
-          <div onClick={(e) => e.stopPropagation()} style={{ width: '100%', maxWidth: 420, margin: '0 auto', background: '#12121E', borderRadius: '24px 24px 0 0', padding: '24px 20px 36px', maxHeight: '80vh', overflowY: 'auto' } as any}>
-            <div style={{ fontSize: 17, fontWeight: 800, color: C.text, marginBottom: 18 }}>Ajouter un repas</div>
-
-            <div style={{ display: 'flex', gap: 6, marginBottom: 14 } as any}>
-              {MEAL_TYPES.map((mt) => {
-                const sel = form.type === mt.type;
-                return (
-                  <div key={mt.type} onClick={() => setForm({ ...form, type: mt.type, label: mt.label })}
-                    style={{ flex: 1, padding: '10px 6px', borderRadius: 12, cursor: 'pointer', textAlign: 'center',
-                      background: sel ? `${mt.color}12` : C.faint, border: `1.5px solid ${sel ? mt.color : 'transparent'}`,
-                    } as any}>
-                    <i className={mt.icon} style={{ fontSize: 16, color: sel ? mt.color : C.muted, display: 'block', marginBottom: 2 }} />
-                    <div style={{ fontSize: 9, fontWeight: 700, color: sel ? mt.color : C.muted }}>{mt.label}</div>
-                  </div>
-                );
-              })}
-            </div>
-
-            <input data-testid="meal-name" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })}
-              placeholder="Nom du repas"
-              style={{ width: '100%', padding: '13px 14px', borderRadius: 14, background: C.faint, border: '1px solid rgba(0,0,0,0.06)', color: C.text, fontSize: 14, outline: 'none', marginBottom: 10 } as any} />
-
-            <textarea value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })}
-              placeholder="Description / ingredients..."
-              style={{ width: '100%', padding: '13px 14px', borderRadius: 14, background: C.faint, border: '1px solid rgba(0,0,0,0.06)', color: C.text, fontSize: 14, outline: 'none', minHeight: 60, resize: 'vertical', marginBottom: 10 } as any} />
-
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 8, marginBottom: 14 } as any}>
-              <div>
-                <label style={{ fontSize: 10, color: C.muted, fontWeight: 600, display: 'block', marginBottom: 4 } as any}>Calories</label>
-                <input type="number" value={form.calories || ''} onChange={(e) => setForm({ ...form, calories: parseInt(e.target.value) || 0 })}
-                  placeholder="0" style={{ width: '100%', padding: '11px 14px', borderRadius: 14, background: C.faint, border: '1px solid rgba(0,0,0,0.06)', color: C.text, fontSize: 14, outline: 'none', textAlign: 'center' } as any} />
-              </div>
-              <div>
-                <label style={{ fontSize: 10, color: C.muted, fontWeight: 600, display: 'block', marginBottom: 4 } as any}>Heure</label>
-                <input type="time" value={form.time} onChange={(e) => setForm({ ...form, time: e.target.value })}
-                  style={{ width: '100%', padding: '11px 14px', borderRadius: 14, background: C.faint, border: '1px solid rgba(0,0,0,0.06)', color: C.text, fontSize: 14, outline: 'none' } as any} />
-              </div>
-            </div>
-
-            <div data-testid="submit-meal" onClick={saving ? undefined : addMeal}
-              style={{ padding: '15px', borderRadius: 999, textAlign: 'center', cursor: 'pointer', background: form.name ? C.green : C.faint, color: form.name ? '#FFF' : C.muted, fontSize: 14, fontWeight: 800, opacity: saving ? 0.5 : 1 } as any}>
-              {saving ? 'Ajout...' : 'Ajouter le repas'}
-            </div>
-          </div>
-        </div>
-      )}
-      <style dangerouslySetInnerHTML={{ __html: `@keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}` }} />
-    </div>
-  );
-}
-
-/* ── Bilans Tab Content ── */
-function BilansTab({ token, activeBen, activeBenData }: any) {
-  const [bilan, setBilan] = useState<any>(null);
-  const [loading, setLoading] = useState(false);
-  const [period, setPeriod] = useState('week');
-
-  const generateBilan = async () => {
-    if (!activeBen) return;
-    setLoading(true);
-    try {
-      const data = await apiFetch(`/api/pro/bilan/${activeBen}?period=${period}`, {}, token);
-      setBilan(data);
-    } catch (e: any) { Alert.alert('Erreur', e.message); }
-    finally { setLoading(false); }
-  };
-
-  return (
-    <div>
-      <SL icon="ri-bar-chart-box-line" color={C.purple}>Bilans Nora</SL>
-      <div style={{ fontSize: 12, color: C.sub, marginBottom: 14, lineHeight: 1.5 }}>
-        Generez un bilan de sante complet pour {activeBenData?.name || 'votre patient'} par l'IA Nora.
-      </div>
-
-      <div style={{ display: 'flex', gap: 8, marginBottom: 16 } as any}>
-        {[
-          { key: 'week', label: 'Hebdomadaire', icon: 'ri-calendar-line' },
-          { key: 'month', label: 'Mensuel', icon: 'ri-calendar-2-line' },
-        ].map((p) => {
-          const sel = period === p.key;
-          return (
-            <div key={p.key} onClick={() => setPeriod(p.key)}
-              style={{ flex: 1, padding: '12px 10px', borderRadius: 14, cursor: 'pointer', textAlign: 'center',
-                background: sel ? 'rgba(167,139,250,0.12)' : C.faint, border: `1.5px solid ${sel ? C.purple : 'transparent'}`,
-              } as any}>
-              <i className={p.icon} style={{ fontSize: 16, color: sel ? C.purple : C.muted, display: 'block', marginBottom: 4 }} />
-              <div style={{ fontSize: 11, fontWeight: 700, color: sel ? C.purple : C.muted }}>{p.label}</div>
-            </div>
-          );
-        })}
-      </div>
-
-      <div data-testid="generate-bilan-btn" onClick={loading ? undefined : generateBilan}
-        style={{ ...GL, padding: '16px', textAlign: 'center', cursor: 'pointer', marginBottom: 16, opacity: loading ? 0.5 : 1 } as any}>
-        {loading ? (
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 } as any}>
-            <div style={{ width: 16, height: 16, borderRadius: '50%', border: '2px solid rgba(0,0,0,0.06)', borderTopColor: C.purple, animation: 'spin 0.8s linear infinite' } as any} />
-            <span style={{ fontSize: 13, fontWeight: 700, color: C.purple }}>Nora analyse les donnees...</span>
-          </div>
-        ) : (
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 } as any}>
-            <i className="ri-sparkling-line" style={{ fontSize: 18, color: C.purple }} />
-            <span style={{ fontSize: 13, fontWeight: 700, color: C.purple }}>Generer le bilan {period === 'week' ? 'hebdomadaire' : 'mensuel'}</span>
-          </div>
-        )}
-      </div>
-
-      {bilan && (
-        <div data-testid="bilan-result" style={{ ...GL, padding: '20px', marginBottom: 14 } as any}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 14 } as any}>
-            <div style={{ width: 36, height: 36, borderRadius: 10, background: 'rgba(167,139,250,0.12)', border: `1px solid ${C.purple}25`, display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}>
-              <i className="ri-sparkling-fill" style={{ fontSize: 18, color: C.purple }} />
-            </div>
-            <div>
-              <div style={{ fontSize: 14, fontWeight: 800, color: C.text }}>Bilan {bilan.period === 'week' ? 'hebdomadaire' : 'mensuel'}</div>
-              <div style={{ fontSize: 10, color: C.muted }}>{bilan.beneficiary_name} · {new Date(bilan.generated_at).toLocaleDateString('fr-FR')}</div>
-            </div>
-          </div>
-
-          {/* Vitals summary */}
-          {bilan.vitals && Object.keys(bilan.vitals).length > 0 && (
-            <div style={{ display: 'flex', gap: 6, marginBottom: 14, flexWrap: 'wrap' } as any}>
-              {bilan.vitals.avg_heart_rate && <div style={{ padding: '6px 10px', borderRadius: 10, background: 'rgba(239,68,68,0.08)', fontSize: 11, color: C.red, fontWeight: 600 }}><i className="ri-heart-pulse-line" style={{ fontSize: 10, marginRight: 3 }} />{bilan.vitals.avg_heart_rate} bpm</div>}
-              {bilan.vitals.avg_spo2 && <div style={{ padding: '6px 10px', borderRadius: 10, background: 'rgba(59,130,246,0.08)', fontSize: 11, color: C.accent, fontWeight: 600 }}><i className="ri-drop-line" style={{ fontSize: 10, marginRight: 3 }} />{bilan.vitals.avg_spo2}%</div>}
-              {bilan.vitals.avg_steps && <div style={{ padding: '6px 10px', borderRadius: 10, background: 'rgba(16,185,129,0.08)', fontSize: 11, color: C.green, fontWeight: 600 }}><i className="ri-footprint-line" style={{ fontSize: 10, marginRight: 3 }} />{bilan.vitals.avg_steps} pas/j</div>}
-            </div>
-          )}
-
-          {/* Bilan text */}
-          <div style={{ fontSize: 13, color: C.sub, lineHeight: 1.7, whiteSpace: 'pre-line' }}>{bilan.bilan_text}</div>
-        </div>
-      )}
-      <style dangerouslySetInnerHTML={{ __html: `@keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}` }} />
-    </div>
-  );
-}
-
-/* ── Subscription Tab Content ── */
-function SubscriptionTab({ token, activeBen, activeBenData }: any) {
-  const [sub, setSub] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
-  const [proposing, setProposing] = useState(false);
-  const [subType, setSubType] = useState('sport');
-  const [desc, setDesc] = useState('');
-  const gold = '#D4AF37';
-
-  const fetchSub = useCallback(async () => {
-    if (!activeBen) return;
-    try {
-      const data = await apiFetch(`/api/pro/subscriptions/${activeBen}`, {}, token);
-      setSub(data && data.id ? data : null);
-    } catch { setSub(null); }
-    finally { setLoading(false); }
-  }, [token, activeBen]);
-
-  useEffect(() => { setLoading(true); fetchSub(); }, [fetchSub]);
-
-  const propose = async () => {
-    setProposing(true);
-    try {
-      await apiFetch(`/api/pro/subscriptions/${activeBen}`, { method: 'POST', body: JSON.stringify({ type: subType, description: desc }) }, token);
-      setDesc('');
-      fetchSub();
-    } catch (e: any) { Alert.alert('Erreur', e.message); }
-    finally { setProposing(false); }
-  };
-
-  const cancel = async () => {
-    if (!sub) return;
-    try {
-      await apiFetch(`/api/pro/subscriptions/${sub.id}/cancel`, { method: 'POST' }, token);
-      fetchSub();
-    } catch {}
-  };
-
-  if (loading) return <div style={{ textAlign: 'center', padding: 40 } as any}><div style={{ width: 30, height: 30, borderRadius: '50%', border: `3px solid rgba(0,0,0,0.06)`, borderTopColor: gold, animation: 'spin 0.8s linear infinite', margin: '0 auto' } as any} /></div>;
-
-  return (
-    <div>
-      <SL icon="ri-vip-crown-line" color={gold}>Abonnement</SL>
-
-      {sub ? (
-        <div data-testid="active-subscription" style={{ ...GL, padding: '20px', marginBottom: 12 } as any}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 12 } as any}>
-            <div style={{ width: 48, height: 48, borderRadius: 14, background: `${gold}12`, border: `1px solid ${gold}30`, display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}>
-              <i className="ri-vip-crown-fill" style={{ fontSize: 24, color: gold }} />
-            </div>
-            <div>
-              <div style={{ fontSize: 15, fontWeight: 800, color: C.text }}>Abonnement {sub.type === 'sport' ? 'Sport' : 'Physio'}</div>
-              <div style={{ fontSize: 11, color: C.sub }}>{sub.price_ttc}€/mois TTC</div>
-            </div>
-            <div style={{ marginLeft: 'auto', padding: '4px 12px', borderRadius: 999, background: sub.status === 'active' ? `${C.green}15` : sub.status === 'pending' ? `${C.amber}15` : `${C.red}15`, border: `1px solid ${sub.status === 'active' ? `${C.green}30` : sub.status === 'pending' ? `${C.amber}30` : `${C.red}30`}` } as any}>
-              <span style={{ fontSize: 10, fontWeight: 700, color: sub.status === 'active' ? C.green : sub.status === 'pending' ? C.amber : C.red }}>
-                {sub.status === 'active' ? 'Actif' : sub.status === 'pending' ? 'En attente' : sub.status === 'payment_pending' ? 'Paiement' : 'Annule'}
-              </span>
-            </div>
-          </div>
-          <div style={{ fontSize: 12, color: C.sub, lineHeight: 1.5, marginBottom: 12 }}>
-            {sub.description || `Programme ${sub.type} pour ${activeBenData?.name || 'votre patient'}`}
-          </div>
-          {sub.start_date && <div style={{ fontSize: 10, color: C.muted }}>Depuis le {new Date(sub.start_date).toLocaleDateString('fr-FR')}</div>}
-          {(sub.status === 'active' || sub.status === 'pending') && (
-            <div onClick={cancel} data-testid="cancel-sub-btn" style={{ marginTop: 12, padding: '10px', borderRadius: 999, textAlign: 'center', cursor: 'pointer', background: 'rgba(239,68,68,0.06)', border: `1px solid rgba(239,68,68,0.15)`, fontSize: 12, fontWeight: 600, color: C.red } as any}>Annuler l'abonnement</div>
-          )}
-        </div>
-      ) : (
-        <div style={{ ...GL, padding: '20px', marginBottom: 12 } as any}>
-          <div style={{ fontSize: 13, fontWeight: 700, color: C.text, marginBottom: 10 }}>Proposer un abonnement</div>
-          <div style={{ fontSize: 11, color: C.sub, marginBottom: 14, lineHeight: 1.5 }}>
-            Proposez un abonnement mensuel a 89€ TTC a {activeBenData?.name || 'votre patient'}. Les exercices seront geres exclusivement par vous.
-          </div>
-          <div style={{ display: 'flex', gap: 8, marginBottom: 12 } as any}>
-            {[{ k: 'sport', l: 'Sport', i: 'ri-run-line', c: C.accent }, { k: 'physio', l: 'Physio', i: 'ri-stethoscope-line', c: C.green }].map(t => {
-              const sel = subType === t.k;
-              return (
-                <div key={t.k} onClick={() => setSubType(t.k)} style={{ flex: 1, padding: '12px', borderRadius: 14, textAlign: 'center', cursor: 'pointer', background: sel ? `${t.c}12` : C.faint, border: `1.5px solid ${sel ? t.c : 'transparent'}` } as any}>
-                  <i className={t.i} style={{ fontSize: 18, color: sel ? t.c : C.muted, display: 'block', marginBottom: 4 }} />
-                  <div style={{ fontSize: 11, fontWeight: 700, color: sel ? t.c : C.muted }}>{t.l}</div>
-                </div>
-              );
-            })}
-          </div>
-          <textarea value={desc} onChange={(e) => setDesc(e.target.value)} placeholder="Description du programme (optionnel)" style={{ width: '100%', padding: '12px 14px', borderRadius: 14, background: C.faint, border: '1px solid rgba(0,0,0,0.06)', color: C.text, fontSize: 13, outline: 'none', minHeight: 50, resize: 'vertical', marginBottom: 12 } as any} />
-          <div data-testid="propose-sub-btn" onClick={proposing ? undefined : propose} style={{ padding: '14px', borderRadius: 999, textAlign: 'center', cursor: 'pointer', background: `${gold}15`, border: `1px solid ${gold}30`, fontSize: 14, fontWeight: 800, color: gold, opacity: proposing ? 0.5 : 1 } as any}>
-            {proposing ? 'Envoi...' : 'Proposer l\'abonnement · 89€/mois'}
-          </div>
-        </div>
-      )}
-      <style dangerouslySetInnerHTML={{ __html: `@keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}` }} />
-    </div>
-  );
-}
-
-/* ── Messages Tab Content ── */
-function MessagesTab({ token, activeBen, activeBenData }: any) {
-  const [convo, setConvo] = useState<any>(null);
-  const [messages, setMessages] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [newMsg, setNewMsg] = useState('');
-  const [sending, setSending] = useState(false);
-  const msgEndRef = React.useRef<HTMLDivElement>(null);
-
-  const fetchConvo = useCallback(async () => {
-    if (!activeBen) return;
-    try {
-      const c = await apiFetch(`/api/pro/conversations/${activeBen}`, {}, token);
-      setConvo(c);
-      if (c?.id) {
-        const msgs = await apiFetch(`/api/pro/messages/${c.id}`, {}, token);
-        setMessages(msgs);
-      }
-    } catch { }
-    finally { setLoading(false); }
-  }, [token, activeBen]);
-
-  useEffect(() => { setLoading(true); fetchConvo(); }, [fetchConvo]);
-  useEffect(() => { msgEndRef.current?.scrollIntoView({ behavior: 'smooth' }); }, [messages]);
-
-  // Poll for new messages
-  useEffect(() => {
-    if (!convo?.id) return;
-    const interval = setInterval(async () => {
-      try {
-        const msgs = await apiFetch(`/api/pro/messages/${convo.id}`, {}, token);
-        setMessages(msgs);
-      } catch {}
-    }, 5000);
-    return () => clearInterval(interval);
-  }, [convo?.id, token]);
-
-  const send = async () => {
-    if (!newMsg.trim() || !convo?.id) return;
-    setSending(true);
-    try {
-      const msg = await apiFetch(`/api/pro/messages/${convo.id}`, { method: 'POST', body: JSON.stringify({ content: newMsg }) }, token);
-      setMessages(prev => [...prev, msg]);
-      setNewMsg('');
-    } catch {}
-    finally { setSending(false); }
-  };
-
-  if (loading) return <div style={{ textAlign: 'center', padding: 40 } as any}><div style={{ width: 30, height: 30, borderRadius: '50%', border: `3px solid rgba(0,0,0,0.06)`, borderTopColor: C.accent, animation: 'spin 0.8s linear infinite', margin: '0 auto' } as any} /></div>;
-
-  return (
-    <div data-testid="messages-tab" style={{ display: 'flex', flexDirection: 'column', height: 'calc(100vh - 320px)' } as any}>
-      <SL icon="ri-chat-3-line" color={C.accent}>Conversation avec {activeBenData?.name || 'patient'}</SL>
-
-      {/* Messages list */}
-      <div style={{ flex: 1, overflowY: 'auto', padding: '8px 0', minHeight: 200 } as any}>
-        {messages.length === 0 && (
-          <div style={{ ...GL, padding: '32px 20px', textAlign: 'center' } as any}>
-            <i className="ri-chat-3-line" style={{ fontSize: 28, color: C.muted, display: 'block', marginBottom: 8 }} />
-            <div style={{ fontSize: 13, fontWeight: 600, color: C.sub }}>Aucun message</div>
-            <div style={{ fontSize: 11, color: C.muted, marginTop: 4 }}>Commencez la conversation</div>
-          </div>
-        )}
-        {messages.map((msg) => {
-          const isMe = msg.sender_id !== activeBen;
-          return (
-            <div key={msg.id} style={{ display: 'flex', justifyContent: isMe ? 'flex-end' : 'flex-start', marginBottom: 6 } as any}>
-              <div style={{ maxWidth: '75%', padding: '10px 14px', borderRadius: isMe ? '16px 16px 4px 16px' : '16px 16px 16px 4px', background: isMe ? 'rgba(59,130,246,0.15)' : 'rgba(0,0,0,0.06)', border: `1px solid ${isMe ? 'rgba(59,130,246,0.2)' : 'rgba(0,0,0,0.06)'}` } as any}>
-                <div style={{ fontSize: 13, color: C.text, lineHeight: 1.5 }}>{msg.content}</div>
-                <div style={{ fontSize: 9, color: C.muted, marginTop: 4, textAlign: 'right' } as any}>{new Date(msg.created_at).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}</div>
-              </div>
-            </div>
-          );
-        })}
-        <div ref={msgEndRef} />
-      </div>
-
-      {/* Input */}
-      <div style={{ display: 'flex', gap: 8, padding: '10px 0', flexShrink: 0 } as any}>
-        <input data-testid="msg-input" value={newMsg} onChange={(e) => setNewMsg(e.target.value)}
-          onKeyDown={(e: any) => e.key === 'Enter' && !e.shiftKey && send()}
-          placeholder="Votre message..."
-          style={{ flex: 1, padding: '12px 16px', borderRadius: 999, background: C.faint, border: '1px solid rgba(0,0,0,0.06)', color: C.text, fontSize: 14, outline: 'none' } as any} />
-        <div data-testid="send-msg-btn" onClick={sending ? undefined : send}
-          style={{ width: 44, height: 44, borderRadius: 999, background: newMsg.trim() ? C.accent : C.faint, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', flexShrink: 0, opacity: sending ? 0.5 : 1 } as any}>
-          <i className="ri-send-plane-fill" style={{ fontSize: 18, color: newMsg.trim() ? '#FFF' : C.muted }} />
-        </div>
-      </div>
-      <style dangerouslySetInnerHTML={{ __html: `@keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}` }} />
-    </div>
-  );
-}
-
-/* ══════════════════════════════════════════════════════ */
-/* ── Main ProSpace Component ── */
-/* ══════════════════════════════════════════════════════ */
 export default function ProSpace({ token, user }: { token: string; user: any }) {
   const router = useRouter();
-  const [loading, setLoading] = useState(true);
-  const [beneficiaries, setBeneficiaries] = useState<any[]>([]);
+  const proType = user?.professional_type || '';
+  const isCoach = proType === 'coach';
+  const isPhysio = proType === 'physio';
+  const AC = isCoach ? '#DC2626' : isPhysio ? '#F97316' : '#3B82F6';
+
+  const [bens, setBens] = useState<any[]>([]);
   const [activeBen, setActiveBen] = useState<string>('');
   const [programs, setPrograms] = useState<any[]>([]);
-  const [activeTab, setActiveTab] = useState('programs');
-  const [showAddExercise, setShowAddExercise] = useState<string | null>(null);
-  const [showNewProgram, setShowNewProgram] = useState(false);
+  const [allPrograms, setAllPrograms] = useState<any[]>([]);
+  const [reminders, setReminders] = useState<any[]>([]);
+  const [meals, setMeals] = useState<any[]>([]);
+  const [view, setView] = useState<'patients' | 'library'>('patients');
+  const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
 
-  const [progForm, setProgForm] = useState({ title: '', description: '', frequency: '3x/semaine', duration_weeks: 4, category: 'renforcement' });
-  const [exForm, setExForm] = useState({ title: '', description: '', category: 'renforcement', duration_min: 0, repetitions: 0, sets: 0, rest_sec: 0, media_url: '', media_type: '' });
+  // Modals
+  const [showNewProg, setShowNewProg] = useState(false);
+  const [showNewExercise, setShowNewExercise] = useState<string | null>(null);
+  const [showNewReminder, setShowNewReminder] = useState(false);
+  const [showNewMeal, setShowNewMeal] = useState(false);
+  const [showDuplicate, setShowDuplicate] = useState<any>(null);
 
-  const proType = user?.professional_type || '';
-  const isPhysio = proType === 'physio';
-  const isCoach = proType === 'coach';
+  // Forms
+  const [progForm, setProgForm] = useState({ title: '', description: '', frequency: '3x/semaine', duration_weeks: 8, category: 'general' });
+  const [exForm, setExForm] = useState({ title: '', description: '', sets: 3, reps: 12, duration_minutes: 0, video_url: '' });
+  const [remForm, setRemForm] = useState({ reminder_type: 'medication', title: '', time: '08:00', days: ['lun', 'mar', 'mer', 'jeu', 'ven', 'sam', 'dim'], notes: '', dosage: '' });
+  const [mealForm, setMealForm] = useState({ meal_type: 'dejeuner', items: '', calories: 0, proteins: 0, notes: '' });
 
   const fetchBens = useCallback(async () => {
     try {
-      const bens = await apiFetch('/api/pro/beneficiaries', {}, token);
-      setBeneficiaries(bens);
-      if (bens.length > 0 && !activeBen) setActiveBen(bens[0].id);
-    } catch (e) { console.error(e); } finally { setLoading(false); }
+      const b = await apiFetch('/api/guardian/beneficiaries', {}, token);
+      setBens(Array.isArray(b) ? b : []);
+      if (b.length > 0 && !activeBen) setActiveBen(b[0].id);
+    } catch {} finally { setLoading(false); }
   }, [token]);
 
-  const fetchPrograms = useCallback(async () => {
-    if (!activeBen) return;
-    try {
-      const progs = await apiFetch(`/api/pro/programs/${activeBen}`, {}, token);
-      setPrograms(progs);
-    } catch { setPrograms([]); }
-  }, [token, activeBen]);
-
   useEffect(() => { fetchBens(); }, [fetchBens]);
-  useEffect(() => { fetchPrograms(); }, [fetchPrograms]);
+
+  // Fetch all programs for library
+  useEffect(() => {
+    if (token) apiFetch('/api/pro/all-programs', {}, token).then(p => setAllPrograms(Array.isArray(p) ? p : [])).catch(() => {});
+  }, [token, saving]);
+
+  // Fetch data for selected beneficiary
+  useEffect(() => {
+    if (!activeBen || !token) return;
+    Promise.all([
+      apiFetch(`/api/pro/programs/${activeBen}`, {}, token).catch(() => []),
+      apiFetch(`/api/pro/reminders/${activeBen}`, {}, token).catch(() => []),
+      apiFetch(`/api/pro/meals/${activeBen}`, {}, token).catch(() => []),
+    ]).then(([p, r, m]) => {
+      setPrograms(Array.isArray(p) ? p : []);
+      setReminders(Array.isArray(r) ? r : []);
+      setMeals(Array.isArray(m) ? m : []);
+    });
+  }, [activeBen, token, saving]);
+
+  const activeBenData = bens.find(b => b.id === activeBen);
 
   const createProgram = async () => {
-    if (!progForm.title || !activeBen) return;
     setSaving(true);
     try {
       await apiFetch(`/api/pro/programs/${activeBen}`, { method: 'POST', body: JSON.stringify(progForm) }, token);
-      setShowNewProgram(false);
-      setProgForm({ title: '', description: '', frequency: '3x/semaine', duration_weeks: 4, category: 'renforcement' });
-      fetchPrograms();
-    } catch (e: any) { Alert.alert('Erreur', e.message); } finally { setSaving(false); }
+      setShowNewProg(false);
+      setProgForm({ title: '', description: '', frequency: '3x/semaine', duration_weeks: 8, category: 'general' });
+    } catch {} finally { setSaving(false); }
   };
 
-  const addExercise = async (programId: string) => {
-    if (!exForm.title) return;
+  const addExercise = async (progId: string) => {
     setSaving(true);
     try {
-      await apiFetch(`/api/pro/programs/${programId}/sessions`, { method: 'POST', body: JSON.stringify(exForm) }, token);
-      setShowAddExercise(null);
-      setExForm({ title: '', description: '', category: 'renforcement', duration_min: 0, repetitions: 0, sets: 0, rest_sec: 0, media_url: '', media_type: '' });
-      fetchPrograms();
-    } catch (e: any) { Alert.alert('Erreur', e.message); } finally { setSaving(false); }
+      await apiFetch(`/api/pro/programs/${progId}/sessions`, { method: 'POST', body: JSON.stringify(exForm) }, token);
+      setShowNewExercise(null);
+      setExForm({ title: '', description: '', sets: 3, reps: 12, duration_minutes: 0, video_url: '' });
+    } catch {} finally { setSaving(false); }
   };
 
-  const deleteExercise = async (programId: string, sessionId: string) => {
-    try { await apiFetch(`/api/pro/sessions/${programId}/${sessionId}`, { method: 'DELETE' }, token); fetchPrograms(); } catch {}
+  const createReminder = async () => {
+    setSaving(true);
+    try {
+      await apiFetch(`/api/pro/reminders/${activeBen}`, { method: 'POST', body: JSON.stringify(remForm) }, token);
+      setShowNewReminder(false);
+      setRemForm({ reminder_type: 'medication', title: '', time: '08:00', days: ['lun', 'mar', 'mer', 'jeu', 'ven', 'sam', 'dim'], notes: '', dosage: '' });
+    } catch {} finally { setSaving(false); }
   };
 
-  const deleteProgram = async (programId: string) => {
-    try { await apiFetch(`/api/pro/programs/edit/${programId}`, { method: 'DELETE' }, token); fetchPrograms(); } catch {}
+  const createMeal = async () => {
+    setSaving(true);
+    try {
+      const itemsArr = mealForm.items.split(',').map(i => i.trim()).filter(Boolean);
+      await apiFetch(`/api/pro/meals/${activeBen}`, { method: 'POST', body: JSON.stringify({ ...mealForm, items: itemsArr }) }, token);
+      setShowNewMeal(false);
+      setMealForm({ meal_type: 'dejeuner', items: '', calories: 0, proteins: 0, notes: '' });
+    } catch {} finally { setSaving(false); }
   };
 
-  if (loading) return <FullScreenLoader />;
-  if (Platform.OS !== 'web') return null;
+  const duplicateProgram = async (progId: string, targetBenId: string) => {
+    setSaving(true);
+    try {
+      await apiFetch(`/api/pro/programs/duplicate/${progId}/${targetBenId}`, { method: 'POST' }, token);
+      setShowDuplicate(null);
+    } catch {} finally { setSaving(false); }
+  };
 
-  const activeBenData = beneficiaries.find(b => b.id === activeBen);
-  const v = activeBenData?.latest_vitals || {};
+  const deleteProgram = async (id: string) => {
+    try { await apiFetch(`/api/pro/programs/edit/${id}`, { method: 'DELETE' }, token); setSaving(s => !s); } catch {}
+  };
 
-  const HEADER_BG = 'https://customer-assets.emergentagent.com/job_443c9c6e-0feb-4920-a358-fe7cc1a6289b/artifacts/mhh7xwy3_ChatGPT%20Image%2017%20f%C3%A9vr.%202026%2C%2014_08_43.png';
-  const isCoachOrPhysio = isPhysio || isCoach;
-  const TABS = ALL_TABS;
+  const deleteReminder = async (id: string) => {
+    try { await apiFetch(`/api/pro/reminders/${id}`, { method: 'DELETE' }, token); setSaving(s => !s); } catch {}
+  };
+
+  // Unique programs for library (group by title)
+  const uniquePrograms = allPrograms.reduce((acc: any[], p) => {
+    if (!acc.find(x => x.title === p.title)) acc.push(p);
+    return acc;
+  }, []);
+
+  if (loading) return <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100vh', color: '#9CA3AF', fontFamily: 'Inter, system-ui, sans-serif' } as any}><i className="ri-loader-4-line ri-spin" style={{ fontSize: 32 }} /></div>;
+
+  const INP: any = { width: '100%', padding: '12px 14px', borderRadius: 12, background: '#F9FAFB', border: '1.5px solid #E5E7EB', color: '#111', fontSize: 14, outline: 'none', fontFamily: 'inherit', boxSizing: 'border-box' };
+  const LBL: any = { fontSize: 11, fontWeight: 700, color: '#6B7280', marginBottom: 5, display: 'block', textTransform: 'uppercase', letterSpacing: 0.5 };
+  const BTN = (active: boolean): any => ({ padding: '14px', borderRadius: 14, textAlign: 'center', cursor: active ? 'pointer' : 'default', background: active ? AC : '#E5E7EB', color: active ? '#FFF' : '#9CA3AF', fontSize: 14, fontWeight: 800, opacity: saving ? 0.6 : 1, transition: 'all 0.15s' });
 
   return (
     <div data-testid="pro-space" style={{ position: 'absolute', inset: 0, background: '#F5F5F5', display: 'flex', flexDirection: 'column', fontFamily: 'Inter, system-ui, sans-serif', overflow: 'hidden' } as any}>
       <div style={{ flex: 1, overflowY: 'auto', WebkitOverflowScrolling: 'touch' } as any}>
 
-      {/* Header with background image - same style as GuardianHome */}
-      <div style={{ position: 'relative', zIndex: 1 } as any}>
-        <img src={HEADER_BG} alt="" style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 } as any} />
-        <div style={{ position: 'relative', zIndex: 2, padding: '22px 20px 32px' } as any}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 } as any}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 12 } as any}>
-              <div style={{ width: 44, height: 44, borderRadius: 22, background: 'rgba(255,255,255,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}>
+        {/* ── HEADER ── */}
+        <div style={{ position: 'relative', zIndex: 1 } as any}>
+          <img src={BG} alt="" style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', objectFit: 'cover' } as any} />
+          <div style={{ position: 'relative', zIndex: 2, padding: '22px 20px 32px' } as any}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16 } as any}>
+              <div style={{ width: 44, height: 44, borderRadius: 22, background: 'rgba(255,255,255,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}>
                 <i className={isPhysio ? 'ri-stethoscope-line' : isCoach ? 'ri-run-line' : 'ri-shield-user-line'} style={{ fontSize: 22, color: '#FFF' }} />
               </div>
               <div>
-                <div style={{ fontSize: 18, fontWeight: 800, color: '#FFF', letterSpacing: -0.5 }}>
-                  {isPhysio ? 'Espace Kine' : isCoach ? 'Espace Coach' : 'Activite'}
-                </div>
-                <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.6)', fontWeight: 500 }}>
-                  {isCoachOrPhysio ? `${beneficiaries.length} patient${beneficiaries.length !== 1 ? 's' : ''}` : 'Programmes & Rappels'}
-                </div>
+                <div style={{ fontSize: 18, fontWeight: 800, color: '#FFF' }}>{isPhysio ? 'Espace Kine' : isCoach ? 'Espace Coach' : 'Activite'}</div>
+                <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.6)' }}>{bens.length} patient{bens.length !== 1 ? 's' : ''}</div>
               </div>
             </div>
-          </div>
 
-          {/* Patient selector inside header */}
-          <div style={{ display: 'flex', gap: 8, overflowX: 'auto', WebkitOverflowScrolling: 'touch', paddingBottom: 4 } as any}>
-            {beneficiaries.map((b) => {
-              const sel = b.id === activeBen;
-              return (
-                <div key={b.id} data-testid={`patient-pill-${b.id}`} onClick={() => setActiveBen(b.id)}
-                  style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '8px 14px', borderRadius: 999, flexShrink: 0, cursor: 'pointer',
-                    background: sel ? 'rgba(255,255,255,0.25)' : 'rgba(255,255,255,0.08)', border: `1.5px solid ${sel ? 'rgba(255,255,255,0.4)' : 'rgba(255,255,255,0.1)'}`,
-                    transition: 'all 0.15s',
+            {/* View toggle + Patient pills */}
+            <div style={{ display: 'flex', gap: 6, marginBottom: 12 } as any}>
+              {[{ k: 'patients', icon: 'ri-group-line', l: 'Patients' }, { k: 'library', icon: 'ri-book-2-line', l: 'Bibliotheque' }].map(v => (
+                <div key={v.k} data-testid={`view-${v.k}`} onClick={() => setView(v.k as any)}
+                  style={{ padding: '7px 14px', borderRadius: 999, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6,
+                    background: view === v.k ? 'rgba(255,255,255,0.25)' : 'rgba(255,255,255,0.08)',
+                    border: `1.5px solid ${view === v.k ? 'rgba(255,255,255,0.4)' : 'rgba(255,255,255,0.1)'}`,
                   } as any}>
-                  <div style={{ width: 28, height: 28, borderRadius: 999, background: sel ? 'rgba(255,255,255,0.3)' : 'rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, fontWeight: 800, color: '#FFF' } as any}>
-                    {(b.name || '?')[0]}
-                  </div>
-                  <span style={{ fontSize: 13, fontWeight: sel ? 700 : 500, color: sel ? '#FFF' : 'rgba(255,255,255,0.7)' }}>{(b.name || 'Patient').split(' ')[0]}</span>
+                  <i className={v.icon} style={{ fontSize: 13, color: '#FFF' }} />
+                  <span style={{ fontSize: 12, fontWeight: 700, color: view === v.k ? '#FFF' : 'rgba(255,255,255,0.7)' }}>{v.l}</span>
                 </div>
-              );
-            })}
-          </div>
-        </div>
-      </div>
-
-      {/* Content card with rounded top corners */}
-      <div style={{ padding: '20px 16px 120px', marginTop: -16, borderRadius: '24px 24px 0 0', background: '#FFF', position: 'relative', zIndex: 10, borderTop: '1px solid rgba(0,0,0,0.08)', minHeight: 'calc(100vh - 220px)' } as any}>
-
-      {/* Tab bar */}
-      <div style={{ marginBottom: 16 } as any}>
-        <div style={{ display: 'flex', gap: 2, background: 'rgba(0,0,0,0.04)', borderRadius: 14, padding: 3 } as any}>
-          {TABS.map((tab) => {
-            const sel = activeTab === tab.key;
-            return (
-              <div key={tab.key} data-testid={`tab-${tab.key}`} onClick={() => setActiveTab(tab.key)}
-                style={{ flex: 1, padding: '8px 4px', borderRadius: 12, textAlign: 'center', cursor: 'pointer',
-                  background: sel ? '#FFF' : 'transparent', boxShadow: sel ? '0 2px 8px rgba(0,0,0,0.06)' : 'none', transition: 'all 0.15s',
-                } as any}>
-                <i className={tab.icon} style={{ fontSize: 14, color: sel ? C.text : C.muted, display: 'block', marginBottom: 2 }} />
-                <div style={{ fontSize: 9, fontWeight: 700, color: sel ? C.text : C.muted }}>{tab.label}</div>
-              </div>
-            );
-          })}
-        </div>
-      </div>
-
-      {/* Scrollable content */}
-      <div style={{ flex: 1, overflowY: 'auto', padding: '0 20px 120px', WebkitOverflowScrolling: 'touch' } as any}>
-
-          {/* Quick vitals */}
-        {activeBenData && (
-          <div style={{ ...GL, padding: '14px 16px', marginTop: 12, marginBottom: 6, display: 'flex', justifyContent: 'space-between', alignItems: 'center' } as any}>
-            <div style={{ display: 'flex', gap: 16 } as any}>
-              {v.heart_rate && <div style={{ textAlign: 'center' } as any}><i className="ri-heart-pulse-line" style={{ fontSize: 14, color: C.red }} /><div style={{ fontSize: 16, fontWeight: 800, color: C.text }}>{v.heart_rate}</div><div style={{ fontSize: 9, color: C.muted }}>BPM</div></div>}
-              {v.spo2 && <div style={{ textAlign: 'center' } as any}><i className="ri-drop-line" style={{ fontSize: 14, color: C.accent }} /><div style={{ fontSize: 16, fontWeight: 800, color: C.text }}>{v.spo2}%</div><div style={{ fontSize: 9, color: C.muted }}>SpO2</div></div>}
-              {v.temperature && <div style={{ textAlign: 'center' } as any}><i className="ri-temp-hot-line" style={{ fontSize: 14, color: C.amber }} /><div style={{ fontSize: 16, fontWeight: 800, color: C.text }}>{v.temperature}°C</div><div style={{ fontSize: 9, color: C.muted }}>Temp</div></div>}
-            </div>
-            <div style={{ fontSize: 11, fontWeight: 600, color: C.accent, cursor: 'pointer' }}>{activeBenData.name}</div>
-          </div>
-        )}
-
-        {/* ═══ PROGRAMS TAB ═══ */}
-        {activeTab === 'programs' && (
-          <div>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' } as any}>
-              <SL icon="ri-file-list-3-line" color={C.accent}>Programmes actifs</SL>
-              <div data-testid="new-program-btn" onClick={() => setShowNewProgram(true)} style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '6px 12px', borderRadius: 999, background: 'rgba(59,130,246,0.1)', border: '1px solid rgba(59,130,246,0.2)', cursor: 'pointer' } as any}>
-                <i className="ri-add-line" style={{ fontSize: 14, color: C.accent }} />
-                <span style={{ fontSize: 11, fontWeight: 700, color: C.accent }}>Programme</span>
-              </div>
+              ))}
             </div>
 
-            {programs.length === 0 && (
-              <div style={{ ...GL, padding: '40px 20px', textAlign: 'center', marginTop: 8 } as any}>
-                <i className="ri-file-add-line" style={{ fontSize: 32, color: C.muted, marginBottom: 8, display: 'block' }} />
-                <div style={{ fontSize: 13, fontWeight: 600, color: C.sub }}>Aucun programme pour ce patient</div>
-                <div style={{ fontSize: 11, color: C.muted, marginTop: 4 }}>Creez un programme avec des exercices adaptes</div>
+            {view === 'patients' && (
+              <div style={{ display: 'flex', gap: 8, overflowX: 'auto', WebkitOverflowScrolling: 'touch', paddingBottom: 4 } as any}>
+                {bens.map(b => {
+                  const sel = b.id === activeBen;
+                  return (
+                    <div key={b.id} data-testid={`ben-${b.id}`} onClick={() => setActiveBen(b.id)}
+                      style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '7px 14px', borderRadius: 999, flexShrink: 0, cursor: 'pointer',
+                        background: sel ? 'rgba(255,255,255,0.25)' : 'rgba(255,255,255,0.08)',
+                        border: `1.5px solid ${sel ? 'rgba(255,255,255,0.4)' : 'rgba(255,255,255,0.1)'}`,
+                      } as any}>
+                      <div style={{ width: 26, height: 26, borderRadius: 999, background: sel ? 'rgba(255,255,255,0.3)' : 'rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 11, fontWeight: 800, color: '#FFF' } as any}>
+                        {(b.name || '?')[0]}
+                      </div>
+                      <span style={{ fontSize: 12, fontWeight: sel ? 700 : 500, color: sel ? '#FFF' : 'rgba(255,255,255,0.7)' }}>{(b.name || 'Patient').split(' ')[0]}</span>
+                    </div>
+                  );
+                })}
               </div>
             )}
+          </div>
+        </div>
 
-            {programs.map((prog) => {
-              const sessions = prog.sessions || [];
-              const cat = CATEGORIES[prog.category] || CATEGORIES.renforcement;
-              const doneCount = sessions.filter((s: any) => (s.completions || []).some((c: any) => c.status === 'done')).length;
-              return (
-                <div key={prog.id} data-testid={`program-${prog.id}`} style={{ marginBottom: 16 }}>
-                  <div style={{ ...GL, padding: '16px', marginTop: 8 } as any}>
-                    <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' } as any}>
-                      <div style={{ display: 'flex', gap: 10, flex: 1 } as any}>
-                        <div style={{ width: 40, height: 40, borderRadius: 12, background: `${cat.color}12`, border: `1px solid ${cat.color}20`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}>
-                          <i className={cat.icon} style={{ fontSize: 18, color: cat.color }} />
-                        </div>
+        {/* ── CONTENT CARD ── */}
+        <div style={{ padding: '20px 16px 120px', marginTop: -16, borderRadius: '24px 24px 0 0', background: '#FFF', position: 'relative', zIndex: 10, minHeight: 'calc(100vh - 220px)' } as any}>
+
+          {/* ════ PATIENT VIEW ════ */}
+          {view === 'patients' && activeBenData && (
+            <>
+              {/* Quick action buttons */}
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 10, marginBottom: 20 } as any}>
+                {[
+                  { icon: 'ri-file-list-3-line', label: 'Programme', color: '#3B82F6', action: () => setShowNewProg(true) },
+                  { icon: 'ri-capsule-line', label: 'Rappel', color: '#10B981', action: () => setShowNewReminder(true) },
+                  { icon: 'ri-restaurant-line', label: 'Repas', color: '#F59E0B', action: () => setShowNewMeal(true) },
+                ].map((a, i) => (
+                  <div key={i} data-testid={`quick-${a.label.toLowerCase()}`} onClick={a.action}
+                    style={{ padding: '16px 10px', borderRadius: 16, background: `${a.color}08`, border: `1.5px solid ${a.color}20`, cursor: 'pointer', textAlign: 'center', transition: 'transform 0.1s' } as any}>
+                    <i className={a.icon} style={{ fontSize: 22, color: a.color, display: 'block', marginBottom: 6 }} />
+                    <div style={{ fontSize: 11, fontWeight: 700, color: '#374151' }}>{a.label}</div>
+                  </div>
+                ))}
+              </div>
+
+              {/* ── PROGRAMS SECTION ── */}
+              <div style={{ marginBottom: 24 } as any}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 } as any}>
+                  <div style={{ fontSize: 15, fontWeight: 800, color: '#111' }}>Programmes ({programs.length})</div>
+                </div>
+                {programs.length === 0 ? (
+                  <div style={{ padding: '24px 16px', borderRadius: 16, background: '#F9FAFB', textAlign: 'center' } as any}>
+                    <i className="ri-file-list-3-line" style={{ fontSize: 28, color: '#D1D5DB', display: 'block', marginBottom: 8 }} />
+                    <div style={{ fontSize: 13, color: '#9CA3AF' }}>Aucun programme pour {activeBenData.name?.split(' ')[0]}</div>
+                    <div data-testid="add-first-prog" onClick={() => setShowNewProg(true)} style={{ fontSize: 12, fontWeight: 700, color: AC, cursor: 'pointer', marginTop: 6 }}>+ Creer un programme</div>
+                  </div>
+                ) : (
+                  programs.map(prog => (
+                    <div key={prog.id} data-testid={`prog-${prog.id}`} style={{ borderRadius: 16, border: '1.5px solid #E5E7EB', marginBottom: 10, overflow: 'hidden' } as any}>
+                      <div style={{ padding: '14px 16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' } as any}>
                         <div>
-                          <div style={{ fontSize: 15, fontWeight: 800, color: C.text }}>{prog.title}</div>
-                          <div style={{ fontSize: 11, color: C.sub, marginTop: 2 }}>{prog.frequency} — {prog.duration_weeks} semaines</div>
-                          {prog.description && <div style={{ fontSize: 11, color: C.muted, marginTop: 4 }}>{prog.description}</div>}
+                          <div style={{ fontSize: 14, fontWeight: 700, color: '#111' }}>{prog.title}</div>
+                          <div style={{ fontSize: 11, color: '#9CA3AF', marginTop: 2 }}>{prog.frequency} - {prog.duration_weeks} sem. - {prog.sessions?.length || 0} exercice{(prog.sessions?.length || 0) !== 1 ? 's' : ''}</div>
+                        </div>
+                        <div style={{ display: 'flex', gap: 6 } as any}>
+                          <div data-testid={`dup-prog-${prog.id}`} onClick={() => setShowDuplicate(prog)} title="Dupliquer"
+                            style={{ width: 32, height: 32, borderRadius: 10, background: '#F3F4F6', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}>
+                            <i className="ri-file-copy-line" style={{ fontSize: 14, color: '#6B7280' }} />
+                          </div>
+                          <div data-testid={`add-ex-${prog.id}`} onClick={() => setShowNewExercise(prog.id)} title="Ajouter exercice"
+                            style={{ width: 32, height: 32, borderRadius: 10, background: `${AC}10`, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}>
+                            <i className="ri-add-line" style={{ fontSize: 16, color: AC }} />
+                          </div>
+                          <div onClick={() => deleteProgram(prog.id)} title="Supprimer"
+                            style={{ width: 32, height: 32, borderRadius: 10, background: '#FEE2E2', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}>
+                            <i className="ri-delete-bin-line" style={{ fontSize: 14, color: '#EF4444' }} />
+                          </div>
                         </div>
                       </div>
-                      <div onClick={() => deleteProgram(prog.id)} style={{ width: 32, height: 32, borderRadius: 10, background: 'rgba(239,68,68,0.06)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', flexShrink: 0 } as any}>
-                        <i className="ri-delete-bin-line" style={{ fontSize: 14, color: C.red }} />
+                      {prog.sessions?.length > 0 && (
+                        <div style={{ borderTop: '1px solid #F3F4F6', padding: '10px 16px' } as any}>
+                          {prog.sessions.map((s: any, i: number) => (
+                            <div key={s.id || i} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '6px 0', borderBottom: i < prog.sessions.length - 1 ? '1px solid #F9FAFB' : 'none' } as any}>
+                              <div style={{ width: 28, height: 28, borderRadius: 8, background: s.completed ? '#D1FAE5' : '#F3F4F6', display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}>
+                                <i className={s.completed ? 'ri-check-line' : 'ri-run-line'} style={{ fontSize: 13, color: s.completed ? '#10B981' : '#9CA3AF' }} />
+                              </div>
+                              <div style={{ flex: 1 }}>
+                                <div style={{ fontSize: 13, fontWeight: 600, color: '#374151' }}>{s.title}</div>
+                                {(s.sets || s.reps) && <div style={{ fontSize: 10, color: '#9CA3AF' }}>{s.sets} x {s.reps} reps</div>}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  ))
+                )}
+              </div>
+
+              {/* ── REMINDERS SECTION ── */}
+              <div style={{ marginBottom: 24 } as any}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 } as any}>
+                  <div style={{ fontSize: 15, fontWeight: 800, color: '#111' }}>Rappels ({reminders.length})</div>
+                </div>
+                {reminders.length === 0 ? (
+                  <div style={{ padding: '20px 16px', borderRadius: 16, background: '#F9FAFB', textAlign: 'center' } as any}>
+                    <div style={{ fontSize: 13, color: '#9CA3AF' }}>Aucun rappel</div>
+                  </div>
+                ) : (
+                  reminders.map(rem => (
+                    <div key={rem.id} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 14px', borderRadius: 14, border: '1.5px solid #E5E7EB', marginBottom: 8 } as any}>
+                      <div style={{ width: 36, height: 36, borderRadius: 10, background: rem.reminder_type === 'hydration' ? '#DBEAFE' : '#D1FAE5', display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}>
+                        <i className={rem.reminder_type === 'hydration' ? 'ri-drop-line' : 'ri-capsule-line'} style={{ fontSize: 16, color: rem.reminder_type === 'hydration' ? '#3B82F6' : '#10B981' }} />
+                      </div>
+                      <div style={{ flex: 1 }}>
+                        <div style={{ fontSize: 13, fontWeight: 700, color: '#111' }}>{rem.title}</div>
+                        <div style={{ fontSize: 11, color: '#9CA3AF' }}>{rem.time} - {rem.dosage || rem.days?.join(', ')}</div>
+                      </div>
+                      <div onClick={() => deleteReminder(rem.id)} style={{ cursor: 'pointer', padding: 4 } as any}>
+                        <i className="ri-close-line" style={{ fontSize: 16, color: '#D1D5DB' }} />
                       </div>
                     </div>
-                    {sessions.length > 0 && (
-                      <div style={{ marginTop: 12 }}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 } as any}>
-                          <span style={{ fontSize: 10, color: C.muted }}>{doneCount}/{sessions.length} exercices valides</span>
-                          <span style={{ fontSize: 10, fontWeight: 700, color: sessions.length > 0 ? C.green : C.muted }}>{sessions.length > 0 ? Math.round(doneCount / sessions.length * 100) : 0}%</span>
+                  ))
+                )}
+              </div>
+
+              {/* ── MEALS SECTION ── */}
+              <div style={{ marginBottom: 24 } as any}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 } as any}>
+                  <div style={{ fontSize: 15, fontWeight: 800, color: '#111' }}>Repas ({meals.length})</div>
+                </div>
+                {meals.length === 0 ? (
+                  <div style={{ padding: '20px 16px', borderRadius: 16, background: '#F9FAFB', textAlign: 'center' } as any}>
+                    <div style={{ fontSize: 13, color: '#9CA3AF' }}>Aucun plan de repas</div>
+                  </div>
+                ) : (
+                  <div style={{ display: 'grid', gap: 8 } as any}>
+                    {meals.map((m, i) => (
+                      <div key={i} style={{ padding: '12px 14px', borderRadius: 14, border: '1.5px solid #E5E7EB', display: 'flex', alignItems: 'center', gap: 12 } as any}>
+                        <div style={{ width: 36, height: 36, borderRadius: 10, background: '#FEF3C7', display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}>
+                          <i className="ri-restaurant-line" style={{ fontSize: 16, color: '#F59E0B' }} />
                         </div>
-                        <div style={{ height: 4, borderRadius: 2, background: C.faint, overflow: 'hidden' }}>
-                          <div style={{ height: '100%', borderRadius: 2, background: C.green, width: `${sessions.length > 0 ? (doneCount / sessions.length * 100) : 0}%`, transition: 'width 0.3s' }} />
+                        <div style={{ flex: 1 }}>
+                          <div style={{ fontSize: 13, fontWeight: 700, color: '#111', textTransform: 'capitalize' }}>{m.meal_type}</div>
+                          <div style={{ fontSize: 11, color: '#9CA3AF' }}>{Array.isArray(m.items) ? m.items.join(', ') : m.items}{m.calories ? ` - ${m.calories} kcal` : ''}</div>
                         </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </>
+          )}
+
+          {/* ════ LIBRARY VIEW ════ */}
+          {view === 'library' && (
+            <>
+              <div style={{ fontSize: 15, fontWeight: 800, color: '#111', marginBottom: 4 }}>Bibliotheque de programmes</div>
+              <div style={{ fontSize: 12, color: '#9CA3AF', marginBottom: 16 }}>Vos programmes existants. Dupliquez-les en un clic pour un autre patient.</div>
+              {uniquePrograms.length === 0 ? (
+                <div style={{ padding: '40px 16px', borderRadius: 16, background: '#F9FAFB', textAlign: 'center' } as any}>
+                  <i className="ri-book-2-line" style={{ fontSize: 36, color: '#D1D5DB', display: 'block', marginBottom: 10 }} />
+                  <div style={{ fontSize: 14, fontWeight: 600, color: '#6B7280' }}>Bibliotheque vide</div>
+                  <div style={{ fontSize: 12, color: '#9CA3AF', marginTop: 4 }}>Creez un programme pour un patient, il apparaitra ici automatiquement.</div>
+                </div>
+              ) : (
+                uniquePrograms.map(prog => (
+                  <div key={prog.id} style={{ borderRadius: 16, border: '1.5px solid #E5E7EB', marginBottom: 10, padding: '14px 16px' } as any}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' } as any}>
+                      <div style={{ flex: 1 }}>
+                        <div style={{ fontSize: 14, fontWeight: 700, color: '#111' }}>{prog.title}</div>
+                        <div style={{ fontSize: 11, color: '#9CA3AF', marginTop: 2 }}>{prog.frequency} - {prog.duration_weeks} sem. - {prog.sessions?.length || 0} exercices</div>
+                        {prog.description && <div style={{ fontSize: 12, color: '#6B7280', marginTop: 6 }}>{prog.description}</div>}
+                        <div style={{ fontSize: 10, color: '#D1D5DB', marginTop: 6 }}>Cree pour {prog.beneficiary_name || 'patient'}</div>
+                      </div>
+                      <div data-testid={`lib-dup-${prog.id}`} onClick={() => setShowDuplicate(prog)}
+                        style={{ padding: '8px 14px', borderRadius: 10, background: `${AC}08`, border: `1.5px solid ${AC}20`, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, flexShrink: 0 } as any}>
+                        <i className="ri-file-copy-line" style={{ fontSize: 13, color: AC }} />
+                        <span style={{ fontSize: 11, fontWeight: 700, color: AC }}>Attribuer</span>
+                      </div>
+                    </div>
+                    {prog.sessions?.length > 0 && (
+                      <div style={{ marginTop: 10, display: 'flex', gap: 6, flexWrap: 'wrap' } as any}>
+                        {prog.sessions.map((s: any, i: number) => (
+                          <span key={i} style={{ fontSize: 10, padding: '4px 10px', borderRadius: 999, background: '#F3F4F6', color: '#6B7280', fontWeight: 600 }}>{s.title}</span>
+                        ))}
                       </div>
                     )}
                   </div>
-                  <div style={{ paddingLeft: 4, marginTop: 6 }}>
-                    {sessions.map((ex: any) => (
-                      <ExerciseCard key={ex.id} ex={ex} onDelete={() => deleteExercise(prog.id, ex.id)} />
-                    ))}
-                    <div data-testid={`add-exercise-${prog.id}`} onClick={() => { setShowAddExercise(prog.id); setExForm({ ...exForm, category: prog.category }); }}
-                      style={{ ...GL, padding: '12px 16px', marginBottom: 8, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, opacity: 0.6, transition: 'opacity 0.15s' } as any}
-                      onMouseEnter={(e: any) => e.currentTarget.style.opacity = '1'} onMouseLeave={(e: any) => e.currentTarget.style.opacity = '0.6'}>
-                      <i className="ri-add-circle-line" style={{ fontSize: 16, color: C.accent }} />
-                      <span style={{ fontSize: 12, fontWeight: 600, color: C.accent }}>Ajouter un exercice</span>
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        )}
+                ))
+              )}
+            </>
+          )}
 
-        {/* ═══ REMINDERS TAB ═══ */}
-        {activeTab === 'reminders' && <RemindersTab token={token} activeBen={activeBen} activeBenData={activeBenData} />}
-
-        {/* ═══ MEALS TAB ═══ */}
-        {activeTab === 'meals' && <MealsTab token={token} activeBen={activeBen} activeBenData={activeBenData} />}
-
-        {/* ═══ BILANS TAB ═══ */}
-        {activeTab === 'bilans' && <BilansTab token={token} activeBen={activeBen} activeBenData={activeBenData} />}
-
-        {/* ═══ MESSAGES TAB ═══ */}
-        {activeTab === 'messages' && <MessagesTab token={token} activeBen={activeBen} activeBenData={activeBenData} />}
+          {/* No beneficiary state */}
+          {view === 'patients' && !activeBenData && bens.length === 0 && (
+            <div style={{ textAlign: 'center', padding: '60px 20px' } as any}>
+              <i className="ri-user-add-line" style={{ fontSize: 48, color: '#D1D5DB', display: 'block', marginBottom: 16 }} />
+              <div style={{ fontSize: 16, fontWeight: 700, color: '#111', marginBottom: 8 }}>Aucun patient</div>
+              <div style={{ fontSize: 13, color: '#9CA3AF', lineHeight: 1.6 }}>Vos patients apparaitront ici lorsqu'ils souscriront a un abonnement {isCoach ? 'Sport' : isPhysio ? 'Physio' : ''} via leur gardien.</div>
+            </div>
+          )}
+        </div>
       </div>
 
-      {/* ── Modal: New Program ── */}
-      {showNewProgram && (
-        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)', zIndex: 9999, display: 'flex', alignItems: 'flex-end' } as any} onClick={() => setShowNewProgram(false)}>
-          <div onClick={(e) => e.stopPropagation()} style={{ width: '100%', maxWidth: 420, margin: '0 auto', background: '#FFF', borderRadius: '24px 24px 0 0', padding: '24px 20px 36px', maxHeight: '80vh', overflowY: 'auto', boxShadow: '0 -8px 40px rgba(0,0,0,0.12)' } as any}>
-            <div style={{ fontSize: 17, fontWeight: 800, color: C.text, marginBottom: 18 }}>Nouveau programme</div>
-            <input data-testid="prog-title" value={progForm.title} onChange={(e) => setProgForm({ ...progForm, title: e.target.value })} placeholder="Nom du programme" style={{ width: '100%', padding: '13px 14px', borderRadius: 14, background: '#F5F5F7', border: '1px solid rgba(0,0,0,0.06)', color: C.text, fontSize: 14, outline: 'none', marginBottom: 10 } as any} />
-            <textarea value={progForm.description} onChange={(e) => setProgForm({ ...progForm, description: e.target.value })} placeholder="Description / objectif..." style={{ width: '100%', padding: '13px 14px', borderRadius: 14, background: '#F5F5F7', border: '1px solid rgba(0,0,0,0.06)', color: C.text, fontSize: 14, outline: 'none', minHeight: 60, resize: 'vertical', marginBottom: 10 } as any} />
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginBottom: 14 } as any}>
-              {Object.entries(CATEGORIES).map(([key, cat]) => {
-                const sel = progForm.category === key;
-                return <div key={key} onClick={() => setProgForm({ ...progForm, category: key })} style={{ padding: '6px 12px', borderRadius: 999, cursor: 'pointer', fontSize: 11, fontWeight: 600, background: sel ? `${cat.color}15` : C.faint, border: `1px solid ${sel ? `${cat.color}30` : 'transparent'}`, color: sel ? cat.color : C.muted } as any}><i className={cat.icon} style={{ fontSize: 11, marginRight: 4 }} />{cat.label}</div>;
-              })}
-            </div>
+      {/* ═══ MODALS ═══ */}
+
+      {/* New Program */}
+      {showNewProg && (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)', zIndex: 9999, display: 'flex', alignItems: 'flex-end' } as any} onClick={() => setShowNewProg(false)}>
+          <div onClick={e => e.stopPropagation()} style={{ width: '100%', maxWidth: 420, margin: '0 auto', background: '#FFF', borderRadius: '24px 24px 0 0', padding: '24px 20px 36px', maxHeight: '80vh', overflowY: 'auto', boxShadow: '0 -8px 40px rgba(0,0,0,0.12)' } as any}>
+            <div style={{ fontSize: 17, fontWeight: 800, color: '#111', marginBottom: 18 }}>Nouveau programme pour {activeBenData?.name?.split(' ')[0]}</div>
+            <div style={{ marginBottom: 12 }}><label style={LBL}>Nom du programme</label><input data-testid="prog-title" value={progForm.title} onChange={e => setProgForm({ ...progForm, title: e.target.value })} placeholder="Ex: Renforcement musculaire" style={INP} /></div>
+            <div style={{ marginBottom: 12 }}><label style={LBL}>Description</label><textarea value={progForm.description} onChange={e => setProgForm({ ...progForm, description: e.target.value })} placeholder="Objectifs, consignes..." style={{ ...INP, minHeight: 60, resize: 'vertical' } as any} /></div>
             <div style={{ display: 'flex', gap: 8, marginBottom: 18 } as any}>
-              <input value={progForm.frequency} onChange={(e) => setProgForm({ ...progForm, frequency: e.target.value })} placeholder="Frequence" style={{ flex: 1, padding: '13px 14px', borderRadius: 14, background: '#F5F5F7', border: '1px solid rgba(0,0,0,0.06)', color: C.text, fontSize: 14, outline: 'none' } as any} />
-              <input type="number" value={progForm.duration_weeks} onChange={(e) => setProgForm({ ...progForm, duration_weeks: parseInt(e.target.value) || 1 })} style={{ width: 80, padding: '13px 14px', borderRadius: 14, background: '#F5F5F7', border: '1px solid rgba(0,0,0,0.06)', color: C.text, fontSize: 14, outline: 'none', textAlign: 'center' } as any} />
-              <span style={{ alignSelf: 'center', fontSize: 12, color: C.muted }}>sem.</span>
+              <div style={{ flex: 1 }}><label style={LBL}>Frequence</label><input value={progForm.frequency} onChange={e => setProgForm({ ...progForm, frequency: e.target.value })} placeholder="3x/semaine" style={INP} /></div>
+              <div style={{ width: 90 }}><label style={LBL}>Duree (sem.)</label><input type="number" value={progForm.duration_weeks} onChange={e => setProgForm({ ...progForm, duration_weeks: parseInt(e.target.value) || 1 })} style={{ ...INP, textAlign: 'center' } as any} /></div>
             </div>
-            <div data-testid="submit-program" onClick={saving ? undefined : createProgram} style={{ padding: '15px', borderRadius: 999, textAlign: 'center', cursor: 'pointer', background: progForm.title ? C.accent : C.faint, color: progForm.title ? '#FFF' : C.muted, fontSize: 14, fontWeight: 800, opacity: saving ? 0.5 : 1 } as any}>{saving ? 'Creation...' : 'Creer le programme'}</div>
+            <div data-testid="submit-prog" onClick={progForm.title ? createProgram : undefined} style={BTN(!!progForm.title)}>Creer le programme</div>
           </div>
         </div>
       )}
 
-      {/* ── Modal: Add Exercise ── */}
-      {showAddExercise && (
-        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)', zIndex: 9999, display: 'flex', alignItems: 'flex-end' } as any} onClick={() => setShowAddExercise(null)}>
-          <div onClick={(e) => e.stopPropagation()} style={{ width: '100%', maxWidth: 420, margin: '0 auto', background: '#FFF', borderRadius: '24px 24px 0 0', padding: '24px 20px 36px', maxHeight: '80vh', overflowY: 'auto', boxShadow: '0 -8px 40px rgba(0,0,0,0.12)' } as any}>
-            <div style={{ fontSize: 17, fontWeight: 800, color: C.text, marginBottom: 18 }}>Ajouter un exercice</div>
-            <input data-testid="ex-title" value={exForm.title} onChange={(e) => setExForm({ ...exForm, title: e.target.value })} placeholder="Nom de l'exercice" style={{ width: '100%', padding: '13px 14px', borderRadius: 14, background: '#F5F5F7', border: '1px solid rgba(0,0,0,0.06)', color: C.text, fontSize: 14, outline: 'none', marginBottom: 10 } as any} />
-            <textarea value={exForm.description} onChange={(e) => setExForm({ ...exForm, description: e.target.value })} placeholder="Instructions, consignes..." style={{ width: '100%', padding: '13px 14px', borderRadius: 14, background: '#F5F5F7', border: '1px solid rgba(0,0,0,0.06)', color: C.text, fontSize: 14, outline: 'none', minHeight: 60, resize: 'vertical', marginBottom: 10 } as any} />
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginBottom: 14 } as any}>
-              {Object.entries(CATEGORIES).map(([key, cat]) => {
-                const sel = exForm.category === key;
-                return <div key={key} onClick={() => setExForm({ ...exForm, category: key })} style={{ padding: '6px 12px', borderRadius: 999, cursor: 'pointer', fontSize: 11, fontWeight: 600, background: sel ? `${cat.color}15` : C.faint, border: `1px solid ${sel ? `${cat.color}30` : 'transparent'}`, color: sel ? cat.color : C.muted } as any}><i className={cat.icon} style={{ fontSize: 11, marginRight: 4 }} />{cat.label}</div>;
-              })}
+      {/* New Exercise */}
+      {showNewExercise && (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)', zIndex: 9999, display: 'flex', alignItems: 'flex-end' } as any} onClick={() => setShowNewExercise(null)}>
+          <div onClick={e => e.stopPropagation()} style={{ width: '100%', maxWidth: 420, margin: '0 auto', background: '#FFF', borderRadius: '24px 24px 0 0', padding: '24px 20px 36px', maxHeight: '80vh', overflowY: 'auto', boxShadow: '0 -8px 40px rgba(0,0,0,0.12)' } as any}>
+            <div style={{ fontSize: 17, fontWeight: 800, color: '#111', marginBottom: 18 }}>Ajouter un exercice</div>
+            <div style={{ marginBottom: 12 }}><label style={LBL}>Nom de l'exercice</label><input data-testid="ex-title" value={exForm.title} onChange={e => setExForm({ ...exForm, title: e.target.value })} placeholder="Ex: Squat" style={INP} /></div>
+            <div style={{ marginBottom: 12 }}><label style={LBL}>Instructions</label><textarea value={exForm.description} onChange={e => setExForm({ ...exForm, description: e.target.value })} placeholder="Consignes de realisation..." style={{ ...INP, minHeight: 60, resize: 'vertical' } as any} /></div>
+            <div style={{ display: 'flex', gap: 8, marginBottom: 18 } as any}>
+              <div style={{ flex: 1 }}><label style={LBL}>Series</label><input type="number" value={exForm.sets} onChange={e => setExForm({ ...exForm, sets: parseInt(e.target.value) || 0 })} style={{ ...INP, textAlign: 'center' } as any} /></div>
+              <div style={{ flex: 1 }}><label style={LBL}>Repetitions</label><input type="number" value={exForm.reps} onChange={e => setExForm({ ...exForm, reps: parseInt(e.target.value) || 0 })} style={{ ...INP, textAlign: 'center' } as any} /></div>
+              <div style={{ flex: 1 }}><label style={LBL}>Duree (min)</label><input type="number" value={exForm.duration_minutes} onChange={e => setExForm({ ...exForm, duration_minutes: parseInt(e.target.value) || 0 })} style={{ ...INP, textAlign: 'center' } as any} /></div>
             </div>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 8, marginBottom: 18 } as any}>
-              <div>
-                <label style={{ fontSize: 10, color: C.muted, fontWeight: 600, display: 'block', marginBottom: 4 } as any}>Series</label>
-                <input type="number" value={exForm.sets || ''} onChange={(e) => setExForm({ ...exForm, sets: parseInt(e.target.value) || 0 })} placeholder="0" style={{ width: '100%', padding: '11px 14px', borderRadius: 14, background: C.faint, border: '1px solid rgba(0,0,0,0.06)', color: C.text, fontSize: 14, outline: 'none', textAlign: 'center' } as any} />
-              </div>
-              <div>
-                <label style={{ fontSize: 10, color: C.muted, fontWeight: 600, display: 'block', marginBottom: 4 } as any}>Repetitions</label>
-                <input type="number" value={exForm.repetitions || ''} onChange={(e) => setExForm({ ...exForm, repetitions: parseInt(e.target.value) || 0 })} placeholder="0" style={{ width: '100%', padding: '11px 14px', borderRadius: 14, background: C.faint, border: '1px solid rgba(0,0,0,0.06)', color: C.text, fontSize: 14, outline: 'none', textAlign: 'center' } as any} />
-              </div>
-              <div>
-                <label style={{ fontSize: 10, color: C.muted, fontWeight: 600, display: 'block', marginBottom: 4 } as any}>Duree (min)</label>
-                <input type="number" value={exForm.duration_min || ''} onChange={(e) => setExForm({ ...exForm, duration_min: parseInt(e.target.value) || 0 })} placeholder="0" style={{ width: '100%', padding: '11px 14px', borderRadius: 14, background: C.faint, border: '1px solid rgba(0,0,0,0.06)', color: C.text, fontSize: 14, outline: 'none', textAlign: 'center' } as any} />
-              </div>
-              <div>
-                <label style={{ fontSize: 10, color: C.muted, fontWeight: 600, display: 'block', marginBottom: 4 } as any}>Repos (sec)</label>
-                <input type="number" value={exForm.rest_sec || ''} onChange={(e) => setExForm({ ...exForm, rest_sec: parseInt(e.target.value) || 0 })} placeholder="0" style={{ width: '100%', padding: '11px 14px', borderRadius: 14, background: C.faint, border: '1px solid rgba(0,0,0,0.06)', color: C.text, fontSize: 14, outline: 'none', textAlign: 'center' } as any} />
-              </div>
-            </div>
-            <div data-testid="submit-exercise" onClick={saving ? undefined : () => addExercise(showAddExercise)} style={{ padding: '15px', borderRadius: 999, textAlign: 'center', cursor: 'pointer', background: exForm.title ? C.green : C.faint, color: exForm.title ? '#FFF' : C.muted, fontSize: 14, fontWeight: 800, opacity: saving ? 0.5 : 1 } as any}>{saving ? 'Ajout...' : 'Ajouter l\'exercice'}</div>
+            <div data-testid="submit-ex" onClick={exForm.title ? () => addExercise(showNewExercise) : undefined} style={BTN(!!exForm.title)}>Ajouter l'exercice</div>
           </div>
         </div>
       )}
-      </div>
-      </div>
+
+      {/* New Reminder */}
+      {showNewReminder && (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)', zIndex: 9999, display: 'flex', alignItems: 'flex-end' } as any} onClick={() => setShowNewReminder(false)}>
+          <div onClick={e => e.stopPropagation()} style={{ width: '100%', maxWidth: 420, margin: '0 auto', background: '#FFF', borderRadius: '24px 24px 0 0', padding: '24px 20px 36px', maxHeight: '80vh', overflowY: 'auto', boxShadow: '0 -8px 40px rgba(0,0,0,0.12)' } as any}>
+            <div style={{ fontSize: 17, fontWeight: 800, color: '#111', marginBottom: 18 }}>Nouveau rappel pour {activeBenData?.name?.split(' ')[0]}</div>
+            <div style={{ display: 'flex', gap: 8, marginBottom: 12 } as any}>
+              {['medication', 'hydration'].map(t => (
+                <div key={t} onClick={() => setRemForm({ ...remForm, reminder_type: t })}
+                  style={{ flex: 1, padding: '12px', borderRadius: 12, textAlign: 'center', cursor: 'pointer',
+                    background: remForm.reminder_type === t ? `${t === 'hydration' ? '#3B82F6' : '#10B981'}10` : '#F9FAFB',
+                    border: `1.5px solid ${remForm.reminder_type === t ? (t === 'hydration' ? '#3B82F6' : '#10B981') : '#E5E7EB'}`,
+                  } as any}>
+                  <i className={t === 'hydration' ? 'ri-drop-line' : 'ri-capsule-line'} style={{ fontSize: 18, color: t === 'hydration' ? '#3B82F6' : '#10B981' }} />
+                  <div style={{ fontSize: 11, fontWeight: 700, color: '#374151', marginTop: 4 }}>{t === 'hydration' ? 'Hydratation' : 'Complement'}</div>
+                </div>
+              ))}
+            </div>
+            <div style={{ marginBottom: 12 }}><label style={LBL}>Titre</label><input value={remForm.title} onChange={e => setRemForm({ ...remForm, title: e.target.value })} placeholder="Ex: Vitamine D" style={INP} /></div>
+            <div style={{ display: 'flex', gap: 8, marginBottom: 12 } as any}>
+              <div style={{ flex: 1 }}><label style={LBL}>Heure</label><input type="time" value={remForm.time} onChange={e => setRemForm({ ...remForm, time: e.target.value })} style={INP} /></div>
+              <div style={{ flex: 1 }}><label style={LBL}>Dosage</label><input value={remForm.dosage} onChange={e => setRemForm({ ...remForm, dosage: e.target.value })} placeholder="1 comprimes" style={INP} /></div>
+            </div>
+            <div data-testid="submit-rem" onClick={remForm.title ? createReminder : undefined} style={BTN(!!remForm.title)}>Ajouter le rappel</div>
+          </div>
+        </div>
+      )}
+
+      {/* New Meal */}
+      {showNewMeal && (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)', zIndex: 9999, display: 'flex', alignItems: 'flex-end' } as any} onClick={() => setShowNewMeal(false)}>
+          <div onClick={e => e.stopPropagation()} style={{ width: '100%', maxWidth: 420, margin: '0 auto', background: '#FFF', borderRadius: '24px 24px 0 0', padding: '24px 20px 36px', maxHeight: '80vh', overflowY: 'auto', boxShadow: '0 -8px 40px rgba(0,0,0,0.12)' } as any}>
+            <div style={{ fontSize: 17, fontWeight: 800, color: '#111', marginBottom: 18 }}>Plan de repas pour {activeBenData?.name?.split(' ')[0]}</div>
+            <div style={{ display: 'flex', gap: 6, marginBottom: 12, flexWrap: 'wrap' } as any}>
+              {['petit_dejeuner', 'dejeuner', 'gouter', 'diner', 'collation'].map(t => (
+                <div key={t} onClick={() => setMealForm({ ...mealForm, meal_type: t })}
+                  style={{ padding: '8px 14px', borderRadius: 999, cursor: 'pointer', fontSize: 12, fontWeight: 600,
+                    background: mealForm.meal_type === t ? '#FEF3C7' : '#F9FAFB',
+                    color: mealForm.meal_type === t ? '#B45309' : '#6B7280',
+                    border: `1.5px solid ${mealForm.meal_type === t ? '#F59E0B' : '#E5E7EB'}`,
+                  } as any}>{t.replace('_', ' ')}</div>
+              ))}
+            </div>
+            <div style={{ marginBottom: 12 }}><label style={LBL}>Aliments (separes par des virgules)</label><textarea value={mealForm.items} onChange={e => setMealForm({ ...mealForm, items: e.target.value })} placeholder="Poulet grille, riz complet, haricots verts" style={{ ...INP, minHeight: 60, resize: 'vertical' } as any} /></div>
+            <div style={{ display: 'flex', gap: 8, marginBottom: 12 } as any}>
+              <div style={{ flex: 1 }}><label style={LBL}>Calories</label><input type="number" value={mealForm.calories || ''} onChange={e => setMealForm({ ...mealForm, calories: parseInt(e.target.value) || 0 })} placeholder="450" style={INP} /></div>
+              <div style={{ flex: 1 }}><label style={LBL}>Proteines (g)</label><input type="number" value={mealForm.proteins || ''} onChange={e => setMealForm({ ...mealForm, proteins: parseInt(e.target.value) || 0 })} placeholder="35" style={INP} /></div>
+            </div>
+            <div style={{ marginBottom: 18 }}><label style={LBL}>Notes</label><input value={mealForm.notes} onChange={e => setMealForm({ ...mealForm, notes: e.target.value })} placeholder="Eviter les plats trop sales" style={INP} /></div>
+            <div data-testid="submit-meal" onClick={mealForm.items ? createMeal : undefined} style={BTN(!!mealForm.items)}>Ajouter le repas</div>
+          </div>
+        </div>
+      )}
+
+      {/* Duplicate/Assign Program */}
+      {showDuplicate && (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)', zIndex: 9999, display: 'flex', alignItems: 'flex-end' } as any} onClick={() => setShowDuplicate(null)}>
+          <div onClick={e => e.stopPropagation()} style={{ width: '100%', maxWidth: 420, margin: '0 auto', background: '#FFF', borderRadius: '24px 24px 0 0', padding: '24px 20px 36px', boxShadow: '0 -8px 40px rgba(0,0,0,0.12)' } as any}>
+            <div style={{ fontSize: 17, fontWeight: 800, color: '#111', marginBottom: 6 }}>Attribuer le programme</div>
+            <div style={{ fontSize: 13, color: '#9CA3AF', marginBottom: 18 }}>"{showDuplicate.title}" sera duplique avec tous ses exercices.</div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 } as any}>
+              {bens.filter(b => b.id !== showDuplicate.beneficiary_id).map(b => (
+                <div key={b.id} data-testid={`assign-to-${b.id}`} onClick={() => duplicateProgram(showDuplicate.id, b.id)}
+                  style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '14px 16px', borderRadius: 14, border: '1.5px solid #E5E7EB', cursor: 'pointer', transition: 'background 0.15s' } as any}
+                  onMouseEnter={(e: any) => e.currentTarget.style.background = '#F9FAFB'}
+                  onMouseLeave={(e: any) => e.currentTarget.style.background = '#FFF'}>
+                  <div style={{ width: 36, height: 36, borderRadius: '50%', background: `${AC}10`, display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}>
+                    <span style={{ fontSize: 14, fontWeight: 800, color: AC }}>{(b.name || '?')[0]}</span>
+                  </div>
+                  <div style={{ flex: 1 }}>
+                    <div style={{ fontSize: 14, fontWeight: 700, color: '#111' }}>{b.name}</div>
+                  </div>
+                  <i className="ri-file-copy-line" style={{ fontSize: 16, color: '#9CA3AF' }} />
+                </div>
+              ))}
+              {bens.filter(b => b.id !== showDuplicate.beneficiary_id).length === 0 && (
+                <div style={{ padding: '20px', textAlign: 'center', color: '#9CA3AF', fontSize: 13 }}>Aucun autre patient disponible</div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -372,11 +372,6 @@ const BG_PROFILE = 'https://customer-assets.emergentagent.com/job_9950a869-9328-
                   <span style={{ fontSize: 11, fontWeight: 700, color: '#A78BFA' }}>Care</span>
                 </div>
               )}
-              {isGuardian && user.is_prescriber && (
-                <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '5px 14px', borderRadius: 999, background: 'rgba(212,132,90,0.15)', border: '1px solid rgba(212,132,90,0.3)' } as any}>
-                  <span style={{ fontSize: 11, fontWeight: 700, color: '#D4845A' }}>Prescripteur</span>
-                </div>
-              )}
             </div>
           </div>{/* end header inner padding */}
           </div>{/* end RED BG header */}
