@@ -296,7 +296,7 @@ const BG_PROFILE = 'https://customer-assets.emergentagent.com/job_9950a869-9328-
 
   const effectiveRole = user.active_role || user.role;
   const isBen = effectiveRole === 'beneficiary';
-  const isGuardian = effectiveRole === 'guardian';
+  const isGuardian = effectiveRole === 'guardian' || effectiveRole === 'professional';
   const roleName = isBen ? t('beneficiary') : isGuardian ? t('guardian') : effectiveRole === 'teleassistance' ? 'Teleassistance' : effectiveRole === 'admin' ? 'Administrateur' : 'Company';
   const otherRole = isBen ? 'gardien' : 'beneficiaire';
   const hasOther = (effectiveRole === 'prescriber_company' || effectiveRole === 'admin' || effectiveRole === 'teleassistance') ? false

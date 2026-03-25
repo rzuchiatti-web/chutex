@@ -360,7 +360,7 @@ async def switch_active_role(data: dict, user=Depends(get_current_user)):
             raise HTTPException(status_code=400, detail="Activez d'abord votre espace beneficiaire")
         await db.users.update_one({"id": user['id']}, {"$set": {"active_role": "beneficiary"}})
     elif target == "guardian":
-        if user.get("role") != "guardian" and not user.get("has_guardian_space"):
+        if user.get("role") not in ("guardian", "professional") and not user.get("has_guardian_space"):
             raise HTTPException(status_code=400, detail="Activez d'abord votre espace gardien")
         await db.users.update_one({"id": user['id']}, {"$set": {"active_role": "guardian"}})
     else:

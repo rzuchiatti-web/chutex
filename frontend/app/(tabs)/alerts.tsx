@@ -71,9 +71,9 @@ function AnomalyCard({ alert }: { alert: any }) {
   );
 }
 
-/* ────────────────────────────────────────────────────────────────────
+/* -------------------------------------------------------------------
    EXPLAINER PAGE  — "Comprendre les alertes"
-   ──────────────────────────────────────────────────────────────────── */
+   ------------------------------------------------------------------ */
 function ExplainerPage({ onClose, role }: { onClose: () => void; role: string }) {
   const isSAAD = role === 'prescriber_company';
 
@@ -183,9 +183,9 @@ function ExplainerPage({ onClose, role }: { onClose: () => void; role: string })
   );
 }
 
-/* ────────────────────────────────────────────────────────────────────
+/* -------------------------------------------------------------------
    REPORT PAGE  — Rapport de cloture
-   ──────────────────────────────────────────────────────────────────── */
+   ------------------------------------------------------------------ */
 function ReportPage({ alert, role, token, onClose, onDone }: { alert: any; role: string; token: string; onClose: () => void; onDone: () => void }) {
   const [reportText, setReportText] = useState('');
   const [reportAnswers, setReportAnswers] = useState<Record<string, string>>({});
@@ -262,9 +262,9 @@ function ReportPage({ alert, role, token, onClose, onDone }: { alert: any; role:
   );
 }
 
-/* ────────────────────────────────────────────────────────────────────
+/* -------------------------------------------------------------------
    INTERVENANT POPUP  — ultra-glass overlay
-   ──────────────────────────────────────────────────────────────────── */
+   ------------------------------------------------------------------ */
 function IntervenantPopup({ person, onClose }: { person: any; onClose: () => void }) {
   const dn = person?.name || 'Intervenant';
   const rows = [
@@ -313,9 +313,9 @@ function IntervenantPopup({ person, onClose }: { person: any; onClose: () => voi
   );
 }
 
-/* ────────────────────────────────────────────────────────────────────
+/* -------------------------------------------------------------------
    DETAIL PAGE  — Full-screen alert detail (web)
-   ──────────────────────────────────────────────────────────────────── */
+   ------------------------------------------------------------------ */
 function AlertDetailWeb({ alert, onClose, role, token, onRefresh, user }: { alert: any; onClose: () => void; role: string; token: string; onRefresh: () => void; user: any }) {
   const router = useRouter();
   const { t } = useI18n();
@@ -346,7 +346,7 @@ function AlertDetailWeb({ alert, onClose, role, token, onRefresh, user }: { aler
     return <ReportPage alert={alert} role={role} token={token} onClose={() => setShowReport(false)} onDone={() => { onRefresh(); onClose(); }} />;
   }
 
-  /* ── Slide button helper ── */
+  /* - Slide button helper - */
   const SlideButton = ({ label, icon, color, bgColor, borderColor, onSlideComplete }: any) => (
     <div data-testid={`slide-btn-${label.replace(/\s+/g, '-').toLowerCase()}`}
       style={{ width: '100%', height: 58, borderRadius: 999, position: 'relative', overflow: 'hidden', background: bgColor, border: `1px solid ${borderColor}`, marginBottom: 12, touchAction: 'none' } as any}
@@ -521,9 +521,9 @@ function AlertDetailWeb({ alert, onClose, role, token, onRefresh, user }: { aler
   );
 }
 
-/* ────────────────────────────────────────────────────────────────────
+/* -------------------------------------------------------------------
    SUB-COMPONENTS for detail page
-   ──────────────────────────────────────────────────────────────────── */
+   ------------------------------------------------------------------ */
 
 function BeneficiaireCard({ ben }: { ben: any }) {
   const rows = [
@@ -737,9 +737,9 @@ function ResolvedSection({ alert, alertDetail }: { alert: any; alertDetail: any 
   );
 }
 
-/* ════════════════════════════════════════════════════════════════════
+/* ========================================================================
    PRO MESSAGING  — WhatsApp-like messaging for Coach/Physio
-   ════════════════════════════════════════════════════════════════════ */
+   ======================================================================== */
 function ProMessaging({ token, user }: { token: string; user: any }) {
   const [conversations, setConversations] = useState<any[]>([]);
   const [activeConvo, setActiveConvo] = useState<any>(null);
@@ -800,26 +800,29 @@ function ProMessaging({ token, user }: { token: string; user: any }) {
   if (loading) return <FullScreenLoader />;
 
   return (
-    <div data-testid="pro-messaging" style={{ position: 'absolute', inset: 0, background: '#FFF', display: 'flex', flexDirection: 'column', fontFamily: 'Inter, system-ui, sans-serif' } as any}>
+    <div data-testid="pro-messaging" style={{ position: 'absolute', inset: 0, background: '#F5F5F5', display: 'flex', flexDirection: 'column', fontFamily: 'Inter, system-ui, sans-serif', overflow: 'hidden' } as any}>
 
-      {/* Header */}
-      <div style={{ position: 'relative', flexShrink: 0, overflow: 'hidden' } as any}>
-        <img src={BG_IMAGE} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 } as any} />
-        <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 1 } as any} />
-        <div style={{ position: 'relative', zIndex: 2, padding: '20px 20px 16px' } as any}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4 } as any}>
-            <i className="ri-chat-3-fill" style={{ fontSize: 14, color: '#FFF' }} />
-            <span style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.7)', textTransform: 'uppercase', letterSpacing: 1 } as any}>Messagerie</span>
-          </div>
-          <div style={{ fontSize: 20, fontWeight: 900, color: '#FFF' }}>Conversations</div>
-          <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.5)', marginTop: 2 }}>{conversations.length} conversation{conversations.length !== 1 ? 's' : ''}</div>
-        </div>
-      </div>
-
-      {/* Content */}
       {!activeConvo ? (
-        /* ── CONVERSATION LIST ── */
-        <div data-testid="convo-list" style={{ flex: 1, overflowY: 'auto', padding: '12px 16px 80px' } as any}>
+        /* CONVERSATION LIST VIEW */
+        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' } as any}>
+          {/* Header */}
+          <div style={{ position: 'relative', zIndex: 1, flexShrink: 0 } as any}>
+            <img src={BG_IMAGE} alt="" style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 } as any} />
+            <div style={{ position: 'relative', zIndex: 2, padding: '22px 20px 32px' } as any}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 12 } as any}>
+                <div style={{ width: 44, height: 44, borderRadius: 22, background: 'rgba(255,255,255,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}>
+                  <i className="ri-chat-3-fill" style={{ fontSize: 22, color: '#FFF' }} />
+                </div>
+                <div>
+                  <div style={{ fontSize: 18, fontWeight: 800, color: '#FFF', letterSpacing: -0.5 }}>Messagerie</div>
+                  <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.6)', fontWeight: 500 }}>{conversations.length} conversation{conversations.length !== 1 ? 's' : ''}</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Content card with rounded top */}
+          <div data-testid="convo-list" style={{ flex: 1, overflowY: 'auto', marginTop: -16, borderRadius: '24px 24px 0 0', background: '#FFF', position: 'relative', zIndex: 10, borderTop: '1px solid rgba(0,0,0,0.08)', padding: '20px 16px 80px' } as any}>
           {conversations.length === 0 ? (
             <div style={{ textAlign: 'center', padding: '60px 20px' } as any}>
               <div style={{ width: 64, height: 64, borderRadius: '50%', background: 'rgba(0,0,0,0.04)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px' } as any}>
@@ -860,9 +863,10 @@ function ProMessaging({ token, user }: { token: string; user: any }) {
               );
             })
           )}
-        </div>
+          </div>{/* end convo list content card */}
+        </div>{/* end conversation list view */}
       ) : (
-        /* ── CHAT VIEW ── */
+        /* CHAT VIEW */
         <>
           {/* Chat header */}
           <div data-testid="chat-header" style={{ padding: '12px 16px', flexShrink: 0, display: 'flex', alignItems: 'center', gap: 12, borderBottom: '1px solid #F3F4F6', background: '#FFF' } as any}>
@@ -927,9 +931,9 @@ function ProMessaging({ token, user }: { token: string; user: any }) {
   );
 }
 
-/* ════════════════════════════════════════════════════════════════════
+/* ========================================================================
    MAIN EXPORT  — AlertsScreen
-   ════════════════════════════════════════════════════════════════════ */
+   ======================================================================== */
 export default function AlertsScreen() {
   const { token, user } = useAuth();
   const router = useRouter();
@@ -980,7 +984,7 @@ export default function AlertsScreen() {
   const resolved = alerts.filter(a => a.status === 'resolved');
   const filtered = tab === 'active' ? activeAlerts : resolved;
 
-  /* ── Web: full-screen sub-pages via early returns ── */
+  /* - Web: full-screen sub-pages via early returns - */
   if (Platform.OS === 'web') {
     if (showExplainer) return <ExplainerPage onClose={() => setShowExplainer(false)} role={r} />;
     if (selectedAlert) return (
@@ -997,7 +1001,7 @@ export default function AlertsScreen() {
 
   if (loading) return <FullScreenLoader />;
 
-  /* ── Web list page ── */
+  /* - Web list page - */
   if (Platform.OS === 'web' && (r === 'guardian' || r === 'beneficiary' || r === 'prescriber_company' || r === 'admin' || r === 'teleassistance')) {
     return (
       <div data-testid="alerts-list-page" style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, display: 'flex', flexDirection: 'column', fontFamily: 'Inter, system-ui, sans-serif', overflow: 'hidden' } as any}>
@@ -1108,7 +1112,7 @@ export default function AlertsScreen() {
     );
   }
 
-  /* ── Native: intervenant role uses FlatList ── */
+  /* - Native: intervenant role uses FlatList - */
   if (r === 'care_intervenant') {
     return (
       <ScrollView style={{ flex: 1, backgroundColor: '#FFF' }} contentContainerStyle={{ padding: 16, paddingBottom: 80 }}
@@ -1138,7 +1142,7 @@ export default function AlertsScreen() {
     );
   }
 
-  /* ── Fallback for other roles (native) ── */
+  /* - Fallback for other roles (native) - */
   return (
     <View style={{ flex: 1, backgroundColor: '#FFFFFF' }}>
       <View style={{ paddingHorizontal: 16, paddingTop: 16, paddingBottom: 12 }}>

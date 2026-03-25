@@ -47,10 +47,12 @@ class ProProfileUpdate(BaseModel):
 # ── Helpers ──
 
 def require_pro(user):
-    eff = get_effective_role(user)
-    if eff != 'professional':
-        raise HTTPException(status_code=403, detail="Reserve aux professionnels")
-    return eff
+    """Check user is a professional (coach or physio) - either by role or professional_type"""
+    pro_type = user.get('professional_type', '')
+    role = user.get('active_role') or user.get('role', '')
+    if pro_type in ('coach', 'physio') or role == 'professional':
+        return get_effective_role(user)
+    raise HTTPException(status_code=403, detail="Reserve aux professionnels")
 
 
 # ── Pro Profile ──

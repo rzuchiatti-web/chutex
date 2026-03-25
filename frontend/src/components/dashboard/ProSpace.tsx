@@ -743,51 +743,55 @@ export default function ProSpace({ token, user }: { token: string; user: any }) 
   const TABS = ALL_TABS;
 
   return (
-    <div data-testid="pro-space" style={{ position: 'absolute', inset: 0, background: '#FFF', display: 'flex', flexDirection: 'column', fontFamily: 'Inter, system-ui, sans-serif' } as any}>
+    <div data-testid="pro-space" style={{ position: 'absolute', inset: 0, background: '#F5F5F5', display: 'flex', flexDirection: 'column', fontFamily: 'Inter, system-ui, sans-serif', overflow: 'hidden' } as any}>
+      <div style={{ flex: 1, overflowY: 'auto', WebkitOverflowScrolling: 'touch' } as any}>
 
-      {/* Header with background image */}
-      <div style={{ position: 'relative', flexShrink: 0, overflow: 'hidden' } as any}>
-        <img src={HEADER_BG} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 } as any} />
-        <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.45)', zIndex: 1 } as any} />
-        <div style={{ position: 'relative', zIndex: 2, padding: '24px 20px 18px' } as any}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4 } as any}>
-            <i className={isPhysio ? 'ri-stethoscope-line' : isCoach ? 'ri-run-line' : 'ri-shield-user-line'} style={{ fontSize: 15, color: '#FFF' }} />
-            <span style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.7)', textTransform: 'uppercase', letterSpacing: 1 } as any}>
-              {isPhysio ? 'Espace Kine' : isCoach ? 'Espace Coach' : 'Activite'}
-            </span>
-          </div>
-          <div style={{ fontSize: 22, fontWeight: 900, color: '#FFF', letterSpacing: -0.5 }}>
-            {isCoachOrPhysio ? 'Suivi des beneficiaires' : 'Programmes & Rappels'}
-          </div>
-          <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.5)', marginTop: 4 }}>
-            {isCoachOrPhysio ? `${beneficiaries.length} patient${beneficiaries.length !== 1 ? 's' : ''}` : 'Gerez les programmes, rappels et repas'}
-          </div>
-        </div>
-      </div>
-
-      {/* Patient selector */}
-      <div style={{ padding: '12px 20px 0', flexShrink: 0 } as any}>
-        <div style={{ display: 'flex', gap: 8, overflowX: 'auto', WebkitOverflowScrolling: 'touch', paddingBottom: 4 } as any}>
-          {beneficiaries.map((b) => {
-            const sel = b.id === activeBen;
-            return (
-              <div key={b.id} data-testid={`patient-pill-${b.id}`} onClick={() => setActiveBen(b.id)}
-                style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '8px 14px', borderRadius: 999, flexShrink: 0, cursor: 'pointer',
-                  background: sel ? 'rgba(59,130,246,0.08)' : 'rgba(0,0,0,0.03)', border: `1.5px solid ${sel ? 'rgba(59,130,246,0.25)' : 'rgba(0,0,0,0.06)'}`,
-                  transition: 'all 0.15s',
-                } as any}>
-                <div style={{ width: 28, height: 28, borderRadius: 999, background: sel ? 'rgba(59,130,246,0.12)' : 'rgba(0,0,0,0.04)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, fontWeight: 800, color: sel ? C.accent : C.muted } as any}>
-                  {(b.name || '?')[0]}
-                </div>
-                <span style={{ fontSize: 13, fontWeight: sel ? 700 : 500, color: sel ? C.text : C.sub }}>{(b.name || 'Patient').split(' ')[0]}</span>
+      {/* Header with background image - same style as GuardianHome */}
+      <div style={{ position: 'relative', zIndex: 1 } as any}>
+        <img src={HEADER_BG} alt="" style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 } as any} />
+        <div style={{ position: 'relative', zIndex: 2, padding: '22px 20px 32px' } as any}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 } as any}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12 } as any}>
+              <div style={{ width: 44, height: 44, borderRadius: 22, background: 'rgba(255,255,255,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}>
+                <i className={isPhysio ? 'ri-stethoscope-line' : isCoach ? 'ri-run-line' : 'ri-shield-user-line'} style={{ fontSize: 22, color: '#FFF' }} />
               </div>
-            );
-          })}
+              <div>
+                <div style={{ fontSize: 18, fontWeight: 800, color: '#FFF', letterSpacing: -0.5 }}>
+                  {isPhysio ? 'Espace Kine' : isCoach ? 'Espace Coach' : 'Activite'}
+                </div>
+                <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.6)', fontWeight: 500 }}>
+                  {isCoachOrPhysio ? `${beneficiaries.length} patient${beneficiaries.length !== 1 ? 's' : ''}` : 'Programmes & Rappels'}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Patient selector inside header */}
+          <div style={{ display: 'flex', gap: 8, overflowX: 'auto', WebkitOverflowScrolling: 'touch', paddingBottom: 4 } as any}>
+            {beneficiaries.map((b) => {
+              const sel = b.id === activeBen;
+              return (
+                <div key={b.id} data-testid={`patient-pill-${b.id}`} onClick={() => setActiveBen(b.id)}
+                  style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '8px 14px', borderRadius: 999, flexShrink: 0, cursor: 'pointer',
+                    background: sel ? 'rgba(255,255,255,0.25)' : 'rgba(255,255,255,0.08)', border: `1.5px solid ${sel ? 'rgba(255,255,255,0.4)' : 'rgba(255,255,255,0.1)'}`,
+                    transition: 'all 0.15s',
+                  } as any}>
+                  <div style={{ width: 28, height: 28, borderRadius: 999, background: sel ? 'rgba(255,255,255,0.3)' : 'rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, fontWeight: 800, color: '#FFF' } as any}>
+                    {(b.name || '?')[0]}
+                  </div>
+                  <span style={{ fontSize: 13, fontWeight: sel ? 700 : 500, color: sel ? '#FFF' : 'rgba(255,255,255,0.7)' }}>{(b.name || 'Patient').split(' ')[0]}</span>
+                </div>
+              );
+            })}
+          </div>
         </div>
       </div>
+
+      {/* Content card with rounded top corners */}
+      <div style={{ padding: '20px 16px 120px', marginTop: -16, borderRadius: '24px 24px 0 0', background: '#FFF', position: 'relative', zIndex: 10, borderTop: '1px solid rgba(0,0,0,0.08)', minHeight: 'calc(100vh - 220px)' } as any}>
 
       {/* Tab bar */}
-      <div style={{ padding: '10px 20px 0', flexShrink: 0 } as any}>
+      <div style={{ marginBottom: 16 } as any}>
         <div style={{ display: 'flex', gap: 2, background: 'rgba(0,0,0,0.04)', borderRadius: 14, padding: 3 } as any}>
           {TABS.map((tab) => {
             const sel = activeTab === tab.key;
@@ -960,6 +964,8 @@ export default function ProSpace({ token, user }: { token: string; user: any }) 
           </div>
         </div>
       )}
+      </div>{/* end content card */}
+      </div>{/* end scrollable */}
     </div>
   );
 }

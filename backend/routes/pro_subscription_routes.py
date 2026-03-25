@@ -15,9 +15,12 @@ router = APIRouter()
 logger = logging.getLogger(__name__)
 
 def require_pro(user):
-    from routes.professional_routes import get_effective_role
-    if get_effective_role(user) != 'professional':
-        raise HTTPException(status_code=403, detail="Acces reserve aux professionnels")
+    """Check user is a professional (coach or physio) - either by role or professional_type"""
+    pro_type = user.get('professional_type', '')
+    role = user.get('active_role') or user.get('role', '')
+    if pro_type in ('coach', 'physio') or role == 'professional':
+        return
+    raise HTTPException(status_code=403, detail="Acces reserve aux professionnels")
 
 
 # ══════════════════════════════════════
