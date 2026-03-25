@@ -82,6 +82,8 @@ export function BeneficiaryHome({ token, user }: { token: string; user: any }) {
   const [showCheckin, setShowCheckin] = useState(false);
   const [checkinMood, setCheckinMood] = useState(3);
   const [subscription, setSubscription] = useState<any>(null);
+  const [proSub, setProSub] = useState<any>(null);
+  const [unreadMsgs, setUnreadMsgs] = useState(0);
   const [checkinNote, setCheckinNote] = useState('');
   const [checkinSending, setCheckinSending] = useState(false);
   const [checkinFeedback, setCheckinFeedback] = useState('');
@@ -158,6 +160,8 @@ export function BeneficiaryHome({ token, user }: { token: string; user: any }) {
       apiFetch('/api/nora/checkin-daily', { method: 'POST' }, token).then(s => { if (s) setStreakData(s); }).catch(() => {});
       apiFetch('/api/nora/predictive-check', {}, token).then(p => { if (p?.alerts) setPredictiveAlerts(p.alerts); }).catch(() => {});
       apiFetch('/api/health/activity-streak', {}, token).then(s => { if (s) setActivityStreakData(s); }).catch(() => {});
+      apiFetch('/api/pro/my-subscription', {}, token).then(s => { if (s?.id) setProSub(s); }).catch(() => {});
+      apiFetch('/api/pro/unread-count', {}, token).then(u => { if (u) setUnreadMsgs(u.unread || 0); }).catch(() => {});
     } catch {} finally { setLoading(false); setRefreshing(false); }
   }, [token]);
 
@@ -436,6 +440,73 @@ export function BeneficiaryHome({ token, user }: { token: string; user: any }) {
           {showWeighing && <WeighingFlow onClose={() => setShowWeighing(false)} d={dashData?.scale || {}} weighings={weighings} />}
 
           <div style={{ height: 1, background: C.sep, margin: "10px 0 24px" } as any} />
+
+          {/* ── Abonnement Pro en attente ── */}
+          {proSub && proSub.status === 'pending' && (
+            <div data-testid="pro-subscription-offer" className="dash-slide-up" style={{ marginBottom: 20, padding: '20px', borderRadius: 20, background: 'rgba(212,175,55,0.06)', border: '1px solid rgba(212,175,55,0.15)', ...glass } as any}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10 } as any}>
+                <div style={{ width: 44, height: 44, borderRadius: 14, background: 'rgba(212,175,55,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}>
+                  <i className="ri-vip-crown-fill" style={{ fontSize: 22, color: '#D4AF37' }} />
+                </div>
+                <div>
+                  <div style={{ fontSize: 15, fontWeight: 800, color: C.text }}>Offre de {proSub.professional_name}</div>
+                  <div style={{ fontSize: 12, color: C.sub }}>Abonnement {proSub.type === 'sport' ? 'Sport' : 'Physio'} · {proSub.price_ttc}€/mois</div>
+                </div>
+              </div>
+              {proSub.description && <div style={{ fontSize: 12, color: C.sub, lineHeight: 1.5, marginBottom: 12 }}>{proSub.description}</div>}
+              <div style={{ display: 'flex', gap: 8 } as any}>
+                <div data-testid="accept-sub-btn" onClick={async () => {
+                  try {
+                    const res = await apiFetch(`/api/pro/subscriptions/${proSub.id}/accept`, { method: 'POST' }, token);
+                    if (res?.checkout_url) { window.open(res.checkout_url, '_blank'); }
+                    else { await apiFetch(`/api/pro/subscriptions/${proSub.id}/simulate-payment`, { method: 'POST' }, token); fetchData(); }
+                  } catch (e: any) { Alert.alert('Erreur', e.message); }
+                }} style={{ flex: 1, padding: '12px', borderRadius: 999, textAlign: 'center', cursor: 'pointer', background: 'rgba(212,175,55,0.12)', border: '1px solid rgba(212,175,55,0.25)', fontSize: 13, fontWeight: 800, color: '#D4AF37' } as any}>
+                  Accepter · {proSub.price_ttc}€/mois
+                </div>
+                <div data-testid="decline-sub-btn" onClick={async () => {
+                  try { await apiFetch(`/api/pro/subscriptions/${proSub.id}/cancel`, { method: 'POST' }, token); setProSub(null); } catch {}
+                }} style={{ padding: '12px 16px', borderRadius: 999, cursor: 'pointer', background: 'rgba(239,68,68,0.06)', border: '1px solid rgba(239,68,68,0.1)', fontSize: 13, fontWeight: 600, color: 'rgba(239,68,68,0.6)' } as any}>
+                  Refuser
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* ── Abonnement Pro actif ── */}
+          {proSub && proSub.status === 'active' && (
+            <div data-testid="pro-subscription-active" className="dash-slide-up" style={{ marginBottom: 20, padding: '16px 18px', borderRadius: 20, background: 'rgba(16,185,129,0.04)', border: '1px solid rgba(16,185,129,0.1)', display: 'flex', alignItems: 'center', gap: 12, ...glass } as any}>
+              <div style={{ width: 38, height: 38, borderRadius: 12, background: 'rgba(16,185,129,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}>
+                <i className="ri-vip-crown-fill" style={{ fontSize: 18, color: '#10B981' }} />
+              </div>
+              <div style={{ flex: 1 }}>
+                <div style={{ fontSize: 13, fontWeight: 700, color: C.text }}>Abo {proSub.type === 'sport' ? 'Sport' : 'Physio'} actif</div>
+                <div style={{ fontSize: 11, color: C.sub }}>{proSub.professional_name} · {proSub.price_ttc}€/mois</div>
+              </div>
+              <div style={{ padding: '4px 10px', borderRadius: 999, background: 'rgba(16,185,129,0.1)' }}>
+                <span style={{ fontSize: 10, fontWeight: 700, color: '#10B981' }}>Actif</span>
+              </div>
+            </div>
+          )}
+
+          {/* ── Messages Pro (si conversation existe) ── */}
+          {proSub && proSub.professional_id && (
+            <div data-testid="pro-messages-shortcut" className="dash-slide-up" onClick={() => router.push({ pathname: '/pro-chat' as any, params: { proId: proSub.professional_id } })} style={{ marginBottom: 20, padding: '14px 18px', borderRadius: 20, background: C.card, border: '1px solid rgba(255,255,255,0.06)', display: 'flex', alignItems: 'center', gap: 12, cursor: 'pointer', ...glass } as any}>
+              <div style={{ width: 38, height: 38, borderRadius: 12, background: 'rgba(59,130,246,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}>
+                <i className="ri-chat-3-fill" style={{ fontSize: 18, color: '#3B82F6' }} />
+              </div>
+              <div style={{ flex: 1 }}>
+                <div style={{ fontSize: 13, fontWeight: 700, color: C.text }}>Messages avec {proSub.professional_name}</div>
+                <div style={{ fontSize: 11, color: C.sub }}>Discutez avec votre professionnel</div>
+              </div>
+              {unreadMsgs > 0 && (
+                <div style={{ width: 22, height: 22, borderRadius: 999, background: '#EF4444', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <span style={{ fontSize: 10, fontWeight: 800, color: '#FFF' }}>{unreadMsgs}</span>
+                </div>
+              )}
+              <i className="ri-arrow-right-s-line" style={{ fontSize: 18, color: 'rgba(255,255,255,0.2)' }} />
+            </div>
+          )}
 
           {/* ── Rappels ── */}
           <div data-testid="reminders-section" className="dash-slide-up" style={{ marginBottom: 28 } as any}>

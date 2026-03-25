@@ -19,6 +19,8 @@ const TABS = [
   { key: 'programs', icon: 'ri-file-list-3-line', label: 'Programmes' },
   { key: 'reminders', icon: 'ri-capsule-line', label: 'Rappels' },
   { key: 'meals', icon: 'ri-restaurant-line', label: 'Repas' },
+  { key: 'subscription', icon: 'ri-vip-crown-line', label: 'Abo' },
+  { key: 'messages', icon: 'ri-chat-3-line', label: 'Messages' },
   { key: 'bilans', icon: 'ri-bar-chart-box-line', label: 'Bilans' },
 ];
 
@@ -473,6 +475,195 @@ function BilansTab({ token, activeBen, activeBenData }: any) {
   );
 }
 
+/* ── Subscription Tab Content ── */
+function SubscriptionTab({ token, activeBen, activeBenData }: any) {
+  const [sub, setSub] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+  const [proposing, setProposing] = useState(false);
+  const [subType, setSubType] = useState('sport');
+  const [desc, setDesc] = useState('');
+  const gold = '#D4AF37';
+
+  const fetchSub = useCallback(async () => {
+    if (!activeBen) return;
+    try {
+      const data = await apiFetch(`/api/pro/subscriptions/${activeBen}`, {}, token);
+      setSub(data && data.id ? data : null);
+    } catch { setSub(null); }
+    finally { setLoading(false); }
+  }, [token, activeBen]);
+
+  useEffect(() => { setLoading(true); fetchSub(); }, [fetchSub]);
+
+  const propose = async () => {
+    setProposing(true);
+    try {
+      await apiFetch(`/api/pro/subscriptions/${activeBen}`, { method: 'POST', body: JSON.stringify({ type: subType, description: desc }) }, token);
+      setDesc('');
+      fetchSub();
+    } catch (e: any) { Alert.alert('Erreur', e.message); }
+    finally { setProposing(false); }
+  };
+
+  const cancel = async () => {
+    if (!sub) return;
+    try {
+      await apiFetch(`/api/pro/subscriptions/${sub.id}/cancel`, { method: 'POST' }, token);
+      fetchSub();
+    } catch {}
+  };
+
+  if (loading) return <div style={{ textAlign: 'center', padding: 40 } as any}><div style={{ width: 30, height: 30, borderRadius: '50%', border: `3px solid rgba(255,255,255,0.06)`, borderTopColor: gold, animation: 'spin 0.8s linear infinite', margin: '0 auto' } as any} /></div>;
+
+  return (
+    <div>
+      <SL icon="ri-vip-crown-line" color={gold}>Abonnement</SL>
+
+      {sub ? (
+        <div data-testid="active-subscription" style={{ ...GL, padding: '20px', marginBottom: 12 } as any}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 12 } as any}>
+            <div style={{ width: 48, height: 48, borderRadius: 14, background: `${gold}12`, border: `1px solid ${gold}30`, display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}>
+              <i className="ri-vip-crown-fill" style={{ fontSize: 24, color: gold }} />
+            </div>
+            <div>
+              <div style={{ fontSize: 15, fontWeight: 800, color: C.text }}>Abonnement {sub.type === 'sport' ? 'Sport' : 'Physio'}</div>
+              <div style={{ fontSize: 11, color: C.sub }}>{sub.price_ttc}€/mois TTC</div>
+            </div>
+            <div style={{ marginLeft: 'auto', padding: '4px 12px', borderRadius: 999, background: sub.status === 'active' ? `${C.green}15` : sub.status === 'pending' ? `${C.amber}15` : `${C.red}15`, border: `1px solid ${sub.status === 'active' ? `${C.green}30` : sub.status === 'pending' ? `${C.amber}30` : `${C.red}30`}` } as any}>
+              <span style={{ fontSize: 10, fontWeight: 700, color: sub.status === 'active' ? C.green : sub.status === 'pending' ? C.amber : C.red }}>
+                {sub.status === 'active' ? 'Actif' : sub.status === 'pending' ? 'En attente' : sub.status === 'payment_pending' ? 'Paiement' : 'Annule'}
+              </span>
+            </div>
+          </div>
+          <div style={{ fontSize: 12, color: C.sub, lineHeight: 1.5, marginBottom: 12 }}>
+            {sub.description || `Programme ${sub.type} pour ${activeBenData?.name || 'votre patient'}`}
+          </div>
+          {sub.start_date && <div style={{ fontSize: 10, color: C.muted }}>Depuis le {new Date(sub.start_date).toLocaleDateString('fr-FR')}</div>}
+          {(sub.status === 'active' || sub.status === 'pending') && (
+            <div onClick={cancel} data-testid="cancel-sub-btn" style={{ marginTop: 12, padding: '10px', borderRadius: 999, textAlign: 'center', cursor: 'pointer', background: 'rgba(239,68,68,0.06)', border: `1px solid rgba(239,68,68,0.15)`, fontSize: 12, fontWeight: 600, color: C.red } as any}>Annuler l'abonnement</div>
+          )}
+        </div>
+      ) : (
+        <div style={{ ...GL, padding: '20px', marginBottom: 12 } as any}>
+          <div style={{ fontSize: 13, fontWeight: 700, color: C.text, marginBottom: 10 }}>Proposer un abonnement</div>
+          <div style={{ fontSize: 11, color: C.sub, marginBottom: 14, lineHeight: 1.5 }}>
+            Proposez un abonnement mensuel a 89€ TTC a {activeBenData?.name || 'votre patient'}. Les exercices seront geres exclusivement par vous.
+          </div>
+          <div style={{ display: 'flex', gap: 8, marginBottom: 12 } as any}>
+            {[{ k: 'sport', l: 'Sport', i: 'ri-run-line', c: C.accent }, { k: 'physio', l: 'Physio', i: 'ri-stethoscope-line', c: C.green }].map(t => {
+              const sel = subType === t.k;
+              return (
+                <div key={t.k} onClick={() => setSubType(t.k)} style={{ flex: 1, padding: '12px', borderRadius: 14, textAlign: 'center', cursor: 'pointer', background: sel ? `${t.c}12` : C.faint, border: `1.5px solid ${sel ? t.c : 'transparent'}` } as any}>
+                  <i className={t.i} style={{ fontSize: 18, color: sel ? t.c : C.muted, display: 'block', marginBottom: 4 }} />
+                  <div style={{ fontSize: 11, fontWeight: 700, color: sel ? t.c : C.muted }}>{t.l}</div>
+                </div>
+              );
+            })}
+          </div>
+          <textarea value={desc} onChange={(e) => setDesc(e.target.value)} placeholder="Description du programme (optionnel)" style={{ width: '100%', padding: '12px 14px', borderRadius: 14, background: C.faint, border: '1px solid rgba(255,255,255,0.06)', color: C.text, fontSize: 13, outline: 'none', minHeight: 50, resize: 'vertical', marginBottom: 12 } as any} />
+          <div data-testid="propose-sub-btn" onClick={proposing ? undefined : propose} style={{ padding: '14px', borderRadius: 999, textAlign: 'center', cursor: 'pointer', background: `${gold}15`, border: `1px solid ${gold}30`, fontSize: 14, fontWeight: 800, color: gold, opacity: proposing ? 0.5 : 1 } as any}>
+            {proposing ? 'Envoi...' : 'Proposer l\'abonnement · 89€/mois'}
+          </div>
+        </div>
+      )}
+      <style dangerouslySetInnerHTML={{ __html: `@keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}` }} />
+    </div>
+  );
+}
+
+/* ── Messages Tab Content ── */
+function MessagesTab({ token, activeBen, activeBenData }: any) {
+  const [convo, setConvo] = useState<any>(null);
+  const [messages, setMessages] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [newMsg, setNewMsg] = useState('');
+  const [sending, setSending] = useState(false);
+  const msgEndRef = React.useRef<HTMLDivElement>(null);
+
+  const fetchConvo = useCallback(async () => {
+    if (!activeBen) return;
+    try {
+      const c = await apiFetch(`/api/pro/conversations/${activeBen}`, {}, token);
+      setConvo(c);
+      if (c?.id) {
+        const msgs = await apiFetch(`/api/pro/messages/${c.id}`, {}, token);
+        setMessages(msgs);
+      }
+    } catch { }
+    finally { setLoading(false); }
+  }, [token, activeBen]);
+
+  useEffect(() => { setLoading(true); fetchConvo(); }, [fetchConvo]);
+  useEffect(() => { msgEndRef.current?.scrollIntoView({ behavior: 'smooth' }); }, [messages]);
+
+  // Poll for new messages
+  useEffect(() => {
+    if (!convo?.id) return;
+    const interval = setInterval(async () => {
+      try {
+        const msgs = await apiFetch(`/api/pro/messages/${convo.id}`, {}, token);
+        setMessages(msgs);
+      } catch {}
+    }, 5000);
+    return () => clearInterval(interval);
+  }, [convo?.id, token]);
+
+  const send = async () => {
+    if (!newMsg.trim() || !convo?.id) return;
+    setSending(true);
+    try {
+      const msg = await apiFetch(`/api/pro/messages/${convo.id}`, { method: 'POST', body: JSON.stringify({ content: newMsg }) }, token);
+      setMessages(prev => [...prev, msg]);
+      setNewMsg('');
+    } catch {}
+    finally { setSending(false); }
+  };
+
+  if (loading) return <div style={{ textAlign: 'center', padding: 40 } as any}><div style={{ width: 30, height: 30, borderRadius: '50%', border: `3px solid rgba(255,255,255,0.06)`, borderTopColor: C.accent, animation: 'spin 0.8s linear infinite', margin: '0 auto' } as any} /></div>;
+
+  return (
+    <div data-testid="messages-tab" style={{ display: 'flex', flexDirection: 'column', height: 'calc(100vh - 320px)' } as any}>
+      <SL icon="ri-chat-3-line" color={C.accent}>Conversation avec {activeBenData?.name || 'patient'}</SL>
+
+      {/* Messages list */}
+      <div style={{ flex: 1, overflowY: 'auto', padding: '8px 0', minHeight: 200 } as any}>
+        {messages.length === 0 && (
+          <div style={{ ...GL, padding: '32px 20px', textAlign: 'center' } as any}>
+            <i className="ri-chat-3-line" style={{ fontSize: 28, color: C.muted, display: 'block', marginBottom: 8 }} />
+            <div style={{ fontSize: 13, fontWeight: 600, color: C.sub }}>Aucun message</div>
+            <div style={{ fontSize: 11, color: C.muted, marginTop: 4 }}>Commencez la conversation</div>
+          </div>
+        )}
+        {messages.map((msg) => {
+          const isMe = msg.sender_id !== activeBen;
+          return (
+            <div key={msg.id} style={{ display: 'flex', justifyContent: isMe ? 'flex-end' : 'flex-start', marginBottom: 6 } as any}>
+              <div style={{ maxWidth: '75%', padding: '10px 14px', borderRadius: isMe ? '16px 16px 4px 16px' : '16px 16px 16px 4px', background: isMe ? 'rgba(59,130,246,0.15)' : 'rgba(255,255,255,0.06)', border: `1px solid ${isMe ? 'rgba(59,130,246,0.2)' : 'rgba(255,255,255,0.06)'}` } as any}>
+                <div style={{ fontSize: 13, color: C.text, lineHeight: 1.5 }}>{msg.content}</div>
+                <div style={{ fontSize: 9, color: C.muted, marginTop: 4, textAlign: 'right' } as any}>{new Date(msg.created_at).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}</div>
+              </div>
+            </div>
+          );
+        })}
+        <div ref={msgEndRef} />
+      </div>
+
+      {/* Input */}
+      <div style={{ display: 'flex', gap: 8, padding: '10px 0', flexShrink: 0 } as any}>
+        <input data-testid="msg-input" value={newMsg} onChange={(e) => setNewMsg(e.target.value)}
+          onKeyDown={(e: any) => e.key === 'Enter' && !e.shiftKey && send()}
+          placeholder="Votre message..."
+          style={{ flex: 1, padding: '12px 16px', borderRadius: 999, background: C.faint, border: '1px solid rgba(255,255,255,0.06)', color: C.text, fontSize: 14, outline: 'none' } as any} />
+        <div data-testid="send-msg-btn" onClick={sending ? undefined : send}
+          style={{ width: 44, height: 44, borderRadius: 999, background: newMsg.trim() ? C.accent : C.faint, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', flexShrink: 0, opacity: sending ? 0.5 : 1 } as any}>
+          <i className="ri-send-plane-fill" style={{ fontSize: 18, color: newMsg.trim() ? '#FFF' : C.muted }} />
+        </div>
+      </div>
+      <style dangerouslySetInnerHTML={{ __html: `@keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}` }} />
+    </div>
+  );
+}
+
 /* ══════════════════════════════════════════════════════ */
 /* ── Main ProSpace Component ── */
 /* ══════════════════════════════════════════════════════ */
@@ -696,6 +887,12 @@ export default function ProSpace({ token, user }: { token: string; user: any }) 
 
         {/* ═══ BILANS TAB ═══ */}
         {activeTab === 'bilans' && <BilansTab token={token} activeBen={activeBen} activeBenData={activeBenData} />}
+
+        {/* ═══ SUBSCRIPTION TAB ═══ */}
+        {activeTab === 'subscription' && <SubscriptionTab token={token} activeBen={activeBen} activeBenData={activeBenData} />}
+
+        {/* ═══ MESSAGES TAB ═══ */}
+        {activeTab === 'messages' && <MessagesTab token={token} activeBen={activeBen} activeBenData={activeBenData} />}
       </div>
 
       {/* ── Modal: New Program ── */}
