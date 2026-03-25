@@ -46,7 +46,7 @@ export default function HealthScreen() {
   const [healthProgCatalog, setHealthProgCatalog] = useState<any[]>([]);
   const [refreshing, setRefreshing] = useState(false);
   const [agingRate, setAgingRate] = useState<any>(null);
-  const [proPrograms, setProPrograms] = useState<any[]>([]);
+  const [todayExercises, setTodayExercises] = useState<any[]>([]);
   const [isDark, setIsDark] = useState(() => typeof localStorage !== 'undefined' ? localStorage.getItem('chutex_dark') !== '0' : true);
 
   useEffect(() => {
@@ -73,7 +73,7 @@ export default function HealthScreen() {
   const fetchDashData = useCallback(async () => { try { setDashData(await apiFetch('/api/devices/dashboard-summary', {}, token)); } catch {} }, [token]);
   const fetchReport = useCallback(async () => { try { setReport(await apiFetch('/api/health/daily-report', {}, token)); } catch {} finally { setReportLoading(false); } }, [token]);
 
-  useEffect(() => { fetchData(); fetchDashData(); fetchReport(); apiFetch('/api/health/aging-rate', {}, token).then(setAgingRate).catch(() => {}); apiFetch('/api/pro/my-programs', {}, token).then(p => setProPrograms(Array.isArray(p) ? p : [])).catch(() => {}); }, [fetchData, fetchDashData, fetchReport]);
+  useEffect(() => { fetchData(); fetchDashData(); fetchReport(); apiFetch('/api/health/aging-rate', {}, token).then(setAgingRate).catch(() => {}); apiFetch('/api/pro/beneficiary-today-exercises', {}, token).then(e => setTodayExercises(Array.isArray(e) ? e : [])).catch(() => {}); }, [fetchData, fetchDashData, fetchReport]);
   useEffect(() => {
     Promise.all([
       apiFetch('/api/programs/active', {}, token).catch(() => null),
@@ -282,77 +282,46 @@ export default function HealthScreen() {
 
           <div style={{ height: 1, background: sepColor, margin: '12px 0 16px' } as any} />
 
-          {/* ═══ Pro Coach Programs (for beneficiary) ═══ */}
-          {proPrograms.length > 0 && (
+          {/* ═══ Today's Exercises (from coach) ═══ */}
+          {todayExercises.length > 0 && (
             <>
-              <div data-testid="pro-programs-section" style={{ marginBottom: 14 }}>
+              <div data-testid="today-exercises-section" style={{ marginBottom: 14 }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 14 } as any}>
                   <div style={{ width: 32, height: 32, borderRadius: 10, background: isDark ? 'rgba(239,68,68,0.12)' : 'rgba(239,68,68,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}>
-                    <i className="ri-heart-pulse-line" style={{ fontSize: 16, color: '#EF4444' }} />
+                    <i className="ri-run-line" style={{ fontSize: 16, color: '#EF4444' }} />
                   </div>
                   <div>
-                    <div style={{ fontSize: 15, fontWeight: 800, color: textColor }}>Mes Programmes</div>
+                    <div style={{ fontSize: 15, fontWeight: 800, color: textColor }}>Exercices du jour</div>
                     <div style={{ fontSize: 10, color: subColor }}>Prescrit par votre coach</div>
                   </div>
                 </div>
-                {proPrograms.map((prog: any) => (
-                  <div key={prog.id} style={{ borderRadius: 18, background: cardBg, marginBottom: 10, overflow: 'hidden' } as any}>
-                    <div onClick={() => router.push({ pathname: '/pro-program-detail' as any, params: { id: prog.id } })}
-                      style={{ padding: '14px 16px', display: 'flex', alignItems: 'center', gap: 14, cursor: 'pointer', borderBottom: (prog.sessions || []).length > 0 ? `1px solid ${sepColor}` : 'none' } as any}>
-                      {prog.image && (
-                        <div style={{ width: 48, height: 48, borderRadius: 12, overflow: 'hidden', flexShrink: 0 } as any}>
-                          <img src={prog.image.startsWith('/') ? `${process.env.EXPO_PUBLIC_BACKEND_URL}${prog.image}` : prog.image} style={{ width: '100%', height: '100%', objectFit: 'cover' } as any} />
-                        </div>
-                      )}
-                      {!prog.image && (
-                        <div style={{ width: 48, height: 48, borderRadius: 12, background: isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.04)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}>
-                          <i className="ri-calendar-check-line" style={{ fontSize: 20, color: '#EF4444' }} />
-                        </div>
-                      )}
-                      <div style={{ flex: 1, minWidth: 0 } as any}>
-                        <div style={{ fontSize: 14, fontWeight: 800, color: textColor, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' } as any}>{prog.title}</div>
-                        <div style={{ fontSize: 11, color: subColor }}>{prog.frequency || ''} {prog.duration_weeks ? `- ${prog.duration_weeks} sem.` : ''}</div>
-                        {prog.professional_name && <div style={{ fontSize: 10, color: '#EF4444', marginTop: 2 }}>Coach {prog.professional_name}</div>}
+                {todayExercises.map((ex: any, i: number) => (
+                  <div key={ex.id || i} data-testid={`today-exercise-${i}`}
+                    onClick={() => router.push({ pathname: '/pro-exercise-detail' as any, params: { id: ex.exercise_template_id || ex.id, mode: 'assigned', assignmentId: ex.id } })}
+                    style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 14px', borderRadius: 16, background: cardBg, marginBottom: 8, cursor: 'pointer', border: ex.completed_today ? `1px solid rgba(16,185,129,0.3)` : `1px solid ${sepColor}`, transition: 'all 0.15s' } as any}
+                    onMouseEnter={(e: any) => e.currentTarget.style.transform = 'scale(1.01)'}
+                    onMouseLeave={(e: any) => e.currentTarget.style.transform = 'scale(1)'}>
+                    {ex.image ? (
+                      <div style={{ width: 52, height: 52, borderRadius: 12, overflow: 'hidden', flexShrink: 0 } as any}>
+                        <img src={ex.image.startsWith('/') ? `${process.env.EXPO_PUBLIC_BACKEND_URL}${ex.image}` : ex.image} style={{ width: '100%', height: '100%', objectFit: 'cover' } as any} />
                       </div>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 4 } as any}>
-                        <span style={{ fontSize: 11, fontWeight: 700, color: isDark ? 'rgba(255,255,255,0.3)' : 'rgba(0,0,0,0.3)' }}>{(prog.sessions || []).length} ex.</span>
-                        <i className="ri-arrow-right-s-line" style={{ fontSize: 16, color: subColor }} />
+                    ) : (
+                      <div style={{ width: 52, height: 52, borderRadius: 12, background: isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.04)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}>
+                        <i className="ri-run-line" style={{ fontSize: 22, color: subColor }} />
                       </div>
+                    )}
+                    <div style={{ flex: 1, minWidth: 0 } as any}>
+                      <div style={{ fontSize: 14, fontWeight: 800, color: textColor, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' } as any}>{ex.title}</div>
+                      <div style={{ fontSize: 11, color: subColor, marginTop: 2 }}>
+                        {ex.sets > 0 && `${ex.sets} series x ${ex.repetitions} reps`}
+                        {ex.rest_seconds > 0 && ` - ${ex.rest_seconds}s repos`}
+                      </div>
+                      {ex.professional_name && <div style={{ fontSize: 10, color: '#EF4444', marginTop: 2 }}>Coach {ex.professional_name}</div>}
                     </div>
-                    {/* Exercise list with images */}
-                    {(prog.sessions || []).length > 0 && (
-                      <div style={{ padding: '0 8px 8px' } as any}>
-                        {(prog.sessions || []).map((sess: any, si: number) => (
-                          <div key={sess.id || si} data-testid={`ben-exercise-${si}`}
-                            onClick={() => router.push({ pathname: '/pro-exercise-detail' as any, params: { id: sess.from_template_id || sess.id, mode: 'session', programId: prog.id, sessionId: sess.id } })}
-                            style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 8px', cursor: 'pointer', borderTop: si > 0 ? `1px solid ${sepColor}` : 'none', borderRadius: 12, transition: 'background 0.15s' } as any}
-                            onMouseEnter={(e: any) => e.currentTarget.style.background = isDark ? 'rgba(255,255,255,0.04)' : 'rgba(0,0,0,0.02)'}
-                            onMouseLeave={(e: any) => e.currentTarget.style.background = 'transparent'}>
-                            {sess.image ? (
-                              <div style={{ width: 44, height: 44, borderRadius: 10, overflow: 'hidden', flexShrink: 0 } as any}>
-                                <img src={sess.image.startsWith('/') ? `${process.env.EXPO_PUBLIC_BACKEND_URL}${sess.image}` : sess.image} style={{ width: '100%', height: '100%', objectFit: 'cover' } as any} />
-                              </div>
-                            ) : (
-                              <div style={{ width: 44, height: 44, borderRadius: 10, background: isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.04)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}>
-                                <i className="ri-run-line" style={{ fontSize: 18, color: subColor }} />
-                              </div>
-                            )}
-                            <div style={{ flex: 1, minWidth: 0 } as any}>
-                              <div style={{ fontSize: 13, fontWeight: 700, color: textColor, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' } as any}>{sess.title}</div>
-                              <div style={{ fontSize: 10, color: subColor }}>
-                                {sess.sets > 0 && `${sess.sets} series `}
-                                {(sess.repetitions > 0 || sess.reps > 0) && `x ${sess.repetitions || sess.reps} reps`}
-                                {sess.duration_min > 0 && ` - ${sess.duration_min} min`}
-                              </div>
-                            </div>
-                            {sess.completions && sess.completions.some((c: any) => c.status === 'done') ? (
-                              <i className="ri-checkbox-circle-fill" style={{ fontSize: 20, color: '#10B981' }} />
-                            ) : (
-                              <div style={{ padding: '6px 12px', borderRadius: 999, background: isDark ? 'rgba(16,185,129,0.12)' : 'rgba(16,185,129,0.08)', fontSize: 10, fontWeight: 700, color: '#10B981' }}>Faire</div>
-                            )}
-                          </div>
-                        ))}
-                      </div>
+                    {ex.completed_today ? (
+                      <i className="ri-checkbox-circle-fill" style={{ fontSize: 24, color: '#10B981' }} />
+                    ) : (
+                      <div style={{ padding: '8px 14px', borderRadius: 999, background: isDark ? 'rgba(16,185,129,0.15)' : 'rgba(16,185,129,0.1)', fontSize: 11, fontWeight: 700, color: '#10B981' }}>Faire</div>
                     )}
                   </div>
                 ))}

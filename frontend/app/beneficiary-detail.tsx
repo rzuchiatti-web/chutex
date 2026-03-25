@@ -43,6 +43,7 @@ export default function BeneficiaryDetailScreen() {
   const [guardianPerms, setGuardianPerms] = useState<any>(null);
   const [expandedPerm, setExpandedPerm] = useState<string | null>(null);
   const [resolvedBid, setResolvedBid] = useState('');
+  const [assignedExercises, setAssignedExercises] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [isDark, setIsDark] = useState(true);
   const [showZoneHelp, setShowZoneHelp] = useState(false);
@@ -72,6 +73,8 @@ export default function BeneficiaryDetailScreen() {
       const ben = (bens || []).find((b: any) => b.id === tb) || (Array.isArray(bens) ? bens[0] : null) || null;
       setData(ben); setAlerts(Array.isArray(alts) ? alts : []); setDevices(devs);
       setGeoZones(Array.isArray(geo?.zones) ? geo.zones : []); setGeoLocation(geo?.current_location || null); setGeoLoading(false);
+      // Always fetch assigned exercises for the beneficiary (coach view)
+      apiFetch(`/api/pro/assigned-exercises/${tb}`, {}, token).then((exs: any) => setAssignedExercises(Array.isArray(exs) ? exs : [])).catch(() => {});
       if (ben) {
         apiFetch(`/api/guardian/beneficiary/${tb}/ai-report`, {}, token).then((r: any) => setNoraAnalysis(r?.summary || r?.report || '')).catch(() => setNoraAnalysis(''));
         apiFetch(`/api/guardian/beneficiary/${tb}/subscription`, {}, token).then((r: any) => setSubInfo(r)).catch(() => {});
@@ -332,6 +335,79 @@ export default function BeneficiaryDetailScreen() {
           </div>
 
           <div style={{ height: 1, background: C.sep, margin: '8px 0' } as any} />
+
+          {/* ── 5bis. EXERCICES PRESCRITS ── */}
+          {assignedExercises.length > 0 && (<>
+            <div style={SL}>Exercices prescrits ({assignedExercises.length})</div>
+            {(() => {
+              const DAYS_FR = ['lundi','mardi','mercredi','jeudi','vendredi','samedi','dimanche'];
+              const todayFr = DAYS_FR[new Date().getDay() === 0 ? 6 : new Date().getDay() - 1];
+              const todayStr = new Date().toISOString().split('T')[0];
+              const todayExs = assignedExercises.filter((e: any) => (e.days || []).includes(todayFr));
+              const otherExs = assignedExercises.filter((e: any) => !(e.days || []).includes(todayFr));
+              return (
+                <>
+                  {todayExs.length > 0 && (
+                    <div style={{ marginBottom: 12 }}>
+                      <div style={{ fontSize: 11, fontWeight: 700, color: '#10B981', marginBottom: 8, textTransform: 'uppercase', letterSpacing: 0.8 }}>Aujourd'hui ({todayFr})</div>
+                      {todayExs.map((ex: any) => {
+                        const done = (ex.completions || []).some((c: any) => c.date?.startsWith(todayStr) && c.status === 'done');
+                        return (
+                          <div key={ex.id} data-testid={`ben-exercise-today-${ex.id}`}
+                            onClick={() => router.push({ pathname: '/pro-exercise-detail' as any, params: { id: ex.exercise_template_id || ex.id, mode: 'assigned', assignmentId: ex.id } })}
+                            style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 14px', borderRadius: 14, background: done ? (isDark ? 'rgba(16,185,129,0.08)' : 'rgba(16,185,129,0.05)') : C.cardGrey, border: `1px solid ${done ? 'rgba(16,185,129,0.2)' : C.cardBorder}`, marginBottom: 8, cursor: 'pointer', transition: 'all 0.15s' } as any}>
+                            {ex.image ? (
+                              <div style={{ width: 52, height: 52, borderRadius: 12, overflow: 'hidden', flexShrink: 0 } as any}>
+                                <img src={ex.image.startsWith('/') ? `${process.env.EXPO_PUBLIC_BACKEND_URL}${ex.image}` : ex.image} style={{ width: '100%', height: '100%', objectFit: 'cover' } as any} />
+                              </div>
+                            ) : (
+                              <div style={{ width: 52, height: 52, borderRadius: 12, background: isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.04)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}>
+                                <i className="ri-run-line" style={{ fontSize: 22, color: C.muted }} />
+                              </div>
+                            )}
+                            <div style={{ flex: 1, minWidth: 0 } as any}>
+                              <div style={{ fontSize: 14, fontWeight: 800, color: C.text, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' } as any}>{ex.title}</div>
+                              <div style={{ fontSize: 11, color: C.sub, marginTop: 2 }}>{ex.sets}x{ex.repetitions} - {ex.rest_seconds}s repos</div>
+                            </div>
+                            {done ? (
+                              <i className="ri-checkbox-circle-fill" style={{ fontSize: 24, color: '#10B981' }} />
+                            ) : (
+                              <div style={{ padding: '8px 14px', borderRadius: 999, background: isDark ? 'rgba(16,185,129,0.15)' : 'rgba(16,185,129,0.1)', fontSize: 11, fontWeight: 700, color: '#10B981' }}>Faire</div>
+                            )}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
+                  {otherExs.length > 0 && (
+                    <div style={{ marginBottom: 8 }}>
+                      <div style={{ fontSize: 11, fontWeight: 700, color: C.muted, marginBottom: 8, textTransform: 'uppercase', letterSpacing: 0.8 }}>Autres jours</div>
+                      {otherExs.map((ex: any) => (
+                        <div key={ex.id}
+                          onClick={() => router.push({ pathname: '/pro-exercise-detail' as any, params: { id: ex.exercise_template_id || ex.id, mode: 'assigned', assignmentId: ex.id } })}
+                          style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 12px', borderRadius: 12, background: C.cardGrey, border: `1px solid ${C.cardBorder}`, marginBottom: 6, cursor: 'pointer', opacity: 0.6 } as any}>
+                          {ex.image ? (
+                            <div style={{ width: 40, height: 40, borderRadius: 10, overflow: 'hidden', flexShrink: 0 } as any}>
+                              <img src={ex.image.startsWith('/') ? `${process.env.EXPO_PUBLIC_BACKEND_URL}${ex.image}` : ex.image} style={{ width: '100%', height: '100%', objectFit: 'cover' } as any} />
+                            </div>
+                          ) : (
+                            <div style={{ width: 40, height: 40, borderRadius: 10, background: isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.04)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}>
+                              <i className="ri-run-line" style={{ fontSize: 16, color: C.muted }} />
+                            </div>
+                          )}
+                          <div style={{ flex: 1, minWidth: 0 } as any}>
+                            <div style={{ fontSize: 13, fontWeight: 700, color: C.text }}>{ex.title}</div>
+                            <div style={{ fontSize: 10, color: C.sub }}>{(ex.days || []).map((d: string) => d.slice(0, 3)).join(', ')}</div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </>
+              );
+            })()}
+            <div style={{ height: 1, background: C.sep, margin: '8px 0' } as any} />
+          </>)}
 
           {/* ── 6. PREFERENCES ── */}
           {guardianPerms && (<>

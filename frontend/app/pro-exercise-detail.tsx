@@ -37,6 +37,23 @@ export default function ProExerciseDetailPage() {
           const found = (tpls || []).find((t: any) => t.id === exerciseId);
           setEx(found || null);
         }).catch(() => {}).finally(() => setLoading(false));
+    } else if (mode === 'assigned' && (params.assignmentId || exerciseId)) {
+      const aid = (Array.isArray(params.assignmentId) ? params.assignmentId[0] : params.assignmentId) || exerciseId;
+      // Fetch from beneficiary or coach endpoint
+      Promise.all([
+        apiFetch(`/api/pro/beneficiary-all-exercises`, {}, token).catch(() => []),
+        apiFetch(`/api/pro/assigned-exercises/${aid}`, {}, token).catch(() => []),
+      ]).then(([benExs, proExs]) => {
+        const allExs = [...(Array.isArray(benExs) ? benExs : []), ...(Array.isArray(proExs) ? proExs : [])];
+        const found = allExs.find((e: any) => e.id === aid);
+        if (found) {
+          setEx(found);
+          const today = new Date().toISOString().split('T')[0];
+          if (found.completions?.some((c: any) => c.date?.startsWith(today) && c.status === 'done')) {
+            setCompleted(true);
+          }
+        }
+      }).catch(() => {}).finally(() => setLoading(false));
     } else if (mode === 'session' && programId && sessionId) {
       apiFetch(`/api/pro/programs/detail/${programId}`, {}, token)
         .then(prog => {
@@ -63,13 +80,21 @@ export default function ProExerciseDetailPage() {
   }, [exerciseId, programId, sessionId, mode, token]);
 
   const handleComplete = async (status: string) => {
-    if (!programId || !sessionId || completing) return;
+    if (completing) return;
     setCompleting(true);
     try {
-      await apiFetch(`/api/pro/sessions/${programId}/${sessionId}/complete`, {
-        method: 'POST',
-        body: JSON.stringify({ status, pain_level: painLevel || null, patient_notes: notes }),
-      }, token);
+      const aid = Array.isArray(params.assignmentId) ? params.assignmentId[0] : params.assignmentId;
+      if (mode === 'assigned' && aid) {
+        await apiFetch(`/api/pro/exercises/${aid}/complete`, {
+          method: 'POST',
+          body: JSON.stringify({ status, pain_level: painLevel || null, patient_notes: notes }),
+        }, token);
+      } else if (programId && sessionId) {
+        await apiFetch(`/api/pro/sessions/${programId}/${sessionId}/complete`, {
+          method: 'POST',
+          body: JSON.stringify({ status, pain_level: painLevel || null, patient_notes: notes }),
+        }, token);
+      }
       if (status === 'done') setCompleted(true);
     } catch {} finally { setCompleting(false); }
   };
@@ -207,8 +232,8 @@ export default function ProExerciseDetailPage() {
                   </div>
                 )}
 
-                {/* Completion section (for beneficiary mode) */}
-                {mode === 'session' && programId && sessionId && (
+                {/* Completion section (for assigned/session mode) */}
+                {(mode === 'session' || mode === 'assigned') && (params.assignmentId || (programId && sessionId)) && (
                   <div style={{ ...GL, padding: 16, marginBottom: 12, background: completed ? 'rgba(16,185,129,0.08)' : 'rgba(255,255,255,0.05)', border: completed ? '1px solid rgba(16,185,129,0.2)' : '1px solid rgba(255,255,255,0.08)' } as any}>
                     {completed ? (
                       <div data-testid="exercise-completed" style={{ textAlign: 'center', padding: '12px 0' } as any}>

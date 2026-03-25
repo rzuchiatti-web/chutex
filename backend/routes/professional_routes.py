@@ -69,6 +69,14 @@ class ProProfileUpdate(BaseModel):
     hourly_rate: float = 0
     professional_type: str = "coach"  # coach, physio
 
+class AssignExerciseCreate(BaseModel):
+    exercise_template_id: str
+    beneficiary_id: str
+    days: List[str] = []  # ["lundi", "mardi", etc.]
+    repetitions: int = 12
+    sets: int = 3
+    rest_seconds: int = 60
+
 
 # ── Helpers ──
 
@@ -658,6 +666,110 @@ async def delete_pro_meal(beneficiary_id: str, meal_index: int, user=Depends(get
 
 
 # ── Exercise Template Library ──
+
+DAYS_FR = ["lundi", "mardi", "mercredi", "jeudi", "vendredi", "samedi", "dimanche"]
+DAYS_EN_TO_FR = {"monday": "lundi", "tuesday": "mardi", "wednesday": "mercredi", "thursday": "jeudi", "friday": "vendredi", "saturday": "samedi", "sunday": "dimanche"}
+DAYS_IDX = {d: i for i, d in enumerate(DAYS_FR)}
+
+@router.post("/pro/assign-exercise")
+async def assign_exercise(data: AssignExerciseCreate, user=Depends(get_current_user)):
+    """Assign an exercise template to a beneficiary with custom days/reps/rest"""
+    require_pro(user)
+    tpl = await db.pro_exercise_templates.find_one(
+        {"id": data.exercise_template_id, "professional_id": user['id']}, {"_id": 0}
+    )
+    if not tpl:
+        raise HTTPException(status_code=404, detail="Exercice template non trouve")
+    assignment = {
+        "id": str(uuid.uuid4()),
+        "professional_id": user['id'],
+        "professional_name": user.get('name', ''),
+        "beneficiary_id": data.beneficiary_id,
+        "exercise_template_id": data.exercise_template_id,
+        "title": tpl["title"],
+        "description": tpl.get("description", ""),
+        "image": tpl.get("image", ""),
+        "video_url": tpl.get("video_url", ""),
+        "steps": tpl.get("steps", []),
+        "category": tpl.get("category", "general"),
+        "difficulty": tpl.get("difficulty", "moyen"),
+        "muscle_group": tpl.get("muscle_group", ""),
+        "equipment": tpl.get("equipment", ""),
+        "days": data.days,
+        "repetitions": data.repetitions,
+        "sets": data.sets,
+        "rest_seconds": data.rest_seconds,
+        "completions": [],
+        "status": "active",
+        "created_at": datetime.now(timezone.utc).isoformat(),
+    }
+    await db.pro_assigned_exercises.insert_one(assignment)
+    assignment.pop('_id', None)
+    return assignment
+
+@router.get("/pro/assigned-exercises/{beneficiary_id}")
+async def get_assigned_exercises(beneficiary_id: str, user=Depends(get_current_user)):
+    """Get all exercises assigned to a beneficiary (coach view)"""
+    require_pro(user)
+    exs = await db.pro_assigned_exercises.find(
+        {"beneficiary_id": beneficiary_id, "professional_id": user['id'], "status": "active"},
+        {"_id": 0}
+    ).sort("created_at", -1).to_list(100)
+    return exs
+
+@router.delete("/pro/assigned-exercises/{assignment_id}")
+async def delete_assigned_exercise(assignment_id: str, user=Depends(get_current_user)):
+    """Remove an exercise assignment"""
+    require_pro(user)
+    result = await db.pro_assigned_exercises.delete_one(
+        {"id": assignment_id, "professional_id": user['id']}
+    )
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Exercice assigne non trouve")
+    return {"status": "deleted"}
+
+@router.get("/pro/beneficiary-today-exercises")
+async def beneficiary_today_exercises(user=Depends(get_current_user)):
+    """Get exercises scheduled for today (beneficiary view)"""
+    import locale
+    today_idx = datetime.now(timezone.utc).weekday()  # 0=Monday
+    today_fr = DAYS_FR[today_idx]
+    exs = await db.pro_assigned_exercises.find(
+        {"beneficiary_id": user['id'], "status": "active"}, {"_id": 0}
+    ).to_list(100)
+    today_exs = [e for e in exs if today_fr in e.get('days', [])]
+    # Add completion status for today
+    today_str = datetime.now(timezone.utc).strftime('%Y-%m-%d')
+    for e in today_exs:
+        comps = e.get('completions', [])
+        e['completed_today'] = any(c.get('date', '').startswith(today_str) and c.get('status') == 'done' for c in comps)
+    return today_exs
+
+@router.get("/pro/beneficiary-all-exercises")
+async def beneficiary_all_exercises(user=Depends(get_current_user)):
+    """Get all exercises assigned to this beneficiary"""
+    exs = await db.pro_assigned_exercises.find(
+        {"beneficiary_id": user['id'], "status": "active"}, {"_id": 0}
+    ).to_list(100)
+    return exs
+
+@router.post("/pro/exercises/{assignment_id}/complete")
+async def complete_exercise(assignment_id: str, data: SessionCompletion, user=Depends(get_current_user)):
+    """Beneficiary marks exercise as done/partial/skipped"""
+    completion = {
+        "date": datetime.now(timezone.utc).isoformat(),
+        "status": data.status,
+        "pain_level": data.pain_level,
+        "patient_notes": data.patient_notes,
+        "completed_by": user['id'],
+    }
+    result = await db.pro_assigned_exercises.update_one(
+        {"id": assignment_id},
+        {"$push": {"completions": completion}}
+    )
+    if result.modified_count == 0:
+        raise HTTPException(status_code=404, detail="Exercice non trouve")
+    return {"status": "ok", "completion": completion}
 
 class ExerciseTemplateCreate(BaseModel):
     title: str

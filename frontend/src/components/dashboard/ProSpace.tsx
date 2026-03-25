@@ -75,8 +75,7 @@ export default function ProSpace({ token, user }: { token: string; user: any }) 
   const [bens, setBens] = useState<any[]>([]);
   const [activeBen, setActiveBen] = useState('');
   const [tab, setTab] = useState<'patients' | 'library'>('patients');
-  const [programs, setPrograms] = useState<any[]>([]);
-  const [allPrograms, setAllPrograms] = useState<any[]>([]);
+  const [assignedExercises, setAssignedExercises] = useState<any[]>([]);
   const [reminders, setReminders] = useState<any[]>([]);
   const [meals, setMeals] = useState<any[]>([]);
   const [allReminders, setAllReminders] = useState<any[]>([]);
@@ -91,10 +90,8 @@ export default function ProSpace({ token, user }: { token: string; user: any }) 
   const [modalCtx, setModalCtx] = useState<any>(null);
   const [benOpen, setBenOpen] = useState(false);
 
-  // Rich programme form
-  const emptyProg = { title: '', description: '', frequency: '3x/semaine', duration_weeks: 8, category: 'force', image: '', sessions: [] as any[] };
-  const [progForm, setProgForm] = useState(emptyProg);
-  const emptyEx = { title: '', description: '', sets: 3, reps: 12, duration_minutes: 0, image: '' };
+  // Exercise form (for assign modal)
+  const emptyEx = { title: '', description: '', sets: 3, reps: 12, duration_minutes: 0, image: '', days: [] as string[], rest_seconds: 60 };
 
   // Rich meal form
   const emptyMeal = { meal_type: 'dejeuner', title: '', image: '', ingredients: [{ name: '', quantity: '', unit: 'g' }] as any[], steps: [''] as string[], calories: 0, proteins: 0, glucides: 0, lipides: 0, notes: '' };
@@ -123,7 +120,6 @@ export default function ProSpace({ token, user }: { token: string; user: any }) 
 
   useEffect(() => {
     if (!token) return;
-    apiFetch('/api/pro/all-programs', {}, token).then(p => setAllPrograms(Array.isArray(p) ? p : [])).catch(() => {});
     apiFetch('/api/pro/exercise-templates', {}, token).then(e => setExerciseTemplates(Array.isArray(e) ? e : [])).catch(() => {});
     Promise.all(bens.map(b => apiFetch(`/api/pro/reminders/${b.id}`, {}, token).catch(() => []))).then(r => setAllReminders(r.flat().filter(Boolean)));
     Promise.all(bens.map(b => apiFetch(`/api/pro/meals/${b.id}`, {}, token).catch(() => ({ meals: [] })))).then(r => setAllMeals(r.flatMap((x: any) => Array.isArray(x) ? x : x?.meals || [])));
@@ -132,11 +128,11 @@ export default function ProSpace({ token, user }: { token: string; user: any }) 
   useEffect(() => {
     if (!activeBen || !token) return;
     Promise.all([
-      apiFetch(`/api/pro/programs/${activeBen}`, {}, token).catch(() => []),
+      apiFetch(`/api/pro/assigned-exercises/${activeBen}`, {}, token).catch(() => []),
       apiFetch(`/api/pro/reminders/${activeBen}`, {}, token).catch(() => []),
       apiFetch(`/api/pro/meals/${activeBen}`, {}, token).catch(() => ({ meals: [] })),
-    ]).then(([p, r, m]) => {
-      setPrograms(Array.isArray(p) ? p : []);
+    ]).then(([a, r, m]) => {
+      setAssignedExercises(Array.isArray(a) ? a : []);
       setReminders(Array.isArray(r) ? r : []);
       setMeals(Array.isArray(m) ? m : m?.meals || []);
     });
@@ -145,22 +141,18 @@ export default function ProSpace({ token, user }: { token: string; user: any }) 
   const activeBenData = bens.find(b => b.id === activeBen);
 
   // CRUD
-  const createProgram = async () => {
+  const assignExercise = async (templateId: string, days: string[], reps: number, sets: number, rest: number) => {
     setSaving(true);
     try {
-      const url = '/api/pro/programs/template';
-      const body: any = { title: progForm.title, description: progForm.description, frequency: progForm.frequency, duration_weeks: progForm.duration_weeks, category: progForm.category };
-      const created = await apiFetch(url, { method: 'POST', body: JSON.stringify(body) }, token);
-      // Add exercises to the created program
-      for (const ex of progForm.sessions) {
-        if (ex.title) await apiFetch(`/api/pro/programs/${created.id}/sessions`, { method: 'POST', body: JSON.stringify(ex) }, token);
-      }
-      // Update image if provided
-      if (progForm.image) {
-        await apiFetch(`/api/pro/programs/edit/${created.id}`, { method: 'PUT', body: JSON.stringify({ image: progForm.image }) }, token).catch(() => {});
-      }
-      setModal(null); setProgForm(emptyProg); refresh();
+      await apiFetch('/api/pro/assign-exercise', { method: 'POST', body: JSON.stringify({
+        exercise_template_id: templateId, beneficiary_id: activeBen, days, repetitions: reps, sets, rest_seconds: rest
+      }) }, token);
+      setModal(null); refresh();
     } catch {} finally { setSaving(false); }
+  };
+
+  const deleteAssignedExercise = async (id: string) => {
+    try { await apiFetch(`/api/pro/assigned-exercises/${id}`, { method: 'DELETE' }, token); refresh(); } catch {}
   };
 
   const createMealTemplate = async () => {
@@ -185,35 +177,6 @@ export default function ProSpace({ token, user }: { token: string; user: any }) 
     } catch {} finally { setSaving(false); }
   };
 
-  const addExercise = async () => {
-    if (!modalCtx) return; setSaving(true);
-    try { await apiFetch(`/api/pro/programs/${modalCtx}/sessions`, { method: 'POST', body: JSON.stringify(exForm) }, token); setModal(null); refresh(); } catch {} finally { setSaving(false); }
-  };
-
-  const addExerciseFromTemplate = async (tpl: any, progId: string) => {
-    setSaving(true);
-    try {
-      const body = { title: tpl.title, description: tpl.description, image: tpl.image, video_url: tpl.video_url, sets: tpl.sets, repetitions: tpl.repetitions, duration_min: tpl.duration_min, rest_seconds: tpl.rest_seconds, steps: tpl.steps, difficulty: tpl.difficulty, muscle_group: tpl.muscle_group, equipment: tpl.equipment, notes: tpl.notes, from_template_id: tpl.id };
-      await apiFetch(`/api/pro/programs/${progId}/sessions`, { method: 'POST', body: JSON.stringify(body) }, token);
-      setModal(null); refresh();
-    } catch {} finally { setSaving(false); }
-  };
-
-  const createExerciseTemplate = async () => {
-    setSaving(true);
-    try {
-      const body = { ...exTplForm, steps: exTplForm.steps.filter(s => s.trim()) };
-      await apiFetch('/api/pro/exercise-templates', { method: 'POST', body: JSON.stringify(body) }, token);
-      setModal(null); setExTplForm(emptyExTpl); refresh();
-    } catch {} finally { setSaving(false); }
-  };
-
-  const deleteExerciseTemplate = async (id: string) => {
-    try { await apiFetch(`/api/pro/exercise-templates/${id}`, { method: 'DELETE' }, token); refresh(); } catch {}
-  };
-
-  const duplicateProgram = async (progId: string, benId: string) => { setSaving(true); try { await apiFetch(`/api/pro/programs/duplicate/${progId}/${benId}`, { method: 'POST' }, token); setModal(null); refresh(); } catch {} finally { setSaving(false); }; };
-  const deleteProgram = async (id: string) => { try { await apiFetch(`/api/pro/programs/edit/${id}`, { method: 'DELETE' }, token); refresh(); } catch {} };
   const deleteReminder = async (id: string) => { try { await apiFetch(`/api/pro/reminders/${id}`, { method: 'DELETE' }, token); refresh(); } catch {} };
 
   const GBTN = (active: boolean): any => ({ padding: '16px', borderRadius: 14, textAlign: 'center', cursor: active && !saving ? 'pointer' : 'default', background: active ? AC : 'rgba(255,255,255,0.06)', color: active ? '#FFF' : 'rgba(255,255,255,0.3)', fontSize: 15, fontWeight: 800, opacity: saving ? 0.5 : 1 });
@@ -285,20 +248,19 @@ export default function ProSpace({ token, user }: { token: string; user: any }) 
         {/* ══ CONTENT ══ */}
         <div style={{ padding: '20px 16px 120px', marginTop: -16, borderRadius: '24px 24px 0 0', background: '#FFF', position: 'relative', zIndex: 10, minHeight: 'calc(100vh - 280px)' } as any}>
 
-          {/* ════ PATIENTS TAB — 3 Gray Cards ════ */}
+          {/* ════ PATIENTS TAB — Exercices assignes + Rappels + Repas ════ */}
           {tab === 'patients' && (
             <>
-              <CategoryCard title="Programmes" icon="ri-calendar-check-line" accent={AC} count={programs.length}
-                onAdd={() => { setModal('pick-prog'); }}>
-                {programs.length === 0 && <EmptyState text="Aucun programme assigne" />}
-                {programs.map(p => (
-                  <ItemCard key={p.id} accent={AC} title={p.title}
-                    subtitle={`${p.frequency || ''} - ${p.duration_weeks || '?'} sem.`}
-                    badge={`${(p.sessions || []).length} ex.`}
-                    image={p.image}
-                    onClick={() => router.push({ pathname: '/pro-program-detail' as any, params: { id: p.id } })}
-                    onAdd={() => { setModal('add-ex'); setModalCtx(p.id); setExForm(emptyEx); }}
-                    onDelete={() => deleteProgram(p.id)} />
+              <CategoryCard title="Exercices" icon="ri-run-line" accent={AC} count={assignedExercises.length}
+                onAdd={() => { setModal('assign-ex'); }}>
+                {assignedExercises.length === 0 && <EmptyState text="Aucun exercice assigne" />}
+                {assignedExercises.map(ex => (
+                  <ItemCard key={ex.id} accent={AC} title={ex.title}
+                    subtitle={`${(ex.days || []).map((d: string) => d.slice(0, 3)).join(', ')} - ${ex.sets}x${ex.repetitions}`}
+                    badge={ex.difficulty || ''}
+                    image={ex.image}
+                    onClick={() => router.push({ pathname: '/pro-exercise-detail' as any, params: { id: ex.exercise_template_id || ex.id, mode: 'assigned', assignmentId: ex.id } })}
+                    onDelete={() => deleteAssignedExercise(ex.id)} />
                 ))}
               </CategoryCard>
 
@@ -325,48 +287,25 @@ export default function ProSpace({ token, user }: { token: string; user: any }) 
             </>
           )}
 
-          {/* ════ LIBRARY TAB ════ */}
+          {/* ════ LIBRARY TAB — Grey Cards for each section ════ */}
           {tab === 'library' && (
             <>
-              {/* Creation buttons */}
-              <div style={{ display: 'flex', gap: 10, marginBottom: 20, flexWrap: 'wrap' } as any}>
-                {[
-                  { icon: 'ri-calendar-check-line', label: 'Programme', m: 'new-prog' },
-                  { icon: 'ri-run-line', label: 'Exercice', m: 'new-ex-tpl' },
-                  { icon: 'ri-alarm-line', label: 'Rappel', m: 'new-rem' },
-                  { icon: 'ri-restaurant-line', label: 'Repas', m: 'new-meal' },
-                ].map(a => (
-                  <div key={a.m} data-testid={`lib-add-${a.m}`} onClick={() => {
-                    if (a.m === 'new-prog') { setProgForm(emptyProg); }
-                    if (a.m === 'new-meal') { setMealForm(emptyMeal); }
-                    if (a.m === 'new-rem') { setRemForm(emptyRem); }
-                    if (a.m === 'new-ex-tpl') { setExTplForm(emptyExTpl); }
-                    setModal(a.m);
-                  }}
-                    style={{ flex: '1 1 calc(50% - 5px)', minWidth: 0, padding: '16px 8px', borderRadius: 16, background: '#F9FAFB', border: '1.5px solid #F3F4F6', textAlign: 'center', cursor: 'pointer', transition: 'all 0.15s' } as any}
-                    onMouseEnter={(e: any) => { e.currentTarget.style.borderColor = AC; e.currentTarget.style.background = `${AC}08`; }}
-                    onMouseLeave={(e: any) => { e.currentTarget.style.borderColor = '#F3F4F6'; e.currentTarget.style.background = '#F9FAFB'; }}>
-                    <i className={a.icon} style={{ fontSize: 22, color: AC, display: 'block', marginBottom: 6 }} />
-                    <div style={{ fontSize: 12, fontWeight: 700, color: '#374151' }}>{a.label}</div>
+              {/* Exercices Card */}
+              <div style={{ borderRadius: 18, background: '#F3F4F6', padding: 16, marginBottom: 16 } as any}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 } as any}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 } as any}>
+                    <div style={{ width: 32, height: 32, borderRadius: 10, background: `${AC}15`, display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}>
+                      <i className="ri-run-line" style={{ fontSize: 16, color: AC }} />
+                    </div>
+                    <span style={{ fontSize: 14, fontWeight: 800, color: '#1F2937' }}>Exercices</span>
+                    <span style={{ fontSize: 11, fontWeight: 700, color: '#9CA3AF', marginLeft: 4 }}>({exerciseTemplates.length})</span>
                   </div>
-                ))}
-              </div>
-
-              <SectionBlock title="Programmes" icon="ri-calendar-check-line" count={allPrograms.length} accent={AC}>
-                {allPrograms.length === 0 && <EmptyState text="Aucun programme" />}
-                {allPrograms.map(p => (
-                  <ItemCard key={p.id} accent={AC} title={p.title}
-                    subtitle={`${p.frequency || ''} - ${p.duration_weeks || '?'} sem. ${p.beneficiary_name && p.beneficiary_name !== 'Bibliotheque' ? `| ${p.beneficiary_name}` : ''}`}
-                    badge={p.is_template ? 'Modele' : `${(p.sessions || []).length} ex.`}
-                    image={p.image}
-                    onClick={() => router.push({ pathname: '/pro-program-detail' as any, params: { id: p.id } })}
-                    onDuplicate={() => { setModal('duplicate'); setModalCtx(p.id); }}
-                    onDelete={() => deleteProgram(p.id)} />
-                ))}
-              </SectionBlock>
-
-              <SectionBlock title="Exercices" icon="ri-run-line" count={exerciseTemplates.length} accent={AC}>
-                {exerciseTemplates.length === 0 && <EmptyState text="Aucun exercice dans la bibliotheque" />}
+                  <div data-testid="lib-add-new-ex-tpl" onClick={() => { setExTplForm(emptyExTpl); setModal('new-ex-tpl'); }}
+                    style={{ width: 32, height: 32, borderRadius: 10, background: AC, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}>
+                    <i className="ri-add-line" style={{ fontSize: 18, color: '#FFF' }} />
+                  </div>
+                </div>
+                {exerciseTemplates.length === 0 && <div style={{ textAlign: 'center', padding: '20px 0', color: '#9CA3AF', fontSize: 12, fontWeight: 600 }}>Aucun exercice dans la bibliotheque</div>}
                 {exerciseTemplates.map(ex => (
                   <ItemCard key={ex.id} accent={AC} title={ex.title}
                     subtitle={`${ex.muscle_group || ex.category || ''} - ${ex.difficulty || ''}`}
@@ -375,33 +314,54 @@ export default function ProSpace({ token, user }: { token: string; user: any }) 
                     onClick={() => router.push({ pathname: '/pro-exercise-detail' as any, params: { id: ex.id, mode: 'template' } })}
                     onDelete={() => deleteExerciseTemplate(ex.id)} />
                 ))}
-              </SectionBlock>
+              </div>
 
-              <SectionBlock title="Rappels" icon="ri-alarm-line" count={allReminders.length} accent={AC}>
-                {allReminders.length === 0 && <EmptyState text="Aucun rappel" />}
+              {/* Rappels Card */}
+              <div style={{ borderRadius: 18, background: '#F3F4F6', padding: 16, marginBottom: 16 } as any}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 } as any}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 } as any}>
+                    <div style={{ width: 32, height: 32, borderRadius: 10, background: '#FEF3C7', display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}>
+                      <i className="ri-alarm-line" style={{ fontSize: 16, color: '#F59E0B' }} />
+                    </div>
+                    <span style={{ fontSize: 14, fontWeight: 800, color: '#1F2937' }}>Rappels</span>
+                    <span style={{ fontSize: 11, fontWeight: 700, color: '#9CA3AF', marginLeft: 4 }}>({allReminders.length})</span>
+                  </div>
+                  <div data-testid="lib-add-new-rem" onClick={() => { setRemForm(emptyRem); setModal('new-rem'); }}
+                    style={{ width: 32, height: 32, borderRadius: 10, background: '#F59E0B', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}>
+                    <i className="ri-add-line" style={{ fontSize: 18, color: '#FFF' }} />
+                  </div>
+                </div>
+                {allReminders.length === 0 && <div style={{ textAlign: 'center', padding: '20px 0', color: '#9CA3AF', fontSize: 12, fontWeight: 600 }}>Aucun rappel</div>}
                 {allReminders.map(r => (
                   <ItemCard key={r.id} accent={AC} title={r.title}
                     subtitle={`${r.time || ''} - ${(r.reminder_type || '').replace('_', ' ')}`}
                     badge={r.dosage || ''} onDelete={() => deleteReminder(r.id)} />
                 ))}
-              </SectionBlock>
+              </div>
 
-              <SectionBlock title="Repas" icon="ri-restaurant-line" count={allMeals.length} accent={AC}>
-                {allMeals.length === 0 && <EmptyState text="Aucun repas" />}
-                {(() => {
-                  const unique: any[] = [];
-                  allMeals.forEach(m => {
-                    const key = `${m.meal_type || m.type}-${Array.isArray(m.items) ? m.items.join(',') : (m.items || m.name)}`;
-                    if (!unique.find((x: any) => `${x.meal_type || x.type}-${Array.isArray(x.items) ? x.items.join(',') : (x.items || x.name)}` === key)) unique.push(m);
-                  });
-                  return unique.map((m, i) => (
-                    <ItemCard key={i} accent={AC}
-                      title={(m.meal_type || m.type || m.label || '').replace('_', ' ')}
-                      subtitle={Array.isArray(m.items) ? m.items.join(', ') : (m.items || m.name || '')}
-                      badge={m.calories ? `${m.calories} kcal` : ''} image={m.image} />
-                  ));
-                })()}
-              </SectionBlock>
+              {/* Repas Card */}
+              <div style={{ borderRadius: 18, background: '#F3F4F6', padding: 16, marginBottom: 16 } as any}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 } as any}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 } as any}>
+                    <div style={{ width: 32, height: 32, borderRadius: 10, background: '#D1FAE5', display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}>
+                      <i className="ri-restaurant-line" style={{ fontSize: 16, color: '#10B981' }} />
+                    </div>
+                    <span style={{ fontSize: 14, fontWeight: 800, color: '#1F2937' }}>Repas</span>
+                    <span style={{ fontSize: 11, fontWeight: 700, color: '#9CA3AF', marginLeft: 4 }}>({allMeals.length})</span>
+                  </div>
+                  <div data-testid="lib-add-new-meal" onClick={() => { setMealForm(emptyMeal); setModal('new-meal'); }}
+                    style={{ width: 32, height: 32, borderRadius: 10, background: '#10B981', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}>
+                    <i className="ri-add-line" style={{ fontSize: 18, color: '#FFF' }} />
+                  </div>
+                </div>
+                {allMeals.length === 0 && <div style={{ textAlign: 'center', padding: '20px 0', color: '#9CA3AF', fontSize: 12, fontWeight: 600 }}>Aucun repas</div>}
+                {allMeals.map((m, i) => (
+                  <ItemCard key={i} accent={AC}
+                    title={(m.meal_type || m.type || m.label || '').replace('_', ' ')}
+                    subtitle={Array.isArray(m.items) ? m.items.join(', ') : (m.items || m.name || '')}
+                    badge={m.calories ? `${m.calories} kcal` : ''} image={m.image} />
+                ))}
+              </div>
             </>
           )}
         </div>
@@ -409,30 +369,67 @@ export default function ProSpace({ token, user }: { token: string; user: any }) 
 
       {/* ══════ MODALS ══════ */}
 
-      {/* ── Pick from library (Programmes) ── */}
-      <GlassModal open={modal === 'pick-prog'} onClose={() => setModal(null)} title="Ajouter un programme">
-        <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)', marginBottom: 16 }}>Choisissez un programme dans votre bibliotheque :</div>
-        {allPrograms.filter(p => p.is_template).length === 0 && (
+      {/* ── Assign Exercise to Beneficiary (from library) ── */}
+      <GlassModal open={modal === 'assign-ex'} onClose={() => setModal(null)} title="Ajouter un exercice">
+        {exerciseTemplates.length === 0 ? (
           <div style={{ textAlign: 'center', padding: '24px', color: 'rgba(255,255,255,0.4)', fontSize: 13 } as any}>
-            Aucun modele dans la bibliotheque.<br/>
-            <span onClick={() => { setModal(null); setTab('library'); }} style={{ color: AC, cursor: 'pointer', fontWeight: 700, marginTop: 8, display: 'inline-block' }}>Creer un modele →</span>
+            Aucun exercice dans la bibliotheque.<br/>
+            <span onClick={() => { setModal(null); setTab('library'); }} style={{ color: AC, cursor: 'pointer', fontWeight: 700, marginTop: 8, display: 'inline-block' }}>Creer un exercice →</span>
           </div>
+        ) : !modalCtx ? (
+          <>
+            <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', marginBottom: 14 }}>Choisissez un exercice de la bibliotheque :</div>
+            {exerciseTemplates.map(tpl => (
+              <div key={tpl.id} onClick={() => { setModalCtx(tpl.id); setExForm({ ...emptyEx, title: tpl.title, days: [], reps: tpl.repetitions || 12, sets: tpl.sets || 3, rest_seconds: tpl.rest_seconds || 60 }); }}
+                style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 14px', borderRadius: 14, marginBottom: 6, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', cursor: 'pointer', transition: 'background 0.15s' } as any}
+                onMouseEnter={(e: any) => e.currentTarget.style.background = 'rgba(255,255,255,0.1)'}
+                onMouseLeave={(e: any) => e.currentTarget.style.background = 'rgba(255,255,255,0.04)'}>
+                {tpl.image ? <div style={{ width: 40, height: 40, borderRadius: 10, overflow: 'hidden', flexShrink: 0 } as any}><img src={tpl.image.startsWith('/') ? `${API}${tpl.image}` : tpl.image} style={{ width: '100%', height: '100%', objectFit: 'cover' } as any} /></div>
+                : <div style={{ width: 40, height: 40, borderRadius: 10, background: `${AC}15`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}><i className="ri-run-line" style={{ fontSize: 18, color: AC }} /></div>}
+                <div style={{ flex: 1, minWidth: 0 } as any}>
+                  <div style={{ fontSize: 13, fontWeight: 700, color: '#FFF', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' } as any}>{tpl.title}</div>
+                  <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.4)' }}>{tpl.muscle_group || tpl.category} - {tpl.difficulty}</div>
+                </div>
+                <i className="ri-arrow-right-s-line" style={{ fontSize: 18, color: 'rgba(255,255,255,0.3)' }} />
+              </div>
+            ))}
+          </>
+        ) : (
+          <>
+            <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', marginBottom: 14 }}>Personnalisez pour {activeBenData?.name} :</div>
+            {/* Days picker */}
+            <div style={{ marginBottom: 16 }}>
+              <label style={LBL}>Jours de la semaine</label>
+              <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' } as any}>
+                {['lundi','mardi','mercredi','jeudi','vendredi','samedi','dimanche'].map(d => {
+                  const sel = (exForm as any).days?.includes(d);
+                  return (
+                    <div key={d} data-testid={`day-${d}`} onClick={() => {
+                      const days = (exForm as any).days || [];
+                      setExForm({ ...exForm, days: sel ? days.filter((x: string) => x !== d) : [...days, d] } as any);
+                    }}
+                      style={{ padding: '8px 12px', borderRadius: 10, background: sel ? AC : 'rgba(255,255,255,0.06)', border: `1px solid ${sel ? AC : 'rgba(255,255,255,0.1)'}`, cursor: 'pointer', fontSize: 12, fontWeight: 700, color: sel ? '#FFF' : 'rgba(255,255,255,0.4)', textTransform: 'capitalize', transition: 'all 0.15s' } as any}>
+                      {d.slice(0, 3)}
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+            {/* Custom reps/sets/rest */}
+            <div style={{ display: 'flex', gap: 10, marginBottom: 14 } as any}>
+              <div style={{ flex: 1 }}><label style={LBL}>Series</label><input type="number" value={exForm.sets} onChange={(e: any) => setExForm({ ...exForm, sets: +e.target.value })} style={INP} /></div>
+              <div style={{ flex: 1 }}><label style={LBL}>Repetitions</label><input type="number" value={exForm.reps} onChange={(e: any) => setExForm({ ...exForm, reps: +e.target.value })} style={INP} /></div>
+              <div style={{ flex: 1 }}><label style={LBL}>Repos (s)</label><input type="number" value={(exForm as any).rest_seconds || 60} onChange={(e: any) => setExForm({ ...exForm, rest_seconds: +e.target.value } as any)} style={INP} /></div>
+            </div>
+            <div data-testid="assign-ex-submit" onClick={() => {
+              const days = (exForm as any).days || [];
+              if (days.length === 0) return;
+              assignExercise(modalCtx, days, exForm.reps || 12, exForm.sets || 3, (exForm as any).rest_seconds || 60);
+            }} style={GBTN(((exForm as any).days || []).length > 0)}>
+              {saving ? 'Assignation...' : `Assigner ${((exForm as any).days || []).length > 0 ? `(${((exForm as any).days || []).length} jours)` : '— Choisissez des jours'}`}
+            </div>
+          </>
         )}
-        {allPrograms.filter(p => p.is_template || true).map(p => (
-          <div key={p.id} onClick={() => duplicateProgram(p.id, activeBen)}
-            style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '14px 16px', borderRadius: 16, cursor: 'pointer', marginBottom: 6, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', transition: 'background 0.15s' } as any}
-            onMouseEnter={(e: any) => e.currentTarget.style.background = 'rgba(255,255,255,0.1)'}
-            onMouseLeave={(e: any) => e.currentTarget.style.background = 'rgba(255,255,255,0.04)'}>
-            <div style={{ width: 40, height: 40, borderRadius: 12, background: `${AC}15`, display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' } as any}>
-              {p.image ? <img src={p.image.startsWith('/') ? `${API}${p.image}` : p.image} style={{ width: '100%', height: '100%', objectFit: 'cover' } as any} /> : <i className="ri-calendar-check-line" style={{ fontSize: 18, color: AC }} />}
-            </div>
-            <div style={{ flex: 1 }}>
-              <div style={{ fontSize: 14, fontWeight: 700, color: '#FFF' }}>{p.title}</div>
-              <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)' }}>{p.frequency} - {(p.sessions || []).length} ex.</div>
-            </div>
-            <i className="ri-add-circle-line" style={{ fontSize: 20, color: AC }} />
-          </div>
-        ))}
       </GlassModal>
 
       {/* ── Pick from library (Rappels) ── */}
@@ -459,45 +456,6 @@ export default function ProSpace({ token, user }: { token: string; user: any }) 
             Aucun repas disponible.<br/><span onClick={() => { setModal(null); setTab('library'); }} style={{ color: AC, cursor: 'pointer', fontWeight: 700, marginTop: 8, display: 'inline-block' }}>Creer dans la bibliotheque →</span>
           </div>
         )}
-      </GlassModal>
-
-      {/* ══ RICH PROGRAMME CREATION ══ */}
-      <GlassModal open={modal === 'new-prog'} onClose={() => setModal(null)} title="Nouveau programme">
-        <ImagePicker value={progForm.image} onChange={url => setProgForm({ ...progForm, image: url })} token={token} />
-        <div style={{ marginBottom: 14 }}><label style={LBL}>Titre</label><input data-testid="prog-title" value={progForm.title} onChange={(e: any) => setProgForm({ ...progForm, title: e.target.value })} style={INP} placeholder="Ex: Renforcement musculaire" /></div>
-        <div style={{ marginBottom: 14 }}><label style={LBL}>Description</label><textarea value={progForm.description} onChange={(e: any) => setProgForm({ ...progForm, description: e.target.value })} style={{ ...INP, height: 70, resize: 'none' } as any} placeholder="Objectif et details du programme..." /></div>
-        <div style={{ display: 'flex', gap: 10, marginBottom: 14 } as any}>
-          <div style={{ flex: 1 }}><label style={LBL}>Categorie</label><select value={progForm.category} onChange={(e: any) => setProgForm({ ...progForm, category: e.target.value })} style={SEL}><option value="force">Force</option><option value="mobilite">Mobilite</option><option value="cardio">Cardio</option><option value="equilibre">Equilibre</option><option value="souplesse">Souplesse</option><option value="reeducation">Reeducation</option></select></div>
-          <div style={{ flex: 1 }}><label style={LBL}>Frequence</label><select value={progForm.frequency} onChange={(e: any) => setProgForm({ ...progForm, frequency: e.target.value })} style={SEL}><option value="1x/semaine">1x / sem</option><option value="2x/semaine">2x / sem</option><option value="3x/semaine">3x / sem</option><option value="4x/semaine">4x / sem</option><option value="quotidien">Quotidien</option></select></div>
-        </div>
-        <div style={{ marginBottom: 18 }}><label style={LBL}>Duree (semaines)</label><input type="number" value={progForm.duration_weeks} onChange={(e: any) => setProgForm({ ...progForm, duration_weeks: +e.target.value })} style={INP} /></div>
-
-        {/* Exercises / Steps */}
-        <div style={{ marginBottom: 14 }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
-            <label style={{ ...LBL, marginBottom: 0 }}>Exercices / Etapes</label>
-            <div onClick={() => setProgForm({ ...progForm, sessions: [...progForm.sessions, { ...emptyEx }] })}
-              style={{ fontSize: 11, fontWeight: 700, color: AC, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 } as any}>
-              <i className="ri-add-line" style={{ fontSize: 14 }} /> Ajouter
-            </div>
-          </div>
-          {progForm.sessions.map((ex, i) => (
-            <div key={i} style={{ padding: '14px', borderRadius: 14, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', marginBottom: 8 } as any}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
-                <span style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.3)' }}>ETAPE {i + 1}</span>
-                <div onClick={() => setProgForm({ ...progForm, sessions: progForm.sessions.filter((_, j) => j !== i) })} style={{ cursor: 'pointer' } as any}><i className="ri-delete-bin-6-line" style={{ fontSize: 14, color: '#EF4444' }} /></div>
-              </div>
-              <input value={ex.title} onChange={(e: any) => { const s = [...progForm.sessions]; s[i] = { ...s[i], title: e.target.value }; setProgForm({ ...progForm, sessions: s }); }} style={{ ...INP, marginBottom: 8 }} placeholder="Nom de l'exercice" />
-              <textarea value={ex.description} onChange={(e: any) => { const s = [...progForm.sessions]; s[i] = { ...s[i], description: e.target.value }; setProgForm({ ...progForm, sessions: s }); }} style={{ ...INP, height: 50, resize: 'none', marginBottom: 8 } as any} placeholder="Instructions..." />
-              <div style={{ display: 'flex', gap: 8 } as any}>
-                <div style={{ flex: 1 }}><label style={{ ...LBL, fontSize: 9 }}>Series</label><input type="number" value={ex.sets} onChange={(e: any) => { const s = [...progForm.sessions]; s[i] = { ...s[i], sets: +e.target.value }; setProgForm({ ...progForm, sessions: s }); }} style={INP} /></div>
-                <div style={{ flex: 1 }}><label style={{ ...LBL, fontSize: 9 }}>Reps</label><input type="number" value={ex.reps} onChange={(e: any) => { const s = [...progForm.sessions]; s[i] = { ...s[i], reps: +e.target.value }; setProgForm({ ...progForm, sessions: s }); }} style={INP} /></div>
-                <div style={{ flex: 1 }}><label style={{ ...LBL, fontSize: 9 }}>Min.</label><input type="number" value={ex.duration_minutes} onChange={(e: any) => { const s = [...progForm.sessions]; s[i] = { ...s[i], duration_minutes: +e.target.value }; setProgForm({ ...progForm, sessions: s }); }} style={INP} /></div>
-              </div>
-            </div>
-          ))}
-        </div>
-        <div data-testid="prog-submit" onClick={progForm.title ? createProgram : undefined} style={GBTN(!!progForm.title)}>{saving ? 'Enregistrement...' : 'Enregistrer dans la bibliotheque'}</div>
       </GlassModal>
 
       {/* ══ RICH MEAL CREATION ══ */}
@@ -563,40 +521,6 @@ export default function ProSpace({ token, user }: { token: string; user: any }) 
         <div data-testid="rem-submit" onClick={remForm.title ? createReminderTemplate : undefined} style={GBTN(!!remForm.title)}>{saving ? 'Enregistrement...' : 'Enregistrer dans la bibliotheque'}</div>
       </GlassModal>
 
-      {/* ── Add Exercise to existing program — with library picker ── */}
-      <GlassModal open={modal === 'add-ex'} onClose={() => setModal(null)} title="Ajouter un exercice">
-        {exerciseTemplates.length > 0 && (
-          <>
-            <div style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.35)', marginBottom: 10, textTransform: 'uppercase', letterSpacing: 0.8 }}>Depuis la bibliotheque</div>
-            <div style={{ maxHeight: 200, overflowY: 'auto', marginBottom: 16 } as any}>
-              {exerciseTemplates.map(tpl => (
-                <div key={tpl.id} onClick={() => addExerciseFromTemplate(tpl, modalCtx)}
-                  style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 12px', borderRadius: 12, marginBottom: 4, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', cursor: 'pointer', transition: 'background 0.15s' } as any}
-                  onMouseEnter={(e: any) => e.currentTarget.style.background = 'rgba(255,255,255,0.1)'}
-                  onMouseLeave={(e: any) => e.currentTarget.style.background = 'rgba(255,255,255,0.04)'}>
-                  {tpl.image && <div style={{ width: 36, height: 36, borderRadius: 8, overflow: 'hidden', flexShrink: 0 } as any}><img src={tpl.image.startsWith('/') ? `${API}${tpl.image}` : tpl.image} style={{ width: '100%', height: '100%', objectFit: 'cover' } as any} /></div>}
-                  {!tpl.image && <div style={{ width: 36, height: 36, borderRadius: 8, background: `${AC}15`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}><i className="ri-run-line" style={{ fontSize: 16, color: AC }} /></div>}
-                  <div style={{ flex: 1, minWidth: 0 } as any}>
-                    <div style={{ fontSize: 13, fontWeight: 700, color: '#FFF', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' } as any}>{tpl.title}</div>
-                    <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.4)' }}>{tpl.sets}x{tpl.repetitions} - {tpl.muscle_group || tpl.category}</div>
-                  </div>
-                  <i className="ri-add-circle-line" style={{ fontSize: 18, color: AC }} />
-                </div>
-              ))}
-            </div>
-            <div style={{ borderTop: '1px solid rgba(255,255,255,0.08)', margin: '0 -22px 16px', paddingTop: 16 } as any} />
-            <div style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.35)', marginBottom: 10, textTransform: 'uppercase', letterSpacing: 0.8 }}>Ou creer manuellement</div>
-          </>
-        )}
-        <div style={{ marginBottom: 14 }}><label style={LBL}>Nom</label><input data-testid="ex-title" value={exForm.title} onChange={(e: any) => setExForm({ ...exForm, title: e.target.value })} style={INP} placeholder="Ex: Squats" /></div>
-        <div style={{ marginBottom: 14 }}><label style={LBL}>Description</label><textarea value={exForm.description} onChange={(e: any) => setExForm({ ...exForm, description: e.target.value })} style={{ ...INP, height: 60, resize: 'none' } as any} placeholder="Instructions..." /></div>
-        <div style={{ display: 'flex', gap: 10, marginBottom: 14 } as any}>
-          <div style={{ flex: 1 }}><label style={LBL}>Series</label><input type="number" value={exForm.sets} onChange={(e: any) => setExForm({ ...exForm, sets: +e.target.value })} style={INP} /></div>
-          <div style={{ flex: 1 }}><label style={LBL}>Reps</label><input type="number" value={exForm.reps} onChange={(e: any) => setExForm({ ...exForm, reps: +e.target.value })} style={INP} /></div>
-        </div>
-        <div data-testid="ex-submit" onClick={exForm.title ? addExercise : undefined} style={GBTN(!!exForm.title)}>{saving ? 'Enregistrement...' : 'Ajouter'}</div>
-      </GlassModal>
-
       {/* ══ EXERCISE TEMPLATE CREATION ══ */}
       <GlassModal open={modal === 'new-ex-tpl'} onClose={() => setModal(null)} title="Nouvel exercice">
         <ImagePicker value={exTplForm.image} onChange={url => setExTplForm({ ...exTplForm, image: url })} token={token} />
@@ -633,23 +557,6 @@ export default function ProSpace({ token, user }: { token: string; user: any }) 
           ))}
         </div>
         <div data-testid="extpl-submit" onClick={exTplForm.title ? createExerciseTemplate : undefined} style={GBTN(!!exTplForm.title)}>{saving ? 'Enregistrement...' : 'Enregistrer dans la bibliotheque'}</div>
-      </GlassModal>
-
-      {/* ── Duplicate to beneficiary ── */}
-      <GlassModal open={modal === 'duplicate'} onClose={() => setModal(null)} title={`Attribuer a un ${patientSingle}`}>
-        <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)', marginBottom: 18 }}>Choisissez le {patientSingle} :</div>
-        {bens.map(b => (
-          <div key={b.id} onClick={() => duplicateProgram(modalCtx, b.id)}
-            style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '14px 16px', borderRadius: 16, cursor: 'pointer', marginBottom: 6, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', transition: 'background 0.15s' } as any}
-            onMouseEnter={(e: any) => e.currentTarget.style.background = 'rgba(255,255,255,0.1)'}
-            onMouseLeave={(e: any) => e.currentTarget.style.background = 'rgba(255,255,255,0.04)'}>
-            <div style={{ width: 40, height: 40, borderRadius: '50%', background: `${AC}20`, display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}>
-              <span style={{ fontSize: 16, fontWeight: 800, color: AC }}>{(b.name || '?')[0]}</span>
-            </div>
-            <div style={{ flex: 1 }}><div style={{ fontSize: 15, fontWeight: 700, color: '#FFF' }}>{b.name}</div></div>
-            <i className="ri-arrow-right-s-line" style={{ fontSize: 18, color: 'rgba(255,255,255,0.3)' }} />
-          </div>
-        ))}
       </GlassModal>
     </div>
   );
