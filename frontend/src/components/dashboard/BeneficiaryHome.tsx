@@ -85,6 +85,7 @@ export function BeneficiaryHome({ token, user }: { token: string; user: any }) {
   const [proSub, setProSub] = useState<any>(null);
   const [unreadMsgs, setUnreadMsgs] = useState(0);
   const [proConvo, setProConvo] = useState<any>(null);
+  const [todayExercises, setTodayExercises] = useState<any[]>([]);
   const [checkinNote, setCheckinNote] = useState('');
   const [checkinSending, setCheckinSending] = useState(false);
   const [checkinFeedback, setCheckinFeedback] = useState('');
@@ -164,6 +165,7 @@ export function BeneficiaryHome({ token, user }: { token: string; user: any }) {
       apiFetch('/api/pro/my-subscription', {}, token).then(s => { if (s?.id) setProSub(s); }).catch(() => {});
       apiFetch('/api/pro/unread-count', {}, token).then(u => { if (u) setUnreadMsgs(u.unread || 0); }).catch(() => {});
       apiFetch('/api/pro/conversations', {}, token).then(c => { if (c?.length > 0) setProConvo(c[0]); }).catch(() => {});
+      apiFetch('/api/pro/beneficiary-today-exercises', {}, token).then(e => setTodayExercises(Array.isArray(e) ? e : [])).catch(() => {});
     } catch {} finally { setLoading(false); setRefreshing(false); }
   }, [token]);
 
@@ -442,6 +444,58 @@ export function BeneficiaryHome({ token, user }: { token: string; user: any }) {
           {showWeighing && <WeighingFlow onClose={() => setShowWeighing(false)} d={dashData?.scale || {}} weighings={weighings} />}
 
           <div style={{ height: 1, background: C.sep, margin: "10px 0 24px" } as any} />
+
+          {/* ── Abonnement Pro en attente ── */}
+          {/* ── Exercices du jour (prescrit par le coach) ── */}
+          {todayExercises.length > 0 && (
+            <div data-testid="today-exercises-dashboard" className="dash-slide-up" style={{ marginBottom: 20 } as any}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 14 } as any}>
+                <div style={{ width: 44, height: 44, borderRadius: 14, background: 'rgba(239,68,68,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}>
+                  <i className="ri-run-line" style={{ fontSize: 20, color: '#EF4444' }} />
+                </div>
+                <div>
+                  <div style={{ fontSize: 16, fontWeight: 900, color: C.text }}>Exercices du jour</div>
+                  <div style={{ fontSize: 11, color: C.sub }}>Prescrit par votre coach</div>
+                </div>
+                <span style={{ marginLeft: 'auto', fontSize: 11, fontWeight: 700, color: '#9CA3AF', background: isDark ? 'rgba(255,255,255,0.06)' : '#E5E7EB', padding: '3px 10px', borderRadius: 999 }}>{todayExercises.length}</span>
+              </div>
+              {todayExercises.map((ex: any, i: number) => (
+                <div key={ex.id || i} data-testid={`dash-exercise-${i}`}
+                  onClick={() => router.push({ pathname: '/pro-exercise-detail' as any, params: { id: ex.exercise_template_id || ex.id, mode: 'assigned', assignmentId: ex.id } })}
+                  style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '14px 16px', borderRadius: 18, background: C.card, marginBottom: 8, cursor: 'pointer',
+                    border: ex.completed_today ? '1px solid rgba(16,185,129,0.2)' : `1px solid ${C.border}`,
+                    transition: 'transform 0.15s', ...glass } as any}
+                  onMouseEnter={(e: any) => e.currentTarget.style.transform = 'translateY(-2px)'}
+                  onMouseLeave={(e: any) => e.currentTarget.style.transform = ''}>
+                  {ex.image ? (
+                    <div style={{ width: 50, height: 50, borderRadius: 12, overflow: 'hidden', flexShrink: 0 } as any}>
+                      <img src={ex.image.startsWith('/') ? `${process.env.EXPO_PUBLIC_BACKEND_URL}${ex.image}` : ex.image} style={{ width: '100%', height: '100%', objectFit: 'cover' } as any} />
+                    </div>
+                  ) : (
+                    <div style={{ width: 50, height: 50, borderRadius: 12, background: isDark ? 'rgba(239,68,68,0.08)' : 'rgba(239,68,68,0.06)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}>
+                      <i className="ri-run-line" style={{ fontSize: 22, color: '#EF4444' }} />
+                    </div>
+                  )}
+                  <div style={{ flex: 1, minWidth: 0 } as any}>
+                    <div style={{ fontSize: 14, fontWeight: 800, color: C.text, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' } as any}>{ex.title}</div>
+                    <div style={{ fontSize: 11, color: C.sub, marginTop: 2 }}>
+                      {ex.sets > 0 && `${ex.sets} series x ${ex.repetitions} reps`}
+                      {ex.rest_seconds > 0 && ` - ${ex.rest_seconds}s repos`}
+                    </div>
+                  </div>
+                  {ex.completed_today ? (
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '6px 12px', borderRadius: 999, background: 'rgba(16,185,129,0.08)' } as any}>
+                      <i className="ri-checkbox-circle-fill" style={{ fontSize: 16, color: '#10B981' }} />
+                      <span style={{ fontSize: 11, fontWeight: 700, color: '#10B981' }}>Fait</span>
+                    </div>
+                  ) : (
+                    <div style={{ padding: '8px 16px', borderRadius: 999, background: isDark ? 'rgba(16,185,129,0.12)' : 'rgba(16,185,129,0.08)', fontSize: 12, fontWeight: 700, color: '#10B981' }}>Faire</div>
+                  )}
+                </div>
+              ))}
+              <div style={{ height: 1, background: C.sep, margin: '10px 0 0' } as any} />
+            </div>
+          )}
 
           {/* ── Abonnement Pro en attente ── */}
           {proSub && proSub.status === 'pending' && (
