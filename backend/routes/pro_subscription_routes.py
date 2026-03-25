@@ -133,7 +133,7 @@ def get_mollie_client():
     return mollie
 
 def get_base_url():
-    return os.environ.get('EXPO_PUBLIC_BACKEND_URL', 'https://supplement-prescribe.preview.emergentagent.com')
+    return os.environ.get('EXPO_PUBLIC_BACKEND_URL', 'https://coach-payment-portal.preview.emergentagent.com')
 
 @router.post("/pro/subscriptions/{subscription_id}/accept")
 async def accept_subscription(subscription_id: str, user=Depends(get_current_user)):

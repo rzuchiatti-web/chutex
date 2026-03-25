@@ -30,7 +30,10 @@ export default function SubscriptionManagePopup({ show, onClose, subData, onRefr
   const [showContract, setShowContract] = useState(false);
 
   const isCare = subData?.subscription_type === 'care';
-  const accent = isCare ? '#A78BFA' : '#3B82F6';
+  const isSport = subData?.subscription_type === 'sport';
+  const isPhysio = subData?.subscription_type === 'physio';
+  const isProSub = isSport || isPhysio;
+  const accent = isCare ? '#A78BFA' : isProSub ? '#D4AF37' : '#3B82F6';
 
   // Hide the GlassTabBar when this popup is open
   useEffect(() => {
@@ -145,7 +148,7 @@ export default function SubscriptionManagePopup({ show, onClose, subData, onRefr
           <div style={{ width: 64, height: 64, borderRadius: 20, background: `${accent}25`, border: `1px solid ${accent}40`, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', marginBottom: 12 } as any}>
             <i className={isCare ? 'ri-shield-star-line' : 'ri-watch-line'} style={{ fontSize: 32, color: accent }} />
           </div>
-          <div style={{ fontSize: 22, fontWeight: 800, color: '#FFF' }}>{isCare ? 'Téléassistance Chutex Care' : (subData?.contract?.plan_label || 'Bracelet Elio')}</div>
+          <div style={{ fontSize: 22, fontWeight: 800, color: '#FFF' }}>{isCare ? 'Téléassistance Chutex Care' : isSport ? 'Abonnement Sport' : isPhysio ? 'Abonnement Physio' : (subData?.contract?.plan_label || 'Bracelet Elio')}</div>
           <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '4px 14px', borderRadius: 999, background: 'rgba(16,185,129,0.2)', border: '1px solid rgba(16,185,129,0.3)', marginTop: 8 } as any}>
             <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#10B981' } as any} />
             <span style={{ fontSize: 11, fontWeight: 700, color: '#10B981' }}>Actif</span>
@@ -175,8 +178,8 @@ export default function SubscriptionManagePopup({ show, onClose, subData, onRefr
           <div>
             {(() => {
               const ct = subData?.contract || {};
-              const planLabel = ct.plan_label || (isCare ? 'Care — Teleassistance 24/7' : 'Standard — Bracelet Elio');
-              const price = ct.price_monthly || (isCare ? 39.90 : 24.90);
+              const planLabel = ct.plan_label || (isCare ? 'Care — Teleassistance 24/7' : isSport ? 'Sport — Coaching personnalise' : isPhysio ? 'Physio — Reeducation personnalisee' : 'Standard — Bracelet Elio');
+              const price = ct.price_monthly || (isCare ? 39.90 : isProSub ? 89.00 : 24.90);
               const priceCredit = ct.price_after_credit;
               return [
                 { icon: 'ri-shield-check-line', label: 'Formule', value: planLabel },
@@ -205,6 +208,8 @@ export default function SubscriptionManagePopup({ show, onClose, subData, onRefr
               <div style={{ fontSize: 9, fontWeight: 700, color: 'rgba(255,255,255,0.3)', letterSpacing: 1.5, textTransform: 'uppercase', marginBottom: 10 }}>Inclus</div>
               {(isCare
                 ? ['Detection de chute', 'Bouton SOS', 'Plateau d\'ecoute 24/7', 'Intervenants Care', 'Suivi GPS', 'Notifications gardiens', 'Rapports']
+                : isProSub
+                ? ['Programmes exercices personnalises', 'Suivi par votre professionnel', 'Rappels complements / hydratation', 'Plan repas sur mesure', 'Bilans de sante Nora', 'Messagerie directe', 'Historique activite']
                 : ['Suivi cardiaque', 'SpO2 et temperature', 'Detection de chute', 'Historique sante', 'App mobile']
               ).map((f, i) => (
                 <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 } as any}>

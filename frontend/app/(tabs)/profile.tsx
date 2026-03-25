@@ -407,7 +407,7 @@ const BG_PROFILE = 'https://customer-assets.emergentagent.com/job_9950a869-9328-
               <img src="https://customer-assets.emergentagent.com/job_443c9c6e-0feb-4920-a358-fe7cc1a6289b/artifacts/v5t9l2mb_ChatGPT%20Image%2017%20f%C3%A9vr.%202026%2C%2014_10_07.png" alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', borderRadius: 22 } as any} />
               <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.25)', borderRadius: 22 } as any} />
               <div style={{ position: 'relative', zIndex: 2, display: 'flex', alignItems: 'center', justifyContent: 'space-between', height: '100%', padding: '0 22px' } as any}>
-                <div style={{ fontSize: 18, fontWeight: 800, color: '#FFF', letterSpacing: -0.3 }}>Bracelet Elio</div>
+                <div style={{ fontSize: 18, fontWeight: 800, color: '#FFF', letterSpacing: -0.3 }}>{subData.subscription_type === 'sport' ? 'Abonnement Sport' : subData.subscription_type === 'physio' ? 'Abonnement Physio' : 'Bracelet Elio'}</div>
                 <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '5px 14px', borderRadius: 999, background: 'rgba(16,185,129,0.25)', border: '1px solid rgba(16,185,129,0.4)' } as any}>
                   <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#10B981' } as any} />
                   <span style={{ fontSize: 11, fontWeight: 700, color: '#10B981' }}>Actif</span>
