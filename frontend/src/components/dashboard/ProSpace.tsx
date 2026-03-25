@@ -61,11 +61,12 @@ export default function ProSpace({ token, user }: { token: string; user: any }) 
     Promise.all([
       apiFetch(`/api/pro/programs/${activeBen}`, {}, token).catch(() => []),
       apiFetch(`/api/pro/reminders/${activeBen}`, {}, token).catch(() => []),
-      apiFetch(`/api/pro/meals/${activeBen}`, {}, token).catch(() => []),
+      apiFetch(`/api/pro/meals/${activeBen}`, {}, token).catch(() => ({ meals: [] })),
     ]).then(([p, r, m]) => {
       setPrograms(Array.isArray(p) ? p : []);
       setReminders(Array.isArray(r) ? r : []);
-      setMeals(Array.isArray(m) ? m : []);
+      const mealData = Array.isArray(m) ? m : (m?.meals || []);
+      setMeals(Array.isArray(mealData) ? mealData : []);
     });
   }, [activeBen, token, saving]);
 
