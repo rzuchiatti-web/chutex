@@ -96,7 +96,6 @@ function DaysPicker({ selected, onChange, accent }: { selected: string[]; onChan
 function HorizontalCalendar({ selectedDate, onSelect, accent, completedDates }: { selectedDate: Date; onSelect: (d: Date) => void; accent: string; completedDates?: Set<string> }) {
   const [viewMonth, setViewMonth] = useState(selectedDate.getMonth());
   const [viewYear, setViewYear] = useState(selectedDate.getFullYear());
-  const scrollRef = React.useRef<HTMLDivElement>(null);
 
   const dates = useMemo(() => {
     const arr: Date[] = [];
@@ -116,25 +115,6 @@ function HorizontalCalendar({ selectedDate, onSelect, accent, completedDates }: 
     else setViewMonth(viewMonth + 1);
   };
 
-  // Auto-scroll to today/selected day on mount + month change
-  useEffect(() => {
-    const doScroll = () => {
-      if (!scrollRef.current) return;
-      const today = new Date();
-      const targetDay = (viewMonth === today.getMonth() && viewYear === today.getFullYear()) ? today.getDate() : selectedDate.getDate();
-      const dayWidth = 54; // minWidth 48 + gap 6
-      const containerWidth = scrollRef.current.clientWidth;
-      const scrollTo = (targetDay - 1) * dayWidth - containerWidth / 2 + dayWidth / 2;
-      scrollRef.current.scrollLeft = Math.max(0, scrollTo);
-    };
-    // Use multiple attempts to ensure DOM is ready
-    doScroll();
-    const t1 = requestAnimationFrame(doScroll);
-    const t2 = setTimeout(doScroll, 150);
-    const t3 = setTimeout(doScroll, 400);
-    return () => { cancelAnimationFrame(t1); clearTimeout(t2); clearTimeout(t3); };
-  }, [viewMonth, viewYear, selectedDate]);
-
   const todayStr = new Date().toISOString().split('T')[0];
   const selStr = selectedDate.toISOString().split('T')[0];
 
@@ -153,7 +133,7 @@ function HorizontalCalendar({ selectedDate, onSelect, accent, completedDates }: 
           <i className="ri-arrow-right-s-line" style={{ fontSize: 16, color: '#FFF' }} />
         </div>
       </div>
-      <div ref={scrollRef} style={{ display: 'flex', gap: 6, overflowX: 'auto', paddingBottom: 4, WebkitOverflowScrolling: 'touch', scrollbarWidth: 'none' } as any}>
+      <div style={{ display: 'flex', gap: 6, overflowX: 'auto', paddingBottom: 4, WebkitOverflowScrolling: 'touch', scrollbarWidth: 'none' } as any}>
         {dates.map(d => {
           const ds = d.toISOString().split('T')[0];
           const isToday = ds === todayStr;
@@ -389,6 +369,35 @@ export default function ProSpace({ token, user }: { token: string; user: any }) 
     boxShadow: active ? '0 4px 20px rgba(220,38,38,0.12), inset 0 1px 0 rgba(255,255,255,0.08)' : 'none',
     color: active ? '#FFF' : 'rgba(255,255,255,0.3)', fontSize: 15, fontWeight: 800, opacity: saving ? 0.5 : 1,
   });
+
+  // Calendar auto-scroll: keep re-applying scroll until it sticks (RNW resets on re-render)
+  useEffect(() => {
+    let settled = false;
+    let settledCount = 0;
+    const interval = setInterval(() => {
+      if (settled) return;
+      const todayISO = new Date().toISOString().split('T')[0];
+      const el = document.querySelector('[data-testid="cal-day-' + todayISO + '"]');
+      if (!el?.parentElement) return;
+      let p: HTMLElement | null = el.parentElement as HTMLElement;
+      while (p) {
+        if (p.scrollWidth > p.clientWidth + 50) {
+          const targetPos = Math.max(0, (new Date().getDate() - 1) * 54 - p.clientWidth / 2 + 27);
+          if (Math.abs(p.scrollLeft - targetPos) < 30) {
+            settledCount++;
+            if (settledCount >= 5) { settled = true; clearInterval(interval); }
+          } else {
+            settledCount = 0;
+            p.scrollTo({ left: targetPos, behavior: 'instant' as ScrollBehavior });
+          }
+          break;
+        }
+        p = p.parentElement as HTMLElement | null;
+      }
+    }, 200);
+    const cleanup = setTimeout(() => { settled = true; clearInterval(interval); }, 15000);
+    return () => { settled = true; clearInterval(interval); clearTimeout(cleanup); };
+  }, [activeBen, tab]);
 
   if (loading) return <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100vh', color: '#9CA3AF', fontFamily: 'Inter, system-ui, sans-serif' } as any}><i className="ri-loader-4-line ri-spin" style={{ fontSize: 32 }} /></div>;
 
