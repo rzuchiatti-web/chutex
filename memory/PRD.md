@@ -1,56 +1,72 @@
-# Chutex Care Watch - PRD
+# Chutex Care Watch — PRD
 
-## Vision
-Application full-stack de teleassistance et suivi sante pour personnes agees.
+## Concept
+Application mobile-first de santé connectée. Un **seul rôle Gardien** dont l'interface s'adapte dynamiquement via des attributs (`professional_type`, `saad_company_id`).
 
 ## Architecture
-- **Frontend**: React Native (Expo) Web
-- **Backend**: FastAPI + MongoDB (`vitallink_db`)
-- **Integrations**: Mollie, OpenAI GPT-4o, SMSMode
+- **Frontend**: Expo/React Native (web), Expo Router
+- **Backend**: FastAPI, MongoDB
+- **Intégrations**: Mollie (paiements), OpenAI GPT-4o (Nora), Lefu (appareils connectés)
 
-## Navbar Gardien Dynamique
-| Onglet | Condition |
-|--------|-----------|
-| Accueil | Toujours |
-| Activite | Toujours |
-| Care | Si `saad_company_id` |
-| Prescriptions | Si SAAD ou coach/physio |
-| Messages | Si coach ou physio |
-| Plus | Toujours |
+## Rôles & Attributs
+| Attribut | Valeurs | Impact UI |
+|---|---|---|
+| `professional_type` | `coach` / `physio` | ProSpace, carte de revenus, onglet Messages, landing pages |
+| `saad_company_id` | ID entreprise | Onglet Care, interventions |
+| Aucun | Gardien standard | Interface classique santé |
 
-## Fonctionnalites Implementees
+## Fonctionnalités Implémentées
 
-### Espace Coach/Physio (Onglet Activite) - Redesign 25 Mars 2026
-- **Vue Patients**: Selecteur par patient, boutons rapides (Programme/Rappel/Repas), liste des programmes avec exercices inline, rappels, plans de repas
-- **Vue Bibliotheque**: Tous les programmes existants en templates reutilisables, bouton "Attribuer" pour dupliquer en un clic vers un autre patient
-- **Modals**: Creation programme, ajout exercice, rappel (medication/hydratation), plan de repas
-- **API**: GET /api/pro/all-programs, POST /api/pro/programs/duplicate/{id}/{ben_id}
+### Session actuelle (Mars 2026)
+- **ProSpace (Activité)**: Espace de travail complet pour coachs/physios
+  - Onglets pillule: Élèves/Patients + Bibliothèque
+  - Dropdown pleine largeur pour sélection de bénéficiaire
+  - Quick actions: Programme, Rappel, Repas
+  - Modaux glassmorphic (backdrop blur, fond noir)
+  - CRUD complet: programmes, exercices, rappels, repas
+  - Bibliothèque: modèles réutilisables + duplication vers bénéficiaires
+  - API template: `POST /api/pro/programs/template`
+- **Fix Messagerie P1**: Padding chat input augmenté (100px) pour éviter chevauchement avec navbar
+- **Landing Pages**: `/become-pro` (Coach rouge, Physio orange)
+- **Mode Light**: Thème clair par défaut
+- **Architecture unifiée**: Fusion Guardian/Professional en un seul rôle
+- **Carte de revenus**: Dashboard pro avec endpoint Mollie
+- **Navbar dynamique**: GlassTabBar adaptée aux attributs
 
-### Messagerie WhatsApp-like
-- Liste conversations, chat bubbles, envoi temps reel, poll auto 4s
+### Fonctionnalités existantes
+- Authentification (téléphone/mot de passe)
+- Tableau de bord santé (alertes, données vitales)
+- Nora IA (bilans GPT-4o)
+- Messagerie pro
+- Gestion des bénéficiaires
+- Interventions SAAD
 
-### Landing Pages Coach/Physio
-- Coach: ROUGE (#DC2626), Physio: ORANGE (#F97316)
-- Multi-step: infos, diplomes, contrat + signature electronique
-
-### Bug Fixes 25 Mars 2026
-- Suppression pillule Prescripteur du profil
-- Switch role coach<->gardien corrige (require_pro verifie professional_type)
-- Navbar light sur toutes les pages gardien
-- Headers uniformises (image de fond + contenu arrondi)
-
-## Credentials
-| Type | Telephone | MdP |
-|------|-----------|-----|
+## Comptes de Test
+| Type | Téléphone | Mot de passe |
+|---|---|---|
 | Coach | +33655443322 | test123 |
-| SAAD | +33605221196 | test123 |
-| Standard | +33698765432 | test123 |
-| Beneficiaire | +33651245918 | test123 |
+| Gardien SAAD | +33605221196 | test123 |
+| Gardien Standard | +33698765432 | test123 |
 
 ## Backlog
-- P1: Tableau de bord revenus admin
-- P2: Balance/gilet connectes
-- P2: Signature electronique docs Admin
-- P2: Parrainage Gardiens
-- P2: Essai gratuit 7j
-- P2: Test urinaire Vivoo
+
+### P1 — À venir
+- Tableau de bord des revenus pour l'administrateur
+- Configuration paiements (IBAN) via Mollie pour les pros
+
+### P2 — Futur
+- Intégration balance et gilet connectés
+- Signature électronique documents Admin
+- Système de parrainage Gardiens
+- Essai gratuit 7 jours
+- Intégration test urinaire Vivoo
+- Validation CRC32 serveur TCP J2358
+
+## APIs Clés
+- `POST /api/pro/programs/template` — Créer un programme template
+- `POST /api/pro/programs/{beneficiary_id}` — Créer un programme pour un bénéficiaire
+- `POST /api/pro/programs/duplicate/{program_id}/{beneficiary_id}` — Dupliquer un programme
+- `GET /api/pro/all-programs` — Tous les programmes (inclut templates)
+- `POST /api/pro/meals/{beneficiary_id}` — Ajouter un repas (format: meal_type, items, calories, proteins, notes)
+- `POST /api/pro/reminders/{beneficiary_id}` — Ajouter un rappel
+- `GET /api/pro/payment-dashboard` — Dashboard revenus
