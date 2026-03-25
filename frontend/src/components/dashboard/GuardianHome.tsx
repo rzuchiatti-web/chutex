@@ -85,6 +85,10 @@ export default function GuardianHome({ token, user }: { token: string; user: any
   const [linkMessage, setLinkMessage] = useState('');
   const [paymentDash, setPaymentDash] = useState<any>(null);
   const isCoachOrPhysio = user?.professional_type === 'coach' || user?.professional_type === 'physio';
+  const [showIbanModal, setShowIbanModal] = useState(false);
+  const [ibanForm, setIbanForm] = useState({ account_holder: '', iban: '', bic: '' });
+  const [ibanSaving, setIbanSaving] = useState(false);
+  const [ibanMsg, setIbanMsg] = useState<{ type: 'ok' | 'err'; text: string } | null>(null);
   const [isDark, setIsDark] = React.useState(() => {
     if (typeof localStorage !== 'undefined') return localStorage.getItem('chutex_dark') === '1';
     return false;
@@ -235,13 +239,14 @@ export default function GuardianHome({ token, user }: { token: string; user: any
                     <div style={{ fontSize: 10, color: subColor, marginTop: 2 }}>Total gagne HT</div>
                   </div>
                 </div>
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingTop: 12, borderTop: `1px solid ${sepColor}` } as any}>
+                <div data-testid="iban-config-row" onClick={async () => { setIbanMsg(null); try { const cfg = await apiFetch('/api/pro/payment-config', {}, token); setIbanForm({ account_holder: cfg.account_holder || '', iban: cfg.iban || '', bic: cfg.bic || '' }); } catch {} setShowIbanModal(true); }} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingTop: 12, borderTop: `1px solid ${sepColor}`, cursor: 'pointer' } as any}>
                   <span style={{ fontSize: 11, color: subColor }}>45 € HT / beneficiaire / mois</span>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 6 } as any}>
                     <span style={{ width: 6, height: 6, borderRadius: 3, background: paymentDash?.iban_configured ? '#10B981' : '#F59E0B' } as any} />
-                    <span style={{ fontSize: 11, fontWeight: 600, color: paymentDash?.iban_configured ? '#10B981' : '#F59E0B' }}>
-                      {paymentDash?.iban_configured ? 'IBAN configure' : 'IBAN non configure'}
+                    <span data-testid="iban-status-btn" style={{ fontSize: 11, fontWeight: 600, color: paymentDash?.iban_configured ? '#10B981' : '#F59E0B' }}>
+                      {paymentDash?.iban_configured ? 'IBAN configure' : 'Configurer IBAN'}
                     </span>
+                    <i className="ri-arrow-right-s-line" style={{ fontSize: 14, color: subColor }} />
                   </div>
                 </div>
               </div>
@@ -400,6 +405,74 @@ export default function GuardianHome({ token, user }: { token: string; user: any
                   {lang === l.code && <i className="ri-check-line" style={{ fontSize: 18, color: '#22D3EE' }} />}
                 </div>
               ))}
+            </div>
+          </div>
+        )}
+
+        {/* POPUP CONFIG IBAN */}
+        {showIbanModal && portalMount(
+          <div data-testid="iban-modal-overlay" onClick={() => setShowIbanModal(false)} style={POP as any}>
+            <div onClick={(e: any) => e.stopPropagation()} style={{ width: '100%', maxWidth: 420, margin: '0 auto', padding: '40px 24px 120px', boxSizing: 'border-box' } as any}>
+              <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 20 } as any}>
+                <div onClick={() => setShowIbanModal(false)} style={{ width: 36, height: 36, borderRadius: 999, background: 'rgba(255,255,255,0.12)', border: '1px solid rgba(255,255,255,0.18)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}>
+                  <i className="ri-close-line" style={{ fontSize: 18, color: '#FFF' }} />
+                </div>
+              </div>
+              <div style={{ textAlign: 'center', marginBottom: 28 } as any}>
+                <div style={{ width: 56, height: 56, borderRadius: 16, background: 'rgba(16,185,129,0.12)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', marginBottom: 14 } as any}>
+                  <i className="ri-bank-card-line" style={{ fontSize: 26, color: '#10B981' }} />
+                </div>
+                <div style={{ fontSize: 22, fontWeight: 900, color: '#FFF' }}>Configuration Paiement</div>
+                <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.45)', marginTop: 6 }}>Renseignez vos coordonnees bancaires pour recevoir vos revenus</div>
+              </div>
+
+              <div style={{ marginBottom: 16 } as any}>
+                <label style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', letterSpacing: 0.5, display: 'block', marginBottom: 6 }}>Titulaire du compte</label>
+                <input data-testid="iban-holder-input" value={ibanForm.account_holder} onChange={(e: any) => setIbanForm({ ...ibanForm, account_holder: e.target.value })}
+                  placeholder="Nom Prenom" style={{ width: '100%', padding: '14px 16px', borderRadius: 14, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', color: '#FFF', fontSize: 15, outline: 'none', fontFamily: 'inherit', boxSizing: 'border-box' } as any} />
+              </div>
+
+              <div style={{ marginBottom: 16 } as any}>
+                <label style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', letterSpacing: 0.5, display: 'block', marginBottom: 6 }}>IBAN</label>
+                <input data-testid="iban-number-input" value={ibanForm.iban} onChange={(e: any) => setIbanForm({ ...ibanForm, iban: e.target.value.toUpperCase() })}
+                  placeholder="FR76 XXXX XXXX XXXX XXXX XXXX XXX" style={{ width: '100%', padding: '14px 16px', borderRadius: 14, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', color: '#FFF', fontSize: 15, outline: 'none', fontFamily: 'Inter, monospace', letterSpacing: 1.5, boxSizing: 'border-box' } as any} />
+              </div>
+
+              <div style={{ marginBottom: 24 } as any}>
+                <label style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', letterSpacing: 0.5, display: 'block', marginBottom: 6 }}>BIC / SWIFT (optionnel)</label>
+                <input data-testid="iban-bic-input" value={ibanForm.bic} onChange={(e: any) => setIbanForm({ ...ibanForm, bic: e.target.value.toUpperCase() })}
+                  placeholder="BNPAFRPP" style={{ width: '100%', padding: '14px 16px', borderRadius: 14, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', color: '#FFF', fontSize: 15, outline: 'none', fontFamily: 'Inter, monospace', letterSpacing: 1.5, boxSizing: 'border-box' } as any} />
+              </div>
+
+              {ibanMsg && (
+                <div style={{ padding: '12px 16px', borderRadius: 12, marginBottom: 16, background: ibanMsg.type === 'ok' ? 'rgba(16,185,129,0.12)' : 'rgba(239,68,68,0.12)', border: `1px solid ${ibanMsg.type === 'ok' ? 'rgba(16,185,129,0.3)' : 'rgba(239,68,68,0.3)'}` } as any}>
+                  <div style={{ fontSize: 13, fontWeight: 600, color: ibanMsg.type === 'ok' ? '#10B981' : '#EF4444', display: 'flex', alignItems: 'center', gap: 8 } as any}>
+                    <i className={ibanMsg.type === 'ok' ? 'ri-check-line' : 'ri-error-warning-line'} style={{ fontSize: 16 }} />
+                    {ibanMsg.text}
+                  </div>
+                </div>
+              )}
+
+              <div data-testid="iban-submit-btn" onClick={async () => {
+                if (!ibanForm.account_holder.trim() || !ibanForm.iban.trim()) return;
+                setIbanSaving(true); setIbanMsg(null);
+                try {
+                  await apiFetch('/api/pro/payment-config', { method: 'PUT', body: JSON.stringify(ibanForm) }, token);
+                  setIbanMsg({ type: 'ok', text: 'IBAN enregistre avec succes !' });
+                  apiFetch('/api/pro/payment-dashboard', {}, token).then(d => setPaymentDash(d)).catch(() => {});
+                } catch (e: any) {
+                  setIbanMsg({ type: 'err', text: e.message || 'Erreur lors de la sauvegarde' });
+                } finally { setIbanSaving(false); }
+              }} style={{ padding: '16px', borderRadius: 14, textAlign: 'center', cursor: ibanForm.account_holder && ibanForm.iban ? 'pointer' : 'default', background: ibanForm.account_holder && ibanForm.iban ? '#10B981' : 'rgba(255,255,255,0.06)', color: ibanForm.account_holder && ibanForm.iban ? '#FFF' : 'rgba(255,255,255,0.3)', fontSize: 15, fontWeight: 800, opacity: ibanSaving ? 0.5 : 1, transition: 'all 0.15s' } as any}>
+                {ibanSaving ? 'Enregistrement...' : 'Enregistrer'}
+              </div>
+
+              <div style={{ textAlign: 'center', marginTop: 20 } as any}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 } as any}>
+                  <i className="ri-shield-check-line" style={{ fontSize: 13, color: 'rgba(255,255,255,0.25)' }} />
+                  <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.25)' }}>Vos donnees bancaires sont securisees</span>
+                </div>
+              </div>
             </div>
           </div>
         )}

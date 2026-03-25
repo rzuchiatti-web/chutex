@@ -319,6 +319,45 @@ async def get_payment_dashboard(user=Depends(get_current_user)):
         "contract_signed": bool(pro_app),
     }
 
+
+# ── Payment Config (IBAN) ──
+
+class PaymentConfigUpdate(BaseModel):
+    account_holder: str
+    iban: str
+    bic: str = ""
+
+@router.get("/pro/payment-config")
+async def get_payment_config(user=Depends(get_current_user)):
+    """Get pro's current payment configuration (IBAN, BIC, holder)"""
+    require_pro(user)
+    cu = await db.users.find_one({"id": user['id']}, {"_id": 0})
+    return {
+        "account_holder": cu.get('account_holder', ''),
+        "iban": cu.get('iban', ''),
+        "bic": cu.get('bic', ''),
+        "iban_configured": bool(cu.get('iban')),
+    }
+
+@router.put("/pro/payment-config")
+async def update_payment_config(data: PaymentConfigUpdate, user=Depends(get_current_user)):
+    """Update pro's payment configuration (IBAN, BIC, holder)"""
+    require_pro(user)
+    iban = data.iban.replace(' ', '').upper()
+    if len(iban) < 15 or len(iban) > 34:
+        raise HTTPException(status_code=400, detail="IBAN invalide (entre 15 et 34 caracteres)")
+    if not iban[:2].isalpha():
+        raise HTTPException(status_code=400, detail="IBAN invalide (doit commencer par un code pays)")
+    if not data.account_holder.strip():
+        raise HTTPException(status_code=400, detail="Le titulaire du compte est requis")
+    await db.users.update_one({"id": user['id']}, {"$set": {
+        "account_holder": data.account_holder.strip(),
+        "iban": iban,
+        "bic": data.bic.replace(' ', '').upper(),
+        "iban_updated_at": datetime.now(timezone.utc).isoformat(),
+    }})
+    return {"status": "ok", "iban_configured": True}
+
 # Simulate payment for testing (since Mollie test mode needs browser redirect)
 @router.post("/pro/subscriptions/{subscription_id}/simulate-payment")
 async def simulate_payment(subscription_id: str, user=Depends(get_current_user)):
