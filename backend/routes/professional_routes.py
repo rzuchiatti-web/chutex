@@ -758,8 +758,12 @@ async def assign_meal(data: AssignMealCreate, user=Depends(get_current_user)):
         "image": tpl.get("image", ""),
         "items": tpl.get("items", []),
         "ingredients": tpl.get("ingredients", []),
+        "steps": tpl.get("steps", []),
         "calories": tpl.get("calories", 0),
         "proteins": tpl.get("proteins", 0),
+        "glucides": tpl.get("glucides", 0),
+        "lipides": tpl.get("lipides", 0),
+        "notes": tpl.get("notes", ""),
         "days": data.days,
         "status": "active",
         "completions": [],
@@ -825,20 +829,23 @@ async def seed_templates(user=Depends(get_current_user)):
 
     added_rem, added_meal = 0, 0
 
+    REM_IMG_MEDICATION = "https://customer-assets.emergentagent.com/job_1026023a-fd73-4c44-a002-9618d437c4c8/artifacts/y3xje768_traitement.png"
+    REM_IMG_HYDRATION = "https://customer-assets.emergentagent.com/job_1026023a-fd73-4c44-a002-9618d437c4c8/artifacts/7s8stuxi_hydratation.png"
+
     if existing_rem == 0:
         rem_templates = [
-            {"title": "Creatine monohydrate", "reminder_type": "medication", "dosage": "5g/jour", "time": "08:00", "notes": "Prendre avec un verre d'eau, tous les jours"},
-            {"title": "Whey Protein", "reminder_type": "medication", "dosage": "30g post-training", "time": "18:00", "notes": "Melanger avec 300ml d'eau ou lait"},
-            {"title": "BCAA", "reminder_type": "medication", "dosage": "10g intra-training", "time": "17:30", "notes": "Diluer dans 500ml d'eau pendant l'entrainement"},
-            {"title": "Omega 3", "reminder_type": "medication", "dosage": "2 capsules/jour", "time": "12:00", "notes": "Prendre pendant le repas"},
-            {"title": "Vitamine D3", "reminder_type": "medication", "dosage": "1000 UI/jour", "time": "08:00", "notes": "Prendre le matin avec le petit-dejeuner"},
-            {"title": "Magnesium", "reminder_type": "medication", "dosage": "300mg/jour", "time": "21:00", "notes": "Prendre le soir pour favoriser le sommeil"},
-            {"title": "Zinc", "reminder_type": "medication", "dosage": "15mg/jour", "time": "20:00", "notes": "Prendre loin des repas riches en calcium"},
-            {"title": "Multivitamines", "reminder_type": "medication", "dosage": "1 comprime/jour", "time": "08:00", "notes": "Prendre avec le petit-dejeuner"},
-            {"title": "Collagene", "reminder_type": "medication", "dosage": "10g/jour", "time": "07:30", "notes": "Melanger dans un jus ou cafe. Bon pour les articulations"},
-            {"title": "Glutamine", "reminder_type": "medication", "dosage": "5g post-training", "time": "18:30", "notes": "Aide a la recuperation musculaire"},
-            {"title": "Boire 2L d'eau", "reminder_type": "hydration", "dosage": "2 litres", "time": "08:00", "notes": "Repartir tout au long de la journee"},
-            {"title": "Pre-workout", "reminder_type": "medication", "dosage": "1 dose", "time": "16:30", "notes": "30 min avant l'entrainement. Ne pas depasser 1 dose"},
+            {"title": "Creatine monohydrate", "reminder_type": "medication", "dosage": "5g/jour", "time": "08:00", "notes": "Prendre avec un verre d'eau, tous les jours", "image": REM_IMG_MEDICATION},
+            {"title": "Whey Protein", "reminder_type": "medication", "dosage": "30g post-training", "time": "18:00", "notes": "Melanger avec 300ml d'eau ou lait", "image": REM_IMG_MEDICATION},
+            {"title": "BCAA", "reminder_type": "medication", "dosage": "10g intra-training", "time": "17:30", "notes": "Diluer dans 500ml d'eau pendant l'entrainement", "image": REM_IMG_MEDICATION},
+            {"title": "Omega 3", "reminder_type": "medication", "dosage": "2 capsules/jour", "time": "12:00", "notes": "Prendre pendant le repas", "image": REM_IMG_MEDICATION},
+            {"title": "Vitamine D3", "reminder_type": "medication", "dosage": "1000 UI/jour", "time": "08:00", "notes": "Prendre le matin avec le petit-dejeuner", "image": REM_IMG_MEDICATION},
+            {"title": "Magnesium", "reminder_type": "medication", "dosage": "300mg/jour", "time": "21:00", "notes": "Prendre le soir pour favoriser le sommeil", "image": REM_IMG_MEDICATION},
+            {"title": "Zinc", "reminder_type": "medication", "dosage": "15mg/jour", "time": "20:00", "notes": "Prendre loin des repas riches en calcium", "image": REM_IMG_MEDICATION},
+            {"title": "Multivitamines", "reminder_type": "medication", "dosage": "1 comprime/jour", "time": "08:00", "notes": "Prendre avec le petit-dejeuner", "image": REM_IMG_MEDICATION},
+            {"title": "Collagene", "reminder_type": "medication", "dosage": "10g/jour", "time": "07:30", "notes": "Melanger dans un jus ou cafe. Bon pour les articulations", "image": REM_IMG_MEDICATION},
+            {"title": "Glutamine", "reminder_type": "medication", "dosage": "5g post-training", "time": "18:30", "notes": "Aide a la recuperation musculaire", "image": REM_IMG_MEDICATION},
+            {"title": "Boire 2L d'eau", "reminder_type": "hydration", "dosage": "2 litres", "time": "08:00", "notes": "Repartir tout au long de la journee", "image": REM_IMG_HYDRATION},
+            {"title": "Pre-workout", "reminder_type": "medication", "dosage": "1 dose", "time": "16:30", "notes": "30 min avant l'entrainement. Ne pas depasser 1 dose", "image": REM_IMG_MEDICATION},
         ]
         for r in rem_templates:
             r["id"] = str(uuid.uuid4())
@@ -848,29 +855,268 @@ async def seed_templates(user=Depends(get_current_user)):
         await db.pro_reminder_templates.insert_many(rem_templates)
         added_rem = len(rem_templates)
 
+    MEAL_IMG_BREAKFAST = "https://static.prod-images.emergentagent.com/jobs/151f0047-e744-48e3-8d63-62902a0935f7/images/ccd32d626e54c78fac3e5a12346ad156c67fb52d47febfdedc24d0f29e171ac6.png"
+    MEAL_IMG_LUNCH = "https://static.prod-images.emergentagent.com/jobs/151f0047-e744-48e3-8d63-62902a0935f7/images/528ae850a1d0143524ec5cc75d58c126e9cec798303da7ceb8ac4a1ca68374d8.png"
+    MEAL_IMG_SNACK = "https://static.prod-images.emergentagent.com/jobs/151f0047-e744-48e3-8d63-62902a0935f7/images/95af5f12498ba3ce4c96135afbe07e314012e9ff8da9410d9e9ac56376d9cb02.png"
+    MEAL_IMG_DINNER = "https://static.prod-images.emergentagent.com/jobs/151f0047-e744-48e3-8d63-62902a0935f7/images/3b64345e4d34dc8d5bacd6f55747323e3202d76c19e319a024b7214ca02e9877.png"
+
     if existing_meal == 0:
         meal_templates = [
-            {"title": "Petit-dej proteines", "meal_type": "petit_dejeuner", "items": ["3 oeufs brouilles", "Flocons d'avoine 60g", "Banane", "Miel"], "calories": 550, "proteins": 35, "glucides": 65, "lipides": 18, "notes": "Ideal pour un debut de journee energetique"},
-            {"title": "Overnight oats", "meal_type": "petit_dejeuner", "items": ["Flocons d'avoine 60g", "Lait d'amande 200ml", "Graines de chia 15g", "Myrtilles", "Beurre de cacahuete 15g"], "calories": 480, "proteins": 18, "glucides": 58, "lipides": 20, "notes": "Preparer la veille au frigo"},
-            {"title": "Bowl acai", "meal_type": "petit_dejeuner", "items": ["Puree d'acai 100g", "Banane", "Granola 40g", "Fruits rouges", "Noix de coco rapee"], "calories": 420, "proteins": 12, "glucides": 62, "lipides": 14, "notes": "Riche en antioxydants"},
-            {"title": "Poulet riz legumes", "meal_type": "dejeuner", "items": ["Blanc de poulet 200g", "Riz basmati 80g", "Brocolis 150g", "Huile d'olive 10ml"], "calories": 620, "proteins": 48, "glucides": 65, "lipides": 14, "notes": "Le classique du sportif"},
-            {"title": "Saumon quinoa", "meal_type": "dejeuner", "items": ["Pave de saumon 180g", "Quinoa 70g", "Epinards 100g", "Avocat 1/2", "Citron"], "calories": 680, "proteins": 42, "glucides": 52, "lipides": 28, "notes": "Riche en omega 3"},
-            {"title": "Salade Caesar proteines", "meal_type": "dejeuner", "items": ["Poulet grille 180g", "Salade romaine", "Parmesan 20g", "Croutons complets", "Sauce Caesar legere"], "calories": 520, "proteins": 42, "glucides": 28, "lipides": 22, "notes": "Frais et rassasiant"},
-            {"title": "Steak patate douce", "meal_type": "dejeuner", "items": ["Steak de boeuf 5% 180g", "Patate douce 200g", "Haricots verts 150g", "Beurre 10g"], "calories": 640, "proteins": 44, "glucides": 55, "lipides": 20, "notes": "Pour les jours d'entrainement intensif"},
-            {"title": "Collation post-training", "meal_type": "collation", "items": ["Whey protein 30g", "Banane", "Beurre de cacahuete 15g"], "calories": 320, "proteins": 28, "glucides": 32, "lipides": 10, "notes": "Dans les 30 min apres l'entrainement"},
-            {"title": "Fromage blanc proteines", "meal_type": "collation", "items": ["Fromage blanc 0% 250g", "Amandes 20g", "Miel 10g"], "calories": 280, "proteins": 24, "glucides": 22, "lipides": 10, "notes": "Collation riche en caseine"},
-            {"title": "Poisson blanc legumes", "meal_type": "diner", "items": ["Cabillaud 200g", "Courgettes grillees 200g", "Riz complet 60g", "Herbes de Provence"], "calories": 450, "proteins": 40, "glucides": 42, "lipides": 8, "notes": "Leger et digestible pour le soir"},
-            {"title": "Omelette du soir", "meal_type": "diner", "items": ["4 oeufs", "Champignons 100g", "Epinards 80g", "Fromage rape 20g"], "calories": 420, "proteins": 32, "glucides": 6, "lipides": 28, "notes": "Rapide a preparer, riche en proteines"},
-            {"title": "Bowl poke maison", "meal_type": "dejeuner", "items": ["Riz sushi 80g", "Saumon cru 150g", "Avocat", "Edamame 50g", "Sauce soja", "Sesame"], "calories": 580, "proteins": 36, "glucides": 58, "lipides": 22, "notes": "Frais et equilibre"},
+            {
+                "title": "Petit-dej proteines", "meal_type": "petit_dejeuner",
+                "image": MEAL_IMG_BREAKFAST,
+                "items": ["3 oeufs brouilles", "Flocons d'avoine 60g", "Banane", "Miel"],
+                "ingredients": [
+                    {"name": "Oeufs", "quantity": "3", "unit": "pc"},
+                    {"name": "Flocons d'avoine", "quantity": "60", "unit": "g"},
+                    {"name": "Banane", "quantity": "1", "unit": "pc"},
+                    {"name": "Miel", "quantity": "15", "unit": "g"},
+                ],
+                "steps": [
+                    "Battre les oeufs dans un bol avec une pincee de sel",
+                    "Cuire les oeufs brouilles a feu doux en remuant doucement",
+                    "Preparer les flocons d'avoine avec de l'eau chaude ou du lait",
+                    "Couper la banane en rondelles et disposer sur les flocons",
+                    "Ajouter un filet de miel et servir avec les oeufs",
+                ],
+                "calories": 550, "proteins": 35, "glucides": 65, "lipides": 18,
+                "notes": "Ideal pour un debut de journee energetique",
+            },
+            {
+                "title": "Overnight oats", "meal_type": "petit_dejeuner",
+                "image": MEAL_IMG_BREAKFAST,
+                "items": ["Flocons d'avoine 60g", "Lait d'amande 200ml", "Graines de chia 15g", "Myrtilles", "Beurre de cacahuete 15g"],
+                "ingredients": [
+                    {"name": "Flocons d'avoine", "quantity": "60", "unit": "g"},
+                    {"name": "Lait d'amande", "quantity": "200", "unit": "ml"},
+                    {"name": "Graines de chia", "quantity": "15", "unit": "g"},
+                    {"name": "Myrtilles", "quantity": "80", "unit": "g"},
+                    {"name": "Beurre de cacahuete", "quantity": "15", "unit": "g"},
+                ],
+                "steps": [
+                    "Melanger les flocons d'avoine, le lait d'amande et les graines de chia dans un bocal",
+                    "Bien remuer pour homogeneiser le melange",
+                    "Couvrir et placer au refrigerateur toute la nuit (8h minimum)",
+                    "Le matin, ajouter les myrtilles et le beurre de cacahuete",
+                    "Deguster froid directement du bocal",
+                ],
+                "calories": 480, "proteins": 18, "glucides": 58, "lipides": 20,
+                "notes": "Preparer la veille au frigo",
+            },
+            {
+                "title": "Bowl acai", "meal_type": "petit_dejeuner",
+                "image": MEAL_IMG_BREAKFAST,
+                "items": ["Puree d'acai 100g", "Banane", "Granola 40g", "Fruits rouges", "Noix de coco rapee"],
+                "ingredients": [
+                    {"name": "Puree d'acai surgelee", "quantity": "100", "unit": "g"},
+                    {"name": "Banane", "quantity": "1", "unit": "pc"},
+                    {"name": "Granola", "quantity": "40", "unit": "g"},
+                    {"name": "Fruits rouges", "quantity": "60", "unit": "g"},
+                    {"name": "Noix de coco rapee", "quantity": "10", "unit": "g"},
+                ],
+                "steps": [
+                    "Mixer la puree d'acai avec la moitie de la banane et un peu de lait",
+                    "Verser la preparation epaisse dans un bol",
+                    "Couper le reste de la banane en rondelles",
+                    "Disposer le granola, les fruits rouges et la banane sur le dessus",
+                    "Saupoudrer de noix de coco rapee et servir immediatement",
+                ],
+                "calories": 420, "proteins": 12, "glucides": 62, "lipides": 14,
+                "notes": "Riche en antioxydants",
+            },
+            {
+                "title": "Poulet riz legumes", "meal_type": "dejeuner",
+                "image": MEAL_IMG_LUNCH,
+                "items": ["Blanc de poulet 200g", "Riz basmati 80g", "Brocolis 150g", "Huile d'olive 10ml"],
+                "ingredients": [
+                    {"name": "Blanc de poulet", "quantity": "200", "unit": "g"},
+                    {"name": "Riz basmati", "quantity": "80", "unit": "g"},
+                    {"name": "Brocolis", "quantity": "150", "unit": "g"},
+                    {"name": "Huile d'olive", "quantity": "10", "unit": "ml"},
+                    {"name": "Sel, poivre", "quantity": "1", "unit": "pc"},
+                ],
+                "steps": [
+                    "Rincer le riz et le cuire selon les instructions du paquet",
+                    "Couper le poulet en morceaux et assaisonner de sel et poivre",
+                    "Faire chauffer l'huile d'olive dans une poele a feu vif",
+                    "Saisir le poulet 5-6 min de chaque cote jusqu'a coloration doree",
+                    "Cuire les brocolis a la vapeur 5-7 min (ils doivent rester croquants)",
+                    "Dresser le riz dans une assiette, ajouter le poulet et les brocolis",
+                ],
+                "calories": 620, "proteins": 48, "glucides": 65, "lipides": 14,
+                "notes": "Le classique du sportif",
+            },
+            {
+                "title": "Saumon quinoa", "meal_type": "dejeuner",
+                "image": MEAL_IMG_LUNCH,
+                "items": ["Pave de saumon 180g", "Quinoa 70g", "Epinards 100g", "Avocat 1/2", "Citron"],
+                "ingredients": [
+                    {"name": "Pave de saumon", "quantity": "180", "unit": "g"},
+                    {"name": "Quinoa", "quantity": "70", "unit": "g"},
+                    {"name": "Epinards frais", "quantity": "100", "unit": "g"},
+                    {"name": "Avocat", "quantity": "0.5", "unit": "pc"},
+                    {"name": "Citron", "quantity": "0.5", "unit": "pc"},
+                ],
+                "steps": [
+                    "Rincer le quinoa et le cuire dans 2 volumes d'eau pendant 12 min",
+                    "Assaisonner le saumon de sel, poivre et un filet de citron",
+                    "Cuire le saumon a la poele cote peau 4 min, retourner 3 min",
+                    "Laver les epinards et les faire tomber rapidement a la poele",
+                    "Couper l'avocat en tranches fines",
+                    "Dresser le quinoa, ajouter les epinards, le saumon et l'avocat",
+                ],
+                "calories": 680, "proteins": 42, "glucides": 52, "lipides": 28,
+                "notes": "Riche en omega 3",
+            },
+            {
+                "title": "Salade Caesar proteines", "meal_type": "dejeuner",
+                "image": MEAL_IMG_LUNCH,
+                "items": ["Poulet grille 180g", "Salade romaine", "Parmesan 20g", "Croutons complets", "Sauce Caesar legere"],
+                "ingredients": [
+                    {"name": "Blanc de poulet", "quantity": "180", "unit": "g"},
+                    {"name": "Salade romaine", "quantity": "150", "unit": "g"},
+                    {"name": "Parmesan rape", "quantity": "20", "unit": "g"},
+                    {"name": "Pain complet (croutons)", "quantity": "30", "unit": "g"},
+                    {"name": "Sauce Caesar legere", "quantity": "30", "unit": "ml"},
+                ],
+                "steps": [
+                    "Griller le poulet a la poele avec un filet d'huile d'olive",
+                    "Couper le pain complet en des et les faire dorer au four 5 min a 200C",
+                    "Laver et essorer la salade romaine, la couper en morceaux",
+                    "Emincer le poulet grille en tranches",
+                    "Assembler la salade avec le poulet, les croutons et le parmesan",
+                    "Napper de sauce Caesar legere et servir",
+                ],
+                "calories": 520, "proteins": 42, "glucides": 28, "lipides": 22,
+                "notes": "Frais et rassasiant",
+            },
+            {
+                "title": "Steak patate douce", "meal_type": "dejeuner",
+                "image": MEAL_IMG_LUNCH,
+                "items": ["Steak de boeuf 5% 180g", "Patate douce 200g", "Haricots verts 150g", "Beurre 10g"],
+                "ingredients": [
+                    {"name": "Steak de boeuf 5%", "quantity": "180", "unit": "g"},
+                    {"name": "Patate douce", "quantity": "200", "unit": "g"},
+                    {"name": "Haricots verts", "quantity": "150", "unit": "g"},
+                    {"name": "Beurre", "quantity": "10", "unit": "g"},
+                ],
+                "steps": [
+                    "Prechauffer le four a 200C et eplucher la patate douce",
+                    "Couper la patate douce en frites et enfourner 25 min",
+                    "Cuire les haricots verts a la vapeur 8-10 min",
+                    "Saisir le steak a feu vif 2-3 min de chaque cote selon cuisson souhaitee",
+                    "Laisser reposer la viande 2 min avant de servir",
+                    "Dresser le steak avec les frites de patate douce et les haricots au beurre",
+                ],
+                "calories": 640, "proteins": 44, "glucides": 55, "lipides": 20,
+                "notes": "Pour les jours d'entrainement intensif",
+            },
+            {
+                "title": "Collation post-training", "meal_type": "collation",
+                "image": MEAL_IMG_SNACK,
+                "items": ["Whey protein 30g", "Banane", "Beurre de cacahuete 15g"],
+                "ingredients": [
+                    {"name": "Whey protein", "quantity": "30", "unit": "g"},
+                    {"name": "Banane", "quantity": "1", "unit": "pc"},
+                    {"name": "Beurre de cacahuete", "quantity": "15", "unit": "g"},
+                ],
+                "steps": [
+                    "Mixer la whey avec 250ml d'eau froide ou de lait",
+                    "Couper la banane en rondelles",
+                    "Accompagner le shake d'une tartine de beurre de cacahuete ou l'ajouter au shake",
+                ],
+                "calories": 320, "proteins": 28, "glucides": 32, "lipides": 10,
+                "notes": "Dans les 30 min apres l'entrainement",
+            },
+            {
+                "title": "Fromage blanc proteines", "meal_type": "collation",
+                "image": MEAL_IMG_SNACK,
+                "items": ["Fromage blanc 0% 250g", "Amandes 20g", "Miel 10g"],
+                "ingredients": [
+                    {"name": "Fromage blanc 0%", "quantity": "250", "unit": "g"},
+                    {"name": "Amandes", "quantity": "20", "unit": "g"},
+                    {"name": "Miel", "quantity": "10", "unit": "g"},
+                ],
+                "steps": [
+                    "Verser le fromage blanc dans un bol",
+                    "Concasser grossierement les amandes",
+                    "Ajouter les amandes et le miel sur le fromage blanc",
+                    "Melanger legerement et deguster",
+                ],
+                "calories": 280, "proteins": 24, "glucides": 22, "lipides": 10,
+                "notes": "Collation riche en caseine",
+            },
+            {
+                "title": "Poisson blanc legumes", "meal_type": "diner",
+                "image": MEAL_IMG_DINNER,
+                "items": ["Cabillaud 200g", "Courgettes grillees 200g", "Riz complet 60g", "Herbes de Provence"],
+                "ingredients": [
+                    {"name": "Filet de cabillaud", "quantity": "200", "unit": "g"},
+                    {"name": "Courgettes", "quantity": "200", "unit": "g"},
+                    {"name": "Riz complet", "quantity": "60", "unit": "g"},
+                    {"name": "Herbes de Provence", "quantity": "1", "unit": "cs"},
+                    {"name": "Huile d'olive", "quantity": "5", "unit": "ml"},
+                ],
+                "steps": [
+                    "Cuire le riz complet selon les instructions (environ 20 min)",
+                    "Couper les courgettes en rondelles et les griller a la poele avec un filet d'huile",
+                    "Assaisonner le cabillaud de sel, poivre et herbes de Provence",
+                    "Cuire le poisson a la poele 3-4 min de chaque cote a feu moyen",
+                    "Dresser le riz, ajouter les courgettes grillees et le poisson",
+                ],
+                "calories": 450, "proteins": 40, "glucides": 42, "lipides": 8,
+                "notes": "Leger et digestible pour le soir",
+            },
+            {
+                "title": "Omelette du soir", "meal_type": "diner",
+                "image": MEAL_IMG_DINNER,
+                "items": ["4 oeufs", "Champignons 100g", "Epinards 80g", "Fromage rape 20g"],
+                "ingredients": [
+                    {"name": "Oeufs", "quantity": "4", "unit": "pc"},
+                    {"name": "Champignons", "quantity": "100", "unit": "g"},
+                    {"name": "Epinards", "quantity": "80", "unit": "g"},
+                    {"name": "Fromage rape", "quantity": "20", "unit": "g"},
+                ],
+                "steps": [
+                    "Emincer les champignons et les faire revenir a la poele 5 min",
+                    "Ajouter les epinards et laisser tomber 2 min",
+                    "Battre les oeufs dans un bol avec sel et poivre",
+                    "Verser les oeufs sur les legumes dans la poele",
+                    "Cuire a feu doux 3-4 min, ajouter le fromage rape",
+                    "Replier l'omelette et servir",
+                ],
+                "calories": 420, "proteins": 32, "glucides": 6, "lipides": 28,
+                "notes": "Rapide a preparer, riche en proteines",
+            },
+            {
+                "title": "Bowl poke maison", "meal_type": "dejeuner",
+                "image": MEAL_IMG_LUNCH,
+                "items": ["Riz sushi 80g", "Saumon cru 150g", "Avocat", "Edamame 50g", "Sauce soja", "Sesame"],
+                "ingredients": [
+                    {"name": "Riz sushi", "quantity": "80", "unit": "g"},
+                    {"name": "Saumon frais (sushi)", "quantity": "150", "unit": "g"},
+                    {"name": "Avocat", "quantity": "0.5", "unit": "pc"},
+                    {"name": "Edamame", "quantity": "50", "unit": "g"},
+                    {"name": "Sauce soja", "quantity": "15", "unit": "ml"},
+                    {"name": "Graines de sesame", "quantity": "5", "unit": "g"},
+                ],
+                "steps": [
+                    "Cuire le riz sushi et le laisser refroidir a temperature ambiante",
+                    "Couper le saumon en des de 2cm",
+                    "Mariner le saumon dans la sauce soja 10 min",
+                    "Couper l'avocat en tranches fines",
+                    "Dresser le riz dans un bol, disposer le saumon, l'avocat et les edamame",
+                    "Saupoudrer de graines de sesame et servir",
+                ],
+                "calories": 580, "proteins": 36, "glucides": 58, "lipides": 22,
+                "notes": "Frais et equilibre",
+            },
         ]
         for m in meal_templates:
             m["id"] = str(uuid.uuid4())
             m["professional_id"] = pid
             m["is_template"] = True
             m["created_at"] = now
-            m["image"] = ""
-            m["ingredients"] = []
-            m["steps"] = []
         await db.pro_meal_templates.insert_many(meal_templates)
         added_meal = len(meal_templates)
 

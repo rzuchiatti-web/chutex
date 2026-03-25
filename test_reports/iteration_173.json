@@ -1,0 +1,97 @@
+{
+  "summary": "Iteration 173 - ProSpace Improvements Testing. Backend: All 12 tests PASSED. Meal templates seeded with 12 meals containing image, ingredients, steps, glucides, lipides, notes. Assign-meal correctly copies all fields. Reminder templates have images. Frontend: Calendar horizontal exists but AUTO-SCROLL TO TODAY NOT WORKING (scrollLeft=0). Assigned reminders missing 'image' field in backend endpoint.",
+  "backend_issues": {
+    "critical": [],
+    "minor": [
+      {
+        "endpoint": "POST /api/pro/assign-reminder",
+        "issue": "Does not copy 'image' field from template to assigned reminder. Line 686-699 in professional_routes.py",
+        "priority": "MEDIUM"
+      }
+    ]
+  },
+  "frontend_issues": {
+    "ui_bugs": [
+      {
+        "component": "HorizontalCalendar in ProSpace.tsx",
+        "issue": "Auto-scroll to today/selected day NOT WORKING. Calendar starts at day 1 instead of centering on today (day 25). scrollLeft remains 0 after mount.",
+        "selector": "[data-testid='horizontal-calendar']",
+        "priority": "HIGH"
+      }
+    ],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_prospace_iteration173.py",
+    "/app/test_reports/pytest/pytest_results_iter173.xml"
+  ],
+  "action_items": [
+    "FIX: HorizontalCalendar auto-scroll not working. The useEffect at line 120-133 in ProSpace.tsx should scroll to today but scrollLeft stays at 0. Check if scrollRef.current is null or if scrollTo is being called correctly.",
+    "FIX: Add 'image' field to assign-reminder endpoint at line 686-699 in professional_routes.py: add \"image\": tpl.get(\"image\", \"\") to the assigned dict"
+  ],
+  "critical_code_review_comments": [
+    "professional_routes.py line 686-699: assign_reminder() missing 'image' field copy from template",
+    "ProSpace.tsx line 120-133: useEffect for auto-scroll may have timing issue - scrollRef.current might be null when doScroll() is called"
+  ],
+  "updated_files": [
+    "/app/backend/tests/test_prospace_iteration173.py"
+  ],
+  "success_rate": {
+    "backend": "100%",
+    "frontend": "80%"
+  },
+  "test_credentials": {
+    "coach": {
+      "phone": "+33655443322",
+      "password": "test123",
+      "id": "64f0217b-d077-4ac6-ae59-1febbd72c903"
+    },
+    "beneficiary_josette": {
+      "phone": "+33651245918",
+      "password": "test123",
+      "id": "495e5e38-3591-474b-abe5-c932574bb609"
+    }
+  },
+  "seed_data_creation": "12 meal templates seeded with full data (image, ingredients, steps, glucides, lipides, notes). 12 reminder templates seeded with images.",
+  "retest_needed": true,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "Backend APIs working correctly. POST /api/pro/seed-templates creates 12 meals with all fields. POST /api/pro/assign-meal copies glucides, lipides, steps, notes correctly. Reminder templates have images but assign-reminder doesn't copy image field. Frontend ProSpace calendar auto-scroll not working - needs fix in useEffect.",
+  "features_verified": {
+    "backend_working": [
+      "POST /api/pro/seed-templates - Seeds 12 meals with image, ingredients, steps, glucides, lipides, notes",
+      "POST /api/pro/assign-meal - Copies glucides, lipides, steps, notes from template",
+      "GET /api/pro/meal-templates - Returns meals with all fields",
+      "GET /api/pro/reminder-templates - Returns reminders with image field",
+      "Meal types coverage: petit_dejeuner (3), dejeuner (5), collation (2), diner (2)"
+    ],
+    "backend_issues": [
+      "POST /api/pro/assign-reminder - Missing 'image' field copy from template"
+    ],
+    "frontend_working": [
+      "ProSpace loads correctly with Eleves and Bibliotheque tabs",
+      "HorizontalCalendar component renders with correct month/year",
+      "Beneficiary selector works",
+      "Exercices section shows exercises with images and status badges (Fait/A faire)",
+      "Complements section shows reminders with status badges",
+      "Repas section shows meals with calorie info",
+      "Bibliotheque tab shows all templates (Exercices, Complements, Repas)"
+    ],
+    "frontend_issues": [
+      "HorizontalCalendar auto-scroll to today NOT WORKING - calendar starts at day 1"
+    ]
+  },
+  "rca_of_the_issue": {
+    "calendar_auto_scroll": {
+      "issue": "Calendar does not auto-scroll to center on today",
+      "root_cause": "The useEffect at line 120-133 in ProSpace.tsx calls scrollRef.current.scrollTo() but the scroll doesn't happen. Possible causes: 1) scrollRef.current is null when doScroll() runs, 2) The 80ms timeout is not enough for the DOM to be ready, 3) The scrollTo() method is not working with the current CSS styles",
+      "reproduction_steps": [
+        "1. Login as coach (+33655443322/test123)",
+        "2. Navigate to Activite tab",
+        "3. Observe calendar shows days 1-7 instead of days around 25 (today)",
+        "4. Check scrollLeft value - it's 0 instead of ~1148"
+      ],
+      "mitigation": "Increase timeout from 80ms to 200ms, or use requestAnimationFrame, or check if scrollRef.current exists before calling scrollTo"
+    }
+  }
+}

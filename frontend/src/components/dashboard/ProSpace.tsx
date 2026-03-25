@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useRouter } from 'expo-router';
+import { REMINDER_IMAGES } from './constants';
 
 const API = process.env.EXPO_PUBLIC_BACKEND_URL || '';
 const apiFetch = async (url: string, opts: any = {}, token: string) => {
@@ -115,16 +116,21 @@ function HorizontalCalendar({ selectedDate, onSelect, accent, completedDates }: 
     else setViewMonth(viewMonth + 1);
   };
 
-  // Auto-scroll to today/selected day
+  // Auto-scroll to today/selected day on mount + month change
   useEffect(() => {
-    if (!scrollRef.current) return;
-    const today = new Date();
-    const targetDay = (viewMonth === today.getMonth() && viewYear === today.getFullYear()) ? today.getDate() : selectedDate.getDate();
-    const dayWidth = 54; // minWidth 48 + gap 6
-    const containerWidth = scrollRef.current.clientWidth;
-    const scrollTo = (targetDay - 1) * dayWidth - containerWidth / 2 + dayWidth / 2;
-    scrollRef.current.scrollTo({ left: Math.max(0, scrollTo), behavior: 'smooth' });
-  }, [viewMonth, viewYear]);
+    const doScroll = () => {
+      if (!scrollRef.current) return;
+      const today = new Date();
+      const targetDay = (viewMonth === today.getMonth() && viewYear === today.getFullYear()) ? today.getDate() : selectedDate.getDate();
+      const dayWidth = 54; // minWidth 48 + gap 6
+      const containerWidth = scrollRef.current.clientWidth;
+      const scrollTo = (targetDay - 1) * dayWidth - containerWidth / 2 + dayWidth / 2;
+      scrollRef.current.scrollTo({ left: Math.max(0, scrollTo), behavior: 'smooth' });
+    };
+    // Delay to ensure DOM is rendered and ref is attached
+    const timer = setTimeout(doScroll, 80);
+    return () => clearTimeout(timer);
+  }, [viewMonth, viewYear, selectedDate]);
 
   const todayStr = new Date().toISOString().split('T')[0];
   const selStr = selectedDate.toISOString().split('T')[0];
@@ -144,7 +150,7 @@ function HorizontalCalendar({ selectedDate, onSelect, accent, completedDates }: 
           <i className="ri-arrow-right-s-line" style={{ fontSize: 16, color: '#FFF' }} />
         </div>
       </div>
-      <div style={{ display: 'flex', gap: 6, overflowX: 'auto', paddingBottom: 4, WebkitOverflowScrolling: 'touch', scrollbarWidth: 'none' } as any}>
+      <div ref={scrollRef} style={{ display: 'flex', gap: 6, overflowX: 'auto', paddingBottom: 4, WebkitOverflowScrolling: 'touch', scrollbarWidth: 'none' } as any}>
         {dates.map(d => {
           const ds = d.toISOString().split('T')[0];
           const isToday = ds === todayStr;
@@ -569,21 +575,37 @@ export default function ProSpace({ token, user }: { token: string; user: any }) 
                   Aucun complement prevu le {selectedDayFr}
                 </div>
               )}
-              {filteredReminders.map(r => (
-                <div key={r.id} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 14px', borderRadius: 16, background: '#FEF9C3', border: '1px solid rgba(245,158,11,0.15)', marginBottom: 8 } as any}>
-                  <div style={{ width: 48, height: 48, borderRadius: 12, background: 'rgba(245,158,11,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}>
-                    <i className="ri-capsule-fill" style={{ fontSize: 20, color: '#F59E0B' }} />
+              {filteredReminders.map(r => {
+                const remImg = r.image || (r.reminder_type === 'hydration' ? REMINDER_IMAGES.hydration : REMINDER_IMAGES.medication);
+                const remDone = (r.completions || []).some((c: any) => c.date?.startsWith(selectedDateStr) && c.status === 'done');
+                return (
+                <div key={r.id} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 14px', borderRadius: 16,
+                  background: remDone ? 'rgba(16,185,129,0.06)' : '#FEF9C3',
+                  border: remDone ? '1px solid rgba(16,185,129,0.2)' : '1px solid rgba(245,158,11,0.15)', marginBottom: 8 } as any}>
+                  <div style={{ width: 48, height: 48, borderRadius: 12, overflow: 'hidden', flexShrink: 0 } as any}>
+                    <img src={remImg} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' } as any} />
                   </div>
                   <div style={{ flex: 1, minWidth: 0 } as any}>
                     <div style={{ fontSize: 14, fontWeight: 700, color: '#111' }}>{r.title}</div>
                     <div style={{ fontSize: 11, color: '#6B7280', marginTop: 2 }}>{r.dosage} - {r.time}</div>
                   </div>
+                  {remDone ? (
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '4px 10px', borderRadius: 999, background: 'rgba(16,185,129,0.1)' } as any}>
+                      <i className="ri-checkbox-circle-fill" style={{ fontSize: 16, color: '#10B981' }} />
+                      <span style={{ fontSize: 11, fontWeight: 700, color: '#10B981' }}>Fait</span>
+                    </div>
+                  ) : (
+                    <div style={{ padding: '4px 10px', borderRadius: 999, background: '#E5E7EB' } as any}>
+                      <span style={{ fontSize: 11, fontWeight: 700, color: '#6B7280' }}>A faire</span>
+                    </div>
+                  )}
                   <div onClick={() => deleteAssignedReminder(r.id)}
                     style={{ width: 32, height: 32, borderRadius: 999, background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}>
                     <i className="ri-delete-bin-6-line" style={{ fontSize: 14, color: '#EF4444' }} />
                   </div>
                 </div>
-              ))}
+                );
+              })}
 
               {/* Repas du jour */}
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14, marginTop: 16 } as any}>
@@ -603,22 +625,45 @@ export default function ProSpace({ token, user }: { token: string; user: any }) 
                   Aucun repas prevu le {selectedDayFr}
                 </div>
               )}
-              {filteredMeals.map(m => (
-                <div key={m.id} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 14px', borderRadius: 16, background: '#ECFDF5', border: '1px solid rgba(16,185,129,0.15)', marginBottom: 8 } as any}>
-                  <div style={{ width: 48, height: 48, borderRadius: 12, background: 'rgba(16,185,129,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}>
-                    <i className="ri-restaurant-fill" style={{ fontSize: 20, color: '#10B981' }} />
+              {filteredMeals.map(m => {
+                const mealDone = (m.completions || []).some((c: any) => c.date?.startsWith(selectedDateStr) && c.status === 'done');
+                const MEAL_IMGS: Record<string, string> = {
+                  petit_dejeuner: 'https://static.prod-images.emergentagent.com/jobs/151f0047-e744-48e3-8d63-62902a0935f7/images/ccd32d626e54c78fac3e5a12346ad156c67fb52d47febfdedc24d0f29e171ac6.png',
+                  dejeuner: 'https://static.prod-images.emergentagent.com/jobs/151f0047-e744-48e3-8d63-62902a0935f7/images/528ae850a1d0143524ec5cc75d58c126e9cec798303da7ceb8ac4a1ca68374d8.png',
+                  collation: 'https://static.prod-images.emergentagent.com/jobs/151f0047-e744-48e3-8d63-62902a0935f7/images/95af5f12498ba3ce4c96135afbe07e314012e9ff8da9410d9e9ac56376d9cb02.png',
+                  gouter: 'https://static.prod-images.emergentagent.com/jobs/151f0047-e744-48e3-8d63-62902a0935f7/images/95af5f12498ba3ce4c96135afbe07e314012e9ff8da9410d9e9ac56376d9cb02.png',
+                  diner: 'https://static.prod-images.emergentagent.com/jobs/151f0047-e744-48e3-8d63-62902a0935f7/images/3b64345e4d34dc8d5bacd6f55747323e3202d76c19e319a024b7214ca02e9877.png',
+                };
+                const mealImg = m.image || MEAL_IMGS[m.meal_type] || MEAL_IMGS.dejeuner;
+                return (
+                <div key={m.id} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 14px', borderRadius: 16,
+                  background: mealDone ? 'rgba(16,185,129,0.06)' : '#ECFDF5',
+                  border: mealDone ? '1px solid rgba(16,185,129,0.25)' : '1px solid rgba(16,185,129,0.15)', marginBottom: 8 } as any}>
+                  <div style={{ width: 48, height: 48, borderRadius: 12, overflow: 'hidden', flexShrink: 0 } as any}>
+                    <img src={mealImg} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' } as any} />
                   </div>
                   <div style={{ flex: 1, minWidth: 0 } as any}>
                     <div style={{ fontSize: 14, fontWeight: 700, color: '#111' }}>{m.title}</div>
                     <div style={{ fontSize: 11, color: '#6B7280', marginTop: 2 }}>{m.meal_type?.replace('_', ' ')} {m.calories ? `- ${m.calories} kcal` : ''}</div>
                     {Array.isArray(m.items) && m.items.length > 0 && <div style={{ fontSize: 10, color: '#9CA3AF', marginTop: 2 }}>{m.items.slice(0, 3).join(', ')}{m.items.length > 3 ? '...' : ''}</div>}
                   </div>
+                  {mealDone ? (
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '4px 10px', borderRadius: 999, background: 'rgba(16,185,129,0.1)' } as any}>
+                      <i className="ri-checkbox-circle-fill" style={{ fontSize: 16, color: '#10B981' }} />
+                      <span style={{ fontSize: 11, fontWeight: 700, color: '#10B981' }}>Fait</span>
+                    </div>
+                  ) : (
+                    <div style={{ padding: '4px 10px', borderRadius: 999, background: '#E5E7EB' } as any}>
+                      <span style={{ fontSize: 11, fontWeight: 700, color: '#6B7280' }}>A faire</span>
+                    </div>
+                  )}
                   <div onClick={() => deleteAssignedMeal(m.id)}
                     style={{ width: 32, height: 32, borderRadius: 999, background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}>
                     <i className="ri-delete-bin-6-line" style={{ fontSize: 14, color: '#EF4444' }} />
                   </div>
                 </div>
-              ))}
+                );
+              })}
             </>
           )}
 
