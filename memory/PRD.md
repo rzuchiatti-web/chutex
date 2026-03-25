@@ -19,7 +19,8 @@ Application mobile-first de sante connectee. Un seul role Gardien dont l'interfa
 - Onglet **Bibliotheque**: 3 cartes grises (Exercices, Rappels, Repas) avec boutons "+" dediees
 - **Assignation exercice**: Picker bibliotheque -> Jours de la semaine (Lun-Dim) -> Repetitions / Series / Repos sur-mesure
 - **Edition exercice assigne**: Modale d'edition (jours, series, repetitions, repos) via PUT /api/pro/assigned-exercises/{id}
-- **Page pro-exercise-detail.tsx**: hero image, stats, video YouTube, etapes, validation (Valider/Partiel/Passer) avec niveau douleur. Utilise /api/pro/assigned-exercise-detail/{id} pour charger l'exercice assigne
+- **Page pro-exercise-detail.tsx**: hero image, stats, video YouTube, etapes, validation (Valider/Partiel/Passer) avec niveau douleur
+- **Notifications coach**: Cloche dans le header avec badge compteur non-lus. Panneau deroulant affichant les notifications de completion d'exercices par les beneficiaires. Marquage automatique comme lu a l'ouverture.
 
 ### Cote Beneficiaire
 - **Page health.tsx**: Affiche les exercices du jour avec bouton "Faire"
@@ -41,11 +42,19 @@ Application mobile-first de sante connectee. Un seul role Gardien dont l'interfa
 | DELETE /api/pro/assigned-exercises/{id} | Retirer assignation |
 | GET /api/pro/beneficiary-today-exercises | Exercices du jour (beneficiaire) |
 | GET /api/pro/beneficiary-all-exercises | Tous les exercices (beneficiaire) |
-| POST /api/pro/exercises/{id}/complete | Valider exercice |
+| POST /api/pro/exercises/{id}/complete | Valider exercice + creer notification |
+
+## APIs Notifications
+| Endpoint | Description |
+|---|---|
+| GET /api/pro/notifications | Liste des notifications du coach (50 max) |
+| GET /api/pro/notifications/unread-count | Nombre de notifications non lues |
+| PUT /api/pro/notifications/mark-read | Marquer toutes les notifications comme lues |
 
 ## DB Collections
 - `pro_exercise_templates`: Bibliotheque d'exercices reusables
 - `pro_assigned_exercises`: Exercices assignes avec jours/reps/repos personnalises + completions
+- `pro_notifications`: Notifications de completion d'exercices pour le coach
 - `payment_history`: Transactions Mollie
 
 ## Backlog
