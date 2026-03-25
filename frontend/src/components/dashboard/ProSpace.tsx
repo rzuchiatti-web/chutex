@@ -74,7 +74,13 @@ function DaysPicker({ selected, onChange, accent }: { selected: string[]; onChan
         const sel = selected.includes(d);
         return (
           <div key={d} data-testid={`day-${d}`} onClick={() => onChange(sel ? selected.filter(x => x !== d) : [...selected, d])}
-            style={{ padding: '8px 12px', borderRadius: 10, background: sel ? accent : 'rgba(255,255,255,0.06)', border: `1px solid ${sel ? accent : 'rgba(255,255,255,0.1)'}`, cursor: 'pointer', fontSize: 12, fontWeight: 700, color: sel ? '#FFF' : 'rgba(255,255,255,0.4)', textTransform: 'capitalize', transition: 'all 0.15s' } as any}>
+            style={{ padding: '8px 12px', borderRadius: 999,
+              background: sel ? 'rgba(220,38,38,0.12)' : 'rgba(255,255,255,0.06)',
+              backdropFilter: sel ? 'blur(12px)' : 'none', WebkitBackdropFilter: sel ? 'blur(12px)' : 'none',
+              border: sel ? '1.5px solid rgba(220,38,38,0.25)' : '1px solid rgba(255,255,255,0.1)',
+              boxShadow: sel ? '0 2px 10px rgba(220,38,38,0.1), inset 0 1px 0 rgba(255,255,255,0.06)' : 'none',
+              cursor: 'pointer', fontSize: 12, fontWeight: 700,
+              color: sel ? '#FFF' : 'rgba(255,255,255,0.4)', textTransform: 'capitalize', transition: 'all 0.2s' } as any}>
             {d.slice(0, 3)}
           </div>
         );
@@ -87,24 +93,44 @@ function DaysPicker({ selected, onChange, accent }: { selected: string[]; onChan
    HORIZONTAL CALENDAR
    ══════════════════════════════════════════ */
 function HorizontalCalendar({ selectedDate, onSelect, accent, completedDates }: { selectedDate: Date; onSelect: (d: Date) => void; accent: string; completedDates?: Set<string> }) {
+  const [viewMonth, setViewMonth] = useState(selectedDate.getMonth());
+  const [viewYear, setViewYear] = useState(selectedDate.getFullYear());
+
   const dates = useMemo(() => {
     const arr: Date[] = [];
-    const today = new Date();
-    for (let i = -3; i <= 10; i++) {
-      const d = new Date(today);
-      d.setDate(today.getDate() + i);
-      arr.push(d);
+    const daysInMonth = new Date(viewYear, viewMonth + 1, 0).getDate();
+    for (let i = 1; i <= daysInMonth; i++) {
+      arr.push(new Date(viewYear, viewMonth, i));
     }
     return arr;
-  }, []);
+  }, [viewMonth, viewYear]);
+
+  const prevMonth = () => {
+    if (viewMonth === 0) { setViewMonth(11); setViewYear(viewYear - 1); }
+    else setViewMonth(viewMonth - 1);
+  };
+  const nextMonth = () => {
+    if (viewMonth === 11) { setViewMonth(0); setViewYear(viewYear + 1); }
+    else setViewMonth(viewMonth + 1);
+  };
 
   const todayStr = new Date().toISOString().split('T')[0];
   const selStr = selectedDate.toISOString().split('T')[0];
 
   return (
-    <div data-testid="horizontal-calendar" style={{ width: '100%', marginTop: 16 } as any}>
-      <div style={{ fontSize: 12, fontWeight: 700, color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', letterSpacing: 1.2, marginBottom: 10, textAlign: 'center' }}>
-        {MONTHS_FR[selectedDate.getMonth()]} {selectedDate.getFullYear()}
+    <div data-testid="horizontal-calendar" style={{ width: '100%', marginTop: 28 } as any}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 16, marginBottom: 12 } as any}>
+        <div data-testid="cal-prev-month" onClick={prevMonth}
+          style={{ width: 32, height: 32, borderRadius: 999, background: 'rgba(255,255,255,0.12)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)', border: '1px solid rgba(255,255,255,0.18)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}>
+          <i className="ri-arrow-left-s-line" style={{ fontSize: 16, color: '#FFF' }} />
+        </div>
+        <div style={{ fontSize: 14, fontWeight: 800, color: '#FFF', textTransform: 'capitalize', letterSpacing: 0.5, minWidth: 140, textAlign: 'center' } as any}>
+          {MONTHS_FR[viewMonth]} {viewYear}
+        </div>
+        <div data-testid="cal-next-month" onClick={nextMonth}
+          style={{ width: 32, height: 32, borderRadius: 999, background: 'rgba(255,255,255,0.12)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)', border: '1px solid rgba(255,255,255,0.18)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}>
+          <i className="ri-arrow-right-s-line" style={{ fontSize: 16, color: '#FFF' }} />
+        </div>
       </div>
       <div style={{ display: 'flex', gap: 6, overflowX: 'auto', paddingBottom: 4, WebkitOverflowScrolling: 'touch', scrollbarWidth: 'none' } as any}>
         {dates.map(d => {
@@ -300,7 +326,14 @@ export default function ProSpace({ token, user }: { token: string; user: any }) 
 
   const deleteReminder = async (id: string) => { try { await apiFetch(`/api/pro/reminders/${id}`, { method: 'DELETE' }, token); refresh(); } catch {} };
 
-  const GBTN = (active: boolean): any => ({ padding: '16px', borderRadius: 14, textAlign: 'center', cursor: active && !saving ? 'pointer' : 'default', background: active ? AC : 'rgba(255,255,255,0.06)', color: active ? '#FFF' : 'rgba(255,255,255,0.3)', fontSize: 15, fontWeight: 800, opacity: saving ? 0.5 : 1 });
+  const GBTN = (active: boolean): any => ({
+    padding: '16px', borderRadius: 999, textAlign: 'center', cursor: active && !saving ? 'pointer' : 'default',
+    background: active ? 'rgba(220,38,38,0.15)' : 'rgba(255,255,255,0.06)',
+    backdropFilter: active ? 'blur(16px)' : 'none', WebkitBackdropFilter: active ? 'blur(16px)' : 'none',
+    border: active ? '1.5px solid rgba(220,38,38,0.3)' : '1px solid rgba(255,255,255,0.08)',
+    boxShadow: active ? '0 4px 20px rgba(220,38,38,0.12), inset 0 1px 0 rgba(255,255,255,0.08)' : 'none',
+    color: active ? '#FFF' : 'rgba(255,255,255,0.3)', fontSize: 15, fontWeight: 800, opacity: saving ? 0.5 : 1,
+  });
 
   if (loading) return <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100vh', color: '#9CA3AF', fontFamily: 'Inter, system-ui, sans-serif' } as any}><i className="ri-loader-4-line ri-spin" style={{ fontSize: 32 }} /></div>;
 
