@@ -915,7 +915,7 @@ function ProMessaging({ token, user }: { token: string; user: any }) {
           </div>
 
           {/* Input bar */}
-          <div style={{ padding: '12px 16px 24px', flexShrink: 0, borderTop: '1px solid #F3F4F6', display: 'flex', gap: 10, alignItems: 'center', background: '#FFF' } as any}>
+          <div style={{ padding: '12px 16px 100px', flexShrink: 0, borderTop: '1px solid #F3F4F6', display: 'flex', gap: 10, alignItems: 'center', background: '#FFF' } as any}>
             <input ref={inputRef} data-testid="pro-msg-input" value={newMsg} onChange={(e: any) => setNewMsg(e.target.value)}
               onKeyDown={(e: any) => e.key === 'Enter' && !e.shiftKey && send()}
               placeholder="Votre message..."

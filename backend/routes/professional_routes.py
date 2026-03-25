@@ -120,6 +120,35 @@ async def list_programs(user=Depends(get_current_user)):
     ).sort("created_at", -1).to_list(100)
     return programs
 
+@router.post("/pro/programs/template")
+async def create_template_program(data: ProgramCreate, user=Depends(get_current_user)):
+    """Create a template program in the library (not assigned to any beneficiary)"""
+    require_pro(user)
+    cu = await db.users.find_one({"id": user['id']}, {"_id": 0})
+    program = {
+        "id": str(uuid.uuid4()),
+        "professional_id": user['id'],
+        "professional_name": cu.get('name', ''),
+        "professional_type": cu.get('professional_type', 'coach'),
+        "beneficiary_id": "__template__",
+        "beneficiary_name": "Bibliotheque",
+        "title": data.title,
+        "description": data.description,
+        "frequency": data.frequency,
+        "duration_weeks": data.duration_weeks,
+        "category": data.category,
+        "status": "active",
+        "sessions": [],
+        "is_template": True,
+        "created_at": datetime.now(timezone.utc).isoformat(),
+        "updated_at": datetime.now(timezone.utc).isoformat(),
+    }
+    await db.pro_programs.insert_one(program)
+    program.pop('_id', None)
+    return program
+
+
+
 @router.get("/pro/programs/{beneficiary_id}")
 async def list_programs_for_beneficiary(beneficiary_id: str, user=Depends(get_current_user)):
     require_pro(user)
@@ -397,18 +426,11 @@ async def delete_pro_reminder(reminder_id: str, user=Depends(get_current_user)):
 # ── Pro Meals Management ──
 
 class ProMealCreate(BaseModel):
-    type: str = "lunch"  # breakfast, lunch, snack, dinner
-    label: str = "Dejeuner"
-    name: str
-    description: str = ""
+    meal_type: str = "dejeuner"
+    items: List[str] = []
     calories: int = 0
-    time: str = "12:30"
-    ingredients: List[dict] = []
-    recipe: List[str] = []
-    prep_time: str = ""
-    proteines_g: int = 0
-    glucides_g: int = 0
-    lipides_g: int = 0
+    proteins: int = 0
+    notes: str = ""
 
 @router.get("/pro/meals/{beneficiary_id}")
 async def get_beneficiary_meals(beneficiary_id: str, user=Depends(get_current_user)):
@@ -441,11 +463,14 @@ async def add_pro_meal(beneficiary_id: str, data: ProMealCreate, user=Depends(ge
         raise HTTPException(status_code=403, detail="Beneficiaire non rattache")
     today_str = datetime.now(timezone.utc).strftime("%Y-%m-%d")
     meal = {
-        "type": data.type, "label": data.label, "name": data.name,
-        "description": data.description, "calories": data.calories, "time": data.time,
-        "ingredients": data.ingredients, "recipe": data.recipe, "prep_time": data.prep_time,
-        "proteines_g": data.proteines_g, "glucides_g": data.glucides_g, "lipides_g": data.lipides_g,
-        "created_by_pro": True,
+        "meal_type": data.meal_type,
+        "items": data.items,
+        "calories": data.calories,
+        "proteins": data.proteins,
+        "notes": data.notes,
+        "created_by_pro": user['id'],
+        "pro_name": cu.get('name', ''),
+        "created_at": datetime.now(timezone.utc).isoformat(),
     }
     # Get or create pro_meals doc for today
     existing = await db.pro_meals.find_one(
@@ -457,7 +482,6 @@ async def add_pro_meal(beneficiary_id: str, data: ProMealCreate, user=Depends(ge
             {"$push": {"meals": meal}}
         )
     else:
-        # Copy current minceur meals as base then add
         cached = await db.minceur_daily_cache.find_one(
             {"user_id": beneficiary_id, "date": today_str}, {"_id": 0}
         )
