@@ -39,21 +39,16 @@ export default function ProExerciseDetailPage() {
         }).catch(() => {}).finally(() => setLoading(false));
     } else if (mode === 'assigned' && (params.assignmentId || exerciseId)) {
       const aid = (Array.isArray(params.assignmentId) ? params.assignmentId[0] : params.assignmentId) || exerciseId;
-      // Fetch from beneficiary or coach endpoint
-      Promise.all([
-        apiFetch(`/api/pro/beneficiary-all-exercises`, {}, token).catch(() => []),
-        apiFetch(`/api/pro/assigned-exercises/${aid}`, {}, token).catch(() => []),
-      ]).then(([benExs, proExs]) => {
-        const allExs = [...(Array.isArray(benExs) ? benExs : []), ...(Array.isArray(proExs) ? proExs : [])];
-        const found = allExs.find((e: any) => e.id === aid);
-        if (found) {
-          setEx(found);
-          const today = new Date().toISOString().split('T')[0];
-          if (found.completions?.some((c: any) => c.date?.startsWith(today) && c.status === 'done')) {
-            setCompleted(true);
+      apiFetch(`/api/pro/assigned-exercise-detail/${aid}`, {}, token)
+        .then((found: any) => {
+          if (found) {
+            setEx(found);
+            const today = new Date().toISOString().split('T')[0];
+            if (found.completions?.some((c: any) => c.date?.startsWith(today) && c.status === 'done')) {
+              setCompleted(true);
+            }
           }
-        }
-      }).catch(() => {}).finally(() => setLoading(false));
+        }).catch(() => {}).finally(() => setLoading(false));
     } else if (mode === 'session' && programId && sessionId) {
       apiFetch(`/api/pro/programs/detail/${programId}`, {}, token)
         .then(prog => {

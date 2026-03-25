@@ -1,0 +1,63 @@
+{
+  "summary": "Iteration 170 - ProSpace Calendar & Edit Features Testing. All backend APIs working (9/9 tests passed). Frontend testing confirmed: Horizontal calendar in header filters exercises by day, Edit modal with days/reps/sets/rest fields works, Exercise detail page loads without 'Exercice non trouve' error, Completion status badges (A faire/Fait/Partiel) display correctly, beneficiary-detail.tsx no longer renders 'Exercices prescrits' section.",
+  "backend_issues": {
+    "critical": [],
+    "minor": []
+  },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_prospace_iteration170.py",
+    "/app/test_reports/pytest/pytest_results_iter170.xml"
+  ],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "HorizontalCalendar component correctly implemented with day selection",
+    "Calendar filtering by selectedDayFr works correctly",
+    "Edit modal (edit-assigned) shows days picker, series, repetitions, repos fields",
+    "PUT /api/pro/assigned-exercises/{id} backend route works",
+    "GET /api/pro/assigned-exercise-detail/{id} backend route works",
+    "pro-exercise-detail.tsx uses correct endpoint for mode=assigned",
+    "beneficiary-detail.tsx has 'Exercices prescrits' only as comment (not rendered)",
+    "Exercise status badges (A faire/Fait/Partiel) display correctly"
+  ],
+  "updated_files": [
+    "/app/backend/tests/test_prospace_iteration170.py"
+  ],
+  "success_rate": {
+    "backend": "100%",
+    "frontend": "100%"
+  },
+  "test_credentials": {
+    "coach": {
+      "phone": "+33655443322",
+      "password": "test123"
+    },
+    "josette_beneficiary_id": "495e5e38-3591-474b-abe5-c932574bb609"
+  },
+  "seed_data_creation": "Squat bulgare exercises assigned to Josette with days=[lundi,mercredi,vendredi], 4x15, 90s rest",
+  "retest_needed": false,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "ProSpace calendar and edit features fully working. Backend APIs tested: GET /api/pro/assigned-exercises/{beneficiary_id}, GET /api/pro/assigned-exercise-detail/{assignment_id}, PUT /api/pro/assigned-exercises/{assignment_id}, POST/DELETE /api/pro/exercise-templates. Frontend: HorizontalCalendar filters exercises by day, Edit modal allows changing days/reps/sets/rest, Exercise detail page loads correctly without 'Exercice non trouve' error. Onboarding requires: 1) Drag slider from left to right, 2) Click 'Passer' to skip Nora intro, 3) Click 'Se connecter', 4) Login with +33655443322/test123, 5) Click 'Activite' tab (second icon in bottom nav).",
+  "features_verified": [
+    "POST /api/auth/login - coach login works",
+    "GET /api/pro/assigned-exercises/{beneficiary_id} - returns assigned exercises",
+    "GET /api/pro/assigned-exercise-detail/{assignment_id} - returns single exercise detail",
+    "PUT /api/pro/assigned-exercises/{assignment_id} - updates days/reps/sets/rest",
+    "POST /api/pro/exercise-templates - creates exercise template",
+    "DELETE /api/pro/exercise-templates/{id} - deletes exercise template",
+    "GET /api/pro/exercise-templates - lists exercise templates",
+    "HorizontalCalendar component renders in ProSpace header",
+    "Calendar day selection filters exercises list",
+    "Edit button opens edit-assigned modal",
+    "Edit modal shows days picker, series, repetitions, repos fields",
+    "Exercise detail page loads without 'Exercice non trouve' error",
+    "Completion status badges (A faire/Fait/Partiel) display correctly",
+    "beneficiary-detail.tsx does NOT render 'Exercices prescrits' section",
+    "Bibliotheque tab shows Exercices/Rappels/Repas sections",
+    "New exercise template modal opens with all fields"
+  ]
+}

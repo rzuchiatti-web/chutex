@@ -717,6 +717,42 @@ async def get_assigned_exercises(beneficiary_id: str, user=Depends(get_current_u
     ).sort("created_at", -1).to_list(100)
     return exs
 
+@router.get("/pro/assigned-exercise-detail/{assignment_id}")
+async def get_assigned_exercise_detail(assignment_id: str, user=Depends(get_current_user)):
+    """Get a single assigned exercise by its ID (for coach or beneficiary)"""
+    ex = await db.pro_assigned_exercises.find_one({"id": assignment_id}, {"_id": 0})
+    if not ex:
+        raise HTTPException(status_code=404, detail="Exercice assigne non trouve")
+    return ex
+
+class AssignExerciseUpdate(BaseModel):
+    days: List[str] = []
+    repetitions: int = 12
+    sets: int = 3
+    rest_seconds: int = 60
+
+@router.put("/pro/assigned-exercises/{assignment_id}")
+async def update_assigned_exercise(assignment_id: str, data: AssignExerciseUpdate, user=Depends(get_current_user)):
+    """Update an assigned exercise (days, reps, sets, rest)"""
+    require_pro(user)
+    ex = await db.pro_assigned_exercises.find_one(
+        {"id": assignment_id, "professional_id": user['id']}, {"_id": 0}
+    )
+    if not ex:
+        raise HTTPException(status_code=404, detail="Exercice assigne non trouve")
+    await db.pro_assigned_exercises.update_one(
+        {"id": assignment_id},
+        {"$set": {
+            "days": data.days,
+            "repetitions": data.repetitions,
+            "sets": data.sets,
+            "rest_seconds": data.rest_seconds,
+            "updated_at": datetime.now(timezone.utc).isoformat(),
+        }}
+    )
+    updated = await db.pro_assigned_exercises.find_one({"id": assignment_id}, {"_id": 0})
+    return updated
+
 @router.delete("/pro/assigned-exercises/{assignment_id}")
 async def delete_assigned_exercise(assignment_id: str, user=Depends(get_current_user)):
     """Remove an exercise assignment"""

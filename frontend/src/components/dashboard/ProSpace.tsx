@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useRouter } from 'expo-router';
 
 const API = process.env.EXPO_PUBLIC_BACKEND_URL || '';
@@ -15,8 +15,11 @@ const uploadImage = async (file: File, token: string) => {
 };
 
 const BG = 'https://customer-assets.emergentagent.com/job_443c9c6e-0feb-4920-a358-fe7cc1a6289b/artifacts/mhh7xwy3_ChatGPT%20Image%2017%20f%C3%A9vr.%202026%2C%2014_08_43.png';
+const DAYS_FR = ['lundi','mardi','mercredi','jeudi','vendredi','samedi','dimanche'];
+const DAYS_SHORT = ['Lun','Mar','Mer','Jeu','Ven','Sam','Dim'];
+const MONTHS_FR = ['Janvier','Fevrier','Mars','Avril','Mai','Juin','Juillet','Aout','Septembre','Octobre','Novembre','Decembre'];
 
-/* ── Glass Modal — Centré vertical + horizontal ── */
+/* ── Glass Modal ── */
 function GlassModal({ open, onClose, title, children }: { open: boolean; onClose: () => void; title: string; children: React.ReactNode }) {
   if (!open) return null;
   return (
@@ -38,7 +41,7 @@ const INP: any = { width: '100%', padding: '14px 16px', borderRadius: 14, backgr
 const LBL: any = { fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.4)', marginBottom: 6, display: 'block', textTransform: 'uppercase', letterSpacing: 0.8 };
 const SEL: any = { ...INP, appearance: 'none', WebkitAppearance: 'none', backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='white' viewBox='0 0 16 16'%3E%3Cpath d='M8 11L3 6h10z'/%3E%3C/svg%3E")`, backgroundRepeat: 'no-repeat', backgroundPosition: 'right 14px center' };
 
-/* ── Image Picker component ── */
+/* ── Image Picker ── */
 function ImagePicker({ value, onChange, token }: { value: string; onChange: (url: string) => void; token: string }) {
   const [uploading, setUploading] = useState(false);
   const pick = async () => {
@@ -63,6 +66,80 @@ function ImagePicker({ value, onChange, token }: { value: string; onChange: (url
   );
 }
 
+/* ── Days Picker (reusable) ── */
+function DaysPicker({ selected, onChange, accent }: { selected: string[]; onChange: (days: string[]) => void; accent: string }) {
+  return (
+    <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' } as any}>
+      {DAYS_FR.map(d => {
+        const sel = selected.includes(d);
+        return (
+          <div key={d} data-testid={`day-${d}`} onClick={() => onChange(sel ? selected.filter(x => x !== d) : [...selected, d])}
+            style={{ padding: '8px 12px', borderRadius: 10, background: sel ? accent : 'rgba(255,255,255,0.06)', border: `1px solid ${sel ? accent : 'rgba(255,255,255,0.1)'}`, cursor: 'pointer', fontSize: 12, fontWeight: 700, color: sel ? '#FFF' : 'rgba(255,255,255,0.4)', textTransform: 'capitalize', transition: 'all 0.15s' } as any}>
+            {d.slice(0, 3)}
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+/* ══════════════════════════════════════════
+   HORIZONTAL CALENDAR
+   ══════════════════════════════════════════ */
+function HorizontalCalendar({ selectedDate, onSelect, accent, completedDates }: { selectedDate: Date; onSelect: (d: Date) => void; accent: string; completedDates?: Set<string> }) {
+  const dates = useMemo(() => {
+    const arr: Date[] = [];
+    const today = new Date();
+    for (let i = -3; i <= 10; i++) {
+      const d = new Date(today);
+      d.setDate(today.getDate() + i);
+      arr.push(d);
+    }
+    return arr;
+  }, []);
+
+  const todayStr = new Date().toISOString().split('T')[0];
+  const selStr = selectedDate.toISOString().split('T')[0];
+
+  return (
+    <div data-testid="horizontal-calendar" style={{ width: '100%', marginTop: 16 } as any}>
+      <div style={{ fontSize: 12, fontWeight: 700, color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', letterSpacing: 1.2, marginBottom: 10, textAlign: 'center' }}>
+        {MONTHS_FR[selectedDate.getMonth()]} {selectedDate.getFullYear()}
+      </div>
+      <div style={{ display: 'flex', gap: 6, overflowX: 'auto', paddingBottom: 4, WebkitOverflowScrolling: 'touch', scrollbarWidth: 'none' } as any}>
+        {dates.map(d => {
+          const ds = d.toISOString().split('T')[0];
+          const isToday = ds === todayStr;
+          const isSelected = ds === selStr;
+          const dayIdx = d.getDay() === 0 ? 6 : d.getDay() - 1;
+          return (
+            <div key={ds} data-testid={`cal-day-${ds}`} onClick={() => onSelect(d)}
+              style={{
+                minWidth: 48, padding: '8px 4px 10px', borderRadius: 14, textAlign: 'center', cursor: 'pointer',
+                background: isSelected ? accent : isToday ? 'rgba(255,255,255,0.12)' : 'rgba(255,255,255,0.04)',
+                border: isSelected ? `2px solid ${accent}` : isToday ? '2px solid rgba(255,255,255,0.2)' : '2px solid transparent',
+                transition: 'all 0.2s', flexShrink: 0,
+              } as any}>
+              <div style={{ fontSize: 9, fontWeight: 700, color: isSelected ? '#FFF' : 'rgba(255,255,255,0.35)', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 4 }}>
+                {DAYS_SHORT[dayIdx]}
+              </div>
+              <div style={{ fontSize: 18, fontWeight: 900, color: isSelected ? '#FFF' : isToday ? '#FFF' : 'rgba(255,255,255,0.6)', lineHeight: 1 }}>
+                {d.getDate()}
+              </div>
+              {isToday && !isSelected && (
+                <div style={{ width: 4, height: 4, borderRadius: 2, background: accent, margin: '4px auto 0' } as any} />
+              )}
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+/* ══════════════════════════════════════════
+   MAIN COMPONENT
+   ══════════════════════════════════════════ */
 export default function ProSpace({ token, user }: { token: string; user: any }) {
   const router = useRouter();
   const proType = user?.professional_type || '';
@@ -89,9 +166,11 @@ export default function ProSpace({ token, user }: { token: string; user: any }) 
   const [modal, setModal] = useState<string | null>(null);
   const [modalCtx, setModalCtx] = useState<any>(null);
   const [benOpen, setBenOpen] = useState(false);
+  const [selectedDate, setSelectedDate] = useState(new Date());
 
   // Exercise form (for assign modal)
   const emptyEx = { title: '', description: '', sets: 3, reps: 12, duration_minutes: 0, image: '', days: [] as string[], rest_seconds: 60 };
+  const [exForm, setExForm] = useState(emptyEx);
 
   // Rich meal form
   const emptyMeal = { meal_type: 'dejeuner', title: '', image: '', ingredients: [{ name: '', quantity: '', unit: 'g' }] as any[], steps: [''] as string[], calories: 0, proteins: 0, glucides: 0, lipides: 0, notes: '' };
@@ -101,12 +180,14 @@ export default function ProSpace({ token, user }: { token: string; user: any }) 
   const emptyRem = { reminder_type: 'medication', title: '', time: '08:00', dosage: '', notes: '' };
   const [remForm, setRemForm] = useState(emptyRem);
 
-  // Exercise form for adding to existing program
-  const [exForm, setExForm] = useState(emptyEx);
-
   // Exercise template form (for library)
   const emptyExTpl = { title: '', description: '', image: '', video_url: '', category: 'general', difficulty: 'moyen', muscle_group: '', sets: 3, repetitions: 12, duration_min: 0, rest_seconds: 60, steps: [''] as string[], equipment: '', notes: '' };
   const [exTplForm, setExTplForm] = useState(emptyExTpl);
+
+  // Edit assigned exercise form
+  const [editExForm, setEditExForm] = useState<any>(null);
+
+  // ── Data fetching ──
 
   const fetchBens = useCallback(async () => {
     try {
@@ -140,14 +221,27 @@ export default function ProSpace({ token, user }: { token: string; user: any }) 
 
   const activeBenData = bens.find(b => b.id === activeBen);
 
-  // CRUD
+  // ── Calendar filtering ──
+  const selectedDayFr = useMemo(() => {
+    const idx = selectedDate.getDay() === 0 ? 6 : selectedDate.getDay() - 1;
+    return DAYS_FR[idx];
+  }, [selectedDate]);
+
+  const selectedDateStr = useMemo(() => selectedDate.toISOString().split('T')[0], [selectedDate]);
+
+  const filteredExercises = useMemo(() => {
+    return assignedExercises.filter(ex => (ex.days || []).includes(selectedDayFr));
+  }, [assignedExercises, selectedDayFr]);
+
+  // ── CRUD ──
+
   const assignExercise = async (templateId: string, days: string[], reps: number, sets: number, rest: number) => {
     setSaving(true);
     try {
       await apiFetch('/api/pro/assign-exercise', { method: 'POST', body: JSON.stringify({
         exercise_template_id: templateId, beneficiary_id: activeBen, days, repetitions: reps, sets, rest_seconds: rest
       }) }, token);
-      setModal(null); refresh();
+      setModal(null); setModalCtx(null); refresh();
     } catch {} finally { setSaving(false); }
   };
 
@@ -155,15 +249,33 @@ export default function ProSpace({ token, user }: { token: string; user: any }) 
     try { await apiFetch(`/api/pro/assigned-exercises/${id}`, { method: 'DELETE' }, token); refresh(); } catch {}
   };
 
+  const updateAssignedExercise = async () => {
+    if (!editExForm) return;
+    setSaving(true);
+    try {
+      await apiFetch(`/api/pro/assigned-exercises/${editExForm.id}`, { method: 'PUT', body: JSON.stringify({
+        days: editExForm.days, repetitions: editExForm.repetitions, sets: editExForm.sets, rest_seconds: editExForm.rest_seconds
+      }) }, token);
+      setModal(null); setEditExForm(null); refresh();
+    } catch {} finally { setSaving(false); }
+  };
+
+  const createExerciseTemplate = async () => {
+    setSaving(true);
+    try {
+      await apiFetch('/api/pro/exercise-templates', { method: 'POST', body: JSON.stringify(exTplForm) }, token);
+      setModal(null); setExTplForm(emptyExTpl); refresh();
+    } catch {} finally { setSaving(false); }
+  };
+
+  const deleteExerciseTemplate = async (id: string) => {
+    try { await apiFetch(`/api/pro/exercise-templates/${id}`, { method: 'DELETE' }, token); refresh(); } catch {}
+  };
+
   const createMealTemplate = async () => {
     setSaving(true);
     try {
-      // For meals, we store as a template in pro_meal_templates collection
-      const body = {
-        ...mealForm,
-        items: mealForm.ingredients.filter(i => i.name).map(i => `${i.name} ${i.quantity}${i.unit}`),
-      };
-      // Store via a dedicated endpoint or use existing
+      const body = { ...mealForm, items: mealForm.ingredients.filter(i => i.name).map(i => `${i.name} ${i.quantity}${i.unit}`) };
       await apiFetch('/api/pro/meal-templates', { method: 'POST', body: JSON.stringify(body) }, token);
       setModal(null); setMealForm(emptyMeal); refresh();
     } catch {} finally { setSaving(false); }
@@ -190,14 +302,14 @@ export default function ProSpace({ token, user }: { token: string; user: any }) 
         {/* ══ HEADER ══ */}
         <div style={{ position: 'relative', zIndex: 1 } as any}>
           <img src={BG} alt="" style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', objectFit: 'cover' } as any} />
-          <div style={{ position: 'relative', zIndex: 2, padding: '28px 20px 36px', display: 'flex', flexDirection: 'column', alignItems: 'center' } as any}>
+          <div style={{ position: 'relative', zIndex: 2, padding: '28px 20px 24px', display: 'flex', flexDirection: 'column', alignItems: 'center' } as any}>
             <div style={{ width: 48, height: 48, borderRadius: 16, background: 'rgba(255,255,255,0.15)', backdropFilter: 'blur(8px)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 12, border: '1px solid rgba(255,255,255,0.2)' } as any}>
               <i className={isPhysio ? 'ri-stethoscope-line' : isCoach ? 'ri-run-line' : 'ri-shield-user-line'} style={{ fontSize: 22, color: '#FFF' }} />
             </div>
             <div style={{ fontSize: 26, fontWeight: 900, color: '#FFF', marginBottom: 4, letterSpacing: -0.5 }}>{isPhysio ? 'Espace Kine' : isCoach ? 'Espace Coach' : 'Activite'}</div>
             <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.55)', marginBottom: 18 }}>{bens.length} {patientSingle}{bens.length !== 1 ? 's' : ''}</div>
 
-            {/* ── PILL TABS (glass style from profile page) ── */}
+            {/* ── PILL TABS ── */}
             <div data-testid="space-tabs" style={{ display: 'inline-flex', borderRadius: 999, background: 'rgba(255,255,255,0.10)', border: '1px solid rgba(255,255,255,0.12)', padding: 3, gap: 2 } as any}>
               {(['patients', 'library'] as const).map(t => (
                 <div key={t} data-testid={`tab-${t}`} onClick={() => setTab(t)}
@@ -211,7 +323,7 @@ export default function ProSpace({ token, user }: { token: string; user: any }) 
               ))}
             </div>
 
-            {/* ── FULL-WIDTH GLASS BEN SELECTOR ── */}
+            {/* ── BEN SELECTOR (full width glass) ── */}
             {tab === 'patients' && bens.length > 0 && (
               <div style={{ marginTop: 18, width: '100%', maxWidth: 360 } as any}>
                 <div data-testid="ben-selector" onClick={() => setBenOpen(!benOpen)}
@@ -225,7 +337,6 @@ export default function ProSpace({ token, user }: { token: string; user: any }) 
                   </div>
                   <i className={benOpen ? 'ri-arrow-up-s-line' : 'ri-arrow-down-s-line'} style={{ fontSize: 20, color: 'rgba(255,255,255,0.5)' }} />
                 </div>
-
                 {benOpen && (
                   <div style={{ marginTop: 8, width: '100%', borderRadius: 16, background: 'rgba(255,255,255,0.1)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', border: '1px solid rgba(255,255,255,0.15)', overflow: 'hidden', maxHeight: 220, overflowY: 'auto', WebkitOverflowScrolling: 'touch' } as any}>
                     {bens.map(b => (
@@ -242,28 +353,115 @@ export default function ProSpace({ token, user }: { token: string; user: any }) 
                 )}
               </div>
             )}
+
+            {/* ── HORIZONTAL CALENDAR ── */}
+            {tab === 'patients' && activeBen && (
+              <HorizontalCalendar selectedDate={selectedDate} onSelect={setSelectedDate} accent={AC} />
+            )}
           </div>
         </div>
 
         {/* ══ CONTENT ══ */}
         <div style={{ padding: '20px 16px 120px', marginTop: -16, borderRadius: '24px 24px 0 0', background: '#FFF', position: 'relative', zIndex: 10, minHeight: 'calc(100vh - 280px)' } as any}>
 
-          {/* ════ PATIENTS TAB — Exercices assignes + Rappels + Repas ════ */}
+          {/* ════ PATIENTS TAB ════ */}
           {tab === 'patients' && (
             <>
-              <CategoryCard title="Exercices" icon="ri-run-line" accent={AC} count={assignedExercises.length}
-                onAdd={() => { setModal('assign-ex'); }}>
-                {assignedExercises.length === 0 && <EmptyState text="Aucun exercice assigne" />}
-                {assignedExercises.map(ex => (
-                  <ItemCard key={ex.id} accent={AC} title={ex.title}
-                    subtitle={`${(ex.days || []).map((d: string) => d.slice(0, 3)).join(', ')} - ${ex.sets}x${ex.repetitions}`}
-                    badge={ex.difficulty || ''}
-                    image={ex.image}
-                    onClick={() => router.push({ pathname: '/pro-exercise-detail' as any, params: { id: ex.exercise_template_id || ex.id, mode: 'assigned', assignmentId: ex.id } })}
-                    onDelete={() => deleteAssignedExercise(ex.id)} />
-                ))}
-              </CategoryCard>
+              {/* Day exercises header */}
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 } as any}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8 } as any}>
+                  <i className="ri-calendar-check-line" style={{ fontSize: 16, color: AC }} />
+                  <span style={{ fontSize: 14, fontWeight: 800, color: '#111' }}>
+                    Exercices du {selectedDayFr}
+                  </span>
+                  <span style={{ fontSize: 11, fontWeight: 600, color: '#9CA3AF', background: '#E5E7EB', padding: '2px 8px', borderRadius: 999 }}>{filteredExercises.length}</span>
+                </div>
+                <div data-testid="cat-add-exercices" onClick={() => { setModal('assign-ex'); setModalCtx(null); }}
+                  style={{ width: 32, height: 32, borderRadius: '50%', background: AC, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', boxShadow: `0 2px 8px ${AC}30` } as any}>
+                  <i className="ri-add-line" style={{ fontSize: 18, color: '#FFF' }} />
+                </div>
+              </div>
 
+              {/* Day exercises list with completion status */}
+              {filteredExercises.length === 0 && (
+                <div style={{ textAlign: 'center', padding: '28px 16px', color: '#9CA3AF', fontSize: 13, borderRadius: 16, background: '#F4F4F5', marginBottom: 16 } as any}>
+                  <i className="ri-inbox-2-line" style={{ fontSize: 24, display: 'block', marginBottom: 6, color: '#D1D5DB' }} />
+                  Aucun exercice prevu le {selectedDayFr}
+                </div>
+              )}
+              {filteredExercises.map(ex => {
+                const done = (ex.completions || []).some((c: any) => c.date?.startsWith(selectedDateStr) && c.status === 'done');
+                const partial = (ex.completions || []).some((c: any) => c.date?.startsWith(selectedDateStr) && c.status === 'partial');
+                return (
+                  <div key={ex.id} data-testid={`day-exercise-${ex.id}`}
+                    style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 14px', borderRadius: 16,
+                      background: done ? 'rgba(16,185,129,0.06)' : partial ? 'rgba(245,158,11,0.06)' : '#F4F4F5',
+                      border: done ? '1px solid rgba(16,185,129,0.2)' : partial ? '1px solid rgba(245,158,11,0.2)' : '1px solid transparent',
+                      marginBottom: 8, transition: 'all 0.15s' } as any}>
+                    {ex.image ? (
+                      <div onClick={() => router.push({ pathname: '/pro-exercise-detail' as any, params: { id: ex.exercise_template_id || ex.id, mode: 'assigned', assignmentId: ex.id } })}
+                        style={{ width: 48, height: 48, borderRadius: 12, overflow: 'hidden', flexShrink: 0, cursor: 'pointer' } as any}>
+                        <img src={ex.image.startsWith('/') ? `${API}${ex.image}` : ex.image} style={{ width: '100%', height: '100%', objectFit: 'cover' } as any} />
+                      </div>
+                    ) : (
+                      <div onClick={() => router.push({ pathname: '/pro-exercise-detail' as any, params: { id: ex.exercise_template_id || ex.id, mode: 'assigned', assignmentId: ex.id } })}
+                        style={{ width: 48, height: 48, borderRadius: 12, background: `${AC}10`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, cursor: 'pointer' } as any}>
+                        <i className="ri-run-line" style={{ fontSize: 20, color: AC }} />
+                      </div>
+                    )}
+                    <div onClick={() => router.push({ pathname: '/pro-exercise-detail' as any, params: { id: ex.exercise_template_id || ex.id, mode: 'assigned', assignmentId: ex.id } })}
+                      style={{ flex: 1, minWidth: 0, cursor: 'pointer' } as any}>
+                      <div style={{ fontSize: 14, fontWeight: 700, color: '#111', textTransform: 'capitalize' }}>{ex.title}</div>
+                      <div style={{ fontSize: 11, color: '#6B7280', marginTop: 2 }}>{ex.sets}x{ex.repetitions} - {ex.rest_seconds}s repos</div>
+                    </div>
+                    {/* Status badge */}
+                    {done ? (
+                      <div data-testid={`exercise-status-done-${ex.id}`} style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '4px 10px', borderRadius: 999, background: 'rgba(16,185,129,0.1)' } as any}>
+                        <i className="ri-checkbox-circle-fill" style={{ fontSize: 16, color: '#10B981' }} />
+                        <span style={{ fontSize: 11, fontWeight: 700, color: '#10B981' }}>Fait</span>
+                      </div>
+                    ) : partial ? (
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '4px 10px', borderRadius: 999, background: 'rgba(245,158,11,0.1)' } as any}>
+                        <i className="ri-indeterminate-circle-line" style={{ fontSize: 16, color: '#F59E0B' }} />
+                        <span style={{ fontSize: 11, fontWeight: 700, color: '#F59E0B' }}>Partiel</span>
+                      </div>
+                    ) : (
+                      <div data-testid={`exercise-status-pending-${ex.id}`} style={{ padding: '4px 10px', borderRadius: 999, background: '#E5E7EB' } as any}>
+                        <span style={{ fontSize: 11, fontWeight: 700, color: '#6B7280' }}>A faire</span>
+                      </div>
+                    )}
+                    {/* Actions */}
+                    <div style={{ display: 'flex', gap: 4, flexShrink: 0 } as any}>
+                      <div data-testid={`edit-exercise-${ex.id}`} onClick={(e: any) => { e.stopPropagation(); setEditExForm({ ...ex }); setModal('edit-assigned'); }}
+                        style={{ width: 28, height: 28, borderRadius: 8, background: `${AC}10`, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}>
+                        <i className="ri-pencil-line" style={{ fontSize: 13, color: AC }} />
+                      </div>
+                      <div onClick={(e: any) => { e.stopPropagation(); deleteAssignedExercise(ex.id); }}
+                        style={{ width: 28, height: 28, borderRadius: 8, background: 'rgba(239,68,68,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}>
+                        <i className="ri-delete-bin-6-line" style={{ fontSize: 13, color: '#EF4444' }} />
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+
+              {/* All assigned exercises summary (not filtered) */}
+              {assignedExercises.length > 0 && assignedExercises.length !== filteredExercises.length && (
+                <div style={{ marginTop: 8, marginBottom: 16 } as any}>
+                  <div style={{ fontSize: 11, fontWeight: 700, color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 8 }}>Tous les exercices ({assignedExercises.length})</div>
+                  {assignedExercises.filter(ex => !filteredExercises.find(f => f.id === ex.id)).map(ex => (
+                    <div key={ex.id} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 12px', borderRadius: 12, background: '#F9FAFB', marginBottom: 4, opacity: 0.6 } as any}>
+                      <i className="ri-run-line" style={{ fontSize: 14, color: '#9CA3AF' }} />
+                      <div style={{ flex: 1, minWidth: 0 } as any}>
+                        <div style={{ fontSize: 12, fontWeight: 600, color: '#374151' }}>{ex.title}</div>
+                        <div style={{ fontSize: 10, color: '#9CA3AF' }}>{(ex.days || []).map((d: string) => d.slice(0, 3)).join(', ')}</div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {/* Rappels */}
               <CategoryCard title="Rappels" icon="ri-alarm-line" accent={AC} count={reminders.length}
                 onAdd={() => { setModal('pick-rem'); }}>
                 {reminders.length === 0 && <EmptyState text="Aucun rappel assigne" />}
@@ -274,6 +472,7 @@ export default function ProSpace({ token, user }: { token: string; user: any }) 
                 ))}
               </CategoryCard>
 
+              {/* Repas */}
               <CategoryCard title="Repas" icon="ri-restaurant-line" accent={AC} count={meals.length}
                 onAdd={() => { setModal('pick-meal'); }}>
                 {meals.length === 0 && <EmptyState text="Aucun repas assigne" />}
@@ -287,7 +486,7 @@ export default function ProSpace({ token, user }: { token: string; user: any }) 
             </>
           )}
 
-          {/* ════ LIBRARY TAB — Grey Cards for each section ════ */}
+          {/* ════ LIBRARY TAB ════ */}
           {tab === 'library' && (
             <>
               {/* Exercices Card */}
@@ -369,12 +568,12 @@ export default function ProSpace({ token, user }: { token: string; user: any }) 
 
       {/* ══════ MODALS ══════ */}
 
-      {/* ── Assign Exercise to Beneficiary (from library) ── */}
-      <GlassModal open={modal === 'assign-ex'} onClose={() => setModal(null)} title="Ajouter un exercice">
+      {/* ── Assign Exercise ── */}
+      <GlassModal open={modal === 'assign-ex'} onClose={() => { setModal(null); setModalCtx(null); }} title="Ajouter un exercice">
         {exerciseTemplates.length === 0 ? (
           <div style={{ textAlign: 'center', padding: '24px', color: 'rgba(255,255,255,0.4)', fontSize: 13 } as any}>
             Aucun exercice dans la bibliotheque.<br/>
-            <span onClick={() => { setModal(null); setTab('library'); }} style={{ color: AC, cursor: 'pointer', fontWeight: 700, marginTop: 8, display: 'inline-block' }}>Creer un exercice →</span>
+            <span onClick={() => { setModal(null); setTab('library'); }} style={{ color: AC, cursor: 'pointer', fontWeight: 700, marginTop: 8, display: 'inline-block' }}>Creer un exercice</span>
           </div>
         ) : !modalCtx ? (
           <>
@@ -397,25 +596,10 @@ export default function ProSpace({ token, user }: { token: string; user: any }) 
         ) : (
           <>
             <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', marginBottom: 14 }}>Personnalisez pour {activeBenData?.name} :</div>
-            {/* Days picker */}
             <div style={{ marginBottom: 16 }}>
               <label style={LBL}>Jours de la semaine</label>
-              <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' } as any}>
-                {['lundi','mardi','mercredi','jeudi','vendredi','samedi','dimanche'].map(d => {
-                  const sel = (exForm as any).days?.includes(d);
-                  return (
-                    <div key={d} data-testid={`day-${d}`} onClick={() => {
-                      const days = (exForm as any).days || [];
-                      setExForm({ ...exForm, days: sel ? days.filter((x: string) => x !== d) : [...days, d] } as any);
-                    }}
-                      style={{ padding: '8px 12px', borderRadius: 10, background: sel ? AC : 'rgba(255,255,255,0.06)', border: `1px solid ${sel ? AC : 'rgba(255,255,255,0.1)'}`, cursor: 'pointer', fontSize: 12, fontWeight: 700, color: sel ? '#FFF' : 'rgba(255,255,255,0.4)', textTransform: 'capitalize', transition: 'all 0.15s' } as any}>
-                      {d.slice(0, 3)}
-                    </div>
-                  );
-                })}
-              </div>
+              <DaysPicker selected={(exForm as any).days || []} onChange={days => setExForm({ ...exForm, days } as any)} accent={AC} />
             </div>
-            {/* Custom reps/sets/rest */}
             <div style={{ display: 'flex', gap: 10, marginBottom: 14 } as any}>
               <div style={{ flex: 1 }}><label style={LBL}>Series</label><input type="number" value={exForm.sets} onChange={(e: any) => setExForm({ ...exForm, sets: +e.target.value })} style={INP} /></div>
               <div style={{ flex: 1 }}><label style={LBL}>Repetitions</label><input type="number" value={exForm.reps} onChange={(e: any) => setExForm({ ...exForm, reps: +e.target.value })} style={INP} /></div>
@@ -426,18 +610,40 @@ export default function ProSpace({ token, user }: { token: string; user: any }) 
               if (days.length === 0) return;
               assignExercise(modalCtx, days, exForm.reps || 12, exForm.sets || 3, (exForm as any).rest_seconds || 60);
             }} style={GBTN(((exForm as any).days || []).length > 0)}>
-              {saving ? 'Assignation...' : `Assigner ${((exForm as any).days || []).length > 0 ? `(${((exForm as any).days || []).length} jours)` : '— Choisissez des jours'}`}
+              {saving ? 'Assignation...' : `Assigner ${((exForm as any).days || []).length > 0 ? `(${((exForm as any).days || []).length} jours)` : '-- Choisissez des jours'}`}
             </div>
           </>
         )}
       </GlassModal>
 
-      {/* ── Pick from library (Rappels) ── */}
+      {/* ── Edit Assigned Exercise ── */}
+      <GlassModal open={modal === 'edit-assigned' && !!editExForm} onClose={() => { setModal(null); setEditExForm(null); }} title="Modifier l'exercice">
+        {editExForm && (
+          <>
+            <div style={{ fontSize: 16, fontWeight: 800, color: '#FFF', marginBottom: 4, textTransform: 'capitalize' }}>{editExForm.title}</div>
+            <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', marginBottom: 18 }}>{editExForm.muscle_group || editExForm.category}</div>
+            <div style={{ marginBottom: 16 }}>
+              <label style={LBL}>Jours de la semaine</label>
+              <DaysPicker selected={editExForm.days || []} onChange={days => setEditExForm({ ...editExForm, days })} accent={AC} />
+            </div>
+            <div style={{ display: 'flex', gap: 10, marginBottom: 14 } as any}>
+              <div style={{ flex: 1 }}><label style={LBL}>Series</label><input type="number" value={editExForm.sets} onChange={(e: any) => setEditExForm({ ...editExForm, sets: +e.target.value })} style={INP} /></div>
+              <div style={{ flex: 1 }}><label style={LBL}>Repetitions</label><input type="number" value={editExForm.repetitions} onChange={(e: any) => setEditExForm({ ...editExForm, repetitions: +e.target.value })} style={INP} /></div>
+              <div style={{ flex: 1 }}><label style={LBL}>Repos (s)</label><input type="number" value={editExForm.rest_seconds} onChange={(e: any) => setEditExForm({ ...editExForm, rest_seconds: +e.target.value })} style={INP} /></div>
+            </div>
+            <div data-testid="edit-ex-submit" onClick={(editExForm.days || []).length > 0 ? updateAssignedExercise : undefined} style={GBTN((editExForm.days || []).length > 0)}>
+              {saving ? 'Enregistrement...' : 'Enregistrer les modifications'}
+            </div>
+          </>
+        )}
+      </GlassModal>
+
+      {/* ── Pick Rappels ── */}
       <GlassModal open={modal === 'pick-rem'} onClose={() => setModal(null)} title="Ajouter un rappel">
         <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)', marginBottom: 16 }}>Choisissez un rappel ou creez-en un depuis la bibliotheque :</div>
         {allReminders.length === 0 && (
           <div style={{ textAlign: 'center', padding: '24px', color: 'rgba(255,255,255,0.4)', fontSize: 13 } as any}>
-            Aucun rappel disponible.<br/><span onClick={() => { setModal(null); setTab('library'); }} style={{ color: AC, cursor: 'pointer', fontWeight: 700, marginTop: 8, display: 'inline-block' }}>Creer dans la bibliotheque →</span>
+            Aucun rappel disponible.<br/><span onClick={() => { setModal(null); setTab('library'); }} style={{ color: AC, cursor: 'pointer', fontWeight: 700, marginTop: 8, display: 'inline-block' }}>Creer dans la bibliotheque</span>
           </div>
         )}
         {allReminders.map(r => (
@@ -448,12 +654,12 @@ export default function ProSpace({ token, user }: { token: string; user: any }) 
         ))}
       </GlassModal>
 
-      {/* ── Pick from library (Repas) ── */}
+      {/* ── Pick Repas ── */}
       <GlassModal open={modal === 'pick-meal'} onClose={() => setModal(null)} title="Ajouter un repas">
         <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)', marginBottom: 16 }}>Choisissez un repas ou creez-en un depuis la bibliotheque :</div>
         {allMeals.length === 0 && (
           <div style={{ textAlign: 'center', padding: '24px', color: 'rgba(255,255,255,0.4)', fontSize: 13 } as any}>
-            Aucun repas disponible.<br/><span onClick={() => { setModal(null); setTab('library'); }} style={{ color: AC, cursor: 'pointer', fontWeight: 700, marginTop: 8, display: 'inline-block' }}>Creer dans la bibliotheque →</span>
+            Aucun repas disponible.<br/><span onClick={() => { setModal(null); setTab('library'); }} style={{ color: AC, cursor: 'pointer', fontWeight: 700, marginTop: 8, display: 'inline-block' }}>Creer dans la bibliotheque</span>
           </div>
         )}
       </GlassModal>
@@ -465,8 +671,6 @@ export default function ProSpace({ token, user }: { token: string; user: any }) 
           <div style={{ flex: 1 }}><label style={LBL}>Type</label><select value={mealForm.meal_type} onChange={(e: any) => setMealForm({ ...mealForm, meal_type: e.target.value })} style={SEL}><option value="petit_dejeuner">Petit-dejeuner</option><option value="dejeuner">Dejeuner</option><option value="gouter">Gouter</option><option value="diner">Diner</option><option value="collation">Collation</option></select></div>
           <div style={{ flex: 1 }}><label style={LBL}>Titre</label><input value={mealForm.title} onChange={(e: any) => setMealForm({ ...mealForm, title: e.target.value })} style={INP} placeholder="Ex: Salade proteines" /></div>
         </div>
-
-        {/* Ingredients */}
         <div style={{ marginBottom: 14 }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
             <label style={{ ...LBL, marginBottom: 0 }}>Ingredients</label>
@@ -482,8 +686,6 @@ export default function ProSpace({ token, user }: { token: string; user: any }) 
             </div>
           ))}
         </div>
-
-        {/* Preparation steps */}
         <div style={{ marginBottom: 14 }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
             <label style={{ ...LBL, marginBottom: 0 }}>Etapes de preparation</label>
@@ -498,8 +700,6 @@ export default function ProSpace({ token, user }: { token: string; user: any }) 
             </div>
           ))}
         </div>
-
-        {/* Macros */}
         <div style={{ display: 'flex', gap: 8, marginBottom: 14 } as any}>
           <div style={{ flex: 1 }}><label style={LBL}>Calories</label><input type="number" value={mealForm.calories} onChange={(e: any) => setMealForm({ ...mealForm, calories: +e.target.value })} style={INP} /></div>
           <div style={{ flex: 1 }}><label style={LBL}>Prot. (g)</label><input type="number" value={mealForm.proteins} onChange={(e: any) => setMealForm({ ...mealForm, proteins: +e.target.value })} style={INP} /></div>
@@ -541,7 +741,6 @@ export default function ProSpace({ token, user }: { token: string; user: any }) 
           <div style={{ flex: 1 }}><label style={LBL}>Min.</label><input type="number" value={exTplForm.duration_min} onChange={(e: any) => setExTplForm({ ...exTplForm, duration_min: +e.target.value })} style={INP} /></div>
           <div style={{ flex: 1 }}><label style={LBL}>Repos (s)</label><input type="number" value={exTplForm.rest_seconds} onChange={(e: any) => setExTplForm({ ...exTplForm, rest_seconds: +e.target.value })} style={INP} /></div>
         </div>
-        {/* Steps */}
         <div style={{ marginBottom: 14 }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
             <label style={{ ...LBL, marginBottom: 0 }}>Etapes / Instructions</label>
@@ -583,47 +782,24 @@ function CategoryCard({ title, icon, accent, count, onAdd, children }: { title: 
   );
 }
 
-function SectionBlock({ title, icon, count, accent, children }: { title: string; icon: string; count: number; accent: string; children: React.ReactNode }) {
-  return (
-    <div style={{ marginBottom: 24 } as any}>
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 } as any}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8 } as any}>
-          <i className={icon} style={{ fontSize: 16, color: accent }} />
-          <span style={{ fontSize: 14, fontWeight: 800, color: '#111' }}>{title}</span>
-        </div>
-        <span style={{ fontSize: 12, fontWeight: 600, color: '#9CA3AF', background: '#F3F4F6', padding: '3px 10px', borderRadius: 999 }}>{count}</span>
-      </div>
-      {children}
-    </div>
-  );
-}
-
-function ItemCard({ title, subtitle, badge, accent, image, onClick, onAdd, onDelete, onDuplicate }: {
+function ItemCard({ title, subtitle, badge, accent, image, onClick, onDelete }: {
   title: string; subtitle: string; badge?: string; accent: string; image?: string;
-  onClick?: () => void; onAdd?: () => void; onDelete?: () => void; onDuplicate?: () => void;
+  onClick?: () => void; onDelete?: () => void;
 }) {
   return (
     <div data-testid={`item-card-${title}`} onClick={onClick} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 14px', borderRadius: 14, background: '#FFF', marginBottom: 6, transition: 'all 0.15s', cursor: onClick ? 'pointer' : 'default' } as any}>
-      {image && <div style={{ width: 44, height: 44, borderRadius: 10, overflow: 'hidden', flexShrink: 0 } as any}><img src={image.startsWith('/') ? `${process.env.EXPO_PUBLIC_BACKEND_URL}${image}` : image} style={{ width: '100%', height: '100%', objectFit: 'cover' } as any} /></div>}
+      {image && <div style={{ width: 44, height: 44, borderRadius: 10, overflow: 'hidden', flexShrink: 0 } as any}><img src={image.startsWith('/') ? `${API}${image}` : image} style={{ width: '100%', height: '100%', objectFit: 'cover' } as any} /></div>}
       <div style={{ flex: 1, minWidth: 0 } as any}>
         <div style={{ fontSize: 13, fontWeight: 700, color: '#111', textTransform: 'capitalize', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' } as any}>{title}</div>
         <div style={{ fontSize: 11, color: '#6B7280', marginTop: 2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' } as any}>{subtitle}</div>
       </div>
       {badge && <span style={{ fontSize: 10, fontWeight: 700, color: accent, background: `${accent}10`, padding: '3px 8px', borderRadius: 999, flexShrink: 0 } as any}>{badge}</span>}
-      <div style={{ display: 'flex', gap: 4, flexShrink: 0 } as any}>
-        {onAdd && <ABt icon="ri-add-line" color={accent} onClick={onAdd} />}
-        {onDuplicate && <ABt icon="ri-file-copy-line" color="#6B7280" onClick={onDuplicate} />}
-        {onDelete && <ABt icon="ri-delete-bin-6-line" color="#EF4444" onClick={onDelete} />}
-      </div>
-    </div>
-  );
-}
-
-function ABt({ icon, color, onClick }: { icon: string; color: string; onClick: () => void }) {
-  return (
-    <div onClick={e => { e.stopPropagation(); onClick(); }}
-      style={{ width: 28, height: 28, borderRadius: 8, background: `${color}10`, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}>
-      <i className={icon} style={{ fontSize: 13, color }} />
+      {onDelete && (
+        <div onClick={e => { e.stopPropagation(); onDelete(); }}
+          style={{ width: 28, height: 28, borderRadius: 8, background: 'rgba(239,68,68,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', flexShrink: 0 } as any}>
+          <i className="ri-delete-bin-6-line" style={{ fontSize: 13, color: '#EF4444' }} />
+        </div>
+      )}
     </div>
   );
 }
