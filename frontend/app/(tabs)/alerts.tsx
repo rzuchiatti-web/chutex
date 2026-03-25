@@ -863,8 +863,8 @@ function ProMessaging({ token, user }: { token: string; user: any }) {
               );
             })
           )}
-          </div>{/* end convo list content card */}
-        </div>{/* end conversation list view */}
+          </div>
+        </div>
       ) : (
         /* CHAT VIEW */
         <>

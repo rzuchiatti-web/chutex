@@ -964,8 +964,8 @@ export default function ProSpace({ token, user }: { token: string; user: any }) 
           </div>
         </div>
       )}
-      </div>{/* end content card */}
-      </div>{/* end scrollable */}
+      </div>
+      </div>
     </div>
   );
 }
