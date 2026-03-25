@@ -84,6 +84,7 @@ export function BeneficiaryHome({ token, user }: { token: string; user: any }) {
   const [subscription, setSubscription] = useState<any>(null);
   const [proSub, setProSub] = useState<any>(null);
   const [unreadMsgs, setUnreadMsgs] = useState(0);
+  const [proConvo, setProConvo] = useState<any>(null);
   const [checkinNote, setCheckinNote] = useState('');
   const [checkinSending, setCheckinSending] = useState(false);
   const [checkinFeedback, setCheckinFeedback] = useState('');
@@ -162,6 +163,7 @@ export function BeneficiaryHome({ token, user }: { token: string; user: any }) {
       apiFetch('/api/health/activity-streak', {}, token).then(s => { if (s) setActivityStreakData(s); }).catch(() => {});
       apiFetch('/api/pro/my-subscription', {}, token).then(s => { if (s?.id) setProSub(s); }).catch(() => {});
       apiFetch('/api/pro/unread-count', {}, token).then(u => { if (u) setUnreadMsgs(u.unread || 0); }).catch(() => {});
+      apiFetch('/api/pro/conversations', {}, token).then(c => { if (c?.length > 0) setProConvo(c[0]); }).catch(() => {});
     } catch {} finally { setLoading(false); setRefreshing(false); }
   }, [token]);
 
@@ -490,13 +492,16 @@ export function BeneficiaryHome({ token, user }: { token: string; user: any }) {
           )}
 
           {/* ── Messages Pro (si conversation existe) ── */}
-          {proSub && proSub.professional_id && (
-            <div data-testid="pro-messages-shortcut" className="dash-slide-up" onClick={() => router.push({ pathname: '/pro-chat' as any, params: { proId: proSub.professional_id } })} style={{ marginBottom: 20, padding: '14px 18px', borderRadius: 20, background: C.card, border: '1px solid rgba(255,255,255,0.06)', display: 'flex', alignItems: 'center', gap: 12, cursor: 'pointer', ...glass } as any}>
+          {(proConvo || (proSub && proSub.professional_id)) && (
+            <div data-testid="pro-messages-shortcut" className="dash-slide-up" onClick={() => {
+              const pid = proConvo?.professional_id || proSub?.professional_id;
+              if (pid) router.push({ pathname: '/pro-chat' as any, params: { proId: pid } });
+            }} style={{ marginBottom: 20, padding: '14px 18px', borderRadius: 20, background: C.card, border: '1px solid rgba(255,255,255,0.06)', display: 'flex', alignItems: 'center', gap: 12, cursor: 'pointer', ...glass } as any}>
               <div style={{ width: 38, height: 38, borderRadius: 12, background: 'rgba(59,130,246,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}>
                 <i className="ri-chat-3-fill" style={{ fontSize: 18, color: '#3B82F6' }} />
               </div>
               <div style={{ flex: 1 }}>
-                <div style={{ fontSize: 13, fontWeight: 700, color: C.text }}>Messages avec {proSub.professional_name}</div>
+                <div style={{ fontSize: 13, fontWeight: 700, color: C.text }}>Messages avec {proConvo?.professional_name || proSub?.professional_name || 'votre pro'}</div>
                 <div style={{ fontSize: 11, color: C.sub }}>Discutez avec votre professionnel</div>
               </div>
               {unreadMsgs > 0 && (

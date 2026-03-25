@@ -19,7 +19,6 @@ const TABS = [
   { key: 'programs', icon: 'ri-file-list-3-line', label: 'Programmes' },
   { key: 'reminders', icon: 'ri-capsule-line', label: 'Rappels' },
   { key: 'meals', icon: 'ri-restaurant-line', label: 'Repas' },
-  { key: 'subscription', icon: 'ri-vip-crown-line', label: 'Abo' },
   { key: 'messages', icon: 'ri-chat-3-line', label: 'Messages' },
   { key: 'bilans', icon: 'ri-bar-chart-box-line', label: 'Bilans' },
 ];
@@ -887,9 +886,6 @@ export default function ProSpace({ token, user }: { token: string; user: any }) 
 
         {/* ═══ BILANS TAB ═══ */}
         {activeTab === 'bilans' && <BilansTab token={token} activeBen={activeBen} activeBenData={activeBenData} />}
-
-        {/* ═══ SUBSCRIPTION TAB ═══ */}
-        {activeTab === 'subscription' && <SubscriptionTab token={token} activeBen={activeBen} activeBenData={activeBenData} />}
 
         {/* ═══ MESSAGES TAB ═══ */}
         {activeTab === 'messages' && <MessagesTab token={token} activeBen={activeBen} activeBenData={activeBenData} />}

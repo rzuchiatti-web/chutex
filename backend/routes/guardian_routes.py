@@ -387,8 +387,19 @@ async def create_prescription(data: PrescriptionCreate, user=Depends(get_current
     now = datetime.now(timezone.utc).isoformat()
     structure = user.get('prescriber_structure', user.get('structure_name', 'Chutex'))
     full_name = f"{data.beneficiary_first_name} {data.beneficiary_name}".strip() if data.beneficiary_first_name else data.beneficiary_name
-    plan_label = "Bracelet Elio (Chutex Care)" if data.subscription_type == "bracelet" else "Bracelet Elio + Gilet Elder (Chutex Care)"
-    price = 39.90 if data.subscription_type == "bracelet" else 79.90
+    # Determine plan label and price based on subscription type
+    if data.subscription_type == "sport":
+        plan_label = "Abonnement Sport (Chutex Care)"
+        price = 89.00
+    elif data.subscription_type == "physio":
+        plan_label = "Abonnement Physio (Chutex Care)"
+        price = 89.00
+    elif data.subscription_type == "bracelet_gilet":
+        plan_label = "Bracelet Elio + Gilet Elder (Chutex Care)"
+        price = 79.90
+    else:
+        plan_label = "Bracelet Elio (Chutex Care)"
+        price = 39.90
     next_month = (datetime.now(timezone.utc).replace(day=1) + timedelta(days=32)).replace(day=1)
     p = {
         "id": str(uuid.uuid4()), "guardian_id": user['id'], "guardian_name": user['name'],
@@ -406,9 +417,10 @@ async def create_prescription(data: PrescriptionCreate, user=Depends(get_current
     await db.prescriptions.insert_one(p)
     # Send SMS to beneficiary
     sub_link = "https://supplement-prescribe.preview.emergentagent.com/subscription"
+    sms_label = "a l'abonnement sport Chutex Care" if data.subscription_type == "sport" else "a l'abonnement physio Chutex Care" if data.subscription_type == "physio" else "a la teleassistance Chutex Care"
     await send_sms(
         cleaned_phone,
-        f"Bonjour {full_name}, {structure} vous invite a souscrire a la teleassistance Chutex Care. Souscrivez ici : {sub_link}"
+        f"Bonjour {full_name}, {structure} vous invite a souscrire {sms_label}. Souscrivez ici : {sub_link}"
     )
     # Send SMS to guardian/aidant contact if provided
     if data.guardian_contact_phone and data.guardian_contact_phone.strip():

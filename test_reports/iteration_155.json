@@ -1,0 +1,93 @@
+{
+  "summary": "Iteration 155: Backend testing for updated prescription system with sport/physio types and messaging. All 11 tests passed. Verified: sport/physio prescriptions at 89€, bracelet at 39.90€, bracelet_gilet at 79.90€, commission 44€ for sport/physio, messaging API working.",
+  "backend_issues": {
+    "critical": [],
+    "minor": []
+  },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_prescription_sport_physio.py",
+    "/app/test_reports/pytest/pytest_results_iter155_prescription_sport_physio.xml"
+  ],
+  "action_items": [],
+  "critical_code_review_comments": [],
+  "updated_files": [
+    "/app/backend/tests/test_prescription_sport_physio.py"
+  ],
+  "success_rate": {
+    "backend": "100% (11/11 tests passed)"
+  },
+  "test_credentials": {
+    "pro_coach": {
+      "email": "+33655443322",
+      "password": "test123",
+      "is_prescriber": true
+    },
+    "beneficiary": {
+      "email": "0651245918",
+      "password": "test123",
+      "id": "495e5e38-3591-474b-abe5-c932574bb609"
+    }
+  },
+  "seed_data_creation": "Created test prescriptions with sport, physio, bracelet, bracelet_gilet types",
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "Iteration 155 tested the updated prescription system. Backend APIs verified: POST /api/guardian/prescriptions with sport (89€), physio (89€), bracelet (39.90€), bracelet_gilet (79.90€). Commission for sport/physio is 44€. Messaging APIs working: GET /api/pro/conversations, POST /api/pro/messages/{id}, GET /api/pro/unread-count. ProSpace has exactly 5 tabs (Programmes, Rappels, Repas, Messages, Bilans) - no Abo tab. Sport/physio options in PrescriptionManagement.tsx are shown only for professional users.",
+  "features_tested": {
+    "prescription_sport_type": {
+      "endpoint": "POST /api/guardian/prescriptions",
+      "subscription_type": "sport",
+      "expected_price": 89.0,
+      "expected_plan_label": "contains 'Sport'",
+      "status": "PASS"
+    },
+    "prescription_physio_type": {
+      "endpoint": "POST /api/guardian/prescriptions",
+      "subscription_type": "physio",
+      "expected_price": 89.0,
+      "expected_plan_label": "contains 'Physio'",
+      "status": "PASS"
+    },
+    "prescription_bracelet_type": {
+      "endpoint": "POST /api/guardian/prescriptions",
+      "subscription_type": "bracelet",
+      "expected_price": 39.9,
+      "status": "PASS"
+    },
+    "prescription_bracelet_gilet_type": {
+      "endpoint": "POST /api/guardian/prescriptions",
+      "subscription_type": "bracelet_gilet",
+      "expected_price": 79.9,
+      "status": "PASS"
+    },
+    "commission_calculation": {
+      "sport_physio_commission": "44€ (89€ TTC - 45€ HT)",
+      "status": "PASS"
+    },
+    "messaging_api": {
+      "GET /api/pro/conversations": "PASS",
+      "GET /api/pro/conversations/{beneficiary_id}": "PASS",
+      "POST /api/pro/messages/{conversation_id}": "PASS",
+      "GET /api/pro/messages/{conversation_id}": "PASS",
+      "GET /api/pro/unread-count": "PASS"
+    },
+    "pro_user_is_prescriber": {
+      "user": "+33655443322",
+      "is_prescriber": true,
+      "status": "PASS"
+    },
+    "prospace_tabs": {
+      "expected": ["Programmes", "Rappels", "Repas", "Messages", "Bilans"],
+      "no_abo_tab": true,
+      "status": "VERIFIED in code"
+    },
+    "beneficiary_home_messaging_shortcut": {
+      "shows_when": "proConvo exists or proSub.professional_id exists",
+      "status": "VERIFIED in code"
+    }
+  }
+}

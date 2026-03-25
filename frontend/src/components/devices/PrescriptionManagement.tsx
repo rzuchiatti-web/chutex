@@ -104,6 +104,7 @@ function PrescriptionManagement({ token, user }: { token: string; user: any }) {
   const isMonthlyG = saadCommType === 'monthly';
   const commLabelG = isMonthlyG ? '/mois' : '';
   const getCommission = (p: any) => {
+    if (p.subscription_type === 'sport' || p.subscription_type === 'physio') return 44;  // 89€ TTC - 45€ HT = 44€ commission
     if (saadCommType === 'oneshot') return p.subscription_type === 'bracelet_gilet' ? 200 : 100;
     return p.subscription_type === 'bracelet_gilet' ? 15 : 8;
   };
@@ -410,14 +411,14 @@ function PrescriptionManagement({ token, user }: { token: string; user: any }) {
         <div style={{ flex: 1, overflowY: 'auto', position: 'relative', zIndex: 5, padding: '16px 20px 100px', WebkitOverflowScrolling: 'touch' } as any} data-animate>
           <div style={{ textAlign: 'center', marginBottom: 20 } as any}>
             <div style={{ fontSize: 26, fontWeight: 800, color: '#FFF', marginBottom: 4 }}>Prescription</div>
-            <div style={{ fontSize: 14, color: 'rgba(255,255,255,0.6)' }}>{selectedPresc.subscription_type === 'bracelet_gilet' ? 'Bracelet Elio + Gilet Elder — 79,90€/mois' : 'Bracelet Elio — 39,90€/mois'}</div>
+            <div style={{ fontSize: 14, color: 'rgba(255,255,255,0.6)' }}>{selectedPresc.subscription_type === 'sport' ? 'Abo Sport — 89€/mois' : selectedPresc.subscription_type === 'physio' ? 'Abo Physio — 89€/mois' : selectedPresc.subscription_type === 'bracelet_gilet' ? 'Bracelet Elio + Gilet Elder — 79,90€/mois' : 'Bracelet Elio — 39,90€/mois'}</div>
             <div style={{ fontSize: 48, fontWeight: 900, color: '#FFF', letterSpacing: -2, marginTop: 8 }}>+{selectedPresc.commission || getCommission(selectedPresc)}EUR{commLabelG}</div>
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginBottom: 12 } as any}>
             {[
               { label: 'Beneficiaire', value: selectedPresc.beneficiary_name || '-' },
               { label: 'Statut', value: isValidated ? 'Valide' : 'En attente' },
-              { label: 'Type', value: selectedPresc.subscription_type === 'bracelet_gilet' ? 'Bracelet + Gilet Elder' : 'Bracelet Elio' },
+              { label: 'Type', value: selectedPresc.subscription_type === 'sport' ? 'Abo Sport' : selectedPresc.subscription_type === 'physio' ? 'Abo Physio' : selectedPresc.subscription_type === 'bracelet_gilet' ? 'Bracelet + Gilet Elder' : 'Bracelet Elio' },
               { label: 'Paiement', value: isValidated ? 'Au 1er du mois' : 'Apres validation' },
               { label: 'Date', value: selectedPresc.created_at ? new Date(selectedPresc.created_at).toLocaleString('fr-FR', { day: '2-digit', month: '2-digit', year: 'numeric' }) : '-' },
               { label: 'Commission', value: `+${selectedPresc.commission || getCommission(selectedPresc)} EUR` },
@@ -503,7 +504,7 @@ function PrescriptionManagement({ token, user }: { token: string; user: any }) {
           {displayedPresc.map(p => (
             <div key={p.id} onClick={() => setSelectedPresc(p)} style={{ borderRadius: 20, padding: '18px 16px', marginBottom: 12, cursor: 'pointer', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)' } as any} data-glass-card>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 6 } as any}>
-                <div><div style={{ fontSize: 16, fontWeight: 800, color: '#FFF' }}>{p.beneficiary_name}</div><div style={{ fontSize: 11, color: 'rgba(255,255,255,0.5)' }}>{p.subscription_type === 'bracelet_gilet' ? 'Bracelet + Gilet Elder' : 'Bracelet Elio'}</div></div>
+                <div><div style={{ fontSize: 16, fontWeight: 800, color: '#FFF' }}>{p.beneficiary_name}</div><div style={{ fontSize: 11, color: 'rgba(255,255,255,0.5)' }}>{p.subscription_type === 'sport' ? 'Abo Sport · 89€/mois' : p.subscription_type === 'physio' ? 'Abo Physio · 89€/mois' : p.subscription_type === 'bracelet_gilet' ? 'Bracelet + Gilet Elder' : 'Bracelet Elio'}</div></div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '4px 10px', borderRadius: 999, background: (p.status === 'subscribed' || p.status === 'validated' || p.status === 'contract_created') ? 'rgba(16,185,129,0.15)' : 'rgba(245,158,11,0.15)', flexShrink: 0 } as any}><span style={{ width: 6, height: 6, borderRadius: 3, background: (p.status === 'subscribed' || p.status === 'validated' || p.status === 'contract_created') ? '#10B981' : '#F59E0B' } as any} /><span style={{ fontSize: 10, fontWeight: 600, color: '#FFF' }}>{(p.status === 'subscribed' || p.status === 'validated' || p.status === 'contract_created') ? 'Validee' : 'En cours'}</span></div>
               </div>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' } as any}><div style={{ fontSize: 18, fontWeight: 900, color: '#FFF' }}>+{p.commission || getCommission(p)}EUR${commLabelG}</div><div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: 'rgba(255,255,255,.12)', borderRadius: 999, padding: '8px 16px' } as any}><i className="ri-heart-line" style={{ fontSize: 14, color: '#FFF' }} /><span style={{ fontSize: 13, fontWeight: 600, color: '#FFF' }}>Consulter</span></div></div>
@@ -613,11 +614,19 @@ function PrescriptionManagement({ token, user }: { token: string; user: any }) {
               </div>
 
               <div style={{ fontSize: 9, fontWeight: 600, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 8 }}>Type d'abonnement</div>
-              <div style={{ display: 'flex', gap: 10, marginBottom: 20 } as any}>
+              <div style={{ display: 'flex', gap: 10, marginBottom: 10, flexWrap: 'wrap' } as any}>
                 {[{k:'bracelet', l:'Bracelet Elio', p:'39,90€/mois'}, {k:'bracelet_gilet', l:'Bracelet + Gilet Elder', p:'79,90€/mois'}].map(t => (
-                  <div key={t.k} onClick={() => setFormData({ ...formData, type: t.k })} style={{ flex: 1, padding: '12px', borderRadius: 999, textAlign: 'center', cursor: 'pointer', border: `1.5px solid ${formData.type === t.k ? '#FFF' : 'rgba(255,255,255,0.1)'}`, background: formData.type === t.k ? 'rgba(255,255,255,0.15)' : 'transparent', color: formData.type === t.k ? '#FFF' : 'rgba(255,255,255,0.5)', fontSize: 12, fontWeight: 600, transition: 'all 0.2s' } as any}><div>{t.l}</div><div style={{ fontSize: 10, marginTop: 2, color: formData.type === t.k ? '#10B981' : 'rgba(255,255,255,0.3)' }}>{t.p}</div></div>
+                  <div key={t.k} onClick={() => setFormData({ ...formData, type: t.k })} style={{ flex: 1, minWidth: 120, padding: '12px', borderRadius: 999, textAlign: 'center', cursor: 'pointer', border: `1.5px solid ${formData.type === t.k ? '#FFF' : 'rgba(255,255,255,0.1)'}`, background: formData.type === t.k ? 'rgba(255,255,255,0.15)' : 'transparent', color: formData.type === t.k ? '#FFF' : 'rgba(255,255,255,0.5)', fontSize: 12, fontWeight: 600, transition: 'all 0.2s' } as any}><div>{t.l}</div><div style={{ fontSize: 10, marginTop: 2, color: formData.type === t.k ? '#10B981' : 'rgba(255,255,255,0.3)' }}>{t.p}</div></div>
                 ))}
               </div>
+              {(user?.role === 'professional' || user?.active_role === 'professional') && (
+                <div style={{ display: 'flex', gap: 10, marginBottom: 20 } as any}>
+                  {[{k:'sport', l:'Abo Sport', p:'89€/mois', icon: 'ri-run-line', c: '#3B82F6'}, {k:'physio', l:'Abo Physio', p:'89€/mois', icon: 'ri-stethoscope-line', c: '#10B981'}].map(t => (
+                    <div key={t.k} onClick={() => setFormData({ ...formData, type: t.k })} data-testid={`sub-type-${t.k}`} style={{ flex: 1, padding: '12px', borderRadius: 999, textAlign: 'center', cursor: 'pointer', border: `1.5px solid ${formData.type === t.k ? t.c : 'rgba(255,255,255,0.1)'}`, background: formData.type === t.k ? `${t.c}20` : 'transparent', color: formData.type === t.k ? t.c : 'rgba(255,255,255,0.5)', fontSize: 12, fontWeight: 600, transition: 'all 0.2s' } as any}><div>{t.l}</div><div style={{ fontSize: 10, marginTop: 2, color: formData.type === t.k ? t.c : 'rgba(255,255,255,0.3)' }}>{t.p}</div></div>
+                  ))}
+                </div>
+              )}
+              {!(user?.role === 'professional' || user?.active_role === 'professional') && <div style={{ marginBottom: 20 }} />}
               <div onClick={() => { if (!submitting) submitPrescription(); }} data-testid="submit-prescription-btn" style={{ padding: '16px', borderRadius: 999, textAlign: 'center', cursor: submitting ? 'not-allowed' : 'pointer', background: 'rgba(255,255,255,0.15)', border: '1px solid rgba(255,255,255,0.2)', color: '#FFF', fontSize: 15, fontWeight: 700, transition: 'all 0.2s' } as any}
                 onMouseEnter={(e: any) => { e.currentTarget.style.background = 'rgba(255,255,255,0.25)'; }}
                 onMouseLeave={(e: any) => { e.currentTarget.style.background = 'rgba(255,255,255,0.15)'; }}>
@@ -736,7 +745,7 @@ function PrescriptionManagement({ token, user }: { token: string; user: any }) {
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 8 } as any}>
                   <div>
                     <div style={{ fontSize: 18, fontWeight: 800, color: '#FFF' }}>{p.beneficiary_name}</div>
-                    <div style={{ fontSize: 12, color: 'rgba(255,255,255,.7)', marginTop: 2 }}>{p.subscription_type === 'teleassistance' ? 'Abonnement teleassistance' : `Abonnement ${p.subscription_type || 'Standard'}`}</div>
+                    <div style={{ fontSize: 12, color: 'rgba(255,255,255,.7)', marginTop: 2 }}>{p.subscription_type === 'sport' ? 'Abonnement Sport · 89€/mois' : p.subscription_type === 'physio' ? 'Abonnement Physio · 89€/mois' : p.subscription_type === 'teleassistance' ? 'Abonnement teleassistance' : `Abonnement ${p.subscription_type || 'Standard'}`}</div>
                   </div>
                   <div style={{ background: 'rgba(255,255,255,.2)', borderRadius: 12, padding: '6px 12px', backdropFilter: 'blur(6px)', border: '1px solid rgba(255,255,255,.2)' } as any}>
                     <span style={{ fontSize: 15, fontWeight: 800, color: '#FFF' }}>+{p.commission || getCommission(p)}EUR{commLabelG}</span>
