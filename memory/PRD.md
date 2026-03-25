@@ -1,79 +1,72 @@
 # Chutex Care Watch - PRD
 
-## Vision Produit
-Application de suivi santé connecté pour seniors/personnes à risque, avec gardiens et professionnels de santé.
+## Vision
+Application full-stack (React Native Web + FastAPI + MongoDB) de teleassistance et suivi sante pour personnes agees, avec systeme de roles (Beneficiaire, Gardien, Professionnel/Coach/Physio, Admin, SAAD).
 
-## Rôles
-- **Bénéficiaire** : Patient porteur de la montre
-- **Gardien** : Famille/proche qui surveille
-- **Professionnel (Coach/Kiné)** : Gardien enrichi avec outils de prescription
+## Architecture Principale
+- **Frontend**: React Native (Expo) Web
+- **Backend**: FastAPI + MongoDB (DB: `vitallink_db`)
+- **Integrations**: Mollie (paiements), OpenAI GPT-4o (bilans IA Nora), SMSMode (SMS)
 
-## Architecture
-- Frontend: Expo React Native Web
-- Backend: FastAPI + MongoDB (vitallink_db)
-- IA: GPT-5.2 via Emergent LLM Key (Nora)
-- Paiement: Mollie (clés test + live)
+## Roles & Acces
+| Role | Description |
+|------|-------------|
+| Beneficiaire | Patient suivi, acces sante, programmes |
+| Gardien | Aidant, acces variable selon attributs |
+| Gardien Coach | Gardien avec `professional_type: 'coach'` - acces programmes, prescriptions, messages |
+| Gardien Physio | Gardien avec `professional_type: 'physio'` - idem + ADELI/RPPS |
+| SAAD | Structure d'aide a domicile |
+| Admin | Back-office complet |
+| Teleassistance | Centre d'appels |
 
-## Fonctionnalités Implémentées
+## Navbar Gardien Dynamique
+| Onglet | Condition |
+|--------|-----------|
+| Accueil | Toujours |
+| Activite | Toujours (Programmes, Rappels, Repas, Bilans) |
+| Intervention Care | Si `saad_company_id` existe |
+| Prescriptions | Si SAAD ou coach/physio |
+| Messages | Si coach ou physio uniquement |
+| Plus/Profil | Toujours |
 
-### Core App (DONE)
-- Onboarding, auth, dashboard bénéficiaire/gardien
-- Chat IA Nora, rappels, programme minceur, téléconsultation
-- J2358 TCP Server montre connectée
+## Fonctionnalites Implementees
 
-### Module Pro - Phase 1+2 (DONE)
-- Rôle professional, dashboard = GuardianHome enrichi
-- ProSpace : programmes + exercices
+### Phase 1-3 : Module Professionnel
+- Programmes d'exercices (CRUD)
+- Rappels (complements, hydratation)
+- Plans de repas
+- Bilans IA Nora
 
-### Module Pro - Phase 3 (DONE)
-- Rappels Pro (compléments/hydratation) → rappels existants bénéficiaire
-- Repas Pro : CRUD repas patient
-- Exercices prescrits dans page activité + validation
-- Bilans Nora (hebdo/mensuel via GPT)
+### Phase 4-6 : Abonnements & Messagerie
+- Prescription d'abonnements Sport/Physio (89EUR/mois)
+- Integration Mollie pour paiements
+- Messagerie Pro-Beneficiaire
 
-### Module Pro - Phase 4 : Abonnements via Prescription (DONE - 25/03/2026)
-- Types d'abonnement dans la page PRESCRIPTION existante :
-  - Bracelet Elio : 39,90€/mois
-  - Bracelet + Gilet Elder : 79,90€/mois
-  - **Sport : 89€/mois TTC (45€ HT)** — NOUVEAU
-  - **Physio : 89€/mois TTC (45€ HT)** — NOUVEAU
-- Commission plateforme sport/physio : 44€/transaction
-- Le pro utilise la page prescription (pas un onglet séparé)
-- SMS et email adapté au type d'abonnement
+### Espace Gardien Unifie (25 Mars 2026)
+- **Mode light par defaut** sur toute l'app
+- **Navbar dynamique** basee sur les attributs du gardien
+- **Landing pages** "Devenir Coach" et "Devenir Physio" (formulaire multi-step + signature de contrat)
+- **Auto-validation** des candidatures (SMS + email de confirmation)
+- **Activation automatique** du `professional_type` a l'inscription gardien si candidature approuvee
+- **Refonte ProSpace** en mode light avec header et image de fond
 
-### Module Pro - Phase 5 : Paiements Mollie (DONE - 25/03/2026)
-- Intégration Mollie complète (test + live keys)
-- Création paiement, webhook, abonnement récurrent mensuel
-- Historique paiements, simulation pour tests
-- Email Mollie fix (format valide pour numéros de téléphone)
+## Credentials de Test
+- Beneficiaire: `+33651245918` / `test123`
+- Gardien Coach: `+33655443322` / `test123`
+- Gardien standard: `+33612345678` / `test123`
 
-### Module Pro - Phase 6 : Messagerie (DONE - 25/03/2026)
-- Chat texte Pro ↔ Bénéficiaire avec polling (4-5s)
-- Compteur messages non lus
-- ProSpace : 5 onglets (Programmes, Rappels, Repas, Messages, Bilans)
-- Page dédiée côté bénéficiaire (pro-chat.tsx)
-- Raccourci messagerie sur dashboard bénéficiaire
+## Schema BDD cle
+- `users`: role, professional_type, saad_company_id, is_prescriber
+- `pro_applications`: candidatures coach/physio (type, status, phone, diplomes, contrat signe)
+- `prescriptions`: types standard, sport, physio
+- `pro_subscriptions`: abonnements Pro avec Mollie
 
-### Autorisations Partage Santé (DONE)
-- Bénéficiaire choisit all/vitals_only/none
-
-## Tâches à Venir (Backlog P2)
-- Intégration Balance & Gilet connecté
-- Système Signature Électronique
-- Parrainage Gardiens
-- Essai gratuit 7 jours
-- Intégration test urinaire Vivoo
-- Validation CRC32 J2358 TCP (BLOQUÉ)
-
-## Fichiers Clés
-- `/app/backend/routes/professional_routes.py` : Programmes, rappels, repas, bilans
-- `/app/backend/routes/pro_subscription_routes.py` : Mollie + Messagerie
-- `/app/backend/routes/guardian_routes.py` : Prescriptions (sport/physio)
-- `/app/frontend/src/components/dashboard/ProSpace.tsx` : 5 onglets
-- `/app/frontend/src/components/devices/PrescriptionManagement.tsx` : Types sport/physio
-- `/app/frontend/app/pro-chat.tsx` : Chat bénéficiaire
-
-## Identifiants de Test
-- Bénéficiaire: `0651245918` / `test123`
-- Gardien: `+33612345678` / `test123`
-- Pro (Coach): `+33655443322` / `test123` (is_prescriber=true)
+## Taches Futures (Backlog)
+- P1: Tableau de bord des revenus administrateur
+- P2: Integration balance et gilet connectes
+- P2: Systeme de signature electronique (documents Admin)
+- P2: Systeme de parrainage Gardiens
+- P2: Flux d'essai gratuit 7 jours
+- P2: Integration test urinaire Vivoo
+- BLOQUE: Validation CRC32 serveur TCP J2358
+- P2: Gestion paiement Mollie pour Coach/Physio (configurer, modifier)
