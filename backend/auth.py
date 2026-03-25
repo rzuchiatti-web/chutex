@@ -15,6 +15,7 @@ SAFE_FIELDS = [
     'latitude', 'longitude', 'prescriber_company_id', 'agency_id', 'saad_company_id', 'saad_company_name',
     'pacemaker', 'stents', 'thyroid', 'had_avc', 'other_condition', 'surgeries', 'nora_welcome_seen',
     'activation_code', 'intervention_code', 'stripe_account_id', 'commission_type', 'onboarding_completed',
+    'professional_type',
 ]
 
 

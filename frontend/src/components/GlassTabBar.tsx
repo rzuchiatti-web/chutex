@@ -1,5 +1,6 @@
 import React from 'react';
 import { useRouter } from 'expo-router';
+import { useAuth } from '../context/AuthContext';
 
 const NORA_VIDEO = 'https://customer-assets.emergentagent.com/job_ba3a5789-c8f1-4b12-b5d8-478a7f99aaea/artifacts/b6eh1r76_Nora_video.mp4';
 
@@ -9,23 +10,33 @@ export interface TabConfig {
   label: string;
 }
 
+function getGuardianTabs(user: any): TabConfig[] {
+  const tabs: TabConfig[] = [
+    { key: 'index', icon: 'ri-home-smile-2-fill', label: 'Accueil' },
+    { key: 'health', icon: 'ri-run-fill', label: 'Activite' },
+  ];
+  const hasSaad = !!user?.saad_company_id;
+  const proType = user?.professional_type;
+  const isCoachOrPhysio = proType === 'coach' || proType === 'physio';
+
+  if (hasSaad) {
+    tabs.push({ key: 'teleconsult', icon: 'ri-service-fill', label: 'Care' });
+  }
+  if (hasSaad || isCoachOrPhysio) {
+    tabs.push({ key: 'devices', icon: 'ri-file-list-3-fill', label: 'Prescriptions' });
+  }
+  if (isCoachOrPhysio) {
+    tabs.push({ key: 'alerts', icon: 'ri-chat-3-fill', label: 'Messages' });
+  }
+  tabs.push({ key: 'profile', icon: 'ri-menu-3-fill', label: 'Plus' });
+  return tabs;
+}
+
 export const TAB_CONFIGS: Record<string, TabConfig[]> = {
   beneficiary: [
     { key: 'index', icon: 'ri-home-smile-2-fill', label: 'Accueil' },
     { key: 'health', icon: 'ri-heart-pulse-fill', label: 'Sante' },
     { key: 'chat', icon: 'ri-dna-fill', label: 'Programmes' },
-    { key: 'profile', icon: 'ri-menu-3-fill', label: 'Plus' },
-  ],
-  guardian: [
-    { key: 'index', icon: 'ri-home-smile-2-fill', label: 'Accueil' },
-    { key: 'teleconsult', icon: 'ri-service-fill', label: 'Interventions' },
-    { key: 'devices', icon: 'ri-file-list-3-fill', label: 'Prescriptions' },
-    { key: 'profile', icon: 'ri-menu-3-fill', label: 'Plus' },
-  ],
-  professional: [
-    { key: 'index', icon: 'ri-home-smile-2-fill', label: 'Accueil' },
-    { key: 'teleconsult', icon: 'ri-calendar-check-fill', label: 'Programmes' },
-    { key: 'devices', icon: 'ri-file-list-3-fill', label: 'Prescriptions' },
     { key: 'profile', icon: 'ri-menu-3-fill', label: 'Plus' },
   ],
   teleassistance: [
@@ -51,21 +62,22 @@ interface GlassTabBarProps {
 
 export default function GlassTabBar({ state, navigation, role, showNora = true }: GlassTabBarProps) {
   const router = useRouter();
-  const [isDark, setIsDark] = React.useState(true);
+  const { user } = useAuth();
+  const [isDark, setIsDark] = React.useState(false);
 
   React.useEffect(() => {
     if (typeof localStorage !== 'undefined') {
-      const check = () => setIsDark(localStorage.getItem('chutex_dark') !== '0');
+      const check = () => setIsDark(localStorage.getItem('chutex_dark') === '1');
       check();
       const iv = setInterval(check, 500);
       return () => clearInterval(iv);
     }
   }, []);
 
-  const tabs = TAB_CONFIGS[role] || TAB_CONFIGS.beneficiary;
+  const isGuardian = role === 'guardian' || role === 'professional';
+  const tabs = isGuardian ? getGuardianTabs(user) : (TAB_CONFIGS[role] || TAB_CONFIGS.beneficiary);
   const currentRoute = state?.routes?.[state.index]?.name || '';
 
-  // Cleanup any lingering injected style overrides from removed components
   React.useEffect(() => {
     if (typeof document !== 'undefined') {
       const stale = document.getElementById('teleconsult-dark-nav');
@@ -73,9 +85,8 @@ export default function GlassTabBar({ state, navigation, role, showNora = true }
     }
   }, [currentRoute]);
 
-  // Force dark navbar on teleconsult for all roles
   const guardianSubPages = ['teleconsult', 'devices', 'alerts'];
-  const forceNavDark = guardianSubPages.includes(currentRoute) || (role === 'guardian' && guardianSubPages.includes(currentRoute));
+  const forceNavDark = guardianSubPages.includes(currentRoute) || (isGuardian && guardianSubPages.includes(currentRoute));
   const navDark = forceNavDark || isDark;
 
   const activeColor = navDark ? '#FFF' : '#111';

@@ -25,7 +25,7 @@ export const ThemeProvider = ({ children }: { children: ReactNode }) => {
 
   useEffect(() => {
     AsyncStorage.getItem('chutex_theme').then((stored) => {
-      if (stored === 'light' || stored === 'dark') setMode(stored);
+      if (stored === 'dark') setMode('dark');
     }).catch(() => {});
   }, []);
 

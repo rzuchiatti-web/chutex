@@ -201,6 +201,16 @@ async def register(data: UserRegister):
             user['prescriber_structure'] = code.get('structure_name', '')
             user['prescriber_code_used'] = data.prescriber_code
             await db.activation_codes.update_one({"code": data.prescriber_code}, {"$inc": {"uses_count": 1}})
+    # Check for approved Coach/Physio application matching phone
+    if data.role == "guardian" and data.phone:
+        phone_clean = data.phone.strip().replace(" ", "").replace(".", "").replace("-", "")
+        if not phone_clean.startswith("+"):
+            phone_clean = "+33" + (phone_clean[1:] if phone_clean.startswith("0") else phone_clean)
+        pro_app = await db.pro_applications.find_one({"phone": phone_clean, "status": "approved"}, {"_id": 0})
+        if pro_app:
+            user['professional_type'] = pro_app['type']
+            user['is_prescriber'] = True
+            await db.pro_applications.update_one({"id": pro_app['id']}, {"$set": {"status": "activated", "activated_user_id": uid, "activated_at": datetime.now(timezone.utc).isoformat()}})
     await db.users.insert_one(user)
     # Auto-generate activation + intervention codes for SAAD
     if data.role == "prescriber_company":

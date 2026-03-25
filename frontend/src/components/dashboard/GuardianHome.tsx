@@ -80,8 +80,8 @@ export default function GuardianHome({ token, user }: { token: string; user: any
   const [linkingBen, setLinkingBen] = useState(false);
   const [linkMessage, setLinkMessage] = useState('');
   const [isDark, setIsDark] = React.useState(() => {
-    if (typeof localStorage !== 'undefined') return localStorage.getItem('chutex_dark') !== '0';
-    return true;
+    if (typeof localStorage !== 'undefined') return localStorage.getItem('chutex_dark') === '1';
+    return false;
   });
   const toggleTheme = () => {
     setIsDark(prev => {

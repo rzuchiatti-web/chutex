@@ -83,7 +83,10 @@ export default function HealthScreen() {
   const effectiveRole = user?.active_role || user?.role;
   if (effectiveRole === 'admin' && token) return <AdminClients token={token} />;
   if (effectiveRole === 'prescriber_company' && token) return <CompanyAgences token={token} />;
-
+  if ((effectiveRole === 'guardian' || effectiveRole === 'professional') && token) {
+    const ProSpace = require('../../src/components/dashboard/ProSpace').default;
+    return <ProSpace token={token} user={user} />;
+  }
   const BG_DARK = 'https://customer-assets.emergentagent.com/job_9950a869-9328-4a4b-abf4-a6fb213a3b47/artifacts/iklovqya_background_beneficiary.svg';
   const PROGRESS_BG = 'https://customer-assets.emergentagent.com/job_92308143-f99e-4bad-8264-e3775a214313/artifacts/jai7cybu_background_progressbar.jpg';
 
