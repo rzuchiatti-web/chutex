@@ -129,13 +129,14 @@ export default function ProSpace({ token, user }: { token: string; user: any }) 
             <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.55)', marginBottom: 18 }}>{bens.length} {patientSingle}{bens.length !== 1 ? 's' : ''}</div>
 
             {/* ── PILL TABS ── */}
-            <div data-testid="space-tabs" style={{ display: 'inline-flex', borderRadius: 999, background: 'rgba(0,0,0,0.2)', padding: 3, gap: 3 } as any}>
+            <div data-testid="space-tabs" style={{ display: 'inline-flex', borderRadius: 999, padding: 3, gap: 6 } as any}>
               {(['patients', 'library'] as const).map(t => (
                 <div key={t} data-testid={`tab-${t === 'patients' ? 'patients' : 'library'}`} onClick={() => setTab(t)}
-                  style={{ padding: '9px 24px', borderRadius: 999, cursor: 'pointer', fontSize: 13, fontWeight: 700, transition: 'all 0.2s',
-                    background: tab === t ? '#FFF' : 'transparent',
-                    color: tab === t ? '#111' : 'rgba(255,255,255,0.55)',
-                    boxShadow: tab === t ? '0 2px 8px rgba(0,0,0,0.1)' : 'none',
+                  style={{ padding: '9px 22px', borderRadius: 999, cursor: 'pointer', fontSize: 13, fontWeight: 700, transition: 'all 0.2s',
+                    background: '#FFF',
+                    border: `1.5px solid ${tab === t ? AC : 'rgba(255,255,255,0.25)'}`,
+                    color: tab === t ? AC : '#9CA3AF',
+                    boxShadow: tab === t ? `0 2px 8px ${AC}25` : 'none',
                   } as any}>
                   {t === 'patients' ? patientLabel : 'Bibliotheque'}
                 </div>
@@ -144,9 +145,9 @@ export default function ProSpace({ token, user }: { token: string; user: any }) 
 
             {/* ── BENEFICIARY SELECTOR IN HEADER ── */}
             {tab === 'patients' && bens.length > 0 && (
-              <div style={{ marginTop: 18, width: '100%', maxWidth: 360, position: 'relative' } as any}>
+              <div style={{ marginTop: 18, width: '100%', maxWidth: 360 } as any}>
                 <div data-testid="ben-selector" onClick={() => setBenDropdown(!benDropdown)}
-                  style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 16px', borderRadius: 999, background: 'rgba(255,255,255,0.12)', border: '1px solid rgba(255,255,255,0.18)', cursor: 'pointer', backdropFilter: 'blur(8px)' } as any}>
+                  style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 16px', borderRadius: 16, background: 'rgba(255,255,255,0.12)', border: '1px solid rgba(255,255,255,0.18)', cursor: 'pointer', backdropFilter: 'blur(8px)' } as any}>
                   <div style={{ width: 32, height: 32, borderRadius: '50%', background: '#FFF', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}>
                     <span style={{ fontSize: 14, fontWeight: 800, color: AC }}>{(activeBenData?.name || '?')[0]}</span>
                   </div>
@@ -156,10 +157,10 @@ export default function ProSpace({ token, user }: { token: string; user: any }) 
                   <i className={`ri-arrow-${benDropdown ? 'up' : 'down'}-s-line`} style={{ fontSize: 18, color: 'rgba(255,255,255,0.6)' }} />
                 </div>
                 {benDropdown && (
-                  <div style={{ position: 'absolute', top: '110%', left: 0, right: 0, borderRadius: 18, background: 'rgba(20,20,30,0.9)', backdropFilter: 'blur(24px)', border: '1px solid rgba(255,255,255,0.12)', boxShadow: '0 12px 40px rgba(0,0,0,0.3)', zIndex: 100, overflow: 'hidden', padding: 4 } as any}>
+                  <div style={{ marginTop: 8, borderRadius: 16, background: 'rgba(255,255,255,0.1)', backdropFilter: 'blur(16px)', border: '1px solid rgba(255,255,255,0.15)', overflow: 'hidden', maxHeight: 240, overflowY: 'auto', WebkitOverflowScrolling: 'touch' } as any}>
                     {bens.map(b => (
                       <div key={b.id} onClick={() => { setActiveBen(b.id); setBenDropdown(false); }}
-                        style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 14px', borderRadius: 14, cursor: 'pointer', background: b.id === activeBen ? 'rgba(255,255,255,0.08)' : 'transparent', transition: 'background 0.15s' } as any}>
+                        style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 14px', cursor: 'pointer', background: b.id === activeBen ? 'rgba(255,255,255,0.1)' : 'transparent', transition: 'background 0.15s', borderBottom: '1px solid rgba(255,255,255,0.06)' } as any}>
                         <div style={{ width: 34, height: 34, borderRadius: '50%', background: b.id === activeBen ? AC : 'rgba(255,255,255,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}>
                           <span style={{ fontSize: 13, fontWeight: 800, color: b.id === activeBen ? '#FFF' : 'rgba(255,255,255,0.5)' }}>{(b.name || '?')[0]}</span>
                         </div>
