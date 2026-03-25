@@ -116,9 +116,12 @@ function HorizontalCalendar({ selectedDate, onSelect, accent, completedDates }: 
             <div key={ds} data-testid={`cal-day-${ds}`} onClick={() => onSelect(d)}
               style={{
                 minWidth: 48, padding: '8px 4px 10px', borderRadius: 14, textAlign: 'center', cursor: 'pointer',
-                background: isSelected ? accent : isToday ? 'rgba(255,255,255,0.12)' : 'rgba(255,255,255,0.04)',
-                border: isSelected ? `2px solid ${accent}` : isToday ? '2px solid rgba(255,255,255,0.2)' : '2px solid transparent',
-                transition: 'all 0.2s', flexShrink: 0,
+                background: isSelected ? 'rgba(255,255,255,0.18)' : isToday ? 'rgba(255,255,255,0.08)' : 'rgba(255,255,255,0.03)',
+                backdropFilter: isSelected ? 'blur(16px)' : 'none',
+                WebkitBackdropFilter: isSelected ? 'blur(16px)' : 'none',
+                border: isSelected ? '1.5px solid rgba(255,255,255,0.35)' : isToday ? '1.5px solid rgba(255,255,255,0.15)' : '1.5px solid transparent',
+                boxShadow: isSelected ? '0 4px 16px rgba(0,0,0,0.15), inset 0 1px 0 rgba(255,255,255,0.15)' : 'none',
+                transition: 'all 0.25s ease', flexShrink: 0,
               } as any}>
               <div style={{ fontSize: 9, fontWeight: 700, color: isSelected ? '#FFF' : 'rgba(255,255,255,0.35)', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 4 }}>
                 {DAYS_SHORT[dayIdx]}
@@ -439,8 +442,8 @@ export default function ProSpace({ token, user }: { token: string; user: any }) 
                   <span style={{ fontSize: 11, fontWeight: 600, color: '#9CA3AF', background: '#E5E7EB', padding: '2px 8px', borderRadius: 999 }}>{filteredExercises.length}</span>
                 </div>
                 <div data-testid="cat-add-exercices" onClick={() => { setModal('assign-ex'); setModalCtx(null); }}
-                  style={{ width: 32, height: 32, borderRadius: '50%', background: AC, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', boxShadow: `0 2px 8px ${AC}30` } as any}>
-                  <i className="ri-add-line" style={{ fontSize: 18, color: '#FFF' }} />
+                  style={{ width: 34, height: 34, borderRadius: 999, background: 'rgba(255,255,255,0.65)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)', border: '1px solid rgba(0,0,0,0.06)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', boxShadow: '0 2px 8px rgba(0,0,0,0.06)' } as any}>
+                  <i className="ri-add-line" style={{ fontSize: 18, color: '#374151' }} />
                 </div>
               </div>
 
@@ -493,14 +496,14 @@ export default function ProSpace({ token, user }: { token: string; user: any }) 
                       </div>
                     )}
                     {/* Actions */}
-                    <div style={{ display: 'flex', gap: 4, flexShrink: 0 } as any}>
+                    <div style={{ display: 'flex', gap: 6, flexShrink: 0 } as any}>
                       <div data-testid={`edit-exercise-${ex.id}`} onClick={(e: any) => { e.stopPropagation(); setEditExForm({ ...ex }); setModal('edit-assigned'); }}
-                        style={{ width: 28, height: 28, borderRadius: 8, background: `${AC}10`, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}>
-                        <i className="ri-pencil-line" style={{ fontSize: 13, color: AC }} />
+                        style={{ width: 32, height: 32, borderRadius: 999, background: 'rgba(255,255,255,0.65)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)', border: '1px solid rgba(0,0,0,0.06)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', boxShadow: '0 2px 8px rgba(0,0,0,0.06)' } as any}>
+                        <i className="ri-pencil-line" style={{ fontSize: 14, color: '#374151' }} />
                       </div>
                       <div onClick={(e: any) => { e.stopPropagation(); deleteAssignedExercise(ex.id); }}
-                        style={{ width: 28, height: 28, borderRadius: 8, background: 'rgba(239,68,68,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}>
-                        <i className="ri-delete-bin-6-line" style={{ fontSize: 13, color: '#EF4444' }} />
+                        style={{ width: 32, height: 32, borderRadius: 999, background: 'rgba(239,68,68,0.08)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)', border: '1px solid rgba(239,68,68,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}>
+                        <i className="ri-delete-bin-6-line" style={{ fontSize: 14, color: '#EF4444' }} />
                       </div>
                     </div>
                   </div>
