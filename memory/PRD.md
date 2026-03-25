@@ -1,48 +1,59 @@
 # Chutex Care Watch — PRD
 
-## Concept
-Application mobile-first de sante connectee. Role Gardien avec interface adaptative.
+## Problème original
+Refondre l'espace d'activité (ProSpace) des coachs/gardiens pour la gestion directe d'exercices, rappels/compléments et repas sur-mesure avec assignation par jour de la semaine. Intégrer un calendrier horizontal glassmorphism. Afficher les éléments avec statut de complétion.
 
 ## Architecture
-- Frontend: Expo/React Native (web), Expo Router
-- Backend: FastAPI, MongoDB
-- Integrations: Mollie, OpenAI GPT-4o, Lefu, SMS Mode
+- **Backend**: FastAPI + MongoDB (port 8001)
+- **Frontend**: React Native Web (Expo Router) (port 3000)
+- **Intégrations**: SMS Mode, Mollie, OpenAI GPT-4o (Emergent LLM Key)
 
-## Implemente (Mars 2026)
+## DB Collections principales
+- `pro_exercise_templates`, `assigned_exercises` (jours, reps, rest_time, completed_dates)
+- `pro_reminder_templates`, `pro_assigned_reminders` (jours, time, dosage, image, completions)
+- `pro_meal_templates`, `pro_assigned_meals` (jours, meal_time, image, ingredients, steps, macros, completions)
+- `pro_notifications`: Actions patient → coach
 
-### ProSpace v8 — Exercices + Complements + Repas assignes par jour
-- Calendrier horizontal complet (tous les jours du mois, fleches mois, glass)
-- **Exercices**: Bibliotheque -> Assigner a beneficiaire -> Jours/Series/Reps/Repos
-- **Complements**: Bibliotheque pré-remplie (12 items: creatine, whey, BCAA, omega3, vitD3, magnesium, zinc, multivit, collagene, glutamine, hydratation, pre-workout) -> Assigner -> Jours/Heure/Dosage
-- **Repas**: Bibliotheque pre-remplie (12 items: petitdej proteines, overnight oats, bowl acai, poulet riz, saumon quinoa, salade caesar, steak patate douce, collation post-training, fromage blanc, poisson legumes, omelette du soir, bowl poke) -> Assigner -> Jours/Type de repas
-- Filtrage par jour du calendrier pour exercices, complements ET repas
-- Edition exercices assignes (modale glass)
-- Seed automatique au premier chargement
+## Fichiers clés
+- `/app/frontend/src/components/dashboard/ProSpace.tsx` (Hub coach principal)
+- `/app/frontend/src/components/dashboard/BeneficiaryHome.tsx` (Dashboard patient)
+- `/app/frontend/src/components/dashboard/constants.ts` (REMINDER_IMAGES)
+- `/app/backend/routes/professional_routes.py` (API pro)
+- `/app/frontend/app/meal-detail.tsx` (Fiche repas détaillée)
 
-### Cote Beneficiaire  
-- Dashboard: Section exercices du jour (Fait/Faire)
-- pro-chat: Design identique a ProMessaging
+## Fonctionnalités implémentées
+- [x] Suppression totale de la notion "Programmes"
+- [x] Bibliothèque d'exercices (CRUD) avec seed
+- [x] Assignation exercices par jour + séries/repos
+- [x] Bibliothèque rappels/compléments + assignation par jour
+- [x] Bibliothèque repas + assignation par jour
+- [x] Seed backend enrichi : repas avec images, ingrédients structurés, recettes détaillées, macros complètes
+- [x] Seed backend enrichi : rappels avec images (medication/hydration)
+- [x] Calendrier horizontal glassmorphism (mois complet, flèches navigation)
+- [x] Centrage automatique du calendrier sur le jour J
+- [x] Affichage exercices/rappels/repas du jour avec statut Fait/A faire
+- [x] Images REMINDER_IMAGES dans les compléments
+- [x] Images de repas par type (petit_dejeuner, dejeuner, collation, diner)
+- [x] Bouton sélecteur bénéficiaire glassmorphism
+- [x] Chat WhatsApp-like entre coach et bénéficiaire
+- [x] Exercices du jour sur dashboard bénéficiaire (BeneficiaryHome)
+- [x] assign_meal copie tous les champs (glucides, lipides, steps, notes)
+- [x] assign_reminder copie le champ image
 
-### Backend APIs nouvelles
-| Endpoint | Description |
-|---|---|
-| POST /api/pro/assign-reminder | Assigner complement a beneficiaire |
-| GET /api/pro/assigned-reminders/{benId} | Complements assignes |
-| PUT /api/pro/assigned-reminders/{id} | Modifier complement assigne |
-| DELETE /api/pro/assigned-reminders/{id} | Retirer complement |
-| POST /api/pro/assign-meal | Assigner repas a beneficiaire |
-| GET /api/pro/assigned-meals/{benId} | Repas assignes |
-| DELETE /api/pro/assigned-meals/{id} | Retirer repas |
-| GET /api/pro/beneficiary-today-reminders | Complements du jour (beneficiaire) |
-| GET /api/pro/beneficiary-today-meals | Repas du jour (beneficiaire) |
-| POST /api/pro/seed-templates | Seed bibliotheque (12 complements + 12 repas) |
+## Tâches P1
+- [ ] Tableau de bord revenus admin
 
-## DB Collections
-- pro_exercise_templates, pro_assigned_exercises
-- pro_reminder_templates, pro_assigned_reminders
-- pro_meal_templates, pro_assigned_meals
-- pro_notifications, payment_history
+## Backlog P2
+- [ ] Balance/gilet connectés
+- [ ] Signature électronique
+- [ ] Parrainage Gardiens
+- [ ] Essai gratuit 7 jours
+- [ ] Intégration Vivoo
+- [ ] Validation CRC32 TCP
 
-## Backlog
-- P1: Tableau de bord revenus admin
-- P2: Balance/gilet connectes, Signature electronique, Parrainage, Essai 7j, Vivoo, CRC32
+## Refactoring à prévoir
+- ProSpace.tsx (1000+ lignes) → découper en ProCalendar, ProLibrary, AssignmentLists
+
+## Credentials test
+- Coach: +33655443322 / test123
+- Bénéficiaire (Josette): +33651245918 / test123

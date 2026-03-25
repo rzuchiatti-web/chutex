@@ -690,6 +690,7 @@ async def assign_reminder(data: AssignReminderCreate, user=Depends(get_current_u
         "reminder_template_id": data.reminder_template_id,
         "title": tpl.get("title", ""),
         "reminder_type": tpl.get("reminder_type", "medication"),
+        "image": tpl.get("image", ""),
         "days": data.days,
         "time": data.time,
         "dosage": data.dosage or tpl.get("dosage", ""),

@@ -125,11 +125,14 @@ function HorizontalCalendar({ selectedDate, onSelect, accent, completedDates }: 
       const dayWidth = 54; // minWidth 48 + gap 6
       const containerWidth = scrollRef.current.clientWidth;
       const scrollTo = (targetDay - 1) * dayWidth - containerWidth / 2 + dayWidth / 2;
-      scrollRef.current.scrollTo({ left: Math.max(0, scrollTo), behavior: 'smooth' });
+      scrollRef.current.scrollLeft = Math.max(0, scrollTo);
     };
-    // Delay to ensure DOM is rendered and ref is attached
-    const timer = setTimeout(doScroll, 80);
-    return () => clearTimeout(timer);
+    // Use multiple attempts to ensure DOM is ready
+    doScroll();
+    const t1 = requestAnimationFrame(doScroll);
+    const t2 = setTimeout(doScroll, 150);
+    const t3 = setTimeout(doScroll, 400);
+    return () => { cancelAnimationFrame(t1); clearTimeout(t2); clearTimeout(t3); };
   }, [viewMonth, viewYear, selectedDate]);
 
   const todayStr = new Date().toISOString().split('T')[0];
