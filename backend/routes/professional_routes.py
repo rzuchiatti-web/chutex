@@ -235,6 +235,18 @@ async def duplicate_program(program_id: str, beneficiary_id: str, user=Depends(g
     return new_prog
 
 
+@router.get("/pro/programs/detail/{program_id}")
+async def get_pro_program_detail(program_id: str, user=Depends(get_current_user)):
+    """Get full details of a single pro program"""
+    require_pro(user)
+    prog = await db.pro_programs.find_one(
+        {"id": program_id, "professional_id": user['id']}, {"_id": 0}
+    )
+    if not prog:
+        raise HTTPException(status_code=404, detail="Programme non trouve")
+    return prog
+
+
 @router.get("/pro/all-programs")
 async def get_all_pro_programs(user=Depends(get_current_user)):
     """Get ALL programs created by this professional (for template reuse)"""

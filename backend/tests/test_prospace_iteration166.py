@@ -11,7 +11,7 @@ import requests
 import os
 import io
 
-BASE_URL = os.environ.get('EXPO_PUBLIC_BACKEND_URL', 'https://prospace-refactor.preview.emergentagent.com')
+BASE_URL = os.environ.get('EXPO_PUBLIC_BACKEND_URL', 'https://prospace-fix.preview.emergentagent.com')
 
 class TestProSpaceIteration166:
     """Test new ProSpace API endpoints for iteration 166"""

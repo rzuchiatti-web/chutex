@@ -1,188 +1,137 @@
 <analysis>**original_problem_statement**:
-L'utilisateur a demandé d'unifier les rôles Gardien et Professionnel. Un professionnel (Coach ou Physio) est maintenant un type de Gardien avec des permissions et des vues spécifiques.
-
-**Demandes principales de l'utilisateur dans cette session :**
-1.  **Refonte de l'architecture** : Un seul type de compte Gardien, dont les fonctionnalités (navbar, pages) s'adaptent dynamiquement en fonction de ses attributs (ex: , ).
-2.  **Landing Pages** : Créer des pages distinctes Devenir Coach et Devenir Physio pour l'acquisition, avec un formulaire de candidature et une signature de contrat.
-3.  **Mode Light par défaut** : Activer le thème clair pour toute l'application.
-4.  **Refonte UX de l'espace Pro** :
-    *   Utiliser des onglets pillule (comme sur la page profil) pour naviguer entre Élèves/Patients et Bibliothèque.
-    *   Remplacer la liste de pilules de bénéficiaires par une liste déroulante pleine largeur.
-    *   Mettre en place une Bibliothèque pour créer des modèles (Programmes, Rappels, Repas) réutilisables.
-    *   Les popups doivent être de style glassmorphic (fond flou, overlay noir, texte blanc) et non des bottom sheets.
-5.  **Corrections de bugs UX** :
-    *   La barre de navigation inférieure masque le champ de saisie dans les conversations de messagerie.
-    *   La page de profil affichait une pillule Prescripteur non demandée.
-    *   Le changement de rôle depuis le profil était cassé pour les coachs.
-    *   Les headers des pages Activité et Messages doivent être uniformes avec celui du tableau de bord (image de fond, bords arrondis).
+L'utilisateur a demandé de configurer les paiements (IBAN) pour les pros via Mollie depuis leur tableau de bord, d'ajouter un historique des paiements avec export CSV, et a exigé plusieurs ajustements UI/UX sur l'espace  (Activité) et la messagerie. La demande incluait une séparation entre la création (dans Bibliothèque) et l'assignation (dans Élèves).
+**Problème critique actuel** : En refondant l'espace , l'agent a supprimé le bouton glass rond de sélection des bénéficiaires et a tenté de recréer l'interface des programmes/exercices de zéro au lieu d'utiliser et de naviguer vers les pages de détails existantes (, ), provoquant la colère de l'utilisateur.
 
 **User's preferred language**: French (INSTRUCT NEXT AGENT TO RESPOND IN FRENCH ONLY)
 
 **what currently exists?**
-Une application full-stack où les rôles  et  ont été fusionnés. Le compte  a maintenant des attributs comme  (/) et  qui modifient dynamiquement son interface.
-
--   **Backend**: Une nouvelle route  gère les candidatures des coachs/physios. La route  associe un gardien à sa candidature approuvée via son numéro de téléphone. Des routes ont été ajoutées pour lister et dupliquer des programmes.
--   **Frontend**:
-    -   Le mode light est activé par défaut.
-    -   Une page  (réutilisable pour Coach/Physio) a été créée pour les candidatures.
-    -   Le  affiche une carte de revenus pour les coachs/physios.
-    -   La barre d'onglets () et les pages (, ) sont dynamiques.
-    -   L'espace Activité () a été entièrement réécrit pour adopter une nouvelle architecture (sidebar, vue par patient, bibliothèque), mais le travail est en cours.
+Une application où le pro (coach/physio) peut renseigner son IBAN (avec confirmation par SMS) et voir son historique de paiements/export CSV sur sa page d'accueil (). La structure backend pour les templates de programmes/repas/rappels et l'upload d'images est en place. Cependant, le frontend de  est dans un état cassé/insatisfaisant car il ne s'intègre pas avec les pages de détails existantes de l'application.
 
 **Last working item**:
-    - Last item agent was working: L'agent a commencé une refonte majeure de l'expérience utilisateur de l'espace  ( pour les coachs/physios) suite à des instructions détaillées de l'utilisateur.
-    - Status: IN PROGRESS
-    - Agent Testing Done: N
-    - Which testing method agent to use? Frontend testing agent. Il faut valider la nouvelle structure du  (onglets pillule, dropdown de patients, bibliothèque), le style des popups glassmorphic, et la correction des problèmes de superposition avec la barre de navigation.
+    - Last item agent was working: L'agent était en train d'inspecter les fichiers  et  après que l'utilisateur se soit plaint que la refonte du  avait écrasé/ignoré le travail précédent sur l'affichage des exercices et des programmes.
+    - Status: BLOCKED / IN PROGRESS
+    - Agent Testing Done: N (Pour cette correction spécifique)
+    - Which testing method agent to use? Frontend testing agent (après avoir corrigé l'intégration des pages).
     - User Testing Done: N
 
 **All Pending/In progress Issue list**:
-  - Issue 1: Finaliser la refonte de l'espace Activité (). (P0)
-  - Issue 2: La barre de navigation cache le champ de saisie sur la page de messagerie. (P1)
+  Issue 1: Restaurer l'UI du ProSpace et l'intégration des pages de détails (P0)
   
   Issues Detail:
   - Issue 1: 
-     - Attempted fixes: L'agent a écrasé le fichier  avec une toute nouvelle structure de code pour répondre aux exigences.
+     - Attempted fixes: L'agent a réécrit  entièrement pour répondre aux demandes de layout (cartes grises, boutons +, séparation bibliothèque/élèves), mais a oublié de garder le bouton de sélection rond et a réinventé la vue des programmes.
      - Next debug checklist:
-        1. Implémenter la logique pour les onglets pillule Élève/Patient et Bibliothèque.
-        2. Remplacer la liste de bénéficiaires par une liste déroulante pleine largeur.
-        3. Développer la vue Bibliothèque pour permettre la création de modèles de programmes, rappels et repas.
-        4. S'assurer que tous les modaux/popups utilisent le style glassmorphic (fond noir flou, contenu blanc centré) et ne sont plus des .
-        5. Tester la création/assignation de programmes depuis la bibliothèque vers un élève.
-     - Why fix this issue and what will be achieved with the fix? L'objectif est de rendre l'espace de travail du coach/physio beaucoup plus intuitif, efficace et esthétiquement cohérent avec la vision de l'utilisateur.
-     - Status:  IN PROGRESS
-     - Is recurring issue? Y (L'UI/UX du ProSpace a été un point de friction récurrent)
-     - Should Test frontend/backend/both after fix? Both (Frontend principalement, mais le backend pour la gestion de la bibliothèque).
-     - Blocked on other issue: None
-  - Issue 2: 
-     - Attempted fixes: Aucune tentative directe. Ce problème devrait être résolu dans le cadre de la refonte globale des popups et des vues modales (Issue 1).
-     - Next debug checklist:
-        1. Naviguer vers l'onglet Messages en tant que coach.
-        2. Ouvrir une conversation.
-        3. Vérifier que le champ de saisie de texte et le bouton d'envoi sont entièrement visibles au-dessus de la barre d'onglets inférieure, même lorsque le clavier est ouvert (sur mobile).
-        4. Modifier le  ou la hauteur du conteneur du chat pour s'assurer que le contenu ne soit pas masqué.
-     - Why fix this issue and what will be achieved with the fix? Pour rendre la fonctionnalité de messagerie utilisable.
-     - Status:  NOT STARTED
-     - Is recurring issue? N
+        1. Analyser .
+        2. Restaurer le bouton rond glass pour sélectionner un bénéficiaire dans le header.
+        3. Dans l'onglet Élève, pour les programmes/exercices listés, ne **pas** afficher une modale custom ou une vue inline. Au clic, utiliser  vers la page existante correspondante (, , etc.) pour conserver le design riche déjà développé.
+        4. S'assurer que les 3 cartes grises (Programmes, Rappels, Repas) sont bien présentes dans l'onglet Élève, avec un bouton + qui permet de lier un élément *depuis la bibliothèque*.
+        5. Vérifier que l'onglet Bibliothèque gère la création propre de ces éléments.
+     - Why fix this issue and what will be achieved with the fix? C'est une demande stricte de l'utilisateur pour ne pas perdre le travail précédent et garder une cohérence UI globale.
+     - Status: IN PROGRESS
+     - Is recurring issue? Y (L'agent a réécrit ce fichier de zéro au moins 3 fois, perdant le contexte à chaque fois).
      - Should Test frontend/backend/both after fix? Frontend
      - Blocked on other issue: None
 
-**In progress Task List**:
-  - Task 1: Implémentation de la nouvelle UX/UI pour  (P0)
- Task Detail:
-  - Task 1: 
-     - Where to resume: Le fichier  a été entièrement réécrit avec une nouvelle structure. Il faut maintenant implémenter la logique de fetching des données, de navigation entre les onglets Élèves et Bibliothèque, et de création/gestion des modèles.
-     - What will be achieved with this? Un espace de travail pour les professionnels qui est puissant, intuitif et conforme aux exigences de l'utilisateur.
-     - Status:  IN PROGRESS
-     - Should Test frontend/backend/both after fix? Both
-     - Blocked on something: Non
+**In progress Task List**: (Covered by Issue 1)
 
 **Upcoming and Future Tasks**
     Upcoming Tasks:
     - P1: Tableau de bord des revenus pour l'administrateur.
-    - P1: Gérer la configuration des paiements (IBAN, etc.) pour les coachs/physios via Mollie depuis leur tableau de bord.
     
     Future Tasks:
     - P2: Intégration d'une balance et d'un gilet connectés.
-    - P2: Système de Signature Électronique pour les documents Admin.
+    - P2: Signature Électronique pour les documents Admin.
     - P2: Système de parrainage pour les Gardiens.
     - P2: Flux d'essai gratuit de 7 jours.
     - P2: Intégration du test urinaire Vivoo.
-    - BLOQUÉ: Validation CRC32 pour le serveur TCP J2358.
+    - P2: Validation CRC32 pour le serveur TCP J2358.
 
 **Completed work in this session**
-- **Architecture**: Le rôle  a été fusionné dans le rôle , rendant l'UI dynamique via des attributs (, ).
-- **Feature (Landing Pages)**: Création des pages  pour les candidatures Coach (rouge) et Physio (orange), avec API backend et signature.
-- **Feature (Dashboard)**: Ajout d'une carte de revenus sur le  pour les coachs/physios, avec un endpoint backend .
-- **Feature (Bibliothèque)**: Ajout d'une API backend pour dupliquer un programme existant et l'assigner à un autre bénéficiaire.
-- **UI/UX**:
-    - Le mode Light est maintenant le thème par défaut de l'application.
-    - La barre d'onglets du gardien a été rendue dynamique : Messages pour les pros, Care pour les SAAD, etc.
-    - Les headers des pages Activité et Messages ont été refaits pour être cohérents avec le tableau de bord (image de fond, contenu arrondi).
-    - La pillule Prescripteur non désirée a été retirée du profil.
-- **Bug Fixes**:
-    - Le switch de rôle sur la page de profil pour les coachs est corrigé.
-    - La navbar de la page Messages est maintenant en mode light.
-- **Data**: Ajout de multiples bénéficiaires et de données de test (programmes, rappels, repas) au compte Coach pour valider l'affichage multi-patients.
+- **Feature (Paiements)**: Configuration IBAN, BIC, Titulaire via Mollie dans  avec modal glassmorphic. (DONE)
+- **Feature (Notifications)**: Envoi d'un SMS de confirmation via  lors de l'enregistrement de l'IBAN. (DONE)
+- **Feature (Historique)**: Endpoint et UI pour l'historique des paiements avec bouton d'export CSV. (DONE)
+- **Backend (Templates & Upload)**: Ajout des routes , routes pour templates de repas/rappels, et route  avec montage statique. (DONE)
+- **UI/UX (Messagerie)**: Correction du padding masquant l'input, stylisation des pilules Conversations/Historique. (DONE)
 
 **Earlier issues found/mentioned but not fixed**
-   - La gestion d'une bibliothèque complète pour les rappels et les repas (au-delà des programmes) n'est pas encore implémentée côté backend. L'API actuelle ne permet que de dupliquer des programmes.
+   - Issue 1: L'agent a une forte tendance à réinventer la roue en créant des modales complexes dans les composants parents au lieu d'utiliser le système de routage d'Expo (navigate to pages).
+   - Debug checklist: Avant de créer une modale pour afficher des détails, vérifier si une page  existe dans .
 
 **Known issue recurrence from previous fork**
-  - **Issue**: L'agent a tendance à créer des éléments d'interface non demandés (ex: la pillule Prescripteur).
-  - **Recurrence count**: 1
-  - **Status**: RESOLVED (pour cette itération). L'agent a retiré l'élément après que l'utilisateur l'ait signalé. C'est un point de vigilance.
+  - Issue recurrence in previous fork: Oubli de composants/styles lors des réécritures massives de fichiers (comme ).
+  - Recurrence count: 3
+  - Status: IN PROGRESS
 
 **Code Architecture**
 
 
 **Key Technical Concepts**
-- **Unification des Rôles**: La transition d'un  à un  avec un  est le changement architectural majeur de cette session.
-- **UI Dynamique par Attributs**: Les composants clés comme  ne se basent plus seulement sur le , mais sur une combinaison d'attributs (, ) pour afficher la bonne interface.
-- **Réécriture de Composants**: L'agent a entièrement réécrit  à deux reprises pour s'aligner sur la vision changeante de l'utilisateur, indiquant une approche itérative agressive.
-- **Débogage de l'état de l'utilisateur**: Un bug clé a été résolu en migrant les données des utilisateurs de test en base de données (de  à ) et en adaptant la logique backend () et frontend pour gérer les deux cas.
+- FastAPI, React Native Web (Expo), MongoDB.
+- SMS Mode integration.
+- Navigation native Expo () vs Modales web React.
 
 **key DB schema**
-- ****: Le champ  est maintenant majoritairement . Les champs  et  sont utilisés pour moduler l'expérience utilisateur.  est essentiel.
-- ****: Nouvelle collection pour stocker les candidatures des professionnels, avec .
-- ****: Le schéma est le même, mais la logique de duplication a été ajoutée.
+  - : contient maintenant un flag  (bool) ou .
+  - : Table enregistrant les transactions Mollie.
 
 **changes in tech stack**
-- Aucune nouvelle dépendance majeure.
+  - Ajout du montage de fichiers statiques dans  pour servir le dossier .
 
-**All files of reference**
-- : Fichier central de la refonte en cours.
-- : Référence pour le style des formulaires multi-étapes.
-- : Contient la logique d'affichage du tableau de bord du gardien.
-- : Définit la navigation principale dynamique.
-- : Contient la logique métier pour les programmes, repas, rappels.
+**All files of reference** 
+-  (Fichier critique à réparer).
+-  (Référence absolue pour l'UI des programmes, DOIT être appelé au clic).
+-  (Référence pour les exercices).
+-  (Paiements).
 
-**Critical Info for New Agent**
-- **Langue de l'utilisateur : Français.**
-- **Vision Produit : UN SEUL RÔLE GARDIEN.** Le principe est de moduler l'expérience du gardien via des attributs, pas de créer des espaces séparés.
-- **Priorité à l'UX** : L'utilisateur est très précis sur l'expérience visuelle. Les popups doivent être glassmorphic (fond flou, contenu blanc), les headers uniformes, et l'ergonomie fluide. Ne pas utiliser de  ou de styles non demandés.
-- **Le ProSpace est en plein chantier.** Le fichier a été entièrement écrasé avec une nouvelle structure. Il faut l'implémenter de A à Z en suivant la dernière demande de l'utilisateur.
+**Areas that need refactoring**: 
+ est devenu trop complexe à cause des réécritures successives. Il faut alléger ce composant en déléguant l'affichage des détails aux routes existantes via .
+
+**key api endpoints**
+- 
+- 
+- 
+- 
+
+**Critical Info for New Agent** 
+- L'utilisateur est FRUSTRÉ. Ne touchez plus au design existant des pages de détails (, ).
+- **RÈGLE D'OR POUR LE PROSPACE** : Quand on clique sur un programme assigné à un élève, ne faites **PAS** de modale. Faites  ou similaire.
+- Restaurez le bouton de sélection de bénéficiaire sous forme de bouton rond glass (cercle avec initiale, fond transparent, bordure).
 
 **documents and test reports created in this job**
-- 
-- 
-- 
-- 
--  (mis à jour plusieurs fois)
+  - /app/test_reports/iteration_161.json
+  - /app/test_reports/iteration_162.json
+  - /app/test_reports/iteration_163.json
+  - /app/test_reports/iteration_164.json
+  - /app/test_reports/iteration_165.json
+  - /app/test_reports/iteration_166.json
+  - /app/memory/PRD.md
 
 **Last 10 User Messages and any pending HUMAN messages** 
-- **User**: Demande d'ajouter plusieurs bénéficiaires au coach de test pour voir comment l'interface gère la charge. (COMPLETED)
-- **Assistant**: Ajoute 3 bénéficiaires supplémentaires et des données variées (programmes, repas, rappels) au coach Alain Pro. (COMPLETED)
-- **User**: Lance la demande de refonte majeure de l'UX de l'espace Activité (ProSpace): onglets pillule, dropdown pour les élèves, bibliothèque de modèles, popups glassmorphic, et correction des superpositions de la navbar. (PENDING - IN PROGRESS)
-- **Assistant**: Comprend la demande, analyse le code existant et écrase  pour commencer la nouvelle implémentation. (IN PROGRESS)
-- **Assistant**: A corrigé les bugs de switch de rôle, de navbar dark et d'uniformisation des headers avant de recevoir la demande de refonte majeure. (COMPLETED)
-- **User**: Signale 3 bugs : le switch de rôle sur le profil, la navbar en mode dark sur la page messages, et le manque d'uniformité des headers de page. (ADDRESSED)
+ 1. User: Demande config paiements (IBAN) via Mollie. (COMPLETED)
+ 2. User: Refus de l'email, demande SMS de confirmation. Plaintes sur l'UI ProSpace (pilules blanches, header, popups). (COMPLETED)
+ 3. User: Demande d'utiliser le même service SMS. (COMPLETED)
+ 4. User: Approuve l'idée d'historique de paiements avec CSV. (COMPLETED)
+ 5. User: Signale bug dropdown masqué par cartes, et design des pilules différent de la page souscription. (COMPLETED)
+ 6. User: Demande de vider le cache. (COMPLETED)
+ 7. User: Demande pilules plus grosses, bouton bénéficiaire ROND, 3 cartes grises séparées (prog, rappel, repas) avec bouton + dans l'onglet Élève. Déplacer création dans Bibliothèque. (ATTEMPTED, BUT INTRODUCED REGRESSIONS)
+ 8. User: **(PENDING)** Colère - où est le bouton glass rond, pourquoi tu me refais tout la page détail programme/exercice alors quon lavait déjà fait. Demande de réutiliser le design exact existant.
 
 **Project Health Check:**
-- **Broken**:
-    - L'interface de l'espace Activité () est actuellement une coquille vide suite à la réécriture du fichier.
-    - Le champ de saisie de la messagerie est inutilisable car masqué par la barre d'onglets.
-    - Les popups dans l'ancien  étaient des  et non le style glassmorphic attendu.
-- **Mocked**: None
+Broken (L'expérience utilisateur du ProSpace ne correspond pas aux attentes de réutilisation des pages existantes et le bouton de sélection a disparu).
 
 **3rd Party Integrations**
-- **Mollie**: Gère les paiements. Un endpoint  a été ajouté.
-- **OpenAI GPT-4o**: Utilisé pour les bilans de Nora (fonctionnalité existante).
+  - SMS Mode (SMS)
+  - Mollie (Payments)
+  - OpenAI GPT-4o — uses Emergent LLM Key
 
 **Testing status**
-  - Testing agent used after significant changes: YES. Les rapports ont validé les refontes de couleurs, la carte de paiement et la messagerie. La dernière réécriture majeure du  n'a pas encore été testée.
+  - Testing agent used after significant changes: YES (intensively until the last misstep).
   - Troubleshoot agent used after agent stuck in loop: NO
-  - Test files created: []
-  - Known regressions: La fonctionnalité de l'espace Activité est régressive car le composant a été vidé pour une refonte complète.
+  - Test files created: 
+  - Known regressions: Perte du bouton de sélection de bénéficiaire rond dans  et perte de l'intégration avec .
 
 **Credentials to test flow:**
-| Type | Téléphone | Mot de passe | Rôle/Attributs |
-|---|---|---|---|
-| **Gardien Coach** |  |  | ,  |
-| **Gardien SAAD** |  |  | ,  présent |
-| **Gardien Standard** |  |  | , sans attributs pro/SAAD |
+Coach:  / password: 
 
 **What agent forgot to execute**
-- L'agent a initialement oublié d'adapter le style des popups et a implémenté des bottom sheets, ce qui a conduit à une demande de correction explicite de l'utilisateur.
-- L'agent n'a pas traité le problème du champ de saisie de chat masqué par la barre de navigation jusqu'à ce que l'utilisateur le signale.
-- L'agent a ajouté une pillule Prescripteur non demandée, qui a dû être retirée.</analysis>
+L'agent a oublié d'explorer comment les données de programmes étaient affichées avant de tout réécrire avec ses propres modales. Il a ignoré le routage natif de l'application vers les pages de détail.</analysis>

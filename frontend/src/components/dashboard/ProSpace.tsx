@@ -224,8 +224,8 @@ export default function ProSpace({ token, user }: { token: string; user: any }) 
             {tab === 'patients' && bens.length > 0 && (
               <div style={{ marginTop: 18, display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%', maxWidth: 360 } as any}>
                 <div data-testid="ben-selector" onClick={() => setBenOpen(!benOpen)}
-                  style={{ width: 52, height: 52, borderRadius: '50%', background: '#FFF', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', boxShadow: '0 4px 16px rgba(0,0,0,0.15)', border: `2px solid ${AC}`, transition: 'all 0.2s' } as any}>
-                  <span style={{ fontSize: 20, fontWeight: 900, color: AC }}>{(activeBenData?.name || '?')[0]}</span>
+                  style={{ width: 52, height: 52, borderRadius: '50%', background: 'rgba(255,255,255,0.12)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', boxShadow: '0 4px 16px rgba(0,0,0,0.15)', border: `2px solid ${AC}`, transition: 'all 0.2s' } as any}>
+                  <span style={{ fontSize: 20, fontWeight: 900, color: '#FFF' }}>{(activeBenData?.name || '?')[0]}</span>
                 </div>
                 <div style={{ fontSize: 13, fontWeight: 700, color: '#FFF', marginTop: 8 }}>{activeBenData?.name || 'Selectionnez'}</div>
 
@@ -262,6 +262,7 @@ export default function ProSpace({ token, user }: { token: string; user: any }) 
                     subtitle={`${p.frequency || ''} - ${p.duration_weeks || '?'} sem.`}
                     badge={`${(p.sessions || []).length} ex.`}
                     image={p.image}
+                    onClick={() => router.push({ pathname: '/pro-program-detail' as any, params: { id: p.id } })}
                     onAdd={() => { setModal('add-ex'); setModalCtx(p.id); setExForm(emptyEx); }}
                     onDelete={() => deleteProgram(p.id)} />
                 ))}
@@ -322,6 +323,7 @@ export default function ProSpace({ token, user }: { token: string; user: any }) 
                     subtitle={`${p.frequency || ''} - ${p.duration_weeks || '?'} sem. ${p.beneficiary_name && p.beneficiary_name !== 'Bibliotheque' ? `| ${p.beneficiary_name}` : ''}`}
                     badge={p.is_template ? 'Modele' : `${(p.sessions || []).length} ex.`}
                     image={p.image}
+                    onClick={() => router.push({ pathname: '/pro-program-detail' as any, params: { id: p.id } })}
                     onDuplicate={() => { setModal('duplicate'); setModalCtx(p.id); }}
                     onDelete={() => deleteProgram(p.id)} />
                 ))}
@@ -580,12 +582,12 @@ function SectionBlock({ title, icon, count, accent, children }: { title: string;
   );
 }
 
-function ItemCard({ title, subtitle, badge, accent, image, onAdd, onDelete, onDuplicate }: {
+function ItemCard({ title, subtitle, badge, accent, image, onClick, onAdd, onDelete, onDuplicate }: {
   title: string; subtitle: string; badge?: string; accent: string; image?: string;
-  onAdd?: () => void; onDelete?: () => void; onDuplicate?: () => void;
+  onClick?: () => void; onAdd?: () => void; onDelete?: () => void; onDuplicate?: () => void;
 }) {
   return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 14px', borderRadius: 14, background: '#FFF', marginBottom: 6, transition: 'all 0.15s' } as any}>
+    <div data-testid={`item-card-${title}`} onClick={onClick} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 14px', borderRadius: 14, background: '#FFF', marginBottom: 6, transition: 'all 0.15s', cursor: onClick ? 'pointer' : 'default' } as any}>
       {image && <div style={{ width: 44, height: 44, borderRadius: 10, overflow: 'hidden', flexShrink: 0 } as any}><img src={image.startsWith('/') ? `${process.env.EXPO_PUBLIC_BACKEND_URL}${image}` : image} style={{ width: '100%', height: '100%', objectFit: 'cover' } as any} /></div>}
       <div style={{ flex: 1, minWidth: 0 } as any}>
         <div style={{ fontSize: 13, fontWeight: 700, color: '#111', textTransform: 'capitalize', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' } as any}>{title}</div>
