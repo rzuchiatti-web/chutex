@@ -129,14 +129,13 @@ export default function ProSpace({ token, user }: { token: string; user: any }) 
             <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.55)', marginBottom: 18 }}>{bens.length} {patientSingle}{bens.length !== 1 ? 's' : ''}</div>
 
             {/* ── PILL TABS ── */}
-            <div data-testid="space-tabs" style={{ display: 'inline-flex', borderRadius: 999, padding: 3, gap: 6 } as any}>
+            <div data-testid="space-tabs" style={{ display: 'inline-flex', borderRadius: 999, background: 'rgba(255,255,255,0.10)', border: '1px solid rgba(255,255,255,0.12)', padding: 3, gap: 2 } as any}>
               {(['patients', 'library'] as const).map(t => (
                 <div key={t} data-testid={`tab-${t === 'patients' ? 'patients' : 'library'}`} onClick={() => setTab(t)}
-                  style={{ padding: '9px 22px', borderRadius: 999, cursor: 'pointer', fontSize: 13, fontWeight: 700, transition: 'all 0.2s',
-                    background: '#FFF',
-                    border: `1.5px solid ${tab === t ? AC : 'rgba(255,255,255,0.25)'}`,
-                    color: tab === t ? AC : '#9CA3AF',
-                    boxShadow: tab === t ? `0 2px 8px ${AC}25` : 'none',
+                  style={{ padding: '7px 16px', borderRadius: 999, cursor: 'pointer', fontSize: 11, fontWeight: 700, transition: 'all 0.25s ease',
+                    background: tab === t ? '#FFF' : 'transparent',
+                    boxShadow: tab === t ? '0 2px 8px rgba(0,0,0,0.15)' : 'none',
+                    color: tab === t ? '#111' : 'rgba(255,255,255,0.5)',
                   } as any}>
                   {t === 'patients' ? patientLabel : 'Bibliotheque'}
                 </div>

@@ -817,22 +817,20 @@ function ProMessaging({ token, user }: { token: string; user: any }) {
               <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.55)', marginBottom: 18 }}>{conversations.length} conversation{conversations.length !== 1 ? 's' : ''}</div>
 
               {/* Pill tabs Conversations / Historique */}
-              <div data-testid="msg-tabs" style={{ display: 'inline-flex', borderRadius: 999, padding: 3, gap: 6 } as any}>
+              <div data-testid="msg-tabs" style={{ display: 'inline-flex', borderRadius: 999, background: 'rgba(255,255,255,0.10)', border: '1px solid rgba(255,255,255,0.12)', padding: 3, gap: 2 } as any}>
                 <div data-testid="msg-tab-convos" onClick={() => setMsgTab('conversations')}
-                  style={{ padding: '9px 22px', borderRadius: 999, cursor: 'pointer', fontSize: 13, fontWeight: 700, transition: 'all 0.2s',
-                    background: '#FFF',
-                    border: `1.5px solid ${msgTab === 'conversations' ? '#DC2626' : 'rgba(255,255,255,0.25)'}`,
-                    color: msgTab === 'conversations' ? '#DC2626' : '#9CA3AF',
-                    boxShadow: msgTab === 'conversations' ? '0 2px 8px rgba(220,38,38,0.15)' : 'none',
+                  style={{ padding: '7px 16px', borderRadius: 999, cursor: 'pointer', fontSize: 11, fontWeight: 700, transition: 'all 0.25s ease',
+                    background: msgTab === 'conversations' ? '#FFF' : 'transparent',
+                    boxShadow: msgTab === 'conversations' ? '0 2px 8px rgba(0,0,0,0.15)' : 'none',
+                    color: msgTab === 'conversations' ? '#111' : 'rgba(255,255,255,0.5)',
                   } as any}>
                   Conversations
                 </div>
                 <div data-testid="msg-tab-history" onClick={() => setMsgTab('history')}
-                  style={{ padding: '9px 22px', borderRadius: 999, cursor: 'pointer', fontSize: 13, fontWeight: 700, transition: 'all 0.2s',
-                    background: '#FFF',
-                    border: `1.5px solid ${msgTab === 'history' ? '#DC2626' : 'rgba(255,255,255,0.25)'}`,
-                    color: msgTab === 'history' ? '#DC2626' : '#9CA3AF',
-                    boxShadow: msgTab === 'history' ? '0 2px 8px rgba(220,38,38,0.15)' : 'none',
+                  style={{ padding: '7px 16px', borderRadius: 999, cursor: 'pointer', fontSize: 11, fontWeight: 700, transition: 'all 0.25s ease',
+                    background: msgTab === 'history' ? '#FFF' : 'transparent',
+                    boxShadow: msgTab === 'history' ? '0 2px 8px rgba(0,0,0,0.15)' : 'none',
+                    color: msgTab === 'history' ? '#111' : 'rgba(255,255,255,0.5)',
                   } as any}>
                   Historique
                 </div>
