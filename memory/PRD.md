@@ -13,8 +13,8 @@ Application full-stack (React Native Web + FastAPI + MongoDB) de teleassistance 
 |------|-------------|
 | Beneficiaire | Patient suivi, acces sante, programmes |
 | Gardien | Aidant, acces variable selon attributs |
-| Gardien Coach | Gardien avec `professional_type: 'coach'` |
-| Gardien Physio | Gardien avec `professional_type: 'physio'` |
+| Gardien Coach | `professional_type: 'coach'` - programmes, prescriptions, messages, paiements |
+| Gardien Physio | `professional_type: 'physio'` - idem |
 | SAAD | Structure d'aide a domicile |
 | Admin | Back-office complet |
 | Teleassistance | Centre d'appels |
@@ -24,9 +24,9 @@ Application full-stack (React Native Web + FastAPI + MongoDB) de teleassistance 
 |--------|-----------|
 | Accueil | Toujours |
 | Activite | Toujours (Programmes, Rappels, Repas, Bilans) |
-| Intervention Care | Si `saad_company_id` existe |
+| Care | Si `saad_company_id` existe |
 | Prescriptions | Si SAAD ou coach/physio |
-| Messages | Si coach ou physio uniquement |
+| Messages | Si coach ou physio (WhatsApp-like) |
 | Plus/Profil | Toujours |
 
 ## Fonctionnalites Implementees
@@ -34,31 +34,31 @@ Application full-stack (React Native Web + FastAPI + MongoDB) de teleassistance 
 ### Module Professionnel (Phases 1-6)
 - Programmes d'exercices (CRUD), Rappels, Plans de repas, Bilans IA Nora
 - Prescription d'abonnements Sport/Physio (89EUR/mois) via Mollie
-- Messagerie Pro-Beneficiaire
+- Messagerie Pro-Beneficiaire (WhatsApp-like)
 
 ### Espace Gardien Unifie (25 Mars 2026)
 - Mode light par defaut
 - Navbar dynamique basee sur attributs du gardien
-- Landing pages "Devenir Coach" (ROUGE) et "Devenir Physio" (ORANGE)
+- Landing pages: Coach (ROUGE #DC2626), Physio (ORANGE #F97316)
 - Auto-validation candidatures + SMS/email
 - Activation automatique professional_type a l'inscription
 - Refonte ProSpace en mode light avec header + image de fond
 
 ### Gestion Paiements Coach/Physio (25 Mars 2026)
-- Backend: endpoint `/api/pro/payment-dashboard` (revenus, abonnes actifs, historique)
-- Frontend: Carte revenus sur dashboard Gardien (Abonnes actifs, Revenu mensuel HT, Total gagne HT, statut IBAN)
+- Endpoint `/api/pro/payment-dashboard` (revenus, abonnes, historique)
+- Carte revenus sur dashboard Gardien
+
+### Messagerie WhatsApp-like (25 Mars 2026)
+- Composant ProMessaging dans alerts.tsx
+- Liste des conversations avec avatar, dernier message, timestamp
+- Chat bubbles (rouge/orange pour envoye, blanc pour recu)
+- Poll auto toutes les 4 secondes
 
 ## Credentials de Test
 - Beneficiaire: `+33651245918` / `test123`
 - Gardien Coach: `+33655443322` / `test123`
-- Gardien standard: `+33612345678` / `test123`
-
-## Schema BDD cle
-- `users`: role, professional_type, saad_company_id, is_prescriber
-- `pro_applications`: candidatures coach/physio
-- `prescriptions`: types standard, sport, physio
-- `pro_subscriptions`: abonnements Pro avec Mollie
-- `payment_history`: historique des paiements
+- Gardien SAAD: `+33605221196` / `test123`
+- Gardien Standard: `+33698765432` / `test123`
 
 ## Taches Futures (Backlog)
 - P1: Tableau de bord des revenus administrateur
