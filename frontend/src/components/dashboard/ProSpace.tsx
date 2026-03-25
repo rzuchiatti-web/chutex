@@ -95,6 +95,7 @@ function DaysPicker({ selected, onChange, accent }: { selected: string[]; onChan
 function HorizontalCalendar({ selectedDate, onSelect, accent, completedDates }: { selectedDate: Date; onSelect: (d: Date) => void; accent: string; completedDates?: Set<string> }) {
   const [viewMonth, setViewMonth] = useState(selectedDate.getMonth());
   const [viewYear, setViewYear] = useState(selectedDate.getFullYear());
+  const scrollRef = React.useRef<HTMLDivElement>(null);
 
   const dates = useMemo(() => {
     const arr: Date[] = [];
@@ -113,6 +114,17 @@ function HorizontalCalendar({ selectedDate, onSelect, accent, completedDates }: 
     if (viewMonth === 11) { setViewMonth(0); setViewYear(viewYear + 1); }
     else setViewMonth(viewMonth + 1);
   };
+
+  // Auto-scroll to today/selected day
+  useEffect(() => {
+    if (!scrollRef.current) return;
+    const today = new Date();
+    const targetDay = (viewMonth === today.getMonth() && viewYear === today.getFullYear()) ? today.getDate() : selectedDate.getDate();
+    const dayWidth = 54; // minWidth 48 + gap 6
+    const containerWidth = scrollRef.current.clientWidth;
+    const scrollTo = (targetDay - 1) * dayWidth - containerWidth / 2 + dayWidth / 2;
+    scrollRef.current.scrollTo({ left: Math.max(0, scrollTo), behavior: 'smooth' });
+  }, [viewMonth, viewYear]);
 
   const todayStr = new Date().toISOString().split('T')[0];
   const selStr = selectedDate.toISOString().split('T')[0];
