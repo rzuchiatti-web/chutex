@@ -41,13 +41,21 @@ class SessionCreate(BaseModel):
     title: str
     description: str = ""
     category: str = ""
+    image: str = ""
+    video_url: str = ""
     media_url: str = ""
     media_type: str = ""  # video, image
     duration_min: int = 30
     repetitions: int = 0
     sets: int = 0
     rest_sec: int = 0
+    rest_seconds: int = 60
+    steps: List[str] = []
+    difficulty: str = "moyen"
+    muscle_group: str = ""
+    equipment: str = ""
     notes: str = ""
+    from_template_id: str = ""
 
 class SessionCompletion(BaseModel):
     status: str = "done"  # done, partial, skipped
@@ -291,14 +299,22 @@ async def add_session(program_id: str, data: SessionCreate, user=Depends(get_cur
         "id": str(uuid.uuid4()),
         "title": data.title,
         "description": data.description,
-        "category": data.category if hasattr(data, 'category') else '',
+        "category": data.category,
+        "image": data.image,
+        "video_url": data.video_url,
         "media_url": data.media_url,
         "media_type": data.media_type,
         "duration_min": data.duration_min,
         "repetitions": data.repetitions,
         "sets": data.sets,
         "rest_sec": data.rest_sec,
+        "rest_seconds": data.rest_seconds,
+        "steps": data.steps,
+        "difficulty": data.difficulty,
+        "muscle_group": data.muscle_group,
+        "equipment": data.equipment,
         "notes": data.notes,
+        "from_template_id": data.from_template_id,
         "completions": [],
         "created_at": datetime.now(timezone.utc).isoformat(),
     }
@@ -638,6 +654,72 @@ async def delete_pro_meal(beneficiary_id: str, meal_index: int, user=Depends(get
             {"beneficiary_id": beneficiary_id, "professional_id": user['id'], "date": today_str},
             {"$set": {"meals": meals}}
         )
+    return {"status": "deleted"}
+
+
+# ── Exercise Template Library ──
+
+class ExerciseTemplateCreate(BaseModel):
+    title: str
+    description: str = ""
+    image: str = ""
+    video_url: str = ""
+    category: str = "general"
+    difficulty: str = "moyen"
+    muscle_group: str = ""
+    sets: int = 3
+    repetitions: int = 12
+    duration_min: int = 0
+    rest_seconds: int = 60
+    steps: List[str] = []
+    equipment: str = ""
+    notes: str = ""
+
+@router.post("/pro/exercise-templates")
+async def create_exercise_template(data: ExerciseTemplateCreate, user=Depends(get_current_user)):
+    """Create an exercise template in the library"""
+    require_pro(user)
+    tpl = {
+        "id": str(uuid.uuid4()),
+        "professional_id": user['id'],
+        "title": data.title,
+        "description": data.description,
+        "image": data.image,
+        "video_url": data.video_url,
+        "category": data.category,
+        "difficulty": data.difficulty,
+        "muscle_group": data.muscle_group,
+        "sets": data.sets,
+        "repetitions": data.repetitions,
+        "duration_min": data.duration_min,
+        "rest_seconds": data.rest_seconds,
+        "steps": data.steps,
+        "equipment": data.equipment,
+        "notes": data.notes,
+        "is_template": True,
+        "created_at": datetime.now(timezone.utc).isoformat(),
+    }
+    await db.pro_exercise_templates.insert_one(tpl)
+    tpl.pop('_id', None)
+    return tpl
+
+@router.get("/pro/exercise-templates")
+async def list_exercise_templates(user=Depends(get_current_user)):
+    """List all exercise templates for this pro"""
+    require_pro(user)
+    return await db.pro_exercise_templates.find(
+        {"professional_id": user['id']}, {"_id": 0}
+    ).sort("created_at", -1).to_list(200)
+
+@router.delete("/pro/exercise-templates/{template_id}")
+async def delete_exercise_template(template_id: str, user=Depends(get_current_user)):
+    """Delete an exercise template"""
+    require_pro(user)
+    result = await db.pro_exercise_templates.delete_one(
+        {"id": template_id, "professional_id": user['id']}
+    )
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Exercice non trouve")
     return {"status": "deleted"}
 
 
