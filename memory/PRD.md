@@ -26,6 +26,12 @@ Application mobile-first de santé connectée. Un **seul rôle Gardien** dont l'
   - CRUD complet: programmes, exercices, rappels, repas
   - Bibliothèque: modèles réutilisables + duplication vers bénéficiaires
   - API template: `POST /api/pro/programs/template`
+- **Configuration Paiement IBAN**: 
+  - Modal glassmorphic accessible depuis la carte de revenus
+  - Formulaire: Titulaire du compte, IBAN (validé), BIC/SWIFT
+  - APIs: `GET/PUT /api/pro/payment-config`
+  - Indicateur visuel: orange "Configurer IBAN" → vert "IBAN configuré"
+  - Validation backend: longueur IBAN, code pays, titulaire requis
 - **Fix Messagerie P1**: Padding chat input augmenté (100px) pour éviter chevauchement avec navbar
 - **Landing Pages**: `/become-pro` (Coach rouge, Physio orange)
 - **Mode Light**: Thème clair par défaut
@@ -52,7 +58,6 @@ Application mobile-first de santé connectée. Un **seul rôle Gardien** dont l'
 
 ### P1 — À venir
 - Tableau de bord des revenus pour l'administrateur
-- Configuration paiements (IBAN) via Mollie pour les pros
 
 ### P2 — Futur
 - Intégration balance et gilet connectés
@@ -62,11 +67,15 @@ Application mobile-first de santé connectée. Un **seul rôle Gardien** dont l'
 - Intégration test urinaire Vivoo
 - Validation CRC32 serveur TCP J2358
 
-## APIs Clés
+## APIs Clés — Paiement
+- `GET /api/pro/payment-config` — Config IBAN actuelle
+- `PUT /api/pro/payment-config` — Sauvegarder IBAN, BIC, titulaire
+- `GET /api/pro/payment-dashboard` — Dashboard revenus (inclut iban_configured)
+
+## APIs Clés — ProSpace
 - `POST /api/pro/programs/template` — Créer un programme template
 - `POST /api/pro/programs/{beneficiary_id}` — Créer un programme pour un bénéficiaire
 - `POST /api/pro/programs/duplicate/{program_id}/{beneficiary_id}` — Dupliquer un programme
 - `GET /api/pro/all-programs` — Tous les programmes (inclut templates)
-- `POST /api/pro/meals/{beneficiary_id}` — Ajouter un repas (format: meal_type, items, calories, proteins, notes)
+- `POST /api/pro/meals/{beneficiary_id}` — Ajouter un repas
 - `POST /api/pro/reminders/{beneficiary_id}` — Ajouter un rappel
-- `GET /api/pro/payment-dashboard` — Dashboard revenus
