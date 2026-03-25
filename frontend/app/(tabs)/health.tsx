@@ -282,54 +282,6 @@ export default function HealthScreen() {
 
           <div style={{ height: 1, background: sepColor, margin: '12px 0 16px' } as any} />
 
-          {/* ═══ Today's Exercises (from coach) ═══ */}
-          {todayExercises.length > 0 && (
-            <>
-              <div data-testid="today-exercises-section" style={{ marginBottom: 14 }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 14 } as any}>
-                  <div style={{ width: 32, height: 32, borderRadius: 10, background: isDark ? 'rgba(239,68,68,0.12)' : 'rgba(239,68,68,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}>
-                    <i className="ri-run-line" style={{ fontSize: 16, color: '#EF4444' }} />
-                  </div>
-                  <div>
-                    <div style={{ fontSize: 15, fontWeight: 800, color: textColor }}>Exercices du jour</div>
-                    <div style={{ fontSize: 10, color: subColor }}>Prescrit par votre coach</div>
-                  </div>
-                </div>
-                {todayExercises.map((ex: any, i: number) => (
-                  <div key={ex.id || i} data-testid={`today-exercise-${i}`}
-                    onClick={() => router.push({ pathname: '/pro-exercise-detail' as any, params: { id: ex.exercise_template_id || ex.id, mode: 'assigned', assignmentId: ex.id } })}
-                    style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 14px', borderRadius: 16, background: cardBg, marginBottom: 8, cursor: 'pointer', border: ex.completed_today ? `1px solid rgba(16,185,129,0.3)` : `1px solid ${sepColor}`, transition: 'all 0.15s' } as any}
-                    onMouseEnter={(e: any) => e.currentTarget.style.transform = 'scale(1.01)'}
-                    onMouseLeave={(e: any) => e.currentTarget.style.transform = 'scale(1)'}>
-                    {ex.image ? (
-                      <div style={{ width: 52, height: 52, borderRadius: 12, overflow: 'hidden', flexShrink: 0 } as any}>
-                        <img src={ex.image.startsWith('/') ? `${process.env.EXPO_PUBLIC_BACKEND_URL}${ex.image}` : ex.image} style={{ width: '100%', height: '100%', objectFit: 'cover' } as any} />
-                      </div>
-                    ) : (
-                      <div style={{ width: 52, height: 52, borderRadius: 12, background: isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.04)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}>
-                        <i className="ri-run-line" style={{ fontSize: 22, color: subColor }} />
-                      </div>
-                    )}
-                    <div style={{ flex: 1, minWidth: 0 } as any}>
-                      <div style={{ fontSize: 14, fontWeight: 800, color: textColor, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' } as any}>{ex.title}</div>
-                      <div style={{ fontSize: 11, color: subColor, marginTop: 2 }}>
-                        {ex.sets > 0 && `${ex.sets} series x ${ex.repetitions} reps`}
-                        {ex.rest_seconds > 0 && ` - ${ex.rest_seconds}s repos`}
-                      </div>
-                      {ex.professional_name && <div style={{ fontSize: 10, color: '#EF4444', marginTop: 2 }}>Coach {ex.professional_name}</div>}
-                    </div>
-                    {ex.completed_today ? (
-                      <i className="ri-checkbox-circle-fill" style={{ fontSize: 24, color: '#10B981' }} />
-                    ) : (
-                      <div style={{ padding: '8px 14px', borderRadius: 999, background: isDark ? 'rgba(16,185,129,0.15)' : 'rgba(16,185,129,0.1)', fontSize: 11, fontWeight: 700, color: '#10B981' }}>Faire</div>
-                    )}
-                  </div>
-                ))}
-              </div>
-              <div style={{ height: 1, background: sepColor, margin: '12px 0 16px' } as any} />
-            </>
-          )}
-
           {/* Glycemia Estimation Card */}
           <GlycemiaCard token={token} />
 
