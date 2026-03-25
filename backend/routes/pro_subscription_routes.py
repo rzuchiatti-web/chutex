@@ -152,9 +152,13 @@ async def accept_subscription(subscription_id: str, user=Depends(get_current_use
         # Create or get Mollie customer
         mollie_customer_id = ben.get('mollie_customer_id')
         if not mollie_customer_id:
+            # Use proper email format for Mollie
+            ben_email = ben.get('email', '')
+            if not ben_email or '@' not in ben_email:
+                ben_email = f"patient-{user['id'][:8]}@chutex.fr"
             cust = mollie.customers.create({
                 "name": ben.get('name', 'Patient'),
-                "email": ben.get('email', f"{user['id']}@chutex.fr"),
+                "email": ben_email,
             })
             mollie_customer_id = cust['id']
             await db.users.update_one({"id": user['id']}, {"$set": {"mollie_customer_id": mollie_customer_id}})

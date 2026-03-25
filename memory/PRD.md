@@ -6,71 +6,73 @@ Application de suivi santé connecté pour seniors/personnes à risque, avec gar
 ## Rôles
 - **Bénéficiaire** : Patient porteur de la montre, reçoit exercices, rappels, repas
 - **Gardien** : Famille/proche qui surveille les données vitales
-- **Professionnel (Coach/Kiné)** : Gardien enrichi avec outils de prescription (programmes, rappels, repas, bilans)
+- **Professionnel (Coach/Kiné)** : Gardien enrichi avec outils de prescription
 
 ## Architecture
 - Frontend: Expo React Native Web
 - Backend: FastAPI + MongoDB
 - IA: GPT-5.2 via Emergent LLM Key (Nora)
+- Paiement: Mollie (clés test + live disponibles)
 
 ## Fonctionnalités Implémentées
 
 ### Core App (DONE)
-- Onboarding, auth (phone/password)
-- Dashboard bénéficiaire (vitales, rappels, activité, minceur)
-- Dashboard gardien (suivi bénéficiaires, alertes)
-- Chat IA Nora
-- Système de rappels (traitement, hydratation, alarmes)
-- Programme minceur (repas IA, exercices, tracking)
-- Téléconsultation
+- Onboarding, auth, dashboard bénéficiaire/gardien
+- Chat IA Nora, rappels, programme minceur, téléconsultation
 - J2358 TCP Server pour montre connectée
 
 ### Autorisations Partage Santé (DONE)
-- Page `data-sharing.tsx` : bénéficiaire choisit all/vitals_only/none
-- Vue gardien respecte les permissions
+- Bénéficiaire choisit all/vitals_only/none
 
-### Module Professionnel - Phase 1+2 (DONE)
-- Rôle `professional` (coach/physio) hérite de gardien
-- Dashboard Pro réutilise GuardianHome
-- ProSpace : création programmes + exercices
+### Module Pro - Phase 1+2 (DONE)
+- Rôle professional (coach/physio), dashboard = GuardianHome enrichi
+- ProSpace : programmes + exercices
 
-### Module Professionnel - Phase 3 (DONE - 24/03/2026)
-- **Rappels Pro** : Pro prescrit compléments (medication) et hydratation → rappels existants du bénéficiaire
-- **Repas Pro** : Pro voit/ajoute/supprime repas du patient (override minceur)
-- **Exercices chez le patient** : Page activité affiche exercices prescrits avec validation (fait/partiel/passé + douleur)
-- **Masquage exercices minceur** : Si programmes pro actifs, les exercices auto-générés sont masqués
-- **Bilans Nora** : Génération bilans hebdo/mensuels via IA (vitales, programmes, compléments)
-- **ProSpace 4 onglets** : Programmes, Rappels, Repas, Bilans
+### Module Pro - Phase 3 (DONE - 24/03/2026)
+- Rappels Pro (compléments/hydratation) → rappels existants bénéficiaire
+- Repas Pro : CRUD repas patient (override minceur)
+- Exercices prescrits dans page activité + validation
+- Bilans Nora (hebdo/mensuel via GPT)
+
+### Module Pro - Phase 4 : Abonnements (DONE - 25/03/2026)
+- Pro propose abonnement Sport/Physio à 89€/mois TTC (45€ HT)
+- Bénéficiaire accepte/refuse sur son dashboard
+- Commission plateforme: 44€/transaction
+- Gestion statuts (pending/active/cancelled)
+
+### Module Pro - Phase 5 : Paiements Mollie (DONE - 25/03/2026)
+- Intégration Mollie (test + live keys)
+- Création paiement à l'acceptation de l'abonnement
+- Webhook Mollie pour mise à jour statuts
+- Abonnement récurrent mensuel automatique
+- Historique paiements pour le pro
+- Page de statut post-paiement
+- Simulation paiement pour tests
+
+### Module Pro - Phase 6 : Messagerie (DONE - 25/03/2026)
+- Chat texte Pro ↔ Bénéficiaire
+- Conversations avec polling (4-5s)
+- Compteur messages non lus
+- Page dédiée côté bénéficiaire (pro-chat.tsx)
+- Onglet Messages dans ProSpace
+- Badge notifications sur dashboard bénéficiaire
 
 ## Tâches à Venir
 
-### P1 - Phase 4 : Abonnements Sport/Physio
-- Prescription d'abonnements par les pros
-- Si abonnement actif, exercices gérés exclusivement par le pro
-
-### P1 - Phase 5 : Intégration Mollie
-- Paiements pour services pro via Mollie (pas Stripe)
-- Commission plateforme Chutex
-
-### P1 - Phase 6 : Messagerie Pro ↔ Bénéficiaire
-- Chat direct entre pro et patient
-
 ### P2 - Backlog
 - Intégration Balance & Gilet connecté
-- Signature Électronique (Admin → Documents)
+- Système Signature Électronique (Admin → Documents)
 - Parrainage Gardiens
 - Essai gratuit 7 jours
-- Test urinaire Vivoo
+- Intégration test urinaire Vivoo
 - Validation CRC32 J2358 TCP (BLOQUÉ)
 
-## Endpoints Clés Phase 3
-- `POST /api/pro/reminders/{ben_id}` - Prescrire rappel
-- `GET/DELETE /api/pro/reminders/*` - CRUD rappels pro
-- `GET/POST/DELETE /api/pro/meals/{ben_id}` - Gestion repas
-- `GET /api/pro/has-active-programs` - Vérifier programmes actifs
-- `GET /api/pro/my-programs` - Programmes prescrits du bénéficiaire
-- `POST /api/pro/sessions/{prog_id}/{sess_id}/complete` - Validation exercice
-- `GET /api/pro/bilan/{ben_id}` - Générer bilan Nora
+## Fichiers Clés Phase 4/5/6
+- `/app/backend/routes/pro_subscription_routes.py` : Abonnements + Mollie + Messagerie
+- `/app/frontend/src/components/dashboard/ProSpace.tsx` : 6 onglets (Programmes, Rappels, Repas, Abo, Messages, Bilans)
+- `/app/frontend/src/components/dashboard/BeneficiaryHome.tsx` : Carte abo + raccourci messages
+- `/app/frontend/app/pro-chat.tsx` : Page chat bénéficiaire
+- `/app/frontend/app/subscription-status.tsx` : Statut post-paiement
 
 ## Identifiants de Test
 - Bénéficiaire: `0651245918` / `test123`
