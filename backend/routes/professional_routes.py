@@ -1,13 +1,31 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, UploadFile, File
 from pydantic import BaseModel
 from typing import List, Optional
 from datetime import datetime, timezone
-import uuid
+import uuid, os
 
 from auth import get_current_user, get_effective_role, sanitize_user
 from database import db
 
 router = APIRouter()
+
+UPLOAD_DIR = "/app/backend/uploads"
+
+@router.post("/pro/upload-image")
+async def upload_image(file: UploadFile = File(...), user=Depends(get_current_user)):
+    """Upload an image for pro content (programmes, meals). Returns URL."""
+    require_pro(user)
+    ext = (file.filename or '').split('.')[-1] or 'jpg'
+    if ext.lower() not in ('jpg', 'jpeg', 'png', 'webp', 'gif'):
+        raise HTTPException(status_code=400, detail="Format non supporte (jpg, png, webp)")
+    fname = f"{uuid.uuid4().hex}.{ext.lower()}"
+    path = os.path.join(UPLOAD_DIR, fname)
+    content = await file.read()
+    if len(content) > 5 * 1024 * 1024:
+        raise HTTPException(status_code=400, detail="Image trop volumineuse (max 5MB)")
+    with open(path, "wb") as f:
+        f.write(content)
+    return {"url": f"/api/uploads/{fname}"}
 
 
 # ── Models ──
@@ -423,6 +441,41 @@ async def delete_pro_reminder(reminder_id: str, user=Depends(get_current_user)):
     return {"status": "deleted"}
 
 
+# ── Reminder Templates ──
+
+class ReminderTemplateCreate(BaseModel):
+    reminder_type: str = "medication"
+    title: str
+    time: str = "08:00"
+    dosage: str = ""
+    notes: str = ""
+
+@router.post("/pro/reminder-templates")
+async def create_reminder_template(data: ReminderTemplateCreate, user=Depends(get_current_user)):
+    """Create a reminder template in the library"""
+    require_pro(user)
+    tpl = {
+        "id": str(uuid.uuid4()),
+        "professional_id": user['id'],
+        "reminder_type": data.reminder_type,
+        "title": data.title,
+        "time": data.time,
+        "dosage": data.dosage,
+        "notes": data.notes,
+        "is_template": True,
+        "created_at": datetime.now(timezone.utc).isoformat(),
+    }
+    await db.pro_reminder_templates.insert_one(tpl)
+    tpl.pop('_id', None)
+    return tpl
+
+@router.get("/pro/reminder-templates")
+async def list_reminder_templates(user=Depends(get_current_user)):
+    """List all reminder templates for this pro"""
+    require_pro(user)
+    return await db.pro_reminder_templates.find({"professional_id": user['id']}, {"_id": 0}).sort("created_at", -1).to_list(100)
+
+
 # ── Pro Meals Management ──
 
 class ProMealCreate(BaseModel):
@@ -431,6 +484,50 @@ class ProMealCreate(BaseModel):
     calories: int = 0
     proteins: int = 0
     notes: str = ""
+
+class MealTemplateCreate(BaseModel):
+    meal_type: str = "dejeuner"
+    title: str = ""
+    image: str = ""
+    ingredients: List[dict] = []
+    steps: List[str] = []
+    calories: int = 0
+    proteins: int = 0
+    glucides: int = 0
+    lipides: int = 0
+    notes: str = ""
+    items: List[str] = []
+
+@router.post("/pro/meal-templates")
+async def create_meal_template(data: MealTemplateCreate, user=Depends(get_current_user)):
+    """Create a meal template in the library"""
+    require_pro(user)
+    tpl = {
+        "id": str(uuid.uuid4()),
+        "professional_id": user['id'],
+        "meal_type": data.meal_type,
+        "title": data.title,
+        "image": data.image,
+        "ingredients": data.ingredients,
+        "steps": data.steps,
+        "items": data.items,
+        "calories": data.calories,
+        "proteins": data.proteins,
+        "glucides": data.glucides,
+        "lipides": data.lipides,
+        "notes": data.notes,
+        "is_template": True,
+        "created_at": datetime.now(timezone.utc).isoformat(),
+    }
+    await db.pro_meal_templates.insert_one(tpl)
+    tpl.pop('_id', None)
+    return tpl
+
+@router.get("/pro/meal-templates")
+async def list_meal_templates(user=Depends(get_current_user)):
+    """List all meal templates for this pro"""
+    require_pro(user)
+    return await db.pro_meal_templates.find({"professional_id": user['id']}, {"_id": 0}).sort("created_at", -1).to_list(100)
 
 @router.get("/pro/meals/{beneficiary_id}")
 async def get_beneficiary_meals(beneficiary_id: str, user=Depends(get_current_user)):

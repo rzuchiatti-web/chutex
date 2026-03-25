@@ -1,4 +1,5 @@
 from fastapi import FastAPI, APIRouter, WebSocket, WebSocketDisconnect, Query
+from fastapi.staticfiles import StaticFiles
 from starlette.middleware.cors import CORSMiddleware
 import logging, uuid, random
 from datetime import datetime, timezone
@@ -89,6 +90,10 @@ api_router.include_router(pro_app_router)
 
 app.include_router(api_router)
 app.add_middleware(CORSMiddleware, allow_credentials=True, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
+
+import os
+os.makedirs("/app/backend/uploads", exist_ok=True)
+app.mount("/api/uploads", StaticFiles(directory="/app/backend/uploads"), name="uploads")
 
 
 # WebSocket endpoint for real-time admin alerts

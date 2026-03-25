@@ -819,7 +819,7 @@ function ProMessaging({ token, user }: { token: string; user: any }) {
               {/* Pill tabs Conversations / Historique */}
               <div data-testid="msg-tabs" style={{ display: 'inline-flex', borderRadius: 999, background: 'rgba(255,255,255,0.10)', border: '1px solid rgba(255,255,255,0.12)', padding: 3, gap: 2 } as any}>
                 <div data-testid="msg-tab-convos" onClick={() => setMsgTab('conversations')}
-                  style={{ padding: '7px 16px', borderRadius: 999, cursor: 'pointer', fontSize: 11, fontWeight: 700, transition: 'all 0.25s ease',
+                  style={{ padding: '10px 24px', borderRadius: 999, cursor: 'pointer', fontSize: 13, fontWeight: 700, transition: 'all 0.25s ease',
                     background: msgTab === 'conversations' ? '#FFF' : 'transparent',
                     boxShadow: msgTab === 'conversations' ? '0 2px 8px rgba(0,0,0,0.15)' : 'none',
                     color: msgTab === 'conversations' ? '#111' : 'rgba(255,255,255,0.5)',
@@ -827,7 +827,7 @@ function ProMessaging({ token, user }: { token: string; user: any }) {
                   Conversations
                 </div>
                 <div data-testid="msg-tab-history" onClick={() => setMsgTab('history')}
-                  style={{ padding: '7px 16px', borderRadius: 999, cursor: 'pointer', fontSize: 11, fontWeight: 700, transition: 'all 0.25s ease',
+                  style={{ padding: '10px 24px', borderRadius: 999, cursor: 'pointer', fontSize: 13, fontWeight: 700, transition: 'all 0.25s ease',
                     background: msgTab === 'history' ? '#FFF' : 'transparent',
                     boxShadow: msgTab === 'history' ? '0 2px 8px rgba(0,0,0,0.15)' : 'none',
                     color: msgTab === 'history' ? '#111' : 'rgba(255,255,255,0.5)',
