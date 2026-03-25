@@ -1,6 +1,6 @@
 import { Icon } from '../../src/components/WebIcon';
 import FullScreenLoader from '../../src/components/FullScreenLoader';
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { View, Text, FlatList, TouchableOpacity, ActivityIndicator, RefreshControl, Platform, ScrollView } from 'react-native';
 import { useAuth } from '../../src/context/AuthContext';
 import { apiFetch } from '../../src/services/api';
@@ -738,6 +738,196 @@ function ResolvedSection({ alert, alertDetail }: { alert: any; alertDetail: any 
 }
 
 /* ════════════════════════════════════════════════════════════════════
+   PRO MESSAGING  — WhatsApp-like messaging for Coach/Physio
+   ════════════════════════════════════════════════════════════════════ */
+function ProMessaging({ token, user }: { token: string; user: any }) {
+  const [conversations, setConversations] = useState<any[]>([]);
+  const [activeConvo, setActiveConvo] = useState<any>(null);
+  const [messages, setMessages] = useState<any[]>([]);
+  const [newMsg, setNewMsg] = useState('');
+  const [sending, setSending] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const msgEndRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  const isCoach = user?.professional_type === 'coach';
+  const accentColor = isCoach ? '#DC2626' : '#F97316';
+
+  const fetchConversations = useCallback(async () => {
+    try {
+      const convos = await apiFetch('/api/pro/conversations', {}, token);
+      setConversations(Array.isArray(convos) ? convos : []);
+    } catch {} finally { setLoading(false); }
+  }, [token]);
+
+  useEffect(() => { fetchConversations(); }, [fetchConversations]);
+
+  const openConvo = async (convo: any) => {
+    setActiveConvo(convo);
+    try {
+      const msgs = await apiFetch(`/api/pro/messages/${convo.id}`, {}, token);
+      setMessages(Array.isArray(msgs) ? msgs : []);
+    } catch {}
+    setTimeout(() => { msgEndRef.current?.scrollIntoView({ behavior: 'smooth' }); inputRef.current?.focus(); }, 100);
+  };
+
+  useEffect(() => {
+    if (!activeConvo?.id) return;
+    const iv = setInterval(async () => {
+      try {
+        const msgs = await apiFetch(`/api/pro/messages/${activeConvo.id}`, {}, token);
+        setMessages(Array.isArray(msgs) ? msgs : []);
+      } catch {}
+    }, 4000);
+    return () => clearInterval(iv);
+  }, [activeConvo?.id, token]);
+
+  useEffect(() => { msgEndRef.current?.scrollIntoView({ behavior: 'smooth' }); }, [messages]);
+
+  const send = async () => {
+    if (!newMsg.trim() || !activeConvo?.id) return;
+    setSending(true);
+    try {
+      const msg = await apiFetch(`/api/pro/messages/${activeConvo.id}`, { method: 'POST', body: JSON.stringify({ content: newMsg }) }, token);
+      setMessages(prev => [...prev, msg]);
+      setNewMsg('');
+      inputRef.current?.focus();
+    } catch {} finally { setSending(false); }
+  };
+
+  const BG_IMAGE = 'https://customer-assets.emergentagent.com/job_443c9c6e-0feb-4920-a358-fe7cc1a6289b/artifacts/mhh7xwy3_ChatGPT%20Image%2017%20f%C3%A9vr.%202026%2C%2014_08_43.png';
+
+  if (loading) return <FullScreenLoader />;
+
+  return (
+    <div data-testid="pro-messaging" style={{ position: 'absolute', inset: 0, background: '#FFF', display: 'flex', flexDirection: 'column', fontFamily: 'Inter, system-ui, sans-serif' } as any}>
+
+      {/* Header */}
+      <div style={{ position: 'relative', flexShrink: 0, overflow: 'hidden' } as any}>
+        <img src={BG_IMAGE} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 } as any} />
+        <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 1 } as any} />
+        <div style={{ position: 'relative', zIndex: 2, padding: '20px 20px 16px' } as any}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4 } as any}>
+            <i className="ri-chat-3-fill" style={{ fontSize: 14, color: '#FFF' }} />
+            <span style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.7)', textTransform: 'uppercase', letterSpacing: 1 } as any}>Messagerie</span>
+          </div>
+          <div style={{ fontSize: 20, fontWeight: 900, color: '#FFF' }}>Conversations</div>
+          <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.5)', marginTop: 2 }}>{conversations.length} conversation{conversations.length !== 1 ? 's' : ''}</div>
+        </div>
+      </div>
+
+      {/* Content */}
+      {!activeConvo ? (
+        /* ── CONVERSATION LIST ── */
+        <div data-testid="convo-list" style={{ flex: 1, overflowY: 'auto', padding: '12px 16px 80px' } as any}>
+          {conversations.length === 0 ? (
+            <div style={{ textAlign: 'center', padding: '60px 20px' } as any}>
+              <div style={{ width: 64, height: 64, borderRadius: '50%', background: 'rgba(0,0,0,0.04)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px' } as any}>
+                <i className="ri-chat-3-line" style={{ fontSize: 28, color: '#9CA3AF' }} />
+              </div>
+              <div style={{ fontSize: 16, fontWeight: 700, color: '#111', marginBottom: 6 }}>Aucune conversation</div>
+              <div style={{ fontSize: 13, color: '#6B7280', lineHeight: 1.5 }}>Les conversations apparaitront ici lorsque des beneficiaires souscriront a un abonnement.</div>
+            </div>
+          ) : (
+            conversations.map((convo) => {
+              const otherName = convo.beneficiary_name || convo.professional_name || 'Beneficiaire';
+              const lastMsg = convo.last_message || '';
+              const lastTime = convo.last_message_at ? new Date(convo.last_message_at).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }) : '';
+              const unread = convo.unread_count || 0;
+              return (
+                <div key={convo.id} data-testid={`convo-${convo.id}`} onClick={() => openConvo(convo)}
+                  style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '14px 12px', borderRadius: 16, cursor: 'pointer', marginBottom: 4, transition: 'background 0.15s', background: 'transparent', borderBottom: '1px solid #F3F4F6' } as any}
+                  onMouseEnter={(e: any) => e.currentTarget.style.background = '#F9FAFB'}
+                  onMouseLeave={(e: any) => e.currentTarget.style.background = 'transparent'}>
+                  <div style={{ width: 48, height: 48, borderRadius: '50%', background: `${accentColor}10`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, border: `2px solid ${accentColor}20` } as any}>
+                    <span style={{ fontSize: 18, fontWeight: 800, color: accentColor }}>{otherName.charAt(0)}</span>
+                  </div>
+                  <div style={{ flex: 1, minWidth: 0 } as any}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 2 } as any}>
+                      <div style={{ fontSize: 15, fontWeight: 700, color: '#111' }}>{otherName}</div>
+                      {lastTime && <span style={{ fontSize: 11, color: unread > 0 ? accentColor : '#9CA3AF', fontWeight: unread > 0 ? 700 : 400 }}>{lastTime}</span>}
+                    </div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' } as any}>
+                      <div style={{ fontSize: 13, color: unread > 0 ? '#374151' : '#9CA3AF', fontWeight: unread > 0 ? 600 : 400, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: 200 } as any}>{lastMsg || 'Aucun message'}</div>
+                      {unread > 0 && (
+                        <div style={{ width: 22, height: 22, borderRadius: '50%', background: accentColor, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}>
+                          <span style={{ fontSize: 11, fontWeight: 800, color: '#FFF' }}>{unread}</span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              );
+            })
+          )}
+        </div>
+      ) : (
+        /* ── CHAT VIEW ── */
+        <>
+          {/* Chat header */}
+          <div data-testid="chat-header" style={{ padding: '12px 16px', flexShrink: 0, display: 'flex', alignItems: 'center', gap: 12, borderBottom: '1px solid #F3F4F6', background: '#FFF' } as any}>
+            <div data-testid="back-to-convos" onClick={() => { setActiveConvo(null); setMessages([]); }}
+              style={{ width: 36, height: 36, borderRadius: 12, background: '#F3F4F6', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}>
+              <i className="ri-arrow-left-s-line" style={{ fontSize: 20, color: '#6B7280' }} />
+            </div>
+            <div style={{ width: 40, height: 40, borderRadius: '50%', background: `${accentColor}10`, display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}>
+              <span style={{ fontSize: 16, fontWeight: 800, color: accentColor }}>{(activeConvo.beneficiary_name || activeConvo.professional_name || '?').charAt(0)}</span>
+            </div>
+            <div style={{ flex: 1 }}>
+              <div style={{ fontSize: 15, fontWeight: 700, color: '#111' }}>{activeConvo.beneficiary_name || activeConvo.professional_name || 'Beneficiaire'}</div>
+              <div style={{ fontSize: 11, color: '#9CA3AF' }}>En ligne</div>
+            </div>
+          </div>
+
+          {/* Messages area */}
+          <div style={{ flex: 1, overflowY: 'auto', padding: '16px 16px', background: '#F9FAFB', display: 'flex', flexDirection: 'column' } as any}>
+            {messages.length === 0 && (
+              <div style={{ textAlign: 'center', margin: 'auto 0', padding: '40px 20px' } as any}>
+                <i className="ri-chat-smile-2-line" style={{ fontSize: 40, color: '#D1D5DB', display: 'block', marginBottom: 8 }} />
+                <div style={{ fontSize: 14, color: '#9CA3AF' }}>Commencez la conversation</div>
+              </div>
+            )}
+            {messages.map((msg) => {
+              const isMe = msg.sender_id === user?.id;
+              return (
+                <div key={msg.id} style={{ display: 'flex', justifyContent: isMe ? 'flex-end' : 'flex-start', marginBottom: 6 } as any}>
+                  <div style={{
+                    maxWidth: '75%', padding: '10px 14px',
+                    borderRadius: isMe ? '16px 16px 4px 16px' : '16px 16px 16px 4px',
+                    background: isMe ? accentColor : '#FFF',
+                    color: isMe ? '#FFF' : '#111',
+                    boxShadow: isMe ? 'none' : '0 1px 3px rgba(0,0,0,0.06)',
+                  } as any}>
+                    <div style={{ fontSize: 14, lineHeight: 1.5 }}>{msg.content}</div>
+                    <div style={{ fontSize: 9, color: isMe ? 'rgba(255,255,255,0.6)' : '#9CA3AF', marginTop: 4, textAlign: 'right' } as any}>
+                      {new Date(msg.created_at).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}
+                      {isMe && <i className="ri-check-double-line" style={{ marginLeft: 4, fontSize: 10 }} />}
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+            <div ref={msgEndRef} />
+          </div>
+
+          {/* Input bar */}
+          <div style={{ padding: '12px 16px 24px', flexShrink: 0, borderTop: '1px solid #F3F4F6', display: 'flex', gap: 10, alignItems: 'center', background: '#FFF' } as any}>
+            <input ref={inputRef} data-testid="pro-msg-input" value={newMsg} onChange={(e: any) => setNewMsg(e.target.value)}
+              onKeyDown={(e: any) => e.key === 'Enter' && !e.shiftKey && send()}
+              placeholder="Votre message..."
+              style={{ flex: 1, padding: '13px 18px', borderRadius: 999, background: '#F3F4F6', border: '1.5px solid #E5E7EB', color: '#111', fontSize: 15, outline: 'none', fontFamily: 'inherit', transition: 'border-color 0.2s' } as any} />
+            <div data-testid="pro-msg-send" onClick={sending ? undefined : send}
+              style={{ width: 46, height: 46, borderRadius: '50%', background: newMsg.trim() ? accentColor : '#E5E7EB', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', flexShrink: 0, opacity: sending ? 0.5 : 1, transition: 'background 0.15s' } as any}>
+              <i className="ri-send-plane-fill" style={{ fontSize: 18, color: newMsg.trim() ? '#FFF' : '#9CA3AF' }} />
+            </div>
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
+
+/* ════════════════════════════════════════════════════════════════════
    MAIN EXPORT  — AlertsScreen
    ════════════════════════════════════════════════════════════════════ */
 export default function AlertsScreen() {
@@ -745,6 +935,13 @@ export default function AlertsScreen() {
   const router = useRouter();
   const { preselect } = useLocalSearchParams<{ preselect?: string }>();
   const r = user?.active_role || user?.role || '';
+
+  // Coach/Physio: show messaging instead of alerts
+  const isCoachOrPhysio = user?.professional_type === 'coach' || user?.professional_type === 'physio';
+  if (isCoachOrPhysio && token && Platform.OS === 'web') {
+    return <ProMessaging token={token} user={user} />;
+  }
+
   const [alerts, setAlerts] = useState<any[]>([]);
   const [activeAlerts, setActiveAlerts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
