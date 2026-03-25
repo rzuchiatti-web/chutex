@@ -10,20 +10,20 @@ Application mobile-first de sante connectee. Un seul role Gardien dont l'interfa
 
 ## Implemente (Mars 2026)
 
-### ProSpace v6 — Espace Coach/Physio (SANS programmes)
+### ProSpace v7 — Espace Coach/Physio (SANS programmes)
 - Header: icone, titre 26px, compteur, pilules glass (10px 24px, fontSize 13)
 - Selecteur beneficiaire **pleine largeur glassmorphisme** (fond transparent blur, fleche deroule)
 - **Programmes supprimes partout**
-- Onglet **Eleves**: Carte Exercices (assignes individuellement) + Rappels + Repas. Bouton "+" pour assigner un exercice depuis la bibliotheque
+- **Calendrier horizontal** sous le selecteur de beneficiaire: affiche 14 jours (-3 a +10), selection d'un jour filtre les exercices
+- Onglet **Eleves**: Liste d'exercices filtres par le jour du calendrier avec badges statut (Fait/A faire/Partiel) + Rappels + Repas
 - Onglet **Bibliotheque**: 3 cartes grises (Exercices, Rappels, Repas) avec boutons "+" dediees
-- **Assignation exercice**: Picker bibliotheque → Jours de la semaine (Lun-Dim) → Repetitions / Series / Repos sur-mesure
-- L'exercice template (video, image, description, etapes) reste le meme — seuls jours/reps/repos sont personnalises
-- **Page pro-exercise-detail.tsx**: hero image, stats, video YouTube, etapes, validation (Valider/Partiel/Passer) avec niveau douleur
+- **Assignation exercice**: Picker bibliotheque -> Jours de la semaine (Lun-Dim) -> Repetitions / Series / Repos sur-mesure
+- **Edition exercice assigne**: Modale d'edition (jours, series, repetitions, repos) via PUT /api/pro/assigned-exercises/{id}
+- **Page pro-exercise-detail.tsx**: hero image, stats, video YouTube, etapes, validation (Valider/Partiel/Passer) avec niveau douleur. Utilise /api/pro/assigned-exercise-detail/{id} pour charger l'exercice assigne
 
 ### Cote Beneficiaire
-- **Page beneficiary-detail**: Section "Exercices prescrits" avec exercices du jour en vert + bouton "Faire" (autres jours en grise)
-- Au clic → page detail exercice avec validation
-- **Validation visible par le coach** dans les completions
+- **Page health.tsx**: Affiche les exercices du jour avec bouton "Faire"
+- **beneficiary-detail.tsx**: Nettoyee, plus de section "Exercices prescrits" (deplacee dans ProSpace)
 
 ### Messagerie, Paiements, Autres
 - Inchanges depuis v5
@@ -36,6 +36,8 @@ Application mobile-first de sante connectee. Un seul role Gardien dont l'interfa
 | DELETE /api/pro/exercise-templates/{id} | Supprimer template |
 | POST /api/pro/assign-exercise | Assigner exercice avec jours/reps/repos |
 | GET /api/pro/assigned-exercises/{benId} | Exercices assignes a un beneficiaire |
+| GET /api/pro/assigned-exercise-detail/{id} | Detail d'un exercice assigne unique |
+| PUT /api/pro/assigned-exercises/{id} | Modifier exercice assigne (jours/reps/repos) |
 | DELETE /api/pro/assigned-exercises/{id} | Retirer assignation |
 | GET /api/pro/beneficiary-today-exercises | Exercices du jour (beneficiaire) |
 | GET /api/pro/beneficiary-all-exercises | Tous les exercices (beneficiaire) |
