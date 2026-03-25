@@ -278,12 +278,46 @@ async def mollie_webhook(request: Request):
 
 @router.get("/pro/payment-history")
 async def get_payment_history(user=Depends(get_current_user)):
-    """Pro or admin gets payment history"""
+    """Pro gets full payment history"""
     require_pro(user)
     payments = await db.payment_history.find(
         {"professional_id": user['id']}, {"_id": 0}
-    ).sort("date", -1).to_list(50)
+    ).sort("date", -1).to_list(200)
     return payments
+
+
+@router.get("/pro/payment-history/export")
+async def export_payment_history_csv(user=Depends(get_current_user)):
+    """Export payment history as CSV download"""
+    from fastapi.responses import StreamingResponse
+    import io, csv
+    require_pro(user)
+    payments = await db.payment_history.find(
+        {"professional_id": user['id']}, {"_id": 0}
+    ).sort("date", -1).to_list(500)
+
+    output = io.StringIO()
+    writer = csv.writer(output, delimiter=';')
+    writer.writerow(['Date', 'Beneficiaire', 'Montant TTC', 'Montant HT', 'Commission', 'Statut', 'Reference Mollie'])
+    for p in payments:
+        date_str = p.get('date', '')[:10] if p.get('date') else ''
+        writer.writerow([
+            date_str,
+            p.get('beneficiary_name', p.get('beneficiary_id', '')[:8]),
+            f"{p.get('amount_ttc', 0):.2f}",
+            f"{p.get('amount_ht', 0):.2f}",
+            f"{p.get('commission', 0):.2f}",
+            p.get('status', ''),
+            p.get('mollie_payment_id', ''),
+        ])
+    output.seek(0)
+    cu = await db.users.find_one({"id": user['id']}, {"_id": 0})
+    filename = f"paiements_{(cu.get('name','pro')).replace(' ','_')}_{datetime.now(timezone.utc).strftime('%Y%m%d')}.csv"
+    return StreamingResponse(
+        iter([output.getvalue()]),
+        media_type="text/csv",
+        headers={"Content-Disposition": f"attachment; filename={filename}"}
+    )
 
 @router.get("/pro/payment-dashboard")
 async def get_payment_dashboard(user=Depends(get_current_user)):

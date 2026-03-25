@@ -3,7 +3,7 @@ import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator, RefreshCon
 import { useRouter } from 'expo-router';
 import { useAuth } from '../../context/AuthContext';
 import { useI18n } from '../../context/I18nContext';
-import { apiFetch } from '../../services/api';
+import { apiFetch, API_URL } from '../../services/api';
 import { requestNotificationPermission, notifyAlert, notifyIntervention } from '../../services/notifications';
 import FullScreenLoader from '../FullScreenLoader';
 import CopilotCard from './CopilotCard';
@@ -89,6 +89,8 @@ export default function GuardianHome({ token, user }: { token: string; user: any
   const [ibanForm, setIbanForm] = useState({ account_holder: '', iban: '', bic: '' });
   const [ibanSaving, setIbanSaving] = useState(false);
   const [ibanMsg, setIbanMsg] = useState<{ type: 'ok' | 'err'; text: string } | null>(null);
+  const [paymentHistory, setPaymentHistory] = useState<any[]>([]);
+  const [showPaymentHistory, setShowPaymentHistory] = useState(false);
   const [isDark, setIsDark] = React.useState(() => {
     if (typeof localStorage !== 'undefined') return localStorage.getItem('chutex_dark') === '1';
     return false;
@@ -249,6 +251,79 @@ export default function GuardianHome({ token, user }: { token: string; user: any
                     <i className="ri-arrow-right-s-line" style={{ fontSize: 14, color: subColor }} />
                   </div>
                 </div>
+              </div>
+            )}
+
+            {/* HISTORIQUE PAIEMENTS */}
+            {isCoachOrPhysio && (
+              <div style={{ marginTop: 16, borderRadius: 18, background: cardBg, overflow: 'hidden' } as any}>
+                <div data-testid="payment-history-toggle" onClick={async () => {
+                  if (!showPaymentHistory) {
+                    try { const h = await apiFetch('/api/pro/payment-history', {}, token); setPaymentHistory(Array.isArray(h) ? h : []); } catch {}
+                  }
+                  setShowPaymentHistory(!showPaymentHistory);
+                }} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px 18px', cursor: 'pointer' } as any}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 10 } as any}>
+                    <i className="ri-history-line" style={{ fontSize: 18, color: textColor }} />
+                    <span style={{ fontSize: 14, fontWeight: 700, color: textColor }}>Historique des paiements</span>
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 } as any}>
+                    <span style={{ fontSize: 11, fontWeight: 600, color: subColor }}>{paymentHistory.length || ''}</span>
+                    <i className={`ri-arrow-${showPaymentHistory ? 'up' : 'down'}-s-line`} style={{ fontSize: 18, color: subColor }} />
+                  </div>
+                </div>
+
+                {showPaymentHistory && (
+                  <div style={{ borderTop: `1px solid ${sepColor}` } as any}>
+                    {/* Export CSV */}
+                    <div style={{ padding: '10px 18px', display: 'flex', justifyContent: 'flex-end' } as any}>
+                      <a data-testid="export-csv-btn" href={`${API_URL}/api/pro/payment-history/export`}
+                        onClick={async (e: any) => {
+                          e.preventDefault();
+                          try {
+                            const res = await fetch(`${API_URL}/api/pro/payment-history/export`, { headers: { Authorization: `Bearer ${token}` } });
+                            const blob = await res.blob();
+                            const url = window.URL.createObjectURL(blob);
+                            const a = document.createElement('a'); a.href = url; a.download = `paiements_${new Date().toISOString().slice(0,10)}.csv`; a.click();
+                            window.URL.revokeObjectURL(url);
+                          } catch {}
+                        }}
+                        style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 14px', borderRadius: 999, background: isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.04)', fontSize: 12, fontWeight: 700, color: subColor, cursor: 'pointer', textDecoration: 'none', border: `1px solid ${sepColor}` } as any}>
+                        <i className="ri-download-2-line" style={{ fontSize: 14 }} /> Exporter CSV
+                      </a>
+                    </div>
+
+                    {paymentHistory.length === 0 ? (
+                      <div style={{ textAlign: 'center', padding: '24px 18px', color: subColor, fontSize: 13 } as any}>
+                        <i className="ri-wallet-3-line" style={{ fontSize: 28, display: 'block', marginBottom: 8, opacity: 0.4 }} />
+                        Aucun paiement recu pour le moment
+                      </div>
+                    ) : (
+                      <div style={{ maxHeight: 320, overflowY: 'auto' } as any}>
+                        {paymentHistory.map((p: any, i: number) => {
+                          const dateStr = p.date ? new Date(p.date).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short', year: 'numeric' }) : '';
+                          const benName = p.beneficiary_name || (p.beneficiary_id || '').slice(0, 8);
+                          return (
+                            <div key={p.id || i} data-testid={`payment-row-${i}`}
+                              style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 18px', borderTop: i > 0 ? `1px solid ${sepColor}` : 'none' } as any}>
+                              <div style={{ width: 36, height: 36, borderRadius: 10, background: p.status === 'paid' ? 'rgba(16,185,129,0.1)' : 'rgba(245,158,11,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}>
+                                <i className={p.status === 'paid' ? 'ri-check-line' : 'ri-time-line'} style={{ fontSize: 16, color: p.status === 'paid' ? '#10B981' : '#F59E0B' }} />
+                              </div>
+                              <div style={{ flex: 1, minWidth: 0 } as any}>
+                                <div style={{ fontSize: 13, fontWeight: 700, color: textColor, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' } as any}>{benName}</div>
+                                <div style={{ fontSize: 11, color: subColor }}>{dateStr}</div>
+                              </div>
+                              <div style={{ textAlign: 'right', flexShrink: 0 } as any}>
+                                <div style={{ fontSize: 14, fontWeight: 800, color: '#10B981' }}>+{p.amount_ht || 0} €</div>
+                                <div style={{ fontSize: 10, color: subColor }}>HT</div>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
             )}
 
