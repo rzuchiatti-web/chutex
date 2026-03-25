@@ -799,13 +799,56 @@ async def complete_exercise(assignment_id: str, data: SessionCompletion, user=De
         "patient_notes": data.patient_notes,
         "completed_by": user['id'],
     }
-    result = await db.pro_assigned_exercises.update_one(
+    ex = await db.pro_assigned_exercises.find_one({"id": assignment_id}, {"_id": 0})
+    if not ex:
+        raise HTTPException(status_code=404, detail="Exercice non trouve")
+    await db.pro_assigned_exercises.update_one(
         {"id": assignment_id},
         {"$push": {"completions": completion}}
     )
-    if result.modified_count == 0:
-        raise HTTPException(status_code=404, detail="Exercice non trouve")
+    # Notify the coach
+    status_label = {"done": "termine", "partial": "partiellement fait", "skipped": "passe"}.get(data.status, data.status)
+    await db.pro_notifications.insert_one({
+        "id": str(uuid.uuid4()),
+        "professional_id": ex.get("professional_id"),
+        "beneficiary_id": user['id'],
+        "beneficiary_name": user.get('name', ''),
+        "type": "exercise_completion",
+        "exercise_title": ex.get("title", ""),
+        "status": data.status,
+        "message": f"{user.get('name', 'Un beneficiaire')} a {status_label} l'exercice \"{ex.get('title', '')}\"",
+        "read": False,
+        "created_at": datetime.now(timezone.utc).isoformat(),
+    })
     return {"status": "ok", "completion": completion}
+
+@router.get("/pro/notifications")
+async def get_pro_notifications(user=Depends(get_current_user)):
+    """Get notifications for the professional"""
+    require_pro(user)
+    notifs = await db.pro_notifications.find(
+        {"professional_id": user['id']}, {"_id": 0}
+    ).sort("created_at", -1).to_list(50)
+    return notifs
+
+@router.get("/pro/notifications/unread-count")
+async def get_unread_count(user=Depends(get_current_user)):
+    """Get unread notification count"""
+    require_pro(user)
+    count = await db.pro_notifications.count_documents(
+        {"professional_id": user['id'], "read": False}
+    )
+    return {"count": count}
+
+@router.put("/pro/notifications/mark-read")
+async def mark_notifications_read(user=Depends(get_current_user)):
+    """Mark all notifications as read"""
+    require_pro(user)
+    await db.pro_notifications.update_many(
+        {"professional_id": user['id'], "read": False},
+        {"$set": {"read": True}}
+    )
+    return {"status": "ok"}
 
 class ExerciseTemplateCreate(BaseModel):
     title: str

@@ -187,6 +187,11 @@ export default function ProSpace({ token, user }: { token: string; user: any }) 
   // Edit assigned exercise form
   const [editExForm, setEditExForm] = useState<any>(null);
 
+  // Notifications
+  const [notifications, setNotifications] = useState<any[]>([]);
+  const [unreadCount, setUnreadCount] = useState(0);
+  const [notifOpen, setNotifOpen] = useState(false);
+
   // ── Data fetching ──
 
   const fetchBens = useCallback(async () => {
@@ -202,6 +207,7 @@ export default function ProSpace({ token, user }: { token: string; user: any }) 
   useEffect(() => {
     if (!token) return;
     apiFetch('/api/pro/exercise-templates', {}, token).then(e => setExerciseTemplates(Array.isArray(e) ? e : [])).catch(() => {});
+    apiFetch('/api/pro/notifications/unread-count', {}, token).then((r: any) => setUnreadCount(r?.count || 0)).catch(() => {});
     Promise.all(bens.map(b => apiFetch(`/api/pro/reminders/${b.id}`, {}, token).catch(() => []))).then(r => setAllReminders(r.flat().filter(Boolean)));
     Promise.all(bens.map(b => apiFetch(`/api/pro/meals/${b.id}`, {}, token).catch(() => ({ meals: [] })))).then(r => setAllMeals(r.flatMap((x: any) => Array.isArray(x) ? x : x?.meals || [])));
   }, [token, tick, bens.length]);
@@ -306,7 +312,25 @@ export default function ProSpace({ token, user }: { token: string; user: any }) 
             <div style={{ width: 48, height: 48, borderRadius: 16, background: 'rgba(255,255,255,0.15)', backdropFilter: 'blur(8px)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 12, border: '1px solid rgba(255,255,255,0.2)' } as any}>
               <i className={isPhysio ? 'ri-stethoscope-line' : isCoach ? 'ri-run-line' : 'ri-shield-user-line'} style={{ fontSize: 22, color: '#FFF' }} />
             </div>
-            <div style={{ fontSize: 26, fontWeight: 900, color: '#FFF', marginBottom: 4, letterSpacing: -0.5 }}>{isPhysio ? 'Espace Kine' : isCoach ? 'Espace Coach' : 'Activite'}</div>
+            <div style={{ fontSize: 26, fontWeight: 900, color: '#FFF', marginBottom: 4, letterSpacing: -0.5, display: 'flex', alignItems: 'center', gap: 12 } as any}>
+              {isPhysio ? 'Espace Kine' : isCoach ? 'Espace Coach' : 'Activite'}
+              {/* Notification bell */}
+              <div data-testid="notif-bell" onClick={() => {
+                if (!notifOpen) {
+                  apiFetch('/api/pro/notifications', {}, token).then(n => setNotifications(Array.isArray(n) ? n : [])).catch(() => {});
+                  apiFetch('/api/pro/notifications/mark-read', { method: 'PUT' }, token).then(() => setUnreadCount(0)).catch(() => {});
+                }
+                setNotifOpen(!notifOpen);
+              }}
+                style={{ position: 'relative', width: 36, height: 36, borderRadius: 12, background: 'rgba(255,255,255,0.12)', backdropFilter: 'blur(8px)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', border: '1px solid rgba(255,255,255,0.15)' } as any}>
+                <i className="ri-notification-3-line" style={{ fontSize: 18, color: '#FFF' }} />
+                {unreadCount > 0 && (
+                  <div style={{ position: 'absolute', top: -4, right: -4, width: 18, height: 18, borderRadius: 999, background: '#EF4444', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 10, fontWeight: 800, color: '#FFF', border: '2px solid rgba(0,0,0,0.3)' } as any}>
+                    {unreadCount > 9 ? '9+' : unreadCount}
+                  </div>
+                )}
+              </div>
+            </div>
             <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.55)', marginBottom: 18 }}>{bens.length} {patientSingle}{bens.length !== 1 ? 's' : ''}</div>
 
             {/* ── PILL TABS ── */}
@@ -363,6 +387,44 @@ export default function ProSpace({ token, user }: { token: string; user: any }) 
 
         {/* ══ CONTENT ══ */}
         <div style={{ padding: '20px 16px 120px', marginTop: -16, borderRadius: '24px 24px 0 0', background: '#FFF', position: 'relative', zIndex: 10, minHeight: 'calc(100vh - 280px)' } as any}>
+
+          {/* ── Notification Panel ── */}
+          {notifOpen && (
+            <div data-testid="notif-panel" style={{ marginBottom: 16, borderRadius: 18, background: '#F4F4F5', padding: 16, animation: 'fadeIn 0.2s ease' } as any}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 } as any}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8 } as any}>
+                  <i className="ri-notification-3-line" style={{ fontSize: 16, color: AC }} />
+                  <span style={{ fontSize: 14, fontWeight: 800, color: '#111' }}>Notifications</span>
+                </div>
+                <div onClick={() => setNotifOpen(false)} style={{ cursor: 'pointer', padding: '4px 8px' } as any}>
+                  <i className="ri-close-line" style={{ fontSize: 18, color: '#6B7280' }} />
+                </div>
+              </div>
+              {notifications.length === 0 ? (
+                <div style={{ textAlign: 'center', padding: '24px 16px', color: '#9CA3AF', fontSize: 13 } as any}>
+                  <i className="ri-notification-off-line" style={{ fontSize: 28, display: 'block', marginBottom: 8, color: '#D1D5DB' }} />
+                  Aucune notification
+                </div>
+              ) : (
+                notifications.slice(0, 20).map(n => (
+                  <div key={n.id} data-testid={`notif-${n.id}`}
+                    style={{ display: 'flex', alignItems: 'flex-start', gap: 12, padding: '12px 14px', borderRadius: 14, background: n.read ? '#FFF' : 'rgba(255,255,255,0.9)', border: n.read ? '1px solid transparent' : `1px solid ${AC}20`, marginBottom: 6, transition: 'all 0.15s' } as any}>
+                    <div style={{ width: 36, height: 36, borderRadius: 10, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      background: n.status === 'done' ? 'rgba(16,185,129,0.1)' : n.status === 'partial' ? 'rgba(245,158,11,0.1)' : 'rgba(107,114,128,0.1)' } as any}>
+                      <i className={n.status === 'done' ? 'ri-checkbox-circle-fill' : n.status === 'partial' ? 'ri-indeterminate-circle-line' : 'ri-skip-forward-line'}
+                        style={{ fontSize: 18, color: n.status === 'done' ? '#10B981' : n.status === 'partial' ? '#F59E0B' : '#6B7280' }} />
+                    </div>
+                    <div style={{ flex: 1, minWidth: 0 } as any}>
+                      <div style={{ fontSize: 13, fontWeight: 600, color: '#111', lineHeight: 1.4 }}>{n.message}</div>
+                      <div style={{ fontSize: 10, color: '#9CA3AF', marginTop: 4 }}>
+                        {n.created_at ? new Date(n.created_at).toLocaleString('fr-FR', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) : ''}
+                      </div>
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+          )}
 
           {/* ════ PATIENTS TAB ════ */}
           {tab === 'patients' && (
