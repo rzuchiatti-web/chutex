@@ -165,11 +165,17 @@ export function BeneficiaryHome({ token, user }: { token: string; user: any }) {
       apiFetch('/api/pro/my-subscription', {}, token).then(s => { if (s?.id) setProSub(s); }).catch(() => {});
       apiFetch('/api/pro/unread-count', {}, token).then(u => { if (u) setUnreadMsgs(u.unread || 0); }).catch(() => {});
       apiFetch('/api/pro/conversations', {}, token).then(c => { if (c?.length > 0) setProConvo(c[0]); }).catch(() => {});
-      apiFetch('/api/pro/beneficiary-today-exercises', {}, token).then(e => setTodayExercises(Array.isArray(e) ? e : [])).catch(() => {});
     } catch {} finally { setLoading(false); setRefreshing(false); }
   }, [token]);
 
   useEffect(() => { fetchData(); const iv = setInterval(fetchData, 60000); return () => clearInterval(iv); }, [fetchData]);
+  // Independent fetch for today's exercises (coach-prescribed)
+  useEffect(() => {
+    if (!token) return;
+    apiFetch('/api/pro/beneficiary-today-exercises', {}, token)
+      .then(e => { if (Array.isArray(e)) setTodayExercises(e); })
+      .catch(() => {});
+  }, [token]);
   useEffect(() => { requestNotificationPermission(); }, []);
   useEffect(() => {
     if (Platform.OS === 'web') {

@@ -11,20 +11,21 @@ Application mobile-first de sante connectee. Un seul role Gardien dont l'interfa
 ## Implemente (Mars 2026)
 
 ### ProSpace v7 — Espace Coach/Physio (SANS programmes)
-- Header: icone, titre 26px, compteur, pilules glass (10px 24px, fontSize 13)
-- Selecteur beneficiaire **pleine largeur glassmorphisme** (fond transparent blur, fleche deroule)
-- **Programmes supprimes partout**
-- **Calendrier horizontal** sous le selecteur de beneficiaire: affiche 14 jours (-3 a +10), selection d'un jour filtre les exercices
-- Onglet **Eleves**: Liste d'exercices filtres par le jour du calendrier avec badges statut (Fait/A faire/Partiel) + Rappels + Repas
-- Onglet **Bibliotheque**: 3 cartes grises (Exercices, Rappels, Repas) avec boutons "+" dediees
-- **Assignation exercice**: Picker bibliotheque -> Jours de la semaine (Lun-Dim) -> Repetitions / Series / Repos sur-mesure
-- **Edition exercice assigne**: Modale d'edition (jours, series, repetitions, repos) via PUT /api/pro/assigned-exercises/{id}
-- **Page pro-exercise-detail.tsx**: hero image, stats, video YouTube, etapes, validation (Valider/Partiel/Passer) avec niveau douleur
-- **Notifications coach**: Cloche dans le header avec badge compteur non-lus. Panneau deroulant affichant les notifications de completion d'exercices par les beneficiaires. Marquage automatique comme lu a l'ouverture.
+- Header: icone, titre 26px, compteur, pilules glass
+- Selecteur beneficiaire pleine largeur glassmorphisme
+- Calendrier horizontal avec tous les jours du mois + fleches navigation mois + mois en blanc
+- Onglet Eleves: Liste exercices filtres par jour + badges statut (Fait/A faire/Partiel) + Rappels + Repas
+- Onglet Bibliotheque: Exercices, Rappels, Repas avec boutons "+"
+- Assignation exercice: Picker bibliotheque -> Jours -> Reps/Series/Repos
+- Edition exercice assigne: Modale glassmorphisme (jours, series, reps, repos)
+- Notifications coach: Cloche + panneau deroulant
+- Boutons actions: ronds + glassmorphisme
 
 ### Cote Beneficiaire
-- **Page health.tsx**: Affiche les exercices du jour avec bouton "Faire"
-- **beneficiary-detail.tsx**: Nettoyee, plus de section "Exercices prescrits" (deplacee dans ProSpace)
+- **BeneficiaryHome.tsx**: Section "Exercices du jour" prescrit par coach avec statut Fait/Faire
+- **health.tsx**: Affiche exercices du jour avec bouton Faire
+- **pro-chat.tsx**: Design identique a ProMessaging (fond clair, header rouge, bulles WhatsApp)
+- **beneficiary-detail.tsx**: Nettoyee, exercices deplaces dans ProSpace
 
 ### Messagerie, Paiements, Autres
 - Inchanges depuis v5
@@ -35,27 +36,24 @@ Application mobile-first de sante connectee. Un seul role Gardien dont l'interfa
 | POST /api/pro/exercise-templates | Creer exercice template |
 | GET /api/pro/exercise-templates | Lister templates |
 | DELETE /api/pro/exercise-templates/{id} | Supprimer template |
-| POST /api/pro/assign-exercise | Assigner exercice avec jours/reps/repos |
-| GET /api/pro/assigned-exercises/{benId} | Exercices assignes a un beneficiaire |
-| GET /api/pro/assigned-exercise-detail/{id} | Detail d'un exercice assigne unique |
-| PUT /api/pro/assigned-exercises/{id} | Modifier exercice assigne (jours/reps/repos) |
+| POST /api/pro/assign-exercise | Assigner exercice |
+| GET /api/pro/assigned-exercises/{benId} | Exercices assignes |
+| GET /api/pro/assigned-exercise-detail/{id} | Detail exercice assigne |
+| PUT /api/pro/assigned-exercises/{id} | Modifier exercice assigne |
 | DELETE /api/pro/assigned-exercises/{id} | Retirer assignation |
 | GET /api/pro/beneficiary-today-exercises | Exercices du jour (beneficiaire) |
-| GET /api/pro/beneficiary-all-exercises | Tous les exercices (beneficiaire) |
-| POST /api/pro/exercises/{id}/complete | Valider exercice + creer notification |
+| GET /api/pro/beneficiary-all-exercises | Tous exercices (beneficiaire) |
+| POST /api/pro/exercises/{id}/complete | Valider exercice + notification |
 
 ## APIs Notifications
 | Endpoint | Description |
 |---|---|
-| GET /api/pro/notifications | Liste des notifications du coach (50 max) |
-| GET /api/pro/notifications/unread-count | Nombre de notifications non lues |
-| PUT /api/pro/notifications/mark-read | Marquer toutes les notifications comme lues |
+| GET /api/pro/notifications | Liste notifications coach |
+| GET /api/pro/notifications/unread-count | Compteur non-lus |
+| PUT /api/pro/notifications/mark-read | Marquer comme lu |
 
 ## DB Collections
-- `pro_exercise_templates`: Bibliotheque d'exercices reusables
-- `pro_assigned_exercises`: Exercices assignes avec jours/reps/repos personnalises + completions
-- `pro_notifications`: Notifications de completion d'exercices pour le coach
-- `payment_history`: Transactions Mollie
+- pro_exercise_templates, pro_assigned_exercises, pro_notifications, payment_history
 
 ## Backlog
 - P1: Tableau de bord revenus admin
