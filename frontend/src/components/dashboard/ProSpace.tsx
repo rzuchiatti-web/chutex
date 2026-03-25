@@ -182,11 +182,11 @@ export default function ProSpace({ token, user }: { token: string; user: any }) 
   const [activeBen, setActiveBen] = useState('');
   const [tab, setTab] = useState<'patients' | 'library'>('patients');
   const [assignedExercises, setAssignedExercises] = useState<any[]>([]);
-  const [reminders, setReminders] = useState<any[]>([]);
-  const [meals, setMeals] = useState<any[]>([]);
-  const [allReminders, setAllReminders] = useState<any[]>([]);
-  const [allMeals, setAllMeals] = useState<any[]>([]);
+  const [assignedReminders, setAssignedReminders] = useState<any[]>([]);
+  const [assignedMeals, setAssignedMeals] = useState<any[]>([]);
   const [exerciseTemplates, setExerciseTemplates] = useState<any[]>([]);
+  const [reminderTemplates, setReminderTemplates] = useState<any[]>([]);
+  const [mealTemplates, setMealTemplates] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [tick, setTick] = useState(0);
@@ -201,11 +201,17 @@ export default function ProSpace({ token, user }: { token: string; user: any }) 
   const emptyEx = { title: '', description: '', sets: 3, reps: 12, duration_minutes: 0, image: '', days: [] as string[], rest_seconds: 60 };
   const [exForm, setExForm] = useState(emptyEx);
 
-  // Rich meal form
+  // Reminder assign form
+  const [remAssignForm, setRemAssignForm] = useState({ days: [] as string[], time: '08:00', dosage: '' });
+
+  // Meal assign form
+  const [mealAssignForm, setMealAssignForm] = useState({ days: [] as string[], meal_type: 'dejeuner' });
+
+  // Rich meal form (for library creation)
   const emptyMeal = { meal_type: 'dejeuner', title: '', image: '', ingredients: [{ name: '', quantity: '', unit: 'g' }] as any[], steps: [''] as string[], calories: 0, proteins: 0, glucides: 0, lipides: 0, notes: '' };
   const [mealForm, setMealForm] = useState(emptyMeal);
 
-  // Reminder form
+  // Reminder form (for library creation)
   const emptyRem = { reminder_type: 'medication', title: '', time: '08:00', dosage: '', notes: '' };
   const [remForm, setRemForm] = useState(emptyRem);
 
@@ -231,20 +237,22 @@ export default function ProSpace({ token, user }: { token: string; user: any }) 
   useEffect(() => {
     if (!token) return;
     apiFetch('/api/pro/exercise-templates', {}, token).then(e => setExerciseTemplates(Array.isArray(e) ? e : [])).catch(() => {});
-    Promise.all(bens.map(b => apiFetch(`/api/pro/reminders/${b.id}`, {}, token).catch(() => []))).then(r => setAllReminders(r.flat().filter(Boolean)));
-    Promise.all(bens.map(b => apiFetch(`/api/pro/meals/${b.id}`, {}, token).catch(() => ({ meals: [] })))).then(r => setAllMeals(r.flatMap((x: any) => Array.isArray(x) ? x : x?.meals || [])));
-  }, [token, tick, bens.length]);
+    apiFetch('/api/pro/reminder-templates', {}, token).then(r => setReminderTemplates(Array.isArray(r) ? r : [])).catch(() => {});
+    apiFetch('/api/pro/meal-templates', {}, token).then(m => setMealTemplates(Array.isArray(m) ? m : [])).catch(() => {});
+    // Auto-seed if empty
+    apiFetch('/api/pro/seed-templates', { method: 'POST' }, token).catch(() => {});
+  }, [token, tick]);
 
   useEffect(() => {
     if (!activeBen || !token) return;
     Promise.all([
       apiFetch(`/api/pro/assigned-exercises/${activeBen}`, {}, token).catch(() => []),
-      apiFetch(`/api/pro/reminders/${activeBen}`, {}, token).catch(() => []),
-      apiFetch(`/api/pro/meals/${activeBen}`, {}, token).catch(() => ({ meals: [] })),
+      apiFetch(`/api/pro/assigned-reminders/${activeBen}`, {}, token).catch(() => []),
+      apiFetch(`/api/pro/assigned-meals/${activeBen}`, {}, token).catch(() => []),
     ]).then(([a, r, m]) => {
       setAssignedExercises(Array.isArray(a) ? a : []);
-      setReminders(Array.isArray(r) ? r : []);
-      setMeals(Array.isArray(m) ? m : m?.meals || []);
+      setAssignedReminders(Array.isArray(r) ? r : []);
+      setAssignedMeals(Array.isArray(m) ? m : []);
     });
   }, [activeBen, token, tick]);
 
@@ -262,6 +270,14 @@ export default function ProSpace({ token, user }: { token: string; user: any }) 
     return assignedExercises.filter(ex => (ex.days || []).includes(selectedDayFr));
   }, [assignedExercises, selectedDayFr]);
 
+  const filteredReminders = useMemo(() => {
+    return assignedReminders.filter(r => (r.days || []).includes(selectedDayFr));
+  }, [assignedReminders, selectedDayFr]);
+
+  const filteredMeals = useMemo(() => {
+    return assignedMeals.filter(m => (m.days || []).includes(selectedDayFr));
+  }, [assignedMeals, selectedDayFr]);
+
   // ── CRUD ──
 
   const assignExercise = async (templateId: string, days: string[], reps: number, sets: number, rest: number) => {
@@ -274,8 +290,34 @@ export default function ProSpace({ token, user }: { token: string; user: any }) 
     } catch {} finally { setSaving(false); }
   };
 
+  const assignReminder = async (templateId: string, days: string[], time: string, dosage: string) => {
+    setSaving(true);
+    try {
+      await apiFetch('/api/pro/assign-reminder', { method: 'POST', body: JSON.stringify({
+        reminder_template_id: templateId, beneficiary_id: activeBen, days, time, dosage
+      }) }, token);
+      setModal(null); setModalCtx(null); refresh();
+    } catch {} finally { setSaving(false); }
+  };
+
+  const assignMeal = async (templateId: string, days: string[], mealType: string) => {
+    setSaving(true);
+    try {
+      await apiFetch('/api/pro/assign-meal', { method: 'POST', body: JSON.stringify({
+        meal_template_id: templateId, beneficiary_id: activeBen, days, meal_type: mealType
+      }) }, token);
+      setModal(null); setModalCtx(null); refresh();
+    } catch {} finally { setSaving(false); }
+  };
+
   const deleteAssignedExercise = async (id: string) => {
     try { await apiFetch(`/api/pro/assigned-exercises/${id}`, { method: 'DELETE' }, token); refresh(); } catch {}
+  };
+  const deleteAssignedReminder = async (id: string) => {
+    try { await apiFetch(`/api/pro/assigned-reminders/${id}`, { method: 'DELETE' }, token); refresh(); } catch {}
+  };
+  const deleteAssignedMeal = async (id: string) => {
+    try { await apiFetch(`/api/pro/assigned-meals/${id}`, { method: 'DELETE' }, token); refresh(); } catch {}
   };
 
   const updateAssignedExercise = async () => {
@@ -317,8 +359,6 @@ export default function ProSpace({ token, user }: { token: string; user: any }) 
       setModal(null); setRemForm(emptyRem); refresh();
     } catch {} finally { setSaving(false); }
   };
-
-  const deleteReminder = async (id: string) => { try { await apiFetch(`/api/pro/reminders/${id}`, { method: 'DELETE' }, token); refresh(); } catch {} };
 
   const GBTN = (active: boolean): any => ({
     padding: '16px', borderRadius: 999, textAlign: 'center', cursor: active && !saving ? 'pointer' : 'default',
@@ -499,28 +539,74 @@ export default function ProSpace({ token, user }: { token: string; user: any }) 
                 </div>
               )}
 
-              {/* Rappels */}
-              <CategoryCard title="Rappels" icon="ri-alarm-line" accent={AC} count={reminders.length}
-                onAdd={() => { setModal('pick-rem'); }}>
-                {reminders.length === 0 && <EmptyState text="Aucun rappel assigne" />}
-                {reminders.map(r => (
-                  <ItemCard key={r.id} accent={AC} title={r.title}
-                    subtitle={`${r.time || ''} - ${(r.reminder_type || '').replace('_', ' ')}`}
-                    badge={r.dosage || ''} onDelete={() => deleteReminder(r.id)} />
-                ))}
-              </CategoryCard>
+              {/* Rappels du jour */}
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14, marginTop: 8 } as any}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8 } as any}>
+                  <i className="ri-capsule-line" style={{ fontSize: 16, color: '#F59E0B' }} />
+                  <span style={{ fontSize: 14, fontWeight: 800, color: '#111' }}>Complements du {selectedDayFr}</span>
+                  <span style={{ fontSize: 11, fontWeight: 600, color: '#9CA3AF', background: '#E5E7EB', padding: '2px 8px', borderRadius: 999 }}>{filteredReminders.length}</span>
+                </div>
+                <div data-testid="cat-add-rappels" onClick={() => { setModal('assign-rem'); setModalCtx(null); }}
+                  style={{ width: 34, height: 34, borderRadius: 999, background: 'rgba(255,255,255,0.65)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)', border: '1px solid rgba(0,0,0,0.06)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', boxShadow: '0 2px 8px rgba(0,0,0,0.06)' } as any}>
+                  <i className="ri-add-line" style={{ fontSize: 18, color: '#374151' }} />
+                </div>
+              </div>
+              {filteredReminders.length === 0 && (
+                <div style={{ textAlign: 'center', padding: '20px 16px', color: '#9CA3AF', fontSize: 13, borderRadius: 16, background: '#F4F4F5', marginBottom: 16 } as any}>
+                  <i className="ri-capsule-line" style={{ fontSize: 24, display: 'block', marginBottom: 6, color: '#D1D5DB' }} />
+                  Aucun complement prevu le {selectedDayFr}
+                </div>
+              )}
+              {filteredReminders.map(r => (
+                <div key={r.id} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 14px', borderRadius: 16, background: '#FEF9C3', border: '1px solid rgba(245,158,11,0.15)', marginBottom: 8 } as any}>
+                  <div style={{ width: 48, height: 48, borderRadius: 12, background: 'rgba(245,158,11,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}>
+                    <i className="ri-capsule-fill" style={{ fontSize: 20, color: '#F59E0B' }} />
+                  </div>
+                  <div style={{ flex: 1, minWidth: 0 } as any}>
+                    <div style={{ fontSize: 14, fontWeight: 700, color: '#111' }}>{r.title}</div>
+                    <div style={{ fontSize: 11, color: '#6B7280', marginTop: 2 }}>{r.dosage} - {r.time}</div>
+                  </div>
+                  <div onClick={() => deleteAssignedReminder(r.id)}
+                    style={{ width: 32, height: 32, borderRadius: 999, background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}>
+                    <i className="ri-delete-bin-6-line" style={{ fontSize: 14, color: '#EF4444' }} />
+                  </div>
+                </div>
+              ))}
 
-              {/* Repas */}
-              <CategoryCard title="Repas" icon="ri-restaurant-line" accent={AC} count={meals.length}
-                onAdd={() => { setModal('pick-meal'); }}>
-                {meals.length === 0 && <EmptyState text="Aucun repas assigne" />}
-                {meals.map((m, i) => (
-                  <ItemCard key={i} accent={AC}
-                    title={(m.meal_type || m.type || m.label || '').replace('_', ' ')}
-                    subtitle={Array.isArray(m.items) ? m.items.join(', ') : (m.items || m.name || '')}
-                    badge={m.calories ? `${m.calories} kcal` : ''} image={m.image} />
-                ))}
-              </CategoryCard>
+              {/* Repas du jour */}
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14, marginTop: 16 } as any}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8 } as any}>
+                  <i className="ri-restaurant-line" style={{ fontSize: 16, color: '#10B981' }} />
+                  <span style={{ fontSize: 14, fontWeight: 800, color: '#111' }}>Repas du {selectedDayFr}</span>
+                  <span style={{ fontSize: 11, fontWeight: 600, color: '#9CA3AF', background: '#E5E7EB', padding: '2px 8px', borderRadius: 999 }}>{filteredMeals.length}</span>
+                </div>
+                <div data-testid="cat-add-repas" onClick={() => { setModal('assign-meal'); setModalCtx(null); }}
+                  style={{ width: 34, height: 34, borderRadius: 999, background: 'rgba(255,255,255,0.65)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)', border: '1px solid rgba(0,0,0,0.06)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', boxShadow: '0 2px 8px rgba(0,0,0,0.06)' } as any}>
+                  <i className="ri-add-line" style={{ fontSize: 18, color: '#374151' }} />
+                </div>
+              </div>
+              {filteredMeals.length === 0 && (
+                <div style={{ textAlign: 'center', padding: '20px 16px', color: '#9CA3AF', fontSize: 13, borderRadius: 16, background: '#F4F4F5', marginBottom: 16 } as any}>
+                  <i className="ri-restaurant-line" style={{ fontSize: 24, display: 'block', marginBottom: 6, color: '#D1D5DB' }} />
+                  Aucun repas prevu le {selectedDayFr}
+                </div>
+              )}
+              {filteredMeals.map(m => (
+                <div key={m.id} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 14px', borderRadius: 16, background: '#ECFDF5', border: '1px solid rgba(16,185,129,0.15)', marginBottom: 8 } as any}>
+                  <div style={{ width: 48, height: 48, borderRadius: 12, background: 'rgba(16,185,129,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}>
+                    <i className="ri-restaurant-fill" style={{ fontSize: 20, color: '#10B981' }} />
+                  </div>
+                  <div style={{ flex: 1, minWidth: 0 } as any}>
+                    <div style={{ fontSize: 14, fontWeight: 700, color: '#111' }}>{m.title}</div>
+                    <div style={{ fontSize: 11, color: '#6B7280', marginTop: 2 }}>{m.meal_type?.replace('_', ' ')} {m.calories ? `- ${m.calories} kcal` : ''}</div>
+                    {Array.isArray(m.items) && m.items.length > 0 && <div style={{ fontSize: 10, color: '#9CA3AF', marginTop: 2 }}>{m.items.slice(0, 3).join(', ')}{m.items.length > 3 ? '...' : ''}</div>}
+                  </div>
+                  <div onClick={() => deleteAssignedMeal(m.id)}
+                    style={{ width: 32, height: 32, borderRadius: 999, background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}>
+                    <i className="ri-delete-bin-6-line" style={{ fontSize: 14, color: '#EF4444' }} />
+                  </div>
+                </div>
+              ))}
             </>
           )}
 
@@ -558,21 +644,21 @@ export default function ProSpace({ token, user }: { token: string; user: any }) 
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 } as any}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8 } as any}>
                     <div style={{ width: 32, height: 32, borderRadius: 10, background: '#FEF3C7', display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}>
-                      <i className="ri-alarm-line" style={{ fontSize: 16, color: '#F59E0B' }} />
+                      <i className="ri-capsule-line" style={{ fontSize: 16, color: '#F59E0B' }} />
                     </div>
-                    <span style={{ fontSize: 14, fontWeight: 800, color: '#1F2937' }}>Rappels</span>
-                    <span style={{ fontSize: 11, fontWeight: 700, color: '#9CA3AF', marginLeft: 4 }}>({allReminders.length})</span>
+                    <span style={{ fontSize: 14, fontWeight: 800, color: '#1F2937' }}>Complements</span>
+                    <span style={{ fontSize: 11, fontWeight: 700, color: '#9CA3AF', marginLeft: 4 }}>({reminderTemplates.length})</span>
                   </div>
                   <div data-testid="lib-add-new-rem" onClick={() => { setRemForm(emptyRem); setModal('new-rem'); }}
                     style={{ width: 32, height: 32, borderRadius: 10, background: '#F59E0B', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}>
                     <i className="ri-add-line" style={{ fontSize: 18, color: '#FFF' }} />
                   </div>
                 </div>
-                {allReminders.length === 0 && <div style={{ textAlign: 'center', padding: '20px 0', color: '#9CA3AF', fontSize: 12, fontWeight: 600 }}>Aucun rappel</div>}
-                {allReminders.map(r => (
-                  <ItemCard key={r.id} accent={AC} title={r.title}
-                    subtitle={`${r.time || ''} - ${(r.reminder_type || '').replace('_', ' ')}`}
-                    badge={r.dosage || ''} onDelete={() => deleteReminder(r.id)} />
+                {reminderTemplates.length === 0 && <div style={{ textAlign: 'center', padding: '20px 0', color: '#9CA3AF', fontSize: 12, fontWeight: 600 }}>Aucun complement</div>}
+                {reminderTemplates.map(r => (
+                  <ItemCard key={r.id} accent="#F59E0B" title={r.title}
+                    subtitle={`${r.dosage || ''} - ${r.time || ''}`}
+                    badge={r.reminder_type === 'hydration' ? 'Hydrat.' : 'Suppl.'} />
                 ))}
               </div>
 
@@ -584,19 +670,19 @@ export default function ProSpace({ token, user }: { token: string; user: any }) 
                       <i className="ri-restaurant-line" style={{ fontSize: 16, color: '#10B981' }} />
                     </div>
                     <span style={{ fontSize: 14, fontWeight: 800, color: '#1F2937' }}>Repas</span>
-                    <span style={{ fontSize: 11, fontWeight: 700, color: '#9CA3AF', marginLeft: 4 }}>({allMeals.length})</span>
+                    <span style={{ fontSize: 11, fontWeight: 700, color: '#9CA3AF', marginLeft: 4 }}>({mealTemplates.length})</span>
                   </div>
                   <div data-testid="lib-add-new-meal" onClick={() => { setMealForm(emptyMeal); setModal('new-meal'); }}
                     style={{ width: 32, height: 32, borderRadius: 10, background: '#10B981', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}>
                     <i className="ri-add-line" style={{ fontSize: 18, color: '#FFF' }} />
                   </div>
                 </div>
-                {allMeals.length === 0 && <div style={{ textAlign: 'center', padding: '20px 0', color: '#9CA3AF', fontSize: 12, fontWeight: 600 }}>Aucun repas</div>}
-                {allMeals.map((m, i) => (
-                  <ItemCard key={i} accent={AC}
-                    title={(m.meal_type || m.type || m.label || '').replace('_', ' ')}
-                    subtitle={Array.isArray(m.items) ? m.items.join(', ') : (m.items || m.name || '')}
-                    badge={m.calories ? `${m.calories} kcal` : ''} image={m.image} />
+                {mealTemplates.length === 0 && <div style={{ textAlign: 'center', padding: '20px 0', color: '#9CA3AF', fontSize: 12, fontWeight: 600 }}>Aucun repas</div>}
+                {mealTemplates.map(m => (
+                  <ItemCard key={m.id} accent="#10B981"
+                    title={m.title}
+                    subtitle={Array.isArray(m.items) ? m.items.slice(0, 3).join(', ') : ''}
+                    badge={m.calories ? `${m.calories} kcal` : (m.meal_type || '').replace('_', ' ')} />
                 ))}
               </div>
             </>
@@ -676,29 +762,93 @@ export default function ProSpace({ token, user }: { token: string; user: any }) 
         )}
       </GlassModal>
 
-      {/* ── Pick Rappels ── */}
-      <GlassModal open={modal === 'pick-rem'} onClose={() => setModal(null)} title="Ajouter un rappel">
-        <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)', marginBottom: 16 }}>Choisissez un rappel ou creez-en un depuis la bibliotheque :</div>
-        {allReminders.length === 0 && (
+      {/* ── Assign Reminder ── */}
+      <GlassModal open={modal === 'assign-rem'} onClose={() => { setModal(null); setModalCtx(null); }} title="Assigner un complement">
+        {reminderTemplates.length === 0 ? (
           <div style={{ textAlign: 'center', padding: '24px', color: 'rgba(255,255,255,0.4)', fontSize: 13 } as any}>
-            Aucun rappel disponible.<br/><span onClick={() => { setModal(null); setTab('library'); }} style={{ color: AC, cursor: 'pointer', fontWeight: 700, marginTop: 8, display: 'inline-block' }}>Creer dans la bibliotheque</span>
+            Aucun complement dans la bibliotheque.<br/>
+            <span onClick={() => { setModal(null); setTab('library'); }} style={{ color: '#F59E0B', cursor: 'pointer', fontWeight: 700, marginTop: 8, display: 'inline-block' }}>Creer un complement</span>
           </div>
+        ) : !modalCtx ? (
+          <>
+            <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', marginBottom: 14 }}>Choisissez un complement :</div>
+            {reminderTemplates.map(tpl => (
+              <div key={tpl.id} onClick={() => { setModalCtx(tpl.id); setRemAssignForm({ days: [], time: tpl.time || '08:00', dosage: tpl.dosage || '' }); }}
+                style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 14px', borderRadius: 14, marginBottom: 6, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', cursor: 'pointer' } as any}
+                onMouseEnter={(e: any) => e.currentTarget.style.background = 'rgba(255,255,255,0.1)'}
+                onMouseLeave={(e: any) => e.currentTarget.style.background = 'rgba(255,255,255,0.04)'}>
+                <div style={{ width: 40, height: 40, borderRadius: 10, background: 'rgba(245,158,11,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}>
+                  <i className="ri-capsule-fill" style={{ fontSize: 18, color: '#F59E0B' }} />
+                </div>
+                <div style={{ flex: 1, minWidth: 0 } as any}>
+                  <div style={{ fontSize: 13, fontWeight: 700, color: '#FFF' }}>{tpl.title}</div>
+                  <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.4)' }}>{tpl.dosage} - {tpl.time}</div>
+                </div>
+                <i className="ri-arrow-right-s-line" style={{ fontSize: 18, color: 'rgba(255,255,255,0.3)' }} />
+              </div>
+            ))}
+          </>
+        ) : (
+          <>
+            <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', marginBottom: 14 }}>Personnalisez pour {activeBenData?.name} :</div>
+            <div style={{ marginBottom: 16 }}>
+              <label style={LBL}>Jours de la semaine</label>
+              <DaysPicker selected={remAssignForm.days} onChange={days => setRemAssignForm({ ...remAssignForm, days })} accent="#F59E0B" />
+            </div>
+            <div style={{ display: 'flex', gap: 10, marginBottom: 14 } as any}>
+              <div style={{ flex: 1 }}><label style={LBL}>Heure</label><input type="time" value={remAssignForm.time} onChange={(e: any) => setRemAssignForm({ ...remAssignForm, time: e.target.value })} style={INP} /></div>
+              <div style={{ flex: 1 }}><label style={LBL}>Dosage</label><input value={remAssignForm.dosage} onChange={(e: any) => setRemAssignForm({ ...remAssignForm, dosage: e.target.value })} style={INP} placeholder="5g/jour" /></div>
+            </div>
+            <div data-testid="assign-rem-submit" onClick={() => remAssignForm.days.length > 0 ? assignReminder(modalCtx, remAssignForm.days, remAssignForm.time, remAssignForm.dosage) : undefined} style={GBTN(remAssignForm.days.length > 0)}>
+              {saving ? 'Assignation...' : `Assigner ${remAssignForm.days.length > 0 ? `(${remAssignForm.days.length} jours)` : '-- Choisissez des jours'}`}
+            </div>
+          </>
         )}
-        {allReminders.map(r => (
-          <div key={r.id} style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '14px 16px', borderRadius: 16, marginBottom: 6, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)' } as any}>
-            <i className="ri-alarm-line" style={{ fontSize: 18, color: AC }} />
-            <div style={{ flex: 1 }}><div style={{ fontSize: 14, fontWeight: 700, color: '#FFF' }}>{r.title}</div><div style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)' }}>{r.time} - {r.reminder_type}</div></div>
-          </div>
-        ))}
       </GlassModal>
 
-      {/* ── Pick Repas ── */}
-      <GlassModal open={modal === 'pick-meal'} onClose={() => setModal(null)} title="Ajouter un repas">
-        <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)', marginBottom: 16 }}>Choisissez un repas ou creez-en un depuis la bibliotheque :</div>
-        {allMeals.length === 0 && (
+      {/* ── Assign Meal ── */}
+      <GlassModal open={modal === 'assign-meal'} onClose={() => { setModal(null); setModalCtx(null); }} title="Assigner un repas">
+        {mealTemplates.length === 0 ? (
           <div style={{ textAlign: 'center', padding: '24px', color: 'rgba(255,255,255,0.4)', fontSize: 13 } as any}>
-            Aucun repas disponible.<br/><span onClick={() => { setModal(null); setTab('library'); }} style={{ color: AC, cursor: 'pointer', fontWeight: 700, marginTop: 8, display: 'inline-block' }}>Creer dans la bibliotheque</span>
+            Aucun repas dans la bibliotheque.<br/>
+            <span onClick={() => { setModal(null); setTab('library'); }} style={{ color: '#10B981', cursor: 'pointer', fontWeight: 700, marginTop: 8, display: 'inline-block' }}>Creer un repas</span>
           </div>
+        ) : !modalCtx ? (
+          <>
+            <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', marginBottom: 14 }}>Choisissez un repas :</div>
+            {mealTemplates.map(tpl => (
+              <div key={tpl.id} onClick={() => { setModalCtx(tpl.id); setMealAssignForm({ days: [], meal_type: tpl.meal_type || 'dejeuner' }); }}
+                style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 14px', borderRadius: 14, marginBottom: 6, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', cursor: 'pointer' } as any}
+                onMouseEnter={(e: any) => e.currentTarget.style.background = 'rgba(255,255,255,0.1)'}
+                onMouseLeave={(e: any) => e.currentTarget.style.background = 'rgba(255,255,255,0.04)'}>
+                <div style={{ width: 40, height: 40, borderRadius: 10, background: 'rgba(16,185,129,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}>
+                  <i className="ri-restaurant-fill" style={{ fontSize: 18, color: '#10B981' }} />
+                </div>
+                <div style={{ flex: 1, minWidth: 0 } as any}>
+                  <div style={{ fontSize: 13, fontWeight: 700, color: '#FFF' }}>{tpl.title}</div>
+                  <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.4)' }}>{(tpl.meal_type || '').replace('_', ' ')} {tpl.calories ? `- ${tpl.calories} kcal` : ''}</div>
+                </div>
+                <i className="ri-arrow-right-s-line" style={{ fontSize: 18, color: 'rgba(255,255,255,0.3)' }} />
+              </div>
+            ))}
+          </>
+        ) : (
+          <>
+            <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', marginBottom: 14 }}>Personnalisez pour {activeBenData?.name} :</div>
+            <div style={{ marginBottom: 16 }}>
+              <label style={LBL}>Jours de la semaine</label>
+              <DaysPicker selected={mealAssignForm.days} onChange={days => setMealAssignForm({ ...mealAssignForm, days })} accent="#10B981" />
+            </div>
+            <div style={{ marginBottom: 14 }}>
+              <label style={LBL}>Type de repas</label>
+              <select value={mealAssignForm.meal_type} onChange={(e: any) => setMealAssignForm({ ...mealAssignForm, meal_type: e.target.value })} style={SEL}>
+                <option value="petit_dejeuner">Petit-dejeuner</option><option value="dejeuner">Dejeuner</option><option value="gouter">Gouter</option><option value="diner">Diner</option><option value="collation">Collation</option>
+              </select>
+            </div>
+            <div data-testid="assign-meal-submit" onClick={() => mealAssignForm.days.length > 0 ? assignMeal(modalCtx, mealAssignForm.days, mealAssignForm.meal_type) : undefined} style={GBTN(mealAssignForm.days.length > 0)}>
+              {saving ? 'Assignation...' : `Assigner ${mealAssignForm.days.length > 0 ? `(${mealAssignForm.days.length} jours)` : '-- Choisissez des jours'}`}
+            </div>
+          </>
         )}
       </GlassModal>
 

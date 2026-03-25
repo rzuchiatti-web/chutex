@@ -665,7 +665,216 @@ async def delete_pro_meal(beneficiary_id: str, meal_index: int, user=Depends(get
     return {"status": "deleted"}
 
 
-# ── Exercise Template Library ──
+# ── Assigned Reminders (like exercises) ──
+
+class AssignReminderCreate(BaseModel):
+    reminder_template_id: str
+    beneficiary_id: str
+    days: List[str] = []
+    time: str = "08:00"
+    dosage: str = ""
+
+@router.post("/pro/assign-reminder")
+async def assign_reminder(data: AssignReminderCreate, user=Depends(get_current_user)):
+    """Assign a reminder template to a beneficiary with custom days/time/dosage"""
+    require_pro(user)
+    tpl = await db.pro_reminder_templates.find_one(
+        {"id": data.reminder_template_id, "professional_id": user['id']}, {"_id": 0}
+    )
+    if not tpl:
+        raise HTTPException(status_code=404, detail="Modele de rappel non trouve")
+    assigned = {
+        "id": str(uuid.uuid4()),
+        "professional_id": user['id'],
+        "beneficiary_id": data.beneficiary_id,
+        "reminder_template_id": data.reminder_template_id,
+        "title": tpl.get("title", ""),
+        "reminder_type": tpl.get("reminder_type", "medication"),
+        "days": data.days,
+        "time": data.time,
+        "dosage": data.dosage or tpl.get("dosage", ""),
+        "notes": tpl.get("notes", ""),
+        "status": "active",
+        "completions": [],
+        "created_at": datetime.now(timezone.utc).isoformat(),
+    }
+    await db.pro_assigned_reminders.insert_one(assigned)
+    assigned.pop('_id', None)
+    return assigned
+
+@router.get("/pro/assigned-reminders/{beneficiary_id}")
+async def list_assigned_reminders(beneficiary_id: str, user=Depends(get_current_user)):
+    """List assigned reminders for a beneficiary"""
+    return await db.pro_assigned_reminders.find(
+        {"beneficiary_id": beneficiary_id, "professional_id": user['id'], "status": "active"}, {"_id": 0}
+    ).sort("created_at", -1).to_list(100)
+
+@router.put("/pro/assigned-reminders/{assignment_id}")
+async def update_assigned_reminder(assignment_id: str, user=Depends(get_current_user), data: dict = {}):
+    require_pro(user)
+    update = {}
+    for k in ["days", "time", "dosage"]:
+        if k in data:
+            update[k] = data[k]
+    if update:
+        update["updated_at"] = datetime.now(timezone.utc).isoformat()
+        await db.pro_assigned_reminders.update_one({"id": assignment_id, "professional_id": user['id']}, {"$set": update})
+    updated = await db.pro_assigned_reminders.find_one({"id": assignment_id}, {"_id": 0})
+    return updated
+
+@router.delete("/pro/assigned-reminders/{assignment_id}")
+async def delete_assigned_reminder(assignment_id: str, user=Depends(get_current_user)):
+    require_pro(user)
+    result = await db.pro_assigned_reminders.delete_one({"id": assignment_id, "professional_id": user['id']})
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Rappel assigne non trouve")
+    return {"status": "deleted"}
+
+
+# ── Assigned Meals (like exercises) ──
+
+class AssignMealCreate(BaseModel):
+    meal_template_id: str
+    beneficiary_id: str
+    days: List[str] = []
+    meal_type: str = "dejeuner"
+
+@router.post("/pro/assign-meal")
+async def assign_meal(data: AssignMealCreate, user=Depends(get_current_user)):
+    """Assign a meal template to a beneficiary with custom days"""
+    require_pro(user)
+    tpl = await db.pro_meal_templates.find_one(
+        {"id": data.meal_template_id, "professional_id": user['id']}, {"_id": 0}
+    )
+    if not tpl:
+        raise HTTPException(status_code=404, detail="Modele de repas non trouve")
+    assigned = {
+        "id": str(uuid.uuid4()),
+        "professional_id": user['id'],
+        "beneficiary_id": data.beneficiary_id,
+        "meal_template_id": data.meal_template_id,
+        "title": tpl.get("title", ""),
+        "meal_type": data.meal_type,
+        "image": tpl.get("image", ""),
+        "items": tpl.get("items", []),
+        "ingredients": tpl.get("ingredients", []),
+        "calories": tpl.get("calories", 0),
+        "proteins": tpl.get("proteins", 0),
+        "days": data.days,
+        "status": "active",
+        "completions": [],
+        "created_at": datetime.now(timezone.utc).isoformat(),
+    }
+    await db.pro_assigned_meals.insert_one(assigned)
+    assigned.pop('_id', None)
+    return assigned
+
+@router.get("/pro/assigned-meals/{beneficiary_id}")
+async def list_assigned_meals(beneficiary_id: str, user=Depends(get_current_user)):
+    """List assigned meals for a beneficiary"""
+    return await db.pro_assigned_meals.find(
+        {"beneficiary_id": beneficiary_id, "professional_id": user['id'], "status": "active"}, {"_id": 0}
+    ).sort("created_at", -1).to_list(100)
+
+@router.delete("/pro/assigned-meals/{assignment_id}")
+async def delete_assigned_meal(assignment_id: str, user=Depends(get_current_user)):
+    require_pro(user)
+    result = await db.pro_assigned_meals.delete_one({"id": assignment_id, "professional_id": user['id']})
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Repas assigne non trouve")
+    return {"status": "deleted"}
+
+
+# ── Beneficiary today's reminders & meals ──
+
+@router.get("/pro/beneficiary-today-reminders")
+async def beneficiary_today_reminders(user=Depends(get_current_user)):
+    """Beneficiary gets reminders assigned for today"""
+    DAYS_FR_LOCAL = ["lundi","mardi","mercredi","jeudi","vendredi","samedi","dimanche"]
+    today_idx = datetime.now(timezone.utc).weekday()
+    today_fr = DAYS_FR_LOCAL[today_idx]
+    rems = await db.pro_assigned_reminders.find(
+        {"beneficiary_id": user['id'], "status": "active"}, {"_id": 0}
+    ).to_list(100)
+    return [r for r in rems if today_fr in r.get("days", [])]
+
+@router.get("/pro/beneficiary-today-meals")
+async def beneficiary_today_meals(user=Depends(get_current_user)):
+    """Beneficiary gets meals assigned for today"""
+    DAYS_FR_LOCAL = ["lundi","mardi","mercredi","jeudi","vendredi","samedi","dimanche"]
+    today_idx = datetime.now(timezone.utc).weekday()
+    today_fr = DAYS_FR_LOCAL[today_idx]
+    meals = await db.pro_assigned_meals.find(
+        {"beneficiary_id": user['id'], "status": "active"}, {"_id": 0}
+    ).to_list(100)
+    return [m for m in meals if today_fr in m.get("days", [])]
+
+
+# ── Seed default templates ──
+
+@router.post("/pro/seed-templates")
+async def seed_templates(user=Depends(get_current_user)):
+    """Seed the library with default reminder and meal templates for this pro"""
+    require_pro(user)
+    pid = user['id']
+    now = datetime.now(timezone.utc).isoformat()
+
+    # Check if already seeded
+    existing_rem = await db.pro_reminder_templates.count_documents({"professional_id": pid})
+    existing_meal = await db.pro_meal_templates.count_documents({"professional_id": pid})
+
+    added_rem, added_meal = 0, 0
+
+    if existing_rem == 0:
+        rem_templates = [
+            {"title": "Creatine monohydrate", "reminder_type": "medication", "dosage": "5g/jour", "time": "08:00", "notes": "Prendre avec un verre d'eau, tous les jours"},
+            {"title": "Whey Protein", "reminder_type": "medication", "dosage": "30g post-training", "time": "18:00", "notes": "Melanger avec 300ml d'eau ou lait"},
+            {"title": "BCAA", "reminder_type": "medication", "dosage": "10g intra-training", "time": "17:30", "notes": "Diluer dans 500ml d'eau pendant l'entrainement"},
+            {"title": "Omega 3", "reminder_type": "medication", "dosage": "2 capsules/jour", "time": "12:00", "notes": "Prendre pendant le repas"},
+            {"title": "Vitamine D3", "reminder_type": "medication", "dosage": "1000 UI/jour", "time": "08:00", "notes": "Prendre le matin avec le petit-dejeuner"},
+            {"title": "Magnesium", "reminder_type": "medication", "dosage": "300mg/jour", "time": "21:00", "notes": "Prendre le soir pour favoriser le sommeil"},
+            {"title": "Zinc", "reminder_type": "medication", "dosage": "15mg/jour", "time": "20:00", "notes": "Prendre loin des repas riches en calcium"},
+            {"title": "Multivitamines", "reminder_type": "medication", "dosage": "1 comprime/jour", "time": "08:00", "notes": "Prendre avec le petit-dejeuner"},
+            {"title": "Collagene", "reminder_type": "medication", "dosage": "10g/jour", "time": "07:30", "notes": "Melanger dans un jus ou cafe. Bon pour les articulations"},
+            {"title": "Glutamine", "reminder_type": "medication", "dosage": "5g post-training", "time": "18:30", "notes": "Aide a la recuperation musculaire"},
+            {"title": "Boire 2L d'eau", "reminder_type": "hydration", "dosage": "2 litres", "time": "08:00", "notes": "Repartir tout au long de la journee"},
+            {"title": "Pre-workout", "reminder_type": "medication", "dosage": "1 dose", "time": "16:30", "notes": "30 min avant l'entrainement. Ne pas depasser 1 dose"},
+        ]
+        for r in rem_templates:
+            r["id"] = str(uuid.uuid4())
+            r["professional_id"] = pid
+            r["is_template"] = True
+            r["created_at"] = now
+        await db.pro_reminder_templates.insert_many(rem_templates)
+        added_rem = len(rem_templates)
+
+    if existing_meal == 0:
+        meal_templates = [
+            {"title": "Petit-dej proteines", "meal_type": "petit_dejeuner", "items": ["3 oeufs brouilles", "Flocons d'avoine 60g", "Banane", "Miel"], "calories": 550, "proteins": 35, "glucides": 65, "lipides": 18, "notes": "Ideal pour un debut de journee energetique"},
+            {"title": "Overnight oats", "meal_type": "petit_dejeuner", "items": ["Flocons d'avoine 60g", "Lait d'amande 200ml", "Graines de chia 15g", "Myrtilles", "Beurre de cacahuete 15g"], "calories": 480, "proteins": 18, "glucides": 58, "lipides": 20, "notes": "Preparer la veille au frigo"},
+            {"title": "Bowl acai", "meal_type": "petit_dejeuner", "items": ["Puree d'acai 100g", "Banane", "Granola 40g", "Fruits rouges", "Noix de coco rapee"], "calories": 420, "proteins": 12, "glucides": 62, "lipides": 14, "notes": "Riche en antioxydants"},
+            {"title": "Poulet riz legumes", "meal_type": "dejeuner", "items": ["Blanc de poulet 200g", "Riz basmati 80g", "Brocolis 150g", "Huile d'olive 10ml"], "calories": 620, "proteins": 48, "glucides": 65, "lipides": 14, "notes": "Le classique du sportif"},
+            {"title": "Saumon quinoa", "meal_type": "dejeuner", "items": ["Pave de saumon 180g", "Quinoa 70g", "Epinards 100g", "Avocat 1/2", "Citron"], "calories": 680, "proteins": 42, "glucides": 52, "lipides": 28, "notes": "Riche en omega 3"},
+            {"title": "Salade Caesar proteines", "meal_type": "dejeuner", "items": ["Poulet grille 180g", "Salade romaine", "Parmesan 20g", "Croutons complets", "Sauce Caesar legere"], "calories": 520, "proteins": 42, "glucides": 28, "lipides": 22, "notes": "Frais et rassasiant"},
+            {"title": "Steak patate douce", "meal_type": "dejeuner", "items": ["Steak de boeuf 5% 180g", "Patate douce 200g", "Haricots verts 150g", "Beurre 10g"], "calories": 640, "proteins": 44, "glucides": 55, "lipides": 20, "notes": "Pour les jours d'entrainement intensif"},
+            {"title": "Collation post-training", "meal_type": "collation", "items": ["Whey protein 30g", "Banane", "Beurre de cacahuete 15g"], "calories": 320, "proteins": 28, "glucides": 32, "lipides": 10, "notes": "Dans les 30 min apres l'entrainement"},
+            {"title": "Fromage blanc proteines", "meal_type": "collation", "items": ["Fromage blanc 0% 250g", "Amandes 20g", "Miel 10g"], "calories": 280, "proteins": 24, "glucides": 22, "lipides": 10, "notes": "Collation riche en caseine"},
+            {"title": "Poisson blanc legumes", "meal_type": "diner", "items": ["Cabillaud 200g", "Courgettes grillees 200g", "Riz complet 60g", "Herbes de Provence"], "calories": 450, "proteins": 40, "glucides": 42, "lipides": 8, "notes": "Leger et digestible pour le soir"},
+            {"title": "Omelette du soir", "meal_type": "diner", "items": ["4 oeufs", "Champignons 100g", "Epinards 80g", "Fromage rape 20g"], "calories": 420, "proteins": 32, "glucides": 6, "lipides": 28, "notes": "Rapide a preparer, riche en proteines"},
+            {"title": "Bowl poke maison", "meal_type": "dejeuner", "items": ["Riz sushi 80g", "Saumon cru 150g", "Avocat", "Edamame 50g", "Sauce soja", "Sesame"], "calories": 580, "proteins": 36, "glucides": 58, "lipides": 22, "notes": "Frais et equilibre"},
+        ]
+        for m in meal_templates:
+            m["id"] = str(uuid.uuid4())
+            m["professional_id"] = pid
+            m["is_template"] = True
+            m["created_at"] = now
+            m["image"] = ""
+            m["ingredients"] = []
+            m["steps"] = []
+        await db.pro_meal_templates.insert_many(meal_templates)
+        added_meal = len(meal_templates)
+
+    return {"status": "seeded", "reminders_added": added_rem, "meals_added": added_meal}
 
 DAYS_FR = ["lundi", "mardi", "mercredi", "jeudi", "vendredi", "samedi", "dimanche"]
 DAYS_EN_TO_FR = {"monday": "lundi", "tuesday": "mardi", "wednesday": "mercredi", "thursday": "jeudi", "friday": "vendredi", "saturday": "samedi", "sunday": "dimanche"}
