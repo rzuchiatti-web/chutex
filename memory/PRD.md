@@ -10,17 +10,21 @@ Application mobile-first de sante connectee. Un seul role Gardien dont l'interfa
 
 ## Implemente (Mars 2026)
 
-### ProSpace v4 — Espace Coach/Physio (CORRIGE)
+### ProSpace v5 — Espace Coach/Physio
 - Header: icone, titre 26px, compteur, pilules glass (10px 24px, fontSize 13)
-- Selecteur beneficiaire **rond glass** (cercle initiale, fond transparent blur, bordure accent)
-- Onglet **Eleves**: 3 cartes grises (Programmes, Rappels, Repas) avec **+ rond** qui ouvre un picker depuis la Bibliotheque
-- Onglet **Bibliotheque**: 3 boutons de creation (Programme, Rappel, Repas)
-- **Navigation au clic**: cliquer sur un programme navigue vers `/pro-program-detail?id=...` (PAS de modale)
-- **Page pro-program-detail.tsx**: affichage riche du programme avec stats, description, sessions/exercices
-- **Formulaires riches Programme**: image upload, titre, desc, categorie, frequence, duree, exercices/etapes dynamiques
-- **Formulaires riches Repas**: image, type, titre, ingredients dynamiques, etapes, macros
-- Modaux glassmorphic **centres** verticalement et horizontalement, padding-bottom 100px
-- Upload d'images: POST /api/pro/upload-image → /api/uploads/{filename}
+- Selecteur beneficiaire **pleine largeur glassmorphisme** (350x70px, fond transparent blur, fleche deroule)
+- Onglet **Eleves**: 3 cartes grises (Programmes, Rappels, Repas) avec **+ rond** pour lier depuis la Bibliotheque
+- Onglet **Bibliotheque**: 4 boutons creation (Programme, **Exercice**, Rappel, Repas) + section Exercices
+- **Bibliotheque d'exercices**: CRUD complet (titre, description, image, video, categorie, difficulte, groupe musculaire, series, reps, etapes, materiel)
+- **Ajout exercice depuis bibliotheque**: Picker dans la modale d'ajout d'exercice au programme
+- **Navigation au clic**: clic programme → `/pro-program-detail`, clic exercice → `/pro-exercise-detail`
+- **Page pro-program-detail.tsx**: hero image, stats, description, sessions/exercices
+- **Page pro-exercise-detail.tsx**: hero image, stats (series, reps, duree, repos), description, video embed YouTube, etapes numerotees, section validation avec niveau douleur et notes
+- Sessions enrichies: image, video_url, steps, difficulty, muscle_group, equipment, from_template_id
+
+### Cote Beneficiaire
+- Section **"Mes Programmes"** dans la page sante: affiche programmes prescrits par le coach avec exercices images + bouton "Faire"
+- Clic exercice → page detail avec validation (Valider / Partiel / Passer)
 
 ### Messagerie
 - Header centre, pilules Conversations/Historique (10px 24px, fontSize 13)
@@ -37,16 +41,27 @@ Application mobile-first de sante connectee. Un seul role Gardien dont l'interfa
 ## APIs
 | Endpoint | Description |
 |---|---|
+| POST /api/pro/exercise-templates | Creer exercice template |
+| GET /api/pro/exercise-templates | Lister exercices templates |
+| DELETE /api/pro/exercise-templates/{id} | Supprimer exercice template |
 | POST /api/pro/upload-image | Upload image (multipart) |
 | POST /api/pro/programs/template | Programme template |
 | GET /api/pro/programs/detail/{id} | Detail d'un programme pro |
-| POST /api/pro/meal-templates | Template repas (ingredients, etapes, macros) |
+| POST /api/pro/programs/{id}/sessions | Ajouter session/exercice (enrichie) |
+| GET /api/pro/my-programs | Programmes prescrits au beneficiaire |
+| POST /api/pro/meal-templates | Template repas |
 | GET /api/pro/meal-templates | Lister templates repas |
 | POST /api/pro/reminder-templates | Template rappel |
 | GET /api/pro/reminder-templates | Lister templates rappels |
 | POST /api/pro/programs/duplicate/{id}/{ben} | Dupliquer vers beneficiaire |
 | GET/PUT /api/pro/payment-config | Config IBAN |
 | GET /api/pro/payment-history/export | Export CSV |
+| POST /api/pro/sessions/{progId}/{sessId}/complete | Valider exercice |
+
+## DB Collections
+- `pro_exercise_templates`: Bibliotheque d'exercices reusables
+- `pro_programs`: Programmes avec sessions enrichies (image, video, steps, etc.)
+- `payment_history`: Transactions Mollie
 
 ## Backlog
 - P1: Tableau de bord revenus admin
