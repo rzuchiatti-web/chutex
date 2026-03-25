@@ -1,56 +1,50 @@
 # Chutex Care Watch — PRD
 
 ## Concept
-Application mobile-first de santé connectée. Un **seul rôle Gardien** dont l'interface s'adapte dynamiquement via des attributs (`professional_type`, `saad_company_id`).
+Application mobile-first de santé connectée. Un seul rôle Gardien dont l'interface s'adapte dynamiquement.
 
 ## Architecture
-- **Frontend**: Expo/React Native (web), Expo Router
-- **Backend**: FastAPI, MongoDB
-- **Intégrations**: Mollie (paiements), OpenAI GPT-4o (Nora), Lefu (appareils connectés), SMS Mode (SMS)
+- Frontend: Expo/React Native (web), Expo Router
+- Backend: FastAPI, MongoDB
+- Intégrations: Mollie, OpenAI GPT-4o, Lefu, SMS Mode
 
-## Fonctionnalités Implémentées
+## Implémenté (Mars 2026)
 
-### Session actuelle (Mars 2026)
+### ProSpace v3 — Espace Coach/Physio
+- Header: icône, titre 26px, compteur, pilules glass (10px 24px, fontSize 13)
+- Sélecteur bénéficiaire **rond** (cercle initiale, bordure accent)
+- Onglet **Élèves**: 3 cartes grises (Programmes, Rappels, Repas) avec **+ rond** qui ouvre un picker depuis la Bibliothèque
+- Onglet **Bibliothèque**: 3 boutons de création (Programme, Rappel, Repas)
+- **Formulaires riches Programme**: image upload, titre, desc, catégorie, fréquence, durée, exercices/étapes dynamiques (ajout/suppression)
+- **Formulaires riches Repas**: image, type, titre, ingrédients dynamiques (nom+qté+unité), étapes de préparation, macros (cal/prot/gluc/lip)
+- Modaux glassmorphic **centrés** verticalement et horizontalement, padding-bottom 100px
+- Upload d'images: POST /api/pro/upload-image → /api/uploads/{filename}
 
-#### Historique des paiements + Export CSV
-- Section dépliable dans le dashboard pro
-- Liste: bénéficiaire, date, montant HT (vert), statut
-- Bouton "Exporter CSV" (format européen, délimiteur ;)
+### Messagerie
+- Header centré, pilules Conversations/Historique (10px 24px, fontSize 13)
 
-#### Refonte ProSpace (Activité) 
-- Header centré vertical, titre 26px, icône, compteur
-- **Pilules style souscription** : fond blanc, bordure accent quand actif, bordure grise inactif
-- **Bénéficiaire inline dans le header** : liste dépliable qui étend le header, scrollable (max-height 240px)
-- Quick actions, sections avec compteurs, boutons supprimer/dupliquer
-- Bibliothèque + modaux glassmorphic
+### Paiements
+- Historique paiements + Export CSV
+- Configuration IBAN + SMS confirmation
+- Carte de revenus dashboard
 
-#### Refonte Messagerie
-- Header centré vertical, titre 26px
-- **Pilules Conversations/Historique** : même style souscription (blanc + bordure rouge actif)
-
-#### Configuration Paiement IBAN
-- Modal glassmorphic + SMS confirmation via SMS Mode
-
-### Fonctionnalités précédentes
+### Autres
 - Architecture unifiée Guardian/Professional
-- Landing pages /become-pro, Mode Light, Carte de revenus, Navbar dynamique
+- Landing pages /become-pro, Mode Light, Navbar dynamique
 
-## Comptes de Test
-| Type | Téléphone | Mot de passe |
-|---|---|---|
-| Coach | +33655443322 | test123 |
-| Gardien SAAD | +33605221196 | test123 |
-| Gardien Standard | +33698765432 | test123 |
+## APIs
+| Endpoint | Description |
+|---|---|
+| POST /api/pro/upload-image | Upload image (multipart) |
+| POST /api/pro/programs/template | Programme template |
+| POST /api/pro/meal-templates | Template repas (ingrédients, étapes, macros) |
+| GET /api/pro/meal-templates | Lister templates repas |
+| POST /api/pro/reminder-templates | Template rappel |
+| GET /api/pro/reminder-templates | Lister templates rappels |
+| POST /api/pro/programs/duplicate/{id}/{ben} | Dupliquer vers bénéficiaire |
+| GET/PUT /api/pro/payment-config | Config IBAN |
+| GET /api/pro/payment-history/export | Export CSV |
 
 ## Backlog
-
-### P1
-- Tableau de bord des revenus pour l'administrateur
-
-### P2
-- Intégration balance et gilet connectés
-- Signature électronique documents Admin
-- Système de parrainage Gardiens
-- Essai gratuit 7 jours
-- Intégration test urinaire Vivoo
-- Validation CRC32 serveur TCP J2358
+- P1: Tableau de bord revenus admin
+- P2: Balance/gilet connectés, Signature électronique, Parrainage, Essai 7j, Vivoo, CRC32
