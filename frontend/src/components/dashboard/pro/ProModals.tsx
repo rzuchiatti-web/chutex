@@ -287,12 +287,6 @@ export function ProModals(props: ProModalsProps) {
           <>
             <div style={{ fontSize: 12, color: '#9CA3AF', marginBottom: 14 }}>Personnalisez pour {activeBenName} :</div>
             <div style={{ marginBottom: 16 }}><label style={LBL}>Jours de la semaine</label><DaysPicker selected={mealAssignForm.days} onChange={days => setMealAssignForm({ ...mealAssignForm, days })} accent="#10B981" /></div>
-            <div style={{ marginBottom: 14 }}>
-              <label style={LBL}>Type de repas</label>
-              <select value={mealAssignForm.meal_type} onChange={(e: any) => setMealAssignForm({ ...mealAssignForm, meal_type: e.target.value })} style={SEL}>
-                <option value="petit_dejeuner">Petit-dejeuner</option><option value="dejeuner">Dejeuner</option><option value="gouter">Gouter</option><option value="diner">Diner</option><option value="collation">Collation</option>
-              </select>
-            </div>
             <div data-testid="assign-meal-submit" onClick={() => mealAssignForm.days.length > 0 ? props.assignMeal(modalCtx, mealAssignForm.days, mealAssignForm.meal_type) : undefined} style={GBTN(mealAssignForm.days.length > 0, saving)}>
               {saving ? 'Assignation...' : `Assigner ${mealAssignForm.days.length > 0 ? `(${mealAssignForm.days.length} jours)` : '-- Choisissez des jours'}`}
             </div>
