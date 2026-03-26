@@ -171,20 +171,14 @@ export default function MealDetailPage() {
                     <span style={{ fontSize: 14, fontWeight: 800, color: '#111' }}>Preparation</span>
                     <span style={{ fontSize: 11, fontWeight: 600, color: '#9CA3AF', background: '#E5E7EB', padding: '2px 8px', borderRadius: 999 }}>{steps.length} etapes</span>
                   </div>
-                  {steps.map((step: string, i: number) => {
-                    const si = stepIcon(step);
-                    return (
+                  {steps.map((step: string, i: number) => (
                       <div key={i} style={{ display: 'flex', gap: 12, padding: '12px 14px', borderRadius: 14, background: '#F4F4F5', marginBottom: 6 } as any}>
-                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4, flexShrink: 0 } as any}>
-                          <div style={{ width: 32, height: 32, borderRadius: 10, background: `${si.color}15`, display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}>
-                            <i className={si.icon} style={{ fontSize: 15, color: si.color }} />
-                          </div>
-                          <span style={{ fontSize: 9, fontWeight: 800, color: '#D1D5DB' }}>{String(i + 1).padStart(2, '0')}</span>
+                        <div style={{ width: 28, height: 28, borderRadius: 999, background: `${col}15`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}>
+                          <span style={{ fontSize: 12, fontWeight: 900, color: col }}>{i + 1}</span>
                         </div>
-                        <div style={{ fontSize: 12, color: '#6B7280', lineHeight: 1.6, flex: 1, paddingTop: 6 }}>{step}</div>
+                        <div style={{ fontSize: 12, color: '#6B7280', lineHeight: 1.6, flex: 1, paddingTop: 4 }}>{step}</div>
                       </div>
-                    );
-                  })}
+                  ))}
                 </>
               )}
             </>

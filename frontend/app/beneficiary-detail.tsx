@@ -44,7 +44,7 @@ export default function BeneficiaryDetailScreen() {
   const [expandedPerm, setExpandedPerm] = useState<string | null>(null);
   const [resolvedBid, setResolvedBid] = useState('');
   const [loading, setLoading] = useState(true);
-  const [isDark, setIsDark] = useState(true);
+  const [isDark, setIsDark] = useState(false);
   const [showZoneHelp, setShowZoneHelp] = useState(false);
   /* slide-to-call */
   const [slideX, setSlideX] = useState(0);

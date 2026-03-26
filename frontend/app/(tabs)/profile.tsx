@@ -214,7 +214,7 @@ export default function ProfileScreen() {
     try { await apiFetch('/api/push/test', { method: 'POST' }, token); Alert.alert('Notification envoyee', 'Verifiez votre appareil !'); } catch (e: any) { Alert.alert('Erreur', e.message); }
   };
 
-  const [isDark, setIsDark] = React.useState(() => typeof localStorage !== 'undefined' ? localStorage.getItem('chutex_dark') !== '0' : true);
+  const [isDark, setIsDark] = React.useState(() => typeof localStorage !== 'undefined' ? localStorage.getItem('chutex_dark') === '1' : false);
   React.useEffect(() => {
     const iv = setInterval(() => {
       if (typeof localStorage !== 'undefined') {
