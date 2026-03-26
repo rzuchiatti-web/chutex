@@ -35,9 +35,15 @@ Refondre l'espace d'activite (ProSpace) des coachs/gardiens pour la gestion dire
 - [x] **ADMIN**: Tableau de bord revenus (endpoint + composant AdminRevenue)
 - [x] **FIX**: Bouton "+" pour ajouter hydratation depuis la vue jour
 - [x] **FIX**: Modale sombre opaque pour lisibilite (overlay 0.55 + contenu rgba(20,20,30,0.82))
+- [x] **FIX**: Edition templates via PUT (exercices, complements, repas) au lieu de POST duplicatif
+- [x] **UI**: Dropdown glass dans header bibliotheque avec images de categorie (remplace les pills)
+- [x] **FIX**: Navigation carte alerte vers /alert-detail verifiee
 
 ## Routes API principales
 - CRUD exercise-templates, reminder-templates, meal-templates
+- PUT /api/pro/exercise-templates/{id} (mise a jour template exercice)
+- PUT /api/pro/reminder-templates/{id} (mise a jour template complement)
+- PUT /api/pro/meal-templates/{id} (mise a jour template repas)
 - CRUD assigned-exercises, assigned-reminders, assigned-meals
 - GET /api/pro/beneficiary-nutrition/{ben_id}
 - GET /api/backoffice/revenue (admin revenue dashboard data)
@@ -51,11 +57,16 @@ frontend/src/components/dashboard/
     GlassModal.tsx          (Modal, ImagePicker, DaysPicker)
     ProCalendar.tsx          (HorizontalCalendar)
     ProDayView.tsx           (Vue jour: exercices, rappels, hydratation, repas)
-    ProLibrary.tsx           (Onglet bibliotheque)
+    ProLibrary.tsx           (Onglet bibliotheque - dropdown glass avec images)
     ProModals.tsx            (Toutes les modales + assign-hydration)
   admin/
     AdminRevenue.tsx         (Tableau de bord revenus admin)
 ```
+
+## Backlog P1
+- [ ] Verifier Admin Revenue dashboard via login admin UI complet
+- [ ] Tester upload video pour nouveaux exercices sur mobile
+- [ ] Admin login via telephone (formulaire attend tel mais admin utilise email)
 
 ## Backlog P2
 - [ ] Balance/gilet connectes
@@ -64,6 +75,7 @@ frontend/src/components/dashboard/
 - [ ] Essai gratuit 7 jours
 - [ ] Integration Vivoo
 - [ ] Validation CRC32 TCP
+- [ ] Refactoring BeneficiaryPopups.tsx (fichier volumineux)
 
 ## Credentials test
 - Coach: +33655443322 / test123
