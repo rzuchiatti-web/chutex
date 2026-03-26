@@ -140,12 +140,6 @@ export function ProModals(props: ProModalsProps) {
             <div style={{ fontSize: 16, fontWeight: 800, color: '#111', marginBottom: 4, textTransform: 'capitalize' }}>{editMealForm.title}</div>
             <div style={{ fontSize: 12, color: '#9CA3AF', marginBottom: 18 }}>{(editMealForm.meal_type || '').replace('_', ' ')}</div>
             <div style={{ marginBottom: 16 }}><label style={LBL}>Jours de la semaine</label><DaysPicker selected={editMealForm.days || []} onChange={days => setEditMealForm({ ...editMealForm, days })} accent={AC} /></div>
-            <div style={{ marginBottom: 14 }}>
-              <label style={LBL}>Type de repas</label>
-              <select value={editMealForm.meal_type || 'dejeuner'} onChange={(e: any) => setEditMealForm({ ...editMealForm, meal_type: e.target.value })} style={INP}>
-                <option value="petit_dejeuner">Petit-dejeuner</option><option value="dejeuner">Dejeuner</option><option value="collation">Collation</option><option value="gouter">Gouter</option><option value="diner">Diner</option>
-              </select>
-            </div>
             <div data-testid="edit-meal-submit" onClick={(editMealForm.days || []).length > 0 ? props.updateAssignedMeal : undefined} style={GBTN((editMealForm.days || []).length > 0, saving)}>
               {saving ? 'Enregistrement...' : 'Enregistrer les modifications'}
             </div>
