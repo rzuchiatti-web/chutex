@@ -64,7 +64,7 @@ export function ProDayView(props: ProDayViewProps) {
 
       {/* Weight Goal Card */}
       {benWeightGoal && benWeightGoal.has_goal && (
-        <div data-testid="weight-goal-card" onClick={() => router.push({ pathname: '/beneficiary-detail' as any, params: { beneficiaryId: activeBenId } })}
+        <div data-testid="weight-goal-card" onClick={() => router.push({ pathname: '/minceur' as any, params: { beneficiaryId: activeBenId } })}
           style={{ borderRadius: 16, background: '#F4F4F5', padding: '16px 18px', marginBottom: 18, cursor: 'pointer' } as any}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 } as any}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8 } as any}>

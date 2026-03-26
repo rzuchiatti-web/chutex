@@ -395,33 +395,37 @@ export function ProModals(props: ProModalsProps) {
         </div>
         {/* Multi-select Muscle Groups */}
         <div style={{ marginBottom: 14 }}>
-          <label style={LBL}>Groupes musculaires</label>
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 } as any}>
-            {MUSCLE_GROUPS.map(mg => {
-              const sel = (exTplForm.muscle_group || '').split(',').map((s: string) => s.trim()).filter(Boolean).includes(mg);
-              return <div key={mg} onClick={() => {
-                const current = (exTplForm.muscle_group || '').split(',').map((s: string) => s.trim()).filter(Boolean);
-                const next = sel ? current.filter(x => x !== mg) : [...current, mg];
-                setExTplForm({ ...exTplForm, muscle_group: next.join(', ') });
-              }} style={{ padding: '6px 12px', borderRadius: 999, fontSize: 11, fontWeight: 700, cursor: 'pointer', background: sel ? '#111' : '#F4F4F5', color: sel ? '#FFF' : '#6B7280', border: sel ? '1.5px solid #111' : '1px solid #E5E7EB', transition: 'all 0.15s' } as any}>{mg}</div>;
-            })}
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+            <label style={{ ...LBL, marginBottom: 0 }}>Groupes musculaires</label>
+            <div onClick={() => { const current = (exTplForm.muscle_group || '').split(',').map((s: string) => s.trim()).filter(Boolean); setExTplForm({ ...exTplForm, muscle_group: [...current, ''].join(', ') }); }}
+              style={{ fontSize: 11, fontWeight: 700, color: AC, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 } as any}><i className="ri-add-line" style={{ fontSize: 14 }} /> Ajouter</div>
           </div>
+          {(() => { const groups = (exTplForm.muscle_group || '').split(',').map((s: string) => s.trim()); if (groups.length === 0 || (groups.length === 1 && !groups[0])) groups.splice(0, groups.length, ''); return groups.map((g: string, i: number) => (
+            <div key={i} style={{ display: 'flex', gap: 6, marginBottom: 6, alignItems: 'center' } as any}>
+              <select value={g} onChange={(e: any) => { const arr = [...groups]; arr[i] = e.target.value; setExTplForm({ ...exTplForm, muscle_group: arr.filter(Boolean).join(', ') }); }} style={{ ...SEL, flex: 1 }}>
+                <option value="">Choisir...</option>
+                {MUSCLE_GROUPS.map(mg => <option key={mg} value={mg}>{mg}</option>)}
+              </select>
+              {groups.filter(Boolean).length > 1 && <div onClick={() => { const arr = [...groups]; arr.splice(i, 1); setExTplForm({ ...exTplForm, muscle_group: arr.filter(Boolean).join(', ') }); }} style={{ cursor: 'pointer', flexShrink: 0 } as any}><i className="ri-close-line" style={{ fontSize: 16, color: '#EF4444' }} /></div>}
+            </div>
+          )); })()}
         </div>
         {/* Multi-select Equipment */}
         <div style={{ marginBottom: 14 }}>
-          <label style={LBL}>Materiel</label>
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 } as any}>
-            {EQUIPMENT_LIST.map(eq => {
-              const sel = (exTplForm.equipment || '').split(',').map((s: string) => s.trim()).filter(Boolean).includes(eq);
-              return <div key={eq} onClick={() => {
-                const current = (exTplForm.equipment || '').split(',').map((s: string) => s.trim()).filter(Boolean);
-                let next: string[];
-                if (eq === 'Aucun') { next = sel ? [] : ['Aucun']; }
-                else { next = sel ? current.filter(x => x !== eq) : [...current.filter(x => x !== 'Aucun'), eq]; }
-                setExTplForm({ ...exTplForm, equipment: next.join(', ') });
-              }} style={{ padding: '6px 12px', borderRadius: 999, fontSize: 11, fontWeight: 700, cursor: 'pointer', background: sel ? '#111' : '#F4F4F5', color: sel ? '#FFF' : '#6B7280', border: sel ? '1.5px solid #111' : '1px solid #E5E7EB', transition: 'all 0.15s' } as any}>{eq}</div>;
-            })}
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+            <label style={{ ...LBL, marginBottom: 0 }}>Materiel</label>
+            <div onClick={() => { const current = (exTplForm.equipment || '').split(',').map((s: string) => s.trim()).filter(Boolean); setExTplForm({ ...exTplForm, equipment: [...current, ''].join(', ') }); }}
+              style={{ fontSize: 11, fontWeight: 700, color: AC, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 } as any}><i className="ri-add-line" style={{ fontSize: 14 }} /> Ajouter</div>
           </div>
+          {(() => { const eqs = (exTplForm.equipment || '').split(',').map((s: string) => s.trim()); if (eqs.length === 0 || (eqs.length === 1 && !eqs[0])) eqs.splice(0, eqs.length, ''); return eqs.map((eq: string, i: number) => (
+            <div key={i} style={{ display: 'flex', gap: 6, marginBottom: 6, alignItems: 'center' } as any}>
+              <select value={eq} onChange={(e: any) => { const arr = [...eqs]; arr[i] = e.target.value; setExTplForm({ ...exTplForm, equipment: arr.filter(Boolean).join(', ') }); }} style={{ ...SEL, flex: 1 }}>
+                <option value="">Choisir...</option>
+                {EQUIPMENT_LIST.map(e => <option key={e} value={e}>{e}</option>)}
+              </select>
+              {eqs.filter(Boolean).length > 1 && <div onClick={() => { const arr = [...eqs]; arr.splice(i, 1); setExTplForm({ ...exTplForm, equipment: arr.filter(Boolean).join(', ') }); }} style={{ cursor: 'pointer', flexShrink: 0 } as any}><i className="ri-close-line" style={{ fontSize: 16, color: '#EF4444' }} /></div>}
+            </div>
+          )); })()}
         </div>
         {/* Steps */}
         <div style={{ marginBottom: 14 }}>

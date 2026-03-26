@@ -156,7 +156,7 @@ export default function GuardianHome({ token, user }: { token: string; user: any
                 </div>
               </div>
               {/* Alert banner */}
-              <div onClick={() => activeAlerts.length > 0 ? (activeAlerts.length === 1 ? router.push({ pathname: '/alert-detail' as any, params: { alertId: activeAlerts[0].id } }) : setShowNotifsG(true)) : setShowNotifsG(true)} style={{ borderRadius: 16, padding: '14px 16px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: 'rgba(255,255,255,0.12)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1px solid rgba(255,255,255,0.15)' } as any}>
+              <div onClick={() => activeAlerts.length === 1 ? router.push({ pathname: '/alert-detail' as any, params: { alertId: activeAlerts[0].id } }) : activeAlerts.length > 1 ? router.push({ pathname: '/alert-detail' as any, params: { alertId: activeAlerts[0].id } }) : null} style={{ borderRadius: 16, padding: '14px 16px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: 'rgba(255,255,255,0.12)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1px solid rgba(255,255,255,0.15)' } as any}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 14, flex: 1 } as any}>
                   <div style={{ fontSize: 32, fontWeight: 900, color: '#FFF' }}>{activeAlerts.length}</div>
                   <div style={{ width: 1, height: 32, background: 'rgba(255,255,255,0.2)', flexShrink: 0 } as any} />

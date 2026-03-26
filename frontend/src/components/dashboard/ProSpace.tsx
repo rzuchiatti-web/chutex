@@ -304,6 +304,9 @@ export default function ProSpace({ token, user }: { token: string; user: any }) 
               onDeleteExerciseTemplate={deleteExerciseTemplate}
               onDeleteReminderTemplate={deleteReminderTemplate}
               onDeleteMealTemplate={deleteMealTemplate}
+              onEditExerciseTemplate={(ex) => { setExTplForm({ ...emptyExTpl, ...ex }); setModal('new-ex-tpl'); }}
+              onEditReminderTemplate={(r) => { setRemForm({ ...emptyRem, ...r }); setModal('new-rem'); }}
+              onEditMealTemplate={(m) => { setMealForm({ ...emptyMeal, ...m, ingredients: m.items ? m.items.map((s: string) => { const parts = s.split(' '); return { name: parts[0] || '', quantity: parts[1] || '', unit: 'g' }; }) : emptyMeal.ingredients }); setModal('new-meal'); }}
             />
           )}
         </div>

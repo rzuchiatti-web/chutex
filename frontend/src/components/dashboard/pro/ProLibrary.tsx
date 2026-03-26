@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { API } from './constants';
 import { REMINDER_IMAGES } from '../constants';
 
@@ -15,80 +15,124 @@ interface ProLibraryProps {
   onDeleteExerciseTemplate: (id: string) => void;
   onDeleteReminderTemplate: (id: string) => void;
   onDeleteMealTemplate: (id: string) => void;
+  onEditExerciseTemplate?: (ex: any) => void;
+  onEditReminderTemplate?: (r: any) => void;
+  onEditMealTemplate?: (m: any) => void;
 }
 
 const MEAL_TYPE_LABEL: Record<string, string> = { petit_dejeuner: 'Petit-dej', dejeuner: 'Dejeuner', gouter: 'Gouter', diner: 'Diner', collation: 'Collation' };
 
+const FILTERS = [
+  { key: 'exercices', label: 'Exercices', icon: 'ri-run-line' },
+  { key: 'complements', label: 'Complements', icon: 'ri-capsule-line' },
+  { key: 'hydratation', label: 'Hydratation', icon: 'ri-drop-line' },
+  { key: 'repas', label: 'Repas', icon: 'ri-restaurant-line' },
+];
+
 export function ProLibrary(props: ProLibraryProps) {
   const { AC, exerciseTemplates, reminderTemplates, mealTemplates, router } = props;
+  const [filter, setFilter] = useState('exercices');
 
   return (
     <>
-      {/* ── Exercices ── */}
-      <SectionTitle icon="ri-run-line" iconColor={AC} title="Exercices" count={exerciseTemplates.length} onAdd={props.onNewExercise} addColor={AC} testId="lib-add-new-ex-tpl" />
-      {exerciseTemplates.length === 0 && <Empty icon="ri-run-line" text="Aucun exercice dans la bibliotheque" />}
-      {exerciseTemplates.map(ex => (
-        <Card key={ex.id} testId={`item-card-${ex.title}`}
-          onClick={() => router.push({ pathname: '/pro-exercise-detail' as any, params: { id: ex.id, mode: 'template' } })}
-          onDelete={() => props.onDeleteExerciseTemplate(ex.id)}
-          image={ex.image} iconFallback="ri-run-line" iconColor={AC}>
-          <div style={{ fontSize: 14, fontWeight: 700, color: '#111', textTransform: 'capitalize' }}>{ex.title}</div>
-          <div style={{ fontSize: 11, color: '#6B7280', marginTop: 2 }}>{ex.muscle_group || ex.category || ''} {ex.difficulty ? `· ${ex.difficulty}` : ''}</div>
-        </Card>
-      ))}
+      {/* ── Filter pills (glass) ── */}
+      <div style={{ display: 'flex', gap: 6, marginBottom: 18, overflowX: 'auto', paddingBottom: 4 } as any}>
+        {FILTERS.map(f => {
+          const active = filter === f.key;
+          return (
+            <div key={f.key} data-testid={`lib-filter-${f.key}`} onClick={() => setFilter(f.key)}
+              style={{ padding: '8px 14px', borderRadius: 999, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, flexShrink: 0,
+                background: active ? '#111' : 'rgba(255,255,255,0.65)',
+                backdropFilter: active ? 'none' : 'blur(12px)', WebkitBackdropFilter: active ? 'none' : 'blur(12px)',
+                border: active ? '1.5px solid #111' : '1px solid rgba(0,0,0,0.06)',
+                boxShadow: active ? 'none' : '0 2px 8px rgba(0,0,0,0.04)',
+                transition: 'all 0.2s',
+              } as any}>
+              <i className={f.icon} style={{ fontSize: 14, color: active ? '#FFF' : '#6B7280' }} />
+              <span style={{ fontSize: 12, fontWeight: 700, color: active ? '#FFF' : '#374151' }}>{f.label}</span>
+            </div>
+          );
+        })}
+      </div>
 
-      <div style={{ height: 1, background: '#E5E7EB', margin: '12px 0 18px' } as any} />
+      {/* ── Exercices ── */}
+      {filter === 'exercices' && (
+        <>
+          <SectionTitle icon="ri-run-line" iconColor={AC} title="Exercices" count={exerciseTemplates.length} onAdd={props.onNewExercise} testId="lib-add-new-ex-tpl" />
+          {exerciseTemplates.length === 0 && <Empty icon="ri-run-line" text="Aucun exercice dans la bibliotheque" />}
+          {exerciseTemplates.map(ex => (
+            <Card key={ex.id} testId={`item-card-${ex.title}`}
+              onClick={() => router.push({ pathname: '/pro-exercise-detail' as any, params: { id: ex.id, mode: 'template' } })}
+              onEdit={props.onEditExerciseTemplate ? () => props.onEditExerciseTemplate!(ex) : undefined}
+              onDelete={() => props.onDeleteExerciseTemplate(ex.id)}
+              image={ex.image} iconFallback="ri-run-line" iconColor={AC}>
+              <div style={{ fontSize: 14, fontWeight: 700, color: '#111', textTransform: 'capitalize' }}>{ex.title}</div>
+              <div style={{ fontSize: 11, color: '#6B7280', marginTop: 2 }}>{ex.muscle_group || ex.category || ''} {ex.difficulty ? `· ${ex.difficulty}` : ''}</div>
+            </Card>
+          ))}
+        </>
+      )}
 
       {/* ── Complements ── */}
-      <SectionTitle icon="ri-capsule-line" iconColor="#F59E0B" title="Complements" count={reminderTemplates.filter(r => r.reminder_type !== 'hydration').length} onAdd={props.onNewReminder} addColor="#F59E0B" testId="lib-add-new-rem" />
-      {reminderTemplates.filter(r => r.reminder_type !== 'hydration').length === 0 && <Empty icon="ri-capsule-line" text="Aucun complement" />}
-      {reminderTemplates.filter(r => r.reminder_type !== 'hydration').map(r => (
-        <Card key={r.id} testId={`item-card-${r.title}`}
-          onDelete={() => props.onDeleteReminderTemplate(r.id)}
-          image={r.image || REMINDER_IMAGES.medication} iconFallback="ri-capsule-line" iconColor="#F59E0B">
-          <div style={{ fontSize: 14, fontWeight: 700, color: '#111', textTransform: 'capitalize' }}>{r.title}</div>
-          <div style={{ fontSize: 11, color: '#6B7280', marginTop: 2 }}>{r.reminder_type === 'medication' ? 'Complement' : r.reminder_type}</div>
-        </Card>
-      ))}
-
-      <div style={{ height: 1, background: '#E5E7EB', margin: '12px 0 18px' } as any} />
+      {filter === 'complements' && (
+        <>
+          <SectionTitle icon="ri-capsule-line" iconColor="#F59E0B" title="Complements" count={reminderTemplates.filter(r => r.reminder_type !== 'hydration').length} onAdd={props.onNewReminder} testId="lib-add-new-rem" />
+          {reminderTemplates.filter(r => r.reminder_type !== 'hydration').length === 0 && <Empty icon="ri-capsule-line" text="Aucun complement" />}
+          {reminderTemplates.filter(r => r.reminder_type !== 'hydration').map(r => (
+            <Card key={r.id} testId={`item-card-${r.title}`}
+              onEdit={props.onEditReminderTemplate ? () => props.onEditReminderTemplate!(r) : undefined}
+              onDelete={() => props.onDeleteReminderTemplate(r.id)}
+              image={r.image || REMINDER_IMAGES.medication} iconFallback="ri-capsule-line" iconColor="#F59E0B">
+              <div style={{ fontSize: 14, fontWeight: 700, color: '#111', textTransform: 'capitalize' }}>{r.title}</div>
+              <div style={{ fontSize: 11, color: '#6B7280', marginTop: 2 }}>Complement</div>
+            </Card>
+          ))}
+        </>
+      )}
 
       {/* ── Hydratation ── */}
-      <SectionTitle icon="ri-drop-line" iconColor="#38BDF8" title="Hydratation" count={reminderTemplates.filter(r => r.reminder_type === 'hydration').length} onAdd={props.onNewHydration} addColor="#38BDF8" testId="lib-add-hydration" />
-      {reminderTemplates.filter(r => r.reminder_type === 'hydration').length === 0 && <Empty icon="ri-drop-line" text="Aucun rappel hydratation" />}
-      {reminderTemplates.filter(r => r.reminder_type === 'hydration').map(r => (
-        <Card key={r.id} testId={`item-card-${r.title}`}
-          onDelete={() => props.onDeleteReminderTemplate(r.id)}
-          image={r.image || REMINDER_IMAGES.hydration} iconFallback="ri-drop-line" iconColor="#38BDF8">
-          <div style={{ fontSize: 14, fontWeight: 700, color: '#111', textTransform: 'capitalize' }}>{r.title}</div>
-          <div style={{ fontSize: 11, color: '#6B7280', marginTop: 2 }}>Hydratation</div>
-        </Card>
-      ))}
-
-      <div style={{ height: 1, background: '#E5E7EB', margin: '12px 0 18px' } as any} />
+      {filter === 'hydratation' && (
+        <>
+          <SectionTitle icon="ri-drop-line" iconColor="#38BDF8" title="Hydratation" count={reminderTemplates.filter(r => r.reminder_type === 'hydration').length} onAdd={props.onNewHydration} testId="lib-add-hydration" />
+          {reminderTemplates.filter(r => r.reminder_type === 'hydration').length === 0 && <Empty icon="ri-drop-line" text="Aucun rappel hydratation" />}
+          {reminderTemplates.filter(r => r.reminder_type === 'hydration').map(r => (
+            <Card key={r.id} testId={`item-card-${r.title}`}
+              onEdit={props.onEditReminderTemplate ? () => props.onEditReminderTemplate!(r) : undefined}
+              onDelete={() => props.onDeleteReminderTemplate(r.id)}
+              image={r.image || REMINDER_IMAGES.hydration} iconFallback="ri-drop-line" iconColor="#38BDF8">
+              <div style={{ fontSize: 14, fontWeight: 700, color: '#111', textTransform: 'capitalize' }}>{r.title}</div>
+              <div style={{ fontSize: 11, color: '#6B7280', marginTop: 2 }}>Hydratation</div>
+            </Card>
+          ))}
+        </>
+      )}
 
       {/* ── Repas ── */}
-      <SectionTitle icon="ri-restaurant-line" iconColor="#10B981" title="Repas" count={mealTemplates.length} onAdd={props.onNewMeal} addColor="#10B981" testId="lib-add-new-meal" />
-      {mealTemplates.length === 0 && <Empty icon="ri-restaurant-line" text="Aucun repas" />}
-      {mealTemplates.map(m => (
-        <Card key={m.id} testId={`item-card-${m.title}`}
-          onClick={() => router.push({ pathname: '/meal-detail' as any, params: { id: m.id, mode: 'template' } })}
-          onDelete={() => props.onDeleteMealTemplate(m.id)}
-          iconFallback="ri-restaurant-line" iconColor="#10B981">
-          <div style={{ fontSize: 14, fontWeight: 700, color: '#111', textTransform: 'capitalize' }}>{m.title}</div>
-          <div style={{ fontSize: 11, color: '#6B7280', marginTop: 2 }}>
-            {MEAL_TYPE_LABEL[m.meal_type] || m.meal_type} {m.calories ? `· ${m.calories} kcal` : ''}
-            {Array.isArray(m.items) && m.items.length > 0 ? ` · ${m.items.slice(0, 2).join(', ')}` : ''}
-          </div>
-        </Card>
-      ))}
+      {filter === 'repas' && (
+        <>
+          <SectionTitle icon="ri-restaurant-line" iconColor="#10B981" title="Repas" count={mealTemplates.length} onAdd={props.onNewMeal} testId="lib-add-new-meal" />
+          {mealTemplates.length === 0 && <Empty icon="ri-restaurant-line" text="Aucun repas" />}
+          {mealTemplates.map(m => (
+            <Card key={m.id} testId={`item-card-${m.title}`}
+              onClick={() => router.push({ pathname: '/meal-detail' as any, params: { id: m.id, mode: 'template' } })}
+              onEdit={props.onEditMealTemplate ? () => props.onEditMealTemplate!(m) : undefined}
+              onDelete={() => props.onDeleteMealTemplate(m.id)}
+              iconFallback="ri-restaurant-line" iconColor="#10B981">
+              <div style={{ fontSize: 14, fontWeight: 700, color: '#111', textTransform: 'capitalize' }}>{m.title}</div>
+              <div style={{ fontSize: 11, color: '#6B7280', marginTop: 2 }}>
+                {MEAL_TYPE_LABEL[m.meal_type] || m.meal_type} {m.calories ? `· ${m.calories} kcal` : ''}
+                {Array.isArray(m.items) && m.items.length > 0 ? ` · ${m.items.slice(0, 2).join(', ')}` : ''}
+              </div>
+            </Card>
+          ))}
+        </>
+      )}
     </>
   );
 }
 
-/* ── Section title (same style as ProDayView SectionHeader) ── */
-function SectionTitle({ icon, iconColor, title, count, onAdd, addColor, testId }: {
-  icon: string; iconColor: string; title: string; count: number; onAdd: () => void; addColor: string; testId: string;
+function SectionTitle({ icon, iconColor, title, count, onAdd, testId }: {
+  icon: string; iconColor: string; title: string; count: number; onAdd: () => void; testId: string;
 }) {
   return (
     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 } as any}>
@@ -105,9 +149,8 @@ function SectionTitle({ icon, iconColor, title, count, onAdd, addColor, testId }
   );
 }
 
-/* ── Card (exact same style as ProDayView exercise/reminder/meal cards) ── */
-function Card({ children, testId, onClick, onDelete, image, iconFallback, iconColor }: {
-  children: React.ReactNode; testId: string; onClick?: () => void; onDelete?: () => void;
+function Card({ children, testId, onClick, onEdit, onDelete, image, iconFallback, iconColor }: {
+  children: React.ReactNode; testId: string; onClick?: () => void; onEdit?: () => void; onDelete?: () => void;
   image?: string; iconFallback: string; iconColor: string;
 }) {
   return (
@@ -116,21 +159,19 @@ function Card({ children, testId, onClick, onDelete, image, iconFallback, iconCo
         {image ? <img src={image.startsWith('/') ? `${API}${image}` : image} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' } as any} />
           : <i className={iconFallback} style={{ fontSize: 20, color: iconColor }} />}
       </div>
-      <div onClick={onClick} style={{ flex: 1, minWidth: 0, cursor: onClick ? 'pointer' : 'default' } as any}>
+      <div onClick={onClick || onEdit} style={{ flex: 1, minWidth: 0, cursor: (onClick || onEdit) ? 'pointer' : 'default' } as any}>
         {children}
       </div>
-      {onDelete && (
-        <div style={{ display: 'flex', gap: 6, flexShrink: 0 } as any}>
-          {onClick && <div onClick={onClick}
-            style={{ width: 32, height: 32, borderRadius: 999, background: 'rgba(255,255,255,0.65)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)', border: '1px solid rgba(0,0,0,0.06)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', boxShadow: '0 2px 8px rgba(0,0,0,0.06)' } as any}>
-            <i className="ri-eye-line" style={{ fontSize: 14, color: '#374151' }} />
-          </div>}
-          <div onClick={e => { e.stopPropagation(); onDelete(); }}
-            style={{ width: 32, height: 32, borderRadius: 999, background: 'rgba(239,68,68,0.08)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)', border: '1px solid rgba(239,68,68,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}>
-            <i className="ri-delete-bin-6-line" style={{ fontSize: 14, color: '#EF4444' }} />
-          </div>
-        </div>
-      )}
+      <div style={{ display: 'flex', gap: 6, flexShrink: 0 } as any}>
+        {onEdit && <div onClick={(e: any) => { e.stopPropagation(); onEdit(); }}
+          style={{ width: 32, height: 32, borderRadius: 999, background: 'rgba(255,255,255,0.65)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)', border: '1px solid rgba(0,0,0,0.06)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', boxShadow: '0 2px 8px rgba(0,0,0,0.06)' } as any}>
+          <i className="ri-pencil-line" style={{ fontSize: 14, color: '#374151' }} />
+        </div>}
+        {onDelete && <div onClick={(e: any) => { e.stopPropagation(); onDelete(); }}
+          style={{ width: 32, height: 32, borderRadius: 999, background: 'rgba(239,68,68,0.08)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)', border: '1px solid rgba(239,68,68,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}>
+          <i className="ri-delete-bin-6-line" style={{ fontSize: 14, color: '#EF4444' }} />
+        </div>}
+      </div>
     </div>
   );
 }
