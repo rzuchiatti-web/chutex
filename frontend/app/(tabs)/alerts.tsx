@@ -972,9 +972,6 @@ export default function AlertsScreen() {
 
   // Coach/Physio: show messaging instead of alerts (unless navigating to a specific alert)
   const isCoachOrPhysio = user?.professional_type === 'coach' || user?.professional_type === 'physio';
-  if (isCoachOrPhysio && token && Platform.OS === 'web' && !preselect) {
-    return <ProMessaging token={token} user={user} />;
-  }
 
   const [alerts, setAlerts] = useState<any[]>([]);
   const [activeAlerts, setActiveAlerts] = useState<any[]>([]);
@@ -983,6 +980,10 @@ export default function AlertsScreen() {
   const [tab, setTab] = useState<'active' | 'resolved'>('active');
   const [selectedAlert, setSelectedAlert] = useState<any>(null);
   const [showExplainer, setShowExplainer] = useState(false);
+
+  if (isCoachOrPhysio && token && Platform.OS === 'web' && !preselect) {
+    return <ProMessaging token={token} user={user} />;
+  }
 
   const fetchAlerts = useCallback(async () => {
     try {

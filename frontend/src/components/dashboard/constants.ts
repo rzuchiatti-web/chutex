@@ -13,7 +13,7 @@ export const REMINDER_IMAGES = {
   alarm: 'https://customer-assets.emergentagent.com/job_1026023a-fd73-4c44-a002-9618d437c4c8/artifacts/hzoi0qcr_alarmes.png',
 };
 
-export const isDarkMode = true;
+export const isDarkMode = false;
 
 export const CHX = {
   bg: isDarkMode ? '#0b0f16' : '#f5f7fa',
