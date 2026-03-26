@@ -42,14 +42,40 @@ function stepIcon(text: string): { icon: string; color: string } {
 export default function MealDetailPage() {
   const { token } = useAuth();
   const router = useRouter();
-  const { index } = useLocalSearchParams();
+  const params = useLocalSearchParams();
+  const { index, id, mode, assignmentId } = params as any;
   const idx = Number(index ?? 0);
   const [m, setM] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [done, setDone] = useState(false);
   const [allergies, setAllergies] = useState('');
 
-  useEffect(() => { if (!token) return; apiFetch('/api/minceur/weight-details', {}, token).then(d => { const meals = d?.recommendations?.meals || []; if (meals[idx]) setM(meals[idx]); setDone(!!d?.tracking?.completed?.[`meal_${idx}`]); setAllergies(d?.profile?.allergies || ''); }).catch(() => {}).finally(() => setLoading(false)); }, [token, idx]);
+  useEffect(() => {
+    if (!token) return;
+    if (mode === 'assigned' && assignmentId) {
+      apiFetch(`/api/pro/assigned-meal-detail/${assignmentId}`, {}, token)
+        .then(d => {
+          if (d) {
+            const mt = d.meal_type || 'dejeuner';
+            const typeMap: Record<string, string> = { petit_dejeuner: 'breakfast', dejeuner: 'lunch', collation: 'snack', gouter: 'snack', diner: 'dinner' };
+            setM({ ...d, name: d.title, label: mt.replace('_', ' '), type: typeMap[mt] || 'lunch', proteines_g: d.proteines || 0, glucides_g: d.glucides || 0, lipides_g: d.lipides || 0 });
+          }
+        }).catch(() => {}).finally(() => setLoading(false));
+    } else if (mode === 'template' && id) {
+      apiFetch(`/api/pro/meal-template-detail/${id}`, {}, token)
+        .then(d => {
+          if (d) {
+            const mt = d.meal_type || 'dejeuner';
+            const typeMap: Record<string, string> = { petit_dejeuner: 'breakfast', dejeuner: 'lunch', collation: 'snack', gouter: 'snack', diner: 'dinner' };
+            setM({ ...d, name: d.title, label: mt.replace('_', ' '), type: typeMap[mt] || 'lunch', proteines_g: d.proteines || 0, glucides_g: d.glucides || 0, lipides_g: d.lipides || 0 });
+          }
+        }).catch(() => {}).finally(() => setLoading(false));
+    } else {
+      apiFetch('/api/minceur/weight-details', {}, token)
+        .then(d => { const meals = d?.recommendations?.meals || []; if (meals[idx]) setM(meals[idx]); setDone(!!d?.tracking?.completed?.[`meal_${idx}`]); setAllergies(d?.profile?.allergies || ''); })
+        .catch(() => {}).finally(() => setLoading(false));
+    }
+  }, [token, idx, id, mode, assignmentId]);
   const toggle = async () => { setDone(!done); try { await apiFetch('/api/minceur/track', { method: 'POST', body: JSON.stringify({ type: 'meal', index: idx }) }, token); } catch { setDone(done); } };
 
   if (Platform.OS !== 'web') return null;
@@ -109,7 +135,7 @@ export default function MealDetailPage() {
                     {macros.map((mc, i) => (
                       <div key={i} style={{ flex: 1, padding: '10px 6px', textAlign: 'center', borderRight: i < 2 ? '1px solid rgba(255,255,255,0.03)' : 'none' } as any}>
                         <i className={mc.icon} style={{ fontSize: 14, color: mc.c, display: 'block', marginBottom: 4 }} />
-                        <div style={{ fontSize: 17, fontWeight: 900, color: '#FFF' }}>{mc.v || '—'}<span style={{ fontSize: 8, color: 'rgba(255,255,255,0.15)' }}>{mc.u}</span></div>
+                        <div style={{ fontSize: 17, fontWeight: 900, color: '#FFF' }}>{mc.v != null && mc.v !== '' ? mc.v : '—'}<span style={{ fontSize: 8, color: 'rgba(255,255,255,0.15)' }}>{mc.u}</span></div>
                         <div style={{ fontSize: 7, color: mc.c, fontWeight: 700, textTransform: 'uppercase', marginTop: 2 }}>{mc.l}</div>
                       </div>
                     ))}

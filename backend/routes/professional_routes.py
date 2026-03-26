@@ -11,6 +11,64 @@ router = APIRouter()
 
 UPLOAD_DIR = "/app/backend/uploads"
 
+
+@router.get("/pro/beneficiary-nutrition/{beneficiary_id}")
+async def get_beneficiary_nutrition(beneficiary_id: str, user=Depends(get_current_user)):
+    """Get nutrition targets for a beneficiary (kcal, macros, water)."""
+    require_pro(user)
+    cached = await db.minceur_daily_cache.find_one({"user_id": beneficiary_id}, {"_id": 0})
+    if cached and cached.get("recommendations"):
+        recs = cached["recommendations"]
+        return {
+            "daily_calories": recs.get("daily_calories", 0),
+            "water_ml": recs.get("water_ml", 0),
+            "macros": recs.get("macros", {}),
+        }
+    u = await db.users.find_one({"id": beneficiary_id}, {"_id": 0})
+    if not u:
+        return {"daily_calories": 0, "water_ml": 0, "macros": {}}
+    weight = u.get("weight_kg") or 70
+    return {
+        "daily_calories": int(weight * 25),
+        "water_ml": int(weight * 30),
+        "macros": {"proteines_g": int(weight * 1.5), "glucides_g": int(weight * 3), "lipides_g": int(weight * 0.8)},
+    }
+
+
+@router.get("/pro/assigned-meal-detail/{assignment_id}")
+async def get_assigned_meal_detail(assignment_id: str, user=Depends(get_current_user)):
+    """Get full detail of an assigned meal for the coach view."""
+    doc = await db.pro_assigned_meals.find_one({"id": assignment_id}, {"_id": 0})
+    if not doc:
+        raise HTTPException(404, "Repas assigne non trouve")
+    return doc
+
+
+@router.get("/pro/meal-template-detail/{template_id}")
+async def get_meal_template_detail(template_id: str, user=Depends(get_current_user)):
+    """Get full detail of a meal template."""
+    require_pro(user)
+    doc = await db.pro_meal_templates.find_one({"id": template_id, "professional_id": user['id']}, {"_id": 0})
+    if not doc:
+        raise HTTPException(404, "Template repas non trouve")
+    return doc
+
+
+@router.put("/pro/exercise-templates/{template_id}")
+async def update_exercise_template(template_id: str, data: dict, user=Depends(get_current_user)):
+    """Update an exercise template."""
+    require_pro(user)
+    update = {}
+    for k in ["title", "description", "image", "video_url", "category", "difficulty", "muscle_group", "sets", "repetitions", "duration_min", "rest_seconds", "steps", "equipment", "notes"]:
+        if k in data:
+            update[k] = data[k]
+    if update:
+        update["updated_at"] = datetime.now(timezone.utc).isoformat()
+        await db.pro_exercise_templates.update_one({"id": template_id, "professional_id": user['id']}, {"$set": update})
+    doc = await db.pro_exercise_templates.find_one({"id": template_id}, {"_id": 0})
+    return doc
+
+
 @router.post("/pro/upload-image")
 async def upload_image(file: UploadFile = File(...), user=Depends(get_current_user)):
     """Upload an image for pro content (programmes, meals). Returns URL."""

@@ -24,6 +24,9 @@ export default function ProExerciseDetailPage() {
   const [completed, setCompleted] = useState(false);
   const [painLevel, setPainLevel] = useState(0);
   const [notes, setNotes] = useState('');
+  const [editing, setEditing] = useState(false);
+  const [editForm, setEditForm] = useState<any>(null);
+  const [saving, setSaving] = useState(false);
 
   const API = process.env.EXPO_PUBLIC_BACKEND_URL || '';
 
@@ -95,6 +98,18 @@ export default function ProExerciseDetailPage() {
   };
 
   if (Platform.OS !== 'web') return null;
+
+  const saveTemplate = async () => {
+    if (!editForm || saving) return;
+    setSaving(true);
+    try {
+      const updated = await apiFetch(`/api/pro/exercise-templates/${exerciseId}`, { method: 'PUT', body: JSON.stringify(editForm) }, token);
+      if (updated) setEx(updated);
+      setEditing(false); setEditForm(null);
+    } catch {} finally { setSaving(false); }
+  };
+
+  const EINP: any = { width: '100%', padding: '10px 14px', borderRadius: 10, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.15)', color: '#FFF', fontSize: 13, outline: 'none', fontFamily: 'inherit', boxSizing: 'border-box' };
 
   const accent = DIFF_COLORS[ex?.difficulty] || '#3B82F6';
   const steps = ex?.steps || [];
@@ -224,6 +239,60 @@ export default function ProExerciseDetailPage() {
                         <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.55)', lineHeight: 1.6, paddingTop: 4 }}>{step}</div>
                       </div>
                     ))}
+                  </div>
+                )}
+
+                {/* Edit Template Section (for template mode) */}
+                {mode === 'template' && !editing && (
+                  <div data-testid="edit-template-btn" onClick={() => { setEditForm({ title: ex.title, description: ex.description || '', sets: ex.sets || 0, repetitions: ex.repetitions || 0, rest_seconds: ex.rest_seconds || 0, duration_min: ex.duration_min || 0, difficulty: ex.difficulty || '', muscle_group: ex.muscle_group || '', equipment: ex.equipment || '', video_url: ex.video_url || '' }); setEditing(true); }}
+                    style={{ ...GL, padding: '14px 16px', marginBottom: 12, textAlign: 'center', cursor: 'pointer', background: 'rgba(59,130,246,0.12)', border: '1px solid rgba(59,130,246,0.25)' } as any}>
+                    <i className="ri-pencil-line" style={{ fontSize: 16, color: '#3B82F6', marginRight: 8 }} />
+                    <span style={{ fontSize: 14, fontWeight: 800, color: '#3B82F6' }}>Modifier cet exercice</span>
+                  </div>
+                )}
+
+                {mode === 'template' && editing && editForm && (
+                  <div style={{ ...GL, padding: 16, marginBottom: 12 } as any}>
+                    <div style={{ fontSize: 10, fontWeight: 800, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 12 }}>Modifier l'exercice</div>
+                    <div style={{ marginBottom: 10 }}>
+                      <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)', marginBottom: 4, fontWeight: 600 }}>Titre</div>
+                      <input value={editForm.title} onChange={(e: any) => setEditForm({ ...editForm, title: e.target.value })} style={EINP} />
+                    </div>
+                    <div style={{ marginBottom: 10 }}>
+                      <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)', marginBottom: 4, fontWeight: 600 }}>Description</div>
+                      <textarea value={editForm.description} onChange={(e: any) => setEditForm({ ...editForm, description: e.target.value })} rows={3} style={{ ...EINP, resize: 'vertical' } as any} />
+                    </div>
+                    <div style={{ display: 'flex', gap: 8, marginBottom: 10 } as any}>
+                      <div style={{ flex: 1 }}><div style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)', marginBottom: 4, fontWeight: 600 }}>Series</div><input type="number" value={editForm.sets} onChange={(e: any) => setEditForm({ ...editForm, sets: Number(e.target.value) })} style={EINP} /></div>
+                      <div style={{ flex: 1 }}><div style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)', marginBottom: 4, fontWeight: 600 }}>Repetitions</div><input type="number" value={editForm.repetitions} onChange={(e: any) => setEditForm({ ...editForm, repetitions: Number(e.target.value) })} style={EINP} /></div>
+                    </div>
+                    <div style={{ display: 'flex', gap: 8, marginBottom: 10 } as any}>
+                      <div style={{ flex: 1 }}><div style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)', marginBottom: 4, fontWeight: 600 }}>Repos (sec)</div><input type="number" value={editForm.rest_seconds} onChange={(e: any) => setEditForm({ ...editForm, rest_seconds: Number(e.target.value) })} style={EINP} /></div>
+                      <div style={{ flex: 1 }}><div style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)', marginBottom: 4, fontWeight: 600 }}>Duree (min)</div><input type="number" value={editForm.duration_min} onChange={(e: any) => setEditForm({ ...editForm, duration_min: Number(e.target.value) })} style={EINP} /></div>
+                    </div>
+                    <div style={{ display: 'flex', gap: 8, marginBottom: 10 } as any}>
+                      <div style={{ flex: 1 }}>
+                        <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)', marginBottom: 4, fontWeight: 600 }}>Difficulte</div>
+                        <select value={editForm.difficulty} onChange={(e: any) => setEditForm({ ...editForm, difficulty: e.target.value })} style={EINP}>
+                          <option value="">-</option><option value="facile">Facile</option><option value="moyen">Moyen</option><option value="difficile">Difficile</option>
+                        </select>
+                      </div>
+                      <div style={{ flex: 1 }}><div style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)', marginBottom: 4, fontWeight: 600 }}>Groupe musc.</div><input value={editForm.muscle_group} onChange={(e: any) => setEditForm({ ...editForm, muscle_group: e.target.value })} style={EINP} /></div>
+                    </div>
+                    <div style={{ marginBottom: 10 }}>
+                      <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)', marginBottom: 4, fontWeight: 600 }}>URL Video</div>
+                      <input value={editForm.video_url} onChange={(e: any) => setEditForm({ ...editForm, video_url: e.target.value })} placeholder="https://youtube.com/..." style={EINP} />
+                    </div>
+                    <div style={{ display: 'flex', gap: 8 } as any}>
+                      <div data-testid="save-template-btn" onClick={saveTemplate}
+                        style={{ flex: 2, padding: '14px', borderRadius: 12, background: '#10B981', textAlign: 'center', cursor: 'pointer', fontSize: 14, fontWeight: 800, color: '#FFF', opacity: saving ? 0.5 : 1 } as any}>
+                        {saving ? 'Sauvegarde...' : 'Sauvegarder'}
+                      </div>
+                      <div onClick={() => { setEditing(false); setEditForm(null); }}
+                        style={{ flex: 1, padding: '14px', borderRadius: 12, background: 'rgba(255,255,255,0.06)', textAlign: 'center', cursor: 'pointer', fontSize: 13, fontWeight: 700, color: 'rgba(255,255,255,0.4)' } as any}>
+                        Annuler
+                      </div>
+                    </div>
                   </div>
                 )}
 

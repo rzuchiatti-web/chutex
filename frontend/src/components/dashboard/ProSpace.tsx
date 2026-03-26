@@ -25,10 +25,11 @@ const MONTHS_FR = ['Janvier','Fevrier','Mars','Avril','Mai','Juin','Juillet','Ao
 function GlassModal({ open, onClose, title, children }: { open: boolean; onClose: () => void; title: string; children: React.ReactNode }) {
   if (!open) return null;
   return (
-    <div data-testid="glass-modal" onClick={onClose} style={{ position: 'fixed', inset: 0, zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center', backdropFilter: 'blur(32px)', WebkitBackdropFilter: 'blur(32px)', background: 'rgba(0,0,0,0.55)', padding: '20px 16px 100px' } as any}>
-      <div onClick={e => e.stopPropagation()} style={{ width: '100%', maxWidth: 440, maxHeight: '70vh', overflowY: 'auto', padding: '28px 22px 32px', WebkitOverflowScrolling: 'touch' } as any}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
-          <div style={{ fontSize: 22, fontWeight: 900, color: '#FFF' }}>{title}</div>
+    <div data-testid="glass-modal" onClick={onClose} style={{ position: 'fixed', inset: 0, zIndex: 9999, display: 'flex', alignItems: 'flex-end', justifyContent: 'center', backdropFilter: 'blur(32px)', WebkitBackdropFilter: 'blur(32px)', background: 'rgba(0,0,0,0.55)', padding: '60px 0 0' } as any}>
+      <div onClick={e => e.stopPropagation()} style={{ width: '100%', maxWidth: 440, maxHeight: '85vh', overflowY: 'auto', padding: '24px 20px 40px', WebkitOverflowScrolling: 'touch', borderRadius: '24px 24px 0 0', background: 'rgba(20,20,30,0.85)', backdropFilter: 'blur(40px)', WebkitBackdropFilter: 'blur(40px)', border: '1px solid rgba(255,255,255,0.08)', borderBottom: 'none' } as any}>
+        <div style={{ width: 40, height: 4, borderRadius: 2, background: 'rgba(255,255,255,0.15)', margin: '0 auto 16px' } as any} />
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
+          <div style={{ fontSize: 20, fontWeight: 900, color: '#FFF' }}>{title}</div>
           <div onClick={onClose} style={{ width: 36, height: 36, borderRadius: 999, background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}>
             <i className="ri-close-line" style={{ fontSize: 18, color: '#FFF' }} />
           </div>
@@ -227,6 +228,8 @@ export default function ProSpace({ token, user }: { token: string; user: any }) 
   const [editRemForm, setEditRemForm] = useState<any>(null);
   // Edit assigned meal form
   const [editMealForm, setEditMealForm] = useState<any>(null);
+  // Beneficiary nutrition data
+  const [benNutrition, setBenNutrition] = useState<any>(null);
 
   // ── Data fetching ──
 
@@ -260,6 +263,7 @@ export default function ProSpace({ token, user }: { token: string; user: any }) 
       setAssignedReminders(Array.isArray(r) ? r : []);
       setAssignedMeals(Array.isArray(m) ? m : []);
     });
+    apiFetch(`/api/pro/beneficiary-nutrition/${activeBen}`, {}, token).then(d => setBenNutrition(d)).catch(() => setBenNutrition(null));
   }, [activeBen, token, tick]);
 
   const activeBenData = bens.find(b => b.id === activeBen);
@@ -508,6 +512,36 @@ export default function ProSpace({ token, user }: { token: string; user: any }) 
           {/* ════ PATIENTS TAB ════ */}
           {tab === 'patients' && (
             <>
+              {/* ── Nutrition Card ── */}
+              {benNutrition && benNutrition.daily_calories > 0 && (
+                <div data-testid="nutrition-card" style={{ borderRadius: 20, background: '#1A2332', padding: '18px 20px', marginBottom: 18 } as any}>
+                  <div style={{ fontSize: 9, fontWeight: 700, color: 'rgba(255,255,255,0.35)', textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 10 }}>Apport journalier necessaire</div>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 } as any}>
+                    <div style={{ display: 'flex', alignItems: 'baseline', gap: 4 } as any}>
+                      <span style={{ fontSize: 34, fontWeight: 900, color: '#FFF', letterSpacing: -1 }}>{benNutrition.daily_calories}</span>
+                      <span style={{ fontSize: 13, fontWeight: 700, color: 'rgba(255,255,255,0.3)' }}>kcal</span>
+                    </div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '6px 14px', borderRadius: 999, background: 'rgba(56,189,248,0.12)', border: '1px solid rgba(56,189,248,0.2)' } as any}>
+                      <i className="ri-drop-fill" style={{ fontSize: 14, color: '#38BDF8' }} />
+                      <span style={{ fontSize: 13, fontWeight: 800, color: '#38BDF8' }}>{benNutrition.water_ml >= 1000 ? `${(benNutrition.water_ml / 1000).toFixed(1)}L` : `${benNutrition.water_ml}ml`}</span>
+                    </div>
+                  </div>
+                  <div style={{ display: 'flex', gap: 8 } as any}>
+                    <div style={{ flex: 1, padding: '10px 0', textAlign: 'center', borderRadius: 14, background: 'rgba(16,185,129,0.1)', border: '1px solid rgba(16,185,129,0.15)' } as any}>
+                      <div style={{ fontSize: 18, fontWeight: 900, color: '#10B981' }}>{benNutrition.macros?.proteines_g || 0}<span style={{ fontSize: 9, color: 'rgba(16,185,129,0.5)' }}>g</span></div>
+                      <div style={{ fontSize: 8, fontWeight: 700, color: 'rgba(16,185,129,0.6)', textTransform: 'uppercase', letterSpacing: 0.5, marginTop: 2 }}>Proteines</div>
+                    </div>
+                    <div style={{ flex: 1, padding: '10px 0', textAlign: 'center', borderRadius: 14, background: 'rgba(245,158,11,0.1)', border: '1px solid rgba(245,158,11,0.15)' } as any}>
+                      <div style={{ fontSize: 18, fontWeight: 900, color: '#F59E0B' }}>{benNutrition.macros?.glucides_g || 0}<span style={{ fontSize: 9, color: 'rgba(245,158,11,0.5)' }}>g</span></div>
+                      <div style={{ fontSize: 8, fontWeight: 700, color: 'rgba(245,158,11,0.6)', textTransform: 'uppercase', letterSpacing: 0.5, marginTop: 2 }}>Glucides</div>
+                    </div>
+                    <div style={{ flex: 1, padding: '10px 0', textAlign: 'center', borderRadius: 14, background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.15)' } as any}>
+                      <div style={{ fontSize: 18, fontWeight: 900, color: '#EF4444' }}>{benNutrition.macros?.lipides_g || 0}<span style={{ fontSize: 9, color: 'rgba(239,68,68,0.5)' }}>g</span></div>
+                      <div style={{ fontSize: 8, fontWeight: 700, color: 'rgba(239,68,68,0.6)', textTransform: 'uppercase', letterSpacing: 0.5, marginTop: 2 }}>Lipides</div>
+                    </div>
+                  </div>
+                </div>
+              )}
               {/* Day exercises header */}
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 } as any}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8 } as any}>
@@ -586,42 +620,27 @@ export default function ProSpace({ token, user }: { token: string; user: any }) 
                 );
               })}
 
-              {/* All assigned exercises summary (not filtered) */}
-              {assignedExercises.length > 0 && assignedExercises.length !== filteredExercises.length && (
-                <div style={{ marginTop: 8, marginBottom: 16 } as any}>
-                  <div style={{ fontSize: 11, fontWeight: 700, color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 8 }}>Tous les exercices ({assignedExercises.length})</div>
-                  {assignedExercises.filter(ex => !filteredExercises.find(f => f.id === ex.id)).map(ex => (
-                    <div key={ex.id} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 12px', borderRadius: 12, background: '#F9FAFB', marginBottom: 4, opacity: 0.6 } as any}>
-                      <i className="ri-run-line" style={{ fontSize: 14, color: '#9CA3AF' }} />
-                      <div style={{ flex: 1, minWidth: 0 } as any}>
-                        <div style={{ fontSize: 12, fontWeight: 600, color: '#374151' }}>{ex.title}</div>
-                        <div style={{ fontSize: 10, color: '#9CA3AF' }}>{(ex.days || []).map((d: string) => d.slice(0, 3)).join(', ')}</div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
 
-              {/* Rappels du jour */}
+              {/* Traitements du jour (non-hydratation) */}
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14, marginTop: 8 } as any}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8 } as any}>
                   <i className="ri-capsule-line" style={{ fontSize: 16, color: '#F59E0B' }} />
-                  <span style={{ fontSize: 14, fontWeight: 800, color: '#111' }}>Complements du {selectedDayFr}</span>
-                  <span style={{ fontSize: 11, fontWeight: 600, color: '#9CA3AF', background: '#E5E7EB', padding: '2px 8px', borderRadius: 999 }}>{filteredReminders.length}</span>
+                  <span style={{ fontSize: 14, fontWeight: 800, color: '#111' }}>Traitements du {selectedDayFr}</span>
+                  <span style={{ fontSize: 11, fontWeight: 600, color: '#9CA3AF', background: '#E5E7EB', padding: '2px 8px', borderRadius: 999 }}>{filteredReminders.filter(r => r.reminder_type !== 'hydration').length}</span>
                 </div>
                 <div data-testid="cat-add-rappels" onClick={() => { setModal('assign-rem'); setModalCtx(null); }}
                   style={{ width: 34, height: 34, borderRadius: 999, background: 'rgba(255,255,255,0.65)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)', border: '1px solid rgba(0,0,0,0.06)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', boxShadow: '0 2px 8px rgba(0,0,0,0.06)' } as any}>
                   <i className="ri-add-line" style={{ fontSize: 18, color: '#374151' }} />
                 </div>
               </div>
-              {filteredReminders.length === 0 && (
+              {filteredReminders.filter(r => r.reminder_type !== 'hydration').length === 0 && (
                 <div style={{ textAlign: 'center', padding: '20px 16px', color: '#9CA3AF', fontSize: 13, borderRadius: 16, background: '#F4F4F5', marginBottom: 16 } as any}>
                   <i className="ri-capsule-line" style={{ fontSize: 24, display: 'block', marginBottom: 6, color: '#D1D5DB' }} />
                   Aucun complement prevu le {selectedDayFr}
                 </div>
               )}
-              {filteredReminders.map(r => {
-                const remImg = r.image || (r.reminder_type === 'hydration' ? REMINDER_IMAGES.hydration : REMINDER_IMAGES.medication);
+              {filteredReminders.filter(r => r.reminder_type !== 'hydration').map(r => {
+                const remImg = r.image || REMINDER_IMAGES.medication;
                 const remDone = (r.completions || []).some((c: any) => c.date?.startsWith(selectedDateStr) && c.status === 'done');
                 return (
                   <div key={r.id} data-testid={`day-reminder-${r.id}`}
@@ -629,7 +648,7 @@ export default function ProSpace({ token, user }: { token: string; user: any }) 
                       background: remDone ? 'rgba(16,185,129,0.06)' : '#F4F4F5',
                       border: remDone ? '1px solid rgba(16,185,129,0.2)' : '1px solid transparent',
                       marginBottom: 8, transition: 'all 0.15s' } as any}>
-                    <div style={{ width: 48, height: 48, borderRadius: 12, background: '#EDEDEE', overflow: 'hidden', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}>
+                    <div style={{ width: 48, height: 48, borderRadius: 12, overflow: 'hidden', flexShrink: 0 } as any}>
                       <img src={remImg} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' } as any} />
                     </div>
                     <div style={{ flex: 1, minWidth: 0 } as any}>
@@ -648,6 +667,60 @@ export default function ProSpace({ token, user }: { token: string; user: any }) 
                     )}
                     <div style={{ display: 'flex', gap: 6, flexShrink: 0 } as any}>
                       <div data-testid={`edit-reminder-${r.id}`} onClick={(e: any) => { e.stopPropagation(); setEditRemForm({ ...r }); setModal('edit-rem'); }}
+                        style={{ width: 32, height: 32, borderRadius: 999, background: 'rgba(255,255,255,0.65)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)', border: '1px solid rgba(0,0,0,0.06)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', boxShadow: '0 2px 8px rgba(0,0,0,0.06)' } as any}>
+                        <i className="ri-pencil-line" style={{ fontSize: 14, color: '#374151' }} />
+                      </div>
+                      <div onClick={(e: any) => { e.stopPropagation(); deleteAssignedReminder(r.id); }}
+                        style={{ width: 32, height: 32, borderRadius: 999, background: 'rgba(239,68,68,0.08)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)', border: '1px solid rgba(239,68,68,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}>
+                        <i className="ri-delete-bin-6-line" style={{ fontSize: 14, color: '#EF4444' }} />
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+
+              {/* Hydratation du jour */}
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14, marginTop: 16 } as any}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8 } as any}>
+                  <i className="ri-drop-line" style={{ fontSize: 16, color: '#38BDF8' }} />
+                  <span style={{ fontSize: 14, fontWeight: 800, color: '#111' }}>Hydratation du {selectedDayFr}</span>
+                  <span style={{ fontSize: 11, fontWeight: 600, color: '#9CA3AF', background: '#E5E7EB', padding: '2px 8px', borderRadius: 999 }}>{filteredReminders.filter(r => r.reminder_type === 'hydration').length}</span>
+                </div>
+              </div>
+              {filteredReminders.filter(r => r.reminder_type === 'hydration').length === 0 && (
+                <div style={{ textAlign: 'center', padding: '20px 16px', color: '#9CA3AF', fontSize: 13, borderRadius: 16, background: '#F4F4F5', marginBottom: 16 } as any}>
+                  <i className="ri-drop-line" style={{ fontSize: 24, display: 'block', marginBottom: 6, color: '#D1D5DB' }} />
+                  Aucun rappel hydratation le {selectedDayFr}
+                </div>
+              )}
+              {filteredReminders.filter(r => r.reminder_type === 'hydration').map(r => {
+                const remImg = r.image || REMINDER_IMAGES.hydration;
+                const remDone = (r.completions || []).some((c: any) => c.date?.startsWith(selectedDateStr) && c.status === 'done');
+                return (
+                  <div key={r.id} data-testid={`day-hydration-${r.id}`}
+                    style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 14px', borderRadius: 16,
+                      background: remDone ? 'rgba(16,185,129,0.06)' : '#F4F4F5',
+                      border: remDone ? '1px solid rgba(16,185,129,0.2)' : '1px solid transparent',
+                      marginBottom: 8, transition: 'all 0.15s' } as any}>
+                    <div style={{ width: 48, height: 48, borderRadius: 12, overflow: 'hidden', flexShrink: 0 } as any}>
+                      <img src={remImg} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' } as any} />
+                    </div>
+                    <div style={{ flex: 1, minWidth: 0 } as any}>
+                      <div style={{ fontSize: 14, fontWeight: 700, color: '#111', textTransform: 'capitalize' }}>{r.title}</div>
+                      <div style={{ fontSize: 11, color: '#6B7280', marginTop: 2 }}>{r.dosage} - {r.time}</div>
+                    </div>
+                    {remDone ? (
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '4px 10px', borderRadius: 999, background: 'rgba(16,185,129,0.1)' } as any}>
+                        <i className="ri-checkbox-circle-fill" style={{ fontSize: 16, color: '#10B981' }} />
+                        <span style={{ fontSize: 11, fontWeight: 700, color: '#10B981' }}>Fait</span>
+                      </div>
+                    ) : (
+                      <div style={{ padding: '4px 10px', borderRadius: 999, background: '#E5E7EB' } as any}>
+                        <span style={{ fontSize: 11, fontWeight: 700, color: '#6B7280' }}>A faire</span>
+                      </div>
+                    )}
+                    <div style={{ display: 'flex', gap: 6, flexShrink: 0 } as any}>
+                      <div onClick={(e: any) => { e.stopPropagation(); setEditRemForm({ ...r }); setModal('edit-rem'); }}
                         style={{ width: 32, height: 32, borderRadius: 999, background: 'rgba(255,255,255,0.65)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)', border: '1px solid rgba(0,0,0,0.06)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', boxShadow: '0 2px 8px rgba(0,0,0,0.06)' } as any}>
                         <i className="ri-pencil-line" style={{ fontSize: 14, color: '#374151' }} />
                       </div>
@@ -695,7 +768,7 @@ export default function ProSpace({ token, user }: { token: string; user: any }) 
                       border: mealDone ? '1px solid rgba(16,185,129,0.2)' : '1px solid transparent',
                       marginBottom: 8, transition: 'all 0.15s' } as any}>
                     <div onClick={() => router.push({ pathname: '/meal-detail' as any, params: { id: m.meal_template_id || m.id, mode: 'assigned', assignmentId: m.id } })}
-                      style={{ width: 48, height: 48, borderRadius: 12, background: '#EDEDEE', overflow: 'hidden', flexShrink: 0, cursor: 'pointer' } as any}>
+                      style={{ width: 48, height: 48, borderRadius: 12, overflow: 'hidden', flexShrink: 0, cursor: 'pointer' } as any}>
                       <img src={mealImg} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' } as any} />
                     </div>
                     <div onClick={() => router.push({ pathname: '/meal-detail' as any, params: { id: m.meal_template_id || m.id, mode: 'assigned', assignmentId: m.id } })}
@@ -942,13 +1015,16 @@ export default function ProSpace({ token, user }: { token: string; user: any }) 
         ) : !modalCtx ? (
           <>
             <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', marginBottom: 14 }}>Choisissez un complement :</div>
-            {reminderTemplates.map(tpl => (
+            <div style={{ maxHeight: '50vh', overflowY: 'auto' } as any}>
+            {reminderTemplates.map(tpl => {
+              const tplImg = tpl.image || (tpl.reminder_type === 'hydration' ? REMINDER_IMAGES.hydration : REMINDER_IMAGES.medication);
+              return (
               <div key={tpl.id} onClick={() => { setModalCtx(tpl.id); setRemAssignForm({ days: [], time: tpl.time || '08:00', dosage: tpl.dosage || '' }); }}
                 style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 14px', borderRadius: 14, marginBottom: 6, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', cursor: 'pointer' } as any}
                 onMouseEnter={(e: any) => e.currentTarget.style.background = 'rgba(255,255,255,0.1)'}
                 onMouseLeave={(e: any) => e.currentTarget.style.background = 'rgba(255,255,255,0.04)'}>
-                <div style={{ width: 40, height: 40, borderRadius: 10, background: 'rgba(245,158,11,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}>
-                  <i className="ri-capsule-fill" style={{ fontSize: 18, color: '#F59E0B' }} />
+                <div style={{ width: 40, height: 40, borderRadius: 10, overflow: 'hidden', flexShrink: 0 } as any}>
+                  <img src={tplImg} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' } as any} />
                 </div>
                 <div style={{ flex: 1, minWidth: 0 } as any}>
                   <div style={{ fontSize: 13, fontWeight: 700, color: '#FFF' }}>{tpl.title}</div>
@@ -956,10 +1032,26 @@ export default function ProSpace({ token, user }: { token: string; user: any }) 
                 </div>
                 <i className="ri-arrow-right-s-line" style={{ fontSize: 18, color: 'rgba(255,255,255,0.3)' }} />
               </div>
-            ))}
+              );
+            })}
+            </div>
           </>
         ) : (
           <>
+            {(() => { const selTpl = reminderTemplates.find(t => t.id === modalCtx); const selImg = selTpl?.image || (selTpl?.reminder_type === 'hydration' ? REMINDER_IMAGES.hydration : REMINDER_IMAGES.medication); return (
+              <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 18, padding: '12px 14px', borderRadius: 16, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)' } as any}>
+                <div style={{ width: 52, height: 52, borderRadius: 12, overflow: 'hidden', flexShrink: 0 } as any}>
+                  <img src={selImg} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' } as any} />
+                </div>
+                <div style={{ flex: 1 } as any}>
+                  <div style={{ fontSize: 15, fontWeight: 800, color: '#FFF' }}>{selTpl?.title}</div>
+                  <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)', marginTop: 2 }}>{selTpl?.reminder_type === 'hydration' ? 'Hydratation' : 'Supplement'}</div>
+                </div>
+                <div onClick={() => setModalCtx(null)} style={{ width: 28, height: 28, borderRadius: 999, background: 'rgba(255,255,255,0.06)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}>
+                  <i className="ri-arrow-left-s-line" style={{ fontSize: 16, color: 'rgba(255,255,255,0.4)' }} />
+                </div>
+              </div>
+            ); })()}
             <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', marginBottom: 14 }}>Personnalisez pour {activeBenData?.name} :</div>
             <div style={{ marginBottom: 16 }}>
               <label style={LBL}>Jours de la semaine</label>
