@@ -274,6 +274,7 @@ export default function ProSpace({ token, user }: { token: string; user: any }) 
               onAddExercise={() => { setModal('assign-ex'); setModalCtx(null); }}
               onAddReminder={() => { setModal('assign-rem'); setModalCtx(null); }}
               onAddMeal={() => { setModal('assign-meal'); setModalCtx(null); }}
+              onAddHydration={() => { setModal('assign-hydration'); setModalCtx(null); }}
               onEditExercise={(ex) => { setEditExForm({ ...ex }); setModal('edit-assigned'); }}
               onEditReminder={(r) => { setEditRemForm({ ...r }); setModal('edit-rem'); }}
               onEditMeal={(m) => { setEditMealForm({ ...m }); setModal('edit-meal'); }}

@@ -212,6 +212,52 @@ export function ProModals(props: ProModalsProps) {
         )}
       </GlassModal>
 
+      {/* Assign Hydration */}
+      <GlassModal open={modal === 'assign-hydration'} onClose={close} title="Assigner une hydratation">
+        {(() => { const hydrationTpls = reminderTemplates.filter(t => t.reminder_type === 'hydration'); return hydrationTpls.length === 0 ? (
+          <div style={{ textAlign: 'center', padding: '24px', color: 'rgba(255,255,255,0.4)', fontSize: 13 } as any}>
+            Aucun rappel hydratation dans la bibliotheque.<br/>
+            <span onClick={() => { setModal(null); setTab('library'); }} style={{ color: '#38BDF8', cursor: 'pointer', fontWeight: 700, marginTop: 8, display: 'inline-block' }}>Creer un rappel hydratation</span>
+          </div>
+        ) : !modalCtx ? (
+          <>
+            <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', marginBottom: 14 }}>Choisissez un rappel hydratation :</div>
+            <div style={{ maxHeight: '50vh', overflowY: 'auto' } as any}>
+            {hydrationTpls.map(tpl => {
+              const tplImg = tpl.image || REMINDER_IMAGES.hydration;
+              return (
+              <div key={tpl.id} onClick={() => { setModalCtx(tpl.id); setRemAssignForm({ days: [], time: tpl.time || '08:00', dosage: tpl.dosage || '' }); }}
+                style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 14px', borderRadius: 14, marginBottom: 6, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', cursor: 'pointer' } as any}
+                onMouseEnter={(e: any) => e.currentTarget.style.background = 'rgba(255,255,255,0.1)'}
+                onMouseLeave={(e: any) => e.currentTarget.style.background = 'rgba(255,255,255,0.04)'}>
+                <div style={{ width: 40, height: 40, borderRadius: 10, overflow: 'hidden', flexShrink: 0 } as any}>
+                  <img src={tplImg} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' } as any} />
+                </div>
+                <div style={{ flex: 1, minWidth: 0 } as any}>
+                  <div style={{ fontSize: 13, fontWeight: 700, color: '#FFF' }}>{tpl.title}</div>
+                  <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.4)' }}>{tpl.dosage} - {tpl.time}</div>
+                </div>
+                <i className="ri-arrow-right-s-line" style={{ fontSize: 18, color: 'rgba(255,255,255,0.3)' }} />
+              </div>
+              );
+            })}
+            </div>
+          </>
+        ) : (
+          <>
+            <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', marginBottom: 14 }}>Personnalisez pour {activeBenName} :</div>
+            <div style={{ marginBottom: 16 }}><label style={LBL}>Jours de la semaine</label><DaysPicker selected={remAssignForm.days} onChange={days => setRemAssignForm({ ...remAssignForm, days })} accent="#38BDF8" /></div>
+            <div style={{ display: 'flex', gap: 10, marginBottom: 14 } as any}>
+              <div style={{ flex: 1 }}><label style={LBL}>Heure</label><input type="time" value={remAssignForm.time} onChange={(e: any) => setRemAssignForm({ ...remAssignForm, time: e.target.value })} style={INP} /></div>
+              <div style={{ flex: 1 }}><label style={LBL}>Dosage</label><input value={remAssignForm.dosage} onChange={(e: any) => setRemAssignForm({ ...remAssignForm, dosage: e.target.value })} style={INP} placeholder="500ml" /></div>
+            </div>
+            <div data-testid="assign-hydration-submit" onClick={() => remAssignForm.days.length > 0 ? props.assignReminder(modalCtx, remAssignForm.days, remAssignForm.time, remAssignForm.dosage) : undefined} style={GBTN(remAssignForm.days.length > 0, saving)}>
+              {saving ? 'Assignation...' : `Assigner ${remAssignForm.days.length > 0 ? `(${remAssignForm.days.length} jours)` : '-- Choisissez des jours'}`}
+            </div>
+          </>
+        ); })()}
+      </GlassModal>
+
       {/* Assign Meal */}
       <GlassModal open={modal === 'assign-meal'} onClose={close} title="Assigner un repas">
         {mealTemplates.length === 0 ? (

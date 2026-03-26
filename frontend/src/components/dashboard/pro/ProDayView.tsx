@@ -13,6 +13,7 @@ interface ProDayViewProps {
   onAddExercise: () => void;
   onAddReminder: () => void;
   onAddMeal: () => void;
+  onAddHydration: () => void;
   onEditExercise: (ex: any) => void;
   onEditReminder: (r: any) => void;
   onEditMeal: (m: any) => void;
@@ -109,13 +110,7 @@ export function ProDayView(props: ProDayViewProps) {
       })}
 
       {/* Hydratation du jour */}
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14, marginTop: 16 } as any}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8 } as any}>
-          <i className="ri-drop-line" style={{ fontSize: 16, color: '#38BDF8' }} />
-          <span style={{ fontSize: 14, fontWeight: 800, color: '#111' }}>Hydratation du {selectedDayFr}</span>
-          <span style={{ fontSize: 11, fontWeight: 600, color: '#9CA3AF', background: '#E5E7EB', padding: '2px 8px', borderRadius: 999 }}>{filteredReminders.filter(r => r.reminder_type === 'hydration').length}</span>
-        </div>
-      </div>
+      <SectionHeader icon="ri-drop-line" iconColor="#38BDF8" title={`Hydratation du ${selectedDayFr}`} count={filteredReminders.filter(r => r.reminder_type === 'hydration').length} onAdd={props.onAddHydration} testId="cat-add-hydratation" style={{ marginTop: 16 }} />
       {filteredReminders.filter(r => r.reminder_type === 'hydration').length === 0 && <EmptyDay icon="ri-drop-line" text={`Aucun rappel hydratation le ${selectedDayFr}`} />}
       {filteredReminders.filter(r => r.reminder_type === 'hydration').map(r => {
         const remImg = r.image || REMINDER_IMAGES.hydration;

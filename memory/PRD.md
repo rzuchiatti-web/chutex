@@ -12,7 +12,7 @@ Refondre l'espace d'activite (ProSpace) des coachs/gardiens pour la gestion dire
 - **Light mode**: Fond gris `#F4F4F5`, texte `#111`, sous-texte `#9CA3AF`
 - **Cartes**: fond gris `#F4F4F5`, images 48x48 sans cadre, borderRadius 16
 - **Separateurs**: `height: 1, background: #E5E7EB` (pas de cartes colorees)
-- **Popups/Modales**: GlassModal = fond flou (backdrop-filter blur 40px+), contenu sur fond `rgba(255,255,255,0.08)` transparent. JAMAIS de fond noir opaque
+- **Popups/Modales**: GlassModal = overlay sombre + fond opaque fonce `rgba(20,20,30,0.82)` avec blur. Texte blanc lisible
 - **Badges status**: Fait = vert, A faire = gris #E5E7EB
 - **Boutons action**: edit (pencil, fond blanc glass), delete (poubelle, fond rouge 8%)
 - **NE PAS inventer de nouveaux composants** — reutiliser les memes patterns existants
@@ -24,7 +24,7 @@ Refondre l'espace d'activite (ProSpace) des coachs/gardiens pour la gestion dire
 - [x] Carte nutritionnelle light (kcal, eau, proteines|glucides|lipides)
 - [x] Sections separees: Traitements / Hydratation dans la page Activite
 - [x] Bibliotheque: section Hydratation separee avec bouton + dedie
-- [x] GlassModal bottom sheet avec fond flou (pas noir opaque)
+- [x] GlassModal fond sombre opaque (pas transparent delave)
 - [x] Edition exercice template depuis bibliotheque (inline form)
 - [x] Navigation detail repas: meal-detail multi-mode (assigned/template/beneficiaire)
 - [x] Suppression section "Tous les exercices"
@@ -33,35 +33,29 @@ Refondre l'espace d'activite (ProSpace) des coachs/gardiens pour la gestion dire
 - [x] **P0 FIX**: TabBar cachee quand GlassModal ouverte (CSS injection display:none)
 - [x] **REFACTORING**: ProSpace.tsx (1292 -> 326 lignes) decoupe en 6 sous-composants
 - [x] **ADMIN**: Tableau de bord revenus (endpoint + composant AdminRevenue)
+- [x] **FIX**: Bouton "+" pour ajouter hydratation depuis la vue jour
+- [x] **FIX**: Modale sombre opaque pour lisibilite (overlay 0.55 + contenu rgba(20,20,30,0.82))
 
 ## Routes API principales
 - CRUD exercise-templates, reminder-templates, meal-templates
 - CRUD assigned-exercises, assigned-reminders, assigned-meals
 - GET /api/pro/beneficiary-nutrition/{ben_id}
-- GET /api/pro/assigned-meal-detail/{id}
-- GET /api/pro/meal-template-detail/{id}
-- PUT /api/pro/exercise-templates/{id}
-- **NEW**: GET /api/backoffice/revenue (admin revenue dashboard data)
+- GET /api/backoffice/revenue (admin revenue dashboard data)
 
 ## Structure apres refactoring
 ```
 frontend/src/components/dashboard/
-  ProSpace.tsx              (326 lignes - orchestrateur)
+  ProSpace.tsx              (orchestrateur)
   pro/
     constants.ts            (API, styles, helpers)
     GlassModal.tsx          (Modal, ImagePicker, DaysPicker)
     ProCalendar.tsx          (HorizontalCalendar)
-    ProDayView.tsx           (Vue jour: exercices, rappels, repas)
+    ProDayView.tsx           (Vue jour: exercices, rappels, hydratation, repas)
     ProLibrary.tsx           (Onglet bibliotheque)
-    ProModals.tsx            (Toutes les modales de formulaires)
+    ProModals.tsx            (Toutes les modales + assign-hydration)
   admin/
     AdminRevenue.tsx         (Tableau de bord revenus admin)
 ```
-
-## Note technique
-- toISOString() cause decalage UTC. Utiliser toLocalDateStr() partout.
-- Metro hot reload ne prend pas toujours les gros changements. Purger .metro-cache si necessaire.
-- React Native Web: setInterval pour forcer scrollLeft sur le calendrier.
 
 ## Backlog P2
 - [ ] Balance/gilet connectes
@@ -74,4 +68,4 @@ frontend/src/components/dashboard/
 ## Credentials test
 - Coach: +33655443322 / test123
 - Beneficiaire: +33651245918 / test123
-- Admin: admin@chutex.fr / admin123 (via API directe, pas le formulaire telephone)
+- Admin: admin@chutex.fr / admin123 (via API directe)
