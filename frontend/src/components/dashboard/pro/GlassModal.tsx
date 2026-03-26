@@ -4,14 +4,14 @@ import { API, uploadImage, DAYS_FR } from './constants';
 export function GlassModal({ open, onClose, title, children }: { open: boolean; onClose: () => void; title: string; children: React.ReactNode }) {
   if (!open) return null;
   return (
-    <div data-testid="glass-modal" onClick={onClose} style={{ position: 'fixed', inset: 0, zIndex: 9999, display: 'flex', alignItems: 'flex-end', justifyContent: 'center', backdropFilter: 'blur(40px)', WebkitBackdropFilter: 'blur(40px)', background: 'rgba(0,0,0,0.55)' } as any}>
+    <div data-testid="glass-modal" onClick={onClose} style={{ position: 'fixed', inset: 0, zIndex: 9999, display: 'flex', alignItems: 'flex-end', justifyContent: 'center', backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)', background: 'rgba(0,0,0,0.35)' } as any}>
       <style>{`.glass-tab-bar-root { display: none !important; }`}</style>
-      <div onClick={e => e.stopPropagation()} style={{ width: '100%', maxWidth: 440, maxHeight: '85vh', overflowY: 'auto', padding: '24px 20px 100px', WebkitOverflowScrolling: 'touch', borderRadius: '28px 28px 0 0', background: 'rgba(20,20,30,0.82)', backdropFilter: 'blur(60px)', WebkitBackdropFilter: 'blur(60px)', border: '1px solid rgba(255,255,255,0.12)', borderBottom: 'none' } as any}>
-        <div style={{ width: 40, height: 4, borderRadius: 2, background: 'rgba(255,255,255,0.2)', margin: '0 auto 16px' } as any} />
+      <div onClick={e => e.stopPropagation()} style={{ width: '100%', maxWidth: 440, maxHeight: '85vh', overflowY: 'auto', padding: '24px 20px 100px', WebkitOverflowScrolling: 'touch', borderRadius: '28px 28px 0 0', background: '#FFFFFF', boxShadow: '0 -8px 40px rgba(0,0,0,0.12)' } as any}>
+        <div style={{ width: 40, height: 4, borderRadius: 2, background: '#D1D5DB', margin: '0 auto 16px' } as any} />
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
-          <div style={{ fontSize: 18, fontWeight: 900, color: '#FFF' }}>{title}</div>
-          <div onClick={onClose} style={{ width: 34, height: 34, borderRadius: 999, background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}>
-            <i className="ri-close-line" style={{ fontSize: 16, color: 'rgba(255,255,255,0.6)' }} />
+          <div style={{ fontSize: 18, fontWeight: 900, color: '#111' }}>{title}</div>
+          <div onClick={onClose} style={{ width: 34, height: 34, borderRadius: 999, background: '#F4F4F5', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}>
+            <i className="ri-close-line" style={{ fontSize: 16, color: '#6B7280' }} />
           </div>
         </div>
         {children}
@@ -32,9 +32,9 @@ export function ImagePicker({ value, onChange, token }: { value: string; onChang
     input.click();
   };
   return (
-    <div onClick={pick} style={{ width: '100%', height: 140, borderRadius: 16, border: '2px dashed rgba(255,255,255,0.15)', background: value ? 'none' : 'rgba(255,255,255,0.03)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', overflow: 'hidden', position: 'relative', marginBottom: 14 } as any}>
+    <div onClick={pick} style={{ width: '100%', height: 140, borderRadius: 16, border: '2px dashed #D1D5DB', background: value ? 'none' : '#F9FAFB', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', overflow: 'hidden', position: 'relative', marginBottom: 14 } as any}>
       {value ? <img src={value.startsWith('/') ? `${API}${value}` : value} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' } as any} /> : (
-        <div style={{ textAlign: 'center', color: 'rgba(255,255,255,0.3)' } as any}>
+        <div style={{ textAlign: 'center', color: '#9CA3AF' } as any}>
           <i className={uploading ? 'ri-loader-4-line ri-spin' : 'ri-image-add-line'} style={{ fontSize: 28, display: 'block', marginBottom: 6 }} />
           <div style={{ fontSize: 12, fontWeight: 600 }}>{uploading ? 'Upload...' : 'Ajouter une image'}</div>
         </div>
@@ -52,12 +52,10 @@ export function DaysPicker({ selected, onChange, accent }: { selected: string[];
         return (
           <div key={d} data-testid={`day-${d}`} onClick={() => onChange(sel ? selected.filter(x => x !== d) : [...selected, d])}
             style={{ padding: '8px 12px', borderRadius: 999,
-              background: sel ? 'rgba(220,38,38,0.12)' : 'rgba(255,255,255,0.06)',
-              backdropFilter: sel ? 'blur(12px)' : 'none', WebkitBackdropFilter: sel ? 'blur(12px)' : 'none',
-              border: sel ? '1.5px solid rgba(220,38,38,0.25)' : '1px solid rgba(255,255,255,0.1)',
-              boxShadow: sel ? '0 2px 10px rgba(220,38,38,0.1), inset 0 1px 0 rgba(255,255,255,0.06)' : 'none',
+              background: sel ? '#111' : '#F4F4F5',
+              border: sel ? '1.5px solid #111' : '1px solid #E5E7EB',
               cursor: 'pointer', fontSize: 12, fontWeight: 700,
-              color: sel ? '#FFF' : 'rgba(255,255,255,0.4)', textTransform: 'capitalize', transition: 'all 0.2s' } as any}>
+              color: sel ? '#FFF' : '#6B7280', textTransform: 'capitalize', transition: 'all 0.2s' } as any}>
             {d.slice(0, 3)}
           </div>
         );

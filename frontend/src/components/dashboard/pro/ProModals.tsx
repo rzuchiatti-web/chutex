@@ -54,31 +54,31 @@ export function ProModals(props: ProModalsProps) {
       {/* Assign Exercise */}
       <GlassModal open={modal === 'assign-ex'} onClose={close} title="Ajouter un exercice">
         {exerciseTemplates.length === 0 ? (
-          <div style={{ textAlign: 'center', padding: '24px', color: 'rgba(255,255,255,0.4)', fontSize: 13 } as any}>
+          <div style={{ textAlign: 'center', padding: '24px', color: '#9CA3AF', fontSize: 13 } as any}>
             Aucun exercice dans la bibliotheque.<br/>
             <span onClick={() => { setModal(null); setTab('library'); }} style={{ color: AC, cursor: 'pointer', fontWeight: 700, marginTop: 8, display: 'inline-block' }}>Creer un exercice</span>
           </div>
         ) : !modalCtx ? (
           <>
-            <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', marginBottom: 14 }}>Choisissez un exercice de la bibliotheque :</div>
+            <div style={{ fontSize: 12, color: '#9CA3AF', marginBottom: 14 }}>Choisissez un exercice de la bibliotheque :</div>
             {exerciseTemplates.map(tpl => (
               <div key={tpl.id} onClick={() => { setModalCtx(tpl.id); setExForm({ ...emptyEx, title: tpl.title, days: [], reps: tpl.repetitions || 12, sets: tpl.sets || 3, rest_seconds: tpl.rest_seconds || 60 }); }}
-                style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 14px', borderRadius: 14, marginBottom: 6, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', cursor: 'pointer', transition: 'background 0.15s' } as any}
-                onMouseEnter={(e: any) => e.currentTarget.style.background = 'rgba(255,255,255,0.1)'}
-                onMouseLeave={(e: any) => e.currentTarget.style.background = 'rgba(255,255,255,0.04)'}>
+                style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 14px', borderRadius: 14, marginBottom: 6, background: '#F4F4F5', border: '1px solid #E5E7EB', cursor: 'pointer', transition: 'background 0.15s' } as any}
+                onMouseEnter={(e: any) => e.currentTarget.style.background = '#ECECED'}
+                onMouseLeave={(e: any) => e.currentTarget.style.background = '#F4F4F5'}>
                 {tpl.image ? <div style={{ width: 40, height: 40, borderRadius: 10, overflow: 'hidden', flexShrink: 0 } as any}><img src={tpl.image.startsWith('/') ? `${API}${tpl.image}` : tpl.image} style={{ width: '100%', height: '100%', objectFit: 'cover' } as any} /></div>
-                : <div style={{ width: 40, height: 40, borderRadius: 10, background: `${AC}15`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}><i className="ri-run-line" style={{ fontSize: 18, color: AC }} /></div>}
+                : <div style={{ width: 40, height: 40, borderRadius: 10, background: 'rgba(255,255,255,0.06)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}><i className="ri-run-line" style={{ fontSize: 18, color: AC }} /></div>}
                 <div style={{ flex: 1, minWidth: 0 } as any}>
-                  <div style={{ fontSize: 13, fontWeight: 700, color: '#FFF', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' } as any}>{tpl.title}</div>
-                  <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.4)' }}>{tpl.muscle_group || tpl.category} - {tpl.difficulty}</div>
+                  <div style={{ fontSize: 13, fontWeight: 700, color: '#111', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' } as any}>{tpl.title}</div>
+                  <div style={{ fontSize: 10, color: '#9CA3AF' }}>{tpl.muscle_group || tpl.category} - {tpl.difficulty}</div>
                 </div>
-                <i className="ri-arrow-right-s-line" style={{ fontSize: 18, color: 'rgba(255,255,255,0.3)' }} />
+                <i className="ri-arrow-right-s-line" style={{ fontSize: 18, color: '#D1D5DB' }} />
               </div>
             ))}
           </>
         ) : (
           <>
-            <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', marginBottom: 14 }}>Personnalisez pour {activeBenName} :</div>
+            <div style={{ fontSize: 12, color: '#9CA3AF', marginBottom: 14 }}>Personnalisez pour {activeBenName} :</div>
             <div style={{ marginBottom: 16 }}>
               <label style={LBL}>Jours de la semaine</label>
               <DaysPicker selected={exForm.days || []} onChange={days => setExForm({ ...exForm, days })} accent={AC} />
@@ -99,8 +99,8 @@ export function ProModals(props: ProModalsProps) {
       <GlassModal open={modal === 'edit-assigned' && !!editExForm} onClose={() => { setModal(null); setEditExForm(null); }} title="Modifier l'exercice">
         {editExForm && (
           <>
-            <div style={{ fontSize: 16, fontWeight: 800, color: '#FFF', marginBottom: 4, textTransform: 'capitalize' }}>{editExForm.title}</div>
-            <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', marginBottom: 18 }}>{editExForm.muscle_group || editExForm.category}</div>
+            <div style={{ fontSize: 16, fontWeight: 800, color: '#111', marginBottom: 4, textTransform: 'capitalize' }}>{editExForm.title}</div>
+            <div style={{ fontSize: 12, color: '#9CA3AF', marginBottom: 18 }}>{editExForm.muscle_group || editExForm.category}</div>
             <div style={{ marginBottom: 16 }}><label style={LBL}>Jours de la semaine</label><DaysPicker selected={editExForm.days || []} onChange={days => setEditExForm({ ...editExForm, days })} accent={AC} /></div>
             <div style={{ display: 'flex', gap: 10, marginBottom: 14 } as any}>
               <div style={{ flex: 1 }}><label style={LBL}>Series</label><input type="number" value={editExForm.sets} onChange={(e: any) => setEditExForm({ ...editExForm, sets: +e.target.value })} style={INP} /></div>
@@ -118,8 +118,8 @@ export function ProModals(props: ProModalsProps) {
       <GlassModal open={modal === 'edit-rem' && !!editRemForm} onClose={() => { setModal(null); setEditRemForm(null); }} title="Modifier le complement">
         {editRemForm && (
           <>
-            <div style={{ fontSize: 16, fontWeight: 800, color: '#FFF', marginBottom: 4, textTransform: 'capitalize' }}>{editRemForm.title}</div>
-            <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', marginBottom: 18 }}>{editRemForm.reminder_type || 'supplement'}</div>
+            <div style={{ fontSize: 16, fontWeight: 800, color: '#111', marginBottom: 4, textTransform: 'capitalize' }}>{editRemForm.title}</div>
+            <div style={{ fontSize: 12, color: '#9CA3AF', marginBottom: 18 }}>{editRemForm.reminder_type || 'supplement'}</div>
             <div style={{ marginBottom: 16 }}><label style={LBL}>Jours de la semaine</label><DaysPicker selected={editRemForm.days || []} onChange={days => setEditRemForm({ ...editRemForm, days })} accent={AC} /></div>
             <div style={{ display: 'flex', gap: 10, marginBottom: 14 } as any}>
               <div style={{ flex: 1 }}><label style={LBL}>Heure</label><input type="time" value={editRemForm.time || ''} onChange={(e: any) => setEditRemForm({ ...editRemForm, time: e.target.value })} style={INP} /></div>
@@ -136,8 +136,8 @@ export function ProModals(props: ProModalsProps) {
       <GlassModal open={modal === 'edit-meal' && !!editMealForm} onClose={() => { setModal(null); setEditMealForm(null); }} title="Modifier le repas">
         {editMealForm && (
           <>
-            <div style={{ fontSize: 16, fontWeight: 800, color: '#FFF', marginBottom: 4, textTransform: 'capitalize' }}>{editMealForm.title}</div>
-            <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', marginBottom: 18 }}>{(editMealForm.meal_type || '').replace('_', ' ')}</div>
+            <div style={{ fontSize: 16, fontWeight: 800, color: '#111', marginBottom: 4, textTransform: 'capitalize' }}>{editMealForm.title}</div>
+            <div style={{ fontSize: 12, color: '#9CA3AF', marginBottom: 18 }}>{(editMealForm.meal_type || '').replace('_', ' ')}</div>
             <div style={{ marginBottom: 16 }}><label style={LBL}>Jours de la semaine</label><DaysPicker selected={editMealForm.days || []} onChange={days => setEditMealForm({ ...editMealForm, days })} accent={AC} /></div>
             <div style={{ marginBottom: 14 }}>
               <label style={LBL}>Type de repas</label>
@@ -155,29 +155,29 @@ export function ProModals(props: ProModalsProps) {
       {/* Assign Reminder */}
       <GlassModal open={modal === 'assign-rem'} onClose={close} title="Assigner un complement">
         {reminderTemplates.length === 0 ? (
-          <div style={{ textAlign: 'center', padding: '24px', color: 'rgba(255,255,255,0.4)', fontSize: 13 } as any}>
+          <div style={{ textAlign: 'center', padding: '24px', color: '#9CA3AF', fontSize: 13 } as any}>
             Aucun complement dans la bibliotheque.<br/>
             <span onClick={() => { setModal(null); setTab('library'); }} style={{ color: '#F59E0B', cursor: 'pointer', fontWeight: 700, marginTop: 8, display: 'inline-block' }}>Creer un complement</span>
           </div>
         ) : !modalCtx ? (
           <>
-            <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', marginBottom: 14 }}>Choisissez un complement :</div>
+            <div style={{ fontSize: 12, color: '#9CA3AF', marginBottom: 14 }}>Choisissez un complement :</div>
             <div style={{ maxHeight: '50vh', overflowY: 'auto' } as any}>
             {reminderTemplates.map(tpl => {
               const tplImg = tpl.image || (tpl.reminder_type === 'hydration' ? REMINDER_IMAGES.hydration : REMINDER_IMAGES.medication);
               return (
               <div key={tpl.id} onClick={() => { setModalCtx(tpl.id); setRemAssignForm({ days: [], time: tpl.time || '08:00', dosage: tpl.dosage || '' }); }}
-                style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 14px', borderRadius: 14, marginBottom: 6, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', cursor: 'pointer' } as any}
-                onMouseEnter={(e: any) => e.currentTarget.style.background = 'rgba(255,255,255,0.1)'}
-                onMouseLeave={(e: any) => e.currentTarget.style.background = 'rgba(255,255,255,0.04)'}>
+                style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 14px', borderRadius: 14, marginBottom: 6, background: '#F4F4F5', border: '1px solid #E5E7EB', cursor: 'pointer' } as any}
+                onMouseEnter={(e: any) => e.currentTarget.style.background = '#ECECED'}
+                onMouseLeave={(e: any) => e.currentTarget.style.background = '#F4F4F5'}>
                 <div style={{ width: 40, height: 40, borderRadius: 10, overflow: 'hidden', flexShrink: 0 } as any}>
                   <img src={tplImg} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' } as any} />
                 </div>
                 <div style={{ flex: 1, minWidth: 0 } as any}>
-                  <div style={{ fontSize: 13, fontWeight: 700, color: '#FFF' }}>{tpl.title}</div>
-                  <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.4)' }}>{tpl.dosage} - {tpl.time}</div>
+                  <div style={{ fontSize: 13, fontWeight: 700, color: '#111' }}>{tpl.title}</div>
+                  <div style={{ fontSize: 10, color: '#9CA3AF' }}>{tpl.dosage} - {tpl.time}</div>
                 </div>
-                <i className="ri-arrow-right-s-line" style={{ fontSize: 18, color: 'rgba(255,255,255,0.3)' }} />
+                <i className="ri-arrow-right-s-line" style={{ fontSize: 18, color: '#D1D5DB' }} />
               </div>
               );
             })}
@@ -186,20 +186,20 @@ export function ProModals(props: ProModalsProps) {
         ) : (
           <>
             {(() => { const selTpl = reminderTemplates.find(t => t.id === modalCtx); const selImg = selTpl?.image || (selTpl?.reminder_type === 'hydration' ? REMINDER_IMAGES.hydration : REMINDER_IMAGES.medication); return (
-              <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 18, padding: '12px 14px', borderRadius: 16, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)' } as any}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 18, padding: '12px 14px', borderRadius: 16, background: '#F4F4F5', border: '1px solid #E5E7EB' } as any}>
                 <div style={{ width: 52, height: 52, borderRadius: 12, overflow: 'hidden', flexShrink: 0 } as any}>
                   <img src={selImg} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' } as any} />
                 </div>
                 <div style={{ flex: 1 } as any}>
-                  <div style={{ fontSize: 15, fontWeight: 800, color: '#FFF' }}>{selTpl?.title}</div>
-                  <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)', marginTop: 2 }}>{selTpl?.reminder_type === 'hydration' ? 'Hydratation' : 'Supplement'}</div>
+                  <div style={{ fontSize: 15, fontWeight: 800, color: '#111' }}>{selTpl?.title}</div>
+                  <div style={{ fontSize: 11, color: '#9CA3AF', marginTop: 2 }}>{selTpl?.reminder_type === 'hydration' ? 'Hydratation' : 'Supplement'}</div>
                 </div>
                 <div onClick={() => setModalCtx(null)} style={{ width: 28, height: 28, borderRadius: 999, background: 'rgba(255,255,255,0.06)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}>
-                  <i className="ri-arrow-left-s-line" style={{ fontSize: 16, color: 'rgba(255,255,255,0.4)' }} />
+                  <i className="ri-arrow-left-s-line" style={{ fontSize: 16, color: '#9CA3AF' }} />
                 </div>
               </div>
             ); })()}
-            <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', marginBottom: 14 }}>Personnalisez pour {activeBenName} :</div>
+            <div style={{ fontSize: 12, color: '#9CA3AF', marginBottom: 14 }}>Personnalisez pour {activeBenName} :</div>
             <div style={{ marginBottom: 16 }}><label style={LBL}>Jours de la semaine</label><DaysPicker selected={remAssignForm.days} onChange={days => setRemAssignForm({ ...remAssignForm, days })} accent="#F59E0B" /></div>
             <div style={{ display: 'flex', gap: 10, marginBottom: 14 } as any}>
               <div style={{ flex: 1 }}><label style={LBL}>Heure</label><input type="time" value={remAssignForm.time} onChange={(e: any) => setRemAssignForm({ ...remAssignForm, time: e.target.value })} style={INP} /></div>
@@ -215,29 +215,29 @@ export function ProModals(props: ProModalsProps) {
       {/* Assign Hydration */}
       <GlassModal open={modal === 'assign-hydration'} onClose={close} title="Assigner une hydratation">
         {(() => { const hydrationTpls = reminderTemplates.filter(t => t.reminder_type === 'hydration'); return hydrationTpls.length === 0 ? (
-          <div style={{ textAlign: 'center', padding: '24px', color: 'rgba(255,255,255,0.4)', fontSize: 13 } as any}>
+          <div style={{ textAlign: 'center', padding: '24px', color: '#9CA3AF', fontSize: 13 } as any}>
             Aucun rappel hydratation dans la bibliotheque.<br/>
             <span onClick={() => { setModal(null); setTab('library'); }} style={{ color: '#38BDF8', cursor: 'pointer', fontWeight: 700, marginTop: 8, display: 'inline-block' }}>Creer un rappel hydratation</span>
           </div>
         ) : !modalCtx ? (
           <>
-            <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', marginBottom: 14 }}>Choisissez un rappel hydratation :</div>
+            <div style={{ fontSize: 12, color: '#9CA3AF', marginBottom: 14 }}>Choisissez un rappel hydratation :</div>
             <div style={{ maxHeight: '50vh', overflowY: 'auto' } as any}>
             {hydrationTpls.map(tpl => {
               const tplImg = tpl.image || REMINDER_IMAGES.hydration;
               return (
               <div key={tpl.id} onClick={() => { setModalCtx(tpl.id); setRemAssignForm({ days: [], time: tpl.time || '08:00', dosage: tpl.dosage || '' }); }}
-                style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 14px', borderRadius: 14, marginBottom: 6, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', cursor: 'pointer' } as any}
-                onMouseEnter={(e: any) => e.currentTarget.style.background = 'rgba(255,255,255,0.1)'}
-                onMouseLeave={(e: any) => e.currentTarget.style.background = 'rgba(255,255,255,0.04)'}>
+                style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 14px', borderRadius: 14, marginBottom: 6, background: '#F4F4F5', border: '1px solid #E5E7EB', cursor: 'pointer' } as any}
+                onMouseEnter={(e: any) => e.currentTarget.style.background = '#ECECED'}
+                onMouseLeave={(e: any) => e.currentTarget.style.background = '#F4F4F5'}>
                 <div style={{ width: 40, height: 40, borderRadius: 10, overflow: 'hidden', flexShrink: 0 } as any}>
                   <img src={tplImg} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' } as any} />
                 </div>
                 <div style={{ flex: 1, minWidth: 0 } as any}>
-                  <div style={{ fontSize: 13, fontWeight: 700, color: '#FFF' }}>{tpl.title}</div>
-                  <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.4)' }}>{tpl.dosage} - {tpl.time}</div>
+                  <div style={{ fontSize: 13, fontWeight: 700, color: '#111' }}>{tpl.title}</div>
+                  <div style={{ fontSize: 10, color: '#9CA3AF' }}>{tpl.dosage} - {tpl.time}</div>
                 </div>
-                <i className="ri-arrow-right-s-line" style={{ fontSize: 18, color: 'rgba(255,255,255,0.3)' }} />
+                <i className="ri-arrow-right-s-line" style={{ fontSize: 18, color: '#D1D5DB' }} />
               </div>
               );
             })}
@@ -245,7 +245,7 @@ export function ProModals(props: ProModalsProps) {
           </>
         ) : (
           <>
-            <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', marginBottom: 14 }}>Personnalisez pour {activeBenName} :</div>
+            <div style={{ fontSize: 12, color: '#9CA3AF', marginBottom: 14 }}>Personnalisez pour {activeBenName} :</div>
             <div style={{ marginBottom: 16 }}><label style={LBL}>Jours de la semaine</label><DaysPicker selected={remAssignForm.days} onChange={days => setRemAssignForm({ ...remAssignForm, days })} accent="#38BDF8" /></div>
             <div style={{ display: 'flex', gap: 10, marginBottom: 14 } as any}>
               <div style={{ flex: 1 }}><label style={LBL}>Heure</label><input type="time" value={remAssignForm.time} onChange={(e: any) => setRemAssignForm({ ...remAssignForm, time: e.target.value })} style={INP} /></div>
@@ -261,32 +261,32 @@ export function ProModals(props: ProModalsProps) {
       {/* Assign Meal */}
       <GlassModal open={modal === 'assign-meal'} onClose={close} title="Assigner un repas">
         {mealTemplates.length === 0 ? (
-          <div style={{ textAlign: 'center', padding: '24px', color: 'rgba(255,255,255,0.4)', fontSize: 13 } as any}>
+          <div style={{ textAlign: 'center', padding: '24px', color: '#9CA3AF', fontSize: 13 } as any}>
             Aucun repas dans la bibliotheque.<br/>
             <span onClick={() => { setModal(null); setTab('library'); }} style={{ color: '#10B981', cursor: 'pointer', fontWeight: 700, marginTop: 8, display: 'inline-block' }}>Creer un repas</span>
           </div>
         ) : !modalCtx ? (
           <>
-            <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', marginBottom: 14 }}>Choisissez un repas :</div>
+            <div style={{ fontSize: 12, color: '#9CA3AF', marginBottom: 14 }}>Choisissez un repas :</div>
             {mealTemplates.map(tpl => (
               <div key={tpl.id} onClick={() => { setModalCtx(tpl.id); setMealAssignForm({ days: [], meal_type: tpl.meal_type || 'dejeuner' }); }}
-                style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 14px', borderRadius: 14, marginBottom: 6, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', cursor: 'pointer' } as any}
-                onMouseEnter={(e: any) => e.currentTarget.style.background = 'rgba(255,255,255,0.1)'}
-                onMouseLeave={(e: any) => e.currentTarget.style.background = 'rgba(255,255,255,0.04)'}>
+                style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 14px', borderRadius: 14, marginBottom: 6, background: '#F4F4F5', border: '1px solid #E5E7EB', cursor: 'pointer' } as any}
+                onMouseEnter={(e: any) => e.currentTarget.style.background = '#ECECED'}
+                onMouseLeave={(e: any) => e.currentTarget.style.background = '#F4F4F5'}>
                 <div style={{ width: 40, height: 40, borderRadius: 10, background: 'rgba(16,185,129,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}>
                   <i className="ri-restaurant-fill" style={{ fontSize: 18, color: '#10B981' }} />
                 </div>
                 <div style={{ flex: 1, minWidth: 0 } as any}>
-                  <div style={{ fontSize: 13, fontWeight: 700, color: '#FFF' }}>{tpl.title}</div>
-                  <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.4)' }}>{(tpl.meal_type || '').replace('_', ' ')} {tpl.calories ? `- ${tpl.calories} kcal` : ''}</div>
+                  <div style={{ fontSize: 13, fontWeight: 700, color: '#111' }}>{tpl.title}</div>
+                  <div style={{ fontSize: 10, color: '#9CA3AF' }}>{(tpl.meal_type || '').replace('_', ' ')} {tpl.calories ? `- ${tpl.calories} kcal` : ''}</div>
                 </div>
-                <i className="ri-arrow-right-s-line" style={{ fontSize: 18, color: 'rgba(255,255,255,0.3)' }} />
+                <i className="ri-arrow-right-s-line" style={{ fontSize: 18, color: '#D1D5DB' }} />
               </div>
             ))}
           </>
         ) : (
           <>
-            <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', marginBottom: 14 }}>Personnalisez pour {activeBenName} :</div>
+            <div style={{ fontSize: 12, color: '#9CA3AF', marginBottom: 14 }}>Personnalisez pour {activeBenName} :</div>
             <div style={{ marginBottom: 16 }}><label style={LBL}>Jours de la semaine</label><DaysPicker selected={mealAssignForm.days} onChange={days => setMealAssignForm({ ...mealAssignForm, days })} accent="#10B981" /></div>
             <div style={{ marginBottom: 14 }}>
               <label style={LBL}>Type de repas</label>
