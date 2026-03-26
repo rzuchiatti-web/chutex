@@ -15,6 +15,7 @@ Refondre l'espace d'activite (ProSpace) des coachs/gardiens pour la gestion dire
 - **Popups/Modales**: GlassModal = overlay sombre + fond opaque fonce `rgba(20,20,30,0.82)` avec blur. Texte blanc lisible
 - **Badges status**: Fait = vert, A faire = gris #E5E7EB
 - **Boutons action**: edit (pencil, fond blanc glass), delete (poubelle, fond rouge 8%)
+- **Dropdowns header**: Fond sombre `rgba(20,20,30,0.88)` avec blur 24px, texte blanc, images rondes
 - **NE PAS inventer de nouveaux composants** — reutiliser les memes patterns existants
 
 ## Fonctionnalites implementees
@@ -36,28 +37,28 @@ Refondre l'espace d'activite (ProSpace) des coachs/gardiens pour la gestion dire
 - [x] **FIX**: Bouton "+" pour ajouter hydratation depuis la vue jour
 - [x] **FIX**: Modale sombre opaque pour lisibilite (overlay 0.55 + contenu rgba(20,20,30,0.82))
 - [x] **FIX**: Edition templates via PUT (exercices, complements, repas) au lieu de POST duplicatif
-- [x] **UI**: Dropdown glass dans header bibliotheque avec images de categorie (remplace les pills)
-- [x] **FIX**: Navigation carte alerte vers /alert-detail verifiee
+- [x] **UI**: Dropdown glass sombre dans header bibliotheque avec images de categorie
+- [x] **FIX**: Navigation carte alerte → /alerts (0 alertes) ou /alert-detail (alertes actives)
 
 ## Routes API principales
 - CRUD exercise-templates, reminder-templates, meal-templates
-- PUT /api/pro/exercise-templates/{id} (mise a jour template exercice)
-- PUT /api/pro/reminder-templates/{id} (mise a jour template complement)
-- PUT /api/pro/meal-templates/{id} (mise a jour template repas)
+- PUT /api/pro/exercise-templates/{id}
+- PUT /api/pro/reminder-templates/{id}
+- PUT /api/pro/meal-templates/{id}
 - CRUD assigned-exercises, assigned-reminders, assigned-meals
 - GET /api/pro/beneficiary-nutrition/{ben_id}
-- GET /api/backoffice/revenue (admin revenue dashboard data)
+- GET /api/backoffice/revenue
 
 ## Structure apres refactoring
 ```
 frontend/src/components/dashboard/
-  ProSpace.tsx              (orchestrateur)
+  ProSpace.tsx              (orchestrateur + libraryFilter state)
   pro/
     constants.ts            (API, styles, helpers)
     GlassModal.tsx          (Modal, ImagePicker, DaysPicker)
     ProCalendar.tsx          (HorizontalCalendar)
     ProDayView.tsx           (Vue jour: exercices, rappels, hydratation, repas)
-    ProLibrary.tsx           (Onglet bibliotheque - dropdown glass avec images)
+    ProLibrary.tsx           (LibraryFilterDropdown + ProLibrary content)
     ProModals.tsx            (Toutes les modales + assign-hydration)
   admin/
     AdminRevenue.tsx         (Tableau de bord revenus admin)

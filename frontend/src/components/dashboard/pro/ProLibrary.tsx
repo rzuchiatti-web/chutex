@@ -72,10 +72,10 @@ export function LibraryFilterDropdown({ filter, onFilterChange, counts }: {
 
       {open && (
         <div style={{
-          position: 'absolute', top: 'calc(100% + 6px)', left: 0, right: 0, zIndex: 50,
+          position: 'absolute', top: 'calc(100% + 6px)', left: 0, right: 0, zIndex: 100,
           borderRadius: 16, overflow: 'hidden',
-          background: 'rgba(255,255,255,0.12)', backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)',
-          border: '1px solid rgba(255,255,255,0.15)', boxShadow: '0 8px 24px rgba(0,0,0,0.25)',
+          background: 'rgba(20,20,30,0.88)', backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)',
+          border: '1px solid rgba(255,255,255,0.12)', boxShadow: '0 8px 32px rgba(0,0,0,0.4)',
         } as any}>
           {LIB_FILTERS.map((f, i) => {
             const isActive = filter === f.key;
@@ -85,18 +85,18 @@ export function LibraryFilterDropdown({ filter, onFilterChange, counts }: {
                 style={{
                   display: 'flex', alignItems: 'center', gap: 12, padding: '11px 14px',
                   cursor: 'pointer', transition: 'background 0.15s',
-                  background: isActive ? 'rgba(255,255,255,0.12)' : 'transparent',
-                  borderBottom: i < LIB_FILTERS.length - 1 ? '1px solid rgba(255,255,255,0.08)' : 'none',
+                  background: isActive ? 'rgba(255,255,255,0.10)' : 'transparent',
+                  borderBottom: i < LIB_FILTERS.length - 1 ? '1px solid rgba(255,255,255,0.06)' : 'none',
                 } as any}
-                onMouseEnter={(e: any) => { if (!isActive) e.currentTarget.style.background = 'rgba(255,255,255,0.08)'; }}
-                onMouseLeave={(e: any) => { e.currentTarget.style.background = isActive ? 'rgba(255,255,255,0.12)' : 'transparent'; }}>
+                onMouseEnter={(e: any) => { if (!isActive) e.currentTarget.style.background = 'rgba(255,255,255,0.06)'; }}
+                onMouseLeave={(e: any) => { e.currentTarget.style.background = isActive ? 'rgba(255,255,255,0.10)' : 'transparent'; }}>
                 <div style={{ width: 32, height: 32, borderRadius: 8, overflow: 'hidden', flexShrink: 0 } as any}>
                   <img src={f.image} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' } as any} />
                 </div>
                 <div style={{ flex: 1 } as any}>
                   <span style={{ fontSize: 13, fontWeight: isActive ? 800 : 600, color: isActive ? '#FFF' : 'rgba(255,255,255,0.7)' }}>{f.label}</span>
                 </div>
-                <span style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.5)', background: 'rgba(255,255,255,0.1)', padding: '2px 8px', borderRadius: 999 }}>{counts[f.key] || 0}</span>
+                <span style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.4)', background: 'rgba(255,255,255,0.08)', padding: '2px 8px', borderRadius: 999 }}>{counts[f.key] || 0}</span>
                 {isActive && <i className="ri-check-line" style={{ fontSize: 16, color: '#FFF', marginLeft: 4 }} />}
               </div>
             );
