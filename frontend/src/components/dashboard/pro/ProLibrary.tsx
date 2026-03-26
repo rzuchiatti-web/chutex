@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { API } from './constants';
 import { REMINDER_IMAGES } from '../constants';
 
@@ -22,37 +22,92 @@ interface ProLibraryProps {
 
 const MEAL_TYPE_LABEL: Record<string, string> = { petit_dejeuner: 'Petit-dej', dejeuner: 'Dejeuner', gouter: 'Gouter', diner: 'Diner', collation: 'Collation' };
 
+const EXERCISE_IMG = 'https://customer-assets.emergentagent.com/job_1026023a-fd73-4c44-a002-9618d437c4c8/artifacts/h37k6apj_physical%20health%20analys%20app%20health%20Chutex.png';
+
 const FILTERS = [
-  { key: 'exercices', label: 'Exercices', icon: 'ri-run-line' },
-  { key: 'complements', label: 'Complements', icon: 'ri-capsule-line' },
-  { key: 'hydratation', label: 'Hydratation', icon: 'ri-drop-line' },
-  { key: 'repas', label: 'Repas', icon: 'ri-restaurant-line' },
+  { key: 'exercices', label: 'Exercices', icon: 'ri-run-line', image: EXERCISE_IMG, color: '#DC2626' },
+  { key: 'complements', label: 'Complements', icon: 'ri-capsule-line', image: REMINDER_IMAGES.medication, color: '#F59E0B' },
+  { key: 'hydratation', label: 'Hydratation', icon: 'ri-drop-line', image: REMINDER_IMAGES.hydration, color: '#38BDF8' },
+  { key: 'repas', label: 'Repas', icon: 'ri-restaurant-line', image: 'https://static.prod-images.emergentagent.com/jobs/151f0047-e744-48e3-8d63-62902a0935f7/images/528ae850a1d0143524ec5cc75d58c126e9cec798303da7ceb8ac4a1ca68374d8.png', color: '#10B981' },
 ];
 
 export function ProLibrary(props: ProLibraryProps) {
   const { AC, exerciseTemplates, reminderTemplates, mealTemplates, router } = props;
   const [filter, setFilter] = useState('exercices');
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const dropRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (dropRef.current && !dropRef.current.contains(e.target as Node)) setDropdownOpen(false);
+    };
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, []);
+
+  const active = FILTERS.find(f => f.key === filter) || FILTERS[0];
+
+  const counts: Record<string, number> = {
+    exercices: exerciseTemplates.length,
+    complements: reminderTemplates.filter(r => r.reminder_type !== 'hydration').length,
+    hydratation: reminderTemplates.filter(r => r.reminder_type === 'hydration').length,
+    repas: mealTemplates.length,
+  };
 
   return (
     <>
-      {/* ── Filter pills (glass) ── */}
-      <div style={{ display: 'flex', gap: 6, marginBottom: 18, overflowX: 'auto', paddingBottom: 4 } as any}>
-        {FILTERS.map(f => {
-          const active = filter === f.key;
-          return (
-            <div key={f.key} data-testid={`lib-filter-${f.key}`} onClick={() => setFilter(f.key)}
-              style={{ padding: '8px 14px', borderRadius: 999, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, flexShrink: 0,
-                background: active ? '#111' : 'rgba(255,255,255,0.65)',
-                backdropFilter: active ? 'none' : 'blur(12px)', WebkitBackdropFilter: active ? 'none' : 'blur(12px)',
-                border: active ? '1.5px solid #111' : '1px solid rgba(0,0,0,0.06)',
-                boxShadow: active ? 'none' : '0 2px 8px rgba(0,0,0,0.04)',
-                transition: 'all 0.2s',
-              } as any}>
-              <i className={f.icon} style={{ fontSize: 14, color: active ? '#FFF' : '#6B7280' }} />
-              <span style={{ fontSize: 12, fontWeight: 700, color: active ? '#FFF' : '#374151' }}>{f.label}</span>
-            </div>
-          );
-        })}
+      {/* ── Glass Dropdown Selector ── */}
+      <div ref={dropRef as any} style={{ position: 'relative', marginBottom: 18 } as any}>
+        <div data-testid="lib-dropdown-trigger" onClick={() => setDropdownOpen(!dropdownOpen)}
+          style={{
+            display: 'flex', alignItems: 'center', gap: 12, padding: '10px 14px', borderRadius: 16,
+            background: 'rgba(255,255,255,0.65)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)',
+            border: '1px solid rgba(0,0,0,0.06)', boxShadow: '0 2px 12px rgba(0,0,0,0.06)',
+            cursor: 'pointer', transition: 'all 0.2s',
+          } as any}>
+          <div style={{ width: 36, height: 36, borderRadius: 10, overflow: 'hidden', flexShrink: 0, border: `2px solid ${active.color}20` } as any}>
+            <img src={active.image} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' } as any} />
+          </div>
+          <div style={{ flex: 1, minWidth: 0 } as any}>
+            <div style={{ fontSize: 14, fontWeight: 800, color: '#111' }}>{active.label}</div>
+            <div style={{ fontSize: 10, color: '#9CA3AF', fontWeight: 600 }}>{counts[active.key]} element{counts[active.key] !== 1 ? 's' : ''}</div>
+          </div>
+          <i className={dropdownOpen ? 'ri-arrow-up-s-line' : 'ri-arrow-down-s-line'} style={{ fontSize: 20, color: '#6B7280' }} />
+        </div>
+
+        {dropdownOpen && (
+          <div style={{
+            position: 'absolute', top: 'calc(100% + 6px)', left: 0, right: 0, zIndex: 50,
+            borderRadius: 16, overflow: 'hidden',
+            background: 'rgba(255,255,255,0.92)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)',
+            border: '1px solid rgba(0,0,0,0.08)', boxShadow: '0 8px 24px rgba(0,0,0,0.12)',
+          } as any}>
+            {FILTERS.map((f, i) => {
+              const isActive = filter === f.key;
+              return (
+                <div key={f.key} data-testid={`lib-filter-${f.key}`}
+                  onClick={() => { setFilter(f.key); setDropdownOpen(false); }}
+                  style={{
+                    display: 'flex', alignItems: 'center', gap: 12, padding: '11px 14px',
+                    cursor: 'pointer', transition: 'background 0.15s',
+                    background: isActive ? `${f.color}08` : 'transparent',
+                    borderBottom: i < FILTERS.length - 1 ? '1px solid rgba(0,0,0,0.04)' : 'none',
+                  } as any}
+                  onMouseEnter={(e: any) => { if (!isActive) e.currentTarget.style.background = '#F4F4F5'; }}
+                  onMouseLeave={(e: any) => { e.currentTarget.style.background = isActive ? `${f.color}08` : 'transparent'; }}>
+                  <div style={{ width: 32, height: 32, borderRadius: 8, overflow: 'hidden', flexShrink: 0 } as any}>
+                    <img src={f.image} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' } as any} />
+                  </div>
+                  <div style={{ flex: 1 } as any}>
+                    <span style={{ fontSize: 13, fontWeight: isActive ? 800 : 600, color: isActive ? f.color : '#374151' }}>{f.label}</span>
+                  </div>
+                  <span style={{ fontSize: 11, fontWeight: 700, color: '#9CA3AF', background: '#E5E7EB', padding: '2px 8px', borderRadius: 999 }}>{counts[f.key]}</span>
+                  {isActive && <i className="ri-check-line" style={{ fontSize: 16, color: f.color, marginLeft: 4 }} />}
+                </div>
+              );
+            })}
+          </div>
+        )}
       </div>
 
       {/* ── Exercices ── */}
@@ -163,11 +218,11 @@ function Card({ children, testId, onClick, onEdit, onDelete, image, iconFallback
         {children}
       </div>
       <div style={{ display: 'flex', gap: 6, flexShrink: 0 } as any}>
-        {onEdit && <div onClick={(e: any) => { e.stopPropagation(); onEdit(); }}
+        {onEdit && <div data-testid={`edit-${testId}`} onClick={(e: any) => { e.stopPropagation(); onEdit(); }}
           style={{ width: 32, height: 32, borderRadius: 999, background: 'rgba(255,255,255,0.65)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)', border: '1px solid rgba(0,0,0,0.06)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', boxShadow: '0 2px 8px rgba(0,0,0,0.06)' } as any}>
           <i className="ri-pencil-line" style={{ fontSize: 14, color: '#374151' }} />
         </div>}
-        {onDelete && <div onClick={(e: any) => { e.stopPropagation(); onDelete(); }}
+        {onDelete && <div data-testid={`delete-${testId}`} onClick={(e: any) => { e.stopPropagation(); onDelete(); }}
           style={{ width: 32, height: 32, borderRadius: 999, background: 'rgba(239,68,68,0.08)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)', border: '1px solid rgba(239,68,68,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}>
           <i className="ri-delete-bin-6-line" style={{ fontSize: 14, color: '#EF4444' }} />
         </div>}

@@ -51,6 +51,7 @@ export default function ProSpace({ token, user }: { token: string; user: any }) 
   const [editMealForm, setEditMealForm] = useState<any>(null);
   const [benNutrition, setBenNutrition] = useState<any>(null);
   const [benWeightGoal, setBenWeightGoal] = useState<any>(null);
+  const [editingTemplateId, setEditingTemplateId] = useState<string | null>(null);
 
   // ── Data fetching ──
   const fetchBens = useCallback(async () => {
@@ -154,21 +155,45 @@ export default function ProSpace({ token, user }: { token: string; user: any }) 
     } catch {} finally { setSaving(false); }
   };
 
-  const createExerciseTemplate = async () => { setSaving(true); try { await apiFetch('/api/pro/exercise-templates', { method: 'POST', body: JSON.stringify(exTplForm) }, token); setModal(null); setExTplForm(emptyExTpl); refresh(); } catch {} finally { setSaving(false); } };
+  const createOrUpdateExerciseTemplate = async () => {
+    setSaving(true);
+    try {
+      if (editingTemplateId) {
+        await apiFetch(`/api/pro/exercise-templates/${editingTemplateId}`, { method: 'PUT', body: JSON.stringify(exTplForm) }, token);
+      } else {
+        await apiFetch('/api/pro/exercise-templates', { method: 'POST', body: JSON.stringify(exTplForm) }, token);
+      }
+      setModal(null); setExTplForm(emptyExTpl); setEditingTemplateId(null); refresh();
+    } catch {} finally { setSaving(false); }
+  };
+  const createOrUpdateReminderTemplate = async () => {
+    setSaving(true);
+    try {
+      if (editingTemplateId) {
+        await apiFetch(`/api/pro/reminder-templates/${editingTemplateId}`, { method: 'PUT', body: JSON.stringify(remForm) }, token);
+      } else {
+        await apiFetch('/api/pro/reminder-templates', { method: 'POST', body: JSON.stringify(remForm) }, token);
+      }
+      setModal(null); setRemForm(emptyRem); setEditingTemplateId(null); refresh();
+    } catch {} finally { setSaving(false); }
+  };
+  const createOrUpdateMealTemplate = async () => {
+    setSaving(true);
+    try {
+      const body = { ...mealForm, items: mealForm.ingredients.filter((i: any) => i.name).map((i: any) => `${i.name} ${i.quantity}${i.unit}`) };
+      if (editingTemplateId) {
+        await apiFetch(`/api/pro/meal-templates/${editingTemplateId}`, { method: 'PUT', body: JSON.stringify(body) }, token);
+      } else {
+        await apiFetch('/api/pro/meal-templates', { method: 'POST', body: JSON.stringify(body) }, token);
+      }
+      setModal(null); setMealForm(emptyMeal); setEditingTemplateId(null); refresh();
+    } catch {} finally { setSaving(false); }
+  };
   const deleteExerciseTemplate = async (id: string) => { try { await apiFetch(`/api/pro/exercise-templates/${id}`, { method: 'DELETE' }, token); refresh(); } catch {} };
   const deleteReminderTemplate = async (id: string) => { try { await apiFetch(`/api/pro/reminder-templates/${id}`, { method: 'DELETE' }, token); refresh(); } catch {} };
   const deleteMealTemplate = async (id: string) => { try { await apiFetch(`/api/pro/meal-templates/${id}`, { method: 'DELETE' }, token); refresh(); } catch {} };
 
-  const createMealTemplate = async () => {
-    setSaving(true);
-    try {
-      const body = { ...mealForm, items: mealForm.ingredients.filter(i => i.name).map(i => `${i.name} ${i.quantity}${i.unit}`) };
-      await apiFetch('/api/pro/meal-templates', { method: 'POST', body: JSON.stringify(body) }, token);
-      setModal(null); setMealForm(emptyMeal); refresh();
-    } catch {} finally { setSaving(false); }
-  };
-
-  const createReminderTemplate = async () => { setSaving(true); try { await apiFetch('/api/pro/reminder-templates', { method: 'POST', body: JSON.stringify(remForm) }, token); setModal(null); setRemForm(emptyRem); refresh(); } catch {} finally { setSaving(false); } };
+  // (Template create/update functions consolidated above)
 
   // Calendar auto-scroll
   useEffect(() => {
@@ -297,16 +322,16 @@ export default function ProSpace({ token, user }: { token: string; user: any }) 
               reminderTemplates={reminderTemplates}
               mealTemplates={mealTemplates}
               router={router}
-              onNewExercise={() => { setExTplForm(emptyExTpl); setModal('new-ex-tpl'); }}
-              onNewReminder={() => { setRemForm(emptyRem); setModal('new-rem'); }}
-              onNewHydration={() => { setRemForm({ ...emptyRem, reminder_type: 'hydration', title: '', dosage: '' }); setModal('new-rem'); }}
-              onNewMeal={() => { setMealForm(emptyMeal); setModal('new-meal'); }}
+              onNewExercise={() => { setExTplForm(emptyExTpl); setEditingTemplateId(null); setModal('new-ex-tpl'); }}
+              onNewReminder={() => { setRemForm(emptyRem); setEditingTemplateId(null); setModal('new-rem'); }}
+              onNewHydration={() => { setRemForm({ ...emptyRem, reminder_type: 'hydration', title: '', dosage: '' }); setEditingTemplateId(null); setModal('new-rem'); }}
+              onNewMeal={() => { setMealForm(emptyMeal); setEditingTemplateId(null); setModal('new-meal'); }}
               onDeleteExerciseTemplate={deleteExerciseTemplate}
               onDeleteReminderTemplate={deleteReminderTemplate}
               onDeleteMealTemplate={deleteMealTemplate}
-              onEditExerciseTemplate={(ex) => { setExTplForm({ ...emptyExTpl, ...ex }); setModal('new-ex-tpl'); }}
-              onEditReminderTemplate={(r) => { setRemForm({ ...emptyRem, ...r }); setModal('new-rem'); }}
-              onEditMealTemplate={(m) => { setMealForm({ ...emptyMeal, ...m, ingredients: m.items ? m.items.map((s: string) => { const parts = s.split(' '); return { name: parts[0] || '', quantity: parts[1] || '', unit: 'g' }; }) : emptyMeal.ingredients }); setModal('new-meal'); }}
+              onEditExerciseTemplate={(ex) => { setExTplForm({ ...emptyExTpl, ...ex }); setEditingTemplateId(ex.id); setModal('new-ex-tpl'); }}
+              onEditReminderTemplate={(r) => { setRemForm({ ...emptyRem, ...r }); setEditingTemplateId(r.id); setModal('new-rem'); }}
+              onEditMealTemplate={(m) => { setMealForm({ ...emptyMeal, ...m, ingredients: m.items ? m.items.map((s: string) => { const parts = s.split(' '); return { name: parts[0] || '', quantity: parts[1] || '', unit: 'g' }; }) : emptyMeal.ingredients }); setEditingTemplateId(m.id); setModal('new-meal'); }}
             />
           )}
         </div>
@@ -329,7 +354,8 @@ export default function ProSpace({ token, user }: { token: string; user: any }) 
         setModal={setModal} setModalCtx={setModalCtx} setTab={setTab}
         assignExercise={assignExercise} assignReminder={assignReminder} assignMeal={assignMeal}
         updateAssignedExercise={updateAssignedExercise} updateAssignedReminder={updateAssignedReminder} updateAssignedMeal={updateAssignedMeal}
-        createExerciseTemplate={createExerciseTemplate} createMealTemplate={createMealTemplate} createReminderTemplate={createReminderTemplate}
+        createExerciseTemplate={createOrUpdateExerciseTemplate} createMealTemplate={createOrUpdateMealTemplate} createReminderTemplate={createOrUpdateReminderTemplate}
+        editingTemplateId={editingTemplateId}
         emptyEx={emptyEx}
       />
     </div>

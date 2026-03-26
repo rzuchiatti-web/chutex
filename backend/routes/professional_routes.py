@@ -621,6 +621,22 @@ async def delete_reminder_template(template_id: str, user=Depends(get_current_us
         raise HTTPException(status_code=404, detail="Complement non trouve")
     return {"status": "deleted"}
 
+@router.put("/pro/reminder-templates/{template_id}")
+async def update_reminder_template(template_id: str, data: dict, user=Depends(get_current_user)):
+    """Update a reminder template."""
+    require_pro(user)
+    update = {}
+    for k in ["reminder_type", "title", "time", "dosage", "notes"]:
+        if k in data:
+            update[k] = data[k]
+    if update:
+        update["updated_at"] = datetime.now(timezone.utc).isoformat()
+        await db.pro_reminder_templates.update_one({"id": template_id, "professional_id": user['id']}, {"$set": update})
+    doc = await db.pro_reminder_templates.find_one({"id": template_id}, {"_id": 0})
+    return doc
+
+
+
 
 # ── Pro Meals Management ──
 
@@ -683,6 +699,22 @@ async def delete_meal_template(template_id: str, user=Depends(get_current_user))
     if result.deleted_count == 0:
         raise HTTPException(status_code=404, detail="Repas non trouve")
     return {"status": "deleted"}
+
+@router.put("/pro/meal-templates/{template_id}")
+async def update_meal_template(template_id: str, data: dict, user=Depends(get_current_user)):
+    """Update a meal template."""
+    require_pro(user)
+    update = {}
+    for k in ["meal_type", "title", "image", "ingredients", "steps", "items", "calories", "proteins", "glucides", "lipides", "notes"]:
+        if k in data:
+            update[k] = data[k]
+    if update:
+        update["updated_at"] = datetime.now(timezone.utc).isoformat()
+        await db.pro_meal_templates.update_one({"id": template_id, "professional_id": user['id']}, {"$set": update})
+    doc = await db.pro_meal_templates.find_one({"id": template_id}, {"_id": 0})
+    return doc
+
+
 
 @router.get("/pro/meals/{beneficiary_id}")
 async def get_beneficiary_meals(beneficiary_id: str, user=Depends(get_current_user)):

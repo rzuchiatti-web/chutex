@@ -38,6 +38,7 @@ interface ProModalsProps {
   createReminderTemplate: () => void;
   // Empty form defaults
   emptyEx: any;
+  editingTemplateId: string | null;
 }
 
 export function ProModals(props: ProModalsProps) {
@@ -45,7 +46,7 @@ export function ProModals(props: ProModalsProps) {
   const { exForm, setExForm, remAssignForm, setRemAssignForm, mealAssignForm, setMealAssignForm } = props;
   const { editExForm, setEditExForm, editRemForm, setEditRemForm, editMealForm, setEditMealForm } = props;
   const { mealForm, setMealForm, remForm, setRemForm, exTplForm, setExTplForm } = props;
-  const { setModal, setModalCtx, setTab, emptyEx } = props;
+  const { setModal, setModalCtx, setTab, emptyEx, editingTemplateId } = props;
 
   const close = () => { setModal(null); setModalCtx(null); };
 
@@ -300,7 +301,7 @@ export function ProModals(props: ProModalsProps) {
       </GlassModal>
 
       {/* New Meal */}
-      <GlassModal open={modal === 'new-meal'} onClose={() => setModal(null)} title="Nouveau repas">
+      <GlassModal open={modal === 'new-meal'} onClose={() => setModal(null)} title={editingTemplateId ? "Modifier le repas" : "Nouveau repas"}>
         <ImagePicker value={mealForm.image} onChange={url => setMealForm({ ...mealForm, image: url })} token={token} />
         <div style={{ display: 'flex', gap: 10, marginBottom: 14 } as any}>
           <div style={{ flex: 1 }}><label style={LBL}>Type</label><select value={mealForm.meal_type} onChange={(e: any) => setMealForm({ ...mealForm, meal_type: e.target.value })} style={SEL}><option value="petit_dejeuner">Petit-dejeuner</option><option value="dejeuner">Dejeuner</option><option value="gouter">Gouter</option><option value="diner">Diner</option><option value="collation">Collation</option></select></div>
@@ -344,11 +345,11 @@ export function ProModals(props: ProModalsProps) {
           <div style={{ flex: 1 }}><label style={LBL}>Lip. (g)</label><input type="number" value={mealForm.lipides} onChange={(e: any) => setMealForm({ ...mealForm, lipides: +e.target.value })} style={INP} /></div>
         </div>
         <div style={{ marginBottom: 14 }}><label style={LBL}>Notes</label><input value={mealForm.notes} onChange={(e: any) => setMealForm({ ...mealForm, notes: e.target.value })} style={INP} placeholder="Conseils, variantes..." /></div>
-        <div data-testid="meal-submit" onClick={mealForm.title || mealForm.ingredients.some((i: any) => i.name) ? props.createMealTemplate : undefined} style={GBTN(!!mealForm.title || mealForm.ingredients.some((i: any) => !!i.name), saving)}>{saving ? 'Enregistrement...' : 'Enregistrer dans la bibliotheque'}</div>
+        <div data-testid="meal-submit" onClick={mealForm.title || mealForm.ingredients.some((i: any) => i.name) ? props.createMealTemplate : undefined} style={GBTN(!!mealForm.title || mealForm.ingredients.some((i: any) => !!i.name), saving)}>{saving ? 'Enregistrement...' : editingTemplateId ? 'Modifier dans la bibliotheque' : 'Enregistrer dans la bibliotheque'}</div>
       </GlassModal>
 
       {/* New Reminder (Complement) */}
-      <GlassModal open={modal === 'new-rem'} onClose={() => setModal(null)} title={remForm.reminder_type === 'hydration' ? 'Nouvelle hydratation' : 'Nouveau complement'}>
+      <GlassModal open={modal === 'new-rem'} onClose={() => setModal(null)} title={editingTemplateId ? (remForm.reminder_type === 'hydration' ? 'Modifier hydratation' : 'Modifier complement') : (remForm.reminder_type === 'hydration' ? 'Nouvelle hydratation' : 'Nouveau complement')}>
         <div style={{ marginBottom: 14 }}><label style={LBL}>Type</label>
           {remForm.reminder_type === 'hydration' ? (
             <select value={remForm.title || ''} onChange={(e: any) => setRemForm({ ...remForm, title: e.target.value })} style={SEL}>
@@ -365,11 +366,11 @@ export function ProModals(props: ProModalsProps) {
         {remForm.title === 'Autre' && (
           <div style={{ marginBottom: 14 }}><label style={LBL}>Nom personnalise</label><input value={remForm.notes} onChange={(e: any) => setRemForm({ ...remForm, notes: e.target.value })} style={INP} placeholder="Nom du complement" /></div>
         )}
-        <div data-testid="rem-submit" onClick={remForm.title ? props.createReminderTemplate : undefined} style={GBTN(!!remForm.title, saving)}>{saving ? 'Enregistrement...' : 'Enregistrer dans la bibliotheque'}</div>
+        <div data-testid="rem-submit" onClick={remForm.title ? props.createReminderTemplate : undefined} style={GBTN(!!remForm.title, saving)}>{saving ? 'Enregistrement...' : editingTemplateId ? 'Modifier dans la bibliotheque' : 'Enregistrer dans la bibliotheque'}</div>
       </GlassModal>
 
       {/* New Exercise Template */}
-      <GlassModal open={modal === 'new-ex-tpl'} onClose={() => setModal(null)} title="Nouvel exercice">
+      <GlassModal open={modal === 'new-ex-tpl'} onClose={() => setModal(null)} title={editingTemplateId ? "Modifier l'exercice" : "Nouvel exercice"}>
         <ImagePicker value={exTplForm.image} onChange={url => setExTplForm({ ...exTplForm, image: url })} token={token} />
         <div style={{ marginBottom: 14 }}><label style={LBL}>Titre</label><input data-testid="extpl-title" value={exTplForm.title} onChange={(e: any) => setExTplForm({ ...exTplForm, title: e.target.value })} style={INP} placeholder="Ex: Squat bulgare" /></div>
         <div style={{ marginBottom: 14 }}><label style={LBL}>Description</label><textarea value={exTplForm.description} onChange={(e: any) => setExTplForm({ ...exTplForm, description: e.target.value })} style={{ ...INP, height: 70, resize: 'none' } as any} placeholder="Instructions detaillees..." /></div>
@@ -441,7 +442,7 @@ export function ProModals(props: ProModalsProps) {
             </div>
           ))}
         </div>
-        <div data-testid="extpl-submit" onClick={exTplForm.title ? props.createExerciseTemplate : undefined} style={GBTN(!!exTplForm.title, saving)}>{saving ? 'Enregistrement...' : 'Enregistrer dans la bibliotheque'}</div>
+        <div data-testid="extpl-submit" onClick={exTplForm.title ? props.createExerciseTemplate : undefined} style={GBTN(!!exTplForm.title, saving)}>{saving ? 'Enregistrement...' : editingTemplateId ? 'Modifier dans la bibliotheque' : 'Enregistrer dans la bibliotheque'}</div>
       </GlassModal>
     </>
   );
