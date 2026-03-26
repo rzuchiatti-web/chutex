@@ -16,6 +16,7 @@ const uploadImage = async (file: File, token: string) => {
 };
 
 const BG = 'https://customer-assets.emergentagent.com/job_443c9c6e-0feb-4920-a358-fe7cc1a6289b/artifacts/mhh7xwy3_ChatGPT%20Image%2017%20f%C3%A9vr.%202026%2C%2014_08_43.png';
+const toLocalDateStr = (d: Date) => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
 const DAYS_FR = ['lundi','mardi','mercredi','jeudi','vendredi','samedi','dimanche'];
 const DAYS_SHORT = ['Lun','Mar','Mer','Jeu','Ven','Sam','Dim'];
 const MONTHS_FR = ['Janvier','Fevrier','Mars','Avril','Mai','Juin','Juillet','Aout','Septembre','Octobre','Novembre','Decembre'];
@@ -115,8 +116,8 @@ function HorizontalCalendar({ selectedDate, onSelect, accent, completedDates }: 
     else setViewMonth(viewMonth + 1);
   };
 
-  const todayStr = new Date().toISOString().split('T')[0];
-  const selStr = selectedDate.toISOString().split('T')[0];
+  const todayStr = toLocalDateStr(new Date());
+  const selStr = toLocalDateStr(selectedDate);
 
   return (
     <div data-testid="horizontal-calendar" style={{ width: '100%', marginTop: 28 } as any}>
@@ -135,7 +136,7 @@ function HorizontalCalendar({ selectedDate, onSelect, accent, completedDates }: 
       </div>
       <div style={{ display: 'flex', gap: 6, overflowX: 'auto', paddingBottom: 4, WebkitOverflowScrolling: 'touch', scrollbarWidth: 'none' } as any}>
         {dates.map(d => {
-          const ds = d.toISOString().split('T')[0];
+          const ds = toLocalDateStr(d);
           const isToday = ds === todayStr;
           const isSelected = ds === selStr;
           const dayIdx = d.getDay() === 0 ? 6 : d.getDay() - 1;
@@ -222,6 +223,10 @@ export default function ProSpace({ token, user }: { token: string; user: any }) 
 
   // Edit assigned exercise form
   const [editExForm, setEditExForm] = useState<any>(null);
+  // Edit assigned reminder form
+  const [editRemForm, setEditRemForm] = useState<any>(null);
+  // Edit assigned meal form
+  const [editMealForm, setEditMealForm] = useState<any>(null);
 
   // ── Data fetching ──
 
@@ -265,7 +270,7 @@ export default function ProSpace({ token, user }: { token: string; user: any }) 
     return DAYS_FR[idx];
   }, [selectedDate]);
 
-  const selectedDateStr = useMemo(() => selectedDate.toISOString().split('T')[0], [selectedDate]);
+  const selectedDateStr = useMemo(() => toLocalDateStr(selectedDate), [selectedDate]);
 
   const filteredExercises = useMemo(() => {
     return assignedExercises.filter(ex => (ex.days || []).includes(selectedDayFr));
@@ -332,6 +337,28 @@ export default function ProSpace({ token, user }: { token: string; user: any }) 
     } catch {} finally { setSaving(false); }
   };
 
+  const updateAssignedReminder = async () => {
+    if (!editRemForm) return;
+    setSaving(true);
+    try {
+      await apiFetch(`/api/pro/assigned-reminders/${editRemForm.id}`, { method: 'PUT', body: JSON.stringify({
+        days: editRemForm.days, time: editRemForm.time, dosage: editRemForm.dosage
+      }) }, token);
+      setModal(null); setEditRemForm(null); refresh();
+    } catch {} finally { setSaving(false); }
+  };
+
+  const updateAssignedMeal = async () => {
+    if (!editMealForm) return;
+    setSaving(true);
+    try {
+      await apiFetch(`/api/pro/assigned-meals/${editMealForm.id}`, { method: 'PUT', body: JSON.stringify({
+        days: editMealForm.days, meal_type: editMealForm.meal_type
+      }) }, token);
+      setModal(null); setEditMealForm(null); refresh();
+    } catch {} finally { setSaving(false); }
+  };
+
   const createExerciseTemplate = async () => {
     setSaving(true);
     try {
@@ -342,6 +369,12 @@ export default function ProSpace({ token, user }: { token: string; user: any }) 
 
   const deleteExerciseTemplate = async (id: string) => {
     try { await apiFetch(`/api/pro/exercise-templates/${id}`, { method: 'DELETE' }, token); refresh(); } catch {}
+  };
+  const deleteReminderTemplate = async (id: string) => {
+    try { await apiFetch(`/api/pro/reminder-templates/${id}`, { method: 'DELETE' }, token); refresh(); } catch {}
+  };
+  const deleteMealTemplate = async (id: string) => {
+    try { await apiFetch(`/api/pro/meal-templates/${id}`, { method: 'DELETE' }, token); refresh(); } catch {}
   };
 
   const createMealTemplate = async () => {
@@ -376,7 +409,7 @@ export default function ProSpace({ token, user }: { token: string; user: any }) 
     let settledCount = 0;
     const interval = setInterval(() => {
       if (settled) return;
-      const todayISO = new Date().toISOString().split('T')[0];
+      const todayISO = toLocalDateStr(new Date());
       const el = document.querySelector('[data-testid="cal-day-' + todayISO + '"]');
       if (!el?.parentElement) return;
       let p: HTMLElement | null = el.parentElement as HTMLElement;
@@ -614,7 +647,11 @@ export default function ProSpace({ token, user }: { token: string; user: any }) 
                       </div>
                     )}
                     <div style={{ display: 'flex', gap: 6, flexShrink: 0 } as any}>
-                      <div onClick={() => deleteAssignedReminder(r.id)}
+                      <div data-testid={`edit-reminder-${r.id}`} onClick={(e: any) => { e.stopPropagation(); setEditRemForm({ ...r }); setModal('edit-rem'); }}
+                        style={{ width: 32, height: 32, borderRadius: 999, background: 'rgba(255,255,255,0.65)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)', border: '1px solid rgba(0,0,0,0.06)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', boxShadow: '0 2px 8px rgba(0,0,0,0.06)' } as any}>
+                        <i className="ri-pencil-line" style={{ fontSize: 14, color: '#374151' }} />
+                      </div>
+                      <div onClick={(e: any) => { e.stopPropagation(); deleteAssignedReminder(r.id); }}
                         style={{ width: 32, height: 32, borderRadius: 999, background: 'rgba(239,68,68,0.08)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)', border: '1px solid rgba(239,68,68,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}>
                         <i className="ri-delete-bin-6-line" style={{ fontSize: 14, color: '#EF4444' }} />
                       </div>
@@ -657,10 +694,12 @@ export default function ProSpace({ token, user }: { token: string; user: any }) 
                       background: mealDone ? 'rgba(16,185,129,0.06)' : '#F4F4F5',
                       border: mealDone ? '1px solid rgba(16,185,129,0.2)' : '1px solid transparent',
                       marginBottom: 8, transition: 'all 0.15s' } as any}>
-                    <div style={{ width: 48, height: 48, borderRadius: 12, background: '#EDEDEE', overflow: 'hidden', flexShrink: 0 } as any}>
+                    <div onClick={() => router.push({ pathname: '/meal-detail' as any, params: { id: m.meal_template_id || m.id, mode: 'assigned', assignmentId: m.id } })}
+                      style={{ width: 48, height: 48, borderRadius: 12, background: '#EDEDEE', overflow: 'hidden', flexShrink: 0, cursor: 'pointer' } as any}>
                       <img src={mealImg} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' } as any} />
                     </div>
-                    <div style={{ flex: 1, minWidth: 0 } as any}>
+                    <div onClick={() => router.push({ pathname: '/meal-detail' as any, params: { id: m.meal_template_id || m.id, mode: 'assigned', assignmentId: m.id } })}
+                      style={{ flex: 1, minWidth: 0, cursor: 'pointer' } as any}>
                       <div style={{ fontSize: 14, fontWeight: 700, color: '#111', textTransform: 'capitalize' }}>{m.title}</div>
                       <div style={{ fontSize: 11, color: '#6B7280', marginTop: 2 }}>{m.meal_type?.replace('_', ' ')} {m.calories ? `- ${m.calories} kcal` : ''}</div>
                     </div>
@@ -675,7 +714,11 @@ export default function ProSpace({ token, user }: { token: string; user: any }) 
                       </div>
                     )}
                     <div style={{ display: 'flex', gap: 6, flexShrink: 0 } as any}>
-                      <div onClick={() => deleteAssignedMeal(m.id)}
+                      <div data-testid={`edit-meal-${m.id}`} onClick={(e: any) => { e.stopPropagation(); setEditMealForm({ ...m }); setModal('edit-meal'); }}
+                        style={{ width: 32, height: 32, borderRadius: 999, background: 'rgba(255,255,255,0.65)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)', border: '1px solid rgba(0,0,0,0.06)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', boxShadow: '0 2px 8px rgba(0,0,0,0.06)' } as any}>
+                        <i className="ri-pencil-line" style={{ fontSize: 14, color: '#374151' }} />
+                      </div>
+                      <div onClick={(e: any) => { e.stopPropagation(); deleteAssignedMeal(m.id); }}
                         style={{ width: 32, height: 32, borderRadius: 999, background: 'rgba(239,68,68,0.08)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)', border: '1px solid rgba(239,68,68,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}>
                         <i className="ri-delete-bin-6-line" style={{ fontSize: 14, color: '#EF4444' }} />
                       </div>
@@ -734,7 +777,8 @@ export default function ProSpace({ token, user }: { token: string; user: any }) 
                 {reminderTemplates.map(r => (
                   <ItemCard key={r.id} accent="#F59E0B" title={r.title}
                     subtitle={`${r.dosage || ''} - ${r.time || ''}`}
-                    badge={r.reminder_type === 'hydration' ? 'Hydrat.' : 'Suppl.'} />
+                    badge={r.reminder_type === 'hydration' ? 'Hydrat.' : 'Suppl.'}
+                    onDelete={() => deleteReminderTemplate(r.id)} />
                 ))}
               </div>
 
@@ -758,7 +802,9 @@ export default function ProSpace({ token, user }: { token: string; user: any }) 
                   <ItemCard key={m.id} accent="#10B981"
                     title={m.title}
                     subtitle={Array.isArray(m.items) ? m.items.slice(0, 3).join(', ') : ''}
-                    badge={m.calories ? `${m.calories} kcal` : (m.meal_type || '').replace('_', ' ')} />
+                    badge={m.calories ? `${m.calories} kcal` : (m.meal_type || '').replace('_', ' ')}
+                    onClick={() => router.push({ pathname: '/meal-detail' as any, params: { id: m.id, mode: 'template' } })}
+                    onDelete={() => deleteMealTemplate(m.id)} />
                 ))}
               </div>
             </>
@@ -832,6 +878,54 @@ export default function ProSpace({ token, user }: { token: string; user: any }) 
               <div style={{ flex: 1 }}><label style={LBL}>Repos (s)</label><input type="number" value={editExForm.rest_seconds} onChange={(e: any) => setEditExForm({ ...editExForm, rest_seconds: +e.target.value })} style={INP} /></div>
             </div>
             <div data-testid="edit-ex-submit" onClick={(editExForm.days || []).length > 0 ? updateAssignedExercise : undefined} style={GBTN((editExForm.days || []).length > 0)}>
+              {saving ? 'Enregistrement...' : 'Enregistrer les modifications'}
+            </div>
+          </>
+        )}
+      </GlassModal>
+
+      {/* ── Edit Assigned Reminder Modal ── */}
+      <GlassModal open={modal === 'edit-rem' && !!editRemForm} onClose={() => { setModal(null); setEditRemForm(null); }} title="Modifier le complement">
+        {editRemForm && (
+          <>
+            <div style={{ fontSize: 16, fontWeight: 800, color: '#FFF', marginBottom: 4, textTransform: 'capitalize' }}>{editRemForm.title}</div>
+            <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', marginBottom: 18 }}>{editRemForm.reminder_type || 'supplement'}</div>
+            <div style={{ marginBottom: 16 }}>
+              <label style={LBL}>Jours de la semaine</label>
+              <DaysPicker selected={editRemForm.days || []} onChange={days => setEditRemForm({ ...editRemForm, days })} accent={AC} />
+            </div>
+            <div style={{ display: 'flex', gap: 10, marginBottom: 14 } as any}>
+              <div style={{ flex: 1 }}><label style={LBL}>Heure</label><input type="time" value={editRemForm.time || ''} onChange={(e: any) => setEditRemForm({ ...editRemForm, time: e.target.value })} style={INP} /></div>
+              <div style={{ flex: 1 }}><label style={LBL}>Dosage</label><input type="text" value={editRemForm.dosage || ''} onChange={(e: any) => setEditRemForm({ ...editRemForm, dosage: e.target.value })} style={INP} /></div>
+            </div>
+            <div data-testid="edit-rem-submit" onClick={(editRemForm.days || []).length > 0 ? updateAssignedReminder : undefined} style={GBTN((editRemForm.days || []).length > 0)}>
+              {saving ? 'Enregistrement...' : 'Enregistrer les modifications'}
+            </div>
+          </>
+        )}
+      </GlassModal>
+
+      {/* ── Edit Assigned Meal Modal ── */}
+      <GlassModal open={modal === 'edit-meal' && !!editMealForm} onClose={() => { setModal(null); setEditMealForm(null); }} title="Modifier le repas">
+        {editMealForm && (
+          <>
+            <div style={{ fontSize: 16, fontWeight: 800, color: '#FFF', marginBottom: 4, textTransform: 'capitalize' }}>{editMealForm.title}</div>
+            <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', marginBottom: 18 }}>{(editMealForm.meal_type || '').replace('_', ' ')}</div>
+            <div style={{ marginBottom: 16 }}>
+              <label style={LBL}>Jours de la semaine</label>
+              <DaysPicker selected={editMealForm.days || []} onChange={days => setEditMealForm({ ...editMealForm, days })} accent={AC} />
+            </div>
+            <div style={{ marginBottom: 14 }}>
+              <label style={LBL}>Type de repas</label>
+              <select value={editMealForm.meal_type || 'dejeuner'} onChange={(e: any) => setEditMealForm({ ...editMealForm, meal_type: e.target.value })} style={INP}>
+                <option value="petit_dejeuner">Petit-dejeuner</option>
+                <option value="dejeuner">Dejeuner</option>
+                <option value="collation">Collation</option>
+                <option value="gouter">Gouter</option>
+                <option value="diner">Diner</option>
+              </select>
+            </div>
+            <div data-testid="edit-meal-submit" onClick={(editMealForm.days || []).length > 0 ? updateAssignedMeal : undefined} style={GBTN((editMealForm.days || []).length > 0)}>
               {saving ? 'Enregistrement...' : 'Enregistrer les modifications'}
             </div>
           </>

@@ -511,6 +511,15 @@ async def list_reminder_templates(user=Depends(get_current_user)):
     require_pro(user)
     return await db.pro_reminder_templates.find({"professional_id": user['id']}, {"_id": 0}).sort("created_at", -1).to_list(100)
 
+@router.delete("/pro/reminder-templates/{template_id}")
+async def delete_reminder_template(template_id: str, user=Depends(get_current_user)):
+    """Delete a reminder template"""
+    require_pro(user)
+    result = await db.pro_reminder_templates.delete_one({"id": template_id, "professional_id": user['id']})
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Complement non trouve")
+    return {"status": "deleted"}
+
 
 # ── Pro Meals Management ──
 
@@ -564,6 +573,15 @@ async def list_meal_templates(user=Depends(get_current_user)):
     """List all meal templates for this pro"""
     require_pro(user)
     return await db.pro_meal_templates.find({"professional_id": user['id']}, {"_id": 0}).sort("created_at", -1).to_list(100)
+
+@router.delete("/pro/meal-templates/{template_id}")
+async def delete_meal_template(template_id: str, user=Depends(get_current_user)):
+    """Delete a meal template"""
+    require_pro(user)
+    result = await db.pro_meal_templates.delete_one({"id": template_id, "professional_id": user['id']})
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Repas non trouve")
+    return {"status": "deleted"}
 
 @router.get("/pro/meals/{beneficiary_id}")
 async def get_beneficiary_meals(beneficiary_id: str, user=Depends(get_current_user)):
@@ -780,6 +798,19 @@ async def list_assigned_meals(beneficiary_id: str, user=Depends(get_current_user
     return await db.pro_assigned_meals.find(
         {"beneficiary_id": beneficiary_id, "professional_id": user['id'], "status": "active"}, {"_id": 0}
     ).sort("created_at", -1).to_list(100)
+
+@router.put("/pro/assigned-meals/{assignment_id}")
+async def update_assigned_meal(assignment_id: str, data: dict, user=Depends(get_current_user)):
+    require_pro(user)
+    update = {}
+    for k in ["days", "meal_type"]:
+        if k in data:
+            update[k] = data[k]
+    if update:
+        update["updated_at"] = datetime.now(timezone.utc).isoformat()
+        await db.pro_assigned_meals.update_one({"id": assignment_id, "professional_id": user['id']}, {"$set": update})
+    updated = await db.pro_assigned_meals.find_one({"id": assignment_id}, {"_id": 0})
+    return updated
 
 @router.delete("/pro/assigned-meals/{assignment_id}")
 async def delete_assigned_meal(assignment_id: str, user=Depends(get_current_user)):
