@@ -1,42 +1,34 @@
-<analysis>**original_problem_statement**:
-L'utilisateur a demandé de configurer les paiements (IBAN) pour les pros via Mollie depuis leur tableau de bord, d'ajouter un historique des paiements avec export CSV, et a exigé plusieurs ajustements UI/UX sur l'espace  (Activité) et la messagerie. La demande incluait une séparation entre la création (dans Bibliothèque) et l'assignation (dans Élèves).
-**Problème critique actuel** : En refondant l'espace , l'agent a supprimé le bouton glass rond de sélection des bénéficiaires et a tenté de recréer l'interface des programmes/exercices de zéro au lieu d'utiliser et de naviguer vers les pages de détails existantes (, ), provoquant la colère de l'utilisateur.
+<analysis>original_problem_statement: Refactor ProSpace into smaller components, implement Admin Revenue Dashboard, fix UI/UX bugs on mobile modals (overlap with TabBar), synchronize Guardian/Beneficiary reminders properly, integrate weight goals into ProSpace, and overhaul the ProLibrary UI to match the modern application design. Add multi-select dropdowns and edit capabilities to library items.
 
 **User's preferred language**: French (INSTRUCT NEXT AGENT TO RESPOND IN FRENCH ONLY)
 
-**what currently exists?**
-Une application où le pro (coach/physio) peut renseigner son IBAN (avec confirmation par SMS) et voir son historique de paiements/export CSV sur sa page d'accueil (). La structure backend pour les templates de programmes/repas/rappels et l'upload d'images est en place. Cependant, le frontend de  est dans un état cassé/insatisfaisant car il ne s'intègre pas avec les pages de détails existantes de l'application.
+**what currently exists?** 
+A health and coaching application with a Guardian/Coach portal () and a Beneficiary dashboard. The  has been successfully refactored from a 1200+ line monolith into modular components. Guardians can assign exercises, meals, and reminders (with custom notes). Beneficiaries see these synced on their dashboard with the Guardian's name attached. Admin features include a newly added Revenue Dashboard.
 
-**Last working item**:
-    - Last item agent was working: L'agent était en train d'inspecter les fichiers  et  après que l'utilisateur se soit plaint que la refonte du  avait écrasé/ignoré le travail précédent sur l'affichage des exercices et des programmes.
-    - Status: BLOCKED / IN PROGRESS
-    - Agent Testing Done: N (Pour cette correction spécifique)
-    - Which testing method agent to use? Frontend testing agent (après avoir corrigé l'intégration des pages).
+**Last working item**: 
+    - Last item agent was working: Fixing navigation bugs (React hook crash in  caused by misplaced , and wrong routing parameters) and completing the visual refactoring of  (adding glass filters, multi-select dropdowns for muscle/equipment, and edit/delete capabilities for library items).
+    - Status: USER VERIFICATION PENDING
+    - Agent Testing Done: Y
+    - Which testing method agent to use? Frontend testing agent (to verify the full CRUD edit flow of the newly editable library items) or screenshot tool.
     - User Testing Done: N
 
-**All Pending/In progress Issue list**:
-  Issue 1: Restaurer l'UI du ProSpace et l'intégration des pages de détails (P0)
-  
-  Issues Detail:
-  - Issue 1: 
-     - Attempted fixes: L'agent a réécrit  entièrement pour répondre aux demandes de layout (cartes grises, boutons +, séparation bibliothèque/élèves), mais a oublié de garder le bouton de sélection rond et a réinventé la vue des programmes.
-     - Next debug checklist:
-        1. Analyser .
-        2. Restaurer le bouton rond glass pour sélectionner un bénéficiaire dans le header.
-        3. Dans l'onglet Élève, pour les programmes/exercices listés, ne **pas** afficher une modale custom ou une vue inline. Au clic, utiliser  vers la page existante correspondante (, , etc.) pour conserver le design riche déjà développé.
-        4. S'assurer que les 3 cartes grises (Programmes, Rappels, Repas) sont bien présentes dans l'onglet Élève, avec un bouton + qui permet de lier un élément *depuis la bibliothèque*.
-        5. Vérifier que l'onglet Bibliothèque gère la création propre de ces éléments.
-     - Why fix this issue and what will be achieved with the fix? C'est une demande stricte de l'utilisateur pour ne pas perdre le travail précédent et garder une cohérence UI globale.
-     - Status: IN PROGRESS
-     - Is recurring issue? Y (L'agent a réécrit ce fichier de zéro au moins 3 fois, perdant le contexte à chaque fois).
+**All Pending/In progress Issue list**: 
+  Issue 1: Test editing of an existing template via the new pencil button in ProLibrary (P0)
+     - Attempted fixes: The UI was built, wired up to , and visual checks passed. End-to-end form submission for editing needs verification.
+     - Next debug checklist: Check  edit callbacks ( logic) and  form population to ensure they properly save to the backend.
+     - Why fix this issue and what will be achieved with the fix? User requested the ability to modify existing library items (exercises, treatments, hydration, meals).
+     - Status: TESTING PENDING
+     - Is recurring issue? N
      - Should Test frontend/backend/both after fix? Frontend
      - Blocked on other issue: None
 
-**In progress Task List**: (Covered by Issue 1)
+**In progress Task List**:
+  *(No active in-progress tasks. All requested features were implemented, but testing the library edit flow is highly recommended).*
 
 **Upcoming and Future Tasks**
     Upcoming Tasks:
-    - P1: Tableau de bord des revenus pour l'administrateur.
+    - P1: Verify Admin Revenue dashboard via a full admin UI login flow (the routing was tricky during dev so agent used API directly).
+    - P1: Test video upload (camera/library) for new exercises on a real mobile device.
     
     Future Tasks:
     - P2: Intégration d'une balance et d'un gilet connectés.
@@ -47,91 +39,93 @@ Une application où le pro (coach/physio) peut renseigner son IBAN (avec confirm
     - P2: Validation CRC32 pour le serveur TCP J2358.
 
 **Completed work in this session**
-- **Feature (Paiements)**: Configuration IBAN, BIC, Titulaire via Mollie dans  avec modal glassmorphic. (DONE)
-- **Feature (Notifications)**: Envoi d'un SMS de confirmation via  lors de l'enregistrement de l'IBAN. (DONE)
-- **Feature (Historique)**: Endpoint et UI pour l'historique des paiements avec bouton d'export CSV. (DONE)
-- **Backend (Templates & Upload)**: Ajout des routes , routes pour templates de repas/rappels, et route  avec montage statique. (DONE)
-- **UI/UX (Messagerie)**: Correction du padding masquant l'input, stylisation des pilules Conversations/Historique. (DONE)
+- Refactored  into  subcomponents (DONE)
+- Admin Revenue Dashboard backend and frontend integrated (DONE)
+- GlassModal UI changed to light theme (white background, gray inputs, black buttons) (DONE)
+- Guardian/Beneficiary reminder sync: Pro reminders display on beneficiary dashboard with Guardian name, notes, and specific pill UI. Confirmation is done via notification popup (DONE)
+- Fixed phone call swiping bug (stale closure on ) in beneficiary and guardian detail pages (DONE)
+- Fixed Minceur cache returning oldest instead of newest calorie recommendation (1396 vs 1456) (DONE)
+- Added Weight Goal card to Guardian ProSpace with navigation to minceur page (DONE)
+- Fixed Guardian Alert card navigation to route to  instead of messages (DONE)
+- Refactored  UI with glass filters, multi-select dropdowns for muscle/equipment, and edit/delete buttons matching the DayView design (DONE)
+- Fixed React Hook order error in  and  that was causing crashes (DONE)
 
 **Earlier issues found/mentioned but not fixed**
-   - Issue 1: L'agent a une forte tendance à réinventer la roue en créant des modales complexes dans les composants parents au lieu d'utiliser le système de routage d'Expo (navigate to pages).
-   - Debug checklist: Avant de créer une modale pour afficher des détails, vérifier si une page  existe dans .
+  - Issue 1: Admin login via phone form
+    - Debug checklist: The admin login on the UI home page expects a phone number, but admin accounts often use email. The agent bypassed this by testing the API directly.
+    - Why to solve this issue and what will be achieved with this? Allows actual admins to access the Revenue Dashboard easily through the standard app interface.
+    - Should Test frontend/backend/both after fix: Frontend
+    - Is recurring issue? N
 
 **Known issue recurrence from previous fork**
-  - Issue recurrence in previous fork: Oubli de composants/styles lors des réécritures massives de fichiers (comme ).
+  - Issue recurrence in previous fork: Agent inventing arbitrary styles instead of sticking to the app's Direction Artistique (DA).
   - Recurrence count: 3
-  - Status: IN PROGRESS
+  - Status: RESOLVED (Current agent strictly followed light glassmorphism instructions requested by the user).
+  - Note: Next agent must continue strict adherence to requested UI colors (e.g.,  backgrounds, specific gray elements).
 
 **Code Architecture**
 
 
 **Key Technical Concepts**
-- FastAPI, React Native Web (Expo), MongoDB.
-- SMS Mode integration.
-- Navigation native Expo () vs Modales web React.
+- React Native Web (Expo), FastAPI, MongoDB.
+- Glassmorphism UI & custom interactive swiping components.
+- Stale closures in React  and .
 
 **key DB schema**
-  - : contient maintenant un flag  (bool) ou .
-  - : Table enregistrant les transactions Mollie.
+  - : , , 
+  - : uid=0(root) gid=0(root) groups=0(root), , , , , 
 
 **changes in tech stack**
-  - Ajout du montage de fichiers statiques dans  pour servir le dossier .
+  - N/A
 
 **All files of reference** 
--  (Fichier critique à réparer).
--  (Référence absolue pour l'UI des programmes, DOIT être appelé au clic).
--  (Référence pour les exercices).
--  (Paiements).
+-  (Refactored)
+-  (Newly created subcomponents)
+-  (Updated for reminder syncing)
+-  (Updated to inject pro reminders to beneficiary)
+-  (Updated cache fetching logic)
+-  (Fixed React hook crash)
 
 **Areas that need refactoring**: 
- est devenu trop complexe à cause des réécritures successives. Il faut alléger ce composant en déléguant l'affichage des détails aux routes existantes via .
+-  is becoming quite large due to the complex syncing logic of both proprietary and pro reminders. Could benefit from being split up similarly to .
 
 **key api endpoints**
 - 
 - 
 - 
-- 
 
 **Critical Info for New Agent** 
-- L'utilisateur est FRUSTRÉ. Ne touchez plus au design existant des pages de détails (, ).
-- **RÈGLE D'OR POUR LE PROSPACE** : Quand on clique sur un programme assigné à un élève, ne faites **PAS** de modale. Faites  ou similaire.
-- Restaurez le bouton de sélection de bénéficiaire sous forme de bouton rond glass (cercle avec initiale, fond transparent, bordure).
+- The monolithic  has been heavily refactored. Do not try to edit it directly for UI changes; instead, look in the  directory.
+-  rules must be strictly adhered to. An error occurred because  was placed *after* an early return () in . Ensure all hooks are declared at the top of the component.
+- The user prefers strict separation of concerns in the UI. Keep section headers distinct and ensure inputs inside modals take up full width as recently fixed.
 
 **documents and test reports created in this job**
-  - /app/test_reports/iteration_161.json
-  - /app/test_reports/iteration_162.json
-  - /app/test_reports/iteration_163.json
-  - /app/test_reports/iteration_164.json
-  - /app/test_reports/iteration_165.json
-  - /app/test_reports/iteration_166.json
+  - /app/test_reports/iteration_176.json
   - /app/memory/PRD.md
 
 **Last 10 User Messages and any pending HUMAN messages** 
- 1. User: Demande config paiements (IBAN) via Mollie. (COMPLETED)
- 2. User: Refus de l'email, demande SMS de confirmation. Plaintes sur l'UI ProSpace (pilules blanches, header, popups). (COMPLETED)
- 3. User: Demande d'utiliser le même service SMS. (COMPLETED)
- 4. User: Approuve l'idée d'historique de paiements avec CSV. (COMPLETED)
- 5. User: Signale bug dropdown masqué par cartes, et design des pilules différent de la page souscription. (COMPLETED)
- 6. User: Demande de vider le cache. (COMPLETED)
- 7. User: Demande pilules plus grosses, bouton bénéficiaire ROND, 3 cartes grises séparées (prog, rappel, repas) avec bouton + dans l'onglet Élève. Déplacer création dans Bibliothèque. (ATTEMPTED, BUT INTRODUCED REGRESSIONS)
- 8. User: **(PENDING)** Colère - où est le bouton glass rond, pourquoi tu me refais tout la page détail programme/exercice alors quon lavait déjà fait. Demande de réutiliser le design exact existant.
+ 1. User: Make hydration use the water drop image.
+ 2. User: Change activity popups to white background, gray elements, black buttons with white text.
+ 3. User: Check sync of reminders between guardian and beneficiary (missing names/dosages, 'done' button shouldn't exist, use notification popup to confirm).
+ 4. User: 4 pro reminders showing instead of 2. Missing dosage/name. Remove 'done' button.
+ 5. User: ProSpace loader is wrong, use the DNA video loader (Analyse en cours...).
+ 6. User: Structure beneficiary pro reminder card better (pill with guardian name). Add 'notes' field to guardian assignment modal.
+ 7. User: Call buttons broken in beneficiary/guardian details. Calories mismatch (1396 vs 1456). Stack time/dosage vertically in assignment popup.
+ 8. User: Add beneficiary weight goal card in ProSpace under Kcal card, link to minceur page.
+ 9. User: Bugs - Alert card opens messages. Weight card opens wrong page. Add multi-select dropdowns for muscle/equipment in new exercise. Add glass filter buttons in library header. Make library items editable. Refactor library cards to look like DayView cards.
+ 10. User: Error crash when clicking beneficiary card or weight goal card (React hook error).
+ *(Agent resolved all issues. Verification pending for library editing).*
 
 **Project Health Check:**
-Broken (L'expérience utilisateur du ProSpace ne correspond pas aux attentes de réutilisation des pages existantes et le bouton de sélection a disparu).
+Functional. Heavy UI/UX refinements applied successfully.
 
 **3rd Party Integrations**
-  - SMS Mode (SMS)
-  - Mollie (Payments)
   - OpenAI GPT-4o — uses Emergent LLM Key
+  - Mollie (Payments)
+  - SMS Mode (SMS)
 
 **Testing status**
-  - Testing agent used after significant changes: YES (intensively until the last misstep).
+  - Testing agent used after significant changes: YES (After initial ProSpace refactoring)
   - Troubleshoot agent used after agent stuck in loop: NO
-  - Test files created: 
-  - Known regressions: Perte du bouton de sélection de bénéficiaire rond dans  et perte de l'intégration avec .
-
-**Credentials to test flow:**
-Coach:  / password: 
-
-**What agent forgot to execute**
-L'agent a oublié d'explorer comment les données de programmes étaient affichées avant de tout réécrire avec ses propres modales. Il a ignoré le routage natif de l'application vers les pages de détail.</analysis>
+  - Test files created: NA
+  - Known regressions: None currently, but editing templates via the newly created pencil buttons in  requires rigorous frontend flow testing.</analysis>
