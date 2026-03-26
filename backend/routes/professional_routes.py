@@ -16,7 +16,9 @@ UPLOAD_DIR = "/app/backend/uploads"
 async def get_beneficiary_nutrition(beneficiary_id: str, user=Depends(get_current_user)):
     """Get nutrition targets for a beneficiary (kcal, macros, water)."""
     require_pro(user)
-    cached = await db.minceur_daily_cache.find_one({"user_id": beneficiary_id}, {"_id": 0})
+    cached = await db.minceur_daily_cache.find_one(
+        {"user_id": beneficiary_id}, {"_id": 0}, sort=[("date", -1)]
+    )
     if cached and cached.get("recommendations"):
         recs = cached["recommendations"]
         return {

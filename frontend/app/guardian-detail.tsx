@@ -118,19 +118,21 @@ export default function GuardianDetailScreen() {
   };
 
   /* slide handlers */
+  const lastDxRef = useRef(0);
   const onSlideStart = (e: any) => {
     const el = slideRef.current; if (!el) return;
     const rect = el.getBoundingClientRect();
     slideTrackW.current = rect.width - THUMB;
     const clientX = e.touches ? e.touches[0].clientX : e.clientX;
     slideStartX.current = clientX;
+    lastDxRef.current = 0;
     setSliding(true);
-    const move = (ev: any) => { const cx = ev.touches ? ev.touches[0].clientX : ev.clientX; const dx = Math.max(0, Math.min(cx - slideStartX.current, slideTrackW.current)); setSlideX(dx); };
+    const move = (ev: any) => { const cx = ev.touches ? ev.touches[0].clientX : ev.clientX; const dx = Math.max(0, Math.min(cx - slideStartX.current, slideTrackW.current)); lastDxRef.current = dx; setSlideX(dx); };
     const end = () => {
       document.removeEventListener('mousemove', move); document.removeEventListener('mouseup', end);
       document.removeEventListener('touchmove', move); document.removeEventListener('touchend', end);
       setSliding(false);
-      if (slideX / slideTrackW.current >= THRESHOLD && guardian?.phone) { window.open(`tel:${guardian.phone}`, '_self'); }
+      if (lastDxRef.current / slideTrackW.current >= THRESHOLD && guardian?.phone) { window.open(`tel:${guardian.phone}`, '_self'); }
       setSlideX(0);
     };
     document.addEventListener('mousemove', move); document.addEventListener('mouseup', end);
