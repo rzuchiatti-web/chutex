@@ -6,7 +6,7 @@ export function GlassModal({ open, onClose, title, children }: { open: boolean; 
   return (
     <div data-testid="glass-modal" onClick={onClose} style={{ position: 'fixed', inset: 0, zIndex: 9999, display: 'flex', alignItems: 'flex-end', justifyContent: 'center', backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)', background: 'rgba(0,0,0,0.35)' } as any}>
       <style>{`.glass-tab-bar-root { display: none !important; }`}</style>
-      <div onClick={e => e.stopPropagation()} style={{ width: '100%', maxWidth: 440, maxHeight: '85vh', overflowY: 'auto', padding: '24px 20px 100px', WebkitOverflowScrolling: 'touch', borderRadius: '28px 28px 0 0', background: '#FFFFFF', boxShadow: '0 -8px 40px rgba(0,0,0,0.12)' } as any}>
+      <div onClick={e => e.stopPropagation()} style={{ width: '100%', maxWidth: 440, maxHeight: '85vh', overflowY: 'auto', padding: '24px 20px 24px', WebkitOverflowScrolling: 'touch', borderRadius: '28px 28px 0 0', background: '#FFFFFF', boxShadow: '0 -8px 40px rgba(0,0,0,0.12)' } as any}>
         <div style={{ width: 40, height: 4, borderRadius: 2, background: '#D1D5DB', margin: '0 auto 16px' } as any} />
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
           <div style={{ fontSize: 18, fontWeight: 900, color: '#111' }}>{title}</div>
@@ -60,6 +60,40 @@ export function DaysPicker({ selected, onChange, accent }: { selected: string[];
           </div>
         );
       })}
+    </div>
+  );
+}
+
+export function TimeWheelPicker({ value, onChange }: { value: string; onChange: (time: string) => void }) {
+  const [h, m] = (value || '08:00').split(':').map(Number);
+  const hours = Array.from({ length: 24 }, (_, i) => i);
+  const minutes = [0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55];
+  const set = (nh: number, nm: number) => onChange(`${String(nh).padStart(2, '0')}:${String(nm).padStart(2, '0')}`);
+  return (
+    <div style={{ display: 'flex', alignItems: 'center', gap: 4, justifyContent: 'center' } as any}>
+      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 } as any}>
+        <div onClick={() => set(h === 23 ? 0 : h + 1, m)} style={{ width: 52, height: 32, borderRadius: 10, background: '#F4F4F5', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}>
+          <i className="ri-arrow-up-s-line" style={{ fontSize: 18, color: '#6B7280' }} />
+        </div>
+        <div style={{ width: 52, height: 48, borderRadius: 12, background: '#111', display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}>
+          <span style={{ fontSize: 22, fontWeight: 900, color: '#FFF', fontVariantNumeric: 'tabular-nums' }}>{String(h).padStart(2, '0')}</span>
+        </div>
+        <div onClick={() => set(h === 0 ? 23 : h - 1, m)} style={{ width: 52, height: 32, borderRadius: 10, background: '#F4F4F5', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}>
+          <i className="ri-arrow-down-s-line" style={{ fontSize: 18, color: '#6B7280' }} />
+        </div>
+      </div>
+      <span style={{ fontSize: 24, fontWeight: 900, color: '#111' }}>:</span>
+      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 } as any}>
+        <div onClick={() => { const idx = minutes.indexOf(m); set(h, minutes[(idx + 1) % minutes.length]); }} style={{ width: 52, height: 32, borderRadius: 10, background: '#F4F4F5', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}>
+          <i className="ri-arrow-up-s-line" style={{ fontSize: 18, color: '#6B7280' }} />
+        </div>
+        <div style={{ width: 52, height: 48, borderRadius: 12, background: '#111', display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}>
+          <span style={{ fontSize: 22, fontWeight: 900, color: '#FFF', fontVariantNumeric: 'tabular-nums' }}>{String(m).padStart(2, '0')}</span>
+        </div>
+        <div onClick={() => { const idx = minutes.indexOf(m); set(h, minutes[idx <= 0 ? minutes.length - 1 : idx - 1]); }} style={{ width: 52, height: 32, borderRadius: 10, background: '#F4F4F5', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}>
+          <i className="ri-arrow-down-s-line" style={{ fontSize: 18, color: '#6B7280' }} />
+        </div>
+      </div>
     </div>
   );
 }

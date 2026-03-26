@@ -2,6 +2,14 @@ import React from 'react';
 import { API, MEAL_IMGS, toLocalDateStr } from './constants';
 import { REMINDER_IMAGES } from '../constants';
 
+const MEAL_ICONS: Record<string, string> = {
+  petit_dejeuner: 'ri-sun-line',
+  dejeuner: 'ri-restaurant-line',
+  collation: 'ri-cake-2-line',
+  gouter: 'ri-cup-line',
+  diner: 'ri-moon-line',
+};
+
 interface ProDayViewProps {
   filteredExercises: any[];
   filteredReminders: any[];
@@ -112,9 +120,8 @@ export function ProDayView(props: ProDayViewProps) {
               border: done ? '1px solid rgba(16,185,129,0.2)' : partial ? '1px solid rgba(245,158,11,0.2)' : '1px solid transparent',
               marginBottom: 8, transition: 'all 0.15s' } as any}>
             <div onClick={() => router.push({ pathname: '/pro-exercise-detail' as any, params: { id: ex.exercise_template_id || ex.id, mode: 'assigned', assignmentId: ex.id } })}
-              style={{ width: 48, height: 48, borderRadius: 12, overflow: 'hidden', flexShrink: 0, cursor: 'pointer', background: ex.image ? 'none' : `${AC}10`, display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}>
-              {ex.image ? <img src={ex.image.startsWith('/') ? `${API}${ex.image}` : ex.image} style={{ width: '100%', height: '100%', objectFit: 'cover' } as any} />
-                : <i className="ri-run-line" style={{ fontSize: 20, color: AC }} />}
+              style={{ width: 48, height: 48, borderRadius: 12, overflow: 'hidden', flexShrink: 0, cursor: 'pointer', background: `${AC}10`, display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}>
+              <i className={ex.icon || 'ri-run-line'} style={{ fontSize: 22, color: AC }} />
             </div>
             <div onClick={() => router.push({ pathname: '/pro-exercise-detail' as any, params: { id: ex.exercise_template_id || ex.id, mode: 'assigned', assignmentId: ex.id } })}
               style={{ flex: 1, minWidth: 0, cursor: 'pointer' } as any}>
@@ -197,7 +204,7 @@ export function ProDayView(props: ProDayViewProps) {
       {filteredMeals.length === 0 && <EmptyDay icon="ri-restaurant-line" text={`Aucun repas prevu le ${selectedDayFr}`} />}
       {filteredMeals.map(m => {
         const mealDone = (m.completions || []).some((c: any) => c.date?.startsWith(selectedDateStr) && c.status === 'done');
-        const mealImg = m.image || MEAL_IMGS[m.meal_type] || MEAL_IMGS.dejeuner;
+        const mealIcon = MEAL_ICONS[m.meal_type] || 'ri-restaurant-line';
         return (
           <div key={m.id} data-testid={`day-meal-${m.id}`}
             style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 14px', borderRadius: 16,
@@ -205,8 +212,8 @@ export function ProDayView(props: ProDayViewProps) {
               border: mealDone ? '1px solid rgba(16,185,129,0.2)' : '1px solid transparent',
               marginBottom: 8, transition: 'all 0.15s' } as any}>
             <div onClick={() => router.push({ pathname: '/meal-detail' as any, params: { id: m.meal_template_id || m.id, mode: 'assigned', assignmentId: m.id } })}
-              style={{ width: 48, height: 48, borderRadius: 12, overflow: 'hidden', flexShrink: 0, cursor: 'pointer' } as any}>
-              <img src={mealImg} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' } as any} />
+              style={{ width: 48, height: 48, borderRadius: 12, flexShrink: 0, cursor: 'pointer', background: 'rgba(16,185,129,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}>
+              <i className={mealIcon} style={{ fontSize: 22, color: '#10B981' }} />
             </div>
             <div onClick={() => router.push({ pathname: '/meal-detail' as any, params: { id: m.meal_template_id || m.id, mode: 'assigned', assignmentId: m.id } })}
               style={{ flex: 1, minWidth: 0, cursor: 'pointer' } as any}>

@@ -23,7 +23,7 @@ interface ProLibraryProps {
 
 const MEAL_TYPE_LABEL: Record<string, string> = { petit_dejeuner: 'Petit-dej', dejeuner: 'Dejeuner', gouter: 'Gouter', diner: 'Diner', collation: 'Collation' };
 
-const EXERCISE_IMG = 'https://customer-assets.emergentagent.com/job_1026023a-fd73-4c44-a002-9618d437c4c8/artifacts/h37k6apj_physical%20health%20analys%20app%20health%20Chutex.png';
+const EXERCISE_IMG = 'https://cdn-icons-png.flaticon.com/512/2548/2548530.png';
 
 export const LIB_FILTERS = [
   { key: 'exercices', label: 'Exercices', icon: 'ri-run-line', image: EXERCISE_IMG, color: '#DC2626' },
@@ -123,7 +123,7 @@ export function ProLibrary(props: ProLibraryProps) {
               onClick={() => router.push({ pathname: '/pro-exercise-detail' as any, params: { id: ex.id, mode: 'template' } })}
               onEdit={props.onEditExerciseTemplate ? () => props.onEditExerciseTemplate!(ex) : undefined}
               onDelete={() => props.onDeleteExerciseTemplate(ex.id)}
-              image={ex.image} iconFallback="ri-run-line" iconColor={AC}>
+              iconFallback={ex.icon || 'ri-run-line'} iconColor={AC}>
               <div style={{ fontSize: 14, fontWeight: 700, color: '#111', textTransform: 'capitalize' }}>{ex.title}</div>
               <div style={{ fontSize: 11, color: '#6B7280', marginTop: 2 }}>{ex.muscle_group || ex.category || ''} {ex.difficulty ? `· ${ex.difficulty}` : ''}</div>
             </Card>

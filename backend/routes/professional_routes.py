@@ -985,7 +985,7 @@ async def beneficiary_today_meals(user=Depends(get_current_user)):
 
 @router.post("/pro/seed-templates")
 async def seed_templates(user=Depends(get_current_user)):
-    """Seed the library with default reminder and meal templates for this pro"""
+    """Seed the library with default reminder, meal and exercise templates for this pro"""
     require_pro(user)
     pid = user['id']
     now = datetime.now(timezone.utc).isoformat()
@@ -993,8 +993,44 @@ async def seed_templates(user=Depends(get_current_user)):
     # Check if already seeded
     existing_rem = await db.pro_reminder_templates.count_documents({"professional_id": pid})
     existing_meal = await db.pro_meal_templates.count_documents({"professional_id": pid})
+    existing_ex = await db.pro_exercise_templates.count_documents({"professional_id": pid})
 
-    added_rem, added_meal = 0, 0
+    added_rem, added_meal, added_ex = 0, 0, 0
+
+    # ── Seed exercise templates ──
+    if existing_ex == 0:
+        ex_templates = [
+            {"title": "Squat", "description": "Flexion des genoux, dos droit, descendre jusqu'a 90 degres", "category": "force", "difficulty": "moyen", "muscle_group": "Quadriceps, Fessiers", "icon": "ri-body-scan-line", "sets": 4, "repetitions": 12, "rest_seconds": 90, "equipment": "Barre", "steps": ["Placer la barre sur les trapezes", "Pieds largeur d'epaules", "Descendre en poussant les genoux vers l'exterieur", "Remonter en poussant sur les talons"]},
+            {"title": "Developpe couche", "description": "Exercice de base pour les pectoraux", "category": "force", "difficulty": "moyen", "muscle_group": "Pectoraux, Triceps", "icon": "ri-arrow-up-down-line", "sets": 4, "repetitions": 10, "rest_seconds": 90, "equipment": "Banc, Barre", "steps": ["S'allonger sur le banc", "Saisir la barre largeur epaules +", "Descendre la barre au niveau de la poitrine", "Pousser vers le haut"]},
+            {"title": "Soulevé de terre", "description": "Exercice polyarticulaire complet pour le dos et les jambes", "category": "force", "difficulty": "difficile", "muscle_group": "Dorsaux, Ischio-jambiers, Fessiers", "icon": "ri-arrow-up-line", "sets": 4, "repetitions": 8, "rest_seconds": 120, "equipment": "Barre", "steps": ["Pieds largeur de hanches", "Saisir la barre en pronation", "Dos plat, pousser le sol", "Extension complete des hanches"]},
+            {"title": "Tractions", "description": "Exercice au poids de corps pour le dos", "category": "force", "difficulty": "difficile", "muscle_group": "Dorsaux, Biceps", "icon": "ri-drag-move-line", "sets": 4, "repetitions": 8, "rest_seconds": 90, "equipment": "Barre de traction", "steps": ["Saisir la barre en pronation", "Tirer le menton au-dessus de la barre", "Descendre de maniere controlee"]},
+            {"title": "Pompes", "description": "Exercice de base au poids du corps", "category": "force", "difficulty": "facile", "muscle_group": "Pectoraux, Triceps, Epaules", "icon": "ri-arrow-down-line", "sets": 3, "repetitions": 15, "rest_seconds": 60, "equipment": "Aucun", "steps": ["Position planche, mains largeur epaules", "Descendre la poitrine vers le sol", "Pousser vers le haut en gardant le corps gaine"]},
+            {"title": "Fentes marchees", "description": "Travail unilateral des jambes", "category": "force", "difficulty": "moyen", "muscle_group": "Quadriceps, Fessiers", "icon": "ri-walk-line", "sets": 3, "repetitions": 12, "rest_seconds": 60, "equipment": "Halteres", "steps": ["Debout, halteres en main", "Avancer un pied et flechir les deux genoux a 90 degres", "Pousser sur le talon avant", "Enchainer avec l'autre jambe"]},
+            {"title": "Rowing barre", "description": "Tirage horizontal pour le dos", "category": "force", "difficulty": "moyen", "muscle_group": "Dorsaux, Trapeze", "icon": "ri-arrow-left-right-line", "sets": 4, "repetitions": 10, "rest_seconds": 90, "equipment": "Barre", "steps": ["Penche a 45 degres, dos plat", "Tirer la barre vers le nombril", "Serrer les omoplates en haut", "Redescendre lentement"]},
+            {"title": "Presse a cuisses", "description": "Exercice guide pour les quadriceps", "category": "force", "difficulty": "facile", "muscle_group": "Quadriceps, Fessiers", "icon": "ri-corner-down-right-line", "sets": 4, "repetitions": 12, "rest_seconds": 90, "equipment": "Machine guidee", "steps": ["S'asseoir dans la machine", "Pieds largeur epaules sur la plateforme", "Descendre en controlant", "Remonter sans verrouiller les genoux"]},
+            {"title": "Curl biceps", "description": "Isolation des biceps", "category": "force", "difficulty": "facile", "muscle_group": "Biceps", "icon": "ri-contrast-line", "sets": 3, "repetitions": 12, "rest_seconds": 60, "equipment": "Halteres", "steps": ["Debout, halteres en main, bras le long du corps", "Flechir les coudes en montant les halteres", "Serrer en haut", "Redescendre lentement"]},
+            {"title": "Extensions triceps", "description": "Isolation des triceps a la poulie", "category": "force", "difficulty": "facile", "muscle_group": "Triceps", "icon": "ri-arrow-down-s-line", "sets": 3, "repetitions": 12, "rest_seconds": 60, "equipment": "Poulie", "steps": ["Debout face a la poulie", "Saisir la corde ou la barre", "Etendre les bras vers le bas", "Contracter en bas, remonter lentement"]},
+            {"title": "Developpe militaire", "description": "Exercice d'epaules debout", "category": "force", "difficulty": "moyen", "muscle_group": "Epaules", "icon": "ri-arrow-up-double-line", "sets": 4, "repetitions": 10, "rest_seconds": 90, "equipment": "Barre", "steps": ["Debout, barre au niveau des clavicules", "Pousser la barre au-dessus de la tete", "Verrouiller en haut", "Redescendre lentement"]},
+            {"title": "Planche gainage", "description": "Exercice isometrique de gainage", "category": "mobilite", "difficulty": "facile", "muscle_group": "Abdominaux, Obliques", "icon": "ri-layout-horizontal-line", "sets": 3, "repetitions": 1, "duration_min": 1, "rest_seconds": 60, "equipment": "Tapis", "steps": ["Position sur les avant-bras et les orteils", "Corps aligne de la tete aux talons", "Contracter les abdominaux", "Maintenir la position"]},
+            {"title": "Crunchs", "description": "Exercice classique pour les abdos", "category": "force", "difficulty": "facile", "muscle_group": "Abdominaux", "icon": "ri-flashlight-line", "sets": 3, "repetitions": 20, "rest_seconds": 45, "equipment": "Tapis", "steps": ["Allonge sur le dos, genoux flechis", "Mains derriere la tete", "Monter les epaules en contractant les abdos", "Redescendre sans relacher"]},
+            {"title": "Hip thrust", "description": "Exercice cible pour les fessiers", "category": "force", "difficulty": "moyen", "muscle_group": "Fessiers", "icon": "ri-arrow-up-circle-line", "sets": 4, "repetitions": 12, "rest_seconds": 90, "equipment": "Banc, Barre", "steps": ["Dos appuye contre le banc", "Barre sur les hanches", "Pousser les hanches vers le plafond", "Serrer les fessiers en haut"]},
+            {"title": "Mollets debout", "description": "Travail des mollets", "category": "force", "difficulty": "facile", "muscle_group": "Mollets", "icon": "ri-footprint-line", "sets": 4, "repetitions": 15, "rest_seconds": 45, "equipment": "Machine guidee", "steps": ["Debout sur la machine", "Monter sur la pointe des pieds", "Redescendre lentement en etirant"]},
+            {"title": "Course a pied", "description": "Cardio endurance", "category": "cardio", "difficulty": "moyen", "muscle_group": "Cardio, Full Body", "icon": "ri-run-line", "sets": 1, "repetitions": 1, "duration_min": 30, "rest_seconds": 0, "equipment": "Aucun", "steps": ["Echauffement 5 min marche rapide", "Courir a allure moderee 20 min", "Retour au calme 5 min"]},
+            {"title": "Velo / Spinning", "description": "Cardio faible impact", "category": "cardio", "difficulty": "moyen", "muscle_group": "Cardio, Quadriceps", "icon": "ri-riding-line", "sets": 1, "repetitions": 1, "duration_min": 30, "rest_seconds": 0, "equipment": "Velo", "steps": ["Echauffement 5 min resistance faible", "Intervalles: 1 min haute resistance / 2 min basse", "Repeter 8 cycles", "Retour au calme"]},
+            {"title": "Corde a sauter", "description": "Cardio haute intensite", "category": "cardio", "difficulty": "moyen", "muscle_group": "Cardio, Mollets", "icon": "ri-skip-forward-line", "sets": 5, "repetitions": 1, "duration_min": 2, "rest_seconds": 60, "equipment": "Corde a sauter", "steps": ["2 min de sauts reguliers", "1 min de repos", "Repeter 5 fois"]},
+            {"title": "Burpees", "description": "Exercice full body haute intensite", "category": "cardio", "difficulty": "difficile", "muscle_group": "Full Body", "icon": "ri-pulse-line", "sets": 4, "repetitions": 10, "rest_seconds": 60, "equipment": "Aucun", "steps": ["Position debout", "Descendre en squat, mains au sol", "Sauter les pieds en arriere (planche)", "Pompe", "Sauter les pieds vers les mains", "Sauter en l'air bras tendus"]},
+            {"title": "Etirements complets", "description": "Seance d'etirements pour la mobilite", "category": "souplesse", "difficulty": "facile", "muscle_group": "Full Body, Mobilite", "icon": "ri-mind-map", "sets": 1, "repetitions": 1, "duration_min": 15, "rest_seconds": 0, "equipment": "Tapis", "steps": ["Etirement quadriceps 30s chaque cote", "Etirement ischio-jambiers 30s", "Etirement pectoraux 30s", "Etirement dorsaux 30s", "Etirement epaules 30s chaque cote", "Position du pigeon 30s chaque cote"]},
+        ]
+        for ex in ex_templates:
+            ex["id"] = str(uuid.uuid4())
+            ex["professional_id"] = pid
+            ex["is_template"] = True
+            ex["created_at"] = now
+            ex["image"] = ""
+            ex["video_url"] = ""
+            ex["notes"] = ""
+        await db.pro_exercise_templates.insert_many(ex_templates)
+        added_ex = len(ex_templates)
 
     REM_IMG_MEDICATION = "https://customer-assets.emergentagent.com/job_1026023a-fd73-4c44-a002-9618d437c4c8/artifacts/y3xje768_traitement.png"
     REM_IMG_HYDRATION = "https://customer-assets.emergentagent.com/job_1026023a-fd73-4c44-a002-9618d437c4c8/artifacts/7s8stuxi_hydratation.png"
@@ -1287,7 +1323,7 @@ async def seed_templates(user=Depends(get_current_user)):
         await db.pro_meal_templates.insert_many(meal_templates)
         added_meal = len(meal_templates)
 
-    return {"status": "seeded", "reminders_added": added_rem, "meals_added": added_meal}
+    return {"status": "seeded", "reminders_added": added_rem, "meals_added": added_meal, "exercises_added": added_ex}
 
 DAYS_FR = ["lundi", "mardi", "mercredi", "jeudi", "vendredi", "samedi", "dimanche"]
 DAYS_EN_TO_FR = {"monday": "lundi", "tuesday": "mardi", "wednesday": "mercredi", "thursday": "jeudi", "friday": "vendredi", "saturday": "samedi", "sunday": "dimanche"}
@@ -1317,6 +1353,7 @@ async def assign_exercise(data: AssignExerciseCreate, user=Depends(get_current_u
         "difficulty": tpl.get("difficulty", "moyen"),
         "muscle_group": tpl.get("muscle_group", ""),
         "equipment": tpl.get("equipment", ""),
+        "icon": tpl.get("icon", ""),
         "days": data.days,
         "repetitions": data.repetitions,
         "sets": data.sets,

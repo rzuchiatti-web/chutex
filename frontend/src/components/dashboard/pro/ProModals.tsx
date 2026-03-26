@@ -1,5 +1,5 @@
 import React from 'react';
-import { GlassModal, ImagePicker, DaysPicker } from './GlassModal';
+import { GlassModal, ImagePicker, DaysPicker, TimeWheelPicker } from './GlassModal';
 import { API, INP, LBL, SEL, GBTN, MUSCLE_GROUPS, EQUIPMENT_LIST, SUPPLEMENT_TYPES, HYDRATION_TYPES, INGREDIENT_LIST } from './constants';
 import { REMINDER_IMAGES } from '../constants';
 
@@ -155,7 +155,7 @@ export function ProModals(props: ProModalsProps) {
 
       {/* Assign Reminder */}
       <GlassModal open={modal === 'assign-rem'} onClose={close} title="Assigner un complement">
-        {reminderTemplates.length === 0 ? (
+        {(() => { const compTemplates = reminderTemplates.filter(t => t.reminder_type !== 'hydration'); return compTemplates.length === 0 ? (
           <div style={{ textAlign: 'center', padding: '24px', color: '#9CA3AF', fontSize: 13 } as any}>
             Aucun complement dans la bibliotheque.<br/>
             <span onClick={() => { setModal(null); setTab('library'); }} style={{ color: '#F59E0B', cursor: 'pointer', fontWeight: 700, marginTop: 8, display: 'inline-block' }}>Creer un complement</span>
@@ -164,8 +164,8 @@ export function ProModals(props: ProModalsProps) {
           <>
             <div style={{ fontSize: 12, color: '#9CA3AF', marginBottom: 14 }}>Choisissez un complement :</div>
             <div style={{ maxHeight: '50vh', overflowY: 'auto' } as any}>
-            {reminderTemplates.map(tpl => {
-              const tplImg = tpl.image || (tpl.reminder_type === 'hydration' ? REMINDER_IMAGES.hydration : REMINDER_IMAGES.medication);
+            {compTemplates.map(tpl => {
+              const tplImg = tpl.image || REMINDER_IMAGES.medication;
               return (
               <div key={tpl.id} onClick={() => { setModalCtx(tpl.id); setRemAssignForm({ days: [], time: tpl.time || '08:00', dosage: tpl.dosage || '' }); }}
                 style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 14px', borderRadius: 14, marginBottom: 6, background: '#F4F4F5', border: '1px solid #E5E7EB', cursor: 'pointer' } as any}
@@ -202,14 +202,14 @@ export function ProModals(props: ProModalsProps) {
             ); })()}
             <div style={{ fontSize: 12, color: '#9CA3AF', marginBottom: 14 }}>Personnalisez pour {activeBenName} :</div>
             <div style={{ marginBottom: 16 }}><label style={LBL}>Jours de la semaine</label><DaysPicker selected={remAssignForm.days} onChange={days => setRemAssignForm({ ...remAssignForm, days })} accent="#F59E0B" /></div>
-            <div style={{ marginBottom: 14 }}><label style={LBL}>Heure</label><input type="time" value={remAssignForm.time} onChange={(e: any) => setRemAssignForm({ ...remAssignForm, time: e.target.value })} style={INP} /></div>
+            <div style={{ marginBottom: 14 }}><label style={LBL}>Heure</label><TimeWheelPicker value={remAssignForm.time} onChange={time => setRemAssignForm({ ...remAssignForm, time })} /></div>
             <div style={{ marginBottom: 14 }}><label style={LBL}>Dosage</label><input value={remAssignForm.dosage} onChange={(e: any) => setRemAssignForm({ ...remAssignForm, dosage: e.target.value })} style={INP} placeholder="5g/jour" /></div>
             <div style={{ marginBottom: 14 }}><label style={LBL}>Note (optionnel)</label><input value={remAssignForm.notes || ''} onChange={(e: any) => setRemAssignForm({ ...remAssignForm, notes: e.target.value })} style={INP} placeholder="Ex: Prendre avec un verre d'eau" /></div>
             <div data-testid="assign-rem-submit" onClick={() => remAssignForm.days.length > 0 ? props.assignReminder(modalCtx, remAssignForm.days, remAssignForm.time, remAssignForm.dosage, remAssignForm.notes || '') : undefined} style={GBTN(remAssignForm.days.length > 0, saving)}>
               {saving ? 'Assignation...' : `Assigner ${remAssignForm.days.length > 0 ? `(${remAssignForm.days.length} jours)` : '-- Choisissez des jours'}`}
             </div>
           </>
-        )}
+        ); })()}
       </GlassModal>
 
       {/* Assign Hydration */}
@@ -247,7 +247,7 @@ export function ProModals(props: ProModalsProps) {
           <>
             <div style={{ fontSize: 12, color: '#9CA3AF', marginBottom: 14 }}>Personnalisez pour {activeBenName} :</div>
             <div style={{ marginBottom: 16 }}><label style={LBL}>Jours de la semaine</label><DaysPicker selected={remAssignForm.days} onChange={days => setRemAssignForm({ ...remAssignForm, days })} accent="#38BDF8" /></div>
-            <div style={{ marginBottom: 14 }}><label style={LBL}>Heure</label><input type="time" value={remAssignForm.time} onChange={(e: any) => setRemAssignForm({ ...remAssignForm, time: e.target.value })} style={INP} /></div>
+            <div style={{ marginBottom: 14 }}><label style={LBL}>Heure</label><TimeWheelPicker value={remAssignForm.time} onChange={time => setRemAssignForm({ ...remAssignForm, time })} /></div>
             <div style={{ marginBottom: 14 }}><label style={LBL}>Dosage</label><input value={remAssignForm.dosage} onChange={(e: any) => setRemAssignForm({ ...remAssignForm, dosage: e.target.value })} style={INP} placeholder="500ml" /></div>
             <div style={{ marginBottom: 14 }}><label style={LBL}>Note (optionnel)</label><input value={remAssignForm.notes || ''} onChange={(e: any) => setRemAssignForm({ ...remAssignForm, notes: e.target.value })} style={INP} placeholder="Ex: Boire avant le repas" /></div>
             <div data-testid="assign-hydration-submit" onClick={() => remAssignForm.days.length > 0 ? props.assignReminder(modalCtx, remAssignForm.days, remAssignForm.time, remAssignForm.dosage, remAssignForm.notes || '') : undefined} style={GBTN(remAssignForm.days.length > 0, saving)}>
