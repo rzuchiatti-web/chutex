@@ -267,12 +267,13 @@ export function ReminderCRUDPopup({ show, editReminder, setEditReminder, onClose
               return (
                 <div key={r.id} data-testid={`reminder-item-${r.id}`} style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '14px 16px', borderRadius: 16, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', marginBottom: 8 } as any}>
                   {/* Time + info — click to edit */}
-                  <div onClick={() => setEditReminder({ ...editReminder, _editingId: r.id, _editingData: { time: r.time, notes: r.notes || '', days: r.days || ['lun','mar','mer','jeu','ven','sam','dim'] } })} style={{ flex: 1, cursor: 'pointer' } as any}>
-                    <div style={{ fontSize: 24, fontWeight: 900, color: r.active ? '#FFF' : 'rgba(255,255,255,0.25)' }}>{r.time}</div>
-                    <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)', marginTop: 2 }}>{daysStr}{r.notes ? ` · ${r.notes}` : ''}</div>
+                  <div onClick={() => !r.source && setEditReminder({ ...editReminder, _editingId: r.id, _editingData: { time: r.time, notes: r.notes || '', days: r.days || ['lun','mar','mer','jeu','ven','sam','dim'] } })} style={{ flex: 1, cursor: r.source ? 'default' : 'pointer' } as any}>
+                    {r.title && r.source === 'pro' && <div style={{ fontSize: 14, fontWeight: 800, color: r.active ? '#FFF' : 'rgba(255,255,255,0.25)', marginBottom: 2 }}>{r.title}</div>}
+                    <div style={{ fontSize: r.source === 'pro' && r.title ? 16 : 24, fontWeight: 900, color: r.active ? '#FFF' : 'rgba(255,255,255,0.25)' }}>{r.time}{r.dosage ? <span style={{ fontSize: 12, fontWeight: 600, color: 'rgba(255,255,255,0.4)', marginLeft: 8 }}>{r.dosage}</span> : ''}</div>
+                    <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)', marginTop: 2 }}>{daysStr}{r.notes ? ` · ${r.notes}` : ''}{r.source === 'pro' ? ' · Par mon coach' : ''}</div>
                   </div>
-                  {/* Toggle */}
-                  <div data-testid={`toggle-reminder-${r.id}`} onClick={async () => {
+                  {/* Toggle - only for own reminders */}
+                  {!r.source && <div data-testid={`toggle-reminder-${r.id}`} onClick={async () => {
                     // Optimistic toggle
                     setLocalReminders(prev => prev.map(rem => rem.id === r.id ? { ...rem, active: !rem.active } : rem));
                     try {
@@ -282,9 +283,28 @@ export function ReminderCRUDPopup({ show, editReminder, setEditReminder, onClose
                     } catch { await refreshLocal(); }
                   }} style={{ width: 48, height: 26, borderRadius: 13, background: r.active ? `${accent}40` : 'rgba(255,255,255,0.08)', border: `1px solid ${r.active ? accent : 'rgba(255,255,255,0.12)'}`, cursor: 'pointer', position: 'relative', flexShrink: 0, transition: 'all 0.2s' } as any}>
                     <div style={{ width: 20, height: 20, borderRadius: 10, background: r.active ? accent : 'rgba(255,255,255,0.3)', position: 'absolute', top: 2, left: r.active ? 24 : 2, transition: 'left 0.2s' } as any} />
-                  </div>
-                  {/* Delete */}
-                  <div data-testid={`delete-reminder-${r.id}`} onClick={async () => {
+                  </div>}
+                  {/* Confirm button for pro-assigned reminders */}
+                  {r.source === 'pro' && !r.completed && (
+                    <div data-testid={`confirm-reminder-${r.id}`} onClick={async () => {
+                      setLocalReminders(prev => prev.map(rem => rem.id === r.id ? { ...rem, completed: true } : rem));
+                      try {
+                        await apiFetch(`/api/reminders/${r.id}/complete`, { method: 'PUT' }, token);
+                        clearApiCache();
+                        await refreshLocal();
+                        if (onCrudDone) onCrudDone(popupType);
+                      } catch { await refreshLocal(); }
+                    }} style={{ padding: '6px 14px', borderRadius: 999, background: '#10B981', cursor: 'pointer', flexShrink: 0 } as any}>
+                      <span style={{ fontSize: 11, fontWeight: 700, color: '#FFF' }}>Fait</span>
+                    </div>
+                  )}
+                  {r.source === 'pro' && r.completed && (
+                    <div style={{ padding: '6px 14px', borderRadius: 999, background: 'rgba(16,185,129,0.15)', flexShrink: 0 } as any}>
+                      <span style={{ fontSize: 11, fontWeight: 700, color: '#10B981' }}>Confirme</span>
+                    </div>
+                  )}
+                  {/* Delete - only for own reminders */}
+                  {!r.source && <div data-testid={`delete-reminder-${r.id}`} onClick={async () => {
                     // Optimistic delete: remove from local immediately
                     setLocalReminders(prev => prev.filter(rem => rem.id !== r.id));
                     try {
@@ -295,7 +315,7 @@ export function ReminderCRUDPopup({ show, editReminder, setEditReminder, onClose
                     } catch { await refreshLocal(); }
                   }} style={{ cursor: 'pointer', padding: '6px' } as any}>
                     <i className="ri-delete-bin-line" style={{ fontSize: 16, color: 'rgba(239,68,68,0.4)' }} />
-                  </div>
+                  </div>}
                 </div>
               );
             })}

@@ -432,8 +432,25 @@ async def delete_reminder(rid: str, user=Depends(get_current_user)):
 
 @router.put("/reminders/{rid}/complete")
 async def complete_reminder(rid: str, user=Depends(get_current_user)):
-    await db.reminders.update_one({"id": rid, "user_id": user['id']}, {"$set": {"completed": True}})
-    return {"status": "completed"}
+    # Try own reminders first
+    rem = await db.reminders.find_one({"id": rid, "user_id": user['id']})
+    if rem:
+        await db.reminders.update_one({"id": rid, "user_id": user['id']}, {"$set": {"completed": True}})
+        return {"status": "completed"}
+    # Try pro-assigned reminders
+    pro_rem = await db.pro_assigned_reminders.find_one({"id": rid, "beneficiary_id": user['id']})
+    if pro_rem:
+        completion = {
+            "date": datetime.now(timezone.utc).isoformat(),
+            "status": "done",
+            "completed_by": user['id'],
+        }
+        await db.pro_assigned_reminders.update_one(
+            {"id": rid},
+            {"$push": {"completions": completion}}
+        )
+        return {"status": "completed", "source": "pro"}
+    return {"status": "not_found"}
 
 
 @router.put("/reminders/{rid}/toggle")

@@ -2,6 +2,7 @@
 from fastapi import APIRouter, Depends
 from auth import get_current_user, get_effective_role
 from database import db
+from datetime import datetime, timezone
 import asyncio
 
 router = APIRouter()
@@ -20,7 +21,36 @@ async def dashboard_batch(user=Depends(get_current_user)):
         return {"devices": devices, "connected_count": len(connected), "total_count": len(devices)}
 
     async def get_rem():
-        return await db.reminders.find({"user_id": uid}, {"_id": 0}).sort("created_at", -1).to_list(50)
+        own = await db.reminders.find({"user_id": uid}, {"_id": 0}).sort("created_at", -1).to_list(50)
+        # Also fetch pro-assigned reminders for this beneficiary
+        pro_rems = await db.pro_assigned_reminders.find(
+            {"beneficiary_id": uid, "status": "active"}, {"_id": 0}
+        ).sort("created_at", -1).to_list(50)
+        # Day name mapping: full -> short (for beneficiary dashboard compatibility)
+        day_map = {"lundi": "lun", "mardi": "mar", "mercredi": "mer", "jeudi": "jeu", "vendredi": "ven", "samedi": "sam", "dimanche": "dim"}
+        today_str = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+        for pr in pro_rems:
+            short_days = [day_map.get(d, d) for d in pr.get("days", [])]
+            own.append({
+                "id": pr["id"],
+                "user_id": uid,
+                "reminder_type": pr.get("reminder_type", "medication"),
+                "title": pr.get("title", ""),
+                "time": pr.get("time", "08:00"),
+                "days": short_days,
+                "dosage": pr.get("dosage", ""),
+                "notes": pr.get("notes", ""),
+                "image": pr.get("image", ""),
+                "active": True,
+                "completed": any(
+                    c.get("date", "").startswith(today_str) and c.get("status") == "done"
+                    for c in pr.get("completions", [])
+                ),
+                "source": "pro",
+                "professional_id": pr.get("professional_id", ""),
+                "created_at": pr.get("created_at", ""),
+            })
+        return own
 
     async def get_guards():
         """Resolve guardian data from user collection like /api/guardians/my."""
