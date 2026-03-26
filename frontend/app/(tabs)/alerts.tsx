@@ -970,9 +970,9 @@ export default function AlertsScreen() {
   const { preselect } = useLocalSearchParams<{ preselect?: string }>();
   const r = user?.active_role || user?.role || '';
 
-  // Coach/Physio: show messaging instead of alerts
+  // Coach/Physio: show messaging instead of alerts (unless navigating to a specific alert)
   const isCoachOrPhysio = user?.professional_type === 'coach' || user?.professional_type === 'physio';
-  if (isCoachOrPhysio && token && Platform.OS === 'web') {
+  if (isCoachOrPhysio && token && Platform.OS === 'web' && !preselect) {
     return <ProMessaging token={token} user={user} />;
   }
 
