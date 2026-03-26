@@ -5,6 +5,7 @@ import { HorizontalCalendar } from './pro/ProCalendar';
 import { ProDayView } from './pro/ProDayView';
 import { ProLibrary } from './pro/ProLibrary';
 import { ProModals } from './pro/ProModals';
+import FullScreenLoader from '../FullScreenLoader';
 
 export default function ProSpace({ token, user }: { token: string; user: any }) {
   const router = useRouter();
@@ -189,7 +190,7 @@ export default function ProSpace({ token, user }: { token: string; user: any }) 
     return () => { settled = true; clearInterval(interval); clearTimeout(cleanup); };
   }, [activeBen, tab]);
 
-  if (loading) return <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100vh', color: '#9CA3AF', fontFamily: 'Inter, system-ui, sans-serif' } as any}><i className="ri-loader-4-line ri-spin" style={{ fontSize: 32 }} /></div>;
+  if (loading) return <FullScreenLoader />;
 
   return (
     <div data-testid="pro-space" style={{ position: 'absolute', inset: 0, background: '#F5F5F5', display: 'flex', flexDirection: 'column', fontFamily: 'Inter, system-ui, sans-serif', overflow: 'hidden' } as any}>
