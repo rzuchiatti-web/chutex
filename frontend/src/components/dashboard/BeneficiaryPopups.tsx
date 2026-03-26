@@ -268,8 +268,8 @@ export function ReminderCRUDPopup({ show, editReminder, setEditReminder, onClose
                 <div key={r.id} data-testid={`reminder-item-${r.id}`} style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '14px 16px', borderRadius: 16, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', marginBottom: 8 } as any}>
                   {/* Time + info — click to edit */}
                   <div onClick={() => !r.source && setEditReminder({ ...editReminder, _editingId: r.id, _editingData: { time: r.time, notes: r.notes || '', days: r.days || ['lun','mar','mer','jeu','ven','sam','dim'] } })} style={{ flex: 1, cursor: r.source ? 'default' : 'pointer' } as any}>
-                    {r.title && r.source === 'pro' && <div style={{ fontSize: 14, fontWeight: 800, color: r.active ? '#FFF' : 'rgba(255,255,255,0.25)', marginBottom: 2 }}>{r.title}</div>}
-                    <div style={{ fontSize: r.source === 'pro' && r.title ? 16 : 24, fontWeight: 900, color: r.active ? '#FFF' : 'rgba(255,255,255,0.25)' }}>{r.time}{r.dosage ? <span style={{ fontSize: 12, fontWeight: 600, color: 'rgba(255,255,255,0.4)', marginLeft: 8 }}>{r.dosage}</span> : ''}</div>
+                    {r.title && <div style={{ fontSize: 14, fontWeight: 800, color: r.active ? '#FFF' : 'rgba(255,255,255,0.25)', marginBottom: 2 }}>{r.title}</div>}
+                    <div style={{ fontSize: r.title ? 16 : 24, fontWeight: 900, color: r.active ? '#FFF' : 'rgba(255,255,255,0.25)' }}>{r.time}{r.dosage ? <span style={{ fontSize: 12, fontWeight: 600, color: 'rgba(255,255,255,0.4)', marginLeft: 8 }}>{r.dosage}</span> : ''}</div>
                     <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)', marginTop: 2 }}>{daysStr}{r.notes ? ` · ${r.notes}` : ''}{r.source === 'pro' ? ' · Par mon coach' : ''}</div>
                   </div>
                   {/* Toggle - only for own reminders */}
@@ -284,22 +284,10 @@ export function ReminderCRUDPopup({ show, editReminder, setEditReminder, onClose
                   }} style={{ width: 48, height: 26, borderRadius: 13, background: r.active ? `${accent}40` : 'rgba(255,255,255,0.08)', border: `1px solid ${r.active ? accent : 'rgba(255,255,255,0.12)'}`, cursor: 'pointer', position: 'relative', flexShrink: 0, transition: 'all 0.2s' } as any}>
                     <div style={{ width: 20, height: 20, borderRadius: 10, background: r.active ? accent : 'rgba(255,255,255,0.3)', position: 'absolute', top: 2, left: r.active ? 24 : 2, transition: 'left 0.2s' } as any} />
                   </div>}
-                  {/* Confirm button for pro-assigned reminders */}
-                  {r.source === 'pro' && !r.completed && (
-                    <div data-testid={`confirm-reminder-${r.id}`} onClick={async () => {
-                      setLocalReminders(prev => prev.map(rem => rem.id === r.id ? { ...rem, completed: true } : rem));
-                      try {
-                        await apiFetch(`/api/reminders/${r.id}/complete`, { method: 'PUT' }, token);
-                        clearApiCache();
-                        await refreshLocal();
-                        if (onCrudDone) onCrudDone(popupType);
-                      } catch { await refreshLocal(); }
-                    }} style={{ padding: '6px 14px', borderRadius: 999, background: '#10B981', cursor: 'pointer', flexShrink: 0 } as any}>
-                      <span style={{ fontSize: 11, fontWeight: 700, color: '#FFF' }}>Fait</span>
-                    </div>
-                  )}
+                  {/* Pro reminders: no toggle/delete, badge only */}
                   {r.source === 'pro' && r.completed && (
-                    <div style={{ padding: '6px 14px', borderRadius: 999, background: 'rgba(16,185,129,0.15)', flexShrink: 0 } as any}>
+                    <div style={{ padding: '4px 10px', borderRadius: 999, background: 'rgba(16,185,129,0.15)', flexShrink: 0 } as any}>
+                      <i className="ri-checkbox-circle-fill" style={{ fontSize: 14, color: '#10B981', marginRight: 4 }} />
                       <span style={{ fontSize: 11, fontWeight: 700, color: '#10B981' }}>Confirme</span>
                     </div>
                   )}
@@ -353,15 +341,23 @@ export function ReminderCRUDPopup({ show, editReminder, setEditReminder, onClose
 export function ReminderNotifPopup({ reminderNotif, setReminderNotif, reminderMeta, token, fetchData }: any) {
   if (!reminderNotif) return null;
   const meta = reminderMeta[reminderNotif.reminder_type] || reminderMeta.hydration;
+  const hasTitle = reminderNotif.title && reminderNotif.source === 'pro';
   return portalMount(
     <div style={OVERLAY_CENTER as any}>
       <div style={{ width: '100%', maxWidth: 340, padding: '0 20px', boxSizing: 'border-box' } as any}>
         <div style={{ borderRadius: 24, background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', padding: '28px 24px', textAlign: 'center' } as any}>
           <img src={meta.img} alt="" style={{ width: 80, height: 80, objectFit: 'contain', margin: '0 auto 16px', display: 'block' } as any} />
           <div style={{ fontSize: 11, fontWeight: 600, color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 4 }}>Rappel</div>
-          <div style={{ fontSize: 22, fontWeight: 900, color: '#FFF', marginBottom: 6 }}>{meta.label}</div>
+          {hasTitle ? (
+            <>
+              <div style={{ fontSize: 22, fontWeight: 900, color: '#FFF', marginBottom: 4 }}>{reminderNotif.title}</div>
+              {reminderNotif.dosage && <div style={{ fontSize: 14, fontWeight: 600, color: 'rgba(255,255,255,0.6)', marginBottom: 6 }}>{reminderNotif.dosage}</div>}
+            </>
+          ) : (
+            <div style={{ fontSize: 22, fontWeight: 900, color: '#FFF', marginBottom: 6 }}>{meta.label}</div>
+          )}
           {reminderNotif.notes && <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)', marginBottom: 6 }}>{reminderNotif.notes}</div>}
-          <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.35)', marginBottom: 24, lineHeight: 1.5 }}>{meta.question}</div>
+          <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.35)', marginBottom: 24, lineHeight: 1.5 }}>{hasTitle ? `Prescrit par votre coach - ${reminderNotif.time}` : meta.question}</div>
           <div onClick={async () => { try { await apiFetch(`/api/reminders/${reminderNotif.id}/complete`, { method: 'PUT' }, token); } catch {} clearApiCache(/dashboard/); setReminderNotif(null); }} style={{ padding: '14px', borderRadius: 999, background: '#10B981', cursor: 'pointer', fontSize: 15, fontWeight: 800, color: '#FFF', marginBottom: 10 } as any}>
             Confirmer
           </div>

@@ -29,7 +29,14 @@ async def dashboard_batch(user=Depends(get_current_user)):
         # Day name mapping: full -> short (for beneficiary dashboard compatibility)
         day_map = {"lundi": "lun", "mardi": "mar", "mercredi": "mer", "jeudi": "jeu", "vendredi": "ven", "samedi": "sam", "dimanche": "dim"}
         today_str = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+        # Get today's short day name
+        day_names_fr = ["lun", "mar", "mer", "jeu", "ven", "sam", "dim"]
+        today_day = day_names_fr[datetime.now(timezone.utc).weekday()]
         for pr in pro_rems:
+            short_days = [day_map.get(d, d) for d in pr.get("days", [])]
+            # Only include reminders scheduled for today
+            if short_days and today_day not in short_days:
+                continue
             short_days = [day_map.get(d, d) for d in pr.get("days", [])]
             own.append({
                 "id": pr["id"],
