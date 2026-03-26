@@ -23,16 +23,14 @@ interface ProLibraryProps {
 
 const MEAL_TYPE_LABEL: Record<string, string> = { petit_dejeuner: 'Petit-dej', dejeuner: 'Dejeuner', gouter: 'Gouter', diner: 'Diner', collation: 'Collation' };
 
-const EXERCISE_IMG = 'https://cdn-icons-png.flaticon.com/512/2548/2548530.png';
-
 export const LIB_FILTERS = [
-  { key: 'exercices', label: 'Exercices', icon: 'ri-run-line', image: EXERCISE_IMG, color: '#DC2626' },
-  { key: 'complements', label: 'Complements', icon: 'ri-capsule-line', image: REMINDER_IMAGES.medication, color: '#F59E0B' },
-  { key: 'hydratation', label: 'Hydratation', icon: 'ri-drop-line', image: REMINDER_IMAGES.hydration, color: '#38BDF8' },
-  { key: 'repas', label: 'Repas', icon: 'ri-restaurant-line', image: 'https://static.prod-images.emergentagent.com/jobs/151f0047-e744-48e3-8d63-62902a0935f7/images/528ae850a1d0143524ec5cc75d58c126e9cec798303da7ceb8ac4a1ca68374d8.png', color: '#10B981' },
+  { key: 'exercices', label: 'Exercices', icon: 'ri-run-line', color: '#DC2626' },
+  { key: 'complements', label: 'Complements', icon: 'ri-capsule-line', color: '#F59E0B' },
+  { key: 'hydratation', label: 'Hydratation', icon: 'ri-drop-line', color: '#38BDF8' },
+  { key: 'repas', label: 'Repas', icon: 'ri-restaurant-line', color: '#10B981' },
 ];
 
-/* ── Header Dropdown (glass, for ProSpace header) ── */
+/* ── Header Dropdown (glass, matching ben-selector design) ── */
 export function LibraryFilterDropdown({ filter, onFilterChange, counts }: {
   filter: string;
   onFilterChange: (key: string) => void;
@@ -54,50 +52,31 @@ export function LibraryFilterDropdown({ filter, onFilterChange, counts }: {
   return (
     <div ref={dropRef as any} style={{ position: 'relative', marginTop: 18, width: '100%', maxWidth: 360 } as any}>
       <div data-testid="lib-dropdown-trigger" onClick={() => setOpen(!open)}
-        style={{
-          display: 'flex', alignItems: 'center', gap: 12, padding: '10px 14px', borderRadius: 16,
-          background: 'rgba(255,255,255,0.10)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)',
-          border: '1px solid rgba(255,255,255,0.15)',
-          cursor: 'pointer', transition: 'all 0.2s',
-        } as any}>
-        <div style={{ width: 36, height: 36, borderRadius: 10, overflow: 'hidden', flexShrink: 0, border: '2px solid rgba(255,255,255,0.2)' } as any}>
-          <img src={active.image} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' } as any} />
+        style={{ width: '100%', padding: '14px 18px', borderRadius: 16, background: 'rgba(255,255,255,0.10)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', display: 'flex', alignItems: 'center', gap: 14, cursor: 'pointer', border: '1px solid rgba(255,255,255,0.15)', transition: 'all 0.2s' } as any}>
+        <div style={{ width: 40, height: 40, borderRadius: '50%', background: `${active.color}30`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, border: `2px solid ${active.color}` } as any}>
+          <i className={active.icon} style={{ fontSize: 18, color: '#FFF' }} />
         </div>
         <div style={{ flex: 1, minWidth: 0 } as any}>
-          <div style={{ fontSize: 14, fontWeight: 800, color: '#FFF' }}>{active.label}</div>
-          <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.5)', fontWeight: 600 }}>{counts[active.key] || 0} element{(counts[active.key] || 0) !== 1 ? 's' : ''}</div>
+          <div style={{ fontSize: 15, fontWeight: 700, color: '#FFF', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' } as any}>{active.label}</div>
+          <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.45)' }}>{counts[active.key] || 0} element{(counts[active.key] || 0) !== 1 ? 's' : ''}</div>
         </div>
         <i className={open ? 'ri-arrow-up-s-line' : 'ri-arrow-down-s-line'} style={{ fontSize: 20, color: 'rgba(255,255,255,0.5)' }} />
       </div>
 
       {open && (
-        <div style={{
-          position: 'absolute', top: 'calc(100% + 6px)', left: 0, right: 0, zIndex: 100,
-          borderRadius: 16, overflow: 'hidden',
-          background: 'rgba(20,20,30,0.88)', backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)',
-          border: '1px solid rgba(255,255,255,0.12)', boxShadow: '0 8px 32px rgba(0,0,0,0.4)',
-        } as any}>
-          {LIB_FILTERS.map((f, i) => {
+        <div style={{ marginTop: 8, width: '100%', borderRadius: 16, background: 'rgba(255,255,255,0.1)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', border: '1px solid rgba(255,255,255,0.15)', overflow: 'hidden', zIndex: 100, position: 'relative' } as any}>
+          {LIB_FILTERS.map(f => {
             const isActive = filter === f.key;
             return (
               <div key={f.key} data-testid={`lib-filter-${f.key}`}
                 onClick={() => { onFilterChange(f.key); setOpen(false); }}
-                style={{
-                  display: 'flex', alignItems: 'center', gap: 12, padding: '11px 14px',
-                  cursor: 'pointer', transition: 'background 0.15s',
-                  background: isActive ? 'rgba(255,255,255,0.10)' : 'transparent',
-                  borderBottom: i < LIB_FILTERS.length - 1 ? '1px solid rgba(255,255,255,0.06)' : 'none',
-                } as any}
-                onMouseEnter={(e: any) => { if (!isActive) e.currentTarget.style.background = 'rgba(255,255,255,0.06)'; }}
-                onMouseLeave={(e: any) => { e.currentTarget.style.background = isActive ? 'rgba(255,255,255,0.10)' : 'transparent'; }}>
-                <div style={{ width: 32, height: 32, borderRadius: 8, overflow: 'hidden', flexShrink: 0 } as any}>
-                  <img src={f.image} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' } as any} />
+                style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 14px', cursor: 'pointer', background: isActive ? 'rgba(255,255,255,0.1)' : 'transparent', borderBottom: '1px solid rgba(255,255,255,0.06)' } as any}>
+                <div style={{ width: 34, height: 34, borderRadius: '50%', background: isActive ? f.color : 'rgba(255,255,255,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}>
+                  <i className={f.icon} style={{ fontSize: 15, color: isActive ? '#FFF' : 'rgba(255,255,255,0.5)' }} />
                 </div>
-                <div style={{ flex: 1 } as any}>
-                  <span style={{ fontSize: 13, fontWeight: isActive ? 800 : 600, color: isActive ? '#FFF' : 'rgba(255,255,255,0.7)' }}>{f.label}</span>
-                </div>
-                <span style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.4)', background: 'rgba(255,255,255,0.08)', padding: '2px 8px', borderRadius: 999 }}>{counts[f.key] || 0}</span>
-                {isActive && <i className="ri-check-line" style={{ fontSize: 16, color: '#FFF', marginLeft: 4 }} />}
+                <span style={{ fontSize: 14, fontWeight: isActive ? 700 : 500, color: isActive ? '#FFF' : 'rgba(255,255,255,0.6)' }}>{f.label}</span>
+                <span style={{ marginLeft: 'auto', fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.4)', background: 'rgba(255,255,255,0.08)', padding: '2px 8px', borderRadius: 999 }}>{counts[f.key] || 0}</span>
+                {isActive && <i className="ri-check-line" style={{ fontSize: 16, color: f.color }} />}
               </div>
             );
           })}
