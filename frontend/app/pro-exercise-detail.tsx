@@ -153,8 +153,8 @@ export default function ProExerciseDetailPage() {
                   </div>
                   {steps.filter((s: string) => s.trim()).map((step: string, i: number) => (
                     <div key={i} style={{ display: 'flex', gap: 12, padding: '12px 14px', borderRadius: 14, background: '#F4F4F5', marginBottom: 6 } as any}>
-                      <span style={{ fontSize: 13, fontWeight: 800, color: '#9CA3AF', flexShrink: 0, minWidth: 20 }}>{i + 1}.</span>
-                      <div style={{ fontSize: 12, color: '#6B7280', lineHeight: 1.6, flex: 1 }}>{step}</div>
+                      <span style={{ fontSize: 18, fontWeight: 900, color: '#111', flexShrink: 0, minWidth: 24 }}>{i + 1}.</span>
+                      <div style={{ fontSize: 12, color: '#6B7280', lineHeight: 1.6, flex: 1, paddingTop: 3 }}>{step}</div>
                     </div>
                   ))}
                 </>

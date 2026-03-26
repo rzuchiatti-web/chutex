@@ -1,5 +1,5 @@
 import React from 'react';
-import { GlassModal, ImagePicker, DaysPicker, TimeWheelPicker } from './GlassModal';
+import { GlassModal, ImagePicker, DaysPicker } from './GlassModal';
 import { API, INP, LBL, SEL, GBTN, MUSCLE_GROUPS, EQUIPMENT_LIST, SUPPLEMENT_TYPES, HYDRATION_TYPES, INGREDIENT_LIST } from './constants';
 import { REMINDER_IMAGES } from '../constants';
 
@@ -122,10 +122,8 @@ export function ProModals(props: ProModalsProps) {
             <div style={{ fontSize: 16, fontWeight: 800, color: '#111', marginBottom: 4, textTransform: 'capitalize' }}>{editRemForm.title}</div>
             <div style={{ fontSize: 12, color: '#9CA3AF', marginBottom: 18 }}>{editRemForm.reminder_type || 'supplement'}</div>
             <div style={{ marginBottom: 16 }}><label style={LBL}>Jours de la semaine</label><DaysPicker selected={editRemForm.days || []} onChange={days => setEditRemForm({ ...editRemForm, days })} accent={AC} /></div>
-            <div style={{ display: 'flex', gap: 10, marginBottom: 14 } as any}>
-              <div style={{ flex: 1 }}><label style={LBL}>Heure</label><input type="time" value={editRemForm.time || ''} onChange={(e: any) => setEditRemForm({ ...editRemForm, time: e.target.value })} style={INP} /></div>
-              <div style={{ flex: 1 }}><label style={LBL}>Dosage</label><input type="text" value={editRemForm.dosage || ''} onChange={(e: any) => setEditRemForm({ ...editRemForm, dosage: e.target.value })} style={INP} /></div>
-            </div>
+            <div style={{ marginBottom: 14 }}><label style={LBL}>Heure</label><input type="time" value={editRemForm.time || ''} onChange={(e: any) => setEditRemForm({ ...editRemForm, time: e.target.value })} style={INP} /></div>
+            <div style={{ marginBottom: 14 }}><label style={LBL}>Dosage</label><input type="text" value={editRemForm.dosage || ''} onChange={(e: any) => setEditRemForm({ ...editRemForm, dosage: e.target.value })} style={INP} /></div>
             <div data-testid="edit-rem-submit" onClick={(editRemForm.days || []).length > 0 ? props.updateAssignedReminder : undefined} style={GBTN((editRemForm.days || []).length > 0, saving)}>
               {saving ? 'Enregistrement...' : 'Enregistrer les modifications'}
             </div>
@@ -196,7 +194,7 @@ export function ProModals(props: ProModalsProps) {
             ); })()}
             <div style={{ fontSize: 12, color: '#9CA3AF', marginBottom: 14 }}>Personnalisez pour {activeBenName} :</div>
             <div style={{ marginBottom: 16 }}><label style={LBL}>Jours de la semaine</label><DaysPicker selected={remAssignForm.days} onChange={days => setRemAssignForm({ ...remAssignForm, days })} accent="#F59E0B" /></div>
-            <div style={{ marginBottom: 14 }}><label style={LBL}>Heure</label><TimeWheelPicker value={remAssignForm.time} onChange={time => setRemAssignForm({ ...remAssignForm, time })} /></div>
+            <div style={{ marginBottom: 14 }}><label style={LBL}>Heure</label><input type="time" value={remAssignForm.time} onChange={(e: any) => setRemAssignForm({ ...remAssignForm, time: e.target.value })} style={INP} /></div>
             <div style={{ marginBottom: 14 }}><label style={LBL}>Dosage</label><input value={remAssignForm.dosage} onChange={(e: any) => setRemAssignForm({ ...remAssignForm, dosage: e.target.value })} style={INP} placeholder="5g/jour" /></div>
             <div style={{ marginBottom: 14 }}><label style={LBL}>Note (optionnel)</label><input value={remAssignForm.notes || ''} onChange={(e: any) => setRemAssignForm({ ...remAssignForm, notes: e.target.value })} style={INP} placeholder="Ex: Prendre avec un verre d'eau" /></div>
             <div data-testid="assign-rem-submit" onClick={() => remAssignForm.days.length > 0 ? props.assignReminder(modalCtx, remAssignForm.days, remAssignForm.time, remAssignForm.dosage, remAssignForm.notes || '') : undefined} style={GBTN(remAssignForm.days.length > 0, saving)}>
@@ -241,7 +239,7 @@ export function ProModals(props: ProModalsProps) {
           <>
             <div style={{ fontSize: 12, color: '#9CA3AF', marginBottom: 14 }}>Personnalisez pour {activeBenName} :</div>
             <div style={{ marginBottom: 16 }}><label style={LBL}>Jours de la semaine</label><DaysPicker selected={remAssignForm.days} onChange={days => setRemAssignForm({ ...remAssignForm, days })} accent="#38BDF8" /></div>
-            <div style={{ marginBottom: 14 }}><label style={LBL}>Heure</label><TimeWheelPicker value={remAssignForm.time} onChange={time => setRemAssignForm({ ...remAssignForm, time })} /></div>
+            <div style={{ marginBottom: 14 }}><label style={LBL}>Heure</label><input type="time" value={remAssignForm.time} onChange={(e: any) => setRemAssignForm({ ...remAssignForm, time: e.target.value })} style={INP} /></div>
             <div style={{ marginBottom: 14 }}><label style={LBL}>Dosage</label><input value={remAssignForm.dosage} onChange={(e: any) => setRemAssignForm({ ...remAssignForm, dosage: e.target.value })} style={INP} placeholder="500ml" /></div>
             <div style={{ marginBottom: 14 }}><label style={LBL}>Note (optionnel)</label><input value={remAssignForm.notes || ''} onChange={(e: any) => setRemAssignForm({ ...remAssignForm, notes: e.target.value })} style={INP} placeholder="Ex: Boire avant le repas" /></div>
             <div data-testid="assign-hydration-submit" onClick={() => remAssignForm.days.length > 0 ? props.assignReminder(modalCtx, remAssignForm.days, remAssignForm.time, remAssignForm.dosage, remAssignForm.notes || '') : undefined} style={GBTN(remAssignForm.days.length > 0, saving)}>
