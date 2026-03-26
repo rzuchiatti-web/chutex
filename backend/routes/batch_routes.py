@@ -37,6 +37,11 @@ async def dashboard_batch(user=Depends(get_current_user)):
             # Only include reminders scheduled for today
             if short_days and today_day not in short_days:
                 continue
+            # Resolve professional name if not stored
+            pro_name = pr.get("professional_name", "")
+            if not pro_name and pr.get("professional_id"):
+                pro_user = await db.users.find_one({"id": pr["professional_id"]}, {"_id": 0, "name": 1})
+                pro_name = pro_user.get("name", "") if pro_user else ""
             short_days = [day_map.get(d, d) for d in pr.get("days", [])]
             own.append({
                 "id": pr["id"],
@@ -55,6 +60,7 @@ async def dashboard_batch(user=Depends(get_current_user)):
                 ),
                 "source": "pro",
                 "professional_id": pr.get("professional_id", ""),
+                "professional_name": pro_name,
                 "created_at": pr.get("created_at", ""),
             })
         return own

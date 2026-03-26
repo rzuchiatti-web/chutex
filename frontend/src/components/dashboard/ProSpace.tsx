@@ -38,7 +38,7 @@ export default function ProSpace({ token, user }: { token: string; user: any }) 
   // Form states
   const emptyEx = { title: '', description: '', sets: 3, reps: 12, duration_minutes: 0, image: '', days: [] as string[], rest_seconds: 60 };
   const [exForm, setExForm] = useState(emptyEx);
-  const [remAssignForm, setRemAssignForm] = useState({ days: [] as string[], time: '08:00', dosage: '' });
+  const [remAssignForm, setRemAssignForm] = useState({ days: [] as string[], time: '08:00', dosage: '', notes: '' });
   const [mealAssignForm, setMealAssignForm] = useState({ days: [] as string[], meal_type: 'dejeuner' });
   const emptyMeal = { meal_type: 'dejeuner', title: '', image: '', ingredients: [{ name: '', quantity: '', unit: 'g' }] as any[], steps: [''] as string[], calories: 0, proteins: 0, glucides: 0, lipides: 0, notes: '' };
   const [mealForm, setMealForm] = useState(emptyMeal);
@@ -106,10 +106,10 @@ export default function ProSpace({ token, user }: { token: string; user: any }) 
     } catch {} finally { setSaving(false); }
   };
 
-  const assignReminder = async (templateId: string, days: string[], time: string, dosage: string) => {
+  const assignReminder = async (templateId: string, days: string[], time: string, dosage: string, notes: string) => {
     setSaving(true);
     try {
-      await apiFetch('/api/pro/assign-reminder', { method: 'POST', body: JSON.stringify({ reminder_template_id: templateId, beneficiary_id: activeBen, days, time, dosage }) }, token);
+      await apiFetch('/api/pro/assign-reminder', { method: 'POST', body: JSON.stringify({ reminder_template_id: templateId, beneficiary_id: activeBen, days, time, dosage, notes }) }, token);
       setModal(null); setModalCtx(null); refresh();
     } catch {} finally { setSaving(false); }
   };

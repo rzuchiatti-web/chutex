@@ -749,6 +749,7 @@ class AssignReminderCreate(BaseModel):
     days: List[str] = []
     time: str = "08:00"
     dosage: str = ""
+    notes: str = ""
 
 @router.post("/pro/assign-reminder")
 async def assign_reminder(data: AssignReminderCreate, user=Depends(get_current_user)):
@@ -762,6 +763,7 @@ async def assign_reminder(data: AssignReminderCreate, user=Depends(get_current_u
     assigned = {
         "id": str(uuid.uuid4()),
         "professional_id": user['id'],
+        "professional_name": user.get('name', ''),
         "beneficiary_id": data.beneficiary_id,
         "reminder_template_id": data.reminder_template_id,
         "title": tpl.get("title", ""),
@@ -770,7 +772,7 @@ async def assign_reminder(data: AssignReminderCreate, user=Depends(get_current_u
         "days": data.days,
         "time": data.time,
         "dosage": data.dosage or tpl.get("dosage", ""),
-        "notes": tpl.get("notes", ""),
+        "notes": data.notes or tpl.get("notes", ""),
         "status": "active",
         "completions": [],
         "created_at": datetime.now(timezone.utc).isoformat(),

@@ -28,7 +28,7 @@ interface ProModalsProps {
   setModalCtx: (v: any) => void;
   setTab: (v: 'patients' | 'library') => void;
   assignExercise: (tplId: string, days: string[], reps: number, sets: number, rest: number) => void;
-  assignReminder: (tplId: string, days: string[], time: string, dosage: string) => void;
+  assignReminder: (tplId: string, days: string[], time: string, dosage: string, notes: string) => void;
   assignMeal: (tplId: string, days: string[], mealType: string) => void;
   updateAssignedExercise: () => void;
   updateAssignedReminder: () => void;
@@ -205,7 +205,8 @@ export function ProModals(props: ProModalsProps) {
               <div style={{ flex: 1 }}><label style={LBL}>Heure</label><input type="time" value={remAssignForm.time} onChange={(e: any) => setRemAssignForm({ ...remAssignForm, time: e.target.value })} style={INP} /></div>
               <div style={{ flex: 1 }}><label style={LBL}>Dosage</label><input value={remAssignForm.dosage} onChange={(e: any) => setRemAssignForm({ ...remAssignForm, dosage: e.target.value })} style={INP} placeholder="5g/jour" /></div>
             </div>
-            <div data-testid="assign-rem-submit" onClick={() => remAssignForm.days.length > 0 ? props.assignReminder(modalCtx, remAssignForm.days, remAssignForm.time, remAssignForm.dosage) : undefined} style={GBTN(remAssignForm.days.length > 0, saving)}>
+            <div style={{ marginBottom: 14 }}><label style={LBL}>Note (optionnel)</label><input value={remAssignForm.notes || ''} onChange={(e: any) => setRemAssignForm({ ...remAssignForm, notes: e.target.value })} style={INP} placeholder="Ex: Prendre avec un verre d'eau" /></div>
+            <div data-testid="assign-rem-submit" onClick={() => remAssignForm.days.length > 0 ? props.assignReminder(modalCtx, remAssignForm.days, remAssignForm.time, remAssignForm.dosage, remAssignForm.notes || '') : undefined} style={GBTN(remAssignForm.days.length > 0, saving)}>
               {saving ? 'Assignation...' : `Assigner ${remAssignForm.days.length > 0 ? `(${remAssignForm.days.length} jours)` : '-- Choisissez des jours'}`}
             </div>
           </>
@@ -251,7 +252,8 @@ export function ProModals(props: ProModalsProps) {
               <div style={{ flex: 1 }}><label style={LBL}>Heure</label><input type="time" value={remAssignForm.time} onChange={(e: any) => setRemAssignForm({ ...remAssignForm, time: e.target.value })} style={INP} /></div>
               <div style={{ flex: 1 }}><label style={LBL}>Dosage</label><input value={remAssignForm.dosage} onChange={(e: any) => setRemAssignForm({ ...remAssignForm, dosage: e.target.value })} style={INP} placeholder="500ml" /></div>
             </div>
-            <div data-testid="assign-hydration-submit" onClick={() => remAssignForm.days.length > 0 ? props.assignReminder(modalCtx, remAssignForm.days, remAssignForm.time, remAssignForm.dosage) : undefined} style={GBTN(remAssignForm.days.length > 0, saving)}>
+            <div style={{ marginBottom: 14 }}><label style={LBL}>Note (optionnel)</label><input value={remAssignForm.notes || ''} onChange={(e: any) => setRemAssignForm({ ...remAssignForm, notes: e.target.value })} style={INP} placeholder="Ex: Boire avant le repas" /></div>
+            <div data-testid="assign-hydration-submit" onClick={() => remAssignForm.days.length > 0 ? props.assignReminder(modalCtx, remAssignForm.days, remAssignForm.time, remAssignForm.dosage, remAssignForm.notes || '') : undefined} style={GBTN(remAssignForm.days.length > 0, saving)}>
               {saving ? 'Assignation...' : `Assigner ${remAssignForm.days.length > 0 ? `(${remAssignForm.days.length} jours)` : '-- Choisissez des jours'}`}
             </div>
           </>

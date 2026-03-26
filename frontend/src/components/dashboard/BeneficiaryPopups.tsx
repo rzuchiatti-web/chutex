@@ -264,16 +264,28 @@ export function ReminderCRUDPopup({ show, editReminder, setEditReminder, onClose
             {/* Reminder list */}
             {typeRems.map((r: any) => {
               const daysStr = (!r.days || r.days.length === 0 || r.days.length === 7) ? 'Tous les jours' : r.days.join(', ').toUpperCase();
+              const isPro = r.source === 'pro';
               return (
-                <div key={r.id} data-testid={`reminder-item-${r.id}`} style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '14px 16px', borderRadius: 16, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', marginBottom: 8 } as any}>
-                  {/* Time + info — click to edit */}
-                  <div onClick={() => !r.source && setEditReminder({ ...editReminder, _editingId: r.id, _editingData: { time: r.time, notes: r.notes || '', days: r.days || ['lun','mar','mer','jeu','ven','sam','dim'] } })} style={{ flex: 1, cursor: r.source ? 'default' : 'pointer' } as any}>
-                    {r.title && <div style={{ fontSize: 14, fontWeight: 800, color: r.active ? '#FFF' : 'rgba(255,255,255,0.25)', marginBottom: 2 }}>{r.title}</div>}
-                    <div style={{ fontSize: r.title ? 16 : 24, fontWeight: 900, color: r.active ? '#FFF' : 'rgba(255,255,255,0.25)' }}>{r.time}{r.dosage ? <span style={{ fontSize: 12, fontWeight: 600, color: 'rgba(255,255,255,0.4)', marginLeft: 8 }}>{r.dosage}</span> : ''}</div>
-                    <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)', marginTop: 2 }}>{daysStr}{r.notes ? ` · ${r.notes}` : ''}{r.source === 'pro' ? ' · Par mon coach' : ''}</div>
-                  </div>
-                  {/* Toggle - only for own reminders */}
-                  {!r.source && <div data-testid={`toggle-reminder-${r.id}`} onClick={async () => {
+                <div key={r.id} data-testid={`reminder-item-${r.id}`} style={{ padding: '14px 16px', borderRadius: 16, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', marginBottom: 8, position: 'relative' } as any}>
+                  {/* Pro badge pill top-right */}
+                  {isPro && r.professional_name && (
+                    <div style={{ position: 'absolute', top: 10, right: 12, display: 'flex', alignItems: 'center', gap: 4, padding: '3px 10px', borderRadius: 999, background: `${accent}20`, border: `1px solid ${accent}40` } as any}>
+                      <i className="ri-capsule-fill" style={{ fontSize: 10, color: accent }} />
+                      <span style={{ fontSize: 9, fontWeight: 700, color: accent }}>{r.professional_name.split(' ')[0]}</span>
+                    </div>
+                  )}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 14 } as any}>
+                    <div onClick={() => !isPro && setEditReminder({ ...editReminder, _editingId: r.id, _editingData: { time: r.time, notes: r.notes || '', days: r.days || ['lun','mar','mer','jeu','ven','sam','dim'] } })} style={{ flex: 1, cursor: isPro ? 'default' : 'pointer' } as any}>
+                      {r.title && <div style={{ fontSize: 15, fontWeight: 800, color: r.active ? '#FFF' : 'rgba(255,255,255,0.25)', marginBottom: 4, paddingRight: isPro ? 80 : 0 }}>{r.title}</div>}
+                      <div style={{ display: 'flex', alignItems: 'baseline', gap: 8, marginBottom: 3 } as any}>
+                        <span style={{ fontSize: r.title ? 18 : 24, fontWeight: 900, color: r.active ? '#FFF' : 'rgba(255,255,255,0.25)' }}>{r.time}</span>
+                        {r.dosage && <span style={{ fontSize: 13, fontWeight: 600, color: 'rgba(255,255,255,0.5)' }}>{r.dosage}</span>}
+                      </div>
+                      <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)', marginTop: 2 }}>{daysStr}</div>
+                      {r.notes && <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', marginTop: 4, fontStyle: 'italic' }}>{r.notes}</div>}
+                    </div>
+                    {/* Toggle - only for own reminders */}
+                    {!isPro && <div data-testid={`toggle-reminder-${r.id}`} onClick={async () => {
                     // Optimistic toggle
                     setLocalReminders(prev => prev.map(rem => rem.id === r.id ? { ...rem, active: !rem.active } : rem));
                     try {
@@ -304,6 +316,7 @@ export function ReminderCRUDPopup({ show, editReminder, setEditReminder, onClose
                   }} style={{ cursor: 'pointer', padding: '6px' } as any}>
                     <i className="ri-delete-bin-line" style={{ fontSize: 16, color: 'rgba(239,68,68,0.4)' }} />
                   </div>}
+                  </div>{/* end flex row */}
                 </div>
               );
             })}
