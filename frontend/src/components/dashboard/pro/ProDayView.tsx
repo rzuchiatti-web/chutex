@@ -33,6 +33,10 @@ export function ProDayView(props: ProDayViewProps) {
       {/* Nutrition Card */}
       {benNutrition && benNutrition.daily_calories > 0 && (
         <div data-testid="nutrition-card" style={{ borderRadius: 16, background: '#F4F4F5', padding: '16px 18px', marginBottom: 18 } as any}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 10 } as any}>
+            <i className="ri-sparkling-2-line" style={{ fontSize: 14, color: '#7C3AED' }} />
+            <span style={{ fontSize: 11, fontWeight: 700, color: '#6B7280', textTransform: 'uppercase', letterSpacing: 0.5 }}>Apport calorique recommande par Nora</span>
+          </div>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 } as any}>
             <div style={{ display: 'flex', alignItems: 'baseline', gap: 4 } as any}>
               <span style={{ fontSize: 28, fontWeight: 900, color: '#111', letterSpacing: -1 }}>{benNutrition.daily_calories}</span>
@@ -95,6 +99,7 @@ export function ProDayView(props: ProDayViewProps) {
       )}
 
       {/* Exercices du jour */}
+      <div style={{ height: 1, background: '#E5E7EB', margin: '4px 0 18px' } as any} />
       <SectionHeader icon="ri-calendar-check-line" iconColor={AC} title={`Exercices du ${selectedDayFr}`} count={filteredExercises.length} onAdd={props.onAddExercise} testId="cat-add-exercices" />
       {filteredExercises.length === 0 && <EmptyDay icon="ri-inbox-2-line" text={`Aucun exercice prevu le ${selectedDayFr}`} />}
       {filteredExercises.map(ex => {
@@ -123,7 +128,8 @@ export function ProDayView(props: ProDayViewProps) {
       })}
 
       {/* Traitements du jour (non-hydratation) */}
-      <SectionHeader icon="ri-capsule-line" iconColor="#F59E0B" title={`Traitements du ${selectedDayFr}`} count={filteredReminders.filter(r => r.reminder_type !== 'hydration').length} onAdd={props.onAddReminder} testId="cat-add-rappels" style={{ marginTop: 8 }} />
+      <div style={{ height: 1, background: '#E5E7EB', margin: '12px 0 18px' } as any} />
+      <SectionHeader icon="ri-capsule-line" iconColor="#F59E0B" title={`Traitements du ${selectedDayFr}`} count={filteredReminders.filter(r => r.reminder_type !== 'hydration').length} onAdd={props.onAddReminder} testId="cat-add-rappels" />
       {filteredReminders.filter(r => r.reminder_type !== 'hydration').length === 0 && <EmptyDay icon="ri-capsule-line" text={`Aucun complement prevu le ${selectedDayFr}`} />}
       {filteredReminders.filter(r => r.reminder_type !== 'hydration').map(r => {
         const remImg = r.image || REMINDER_IMAGES.medication;
@@ -148,7 +154,8 @@ export function ProDayView(props: ProDayViewProps) {
       })}
 
       {/* Hydratation du jour */}
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14, marginTop: 16 } as any}>
+      <div style={{ height: 1, background: '#E5E7EB', margin: '12px 0 18px' } as any} />
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 } as any}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 } as any}>
           <div style={{ width: 28, height: 28, borderRadius: 8, overflow: 'hidden', flexShrink: 0 } as any}>
             <img src={REMINDER_IMAGES.hydration} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' } as any} />
@@ -185,7 +192,8 @@ export function ProDayView(props: ProDayViewProps) {
       })}
 
       {/* Repas du jour */}
-      <SectionHeader icon="ri-restaurant-line" iconColor="#10B981" title={`Repas du ${selectedDayFr}`} count={filteredMeals.length} onAdd={props.onAddMeal} testId="cat-add-repas" style={{ marginTop: 16 }} />
+      <div style={{ height: 1, background: '#E5E7EB', margin: '12px 0 18px' } as any} />
+      <SectionHeader icon="ri-restaurant-line" iconColor="#10B981" title={`Repas du ${selectedDayFr}`} count={filteredMeals.length} onAdd={props.onAddMeal} testId="cat-add-repas" />
       {filteredMeals.length === 0 && <EmptyDay icon="ri-restaurant-line" text={`Aucun repas prevu le ${selectedDayFr}`} />}
       {filteredMeals.map(m => {
         const mealDone = (m.completions || []).some((c: any) => c.date?.startsWith(selectedDateStr) && c.status === 'done');

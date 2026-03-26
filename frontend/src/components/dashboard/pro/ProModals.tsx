@@ -1,6 +1,6 @@
 import React from 'react';
 import { GlassModal, ImagePicker, DaysPicker } from './GlassModal';
-import { API, INP, LBL, SEL, GBTN } from './constants';
+import { API, INP, LBL, SEL, GBTN, MUSCLE_GROUPS, EQUIPMENT_LIST, SUPPLEMENT_TYPES, HYDRATION_TYPES, INGREDIENT_LIST } from './constants';
 import { REMINDER_IMAGES } from '../constants';
 
 interface ProModalsProps {
@@ -314,9 +314,12 @@ export function ProModals(props: ProModalsProps) {
           </div>
           {mealForm.ingredients.map((ing: any, i: number) => (
             <div key={i} style={{ display: 'flex', gap: 6, marginBottom: 6, alignItems: 'center' } as any}>
-              <input value={ing.name} onChange={(e: any) => { const arr = [...mealForm.ingredients]; arr[i] = { ...arr[i], name: e.target.value }; setMealForm({ ...mealForm, ingredients: arr }); }} style={{ ...INP, flex: 2 }} placeholder="Ingredient" />
+              <select value={ing.name} onChange={(e: any) => { const arr = [...mealForm.ingredients]; arr[i] = { ...arr[i], name: e.target.value }; setMealForm({ ...mealForm, ingredients: arr }); }} style={{ ...SEL, flex: 2 }}>
+                <option value="">Choisir...</option>
+                {INGREDIENT_LIST.map(item => <option key={item} value={item}>{item}</option>)}
+              </select>
               <input value={ing.quantity} onChange={(e: any) => { const arr = [...mealForm.ingredients]; arr[i] = { ...arr[i], quantity: e.target.value }; setMealForm({ ...mealForm, ingredients: arr }); }} style={{ ...INP, flex: 1 }} placeholder="Qte" />
-              <select value={ing.unit} onChange={(e: any) => { const arr = [...mealForm.ingredients]; arr[i] = { ...arr[i], unit: e.target.value }; setMealForm({ ...mealForm, ingredients: arr }); }} style={{ ...SEL, flex: 1 }}><option value="g">g</option><option value="ml">ml</option><option value="pc">pc</option><option value="cs">c.s.</option><option value="cc">c.c.</option></select>
+              <select value={ing.unit} onChange={(e: any) => { const arr = [...mealForm.ingredients]; arr[i] = { ...arr[i], unit: e.target.value }; setMealForm({ ...mealForm, ingredients: arr }); }} style={{ ...SEL, width: 60, flex: 'none' }}><option value="g">g</option><option value="ml">ml</option><option value="pc">pc</option><option value="cs">c.s.</option><option value="cc">c.c.</option></select>
               {mealForm.ingredients.length > 1 && <div onClick={() => setMealForm({ ...mealForm, ingredients: mealForm.ingredients.filter((_: any, j: number) => j !== i) })} style={{ cursor: 'pointer', flexShrink: 0 } as any}><i className="ri-close-line" style={{ fontSize: 16, color: '#EF4444' }} /></div>}
             </div>
           ))}
@@ -328,8 +331,7 @@ export function ProModals(props: ProModalsProps) {
               style={{ fontSize: 11, fontWeight: 700, color: AC, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 } as any}><i className="ri-add-line" style={{ fontSize: 14 }} /> Ajouter</div>
           </div>
           {mealForm.steps.map((s: string, i: number) => (
-            <div key={i} style={{ display: 'flex', gap: 8, marginBottom: 6, alignItems: 'center' } as any}>
-              <span style={{ fontSize: 11, fontWeight: 800, color: 'rgba(255,255,255,0.2)', width: 20, flexShrink: 0, textAlign: 'center' }}>{i + 1}</span>
+            <div key={i} style={{ display: 'flex', gap: 6, marginBottom: 6, alignItems: 'center' } as any}>
               <input value={s} onChange={(e: any) => { const arr = [...mealForm.steps]; arr[i] = e.target.value; setMealForm({ ...mealForm, steps: arr }); }} style={{ ...INP, flex: 1 }} placeholder={`Etape ${i + 1}`} />
               {mealForm.steps.length > 1 && <div onClick={() => setMealForm({ ...mealForm, steps: mealForm.steps.filter((_: any, j: number) => j !== i) })} style={{ cursor: 'pointer' } as any}><i className="ri-close-line" style={{ fontSize: 16, color: '#EF4444' }} /></div>}
             </div>
@@ -345,14 +347,24 @@ export function ProModals(props: ProModalsProps) {
         <div data-testid="meal-submit" onClick={mealForm.title || mealForm.ingredients.some((i: any) => i.name) ? props.createMealTemplate : undefined} style={GBTN(!!mealForm.title || mealForm.ingredients.some((i: any) => !!i.name), saving)}>{saving ? 'Enregistrement...' : 'Enregistrer dans la bibliotheque'}</div>
       </GlassModal>
 
-      {/* New Reminder */}
-      <GlassModal open={modal === 'new-rem'} onClose={() => setModal(null)} title="Nouveau rappel">
-        <div style={{ marginBottom: 14 }}><label style={LBL}>Type</label><select value={remForm.reminder_type} onChange={(e: any) => setRemForm({ ...remForm, reminder_type: e.target.value })} style={SEL}><option value="medication">Medicament</option><option value="exercise">Exercice</option><option value="hydration">Hydratation</option><option value="appointment">RDV</option><option value="custom">Autre</option></select></div>
-        <div style={{ marginBottom: 14 }}><label style={LBL}>Titre</label><input data-testid="rem-title" value={remForm.title} onChange={(e: any) => setRemForm({ ...remForm, title: e.target.value })} style={INP} placeholder="Ex: Prendre Doliprane" /></div>
-        <div style={{ display: 'flex', gap: 10, marginBottom: 14 } as any}>
-          <div style={{ flex: 1 }}><label style={LBL}>Heure</label><input type="time" value={remForm.time} onChange={(e: any) => setRemForm({ ...remForm, time: e.target.value })} style={INP} /></div>
-          <div style={{ flex: 1 }}><label style={LBL}>Dosage</label><input value={remForm.dosage} onChange={(e: any) => setRemForm({ ...remForm, dosage: e.target.value })} style={INP} placeholder="1 comprime" /></div>
+      {/* New Reminder (Complement) */}
+      <GlassModal open={modal === 'new-rem'} onClose={() => setModal(null)} title={remForm.reminder_type === 'hydration' ? 'Nouvelle hydratation' : 'Nouveau complement'}>
+        <div style={{ marginBottom: 14 }}><label style={LBL}>Type</label>
+          {remForm.reminder_type === 'hydration' ? (
+            <select value={remForm.title || ''} onChange={(e: any) => setRemForm({ ...remForm, title: e.target.value })} style={SEL}>
+              <option value="">Choisir...</option>
+              {HYDRATION_TYPES.map(t => <option key={t} value={t}>{t}</option>)}
+            </select>
+          ) : (
+            <select value={remForm.title || ''} onChange={(e: any) => setRemForm({ ...remForm, title: e.target.value })} style={SEL}>
+              <option value="">Choisir...</option>
+              {SUPPLEMENT_TYPES.map(t => <option key={t} value={t}>{t}</option>)}
+            </select>
+          )}
         </div>
+        {remForm.title === 'Autre' && (
+          <div style={{ marginBottom: 14 }}><label style={LBL}>Nom personnalise</label><input value={remForm.notes} onChange={(e: any) => setRemForm({ ...remForm, notes: e.target.value })} style={INP} placeholder="Nom du complement" /></div>
+        )}
         <div data-testid="rem-submit" onClick={remForm.title ? props.createReminderTemplate : undefined} style={GBTN(!!remForm.title, saving)}>{saving ? 'Enregistrement...' : 'Enregistrer dans la bibliotheque'}</div>
       </GlassModal>
 
@@ -361,21 +373,57 @@ export function ProModals(props: ProModalsProps) {
         <ImagePicker value={exTplForm.image} onChange={url => setExTplForm({ ...exTplForm, image: url })} token={token} />
         <div style={{ marginBottom: 14 }}><label style={LBL}>Titre</label><input data-testid="extpl-title" value={exTplForm.title} onChange={(e: any) => setExTplForm({ ...exTplForm, title: e.target.value })} style={INP} placeholder="Ex: Squat bulgare" /></div>
         <div style={{ marginBottom: 14 }}><label style={LBL}>Description</label><textarea value={exTplForm.description} onChange={(e: any) => setExTplForm({ ...exTplForm, description: e.target.value })} style={{ ...INP, height: 70, resize: 'none' } as any} placeholder="Instructions detaillees..." /></div>
-        <div style={{ marginBottom: 14 }}><label style={LBL}>Video URL</label><input value={exTplForm.video_url} onChange={(e: any) => setExTplForm({ ...exTplForm, video_url: e.target.value })} style={INP} placeholder="https://youtube.com/..." /></div>
+        {/* Video upload */}
+        <div style={{ marginBottom: 14 }}>
+          <label style={LBL}>Video explicative</label>
+          {exTplForm.video_url ? (
+            <div style={{ position: 'relative', borderRadius: 12, overflow: 'hidden', background: '#000', marginBottom: 6 } as any}>
+              <video src={exTplForm.video_url.startsWith('/') ? `${API}${exTplForm.video_url}` : exTplForm.video_url} controls style={{ width: '100%', maxHeight: 160 } as any} />
+              <div onClick={() => setExTplForm({ ...exTplForm, video_url: '' })} style={{ position: 'absolute', top: 6, right: 6, width: 28, height: 28, borderRadius: 999, background: 'rgba(0,0,0,0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}><i className="ri-close-line" style={{ fontSize: 14, color: '#FFF' }} /></div>
+            </div>
+          ) : (
+            <div onClick={() => { const input = document.createElement('input'); input.type = 'file'; input.accept = 'video/*'; input.capture = 'environment'; input.onchange = async () => { const f = input.files?.[0]; if (!f) return; try { const fd = new FormData(); fd.append('file', f); const r = await fetch(`${API}/api/pro/upload-image`, { method: 'POST', headers: { Authorization: `Bearer ${token}` }, body: fd }); const d = await r.json(); if (d.url) setExTplForm({ ...exTplForm, video_url: d.url }); } catch {} }; input.click(); }}
+              style={{ padding: '16px', borderRadius: 12, border: '2px dashed #D1D5DB', background: '#F9FAFB', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, cursor: 'pointer' } as any}>
+              <i className="ri-video-add-line" style={{ fontSize: 20, color: '#9CA3AF' }} />
+              <span style={{ fontSize: 13, fontWeight: 600, color: '#6B7280' }}>Filmer ou deposer une video</span>
+            </div>
+          )}
+        </div>
         <div style={{ display: 'flex', gap: 10, marginBottom: 14 } as any}>
           <div style={{ flex: 1 }}><label style={LBL}>Categorie</label><select value={exTplForm.category} onChange={(e: any) => setExTplForm({ ...exTplForm, category: e.target.value })} style={SEL}><option value="general">General</option><option value="force">Force</option><option value="cardio">Cardio</option><option value="mobilite">Mobilite</option><option value="equilibre">Equilibre</option><option value="souplesse">Souplesse</option></select></div>
           <div style={{ flex: 1 }}><label style={LBL}>Difficulte</label><select value={exTplForm.difficulty} onChange={(e: any) => setExTplForm({ ...exTplForm, difficulty: e.target.value })} style={SEL}><option value="facile">Facile</option><option value="moyen">Moyen</option><option value="difficile">Difficile</option></select></div>
         </div>
-        <div style={{ display: 'flex', gap: 10, marginBottom: 14 } as any}>
-          <div style={{ flex: 1 }}><label style={LBL}>Groupe musculaire</label><input value={exTplForm.muscle_group} onChange={(e: any) => setExTplForm({ ...exTplForm, muscle_group: e.target.value })} style={INP} placeholder="Quadriceps" /></div>
-          <div style={{ flex: 1 }}><label style={LBL}>Materiel</label><input value={exTplForm.equipment} onChange={(e: any) => setExTplForm({ ...exTplForm, equipment: e.target.value })} style={INP} placeholder="Halteres" /></div>
+        {/* Multi-select Muscle Groups */}
+        <div style={{ marginBottom: 14 }}>
+          <label style={LBL}>Groupes musculaires</label>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 } as any}>
+            {MUSCLE_GROUPS.map(mg => {
+              const sel = (exTplForm.muscle_group || '').split(',').map((s: string) => s.trim()).filter(Boolean).includes(mg);
+              return <div key={mg} onClick={() => {
+                const current = (exTplForm.muscle_group || '').split(',').map((s: string) => s.trim()).filter(Boolean);
+                const next = sel ? current.filter(x => x !== mg) : [...current, mg];
+                setExTplForm({ ...exTplForm, muscle_group: next.join(', ') });
+              }} style={{ padding: '6px 12px', borderRadius: 999, fontSize: 11, fontWeight: 700, cursor: 'pointer', background: sel ? '#111' : '#F4F4F5', color: sel ? '#FFF' : '#6B7280', border: sel ? '1.5px solid #111' : '1px solid #E5E7EB', transition: 'all 0.15s' } as any}>{mg}</div>;
+            })}
+          </div>
         </div>
-        <div style={{ display: 'flex', gap: 8, marginBottom: 14 } as any}>
-          <div style={{ flex: 1 }}><label style={LBL}>Series</label><input type="number" value={exTplForm.sets} onChange={(e: any) => setExTplForm({ ...exTplForm, sets: +e.target.value })} style={INP} /></div>
-          <div style={{ flex: 1 }}><label style={LBL}>Reps</label><input type="number" value={exTplForm.repetitions} onChange={(e: any) => setExTplForm({ ...exTplForm, repetitions: +e.target.value })} style={INP} /></div>
-          <div style={{ flex: 1 }}><label style={LBL}>Min.</label><input type="number" value={exTplForm.duration_min} onChange={(e: any) => setExTplForm({ ...exTplForm, duration_min: +e.target.value })} style={INP} /></div>
-          <div style={{ flex: 1 }}><label style={LBL}>Repos (s)</label><input type="number" value={exTplForm.rest_seconds} onChange={(e: any) => setExTplForm({ ...exTplForm, rest_seconds: +e.target.value })} style={INP} /></div>
+        {/* Multi-select Equipment */}
+        <div style={{ marginBottom: 14 }}>
+          <label style={LBL}>Materiel</label>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 } as any}>
+            {EQUIPMENT_LIST.map(eq => {
+              const sel = (exTplForm.equipment || '').split(',').map((s: string) => s.trim()).filter(Boolean).includes(eq);
+              return <div key={eq} onClick={() => {
+                const current = (exTplForm.equipment || '').split(',').map((s: string) => s.trim()).filter(Boolean);
+                let next: string[];
+                if (eq === 'Aucun') { next = sel ? [] : ['Aucun']; }
+                else { next = sel ? current.filter(x => x !== eq) : [...current.filter(x => x !== 'Aucun'), eq]; }
+                setExTplForm({ ...exTplForm, equipment: next.join(', ') });
+              }} style={{ padding: '6px 12px', borderRadius: 999, fontSize: 11, fontWeight: 700, cursor: 'pointer', background: sel ? '#111' : '#F4F4F5', color: sel ? '#FFF' : '#6B7280', border: sel ? '1.5px solid #111' : '1px solid #E5E7EB', transition: 'all 0.15s' } as any}>{eq}</div>;
+            })}
+          </div>
         </div>
+        {/* Steps */}
         <div style={{ marginBottom: 14 }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
             <label style={{ ...LBL, marginBottom: 0 }}>Etapes / Instructions</label>
@@ -383,8 +431,7 @@ export function ProModals(props: ProModalsProps) {
               style={{ fontSize: 11, fontWeight: 700, color: AC, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 } as any}><i className="ri-add-line" style={{ fontSize: 14 }} /> Ajouter</div>
           </div>
           {exTplForm.steps.map((s: string, i: number) => (
-            <div key={i} style={{ display: 'flex', gap: 8, marginBottom: 6, alignItems: 'center' } as any}>
-              <span style={{ fontSize: 11, fontWeight: 800, color: 'rgba(255,255,255,0.2)', width: 20, flexShrink: 0, textAlign: 'center' }}>{i + 1}</span>
+            <div key={i} style={{ display: 'flex', gap: 6, marginBottom: 6, alignItems: 'center' } as any}>
               <input value={s} onChange={(e: any) => { const arr = [...exTplForm.steps]; arr[i] = e.target.value; setExTplForm({ ...exTplForm, steps: arr }); }} style={{ ...INP, flex: 1 }} placeholder={`Etape ${i + 1}`} />
               {exTplForm.steps.length > 1 && <div onClick={() => setExTplForm({ ...exTplForm, steps: exTplForm.steps.filter((_: any, j: number) => j !== i) })} style={{ cursor: 'pointer' } as any}><i className="ri-close-line" style={{ fontSize: 16, color: '#EF4444' }} /></div>}
             </div>

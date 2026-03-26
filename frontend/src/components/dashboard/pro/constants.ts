@@ -40,3 +40,46 @@ export const GBTN = (active: boolean, saving: boolean): any => ({
   color: active ? '#FFF' : '#9CA3AF', fontSize: 15, fontWeight: 800, opacity: saving ? 0.5 : 1,
   transition: 'all 0.2s',
 });
+
+export const MUSCLE_GROUPS = [
+  'Quadriceps', 'Ischio-jambiers', 'Fessiers', 'Mollets', 'Adducteurs',
+  'Pectoraux', 'Dorsaux', 'Trapeze', 'Lombaires', 'Epaules',
+  'Biceps', 'Triceps', 'Avant-bras', 'Abdominaux', 'Obliques',
+  'Full Body', 'Cardio', 'Mobilite', 'Souplesse',
+];
+
+export const EQUIPMENT_LIST = [
+  'Aucun', 'Halteres', 'Barre', 'Kettlebell', 'Elastique', 'Machine guidee',
+  'Poulie', 'TRX / Sangles', 'Medecine ball', 'Banc', 'Swiss ball',
+  'Corde a sauter', 'Tapis', 'Roue abdominale', 'Barre de traction',
+  'Step', 'Bosu', 'Anneaux', 'Gilet leste', 'Foam roller',
+];
+
+export const SUPPLEMENT_TYPES = [
+  'Medicament', 'Proteine (Whey)', 'Creatine', 'BCAA', 'Omega 3',
+  'Vitamine D', 'Vitamine C', 'Vitamine B12', 'Magnesium', 'Zinc',
+  'Fer', 'Calcium', 'Collagene', 'Probiotique', 'Curcuma',
+  'Ashwagandha', 'Melatonine', 'L-Glutamine', 'Carnitine', 'Multi-vitamines',
+  'Pre-workout', 'Gaineur', 'CLA', 'Autre',
+];
+
+export const HYDRATION_TYPES = [
+  'Eau plate', 'Eau petillante', 'Eau + citron', 'Eau + concombre',
+  'The vert', 'The noir', 'The matcha', 'Tisane', 'Infusion',
+  'Eau de coco', 'Jus de fruits frais', 'Smoothie', 'Bouillon',
+  'BCAA dilue', 'Electrolytes', 'Autre',
+];
+
+export const INGREDIENT_LIST = [
+  'Poulet', 'Dinde', 'Boeuf', 'Veau', 'Porc', 'Agneau',
+  'Saumon', 'Thon', 'Cabillaud', 'Crevettes', 'Sardines',
+  'Oeuf', 'Tofu', 'Tempeh',
+  'Riz', 'Pates', 'Quinoa', 'Boulgour', 'Semoule', 'Pain complet', 'Patate douce', 'Pomme de terre',
+  'Flocon avoine', 'Muesli', 'Lentilles', 'Pois chiches', 'Haricots rouges', 'Haricots verts',
+  'Brocoli', 'Epinard', 'Courgette', 'Carotte', 'Tomate', 'Concombre', 'Poivron', 'Aubergine', 'Chou-fleur', 'Asperge', 'Champignon', 'Oignon', 'Ail',
+  'Avocat', 'Banane', 'Pomme', 'Myrtille', 'Fraise', 'Framboise', 'Mangue', 'Kiwi', 'Orange', 'Citron',
+  'Amande', 'Noix', 'Noix de cajou', 'Cacahuete', 'Graine de chia', 'Graine de lin', 'Graines de tournesol',
+  'Yaourt grec', 'Fromage blanc', 'Skyr', 'Lait', 'Fromage', 'Beurre', 'Creme fraiche',
+  'Huile olive', 'Huile coco', 'Vinaigre balsamique', 'Sauce soja', 'Miel', 'Sirop erable',
+  'Chocolat noir', 'Cacao', 'Cannelle', 'Curcuma', 'Gingembre', 'Basilic', 'Persil', 'Coriandre',
+];
