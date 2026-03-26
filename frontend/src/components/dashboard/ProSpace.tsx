@@ -26,7 +26,7 @@ function GlassModal({ open, onClose, title, children }: { open: boolean; onClose
   if (!open) return null;
   return (
     <div data-testid="glass-modal" onClick={onClose} style={{ position: 'fixed', inset: 0, zIndex: 9999, display: 'flex', alignItems: 'flex-end', justifyContent: 'center', backdropFilter: 'blur(40px)', WebkitBackdropFilter: 'blur(40px)', background: 'rgba(0,0,0,0.3)' } as any}>
-      <div onClick={e => e.stopPropagation()} style={{ width: '100%', maxWidth: 440, maxHeight: '85vh', overflowY: 'auto', padding: '24px 20px 40px', WebkitOverflowScrolling: 'touch', borderRadius: '28px 28px 0 0', background: 'rgba(255,255,255,0.08)', backdropFilter: 'blur(60px)', WebkitBackdropFilter: 'blur(60px)', border: '1px solid rgba(255,255,255,0.12)', borderBottom: 'none' } as any}>
+      <div onClick={e => e.stopPropagation()} style={{ width: '100%', maxWidth: 440, maxHeight: '85vh', overflowY: 'auto', padding: '24px 20px 100px', WebkitOverflowScrolling: 'touch', borderRadius: '28px 28px 0 0', background: 'rgba(255,255,255,0.08)', backdropFilter: 'blur(60px)', WebkitBackdropFilter: 'blur(60px)', border: '1px solid rgba(255,255,255,0.12)', borderBottom: 'none' } as any}>
         <div style={{ width: 40, height: 4, borderRadius: 2, background: 'rgba(255,255,255,0.2)', margin: '0 auto 16px' } as any} />
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
           <div style={{ fontSize: 18, fontWeight: 900, color: '#FFF' }}>{title}</div>
