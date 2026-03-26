@@ -12,7 +12,7 @@ import pytest
 import requests
 import os
 
-BASE_URL = os.environ.get('REACT_APP_BACKEND_URL', 'https://custom-exercise-hub-1.preview.emergentagent.com')
+BASE_URL = os.environ.get('REACT_APP_BACKEND_URL', 'https://assignation-weekly.preview.emergentagent.com')
 
 # Test credentials - email field accepts phone numbers
 COACH_EMAIL = "+33655443322"
