@@ -110,7 +110,19 @@ export function ProDayView(props: ProDayViewProps) {
       })}
 
       {/* Hydratation du jour */}
-      <SectionHeader icon="ri-drop-line" iconColor="#38BDF8" title={`Hydratation du ${selectedDayFr}`} count={filteredReminders.filter(r => r.reminder_type === 'hydration').length} onAdd={props.onAddHydration} testId="cat-add-hydratation" style={{ marginTop: 16 }} />
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14, marginTop: 16 } as any}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 } as any}>
+          <div style={{ width: 28, height: 28, borderRadius: 8, overflow: 'hidden', flexShrink: 0 } as any}>
+            <img src={REMINDER_IMAGES.hydration} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' } as any} />
+          </div>
+          <span style={{ fontSize: 14, fontWeight: 800, color: '#111' }}>Hydratation du {selectedDayFr}</span>
+          <span style={{ fontSize: 11, fontWeight: 600, color: '#9CA3AF', background: '#E5E7EB', padding: '2px 8px', borderRadius: 999 }}>{filteredReminders.filter(r => r.reminder_type === 'hydration').length}</span>
+        </div>
+        <div data-testid="cat-add-hydratation" onClick={props.onAddHydration}
+          style={{ width: 34, height: 34, borderRadius: 999, background: 'rgba(255,255,255,0.65)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)', border: '1px solid rgba(0,0,0,0.06)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', boxShadow: '0 2px 8px rgba(0,0,0,0.06)' } as any}>
+          <i className="ri-add-line" style={{ fontSize: 18, color: '#374151' }} />
+        </div>
+      </div>
       {filteredReminders.filter(r => r.reminder_type === 'hydration').length === 0 && <EmptyDay icon="ri-drop-line" text={`Aucun rappel hydratation le ${selectedDayFr}`} />}
       {filteredReminders.filter(r => r.reminder_type === 'hydration').map(r => {
         const remImg = r.image || REMINDER_IMAGES.hydration;
