@@ -3,7 +3,7 @@ import { useRouter } from 'expo-router';
 import { apiFetch, BG, DAYS_FR, toLocalDateStr } from './pro/constants';
 import { HorizontalCalendar } from './pro/ProCalendar';
 import { ProDayView } from './pro/ProDayView';
-import { ProLibrary } from './pro/ProLibrary';
+import { ProLibrary, LibraryFilterDropdown } from './pro/ProLibrary';
 import { ProModals } from './pro/ProModals';
 import FullScreenLoader from '../FullScreenLoader';
 
@@ -34,6 +34,7 @@ export default function ProSpace({ token, user }: { token: string; user: any }) 
   const [modalCtx, setModalCtx] = useState<any>(null);
   const [benOpen, setBenOpen] = useState(false);
   const [selectedDate, setSelectedDate] = useState(new Date());
+  const [libraryFilter, setLibraryFilter] = useState('exercices');
 
   // Form states
   const emptyEx = { title: '', description: '', sets: 3, reps: 12, duration_minutes: 0, image: '', days: [] as string[], rest_seconds: 60 };
@@ -286,6 +287,20 @@ export default function ProSpace({ token, user }: { token: string; user: any }) 
             {tab === 'patients' && activeBen && (
               <HorizontalCalendar selectedDate={selectedDate} onSelect={setSelectedDate} accent={AC} />
             )}
+
+            {/* LIBRARY FILTER DROPDOWN (in header) */}
+            {tab === 'library' && (
+              <LibraryFilterDropdown
+                filter={libraryFilter}
+                onFilterChange={setLibraryFilter}
+                counts={{
+                  exercices: exerciseTemplates.length,
+                  complements: reminderTemplates.filter(r => r.reminder_type !== 'hydration').length,
+                  hydratation: reminderTemplates.filter(r => r.reminder_type === 'hydration').length,
+                  repas: mealTemplates.length,
+                }}
+              />
+            )}
           </div>
         </div>
 
@@ -318,6 +333,7 @@ export default function ProSpace({ token, user }: { token: string; user: any }) 
           {tab === 'library' && (
             <ProLibrary
               AC={AC}
+              filter={libraryFilter}
               exerciseTemplates={exerciseTemplates}
               reminderTemplates={reminderTemplates}
               mealTemplates={mealTemplates}
