@@ -16,10 +16,8 @@ Refondre l'espace d'activite (ProSpace) des coachs/gardiens pour la gestion dire
 
 ## Fichiers cles
 - `/app/frontend/src/components/dashboard/ProSpace.tsx` (Hub coach principal)
-- `/app/frontend/src/components/dashboard/BeneficiaryHome.tsx` (Dashboard patient)
 - `/app/frontend/src/components/dashboard/constants.ts` (REMINDER_IMAGES)
 - `/app/backend/routes/professional_routes.py` (API pro)
-- `/app/frontend/app/meal-detail.tsx` (Fiche repas detaillee)
 
 ## Fonctionnalites implementees
 - [x] Suppression totale de la notion "Programmes"
@@ -27,22 +25,30 @@ Refondre l'espace d'activite (ProSpace) des coachs/gardiens pour la gestion dire
 - [x] Assignation exercices par jour + series/repos
 - [x] Bibliotheque rappels/complements + assignation par jour
 - [x] Bibliotheque repas + assignation par jour
-- [x] Seed backend enrichi : repas avec images, ingredients structures, recettes detaillees, macros completes
-- [x] Seed backend enrichi : rappels avec images (medication/hydration)
-- [x] Calendrier horizontal glassmorphism (mois complet, fleches navigation)
-- [x] Centrage automatique du calendrier sur le jour J (interval persistant avec scrollTo)
+- [x] Seed backend enrichi
+- [x] Calendrier horizontal glassmorphism centrage auto jour J
 - [x] Affichage exercices/rappels/repas du jour avec statut Fait/A faire
 - [x] Images REMINDER_IMAGES dans les complements
-- [x] Images de repas par type (petit_dejeuner, dejeuner, collation, diner)
 - [x] Bouton selecteur beneficiaire glassmorphism
-- [x] Chat WhatsApp-like entre coach et beneficiaire
-- [x] Exercices du jour sur dashboard beneficiaire (BeneficiaryHome)
-- [x] assign_meal copie tous les champs (glucides, lipides, steps, notes)
-- [x] assign_reminder copie le champ image
-- [x] **Unification UI des cartes Complements et Repas** : meme design que les Exercices (fond gris #F4F4F5, image 48x48, badge statut, bouton supprimer) — Mars 2026
+- [x] Chat WhatsApp-like coach/beneficiaire
+- [x] **Fix timezone calendrier** : toLocalDateStr() au lieu de toISOString() — Mars 2026
+- [x] **Unification UI cartes** : fond gris #F4F4F5 identique pour Exercices, Complements, Repas — Mars 2026
+- [x] **Edit complements assignes** : bouton crayon + modale (jours, heure, dosage) — Mars 2026
+- [x] **Edit repas assignes** : bouton crayon + modale (jours, type) + route PUT backend — Mars 2026
+- [x] **Suppression templates bibliotheque** : DELETE routes pour reminder-templates et meal-templates — Mars 2026
+- [x] **Navigation detail repas** : onClick sur cartes repas vers meal-detail — Mars 2026
+
+## Routes API principales
+- `POST /api/pro/exercise-templates` / `DELETE /api/pro/exercise-templates/{id}`
+- `POST /api/pro/reminder-templates` / `DELETE /api/pro/reminder-templates/{id}`
+- `POST /api/pro/meal-templates` / `DELETE /api/pro/meal-templates/{id}`
+- `POST /api/pro/assign-exercise` / `PUT /api/pro/assigned-exercises/{id}` / `DELETE /api/pro/assigned-exercises/{id}`
+- `POST /api/pro/assign-reminder` / `PUT /api/pro/assigned-reminders/{id}` / `DELETE /api/pro/assigned-reminders/{id}`
+- `POST /api/pro/assign-meal` / `PUT /api/pro/assigned-meals/{id}` / `DELETE /api/pro/assigned-meals/{id}`
+- `GET /api/pro/assigned-exercises/{ben_id}` / reminders / meals
 
 ## Note technique importante
-React Native Web (RNW) intercepte les mutations DOM et reinitialise scrollLeft lors des re-renders. Le `scrollTo()` direct, `scrollLeft`, `scrollIntoView`, `contentOffset`, `initialScrollIndex` — AUCUN ne fonctionne de maniere fiable. Solution: utiliser `setInterval` qui reapplique le scroll toutes les 200ms jusqu'a stabilisation (verifie 5x consecutives).
+React Native Web intercepte les mutations DOM et reinitialise scrollLeft. Solution: setInterval + scrollTo. Ne pas modifier le code de centrage du calendrier.
 
 ## Taches P1
 - [ ] Tableau de bord revenus admin
@@ -56,7 +62,7 @@ React Native Web (RNW) intercepte les mutations DOM et reinitialise scrollLeft l
 - [ ] Validation CRC32 TCP
 
 ## Refactoring a prevoir
-- ProSpace.tsx (1000+ lignes) -> decouper en ProCalendar, ProLibrary, AssignmentLists
+- ProSpace.tsx (1100+ lignes) -> decouper en ProCalendar, ProLibrary, AssignmentLists
 
 ## Credentials test
 - Coach: +33655443322 / test123
