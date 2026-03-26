@@ -304,6 +304,73 @@ async def get_kpi_data():
     }
 
 
+@router.get("/backoffice/revenue")
+async def get_admin_revenue():
+    """Admin revenue dashboard: aggregate all pro subscriptions and payments"""
+    now = datetime.now(timezone.utc)
+    current_month = now.strftime('%Y-%m')
+
+    # All pro subscriptions
+    all_subs = await db.pro_subscriptions.find({}, {"_id": 0}).to_list(500)
+    active_subs = [s for s in all_subs if s.get('status') == 'active']
+
+    # All payments
+    all_payments = await db.payment_history.find({}, {"_id": 0}).sort("date", -1).to_list(1000)
+    paid_payments = [p for p in all_payments if p.get('status') == 'paid']
+
+    total_revenue_ht = sum(p.get('amount_ht', 0) for p in paid_payments)
+    total_revenue_ttc = sum(p.get('amount_ttc', p.get('amount_ht', 0)) for p in paid_payments)
+    monthly_payments = [p for p in paid_payments if p.get('date', '').startswith(current_month)]
+    monthly_revenue_ht = sum(p.get('amount_ht', 0) for p in monthly_payments)
+
+    # Revenue by month (last 6 months)
+    revenue_by_month = []
+    for i in range(6):
+        m = now - timedelta(days=30 * i)
+        month_str = m.strftime('%Y-%m')
+        month_label = m.strftime('%b %Y')
+        month_total = sum(p.get('amount_ht', 0) for p in paid_payments if p.get('date', '').startswith(month_str))
+        revenue_by_month.append({"month": month_label, "month_key": month_str, "total_ht": round(month_total, 2)})
+    revenue_by_month.reverse()
+
+    # Revenue by pro (top 10)
+    pro_revenues = {}
+    for p in paid_payments:
+        pid = p.get('professional_id', '')
+        if pid:
+            pro_revenues[pid] = pro_revenues.get(pid, 0) + p.get('amount_ht', 0)
+    pro_list = []
+    for pid, total in sorted(pro_revenues.items(), key=lambda x: -x[1])[:10]:
+        u = await db.users.find_one({"id": pid}, {"_id": 0, "password_hash": 0})
+        pro_list.append({
+            "id": pid,
+            "name": u.get('name', 'Inconnu') if u else 'Inconnu',
+            "professional_type": u.get('professional_type', '') if u else '',
+            "total_ht": round(total, 2),
+            "active_subs": len([s for s in active_subs if s.get('professional_id') == pid]),
+        })
+
+    # Pro applications stats
+    pro_apps = await db.pro_applications.find({}, {"_id": 0}).to_list(200)
+    pros_activated = len([a for a in pro_apps if a.get('status') == 'activated'])
+    pros_pending = len([a for a in pro_apps if a.get('status') == 'pending'])
+
+    return {
+        "total_revenue_ht": round(total_revenue_ht, 2),
+        "total_revenue_ttc": round(total_revenue_ttc, 2),
+        "monthly_revenue_ht": round(monthly_revenue_ht, 2),
+        "active_subscriptions": len(active_subs),
+        "total_subscriptions": len(all_subs),
+        "total_payments": len(paid_payments),
+        "revenue_by_month": revenue_by_month,
+        "top_pros": pro_list,
+        "recent_payments": [{k: v for k, v in p.items() if k != '_id'} for p in paid_payments[:10]],
+        "pros_activated": pros_activated,
+        "pros_pending": pros_pending,
+    }
+
+
+
 @router.get("/backoffice/analytics")
 async def get_analytics():
     now = datetime.now(timezone.utc)

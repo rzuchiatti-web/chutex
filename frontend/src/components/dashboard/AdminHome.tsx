@@ -12,13 +12,15 @@ import AdminHealth from '../admin/AdminHealth';
 import AdminPrograms from '../admin/AdminPrograms';
 import DocumentsTab from '../admin/DocumentsTab';
 import AdminSystem from '../admin/AdminSystem';
+import AdminRevenue from '../admin/AdminRevenue';
 
-type Page = 'dashboard' | 'users' | 'alerts' | 'subscriptions' | 'devices' | 'health' | 'programs' | 'docs' | 'system';
+type Page = 'dashboard' | 'users' | 'alerts' | 'subscriptions' | 'revenue' | 'devices' | 'health' | 'programs' | 'docs' | 'system';
 
 const NAV: { key: Page; icon: string; label: string; group: string }[] = [
   { key: 'dashboard', icon: 'ri-dashboard-3-line', label: 'Tableau de bord', group: 'Principal' },
   { key: 'users', icon: 'ri-group-line', label: 'Utilisateurs', group: 'Principal' },
   { key: 'alerts', icon: 'ri-alarm-warning-line', label: 'Alertes & SOS', group: 'Principal' },
+  { key: 'revenue', icon: 'ri-money-euro-circle-line', label: 'Revenus', group: 'Principal' },
   { key: 'devices', icon: 'ri-cpu-line', label: 'Appareils', group: 'Monitoring' },
   { key: 'health', icon: 'ri-heart-pulse-line', label: 'Sante', group: 'Monitoring' },
   { key: 'subscriptions', icon: 'ri-file-list-3-line', label: 'Contrats', group: 'Gestion' },
@@ -91,7 +93,7 @@ export default function AdminHome({ token, user }: { token: string; user: any })
   const load = useCallback(async () => {
     setLoading(true);
     try {
-      const [stats, users, alerts, ivs, actC, ivC, subs, invites, kpi, prescs, rgpd, emails, shop, analytics, programs, devices, health] = await Promise.all([
+      const [stats, users, alerts, ivs, actC, ivC, subs, invites, kpi, prescs, rgpd, emails, shop, analytics, programs, devices, health, revenue] = await Promise.all([
         apiFetch('/api/backoffice/stats', {}, token).catch(() => ({})),
         apiFetch('/api/backoffice/users', {}, token).catch(() => []),
         apiFetch('/api/backoffice/alerts', {}, token).catch(() => []),
@@ -109,6 +111,7 @@ export default function AdminHome({ token, user }: { token: string; user: any })
         apiFetch('/api/admin/programs', {}, token).catch(() => []),
         apiFetch('/api/admin/devices-overview', {}, token).catch(() => ({ devices: [], summary: {} })),
         apiFetch('/api/admin/health-overview', {}, token).catch(() => ({ beneficiaries: [] })),
+        apiFetch('/api/backoffice/revenue', {}, token).catch(() => null),
       ]);
       setD({
         stats, users: Array.isArray(users) ? users : [], alerts: Array.isArray(alerts) ? alerts : [],
@@ -116,7 +119,7 @@ export default function AdminHome({ token, user }: { token: string; user: any })
         ivC: Array.isArray(ivC) ? ivC : [], subs: Array.isArray(subs) ? subs : [],
         invites: Array.isArray(invites) ? invites : [], kpi, prescs: Array.isArray(prescs) ? prescs : [],
         rgpd: Array.isArray(rgpd) ? rgpd : [], emails: Array.isArray(emails) ? emails : [],
-        shop, analytics, programs: Array.isArray(programs) ? programs : [], devices, health,
+        shop, analytics, programs: Array.isArray(programs) ? programs : [], devices, health, revenue,
       });
     } catch {} finally { setLoading(false); }
   }, [token]);
@@ -126,7 +129,7 @@ export default function AdminHome({ token, user }: { token: string; user: any })
   if (Platform.OS !== 'web') return null;
   if (loading) return <FullScreenLoader />;
 
-  const { users = [], alerts = [], ivs = [], actC = [], ivC = [], subs = [], invites = [], prescs = [], rgpd = [], emails = [], shop, kpi = {}, analytics = {}, programs = [], devices = {}, health = {} } = d;
+  const { users = [], alerts = [], ivs = [], actC = [], ivC = [], subs = [], invites = [], prescs = [], rgpd = [], emails = [], shop, kpi = {}, analytics = {}, programs = [], devices = {}, health = {}, revenue } = d;
   const active = alerts.filter((a: any) => a.status === 'active');
   const groups = [...new Set(NAV.map(n => n.group))];
 
@@ -301,6 +304,7 @@ export default function AdminHome({ token, user }: { token: string; user: any })
             {page === 'users' && <AdminUsers users={users} token={token} load={load} mob={mob} />}
             {page === 'alerts' && <AdminAlerts alerts={alerts} active={active} ivs={ivs} analytics={analytics} token={token} mob={mob} />}
             {page === 'subscriptions' && <AdminSubscriptions subs={subs} prescs={prescs} invites={invites} rgpd={rgpd} emails={emails} token={token} load={load} mob={mob} />}
+            {page === 'revenue' && <AdminRevenue data={revenue} mob={mob} />}
             {page === 'devices' && <AdminDevices data={devices} token={token} mob={mob} />}
             {page === 'health' && <AdminHealth data={health} token={token} mob={mob} />}
             {page === 'programs' && <AdminPrograms programs={programs} token={token} mob={mob} />}

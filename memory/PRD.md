@@ -30,6 +30,9 @@ Refondre l'espace d'activite (ProSpace) des coachs/gardiens pour la gestion dire
 - [x] Suppression section "Tous les exercices"
 - [x] Images sans cadres gris #EDEDEE
 - [x] Popup assignation complement avec image capsule
+- [x] **P0 FIX**: TabBar cachee quand GlassModal ouverte (CSS injection display:none)
+- [x] **REFACTORING**: ProSpace.tsx (1292 -> 326 lignes) decoupe en 6 sous-composants
+- [x] **ADMIN**: Tableau de bord revenus (endpoint + composant AdminRevenue)
 
 ## Routes API principales
 - CRUD exercise-templates, reminder-templates, meal-templates
@@ -38,14 +41,27 @@ Refondre l'espace d'activite (ProSpace) des coachs/gardiens pour la gestion dire
 - GET /api/pro/assigned-meal-detail/{id}
 - GET /api/pro/meal-template-detail/{id}
 - PUT /api/pro/exercise-templates/{id}
+- **NEW**: GET /api/backoffice/revenue (admin revenue dashboard data)
+
+## Structure apres refactoring
+```
+frontend/src/components/dashboard/
+  ProSpace.tsx              (326 lignes - orchestrateur)
+  pro/
+    constants.ts            (API, styles, helpers)
+    GlassModal.tsx          (Modal, ImagePicker, DaysPicker)
+    ProCalendar.tsx          (HorizontalCalendar)
+    ProDayView.tsx           (Vue jour: exercices, rappels, repas)
+    ProLibrary.tsx           (Onglet bibliotheque)
+    ProModals.tsx            (Toutes les modales de formulaires)
+  admin/
+    AdminRevenue.tsx         (Tableau de bord revenus admin)
+```
 
 ## Note technique
 - toISOString() cause decalage UTC. Utiliser toLocalDateStr() partout.
 - Metro hot reload ne prend pas toujours les gros changements. Purger .metro-cache si necessaire.
 - React Native Web: setInterval pour forcer scrollLeft sur le calendrier.
-
-## Taches P1
-- [ ] Tableau de bord revenus admin
 
 ## Backlog P2
 - [ ] Balance/gilet connectes
@@ -55,9 +71,7 @@ Refondre l'espace d'activite (ProSpace) des coachs/gardiens pour la gestion dire
 - [ ] Integration Vivoo
 - [ ] Validation CRC32 TCP
 
-## Refactoring
-- ProSpace.tsx (1200+ lignes) -> ProCalendar, ProLibrary, AssignmentLists
-
 ## Credentials test
 - Coach: +33655443322 / test123
 - Beneficiaire: +33651245918 / test123
+- Admin: admin@chutex.fr / admin123 (via API directe, pas le formulaire telephone)
