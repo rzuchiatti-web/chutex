@@ -377,10 +377,26 @@ export function ProModals(props: ProModalsProps) {
               <div onClick={() => setExTplForm({ ...exTplForm, video_url: '' })} style={{ position: 'absolute', top: 6, right: 6, width: 28, height: 28, borderRadius: 999, background: 'rgba(0,0,0,0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}><i className="ri-close-line" style={{ fontSize: 14, color: '#FFF' }} /></div>
             </div>
           ) : (
-            <div onClick={() => { const input = document.createElement('input'); input.type = 'file'; input.accept = 'video/*'; input.capture = 'environment'; input.onchange = async () => { const f = input.files?.[0]; if (!f) return; try { const fd = new FormData(); fd.append('file', f); const r = await fetch(`${API}/api/pro/upload-image`, { method: 'POST', headers: { Authorization: `Bearer ${token}` }, body: fd }); const d = await r.json(); if (d.url) setExTplForm({ ...exTplForm, video_url: d.url }); } catch {} }; input.click(); }}
+            <div id="video-upload-zone" onClick={() => {
+              const input = document.createElement('input'); input.type = 'file'; input.accept = 'video/*'; input.capture = 'environment';
+              input.onchange = async () => {
+                const f = input.files?.[0]; if (!f) return;
+                const zone = document.getElementById('video-upload-zone');
+                const label = document.getElementById('video-upload-label');
+                if (label) label.textContent = `Upload ${(f.size / 1024 / 1024).toFixed(1)}MB...`;
+                try {
+                  const fd = new FormData(); fd.append('file', f);
+                  const r = await fetch(`${API}/api/pro/upload-image`, { method: 'POST', headers: { Authorization: `Bearer ${token}` }, body: fd });
+                  if (!r.ok) { const err = await r.json().catch(() => ({})); if (label) label.textContent = err.detail || 'Erreur upload'; return; }
+                  const d = await r.json();
+                  if (d.url) setExTplForm({ ...exTplForm, video_url: d.url });
+                } catch { if (label) label.textContent = 'Erreur reseau'; }
+              };
+              input.click();
+            }}
               style={{ padding: '16px', borderRadius: 12, border: '2px dashed #D1D5DB', background: '#F9FAFB', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, cursor: 'pointer' } as any}>
               <i className="ri-video-add-line" style={{ fontSize: 20, color: '#9CA3AF' }} />
-              <span style={{ fontSize: 13, fontWeight: 600, color: '#6B7280' }}>Filmer ou deposer une video</span>
+              <span id="video-upload-label" style={{ fontSize: 13, fontWeight: 600, color: '#6B7280' }}>Filmer ou deposer une video (max 50MB)</span>
             </div>
           )}
         </div>

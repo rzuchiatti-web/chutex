@@ -114,18 +114,28 @@ async def update_exercise_template(template_id: str, data: dict, user=Depends(ge
 
 @router.post("/pro/upload-image")
 async def upload_image(file: UploadFile = File(...), user=Depends(get_current_user)):
-    """Upload an image for pro content (programmes, meals). Returns URL."""
+    """Upload an image or video for pro content. Returns URL."""
     require_pro(user)
     ext = (file.filename or '').split('.')[-1] or 'jpg'
-    if ext.lower() not in ('jpg', 'jpeg', 'png', 'webp', 'gif'):
-        raise HTTPException(status_code=400, detail="Format non supporte (jpg, png, webp)")
-    fname = f"{uuid.uuid4().hex}.{ext.lower()}"
+    ext_lower = ext.lower()
+    is_video = ext_lower in ('mp4', 'mov', 'webm', 'avi', 'mkv', 'm4v')
+    is_image = ext_lower in ('jpg', 'jpeg', 'png', 'webp', 'gif')
+    if not is_video and not is_image:
+        raise HTTPException(status_code=400, detail="Format non supporte (jpg, png, webp, mp4, mov, webm)")
+    max_size = 50 * 1024 * 1024 if is_video else 5 * 1024 * 1024
+    fname = f"{uuid.uuid4().hex}.{ext_lower}"
     path = os.path.join(UPLOAD_DIR, fname)
-    content = await file.read()
-    if len(content) > 5 * 1024 * 1024:
-        raise HTTPException(status_code=400, detail="Image trop volumineuse (max 5MB)")
+    total = 0
     with open(path, "wb") as f:
-        f.write(content)
+        while True:
+            chunk = await file.read(1024 * 512)
+            if not chunk:
+                break
+            total += len(chunk)
+            if total > max_size:
+                os.remove(path)
+                raise HTTPException(status_code=400, detail=f"Fichier trop volumineux (max {'50MB' if is_video else '5MB'})")
+            f.write(chunk)
     return {"url": f"/api/uploads/{fname}"}
 
 
