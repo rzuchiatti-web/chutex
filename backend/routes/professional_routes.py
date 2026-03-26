@@ -37,6 +37,47 @@ async def get_beneficiary_nutrition(beneficiary_id: str, user=Depends(get_curren
     }
 
 
+@router.get("/pro/beneficiary-weight-goal/{beneficiary_id}")
+async def get_beneficiary_weight_goal(beneficiary_id: str, user=Depends(get_current_user)):
+    """Get weight goal status for a beneficiary (for guardian view)."""
+    require_pro(user)
+    goal = await db.minceur_goals.find_one({"user_id": beneficiary_id}, {"_id": 0})
+    if not goal:
+        return {"has_goal": False}
+    u = await db.users.find_one({"id": beneficiary_id}, {"_id": 0})
+    current_weight = u.get("weight_kg", 0) if u else 0
+    # Try to get latest scale reading
+    latest_scale = await db.device_readings.find_one(
+        {"user_id": beneficiary_id, "device_type": "scale"}, {"_id": 0},
+        sort=[("timestamp", -1)]
+    )
+    if latest_scale and latest_scale.get("data", {}).get("weight"):
+        current_weight = latest_scale["data"]["weight"]
+    # Get weight history for progress
+    history = await db.device_readings.find(
+        {"user_id": beneficiary_id, "device_type": "scale"},
+        {"_id": 0, "data.weight": 1, "timestamp": 1}
+    ).sort("timestamp", -1).to_list(30)
+    weights = [{"weight": h["data"]["weight"], "date": h["timestamp"]} for h in history if h.get("data", {}).get("weight")]
+    start_weight = weights[-1]["weight"] if weights else current_weight
+    target = goal.get("target_kg", 0)
+    progress = 0
+    if start_weight and target and start_weight != target:
+        progress = round(((start_weight - current_weight) / (start_weight - target)) * 100, 1)
+        progress = max(0, min(100, progress))
+    return {
+        "has_goal": True,
+        "target_kg": target,
+        "current_kg": current_weight,
+        "start_kg": start_weight,
+        "weeks": goal.get("weeks", 0),
+        "progress_pct": progress,
+        "created_at": goal.get("created_at", ""),
+        "recent_weights": weights[:10],
+    }
+
+
+
 @router.get("/pro/assigned-meal-detail/{assignment_id}")
 async def get_assigned_meal_detail(assignment_id: str, user=Depends(get_current_user)):
     """Get full detail of an assigned meal for the coach view."""

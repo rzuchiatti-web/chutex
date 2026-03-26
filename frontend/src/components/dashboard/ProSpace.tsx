@@ -50,6 +50,7 @@ export default function ProSpace({ token, user }: { token: string; user: any }) 
   const [editRemForm, setEditRemForm] = useState<any>(null);
   const [editMealForm, setEditMealForm] = useState<any>(null);
   const [benNutrition, setBenNutrition] = useState<any>(null);
+  const [benWeightGoal, setBenWeightGoal] = useState<any>(null);
 
   // ── Data fetching ──
   const fetchBens = useCallback(async () => {
@@ -76,12 +77,15 @@ export default function ProSpace({ token, user }: { token: string; user: any }) 
       apiFetch(`/api/pro/assigned-exercises/${activeBen}`, {}, token).catch(() => []),
       apiFetch(`/api/pro/assigned-reminders/${activeBen}`, {}, token).catch(() => []),
       apiFetch(`/api/pro/assigned-meals/${activeBen}`, {}, token).catch(() => []),
-    ]).then(([a, r, m]) => {
+      apiFetch(`/api/pro/beneficiary-nutrition/${activeBen}`, {}, token).catch(() => null),
+      apiFetch(`/api/pro/beneficiary-weight-goal/${activeBen}`, {}, token).catch(() => null),
+    ]).then(([a, r, m, nutr, wg]) => {
       setAssignedExercises(Array.isArray(a) ? a : []);
       setAssignedReminders(Array.isArray(r) ? r : []);
       setAssignedMeals(Array.isArray(m) ? m : []);
+      setBenNutrition(nutr);
+      setBenWeightGoal(wg);
     });
-    apiFetch(`/api/pro/beneficiary-nutrition/${activeBen}`, {}, token).then(d => setBenNutrition(d)).catch(() => setBenNutrition(null));
   }, [activeBen, token, tick]);
 
   const activeBenData = bens.find(b => b.id === activeBen);
@@ -272,6 +276,8 @@ export default function ProSpace({ token, user }: { token: string; user: any }) 
               AC={AC}
               router={router}
               benNutrition={benNutrition}
+              benWeightGoal={benWeightGoal}
+              activeBenId={activeBen}
               onAddExercise={() => { setModal('assign-ex'); setModalCtx(null); }}
               onAddReminder={() => { setModal('assign-rem'); setModalCtx(null); }}
               onAddMeal={() => { setModal('assign-meal'); setModalCtx(null); }}

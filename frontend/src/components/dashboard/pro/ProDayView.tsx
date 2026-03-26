@@ -21,10 +21,12 @@ interface ProDayViewProps {
   onDeleteReminder: (id: string) => void;
   onDeleteMeal: (id: string) => void;
   benNutrition: any;
+  benWeightGoal: any;
+  activeBenId: string;
 }
 
 export function ProDayView(props: ProDayViewProps) {
-  const { filteredExercises, filteredReminders, filteredMeals, selectedDayFr, selectedDateStr, AC, router, benNutrition } = props;
+  const { filteredExercises, filteredReminders, filteredMeals, selectedDayFr, selectedDateStr, AC, router, benNutrition, benWeightGoal, activeBenId } = props;
 
   return (
     <>
@@ -52,6 +54,42 @@ export function ProDayView(props: ProDayViewProps) {
                 </div>
               </React.Fragment>
             ))}
+          </div>
+        </div>
+      )}
+
+      {/* Weight Goal Card */}
+      {benWeightGoal && benWeightGoal.has_goal && (
+        <div data-testid="weight-goal-card" onClick={() => router.push({ pathname: '/beneficiary-detail' as any, params: { id: activeBenId } })}
+          style={{ borderRadius: 16, background: '#F4F4F5', padding: '16px 18px', marginBottom: 18, cursor: 'pointer' } as any}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 } as any}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8 } as any}>
+              <i className="ri-scales-3-line" style={{ fontSize: 16, color: '#7C3AED' }} />
+              <span style={{ fontSize: 13, fontWeight: 800, color: '#111' }}>Objectif poids</span>
+            </div>
+            <i className="ri-arrow-right-s-line" style={{ fontSize: 18, color: '#9CA3AF' }} />
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 10 } as any}>
+            <div style={{ textAlign: 'center' } as any}>
+              <div style={{ fontSize: 24, fontWeight: 900, color: '#111' }}>{benWeightGoal.current_kg}<span style={{ fontSize: 12, color: '#9CA3AF' }}>kg</span></div>
+              <div style={{ fontSize: 9, fontWeight: 600, color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: 0.5, marginTop: 2 }}>Actuel</div>
+            </div>
+            <div style={{ flex: 1, position: 'relative', height: 8, borderRadius: 4, background: '#E5E7EB' } as any}>
+              <div style={{ position: 'absolute', top: 0, left: 0, height: '100%', borderRadius: 4, background: '#7C3AED', width: `${Math.min(100, benWeightGoal.progress_pct || 0)}%`, transition: 'width 0.3s' } as any} />
+            </div>
+            <div style={{ textAlign: 'center' } as any}>
+              <div style={{ fontSize: 24, fontWeight: 900, color: '#7C3AED' }}>{benWeightGoal.target_kg}<span style={{ fontSize: 12, color: '#9CA3AF' }}>kg</span></div>
+              <div style={{ fontSize: 9, fontWeight: 600, color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: 0.5, marginTop: 2 }}>Objectif</div>
+            </div>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12 } as any}>
+            <div style={{ fontSize: 11, color: '#6B7280' }}>
+              {benWeightGoal.progress_pct > 0 ? `${benWeightGoal.progress_pct}% atteint` : 'En cours'}
+              {benWeightGoal.weeks ? ` · ${benWeightGoal.weeks} semaines` : ''}
+            </div>
+            {benWeightGoal.current_kg > benWeightGoal.target_kg && (
+              <span style={{ fontSize: 11, fontWeight: 700, color: '#7C3AED' }}>-{(benWeightGoal.current_kg - benWeightGoal.target_kg).toFixed(1)}kg restant</span>
+            )}
           </div>
         </div>
       )}
