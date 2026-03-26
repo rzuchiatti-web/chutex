@@ -25,13 +25,13 @@ const MONTHS_FR = ['Janvier','Fevrier','Mars','Avril','Mai','Juin','Juillet','Ao
 function GlassModal({ open, onClose, title, children }: { open: boolean; onClose: () => void; title: string; children: React.ReactNode }) {
   if (!open) return null;
   return (
-    <div data-testid="glass-modal" onClick={onClose} style={{ position: 'fixed', inset: 0, zIndex: 9999, display: 'flex', alignItems: 'flex-end', justifyContent: 'center', backdropFilter: 'blur(32px)', WebkitBackdropFilter: 'blur(32px)', background: 'rgba(0,0,0,0.55)', padding: '60px 0 0' } as any}>
-      <div onClick={e => e.stopPropagation()} style={{ width: '100%', maxWidth: 440, maxHeight: '85vh', overflowY: 'auto', padding: '24px 20px 40px', WebkitOverflowScrolling: 'touch', borderRadius: '24px 24px 0 0', background: 'rgba(20,20,30,0.85)', backdropFilter: 'blur(40px)', WebkitBackdropFilter: 'blur(40px)', border: '1px solid rgba(255,255,255,0.08)', borderBottom: 'none' } as any}>
-        <div style={{ width: 40, height: 4, borderRadius: 2, background: 'rgba(255,255,255,0.15)', margin: '0 auto 16px' } as any} />
+    <div data-testid="glass-modal" onClick={onClose} style={{ position: 'fixed', inset: 0, zIndex: 9999, display: 'flex', alignItems: 'flex-end', justifyContent: 'center', backdropFilter: 'blur(40px)', WebkitBackdropFilter: 'blur(40px)', background: 'rgba(0,0,0,0.3)' } as any}>
+      <div onClick={e => e.stopPropagation()} style={{ width: '100%', maxWidth: 440, maxHeight: '85vh', overflowY: 'auto', padding: '24px 20px 40px', WebkitOverflowScrolling: 'touch', borderRadius: '28px 28px 0 0', background: 'rgba(255,255,255,0.08)', backdropFilter: 'blur(60px)', WebkitBackdropFilter: 'blur(60px)', border: '1px solid rgba(255,255,255,0.12)', borderBottom: 'none' } as any}>
+        <div style={{ width: 40, height: 4, borderRadius: 2, background: 'rgba(255,255,255,0.2)', margin: '0 auto 16px' } as any} />
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
-          <div style={{ fontSize: 20, fontWeight: 900, color: '#FFF' }}>{title}</div>
-          <div onClick={onClose} style={{ width: 36, height: 36, borderRadius: 999, background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}>
-            <i className="ri-close-line" style={{ fontSize: 18, color: '#FFF' }} />
+          <div style={{ fontSize: 18, fontWeight: 900, color: '#FFF' }}>{title}</div>
+          <div onClick={onClose} style={{ width: 34, height: 34, borderRadius: 999, background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}>
+            <i className="ri-close-line" style={{ fontSize: 16, color: 'rgba(255,255,255,0.6)' }} />
           </div>
         </div>
         {children}
@@ -514,30 +514,32 @@ export default function ProSpace({ token, user }: { token: string; user: any }) 
             <>
               {/* ── Nutrition Card ── */}
               {benNutrition && benNutrition.daily_calories > 0 && (
-                <div data-testid="nutrition-card" style={{ borderRadius: 20, background: '#1A2332', padding: '18px 20px', marginBottom: 18 } as any}>
-                  <div style={{ fontSize: 9, fontWeight: 700, color: 'rgba(255,255,255,0.35)', textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 10 }}>Apport journalier necessaire</div>
-                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 } as any}>
+                <div data-testid="nutrition-card" style={{ borderRadius: 16, background: '#F4F4F5', padding: '16px 18px', marginBottom: 18 } as any}>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 } as any}>
                     <div style={{ display: 'flex', alignItems: 'baseline', gap: 4 } as any}>
-                      <span style={{ fontSize: 34, fontWeight: 900, color: '#FFF', letterSpacing: -1 }}>{benNutrition.daily_calories}</span>
-                      <span style={{ fontSize: 13, fontWeight: 700, color: 'rgba(255,255,255,0.3)' }}>kcal</span>
+                      <span style={{ fontSize: 28, fontWeight: 900, color: '#111', letterSpacing: -1 }}>{benNutrition.daily_calories}</span>
+                      <span style={{ fontSize: 12, fontWeight: 600, color: '#9CA3AF' }}>kcal/jour</span>
                     </div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '6px 14px', borderRadius: 999, background: 'rgba(56,189,248,0.12)', border: '1px solid rgba(56,189,248,0.2)' } as any}>
-                      <i className="ri-drop-fill" style={{ fontSize: 14, color: '#38BDF8' }} />
-                      <span style={{ fontSize: 13, fontWeight: 800, color: '#38BDF8' }}>{benNutrition.water_ml >= 1000 ? `${(benNutrition.water_ml / 1000).toFixed(1)}L` : `${benNutrition.water_ml}ml`}</span>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '5px 12px', borderRadius: 999, background: '#FFF', border: '1px solid #E5E7EB' } as any}>
+                      <i className="ri-drop-fill" style={{ fontSize: 13, color: '#38BDF8' }} />
+                      <span style={{ fontSize: 12, fontWeight: 700, color: '#374151' }}>{benNutrition.water_ml >= 1000 ? `${(benNutrition.water_ml / 1000).toFixed(1)}L` : `${benNutrition.water_ml}ml`}</span>
                     </div>
                   </div>
-                  <div style={{ display: 'flex', gap: 8 } as any}>
-                    <div style={{ flex: 1, padding: '10px 0', textAlign: 'center', borderRadius: 14, background: 'rgba(16,185,129,0.1)', border: '1px solid rgba(16,185,129,0.15)' } as any}>
-                      <div style={{ fontSize: 18, fontWeight: 900, color: '#10B981' }}>{benNutrition.macros?.proteines_g || 0}<span style={{ fontSize: 9, color: 'rgba(16,185,129,0.5)' }}>g</span></div>
-                      <div style={{ fontSize: 8, fontWeight: 700, color: 'rgba(16,185,129,0.6)', textTransform: 'uppercase', letterSpacing: 0.5, marginTop: 2 }}>Proteines</div>
+                  <div style={{ height: 1, background: '#E5E7EB', marginBottom: 12 } as any} />
+                  <div style={{ display: 'flex', alignItems: 'center' } as any}>
+                    <div style={{ flex: 1, textAlign: 'center' } as any}>
+                      <div style={{ fontSize: 16, fontWeight: 800, color: '#111' }}>{benNutrition.macros?.proteines_g || 0}<span style={{ fontSize: 10, color: '#9CA3AF' }}>g</span></div>
+                      <div style={{ fontSize: 9, fontWeight: 600, color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: 0.5, marginTop: 2 }}>Proteines</div>
                     </div>
-                    <div style={{ flex: 1, padding: '10px 0', textAlign: 'center', borderRadius: 14, background: 'rgba(245,158,11,0.1)', border: '1px solid rgba(245,158,11,0.15)' } as any}>
-                      <div style={{ fontSize: 18, fontWeight: 900, color: '#F59E0B' }}>{benNutrition.macros?.glucides_g || 0}<span style={{ fontSize: 9, color: 'rgba(245,158,11,0.5)' }}>g</span></div>
-                      <div style={{ fontSize: 8, fontWeight: 700, color: 'rgba(245,158,11,0.6)', textTransform: 'uppercase', letterSpacing: 0.5, marginTop: 2 }}>Glucides</div>
+                    <div style={{ width: 1, height: 28, background: '#E5E7EB' } as any} />
+                    <div style={{ flex: 1, textAlign: 'center' } as any}>
+                      <div style={{ fontSize: 16, fontWeight: 800, color: '#111' }}>{benNutrition.macros?.glucides_g || 0}<span style={{ fontSize: 10, color: '#9CA3AF' }}>g</span></div>
+                      <div style={{ fontSize: 9, fontWeight: 600, color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: 0.5, marginTop: 2 }}>Glucides</div>
                     </div>
-                    <div style={{ flex: 1, padding: '10px 0', textAlign: 'center', borderRadius: 14, background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.15)' } as any}>
-                      <div style={{ fontSize: 18, fontWeight: 900, color: '#EF4444' }}>{benNutrition.macros?.lipides_g || 0}<span style={{ fontSize: 9, color: 'rgba(239,68,68,0.5)' }}>g</span></div>
-                      <div style={{ fontSize: 8, fontWeight: 700, color: 'rgba(239,68,68,0.6)', textTransform: 'uppercase', letterSpacing: 0.5, marginTop: 2 }}>Lipides</div>
+                    <div style={{ width: 1, height: 28, background: '#E5E7EB' } as any} />
+                    <div style={{ flex: 1, textAlign: 'center' } as any}>
+                      <div style={{ fontSize: 16, fontWeight: 800, color: '#111' }}>{benNutrition.macros?.lipides_g || 0}<span style={{ fontSize: 10, color: '#9CA3AF' }}>g</span></div>
+                      <div style={{ fontSize: 9, fontWeight: 600, color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: 0.5, marginTop: 2 }}>Lipides</div>
                     </div>
                   </div>
                 </div>
@@ -846,11 +848,35 @@ export default function ProSpace({ token, user }: { token: string; user: any }) 
                     <i className="ri-add-line" style={{ fontSize: 18, color: '#FFF' }} />
                   </div>
                 </div>
-                {reminderTemplates.length === 0 && <div style={{ textAlign: 'center', padding: '20px 0', color: '#9CA3AF', fontSize: 12, fontWeight: 600 }}>Aucun complement</div>}
-                {reminderTemplates.map(r => (
+                {reminderTemplates.filter(r => r.reminder_type !== 'hydration').length === 0 && <div style={{ textAlign: 'center', padding: '20px 0', color: '#9CA3AF', fontSize: 12, fontWeight: 600 }}>Aucun complement</div>}
+                {reminderTemplates.filter(r => r.reminder_type !== 'hydration').map(r => (
                   <ItemCard key={r.id} accent="#F59E0B" title={r.title}
                     subtitle={`${r.dosage || ''} - ${r.time || ''}`}
-                    badge={r.reminder_type === 'hydration' ? 'Hydrat.' : 'Suppl.'}
+                    badge="Suppl."
+                    onDelete={() => deleteReminderTemplate(r.id)} />
+                ))}
+              </div>
+
+              {/* Hydratation Library Card */}
+              <div style={{ background: '#FFF', borderRadius: 20, padding: '16px 14px', border: '1px solid #F3F4F6', marginBottom: 16 } as any}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 } as any}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 } as any}>
+                    <div style={{ width: 32, height: 32, borderRadius: 10, background: '#DBEAFE', display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}>
+                      <i className="ri-drop-line" style={{ fontSize: 16, color: '#38BDF8' }} />
+                    </div>
+                    <span style={{ fontSize: 14, fontWeight: 800, color: '#1F2937' }}>Hydratation</span>
+                    <span style={{ fontSize: 11, fontWeight: 700, color: '#9CA3AF', marginLeft: 4 }}>({reminderTemplates.filter(r => r.reminder_type === 'hydration').length})</span>
+                  </div>
+                  <div data-testid="lib-add-hydration" onClick={() => { setRemForm({ ...emptyRem, reminder_type: 'hydration', title: '', dosage: '' }); setModal('new-rem'); }}
+                    style={{ width: 32, height: 32, borderRadius: 10, background: '#38BDF8', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}>
+                    <i className="ri-add-line" style={{ fontSize: 18, color: '#FFF' }} />
+                  </div>
+                </div>
+                {reminderTemplates.filter(r => r.reminder_type === 'hydration').length === 0 && <div style={{ textAlign: 'center', padding: '20px 0', color: '#9CA3AF', fontSize: 12, fontWeight: 600 }}>Aucun rappel hydratation</div>}
+                {reminderTemplates.filter(r => r.reminder_type === 'hydration').map(r => (
+                  <ItemCard key={r.id} accent="#38BDF8" title={r.title}
+                    subtitle={`${r.dosage || ''} - ${r.time || ''}`}
+                    badge="Hydrat."
                     onDelete={() => deleteReminderTemplate(r.id)} />
                 ))}
               </div>

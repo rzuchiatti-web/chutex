@@ -8,55 +8,41 @@ Refondre l'espace d'activite (ProSpace) des coachs/gardiens pour la gestion dire
 - **Frontend**: React Native Web (Expo Router) (port 3000)
 - **Integrations**: SMS Mode, Mollie, OpenAI GPT-4o (Emergent LLM Key)
 
-## DB Collections principales
-- `pro_exercise_templates`, `assigned_exercises` (jours, reps, rest_time, completed_dates)
-- `pro_reminder_templates`, `pro_assigned_reminders` (jours, time, dosage, image, completions)
-- `pro_meal_templates`, `pro_assigned_meals` (jours, meal_time, image, ingredients, steps, macros, completions)
-- `pro_notifications`, `minceur_daily_cache` (nutrition targets)
-
-## Fichiers cles
-- `/app/frontend/src/components/dashboard/ProSpace.tsx` (Hub coach principal)
-- `/app/frontend/src/components/dashboard/constants.ts` (REMINDER_IMAGES)
-- `/app/frontend/app/meal-detail.tsx` (Detail repas multi-mode)
-- `/app/frontend/app/pro-exercise-detail.tsx` (Detail exercice + edit template)
-- `/app/backend/routes/professional_routes.py` (API pro)
+## Charte graphique (DA) a respecter
+- **Light mode**: Fond gris `#F4F4F5`, texte `#111`, sous-texte `#9CA3AF`
+- **Cartes**: fond gris `#F4F4F5`, images 48x48 sans cadre, borderRadius 16
+- **Separateurs**: `height: 1, background: #E5E7EB` (pas de cartes colorees)
+- **Popups/Modales**: GlassModal = fond flou (backdrop-filter blur 40px+), contenu sur fond `rgba(255,255,255,0.08)` transparent. JAMAIS de fond noir opaque
+- **Badges status**: Fait = vert, A faire = gris #E5E7EB
+- **Boutons action**: edit (pencil, fond blanc glass), delete (poubelle, fond rouge 8%)
+- **NE PAS inventer de nouveaux composants** — reutiliser les memes patterns existants
 
 ## Fonctionnalites implementees
-- [x] Suppression totale de la notion "Programmes"
-- [x] Bibliotheque d'exercices (CRUD) avec seed
-- [x] Assignation exercices par jour + series/repos
-- [x] Bibliotheque rappels/complements + assignation par jour
-- [x] Bibliotheque repas + assignation par jour
-- [x] Seed backend enrichi
-- [x] Calendrier horizontal glassmorphism centrage auto jour J
-- [x] Fix timezone calendrier: toLocalDateStr() au lieu de toISOString()
-- [x] Unification UI cartes: fond gris #F4F4F5 identique pour Exercices, Complements, Repas
-- [x] Edit complements assignes: bouton crayon + modale (jours, heure, dosage)
-- [x] Edit repas assignes: bouton crayon + modale (jours, type) + route PUT backend
-- [x] Suppression templates bibliotheque: DELETE routes pour reminder-templates et meal-templates
-- [x] Navigation detail repas: onClick sur cartes repas vers meal-detail
-- [x] **Carte nutritionnelle** en haut du ProSpace (kcal, eau, proteines/glucides/lipides) — Mars 2026
-- [x] **Separation Traitements / Hydratation** dans la page Activite — Mars 2026
-- [x] **Suppression section "Tous les exercices"** — seuls les exercices du jour affiches — Mars 2026
-- [x] **Images sans cadres gris** (#EDEDEE retire des conteneurs d'images) — Mars 2026
-- [x] **Fix page repas vide** : meal-detail.tsx supporte mode assigned/template/beneficiaire — Mars 2026
-- [x] **Edition exercice depuis bibliotheque** : formulaire inline dans pro-exercise-detail.tsx (PUT template) — Mars 2026
-- [x] **GlassModal bottom sheet** : slide-up depuis le bas + image capsule dans popup assignation — Mars 2026
+- [x] Bibliotheque exercices/complements/hydratation/repas (CRUD + seed)
+- [x] Assignation par jour + series/repos
+- [x] Calendrier horizontal glassmorphism centrage jour J (toLocalDateStr)
+- [x] Carte nutritionnelle light (kcal, eau, proteines|glucides|lipides)
+- [x] Sections separees: Traitements / Hydratation dans la page Activite
+- [x] Bibliotheque: section Hydratation separee avec bouton + dedie
+- [x] GlassModal bottom sheet avec fond flou (pas noir opaque)
+- [x] Edition exercice template depuis bibliotheque (inline form)
+- [x] Navigation detail repas: meal-detail multi-mode (assigned/template/beneficiaire)
+- [x] Suppression section "Tous les exercices"
+- [x] Images sans cadres gris #EDEDEE
+- [x] Popup assignation complement avec image capsule
 
 ## Routes API principales
-- `POST/DELETE /api/pro/exercise-templates`, `PUT /api/pro/exercise-templates/{id}`
-- `POST/DELETE /api/pro/reminder-templates`
-- `POST/DELETE /api/pro/meal-templates`
-- `POST/PUT/DELETE /api/pro/assigned-exercises/{id}`
-- `POST/PUT/DELETE /api/pro/assigned-reminders/{id}`
-- `POST/PUT/DELETE /api/pro/assigned-meals/{id}`
-- `GET /api/pro/beneficiary-nutrition/{ben_id}` (kcal, macros, eau)
-- `GET /api/pro/assigned-meal-detail/{id}` (detail complet)
-- `GET /api/pro/meal-template-detail/{id}` (detail template)
+- CRUD exercise-templates, reminder-templates, meal-templates
+- CRUD assigned-exercises, assigned-reminders, assigned-meals
+- GET /api/pro/beneficiary-nutrition/{ben_id}
+- GET /api/pro/assigned-meal-detail/{id}
+- GET /api/pro/meal-template-detail/{id}
+- PUT /api/pro/exercise-templates/{id}
 
-## Note technique importante
-React Native Web intercepte les mutations DOM et reinitialise scrollLeft. Solution: setInterval + scrollTo.
-toISOString() cause un decalage UTC+1 pour les utilisateurs en France. Utiliser toLocalDateStr() partout.
+## Note technique
+- toISOString() cause decalage UTC. Utiliser toLocalDateStr() partout.
+- Metro hot reload ne prend pas toujours les gros changements. Purger .metro-cache si necessaire.
+- React Native Web: setInterval pour forcer scrollLeft sur le calendrier.
 
 ## Taches P1
 - [ ] Tableau de bord revenus admin
@@ -69,9 +55,9 @@ toISOString() cause un decalage UTC+1 pour les utilisateurs en France. Utiliser 
 - [ ] Integration Vivoo
 - [ ] Validation CRC32 TCP
 
-## Refactoring a prevoir
-- ProSpace.tsx (1200+ lignes) -> decouper en ProCalendar, ProLibrary, AssignmentLists
+## Refactoring
+- ProSpace.tsx (1200+ lignes) -> ProCalendar, ProLibrary, AssignmentLists
 
 ## Credentials test
 - Coach: +33655443322 / test123
-- Beneficiaire (Josette): +33651245918 / test123
+- Beneficiaire: +33651245918 / test123
