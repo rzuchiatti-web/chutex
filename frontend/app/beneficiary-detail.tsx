@@ -52,6 +52,7 @@ export default function BeneficiaryDetailScreen() {
   const slideRef = useRef<HTMLDivElement>(null);
   const slideStartX = useRef(0);
   const slideTrackW = useRef(0);
+  const lastDxRef = useRef(0);
 
   useEffect(() => { if (typeof localStorage !== 'undefined') { const c = () => setIsDark(localStorage.getItem('chutex_dark') !== '0'); c(); const iv = setInterval(c, 400); return () => clearInterval(iv); } }, []);
 
@@ -139,7 +140,6 @@ export default function BeneficiaryDetailScreen() {
 
   /* slide handlers */
   const THUMB = 48; const THRESHOLD = 0.75;
-  const lastDxRef = useRef(0);
   const onSlideStart = (e: any) => {
     const el = slideRef.current; if (!el) return;
     const rect = el.getBoundingClientRect();
