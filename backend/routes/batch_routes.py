@@ -109,6 +109,18 @@ async def dashboard_batch(user=Depends(get_current_user)):
             return await db.alerts.find({"beneficiary_id": uid, "status": "active"}, {"_id": 0}).sort("created_at", -1).to_list(10)
         return []
 
+    async def get_pro_exercises():
+        """Fetch exercises assigned by guardian/coach to this beneficiary."""
+        return await db.pro_assigned_exercises.find(
+            {"beneficiary_id": uid, "status": "active"}, {"_id": 0}
+        ).sort("created_at", -1).to_list(50)
+
+    async def get_pro_meals():
+        """Fetch meals assigned by guardian/coach to this beneficiary."""
+        return await db.pro_assigned_meals.find(
+            {"beneficiary_id": uid, "status": "active"}, {"_id": 0}
+        ).sort("created_at", -1).to_list(50)
+
     async def get_health_summary():
         latest = await db.device_readings.find_one(
             {"user_id": uid, "device_type": "bracelet"}, {"_id": 0}, sort=[("timestamp", -1)]
@@ -133,6 +145,7 @@ async def dashboard_batch(user=Depends(get_current_user)):
     results = await asyncio.gather(
         get_dash(), get_rem(), get_guards(), get_greqs(),
         get_sub(), get_scale(), get_alerts(), get_health_summary(),
+        get_pro_exercises(), get_pro_meals(),
         return_exceptions=True,
     )
 
@@ -148,4 +161,6 @@ async def dashboard_batch(user=Depends(get_current_user)):
         "scale_history": safe(results[5], []),
         "active_alerts": safe(results[6], []),
         "health_summary": safe(results[7]),
+        "pro_exercises": safe(results[8], []),
+        "pro_meals": safe(results[9], []),
     }

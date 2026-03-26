@@ -344,6 +344,35 @@ async def get_weight_details(beneficiary_id: str = None, user=Depends(get_curren
     # AI recommendations (cached daily)
     recommendations = await generate_daily_recommendations(uid, u, latest, goal)
 
+    # Pro-assigned meals for today (override Nora recommendations if present)
+    today_idx = datetime.now(timezone.utc).weekday()
+    days_fr = ["lundi", "mardi", "mercredi", "jeudi", "vendredi", "samedi", "dimanche"]
+    today_fr = days_fr[today_idx]
+    pro_meals_all = await db.pro_assigned_meals.find(
+        {"beneficiary_id": uid, "status": "active"}, {"_id": 0}
+    ).to_list(50)
+    pro_meals_today = [m for m in pro_meals_all if today_fr in m.get('days', [])]
+    if pro_meals_today:
+        type_map = {'petit_dejeuner': 'breakfast', 'dejeuner': 'lunch', 'collation': 'snack', 'gouter': 'snack', 'diner': 'dinner'}
+        pro_meal_recs = []
+        for pm in pro_meals_today:
+            mt = pm.get('meal_type', 'dejeuner')
+            pro_meal_recs.append({
+                "name": pm.get("title", ""),
+                "type": type_map.get(mt, 'lunch'),
+                "calories": pm.get("calories", 0),
+                "proteines_g": pm.get("proteins", 0),
+                "glucides_g": pm.get("glucides", 0),
+                "lipides_g": pm.get("lipides", 0),
+                "ingredients": pm.get("ingredients", []),
+                "recipe": pm.get("steps", []),
+                "image": pm.get("image", ""),
+                "source": "pro",
+                "assignment_id": pm.get("id", ""),
+                "meal_template_id": pm.get("meal_template_id", ""),
+            })
+        recommendations["meals"] = pro_meal_recs
+
     # Today's tracking
     today_str = datetime.now(timezone.utc).strftime("%Y-%m-%d")
     tracking = await db.minceur_tracking.find_one(
