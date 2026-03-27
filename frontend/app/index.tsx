@@ -54,8 +54,13 @@ export default function AuthScreen() {
     setSubmitting(true);
     try {
       let id = phone.trim().replace(/\s/g, '');
-      if (id.startsWith('0') && id.length >= 9) id = prefix + id.substring(1);
-      else if (!id.startsWith('+')) id = prefix + id;
+      if (id.includes('@')) {
+        // Email login (admin, etc.) — send as-is
+      } else if (id.startsWith('0') && id.length >= 9) {
+        id = prefix + id.substring(1);
+      } else if (!id.startsWith('+')) {
+        id = prefix + id;
+      }
       await login(id, password);
       hasRedirected.current = true;
       router.replace('/(tabs)');
