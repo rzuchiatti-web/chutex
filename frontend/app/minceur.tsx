@@ -15,13 +15,14 @@ function NoraAnalysisOverlay({ text: initialText, onClose }: { text: string; onC
   const [analysisText, setAnalysisText] = useState(initialText);
 
   useEffect(() => {
+    document.body.classList.add('nora-active');
     if (token) {
       apiFetch('/api/nora/minceur-analysis', {}, token)
         .then((r: any) => { if (r?.insight) setAnalysisText(`${r.insight}${r.tip ? ` ${r.tip}` : ''}`); })
         .catch(() => {});
     }
     const t1 = setTimeout(() => setPhase('typing'), 2800);
-    return () => clearTimeout(t1);
+    return () => { clearTimeout(t1); document.body.classList.remove('nora-active'); };
   }, [token]);
 
   useEffect(() => {

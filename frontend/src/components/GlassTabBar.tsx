@@ -95,7 +95,9 @@ export default function GlassTabBar({ state, navigation, role, showNora = true }
   const borderColor = navDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.06)';
 
   return (
-    <div className="glass-tab-bar-root" style={{ position: 'fixed', bottom: 16, left: 16, right: 16, zIndex: 999, display: 'flex', alignItems: 'center', gap: 12, pointerEvents: 'auto' } as any}>
+    <>
+      <style dangerouslySetInnerHTML={{ __html: `body.nora-active .glass-tab-bar-root{display:none!important}` }} />
+      <div className="glass-tab-bar-root" style={{ position: 'fixed', bottom: 16, left: 16, right: 16, zIndex: 999, display: 'flex', alignItems: 'center', gap: 12, pointerEvents: 'auto' } as any}>
       <div style={{
         flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'space-around',
         height: 62, borderRadius: 22, padding: '0 8px',
@@ -140,5 +142,6 @@ export default function GlassTabBar({ state, navigation, role, showNora = true }
         </div>
       )}
     </div>
+    </>
   );
 }

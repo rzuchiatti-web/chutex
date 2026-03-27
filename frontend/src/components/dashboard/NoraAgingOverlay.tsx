@@ -3,16 +3,15 @@ import { apiFetch } from '../../services/api';
 
 const NORA_VIDEO = 'https://customer-assets.emergentagent.com/job_ba3a5789-c8f1-4b12-b5d8-478a7f99aaea/artifacts/b6eh1r76_Nora_video.mp4';
 
-export default function NoraHealthOverlay({ token, onClose }: { token: string | null; onClose: () => void }) {
+export default function NoraAgingOverlay({ token, onClose }: { token: string | null; onClose: () => void }) {
   const [phase, setPhase] = useState<'intro' | 'typing' | 'done'>('intro');
   const [typed, setTyped] = useState('');
   const [analysisText, setAnalysisText] = useState('');
 
   useEffect(() => {
     if (!token) return;
-    // Hide navbar
     document.body.classList.add('nora-active');
-    apiFetch('/api/nora/health-analysis', {}, token)
+    apiFetch('/api/nora/aging-analysis', {}, token)
       .then((r: any) => { if (r?.analysis) setAnalysisText(r.analysis); })
       .catch(() => {});
     const t1 = setTimeout(() => setPhase('typing'), 2800);
@@ -40,11 +39,17 @@ export default function NoraHealthOverlay({ token, onClose }: { token: string | 
   };
 
   return (
-    <div data-testid="nora-health-overlay" style={{
+    <div data-testid="nora-aging-overlay" style={{
       position: 'fixed', inset: 0, zIndex: 99999, background: '#000',
       display: 'flex', flexDirection: 'column', overflow: 'hidden',
       animation: 'noraFadeIn 0.4s ease',
     } as any}>
+      <style dangerouslySetInnerHTML={{ __html: `
+        @keyframes noraFadeIn{from{opacity:0}to{opacity:1}}
+        @keyframes noraPulse{0%,100%{transform:scale(1);opacity:0.85}50%{transform:scale(1.08);opacity:1}}
+        @keyframes noraTextIn{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+      ` }} />
+
       <div style={{
         flex: 1, overflowY: 'auto', WebkitOverflowScrolling: 'touch',
         display: 'flex', flexDirection: 'column', alignItems: 'center',
@@ -67,14 +72,14 @@ export default function NoraHealthOverlay({ token, onClose }: { token: string | 
         {phase === 'intro' && (
           <div style={{ textAlign: 'center', animation: 'noraTextIn 0.6s ease 0.3s both' } as any}>
             <div style={{ fontSize: 18, fontWeight: 800, color: '#FFF' }}>Nora analyse...</div>
-            <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.25)', marginTop: 8 }}>Votre bilan de sante general</div>
+            <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.25)', marginTop: 8 }}>Age biologique et rythme de vieillissement</div>
           </div>
         )}
 
         {(phase === 'typing' || phase === 'done') && (
           <div style={{ width: '100%', maxWidth: 380, animation: 'noraTextIn 0.5s ease both' } as any}>
             <div style={{ textAlign: 'center', marginBottom: 20 } as any}>
-              <div style={{ fontSize: 16, fontWeight: 800, color: '#FFF' }}>Bilan sante</div>
+              <div style={{ fontSize: 16, fontWeight: 800, color: '#FFF' }}>Age biologique</div>
               <div style={{ height: 2, width: 40, borderRadius: 1, background: 'rgba(167,139,250,0.4)', margin: '10px auto 0' } as any} />
             </div>
             {formatText(typed).map((para, i) => (
@@ -90,7 +95,7 @@ export default function NoraHealthOverlay({ token, onClose }: { token: string | 
 
       {phase === 'done' && (
         <div style={{ position: 'fixed', bottom: 0, left: 0, right: 0, padding: '16px 24px 36px', background: 'linear-gradient(0deg, #000 60%, transparent)', zIndex: 100000 } as any}>
-          <div data-testid="nora-health-back-btn" onClick={onClose} style={{
+          <div data-testid="nora-aging-back-btn" onClick={onClose} style={{
             width: '100%', maxWidth: 380, margin: '0 auto', padding: '16px',
             borderRadius: 999, background: '#FFF', textAlign: 'center',
             cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,

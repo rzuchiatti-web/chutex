@@ -765,3 +765,83 @@ Redige une analyse en 4-5 phrases courtes et bienveillantes. Commente l'etat car
     except Exception as e:
         print(f"Nora health analysis error: {e}")
         return {"analysis": "", "cached": False}
+
+
+@router.get("/nora/aging-analysis")
+async def get_nora_aging_analysis(user=Depends(get_current_user)):
+    """On-demand Nora aging/biological age analysis."""
+    uid = user['id']
+    today_str = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+
+    cached = await db.nora_aging_analysis_cache.find_one(
+        {"user_id": uid, "date": today_str}, {"_id": 0}
+    )
+    if cached and cached.get("analysis"):
+        return {"analysis": cached["analysis"], "cached": True}
+
+    u = await db.users.find_one({"id": uid}, {"_id": 0, "password_hash": 0})
+    if not u:
+        return {"analysis": "", "cached": False}
+
+    latest_bracelet = await db.device_readings.find_one(
+        {"user_id": uid, "device_type": "bracelet"}, {"_id": 0}, sort=[("timestamp", -1)]
+    )
+    latest_scale = await db.device_readings.find_one(
+        {"user_id": uid, "device_type": "scale"}, {"_id": 0}, sort=[("timestamp", -1)]
+    )
+    aging = await db.aging_rate.find_one({"user_id": uid}, {"_id": 0})
+
+    br = latest_bracelet.get("data", {}) if latest_bracelet else {}
+    sc = latest_scale.get("data", {}) if latest_scale else {}
+    weight = sc.get("weight") or u.get("weight_kg", 0)
+    height = u.get("height_cm", 170)
+    age = 0
+    if u.get("date_of_birth"):
+        try:
+            from dateutil.parser import parse as dparse
+            age = (datetime.now(timezone.utc) - dparse(u["date_of_birth"]).replace(tzinfo=timezone.utc)).days // 365
+        except Exception:
+            pass
+
+    bio_age = aging.get("bio_age", 0) if aging else 0
+    rate = aging.get("rate", 0) if aging else 0
+
+    prompt = f"""Tu es Nora, assistante sante specialisee en longevite. Analyse l'age biologique et le rythme de vieillissement de ce patient.
+
+PROFIL: {u.get('name','')}, {age} ans, {u.get('gender','')}, {height}cm, {weight}kg
+CONDITIONS: {u.get('medical_conditions','Aucune')}
+
+DONNEES:
+- Age reel: {age} ans
+- Age biologique estime: {bio_age if bio_age else 'Non disponible'} ans
+- Rythme de vieillissement: {f'{rate}x' if rate else 'Non disponible'}
+- Pouls: {br.get('heart_rate', '--')} bpm | SpO2: {br.get('spo2', '--')}%
+- Tension: {br.get('blood_pressure_systolic','--')}/{br.get('blood_pressure_diastolic','--')} mmHg
+- Masse grasse: {sc.get('body_fat_pct','--')}% | Masse musculaire: {sc.get('muscle_pct','--')}%
+- IMC: {round(weight/((height/100)**2),1) if weight and height else '--'}
+
+Redige une analyse en 4-5 phrases courtes. Commente l'ecart entre age reel et biologique, le rythme de vieillissement, les facteurs protecteurs et les risques. Donne un conseil concret pour ralentir le vieillissement. Pas d'emoji. Francais."""
+
+    api_key = os.environ.get("EMERGENT_LLM_KEY", "")
+    if not api_key:
+        return {"analysis": "", "cached": False}
+
+    try:
+        from emergentintegrations.llm.chat import LlmChat, UserMessage
+        llm = LlmChat(
+            api_key=api_key,
+            session_id=f"nora-aging-{uid[:8]}-{today_str}",
+            system_message="Tu es Nora, specialiste longevite. Reponds en texte brut. Pas d'emoji. Francais."
+        ).with_model("openai", "gpt-5.2")
+
+        resp = await llm.send_message(UserMessage(text=prompt))
+        analysis = resp.strip()
+        await db.nora_aging_analysis_cache.update_one(
+            {"user_id": uid, "date": today_str},
+            {"$set": {"user_id": uid, "date": today_str, "analysis": analysis, "created_at": datetime.now(timezone.utc).isoformat()}},
+            upsert=True,
+        )
+        return {"analysis": analysis, "cached": False}
+    except Exception as e:
+        print(f"Nora aging analysis error: {e}")
+        return {"analysis": "", "cached": False}

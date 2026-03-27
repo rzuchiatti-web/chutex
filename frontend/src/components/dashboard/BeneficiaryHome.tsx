@@ -381,7 +381,7 @@ export function BeneficiaryHome({ token, user }: { token: string; user: any }) {
             <video autoPlay loop muted playsInline style={{ width: 36, height: 36, borderRadius: 12, objectFit: 'contain', flexShrink: 0 } as any}
               src="https://customer-assets.emergentagent.com/job_ba3a5789-c8f1-4b12-b5d8-478a7f99aaea/artifacts/b6eh1r76_Nora_video.mp4" />
             <div style={{ flex: 1 } as any}>
-              <div style={{ fontSize: 13, fontWeight: 800, color: '#FFF' }}>Mon bilan sante avec Nora</div>
+              <div style={{ fontSize: 13, fontWeight: 800, color: '#FFF' }}>Mon analyse de sante avec Nora</div>
               <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.35)', marginTop: 1 }}>Analyse personnalisee de votre etat de sante</div>
             </div>
             <i className="ri-arrow-right-s-line" style={{ fontSize: 18, color: 'rgba(255,255,255,0.3)' }} />
