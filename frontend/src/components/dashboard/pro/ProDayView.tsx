@@ -169,17 +169,16 @@ export function ProDayView(props: ProDayViewProps) {
         return (
           <div key={r.id} data-testid={`day-reminder-${r.id}`}
             style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 14px', borderRadius: 16,
-              background: remDone ? 'rgba(16,185,129,0.06)' : '#F4F4F5',
-              border: remDone ? '1px solid rgba(16,185,129,0.2)' : '1px solid transparent',
-              marginBottom: 8, transition: 'all 0.15s' } as any}>
+              background: remDone ? 'rgba(16,185,129,0.12)' : '#F4F4F5',
+              marginBottom: 8, transition: 'all 0.15s', opacity: remDone ? 0.7 : 1 } as any}>
             <div style={{ width: 48, height: 48, borderRadius: 12, overflow: 'hidden', flexShrink: 0 } as any}>
               <img src={remImg} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' } as any} />
             </div>
             <div style={{ flex: 1, minWidth: 0 } as any}>
-              <div style={{ fontSize: 14, fontWeight: 700, color: '#111', textTransform: 'capitalize' }}>{r.title}</div>
-              <div style={{ fontSize: 11, color: '#6B7280', marginTop: 2 }}>{r.dosage} - {r.time}</div>
+              <div style={{ fontSize: 14, fontWeight: 700, color: remDone ? '#10B981' : '#111', textTransform: 'capitalize', textDecoration: remDone ? 'line-through' : 'none' }}>{r.title}</div>
+              <div style={{ fontSize: 11, color: remDone ? 'rgba(16,185,129,0.6)' : '#6B7280', marginTop: 2 }}>{r.dosage} - {r.time}</div>
             </div>
-            <StatusBadge done={remDone} testPrefix={`reminder-status-${r.id}`} />
+            {remDone && <i className="ri-checkbox-circle-fill" style={{ fontSize: 18, color: '#10B981', flexShrink: 0 }} />}
             <ActionButtons onEdit={() => props.onEditReminder(r)} onDelete={() => props.onDeleteReminder(r.id)} testPrefix={`reminder-${r.id}`} />
           </div>
         );
@@ -207,17 +206,16 @@ export function ProDayView(props: ProDayViewProps) {
         return (
           <div key={r.id} data-testid={`day-hydration-${r.id}`}
             style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 14px', borderRadius: 16,
-              background: remDone ? 'rgba(16,185,129,0.06)' : '#F4F4F5',
-              border: remDone ? '1px solid rgba(16,185,129,0.2)' : '1px solid transparent',
-              marginBottom: 8, transition: 'all 0.15s' } as any}>
+              background: remDone ? 'rgba(16,185,129,0.12)' : '#F4F4F5',
+              marginBottom: 8, transition: 'all 0.15s', opacity: remDone ? 0.7 : 1 } as any}>
             <div style={{ width: 48, height: 48, borderRadius: 12, overflow: 'hidden', flexShrink: 0 } as any}>
               <img src={remImg} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' } as any} />
             </div>
             <div style={{ flex: 1, minWidth: 0 } as any}>
-              <div style={{ fontSize: 14, fontWeight: 700, color: '#111', textTransform: 'capitalize' }}>{r.title}</div>
-              <div style={{ fontSize: 11, color: '#6B7280', marginTop: 2 }}>{r.dosage} - {r.time}</div>
+              <div style={{ fontSize: 14, fontWeight: 700, color: remDone ? '#10B981' : '#111', textTransform: 'capitalize', textDecoration: remDone ? 'line-through' : 'none' }}>{r.title}</div>
+              <div style={{ fontSize: 11, color: remDone ? 'rgba(16,185,129,0.6)' : '#6B7280', marginTop: 2 }}>{r.dosage} - {r.time}</div>
             </div>
-            <StatusBadge done={remDone} />
+            {remDone && <i className="ri-checkbox-circle-fill" style={{ fontSize: 18, color: '#10B981', flexShrink: 0 }} />}
             <ActionButtons onEdit={() => props.onEditReminder(r)} onDelete={() => props.onDeleteReminder(r.id)} />
           </div>
         );
