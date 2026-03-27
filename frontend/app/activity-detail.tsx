@@ -32,6 +32,7 @@ export default function ActivityDetailPage() {
   // Pro prescribed programs
   const [proPrograms, setProPrograms] = useState<any[]>([]);
   const [hasProPrograms, setHasProPrograms] = useState(false);
+  const [proExercises, setProExercises] = useState<any[]>([]);
   const [completingSession, setCompletingSession] = useState<string | null>(null);
   const [painLevel, setPainLevel] = useState(0);
   const [patientNotes, setPatientNotes] = useState('');
@@ -46,11 +47,13 @@ export default function ActivityDetailPage() {
       apiFetch('/api/pro/my-programs', {}, token).catch(() => []),
       apiFetch('/api/minceur/exercises', {}, token).catch(() => ({})),
       apiFetch('/api/minceur/today-tracking', {}, token).catch(() => ({})),
-    ]).then(([report, st, proCheck, myProgs, exData, trk]) => {
+      apiFetch('/api/pro/beneficiary-today-exercises', {}, token).catch(() => []),
+    ]).then(([report, st, proCheck, myProgs, exData, trk, proEx]) => {
       setD(report); setStreak(st);
       const hasPro = proCheck?.has_programs || false;
       setHasProPrograms(hasPro);
       setProPrograms(Array.isArray(myProgs) ? myProgs : []);
+      setProExercises(Array.isArray(proEx) ? proEx : []);
       // Only load minceur exercises if no pro programs
       if (!hasPro && exData?.exercises) setExercises(exData.exercises);
       else if (hasPro) setExercises([]);
@@ -322,6 +325,45 @@ export default function ActivityDetailPage() {
                       </div>
                     );
                   })}
+                </div>
+              )}
+
+              {/* ══ EXERCICES PRESCRITS PAR LE COACH ══ */}
+              {proExercises.length > 0 && (
+                <div style={{ ...GL, padding: 16, marginBottom: 14 } as any}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 } as any}>
+                    <i className="ri-run-line" style={{ fontSize: 14, color: R }} />
+                    <span style={{ fontSize: 13, fontWeight: 800, color: '#FFF' }}>Exercices du jour</span>
+                    <span style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.3)', background: 'rgba(255,255,255,0.06)', padding: '2px 8px', borderRadius: 999 }}>{proExercises.length}</span>
+                  </div>
+                  {proExercises.map((ex: any, i: number) => (
+                    <div key={ex.id || i} data-testid={`pro-exercise-${i}`}
+                      onClick={() => router.push({ pathname: '/pro-exercise-detail' as any, params: { id: ex.exercise_template_id || ex.id, mode: 'assigned', assignmentId: ex.id } })}
+                      style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 14px', borderRadius: 14, background: ex.completed_today ? 'rgba(16,185,129,0.08)' : 'rgba(255,255,255,0.03)', border: `1px solid ${ex.completed_today ? G + '25' : 'rgba(255,255,255,0.05)'}`, marginBottom: 6, cursor: 'pointer', transition: 'background 0.15s' } as any}
+                      onMouseEnter={(e: any) => { if (!ex.completed_today) e.currentTarget.style.background = 'rgba(255,255,255,0.06)'; }}
+                      onMouseLeave={(e: any) => { e.currentTarget.style.background = ex.completed_today ? 'rgba(16,185,129,0.08)' : 'rgba(255,255,255,0.03)'; }}>
+                      <div style={{ width: 44, height: 44, borderRadius: 12, background: 'rgba(239,68,68,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}>
+                        <i className={ex.icon || 'ri-run-line'} style={{ fontSize: 20, color: R }} />
+                      </div>
+                      <div style={{ flex: 1, minWidth: 0 } as any}>
+                        <div style={{ fontSize: 13, fontWeight: 800, color: '#FFF', textDecoration: ex.completed_today ? 'line-through' : 'none' }}>{ex.title}</div>
+                        <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.35)', marginTop: 2 }}>
+                          {ex.sets > 0 && `${ex.sets} series x ${ex.repetitions} reps`}
+                          {ex.rest_seconds > 0 && ` · ${ex.rest_seconds}s repos`}
+                        </div>
+                      </div>
+                      {ex.completed_today ? (
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '5px 10px', borderRadius: 999, background: `${G}12` } as any}>
+                          <i className="ri-checkbox-circle-fill" style={{ fontSize: 14, color: G }} />
+                          <span style={{ fontSize: 10, fontWeight: 700, color: G }}>Fait</span>
+                        </div>
+                      ) : (
+                        <div style={{ padding: '7px 14px', borderRadius: 999, background: `${G}12`, border: `1px solid ${G}25` } as any}>
+                          <span style={{ fontSize: 11, fontWeight: 700, color: G }}>Faire</span>
+                        </div>
+                      )}
+                    </div>
+                  ))}
                 </div>
               )}
 

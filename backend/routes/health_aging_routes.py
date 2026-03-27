@@ -10,6 +10,13 @@ from services.nora_context import build_nora_context, format_nora_context_for_pr
 load_dotenv()
 router = APIRouter()
 
+def evaluate_objectives_met(data: dict) -> bool:
+    """Check if daily activity objectives are met based on sensor data."""
+    steps = data.get("steps", 0) or 0
+    calories = data.get("calories", 0) or 0
+    return steps >= 3000 or calories >= 150
+
+
 @router.get("/health/activity-streak")
 async def get_activity_streak(user=Depends(get_current_user)):
     """Get activity streak based on real objective achievement."""
