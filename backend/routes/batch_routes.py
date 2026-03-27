@@ -18,7 +18,33 @@ async def dashboard_batch(user=Depends(get_current_user)):
     async def get_dash():
         devices = await db.devices.find({"user_id": uid}, {"_id": 0}).to_list(20)
         connected = [d for d in devices if d.get("connected")]
-        return {"devices": devices, "connected_count": len(connected), "total_count": len(devices)}
+        # Extract individual device objects for frontend compatibility
+        bracelet = next((d for d in devices if d.get("device_type") == "bracelet"), None)
+        scale = next((d for d in devices if d.get("device_type") == "scale"), None)
+        vest = next((d for d in devices if d.get("device_type") == "vest"), None)
+        # Merge latest readings into device objects
+        br_data = {}
+        sc_data = {}
+        if bracelet:
+            br_reading = await db.device_readings.find_one(
+                {"user_id": uid, "device_type": "bracelet"}, {"_id": 0}, sort=[("timestamp", -1)]
+            )
+            if br_reading and br_reading.get("data"):
+                br_data = br_reading["data"]
+        if scale:
+            sc_reading = await db.device_readings.find_one(
+                {"user_id": uid, "device_type": "scale"}, {"_id": 0}, sort=[("timestamp", -1)]
+            )
+            if sc_reading and sc_reading.get("data"):
+                sc_data = sc_reading["data"]
+        result = {"devices": devices, "connected_count": len(connected), "total_count": len(devices)}
+        if bracelet:
+            result["bracelet"] = {**br_data, "connected": bracelet.get("connected", False), "paired": bracelet.get("paired", False), "battery": bracelet.get("battery", 0), "name": bracelet.get("name", "")}
+        if scale:
+            result["scale"] = {**sc_data, "connected": scale.get("connected", False), "paired": scale.get("paired", False), "battery": scale.get("battery", 0), "name": scale.get("name", "")}
+        if vest:
+            result["vest"] = {"connected": vest.get("connected", False), "paired": vest.get("paired", False), "battery": vest.get("battery", 0), "name": vest.get("name", "")}
+        return result
 
     async def get_rem():
         own = await db.reminders.find({"user_id": uid}, {"_id": 0}).sort("created_at", -1).to_list(50)
