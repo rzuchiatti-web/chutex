@@ -80,10 +80,17 @@ async def get_beneficiary_weight_goal(beneficiary_id: str, user=Depends(get_curr
 
 @router.get("/pro/assigned-meal-detail/{assignment_id}")
 async def get_assigned_meal_detail(assignment_id: str, user=Depends(get_current_user)):
-    """Get full detail of an assigned meal for the coach view."""
+    """Get full detail of an assigned meal, merged with latest template data."""
     doc = await db.pro_assigned_meals.find_one({"id": assignment_id}, {"_id": 0})
     if not doc:
         raise HTTPException(404, "Repas assigne non trouve")
+    tpl_id = doc.get("meal_template_id")
+    if tpl_id:
+        tpl = await db.pro_meal_templates.find_one({"id": tpl_id}, {"_id": 0})
+        if tpl:
+            for k in ["image", "ingredients", "steps", "calories", "proteins", "glucides", "lipides", "notes", "items"]:
+                if tpl.get(k):
+                    doc[k] = tpl[k]
     return doc
 
 
@@ -1388,10 +1395,18 @@ async def get_assigned_exercises(beneficiary_id: str, user=Depends(get_current_u
 
 @router.get("/pro/assigned-exercise-detail/{assignment_id}")
 async def get_assigned_exercise_detail(assignment_id: str, user=Depends(get_current_user)):
-    """Get a single assigned exercise by its ID (for coach or beneficiary)"""
+    """Get a single assigned exercise by its ID, merged with latest template data"""
     ex = await db.pro_assigned_exercises.find_one({"id": assignment_id}, {"_id": 0})
     if not ex:
         raise HTTPException(status_code=404, detail="Exercice assigne non trouve")
+    # Merge latest template data (image, video, steps, description may have been updated)
+    tpl_id = ex.get("exercise_template_id")
+    if tpl_id:
+        tpl = await db.pro_exercise_templates.find_one({"id": tpl_id}, {"_id": 0})
+        if tpl:
+            for k in ["image", "video_url", "steps", "description", "icon", "equipment", "muscle_group", "difficulty", "category"]:
+                if tpl.get(k):
+                    ex[k] = tpl[k]
     return ex
 
 class AssignExerciseUpdate(BaseModel):

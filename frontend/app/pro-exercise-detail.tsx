@@ -164,35 +164,6 @@ export default function ProExerciseDetailPage() {
                 </>
               )}
 
-              {/* Edit (template mode) */}
-              {mode === 'template' && !editing && (
-                <div data-testid="edit-template-btn" onClick={() => { setEditForm({ title: ex.title, description: ex.description || '', sets: ex.sets || 0, repetitions: ex.repetitions || 0, rest_seconds: ex.rest_seconds || 0, duration_min: ex.duration_min || 0, difficulty: ex.difficulty || '', muscle_group: ex.muscle_group || '', equipment: ex.equipment || '', video_url: ex.video_url || '' }); setEditing(true); }}
-                  style={{ borderRadius: 16, padding: '14px 16px', marginTop: 14, marginBottom: 14, textAlign: 'center', cursor: 'pointer', background: 'rgba(59,130,246,0.08)', border: '1px solid rgba(59,130,246,0.15)' } as any}>
-                  <i className="ri-pencil-line" style={{ fontSize: 16, color: '#3B82F6', marginRight: 8 }} />
-                  <span style={{ fontSize: 14, fontWeight: 800, color: '#3B82F6' }}>Modifier cet exercice</span>
-                </div>
-              )}
-
-              {mode === 'template' && editing && editForm && (
-                <div style={{ borderRadius: 16, background: '#F4F4F5', padding: 16, marginTop: 14, marginBottom: 14 } as any}>
-                  <div style={{ fontSize: 11, fontWeight: 700, color: '#6B7280', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 12 }}>Modifier l'exercice</div>
-                  <div style={{ marginBottom: 10 }}><div style={{ fontSize: 11, color: '#6B7280', marginBottom: 4, fontWeight: 600 }}>Titre</div><input value={editForm.title} onChange={(e: any) => setEditForm({ ...editForm, title: e.target.value })} style={INP} /></div>
-                  <div style={{ marginBottom: 10 }}><div style={{ fontSize: 11, color: '#6B7280', marginBottom: 4, fontWeight: 600 }}>Description</div><textarea value={editForm.description} onChange={(e: any) => setEditForm({ ...editForm, description: e.target.value })} rows={3} style={{ ...INP, resize: 'vertical' } as any} /></div>
-                  <div style={{ display: 'flex', gap: 8, marginBottom: 10 } as any}>
-                    <div style={{ flex: 1 }}><div style={{ fontSize: 11, color: '#6B7280', marginBottom: 4, fontWeight: 600 }}>Series</div><input type="number" value={editForm.sets} onChange={(e: any) => setEditForm({ ...editForm, sets: Number(e.target.value) })} style={INP} /></div>
-                    <div style={{ flex: 1 }}><div style={{ fontSize: 11, color: '#6B7280', marginBottom: 4, fontWeight: 600 }}>Reps</div><input type="number" value={editForm.repetitions} onChange={(e: any) => setEditForm({ ...editForm, repetitions: Number(e.target.value) })} style={INP} /></div>
-                  </div>
-                  <div style={{ display: 'flex', gap: 8, marginBottom: 10 } as any}>
-                    <div style={{ flex: 1 }}><div style={{ fontSize: 11, color: '#6B7280', marginBottom: 4, fontWeight: 600 }}>Repos (s)</div><input type="number" value={editForm.rest_seconds} onChange={(e: any) => setEditForm({ ...editForm, rest_seconds: Number(e.target.value) })} style={INP} /></div>
-                    <div style={{ flex: 1 }}><div style={{ fontSize: 11, color: '#6B7280', marginBottom: 4, fontWeight: 600 }}>Duree (min)</div><input type="number" value={editForm.duration_min} onChange={(e: any) => setEditForm({ ...editForm, duration_min: Number(e.target.value) })} style={INP} /></div>
-                  </div>
-                  <div style={{ display: 'flex', gap: 8 } as any}>
-                    <div data-testid="save-template-btn" onClick={saveTemplate} style={{ flex: 2, padding: '14px', borderRadius: 999, background: '#111', textAlign: 'center', cursor: 'pointer', fontSize: 14, fontWeight: 800, color: '#FFF', opacity: saving ? 0.5 : 1 } as any}>{saving ? 'Sauvegarde...' : 'Sauvegarder'}</div>
-                    <div onClick={() => { setEditing(false); setEditForm(null); }} style={{ flex: 1, padding: '14px', borderRadius: 999, background: '#E5E7EB', textAlign: 'center', cursor: 'pointer', fontSize: 13, fontWeight: 700, color: '#6B7280' } as any}>Annuler</div>
-                  </div>
-                </div>
-              )}
-
               {/* Completion (assigned/session) */}
               {(mode === 'session' || mode === 'assigned') && (params.assignmentId || (programId && sessionId)) && (
                 <div style={{ borderRadius: 16, background: completed ? 'rgba(16,185,129,0.06)' : '#F4F4F5', border: completed ? '1px solid rgba(16,185,129,0.2)' : '1px solid transparent', padding: 16, marginTop: 14, marginBottom: 14 } as any}>
