@@ -52,6 +52,9 @@ export default function NoraHealthOverlay({ token, onClose }: { token: string | 
         paddingLeft: 28, paddingRight: 28, paddingBottom: 120,
         transition: 'padding-top 1s cubic-bezier(0.22,0.61,0.36,1)',
       } as any}>
+        <div onClick={onClose} style={{ position: 'fixed', top: 20, left: 20, width: 40, height: 40, borderRadius: 999, background: '#FFF', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', zIndex: 100001, boxShadow: '0 4px 16px rgba(0,0,0,0.3)' } as any}>
+          <i className="ri-arrow-left-line" style={{ fontSize: 18, color: '#111' }} />
+        </div>
 
         <video autoPlay loop muted playsInline style={{
           width: phase === 'intro' ? 140 : 90,

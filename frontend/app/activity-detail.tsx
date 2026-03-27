@@ -111,30 +111,34 @@ export default function ActivityDetailPage() {
   const st = streak || {};
 
   return (
-    <div data-testid="activity-detail-page" style={{ position: 'absolute', inset: 0, fontFamily: "'Inter', system-ui, sans-serif", overflow: 'hidden' } as any}>
-      <img src={BG} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 } as any} />
-      <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.35)', zIndex: 1 } as any} />
-      <div style={{ position: 'relative', zIndex: 5, height: '100%', overflowY: 'auto', WebkitOverflowScrolling: 'touch' } as any}>
-        <div style={{ maxWidth: 480, margin: '0 auto', padding: 'calc(env(safe-area-inset-top, 20px) + 12px) 20px 120px' } as any}>
+    <div data-testid="activity-detail-page" style={{ position: 'absolute', inset: 0, fontFamily: "'Inter', system-ui, sans-serif", overflow: 'hidden', display: 'flex', flexDirection: 'column', background: '#FFF' } as any}>
+      <div style={{ flex: 1, overflowY: 'auto', WebkitOverflowScrolling: 'touch' } as any}>
 
-          <div style={{ marginBottom: 8 } as any}>
-            <div data-testid="back-button" onClick={() => router.back()} style={{ width: 44, height: 44, borderRadius: 14, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}><i className="ri-arrow-left-line" style={{ fontSize: 18, color: '#FFF' }} /></div>
+        {/* HEADER with BG image */}
+        <div style={{ position: 'relative', zIndex: 1, minHeight: 200 } as any}>
+          <img src={BG} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 } as any} />
+          <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.35)', zIndex: 1 } as any} />
+          <div style={{ position: 'relative', zIndex: 2, padding: 'calc(env(safe-area-inset-top, 20px) + 12px) 20px 60px', maxWidth: 480, margin: '0 auto' } as any}>
+            <div data-testid="back-button" onClick={() => router.back()} style={{ width: 44, height: 44, borderRadius: 14, background: 'rgba(255,255,255,0.12)', border: '1px solid rgba(255,255,255,0.15)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}><i className="ri-arrow-left-line" style={{ fontSize: 18, color: '#111' }} /></div>
+            <div style={{ textAlign: 'center', marginTop: 8 } as any}>
+              <img src={HERO_IMG} alt="" style={{ width: 160, height: 160, objectFit: 'contain', margin: '0 auto', display: 'block', filter: 'drop-shadow(0 12px 30px rgba(0,0,0,0.4))', position: 'relative', zIndex: 3 } as any} />
+            </div>
           </div>
+        </div>
 
-          {loading && <div style={{ textAlign: 'center', padding: '80px 0' } as any}><div style={{ width: 40, height: 40, borderRadius: '50%', border: '3px solid rgba(255,255,255,0.06)', borderTopColor: A, animation: 'spin 0.8s linear infinite', margin: '0 auto' } as any} /></div>}
+        {/* WHITE CONTENT CARD */}
+        <div style={{ padding: '24px 16px 120px', marginTop: -24, borderRadius: '24px 24px 0 0', background: '#FFF', position: 'relative', zIndex: 10, maxWidth: 480, margin: '-24px auto 0', width: '100%' } as any}>
+
+          {loading && <div style={{ textAlign: 'center', padding: '80px 0' } as any}><div style={{ width: 40, height: 40, borderRadius: '50%', border: '3px solid #E5E7EB', borderTopColor: A, animation: 'spin 0.8s linear infinite', margin: '0 auto' } as any} /></div>}
 
           {!loading && (
             <>
-              {/* Hero */}
-              <div style={{ textAlign: 'center', position: 'relative', zIndex: 2 } as any}>
-                <img src={HERO_IMG} alt="" style={{ width: 200, height: 200, objectFit: 'contain', margin: '0 auto', display: 'block', filter: 'drop-shadow(0 16px 40px rgba(0,0,0,0.5))', position: 'relative', zIndex: 3, marginBottom: -50 } as any} />
-              </div>
 
               {/* ══ CARTE 1: Activité + Récupération + VO2 ══ */}
-              <div style={{ ...GL, padding: '60px 20px 20px', position: 'relative', zIndex: 1, marginBottom: 14 } as any}>
+              <div style={{ padding: '20px', borderRadius: 18, background: '#F4F4F5', position: 'relative', zIndex: 1, marginBottom: 14 } as any}>
                 <div style={{ textAlign: 'center', marginBottom: 14 } as any}>
-                  <div style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.25)', textTransform: 'uppercase', letterSpacing: 1.5 }}>Activite du jour</div>
-                  {st.current_streak > 0 && <div style={{ display: 'inline-flex', alignItems: 'center', gap: 5, padding: '4px 12px', borderRadius: 999, background: 'rgba(245,158,11,0.15)', border: '1px solid rgba(245,158,11,0.25)', marginTop: 6 } as any}><i className="ri-fire-fill" style={{ fontSize: 11, color: A }} /><span style={{ fontSize: 11, fontWeight: 900, color: A }}>{st.current_streak}j consecutifs</span></div>}
+                  <div style={{ fontSize: 11, fontWeight: 700, color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: 1.5 }}>Activite du jour</div>
+                  {st.current_streak > 0 && <div style={{ display: 'inline-flex', alignItems: 'center', gap: 5, padding: '4px 12px', borderRadius: 999, background: 'rgba(245,158,11,0.1)', marginTop: 6 } as any}><i className="ri-fire-fill" style={{ fontSize: 11, color: A }} /><span style={{ fontSize: 11, fontWeight: 900, color: A }}>{st.current_streak}j consecutifs</span></div>}
                 </div>
 
                 {/* Steps + Calories + Distance — clickable to metric detail */}
@@ -176,7 +180,7 @@ export default function ActivityDetailPage() {
                     <div style={{ flex: 1, padding: '8px 10px', borderRadius: 10, background: 'rgba(255,255,255,0.03)', textAlign: 'center', position: 'relative', overflow: 'hidden' } as any}>
                       <div style={{ position: 'absolute', bottom: 0, left: 0, height: `${recPct}%`, width: '100%', background: `${recCol}08`, transition: 'height 1.5s ease', borderRadius: 10 } as any} />
                       <div style={{ position: 'relative' } as any}>
-                        <div style={{ fontSize: 14, fontWeight: 900, color: '#FFF', fontVariantNumeric: 'tabular-nums' }}>{recTimeStr}</div>
+                        <div style={{ fontSize: 14, fontWeight: 900, color: '#111', fontVariantNumeric: 'tabular-nums' }}>{recTimeStr}</div>
                         <div style={{ fontSize: 8, color: 'rgba(255,255,255,0.2)', fontWeight: 700 }}>TEMPS ESTIME</div>
                       </div>
                     </div>
@@ -191,8 +195,8 @@ export default function ActivityDetailPage() {
                     <span style={{ fontSize: 16, fontWeight: 900, color: vo2 > 0 ? vo2Col : 'rgba(255,255,255,0.15)' }}>{vo2 > 0 ? vo2 : '--'}</span>
                   </GaugeRing>
                   <div style={{ flex: 1 } as any}>
-                    <div style={{ fontSize: 13, fontWeight: 800, color: '#FFF' }}>VO2 Max</div>
-                    <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.3)', marginTop: 2 }}>Capacite aerobique maximale</div>
+                    <div style={{ fontSize: 13, fontWeight: 800, color: '#111' }}>VO2 Max</div>
+                    <div style={{ fontSize: 10, color: '#9CA3AF', marginTop: 2 }}>Capacite aerobique maximale</div>
                     <div style={{ display: 'inline-flex', alignItems: 'center', gap: 4, padding: '2px 8px', borderRadius: 999, background: `${vo2Col}15`, marginTop: 4 } as any}>
                       <span style={{ fontSize: 10, fontWeight: 700, color: vo2Col }}>{vo2Label}</span>
                       <span style={{ fontSize: 8, color: 'rgba(255,255,255,0.2)' }}>ml/kg/min</span>
@@ -211,12 +215,12 @@ export default function ActivityDetailPage() {
 
               {/* ══ EXERCICES PRESCRITS PAR LE PRO ══ */}
               {hasProPrograms && proPrograms.length > 0 && (
-                <div style={{ ...GL, padding: 16, marginBottom: 14 } as any}>
+                <div style={{ padding: '16px', borderRadius: 18, background: '#F4F4F5', padding: 16, marginBottom: 14 } as any}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 } as any}>
                     <i className="ri-stethoscope-line" style={{ fontSize: 14, color: P }} />
-                    <span style={{ fontSize: 13, fontWeight: 800, color: '#FFF' }}>Exercices prescrits</span>
+                    <span style={{ fontSize: 13, fontWeight: 800, color: '#111' }}>Exercices prescrits</span>
                   </div>
-                  <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)', marginBottom: 12 }}>Programmes de votre professionnel de sante</div>
+                  <div style={{ fontSize: 11, color: '#9CA3AF', marginBottom: 12 }}>Programmes de votre professionnel de sante</div>
 
                   {proPrograms.map((prog: any) => {
                     const sessions = prog.sessions || [];
@@ -247,8 +251,8 @@ export default function ActivityDetailPage() {
                                   <i className="ri-heart-pulse-line" style={{ fontSize: 18, color: pColor }} />
                                 </div>
                                 <div style={{ flex: 1, minWidth: 0 }}>
-                                  <div style={{ fontSize: 13, fontWeight: 800, color: '#FFF', textDecoration: isDone ? 'line-through' : 'none' }}>{session.title}</div>
-                                  {session.description && <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.35)', marginTop: 2, lineHeight: 1.4 }}>{session.description}</div>}
+                                  <div style={{ fontSize: 13, fontWeight: 800, color: '#111', textDecoration: isDone ? 'line-through' : 'none' }}>{session.title}</div>
+                                  {session.description && <div style={{ fontSize: 10, color: '#6B7280', marginTop: 2, lineHeight: 1.4 }}>{session.description}</div>}
                                   <div style={{ display: 'flex', gap: 6, marginTop: 4, flexWrap: 'wrap' } as any}>
                                     {session.sets > 0 && <span style={{ fontSize: 9, color: 'rgba(255,255,255,0.2)', background: 'rgba(255,255,255,0.04)', padding: '2px 6px', borderRadius: 4 }}>{session.sets}x{session.repetitions || 0}</span>}
                                     {session.duration_min > 0 && <span style={{ fontSize: 9, color: 'rgba(255,255,255,0.2)', background: 'rgba(255,255,255,0.04)', padding: '2px 6px', borderRadius: 4 }}>{session.duration_min} min</span>}
@@ -272,17 +276,17 @@ export default function ActivityDetailPage() {
                               {lastDone && lastDone.pain_level != null && lastDone.pain_level > 0 && (
                                 <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 8, padding: '4px 8px', borderRadius: 8, background: 'rgba(255,255,255,0.03)' } as any}>
                                   <i className="ri-emotion-sad-line" style={{ fontSize: 11, color: A }} />
-                                  <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.3)' }}>Douleur: {lastDone.pain_level}/10</span>
+                                  <span style={{ fontSize: 10, color: '#9CA3AF' }}>Douleur: {lastDone.pain_level}/10</span>
                                 </div>
                               )}
 
                               {/* Completion panel */}
                               {isCompleting && (
                                 <div style={{ marginTop: 10, padding: '12px', borderRadius: 12, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.06)' } as any}>
-                                  <div style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.4)', marginBottom: 8 }}>Comment s'est passe l'exercice ?</div>
+                                  <div style={{ fontSize: 11, fontWeight: 700, color: '#9CA3AF', marginBottom: 8 }}>Comment s'est passe l'exercice ?</div>
 
                                   {/* Pain level */}
-                                  <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.25)', marginBottom: 4 }}>Niveau de douleur (optionnel)</div>
+                                  <div style={{ fontSize: 10, color: '#9CA3AF', marginBottom: 4 }}>Niveau de douleur (optionnel)</div>
                                   <div style={{ display: 'flex', gap: 4, marginBottom: 10 } as any}>
                                     {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((lvl) => (
                                       <div key={lvl} onClick={() => setPainLevel(lvl)}
@@ -298,7 +302,7 @@ export default function ActivityDetailPage() {
 
                                   <textarea value={patientNotes} onChange={(e: any) => setPatientNotes(e.target.value)}
                                     placeholder="Notes (optionnel)"
-                                    style={{ width: '100%', padding: '8px 10px', borderRadius: 10, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.06)', color: '#FFF', fontSize: 12, outline: 'none', minHeight: 36, resize: 'vertical', marginBottom: 10 } as any} />
+                                    style={{ width: '100%', padding: '8px 10px', borderRadius: 10, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.06)', color: '#111', fontSize: 12, outline: 'none', minHeight: 36, resize: 'vertical', marginBottom: 10 } as any} />
 
                                   <div style={{ display: 'flex', gap: 6 } as any}>
                                     <div onClick={() => completeProSession(prog.id, session.id, 'done')}
@@ -310,7 +314,7 @@ export default function ActivityDetailPage() {
                                       Partiel
                                     </div>
                                     <div onClick={() => completeProSession(prog.id, session.id, 'skipped')}
-                                      style={{ flex: 1, padding: '10px', borderRadius: 999, textAlign: 'center', cursor: 'pointer', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', fontSize: 12, fontWeight: 700, color: 'rgba(255,255,255,0.3)' } as any}>
+                                      style={{ flex: 1, padding: '10px', borderRadius: 999, textAlign: 'center', cursor: 'pointer', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', fontSize: 12, fontWeight: 700, color: '#9CA3AF' } as any}>
                                       Passe
                                     </div>
                                   </div>
@@ -327,11 +331,11 @@ export default function ActivityDetailPage() {
 
               {/* ══ EXERCICES PRESCRITS PAR LE COACH ══ */}
               {proExercises.length > 0 && (
-                <div style={{ ...GL, padding: 16, marginBottom: 14 } as any}>
+                <div style={{ padding: '16px', borderRadius: 18, background: '#F4F4F5', padding: 16, marginBottom: 14 } as any}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 } as any}>
                     <i className="ri-run-line" style={{ fontSize: 14, color: R }} />
-                    <span style={{ fontSize: 13, fontWeight: 800, color: '#FFF' }}>Exercices du jour</span>
-                    <span style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.3)', background: 'rgba(255,255,255,0.06)', padding: '2px 8px', borderRadius: 999 }}>{proExercises.length}</span>
+                    <span style={{ fontSize: 13, fontWeight: 800, color: '#111' }}>Exercices du jour</span>
+                    <span style={{ fontSize: 10, fontWeight: 700, color: '#9CA3AF', background: 'rgba(255,255,255,0.06)', padding: '2px 8px', borderRadius: 999 }}>{proExercises.length}</span>
                   </div>
                   {proExercises.map((ex: any, i: number) => (
                     <div key={ex.id || i} data-testid={`pro-exercise-${i}`}
@@ -357,10 +361,10 @@ export default function ActivityDetailPage() {
 
               {/* ══ EXERCICES DU JOUR (minceur) — masques si programmes pro actifs ══ */}
               {!hasProPrograms && exercises.length > 0 && (
-                <div style={{ ...GL, padding: 16, marginBottom: 14 } as any}>
+                <div style={{ padding: '16px', borderRadius: 18, background: '#F4F4F5', padding: 16, marginBottom: 14 } as any}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 } as any}>
                     <i className="ri-heart-pulse-line" style={{ fontSize: 14, color: G }} />
-                    <span style={{ fontSize: 13, fontWeight: 800, color: '#FFF' }}>Vos exercices du jour</span>
+                    <span style={{ fontSize: 13, fontWeight: 800, color: '#111' }}>Vos exercices du jour</span>
                   </div>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: 8 } as any}>
                     {exercises.map((ex: any, i: number) => {
@@ -383,12 +387,12 @@ export default function ActivityDetailPage() {
                           {/* Content */}
                           <div style={{ flex: 1, padding: '10px 12px', display: 'flex', flexDirection: 'column', justifyContent: 'center' } as any}>
                             <div style={{ display: 'flex', alignItems: 'center', gap: 6 } as any}>
-                              <span style={{ fontSize: 13, fontWeight: 800, color: '#FFF', textDecoration: dn ? 'line-through' : 'none' }}>{ex.name}</span>
+                              <span style={{ fontSize: 13, fontWeight: 800, color: '#111', textDecoration: dn ? 'line-through' : 'none' }}>{ex.name}</span>
                               <span style={{ fontSize: 7, fontWeight: 700, color: intC, padding: '2px 5px', borderRadius: 5, background: `${intC}12`, textTransform: 'uppercase' }}>{int}</span>
                             </div>
                             <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 4 } as any}>
                               <span style={{ fontSize: 10, fontWeight: 700, color: A }}><i className="ri-timer-line" style={{ fontSize: 9 }} /> {ex.duration}</span>
-                              {ex.calories_burned > 0 && <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.3)' }}>{ex.calories_burned}kcal</span>}
+                              {ex.calories_burned > 0 && <span style={{ fontSize: 10, color: '#9CA3AF' }}>{ex.calories_burned}kcal</span>}
                             </div>
                           </div>
                           {/* Check button */}
@@ -415,8 +419,8 @@ export default function ActivityDetailPage() {
                 </div>
                 <div style={{ textAlign: 'center', marginBottom: 28 } as any}>
                   <div style={{ width: 56, height: 56, borderRadius: 16, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', marginBottom: 14 } as any}><i className="ri-heart-pulse-fill" style={{ fontSize: 26, color: G }} /></div>
-                  <div style={{ fontSize: 22, fontWeight: 900, color: '#FFF' }}>Vos indicateurs</div>
-                  <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.4)', marginTop: 4 }}>Comprendre votre activite physique</div>
+                  <div style={{ fontSize: 22, fontWeight: 900, color: '#111' }}>Vos indicateurs</div>
+                  <div style={{ fontSize: 13, color: '#9CA3AF', marginTop: 4 }}>Comprendre votre activite physique</div>
                 </div>
                 {[
                   { title: 'VO2 Max', icon: 'ri-lungs-line', color: G, desc: 'La quantite maximale d\'oxygene que votre corps peut utiliser pendant l\'effort. C\'est le meilleur indicateur de votre condition cardiovasculaire. Plus il est eleve, meilleure est votre endurance.', ranges: 'Faible: <20 · Moyen: 20-30 · Bon: 30-40 · Excellent: >40 ml/kg/min' },
@@ -428,10 +432,10 @@ export default function ActivityDetailPage() {
                   <div key={i} style={{ borderRadius: 22, background: 'rgba(0,0,0,0.25)', border: '1px solid rgba(255,255,255,0.1)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', padding: '16px', marginBottom: 12 } as any}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8 } as any}>
                       <div style={{ width: 32, height: 32, borderRadius: 10, background: `${e.color}15`, display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}><i className={e.icon} style={{ fontSize: 16, color: e.color }} /></div>
-                      <span style={{ fontSize: 14, fontWeight: 800, color: '#FFF' }}>{e.title}</span>
+                      <span style={{ fontSize: 14, fontWeight: 800, color: '#111' }}>{e.title}</span>
                     </div>
                     <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.45)', lineHeight: 1.6, marginBottom: 8 }}>{e.desc}</div>
-                    <div style={{ padding: '6px 10px', borderRadius: 8, background: 'rgba(255,255,255,0.03)', fontSize: 9, color: 'rgba(255,255,255,0.3)' }}>{e.ranges}</div>
+                    <div style={{ padding: '6px 10px', borderRadius: 8, background: 'rgba(255,255,255,0.03)', fontSize: 9, color: '#9CA3AF' }}>{e.ranges}</div>
                   </div>
                 ))}
               </div>
