@@ -119,10 +119,44 @@ export default function ActivityDetailPage() {
           <img src={BG} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 } as any} />
           <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.35)', zIndex: 1 } as any} />
           <div style={{ position: 'relative', zIndex: 2, padding: 'calc(env(safe-area-inset-top, 20px) + 12px) 20px 60px', maxWidth: 480, margin: '0 auto' } as any}>
-            <div data-testid="back-button" onClick={() => router.back()} style={{ width: 44, height: 44, borderRadius: 14, background: 'rgba(255,255,255,0.12)', border: '1px solid rgba(255,255,255,0.15)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}><i className="ri-arrow-left-line" style={{ fontSize: 18, color: '#111' }} /></div>
-            <div style={{ textAlign: 'center', marginTop: 8 } as any}>
-              <img src={HERO_IMG} alt="" style={{ width: 160, height: 160, objectFit: 'contain', margin: '0 auto', display: 'block', filter: 'drop-shadow(0 12px 30px rgba(0,0,0,0.4))', position: 'relative', zIndex: 3 } as any} />
+            <div data-testid="back-button" onClick={() => router.back()} style={{ width: 44, height: 44, borderRadius: 14, background: 'rgba(255,255,255,0.12)', border: '1px solid rgba(255,255,255,0.15)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}><i className="ri-arrow-left-line" style={{ fontSize: 18, color: '#FFF' }} /></div>
+            <div style={{ textAlign: 'center', marginTop: 12 } as any}>
+              <div style={{ fontSize: 22, fontWeight: 900, color: '#FFF', marginBottom: 4 }}>Activite du jour</div>
+              <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.5)' }}>Suivi de votre activite physique</div>
             </div>
+
+            {/* Calendar */}
+            {(() => {
+              const DAYS_SHORT = ['Lun','Mar','Mer','Jeu','Ven','Sam','Dim'];
+              const MONTHS_FR = ['Janvier','Fevrier','Mars','Avril','Mai','Juin','Juillet','Aout','Septembre','Octobre','Novembre','Decembre'];
+              const now = new Date();
+              const todayStr = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
+              const daysInMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
+              const dates: Date[] = [];
+              for (let i = 1; i <= daysInMonth; i++) dates.push(new Date(now.getFullYear(), now.getMonth(), i));
+              return (
+                <div style={{ marginTop: 16 } as any}>
+                  <div style={{ fontSize: 13, fontWeight: 800, color: '#FFF', textTransform: 'capitalize', textAlign: 'center', marginBottom: 10 }}>{MONTHS_FR[now.getMonth()]} {now.getFullYear()}</div>
+                  <div id="activity-cal" style={{ display: 'flex', gap: 6, overflowX: 'auto', paddingBottom: 4, scrollbarWidth: 'none' } as any}>
+                    {dates.map(d => {
+                      const ds = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+                      const isToday = ds === todayStr;
+                      const dayIdx = d.getDay() === 0 ? 6 : d.getDay() - 1;
+                      return (
+                        <div key={ds} style={{ minWidth: 48, padding: '8px 4px 10px', borderRadius: 14, textAlign: 'center', flexShrink: 0,
+                          background: isToday ? 'rgba(255,255,255,0.18)' : 'rgba(255,255,255,0.03)',
+                          border: isToday ? '1.5px solid rgba(255,255,255,0.35)' : '1.5px solid transparent',
+                        } as any}>
+                          <div style={{ fontSize: 9, fontWeight: 700, color: isToday ? '#FFF' : 'rgba(255,255,255,0.35)', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 4 }}>{DAYS_SHORT[dayIdx]}</div>
+                          <div style={{ fontSize: 18, fontWeight: 900, color: isToday ? '#FFF' : 'rgba(255,255,255,0.6)', lineHeight: 1 }}>{d.getDate()}</div>
+                          {isToday && <div style={{ width: 4, height: 4, borderRadius: 2, background: A, margin: '4px auto 0' } as any} />}
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              );
+            })()}
           </div>
         </div>
 
@@ -133,6 +167,8 @@ export default function ActivityDetailPage() {
 
           {!loading && (
             <>
+              {/* Nora Activity Analysis — top of content */}
+              <NoraButton label="Analyse de l'activite" sublabel="Analyse par Nora de votre activite physique" onClick={() => setShowNoraActivity(true)} />
 
               {/* ══ CARTE 1: Activité + Récupération + VO2 ══ */}
               <div style={{ padding: '20px', borderRadius: 18, background: '#F4F4F5', position: 'relative', zIndex: 1, marginBottom: 14 } as any}>
@@ -151,13 +187,11 @@ export default function ActivityDetailPage() {
                     const pct = m.goal > 0 ? Math.min(100, Math.round((m.value / m.goal) * 100)) : 0;
                     const has = m.value > 0;
                     return (
-                      <div key={i} onClick={(e) => { e.stopPropagation(); router.push({ pathname: '/metric-detail' as any, params: { key: m.key } }); }} style={{ flex: 1, padding: '10px 6px', borderRadius: 14, background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.04)', textAlign: 'center', cursor: 'pointer', transition: 'background 0.15s' } as any}
-                        onMouseEnter={(e: any) => { e.currentTarget.style.background = 'rgba(255,255,255,0.08)'; }}
-                        onMouseLeave={(e: any) => { e.currentTarget.style.background = 'rgba(255,255,255,0.03)'; }}>
+                      <div key={i} onClick={(e) => { e.stopPropagation(); router.push({ pathname: '/metric-detail' as any, params: { key: m.key } }); }} style={{ flex: 1, padding: '12px 8px', borderRadius: 14, background: '#FFF', textAlign: 'center', cursor: 'pointer', transition: 'background 0.15s' } as any}>
                         <i className={m.icon} style={{ fontSize: 14, color: m.color, display: 'block', marginBottom: 4 }} />
-                        <div style={{ fontSize: 20, fontWeight: 900, color: has ? '#FFF' : 'rgba(255,255,255,0.15)', lineHeight: 1 }}>{has ? (m.decimal ? m.value.toFixed(1) : m.value.toLocaleString()) : '--'}</div>
+                        <div style={{ fontSize: 20, fontWeight: 900, color: has ? '#111' : '#D1D5DB', lineHeight: 1 }}>{has ? (m.decimal ? m.value.toFixed(1) : m.value.toLocaleString()) : '--'}</div>
                         <div style={{ fontSize: 8, color: m.color, fontWeight: 700, marginTop: 2, textTransform: 'uppercase' }}>{m.label}</div>
-                        <div style={{ height: 3, borderRadius: 2, background: 'rgba(255,255,255,0.04)', overflow: 'hidden', marginTop: 6 } as any}><div style={{ height: '100%', borderRadius: 2, width: `${pct}%`, background: m.color, opacity: 0.7 } as any} /></div>
+                        <div style={{ height: 3, borderRadius: 2, background: '#E5E7EB', overflow: 'hidden', marginTop: 6 } as any}><div style={{ height: '100%', borderRadius: 2, width: `${pct}%`, background: m.color } as any} /></div>
                       </div>
                     );
                   })}
@@ -211,7 +245,7 @@ export default function ActivityDetailPage() {
               </div>
 
               {/* ══ Nora Activity Analysis ══ */}
-              <NoraButton label="Analyse de l'activite" sublabel="Analyse par Nora de votre activite physique" onClick={() => setShowNoraActivity(true)} />
+              {/* Old Nora button removed - now at top */}
 
               {/* ══ EXERCICES PRESCRITS PAR LE PRO ══ */}
               {hasProPrograms && proPrograms.length > 0 && (
@@ -419,8 +453,8 @@ export default function ActivityDetailPage() {
                 </div>
                 <div style={{ textAlign: 'center', marginBottom: 28 } as any}>
                   <div style={{ width: 56, height: 56, borderRadius: 16, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', marginBottom: 14 } as any}><i className="ri-heart-pulse-fill" style={{ fontSize: 26, color: G }} /></div>
-                  <div style={{ fontSize: 22, fontWeight: 900, color: '#111' }}>Vos indicateurs</div>
-                  <div style={{ fontSize: 13, color: '#9CA3AF', marginTop: 4 }}>Comprendre votre activite physique</div>
+                  <div style={{ fontSize: 22, fontWeight: 900, color: '#FFF' }}>Vos indicateurs</div>
+                  <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.4)', marginTop: 4 }}>Comprendre votre activite physique</div>
                 </div>
                 {[
                   { title: 'VO2 Max', icon: 'ri-lungs-line', color: G, desc: 'La quantite maximale d\'oxygene que votre corps peut utiliser pendant l\'effort. C\'est le meilleur indicateur de votre condition cardiovasculaire. Plus il est eleve, meilleure est votre endurance.', ranges: 'Faible: <20 · Moyen: 20-30 · Bon: 30-40 · Excellent: >40 ml/kg/min' },
@@ -429,13 +463,14 @@ export default function ActivityDetailPage() {
                   { title: 'Nombre de pas', icon: 'ri-footprint-line', color: G, desc: 'Le nombre de pas est un indicateur simple mais puissant de votre activite quotidienne. L\'objectif recommande pour les seniors est de 6000 pas par jour.', ranges: 'Sedentaire: <3000 · Actif: 3000-6000 · Tres actif: >6000 pas' },
                   { title: 'Calories brulees', icon: 'ri-fire-line', color: A, desc: 'Les calories depensees par votre activite physique dans la journee (hors metabolisme de base). L\'objectif est d\'en bruler au moins 300 par jour.', ranges: 'Faible: <150 · Modere: 150-300 · Actif: >300 kcal' },
                 ].map((e, i) => (
-                  <div key={i} style={{ borderRadius: 22, background: 'rgba(0,0,0,0.25)', border: '1px solid rgba(255,255,255,0.1)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', padding: '16px', marginBottom: 12 } as any}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8 } as any}>
-                      <div style={{ width: 32, height: 32, borderRadius: 10, background: `${e.color}15`, display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}><i className={e.icon} style={{ fontSize: 16, color: e.color }} /></div>
-                      <span style={{ fontSize: 14, fontWeight: 800, color: '#111' }}>{e.title}</span>
+                  <div key={i} style={{ marginBottom: 20 } as any}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 6 } as any}>
+                      <i className={e.icon} style={{ fontSize: 16, color: e.color }} />
+                      <span style={{ fontSize: 15, fontWeight: 800, color: '#FFF' }}>{e.title}</span>
                     </div>
-                    <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.45)', lineHeight: 1.6, marginBottom: 8 }}>{e.desc}</div>
-                    <div style={{ padding: '6px 10px', borderRadius: 8, background: 'rgba(255,255,255,0.03)', fontSize: 9, color: '#9CA3AF' }}>{e.ranges}</div>
+                    <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.5)', lineHeight: 1.7, marginBottom: 6 }}>{e.desc}</div>
+                    <div style={{ fontSize: 10, color: e.color, fontWeight: 600 }}>{e.ranges}</div>
+                    {i < 4 && <div style={{ height: 1, background: 'rgba(255,255,255,0.06)', marginTop: 16 } as any} />}
                   </div>
                 ))}
               </div>
