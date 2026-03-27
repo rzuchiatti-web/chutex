@@ -224,7 +224,15 @@ export default function GuardianHome({ token, user }: { token: string; user: any
               {bens.length === 0 && <div style={{ padding: '20px', borderRadius: 18, background: cardBg, textAlign: 'center' } as any}><div style={{ fontSize: 13, color: subColor }}>Aucun beneficiaire pour le moment</div></div>}
             </div>
 
-            {/* Separator + Revenue Card — above add button */}
+            {/* Add beneficiary button — inside beneficiary section */}
+            <div onClick={() => setShowAddBenPopup(true)} style={{ marginTop: 14, padding: '16px', borderRadius: 999, textAlign: 'center', cursor: 'pointer', background: isDark ? '#FFF' : '#000', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10, transition: 'opacity 0.15s' } as any}
+              onMouseEnter={(e: any) => { e.currentTarget.style.opacity = '0.85'; }}
+              onMouseLeave={(e: any) => { e.currentTarget.style.opacity = '1'; }}>
+              <i className="ri-heart-add-line" style={{ fontSize: 18, color: isDark ? '#000' : '#FFF' }} />
+              <span style={{ fontSize: 14, fontWeight: 700, color: isDark ? '#000' : '#FFF' }}>{t('add_beneficiary')}</span>
+            </div>
+
+            {/* Separator + Revenue Card */}
             {isCoachOrPhysio && (
               <>
                 <div style={{ height: 1, background: sepColor, margin: '20px 0' } as any} />
@@ -247,13 +255,6 @@ export default function GuardianHome({ token, user }: { token: string; user: any
                 </div>
               </>
             )}
-
-            <div onClick={() => setShowAddBenPopup(true)} style={{ padding: '16px', borderRadius: 999, textAlign: 'center', cursor: 'pointer', background: isDark ? '#FFF' : '#000', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10, transition: 'opacity 0.15s' } as any}
-              onMouseEnter={(e: any) => { e.currentTarget.style.opacity = '0.85'; }}
-              onMouseLeave={(e: any) => { e.currentTarget.style.opacity = '1'; }}>
-              <i className="ri-heart-add-line" style={{ fontSize: 18, color: isDark ? '#000' : '#FFF' }} />
-              <span style={{ fontSize: 14, fontWeight: 700, color: isDark ? '#000' : '#FFF' }}>{t('add_beneficiary')}</span>
-            </div>
 
           </div>
         </div>

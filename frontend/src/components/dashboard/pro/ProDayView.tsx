@@ -9,6 +9,13 @@ const MEAL_ICONS: Record<string, string> = {
   gouter: 'ri-cup-line',
   diner: 'ri-moon-line',
 };
+const MEAL_COLORS: Record<string, string> = {
+  petit_dejeuner: '#F59E0B',
+  dejeuner: '#10B981',
+  collation: '#A78BFA',
+  gouter: '#A78BFA',
+  diner: '#60A5FA',
+};
 
 interface ProDayViewProps {
   filteredExercises: any[];
@@ -38,23 +45,20 @@ export function ProDayView(props: ProDayViewProps) {
 
   return (
     <>
-      {/* Nutrition + Weight Goal Combined Card — Dark style */}
+      {/* Nutrition + Weight Goal Combined Card */}
       {(benNutrition?.daily_calories > 0 || (benWeightGoal && benWeightGoal.has_goal)) && (
         <div data-testid="nutrition-weight-card" onClick={() => router.push({ pathname: '/minceur' as any, params: { beneficiaryId: activeBenId } })}
-          style={{ borderRadius: 20, background: 'linear-gradient(145deg, #0F172A 0%, #1E293B 100%)', padding: '20px 18px', marginBottom: 18, cursor: 'pointer', position: 'relative', overflow: 'hidden' } as any}>
-
-          {/* Subtle glow */}
-          <div style={{ position: 'absolute', top: -40, right: -40, width: 120, height: 120, borderRadius: '50%', background: 'radial-gradient(circle, rgba(59,130,246,0.12) 0%, transparent 70%)' } as any} />
-
-          {/* Header + arrow */}
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4 } as any}>
-            <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', letterSpacing: 1.5 }}>Consommation par jour</div>
-            <i className="ri-arrow-right-s-line" style={{ fontSize: 18, color: 'rgba(255,255,255,0.3)' }} />
-          </div>
+          style={{ borderRadius: 20, background: '#3A3A42', padding: '20px 18px', marginBottom: 18, cursor: 'pointer' } as any}>
 
           {benNutrition && benNutrition.daily_calories > 0 && (
             <>
-              {/* Kcal + Water row */}
+              {/* Header + arrow */}
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4 } as any}>
+                <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', letterSpacing: 1.5 }}>Consommation par jour</div>
+                <i className="ri-arrow-right-s-line" style={{ fontSize: 18, color: 'rgba(255,255,255,0.3)' }} />
+              </div>
+
+              {/* Kcal + Water */}
               <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', marginBottom: 16 } as any}>
                 <div>
                   <span style={{ fontSize: 42, fontWeight: 900, color: '#FFF', letterSpacing: -2, lineHeight: 1 }}>{benNutrition.daily_calories}</span>
@@ -66,17 +70,20 @@ export function ProDayView(props: ProDayViewProps) {
                 </div>
               </div>
 
-              {/* Macros row */}
-              <div style={{ display: 'flex', gap: 8 } as any}>
+              {/* Macros — separated by thin lines */}
+              <div style={{ display: 'flex', alignItems: 'center' } as any}>
                 {[
                   { label: 'PROTEINES', val: benNutrition.macros?.proteines_g || 0, color: '#10B981' },
                   { label: 'GLUCIDES', val: benNutrition.macros?.glucides_g || 0, color: '#F59E0B' },
                   { label: 'LIPIDES', val: benNutrition.macros?.lipides_g || 0, color: '#EF4444' },
-                ].map((m) => (
-                  <div key={m.label} style={{ flex: 1, padding: '12px 8px', borderRadius: 14, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.06)', textAlign: 'center' } as any}>
-                    <div style={{ fontSize: 22, fontWeight: 900, color: '#FFF', lineHeight: 1 }}>{m.val}<span style={{ fontSize: 10, fontWeight: 600, color: 'rgba(255,255,255,0.3)' }}>g</span></div>
-                    <div style={{ fontSize: 8, fontWeight: 700, color: m.color, textTransform: 'uppercase', letterSpacing: 0.8, marginTop: 4 }}>{m.label}</div>
-                  </div>
+                ].map((m, i) => (
+                  <React.Fragment key={m.label}>
+                    {i > 0 && <div style={{ width: 1, height: 32, background: 'rgba(255,255,255,0.08)' } as any} />}
+                    <div style={{ flex: 1, textAlign: 'center' } as any}>
+                      <div style={{ fontSize: 22, fontWeight: 900, color: '#FFF', lineHeight: 1 }}>{m.val}<span style={{ fontSize: 10, fontWeight: 600, color: 'rgba(255,255,255,0.3)' }}>g</span></div>
+                      <div style={{ fontSize: 8, fontWeight: 700, color: m.color, textTransform: 'uppercase', letterSpacing: 0.8, marginTop: 4 }}>{m.label}</div>
+                    </div>
+                  </React.Fragment>
                 ))}
               </div>
             </>
@@ -133,21 +140,24 @@ export function ProDayView(props: ProDayViewProps) {
         const partial = (ex.completions || []).some((c: any) => c.date?.startsWith(selectedDateStr) && c.status === 'partial');
         return (
           <div key={ex.id} data-testid={`day-exercise-${ex.id}`}
-            style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 14px', borderRadius: 16,
-              background: done ? 'rgba(16,185,129,0.06)' : partial ? 'rgba(245,158,11,0.06)' : '#F4F4F5',
-              border: done ? '1px solid rgba(16,185,129,0.2)' : partial ? '1px solid rgba(245,158,11,0.2)' : '1px solid transparent',
-              marginBottom: 8, transition: 'all 0.15s' } as any}>
-            <div onClick={() => router.push({ pathname: '/pro-exercise-detail' as any, params: { id: ex.exercise_template_id || ex.id, mode: 'assigned', assignmentId: ex.id } })}
-              style={{ width: 48, height: 48, borderRadius: 12, overflow: 'hidden', flexShrink: 0, cursor: 'pointer', background: `${AC}10`, display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}>
-              <i className={ex.icon || 'ri-run-line'} style={{ fontSize: 22, color: AC }} />
+            onClick={() => router.push({ pathname: '/pro-exercise-detail' as any, params: { id: ex.exercise_template_id || ex.id, mode: 'assigned', assignmentId: ex.id } })}
+            style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 12px', borderRadius: 16,
+              background: '#3A3A42', cursor: 'pointer',
+              marginBottom: 8, transition: 'all 0.15s', opacity: done ? 0.6 : 1 } as any}>
+            <div style={{ width: 52, height: 52, borderRadius: 14, overflow: 'hidden', flexShrink: 0, background: `${AC}15`, display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}>
+              <i className={ex.icon || 'ri-run-line'} style={{ fontSize: 24, color: AC }} />
             </div>
-            <div onClick={() => router.push({ pathname: '/pro-exercise-detail' as any, params: { id: ex.exercise_template_id || ex.id, mode: 'assigned', assignmentId: ex.id } })}
-              style={{ flex: 1, minWidth: 0, cursor: 'pointer' } as any}>
-              <div style={{ fontSize: 14, fontWeight: 700, color: '#111', textTransform: 'capitalize' }}>{ex.title}</div>
-              <div style={{ fontSize: 11, color: '#6B7280', marginTop: 2 }}>{ex.sets}x{ex.repetitions} - {ex.rest_seconds}s repos</div>
+            <div style={{ flex: 1, minWidth: 0 } as any}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' } as any}>
+                <div style={{ fontSize: 14, fontWeight: 700, color: '#FFF', textTransform: 'capitalize', textDecoration: done ? 'line-through' : 'none' }}>{ex.title}</div>
+                {ex.calories > 0 && <span style={{ fontSize: 12, fontWeight: 800, color: 'rgba(255,255,255,0.35)' }}>{ex.calories}<span style={{ fontSize: 8 }}>kcal</span></span>}
+              </div>
+              <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', marginTop: 2 }}>{ex.sets}x{ex.repetitions} - {ex.rest_seconds}s repos</div>
             </div>
-            <StatusBadge done={done} partial={partial} testPrefix={`exercise-status-${ex.id}`} />
-            <ActionButtons onEdit={() => props.onEditExercise(ex)} onDelete={() => props.onDeleteExercise(ex.id)} testPrefix={`exercise-${ex.id}`} />
+            <div style={{ display: 'flex', alignItems: 'center', gap: 4, flexShrink: 0 } as any} onClick={(e: any) => e.stopPropagation()}>
+              <StatusBadge done={done} partial={partial} testPrefix={`exercise-status-${ex.id}`} />
+              <ActionButtons onEdit={() => props.onEditExercise(ex)} onDelete={() => props.onDeleteExercise(ex.id)} testPrefix={`exercise-${ex.id}`} />
+            </div>
           </div>
         );
       })}
@@ -223,23 +233,27 @@ export function ProDayView(props: ProDayViewProps) {
       {filteredMeals.map(m => {
         const mealDone = (m.completions || []).some((c: any) => c.date?.startsWith(selectedDateStr) && c.status === 'done');
         const mealIcon = MEAL_ICONS[m.meal_type] || 'ri-restaurant-line';
+        const mealColor = MEAL_COLORS[m.meal_type] || '#10B981';
         return (
           <div key={m.id} data-testid={`day-meal-${m.id}`}
-            style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 14px', borderRadius: 16,
-              background: mealDone ? 'rgba(16,185,129,0.06)' : '#F4F4F5',
-              border: mealDone ? '1px solid rgba(16,185,129,0.2)' : '1px solid transparent',
-              marginBottom: 8, transition: 'all 0.15s' } as any}>
-            <div onClick={() => router.push({ pathname: '/meal-detail' as any, params: { id: m.meal_template_id || m.id, mode: 'assigned', assignmentId: m.id } })}
-              style={{ width: 48, height: 48, borderRadius: 12, flexShrink: 0, cursor: 'pointer', background: 'rgba(16,185,129,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}>
-              <i className={mealIcon} style={{ fontSize: 22, color: '#10B981' }} />
+            onClick={() => router.push({ pathname: '/meal-detail' as any, params: { id: m.meal_template_id || m.id, mode: 'assigned', assignmentId: m.id } })}
+            style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 12px', borderRadius: 16,
+              background: '#3A3A42', cursor: 'pointer',
+              marginBottom: 8, transition: 'all 0.15s', opacity: mealDone ? 0.6 : 1 } as any}>
+            <div style={{ width: 52, height: 52, borderRadius: 14, flexShrink: 0, background: `${mealColor}15`, display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' } as any}>
+              {m.image ? <img src={m.image.startsWith('/') ? `${process.env.EXPO_PUBLIC_BACKEND_URL || ''}${m.image}` : m.image} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' } as any} /> : <i className={mealIcon} style={{ fontSize: 24, color: mealColor }} />}
             </div>
-            <div onClick={() => router.push({ pathname: '/meal-detail' as any, params: { id: m.meal_template_id || m.id, mode: 'assigned', assignmentId: m.id } })}
-              style={{ flex: 1, minWidth: 0, cursor: 'pointer' } as any}>
-              <div style={{ fontSize: 14, fontWeight: 700, color: '#111', textTransform: 'capitalize' }}>{m.title}</div>
-              <div style={{ fontSize: 11, color: '#6B7280', marginTop: 2 }}>{m.meal_type?.replace('_', ' ')} {m.calories ? `- ${m.calories} kcal` : ''}</div>
+            <div style={{ flex: 1, minWidth: 0 } as any}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' } as any}>
+                <div style={{ fontSize: 14, fontWeight: 700, color: '#FFF', textTransform: 'capitalize', textDecoration: mealDone ? 'line-through' : 'none' }}>{m.title}</div>
+                {m.calories > 0 && <span style={{ fontSize: 12, fontWeight: 800, color: 'rgba(255,255,255,0.35)' }}>{m.calories}<span style={{ fontSize: 8 }}>kcal</span></span>}
+              </div>
+              <div style={{ fontSize: 11, color: mealColor, marginTop: 2 }}>Voir la recette <i className="ri-arrow-right-s-line" style={{ fontSize: 9 }} /></div>
             </div>
-            <StatusBadge done={mealDone} testPrefix={`meal-status-${m.id}`} />
-            <ActionButtons onEdit={() => props.onEditMeal(m)} onDelete={() => props.onDeleteMeal(m.id)} testPrefix={`meal-${m.id}`} />
+            <div style={{ display: 'flex', alignItems: 'center', gap: 4, flexShrink: 0 } as any} onClick={(e: any) => e.stopPropagation()}>
+              <StatusBadge done={mealDone} testPrefix={`meal-status-${m.id}`} />
+              <ActionButtons onEdit={() => props.onEditMeal(m)} onDelete={() => props.onDeleteMeal(m.id)} testPrefix={`meal-${m.id}`} />
+            </div>
           </div>
         );
       })}
