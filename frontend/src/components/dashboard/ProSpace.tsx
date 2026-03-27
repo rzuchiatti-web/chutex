@@ -35,7 +35,7 @@ export default function ProSpace({ token, user }: { token: string; user: any }) 
   const [benOpen, setBenOpen] = useState(false);
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [libraryFilter, setLibraryFilter] = useState('exercices');
-  const [showGuide, setShowGuide] = useState(() => typeof localStorage !== 'undefined' ? !localStorage.getItem('chutex_pro_guide_seen') : false);
+  const [showGuide, setShowGuide] = useState(false);
 
   // Form states
   const emptyEx = { title: '', description: '', sets: 3, reps: 12, duration_minutes: 0, image: '', days: [] as string[], rest_seconds: 60 };
@@ -383,7 +383,7 @@ export default function ProSpace({ token, user }: { token: string; user: any }) 
 
       {/* GUIDE POPUP */}
       {showGuide && (
-        <div data-testid="pro-guide-overlay" onClick={() => { setShowGuide(false); localStorage.setItem('chutex_pro_guide_seen', '1'); }}
+        <div data-testid="pro-guide-overlay" onClick={() => setShowGuide(false)}
           style={{ position: 'fixed', inset: 0, zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20, backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)', background: 'rgba(0,0,0,0.4)' } as any}>
           <div onClick={e => e.stopPropagation()} style={{ width: '100%', maxWidth: 400, maxHeight: '80vh', overflowY: 'auto', borderRadius: 24, background: '#FFF', boxShadow: '0 24px 64px rgba(0,0,0,0.2)', padding: '28px 24px' } as any}>
             <div style={{ textAlign: 'center', marginBottom: 20 } as any}>
@@ -414,7 +414,7 @@ export default function ProSpace({ token, user }: { token: string; user: any }) 
               </div>
             ))}
 
-            <div data-testid="guide-close-btn" onClick={() => { setShowGuide(false); localStorage.setItem('chutex_pro_guide_seen', '1'); }}
+            <div data-testid="guide-close-btn" onClick={() => setShowGuide(false)}
               style={{ marginTop: 20, padding: '14px', borderRadius: 999, background: '#111', textAlign: 'center', cursor: 'pointer', fontSize: 14, fontWeight: 800, color: '#FFF' } as any}>
               C'est compris
             </div>
