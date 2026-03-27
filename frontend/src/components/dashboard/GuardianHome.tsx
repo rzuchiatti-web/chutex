@@ -213,117 +213,27 @@ export default function GuardianHome({ token, user }: { token: string; user: any
             ))}
             {bens.length === 0 && <div style={{ textAlign: 'center', padding: '30px', borderRadius: 20, background: cardBg, marginBottom: 10 } as any}><i className="ri-group-line" style={{ fontSize: 36, color: subColor }} /><div style={{ fontSize: 15, fontWeight: 700, color: textColor, marginTop: 10 }}>Aucun beneficiaire</div></div>}
 
-            {/* Payment Dashboard Card for Coach/Physio - WEB VERSION */}
+            {/* Revenue Card for Coach/Physio → navigates to dedicated page */}
             {isCoachOrPhysio && (
-              <div data-testid="payment-card-web" style={{ borderRadius: 18, background: cardBg, marginBottom: 16, padding: 18, borderLeft: `4px solid ${user?.professional_type === 'coach' ? '#DC2626' : '#F97316'}` } as any}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 14 } as any}>
-                  <div style={{ width: 40, height: 40, borderRadius: 12, background: user?.professional_type === 'coach' ? 'rgba(220,38,38,0.1)' : 'rgba(249,115,22,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}>
-                    <i className="ri-wallet-3-line" style={{ fontSize: 20, color: user?.professional_type === 'coach' ? '#DC2626' : '#F97316' }} />
+              <div data-testid="revenue-card" onClick={() => router.push('/pro-revenue' as any)}
+                style={{ borderRadius: 18, background: cardBg, marginBottom: 16, padding: '16px 18px', cursor: 'pointer', transition: 'transform 0.15s' } as any}
+                onMouseEnter={(e: any) => { e.currentTarget.style.transform = 'translateY(-2px)'; }}
+                onMouseLeave={(e: any) => { e.currentTarget.style.transform = ''; }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 14 } as any}>
+                  <div style={{ width: 50, height: 50, borderRadius: 16, background: 'linear-gradient(135deg, #10B981, #059669)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}>
+                    <i className="ri-wallet-3-line" style={{ fontSize: 22, color: '#FFF' }} />
                   </div>
                   <div style={{ flex: 1 } as any}>
-                    <div style={{ fontSize: 12, fontWeight: 700, color: user?.professional_type === 'coach' ? '#DC2626' : '#F97316', textTransform: 'uppercase', letterSpacing: 1 }}>
-                      {user?.professional_type === 'coach' ? 'Revenus Coach' : 'Revenus Physio'}
+                    <div style={{ fontSize: 15, fontWeight: 800, color: textColor }}>Mes revenus</div>
+                    <div style={{ fontSize: 12, color: subColor, marginTop: 2 }}>
+                      {paymentDash?.projected_monthly_ht ? `${paymentDash.projected_monthly_ht} € HT / mois` : 'Gestion de vos paiements'}
                     </div>
-                  </div>
-                  <i className="ri-arrow-right-s-line" style={{ fontSize: 18, color: subColor }} />
-                </div>
-                <div style={{ display: 'flex', gap: 12, marginBottom: 14 } as any}>
-                  <div style={{ flex: 1, background: isDark ? 'rgba(255,255,255,0.05)' : '#F9FAFB', borderRadius: 12, padding: 12, textAlign: 'center' } as any}>
-                    <div style={{ fontSize: 22, fontWeight: 900, color: textColor }}>{paymentDash?.active_subscriptions || 0}</div>
-                    <div style={{ fontSize: 10, color: subColor, marginTop: 2 }}>Abonnes actifs</div>
-                  </div>
-                  <div style={{ flex: 1, background: isDark ? 'rgba(255,255,255,0.05)' : '#F9FAFB', borderRadius: 12, padding: 12, textAlign: 'center' } as any}>
-                    <div style={{ fontSize: 22, fontWeight: 900, color: textColor }}>{paymentDash?.projected_monthly_ht || 0} €</div>
-                    <div style={{ fontSize: 10, color: subColor, marginTop: 2 }}>Revenu mensuel HT</div>
-                  </div>
-                  <div style={{ flex: 1, background: isDark ? 'rgba(255,255,255,0.05)' : '#F9FAFB', borderRadius: 12, padding: 12, textAlign: 'center' } as any}>
-                    <div style={{ fontSize: 22, fontWeight: 900, color: '#10B981' }}>{paymentDash?.total_revenue_ht || 0} €</div>
-                    <div style={{ fontSize: 10, color: subColor, marginTop: 2 }}>Total gagne HT</div>
-                  </div>
-                </div>
-                <div data-testid="iban-config-row" onClick={async () => { setIbanMsg(null); try { const cfg = await apiFetch('/api/pro/payment-config', {}, token); setIbanForm({ account_holder: cfg.account_holder || '', iban: cfg.iban || '', bic: cfg.bic || '' }); } catch {} setShowIbanModal(true); }} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingTop: 12, borderTop: `1px solid ${sepColor}`, cursor: 'pointer' } as any}>
-                  <span style={{ fontSize: 11, color: subColor }}>45 € HT / beneficiaire / mois</span>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 6 } as any}>
-                    <span style={{ width: 6, height: 6, borderRadius: 3, background: paymentDash?.iban_configured ? '#10B981' : '#F59E0B' } as any} />
-                    <span data-testid="iban-status-btn" style={{ fontSize: 11, fontWeight: 600, color: paymentDash?.iban_configured ? '#10B981' : '#F59E0B' }}>
-                      {paymentDash?.iban_configured ? 'IBAN configure' : 'Configurer IBAN'}
-                    </span>
-                    <i className="ri-arrow-right-s-line" style={{ fontSize: 14, color: subColor }} />
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {/* HISTORIQUE PAIEMENTS */}
-            {isCoachOrPhysio && (
-              <div style={{ marginTop: 16, borderRadius: 18, background: cardBg, overflow: 'hidden' } as any}>
-                <div data-testid="payment-history-toggle" onClick={async () => {
-                  if (!showPaymentHistory) {
-                    try { const h = await apiFetch('/api/pro/payment-history', {}, token); setPaymentHistory(Array.isArray(h) ? h : []); } catch {}
-                  }
-                  setShowPaymentHistory(!showPaymentHistory);
-                }} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px 18px', cursor: 'pointer' } as any}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 10 } as any}>
-                    <i className="ri-history-line" style={{ fontSize: 18, color: textColor }} />
-                    <span style={{ fontSize: 14, fontWeight: 700, color: textColor }}>Historique des paiements</span>
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8 } as any}>
-                    <span style={{ fontSize: 11, fontWeight: 600, color: subColor }}>{paymentHistory.length || ''}</span>
-                    <i className={`ri-arrow-${showPaymentHistory ? 'up' : 'down'}-s-line`} style={{ fontSize: 18, color: subColor }} />
+                    {!paymentDash?.iban_configured && <span style={{ width: 8, height: 8, borderRadius: 4, background: '#F59E0B' } as any} />}
+                    <i className="ri-arrow-right-s-line" style={{ fontSize: 20, color: isDark ? 'rgba(255,255,255,0.25)' : 'rgba(0,0,0,0.2)' }} />
                   </div>
                 </div>
-
-                {showPaymentHistory && (
-                  <div style={{ borderTop: `1px solid ${sepColor}` } as any}>
-                    {/* Export CSV */}
-                    <div style={{ padding: '10px 18px', display: 'flex', justifyContent: 'flex-end' } as any}>
-                      <a data-testid="export-csv-btn" href={`${API_URL}/api/pro/payment-history/export`}
-                        onClick={async (e: any) => {
-                          e.preventDefault();
-                          try {
-                            const res = await fetch(`${API_URL}/api/pro/payment-history/export`, { headers: { Authorization: `Bearer ${token}` } });
-                            const blob = await res.blob();
-                            const url = window.URL.createObjectURL(blob);
-                            const a = document.createElement('a'); a.href = url; a.download = `paiements_${new Date().toISOString().slice(0,10)}.csv`; a.click();
-                            window.URL.revokeObjectURL(url);
-                          } catch {}
-                        }}
-                        style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 14px', borderRadius: 999, background: isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.04)', fontSize: 12, fontWeight: 700, color: subColor, cursor: 'pointer', textDecoration: 'none', border: `1px solid ${sepColor}` } as any}>
-                        <i className="ri-download-2-line" style={{ fontSize: 14 }} /> Exporter CSV
-                      </a>
-                    </div>
-
-                    {paymentHistory.length === 0 ? (
-                      <div style={{ textAlign: 'center', padding: '24px 18px', color: subColor, fontSize: 13 } as any}>
-                        <i className="ri-wallet-3-line" style={{ fontSize: 28, display: 'block', marginBottom: 8, opacity: 0.4 }} />
-                        Aucun paiement recu pour le moment
-                      </div>
-                    ) : (
-                      <div style={{ maxHeight: 320, overflowY: 'auto' } as any}>
-                        {paymentHistory.map((p: any, i: number) => {
-                          const dateStr = p.date ? new Date(p.date).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short', year: 'numeric' }) : '';
-                          const benName = p.beneficiary_name || (p.beneficiary_id || '').slice(0, 8);
-                          return (
-                            <div key={p.id || i} data-testid={`payment-row-${i}`}
-                              style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 18px', borderTop: i > 0 ? `1px solid ${sepColor}` : 'none' } as any}>
-                              <div style={{ width: 36, height: 36, borderRadius: 10, background: p.status === 'paid' ? 'rgba(16,185,129,0.1)' : 'rgba(245,158,11,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}>
-                                <i className={p.status === 'paid' ? 'ri-check-line' : 'ri-time-line'} style={{ fontSize: 16, color: p.status === 'paid' ? '#10B981' : '#F59E0B' }} />
-                              </div>
-                              <div style={{ flex: 1, minWidth: 0 } as any}>
-                                <div style={{ fontSize: 13, fontWeight: 700, color: textColor, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' } as any}>{benName}</div>
-                                <div style={{ fontSize: 11, color: subColor }}>{dateStr}</div>
-                              </div>
-                              <div style={{ textAlign: 'right', flexShrink: 0 } as any}>
-                                <div style={{ fontSize: 14, fontWeight: 800, color: '#10B981' }}>+{p.amount_ht || 0} €</div>
-                                <div style={{ fontSize: 10, color: subColor }}>HT</div>
-                              </div>
-                            </div>
-                          );
-                        })}
-                      </div>
-                    )}
-                  </div>
-                )}
               </div>
             )}
 
