@@ -10,54 +10,47 @@ Refondre l'espace d'activite (ProSpace) des coachs/gardiens pour la gestion dire
 
 ## Charte graphique (DA)
 - Light mode par defaut: #F5F5F5, #FFF, #111, #9CA3AF
-- isDark = localStorage.getItem('chutex_dark') === '1' (light = defaut quand null)
+- isDark = localStorage.getItem('chutex_dark') === '1' (light = defaut)
 - GlassModal: overlay + fond opaque rgba(20,20,30,0.82)
-- Dropdowns header: rgba(20,20,30,0.88) + blur 24px
+- Pages detail: header image + contenu blanc arrondi overlappant
 
 ## Fonctionnalites implementees
 - [x] CRUD exercices/complements/hydratation/repas + seed 20 exercices + 12 repas
-- [x] Assignation par jour + series/repos
+- [x] Assignation par jour + series/repos + notifications push
 - [x] Calendrier horizontal glassmorphism
 - [x] Carte nutritionnelle + objectif poids (refonte claire avec progression %)
-- [x] Sections Traitements / Hydratation / Repas separees
-- [x] Edition templates via PUT
-- [x] Dropdown glass sombre dans header bibliotheque
 - [x] Upload video (mp4, mov, webm) pour exercices
 - [x] Merge dynamique assignation/template (video, image, steps)
 - [x] Synchronisation Gardien -> Beneficiaire (exercices + repas)
 - [x] Popup guide Glass dans ProSpace
-- [x] Refonte pages detail en Light Theme
 - [x] Login admin par email
 - [x] Notifications Push temps reel (WebSocket + Browser Push + In-App)
-- [x] Light mode par defaut (BeneficiaryHome, GuardianHome, GlassTabBar)
-- [x] Correction macros a 0 (navigation minceur avec mode=assigned + lecture proteines_g)
-- [x] Bouton valider vert en bas des pages detail (meal-detail)
+- [x] Light mode par defaut
+- [x] Correction macros a 0 (navigation minceur avec mode=assigned)
+- [x] Bouton valider vert en bas des pages detail
 - [x] Metadonnees exercice dans le contenu (difficulte, zone, equipement)
-- [x] Carte Nutrition/Poids amelioree (progression %, actuel vs objectif, kg restants)
+- [x] **Page revenus dediee /pro-revenue** (3 onglets: Apercu/Historique/Compte bancaire)
+- [x] **Carte revenus simplifiee** dans le dashboard gardien (icone verte, fleche)
+- [x] **Messagerie coach/physio** fonctionnelle sans erreur serveur
 - [x] Admin Revenue Dashboard
 
-## Structure
+## Structure cles
 ```
-frontend/src/components/dashboard/
-  ProSpace.tsx
-  NotificationCenter.tsx    (useNotifications, NotificationBanner, NotificationCenter)
-  BeneficiaryHome.tsx       (light mode defaut, notifications WS)
-  pro/
-    ProDayView.tsx          (carte nutrition/poids refaite)
-    ProLibrary.tsx
-    ProModals.tsx
-
 frontend/app/
+  pro-revenue.tsx           (PAGE: gestion revenus + IBAN + historique)
   meal-detail.tsx           (bouton valider en bas, macros _g)
   pro-exercise-detail.tsx   (info tags difficulte/zone/equipement)
   minceur.tsx               (navigation pro meals avec assignmentId)
-  index.tsx                 (login email admin)
+
+frontend/src/components/dashboard/
+  GuardianHome.tsx          (carte revenus simplifiee vers /pro-revenue)
+  BeneficiaryHome.tsx       (light mode defaut, notifications WS)
+  NotificationCenter.tsx    (useNotifications, NotificationBanner)
+  pro/ProDayView.tsx        (carte nutrition/poids refaite)
 
 backend/routes/
   notification_routes.py    (CRUD + create_notification + push)
   professional_routes.py    (triggers notifications)
-  minceur_routes.py         (injection pro meals avec source/assignment_id)
-backend/ws_manager.py       (AdminWSManager + BeneficiaryWSManager)
 ```
 
 ## Backlog P2
@@ -68,7 +61,7 @@ backend/ws_manager.py       (AdminWSManager + BeneficiaryWSManager)
 - [ ] Integration Vivoo
 - [ ] Validation CRC32 TCP
 - [ ] Unifier style cartes repas/exercices (image-left) sur toutes les pages
-- [ ] Refactoring route alerts.tsx (messages vs alertes gardien)
+- [ ] Refactoring route alerts.tsx
 
 ## Credentials
 - Coach: +33655443322 / test123
