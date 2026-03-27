@@ -54,7 +54,7 @@ export default function BeneficiaryDetailScreen() {
   const slideTrackW = useRef(0);
   const lastDxRef = useRef(0);
 
-  useEffect(() => { if (typeof localStorage !== 'undefined') { const c = () => setIsDark(localStorage.getItem('chutex_dark') !== '0'); c(); const iv = setInterval(c, 400); return () => clearInterval(iv); } }, []);
+  useEffect(() => { if (typeof localStorage !== 'undefined') { const c = () => setIsDark(localStorage.getItem('chutex_dark') === '1'); c(); const iv = setInterval(c, 400); return () => clearInterval(iv); } }, []);
 
   const activeBid = resolvedBid || bid;
 
