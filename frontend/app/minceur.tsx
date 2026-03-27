@@ -8,24 +8,32 @@ import { BG_IMAGES } from '../src/components/dashboard/constants';
 
 const NORA_VIDEO = 'https://customer-assets.emergentagent.com/job_ba3a5789-c8f1-4b12-b5d8-478a7f99aaea/artifacts/b6eh1r76_Nora_video.mp4';
 
-function NoraAnalysisOverlay({ text, onClose }: { text: string; onClose: () => void }) {
+function NoraAnalysisOverlay({ text: initialText, onClose }: { text: string; onClose: () => void }) {
+  const { token } = useAuth();
   const [phase, setPhase] = useState<'intro' | 'typing' | 'done'>('intro');
   const [typed, setTyped] = useState('');
+  const [analysisText, setAnalysisText] = useState(initialText);
 
   useEffect(() => {
+    // Lazy fetch from dedicated endpoint (uses cache if available)
+    if (token) {
+      apiFetch('/api/nora/minceur-analysis', {}, token)
+        .then((r: any) => { if (r?.insight) setAnalysisText(`${r.insight}${r.tip ? ` ${r.tip}` : ''}`); })
+        .catch(() => {});
+    }
     const t1 = setTimeout(() => setPhase('typing'), 2500);
     return () => clearTimeout(t1);
-  }, []);
+  }, [token]);
 
   useEffect(() => {
-    if (phase !== 'typing') return;
+    if (phase !== 'typing' || !analysisText) return;
     let i = 0;
     const iv = setInterval(() => {
-      if (i <= text.length) { setTyped(text.slice(0, i)); i++; }
+      if (i <= analysisText.length) { setTyped(analysisText.slice(0, i)); i++; }
       else { clearInterval(iv); setPhase('done'); }
     }, 14);
     return () => clearInterval(iv);
-  }, [phase, text]);
+  }, [phase, analysisText]);
 
   return (
     <div data-testid="nora-analysis-overlay" style={{
@@ -39,19 +47,14 @@ function NoraAnalysisOverlay({ text, onClose }: { text: string; onClose: () => v
         @keyframes noraTextIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
       ` }} />
 
-      <div style={{ flex: 1, overflowY: 'auto', WebkitOverflowScrolling: 'touch', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: phase === 'intro' ? 'center' : 'flex-start', padding: '40px 24px 120px', transition: 'justify-content 0.8s' } as any}>
+      <div style={{ flex: 1, overflowY: 'auto', WebkitOverflowScrolling: 'touch', display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '60px 28px 120px' } as any}>
 
-        {/* Nora video — centered big during intro, small top-left during typing */}
+        {/* Nora video — always big and centered */}
         <video autoPlay loop muted playsInline style={{
-          width: phase === 'intro' ? 90 : 40,
-          height: phase === 'intro' ? 90 : 40,
-          borderRadius: phase === 'intro' ? 30 : 14,
-          objectFit: 'contain',
-          opacity: phase === 'intro' ? 1 : 0.7,
-          transition: 'all 1.2s cubic-bezier(0.22,0.61,0.36,1)',
+          width: 80, height: 80, borderRadius: 28, objectFit: 'contain',
+          opacity: phase === 'intro' ? 1 : 0.9,
           animation: phase === 'intro' ? 'noraPulse 2s ease infinite' : 'none',
-          marginBottom: phase === 'intro' ? 16 : 16,
-          alignSelf: phase === 'intro' ? 'center' : 'flex-start',
+          marginBottom: 20,
         } as any} src={NORA_VIDEO} />
 
         {phase === 'intro' && (
@@ -62,20 +65,20 @@ function NoraAnalysisOverlay({ text, onClose }: { text: string; onClose: () => v
         )}
 
         {(phase === 'typing' || phase === 'done') && (
-          <div style={{ width: '100%', maxWidth: 400, animation: 'noraTextIn 0.5s ease both' } as any}>
-            <div style={{ fontSize: 14, fontWeight: 800, color: '#FFF', marginBottom: 12 }}>Analyse de Nora</div>
-            <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.55)', lineHeight: 1.8 }}>
+          <div style={{ width: '100%', maxWidth: 380, textAlign: 'center', animation: 'noraTextIn 0.5s ease both' } as any}>
+            <div style={{ fontSize: 15, fontWeight: 800, color: '#FFF', marginBottom: 16 }}>Analyse de Nora</div>
+            <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.55)', lineHeight: 1.8, textAlign: 'center' }}>
               {typed}<span style={{ opacity: phase === 'typing' ? 1 : 0, color: 'rgba(255,255,255,0.15)', transition: 'opacity 0.3s' } as any}>|</span>
             </div>
           </div>
         )}
       </div>
 
-      {/* Back button — only visible when done */}
+      {/* Back button — only when done */}
       {phase === 'done' && (
-        <div style={{ position: 'sticky', bottom: 0, padding: '16px 24px 32px', background: 'linear-gradient(0deg, #000 60%, transparent)' } as any}>
+        <div style={{ position: 'sticky', bottom: 0, padding: '16px 24px 36px', background: 'linear-gradient(0deg, #000 60%, transparent)' } as any}>
           <div data-testid="nora-back-btn" onClick={onClose} style={{
-            width: '100%', maxWidth: 400, margin: '0 auto', padding: '16px',
+            width: '100%', maxWidth: 380, margin: '0 auto', padding: '16px',
             borderRadius: 999, background: '#FFF', textAlign: 'center',
             cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
           } as any}>
@@ -632,7 +635,7 @@ export default function MinceurPage() {
                   {/* Nora analysis button */}
                   {recs.nora_insight && (
                     <div data-testid="nora-analysis-btn" onClick={() => setShowNoraAnalysis(true)}
-                      style={{ borderRadius: 16, background: '#111', padding: '14px 16px', marginBottom: 14, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 12, transition: 'opacity 0.15s', border: '1px solid rgba(255,255,255,0.08)' } as any}
+                      style={{ borderRadius: 16, background: '#000', padding: '14px 16px', marginBottom: 14, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 12, transition: 'opacity 0.15s' } as any}
                       onMouseEnter={(e: any) => { e.currentTarget.style.opacity = '0.85'; }}
                       onMouseLeave={(e: any) => { e.currentTarget.style.opacity = '1'; }}>
                       <video autoPlay loop muted playsInline style={{ width: 36, height: 36, borderRadius: 12, objectFit: 'contain', flexShrink: 0 } as any}
