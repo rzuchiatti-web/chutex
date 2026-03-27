@@ -6,65 +6,57 @@ Refondre l'espace d'activite (ProSpace) des coachs/gardiens pour la gestion dire
 ## Architecture
 - **Backend**: FastAPI + MongoDB (port 8001)
 - **Frontend**: React Native Web (Expo Router) (port 3000)
-- **Integrations**: SMS Mode, Mollie, OpenAI GPT-4o (Emergent LLM Key)
+- **Integrations**: SMS Mode, Mollie, OpenAI GPT-4o (Emergent LLM Key), Web Push (pywebpush + VAPID)
 
 ## Charte graphique (DA)
-- Light mode: #F4F4F5, #111, #9CA3AF
+- Light mode par defaut: #F5F5F5, #FFF, #111, #9CA3AF
+- isDark = localStorage.getItem('chutex_dark') === '1' (light = defaut quand null)
 - GlassModal: overlay + fond opaque rgba(20,20,30,0.82)
 - Dropdowns header: rgba(20,20,30,0.88) + blur 24px
-- Icones exercices: Remix Icon par categorie
-- Icones repas: ri-sun-line, ri-restaurant-line, ri-cake-2-line, ri-cup-line, ri-moon-line
 
 ## Fonctionnalites implementees
 - [x] CRUD exercices/complements/hydratation/repas + seed 20 exercices + 12 repas
 - [x] Assignation par jour + series/repos
 - [x] Calendrier horizontal glassmorphism
-- [x] Carte nutritionnelle + objectif poids
+- [x] Carte nutritionnelle + objectif poids (refonte claire avec progression %)
 - [x] Sections Traitements / Hydratation / Repas separees
-- [x] GlassModal fond sombre opaque sans marge bottom
-- [x] Edition templates via PUT (pas duplication POST)
+- [x] Edition templates via PUT
 - [x] Dropdown glass sombre dans header bibliotheque
-- [x] Navigation carte alerte corrigee (0 alertes -> /alerts)
-- [x] TimeWheelPicker pour assignation heure (complement/hydratation)
-- [x] Filtre complement exclut hydratation
-- [x] Pill tabs avec blur
-- [x] Icones dans cartes exercices et repas (au lieu d'images)
-- [x] Refactoring ProSpace (6 sous-composants)
-- [x] Admin Revenue Dashboard
-- [x] TabBar cachee quand GlassModal ouverte
 - [x] Upload video (mp4, mov, webm) pour exercices
 - [x] Merge dynamique assignation/template (video, image, steps)
 - [x] Synchronisation Gardien -> Beneficiaire (exercices + repas)
-- [x] Popup guide Glass dans ProSpace (style profile.tsx)
-- [x] Refonte pages detail (meal-detail, pro-exercise-detail) en Light Theme
-- [x] Correction Dark Mode force (profile.tsx, beneficiary-detail.tsx)
-- [x] Login admin par email (detection @ dans formulaire login)
-- [x] **Notifications Push en temps reel (WebSocket + Browser Push + In-App)**
-  - WebSocket /api/ws/beneficiary pour notifications live
-  - Banniere animee slide-in avec shake (NotificationBanner)
-  - Centre de notifications (cloche + badge non-lus + dropdown historique)
-  - Declenchement auto lors de l'assignation d'exercice, repas ou rappel
-  - Notifications navigateur via Web Push API (VAPID)
-  - Endpoints CRUD: GET/PUT /api/notifications, /api/notifications/unread-count
-  - Stockage MongoDB: collections 'notifications' et 'push_subscriptions'
+- [x] Popup guide Glass dans ProSpace
+- [x] Refonte pages detail en Light Theme
+- [x] Login admin par email
+- [x] Notifications Push temps reel (WebSocket + Browser Push + In-App)
+- [x] Light mode par defaut (BeneficiaryHome, GuardianHome, GlassTabBar)
+- [x] Correction macros a 0 (navigation minceur avec mode=assigned + lecture proteines_g)
+- [x] Bouton valider vert en bas des pages detail (meal-detail)
+- [x] Metadonnees exercice dans le contenu (difficulte, zone, equipement)
+- [x] Carte Nutrition/Poids amelioree (progression %, actuel vs objectif, kg restants)
+- [x] Admin Revenue Dashboard
 
 ## Structure
 ```
 frontend/src/components/dashboard/
-  ProSpace.tsx              (orchestrateur + libraryFilter + editingTemplateId)
-  NotificationCenter.tsx    (useNotifications hook + NotificationBanner + NotificationCenter)
-  BeneficiaryHome.tsx       (integre NotificationCenter + WebSocket)
+  ProSpace.tsx
+  NotificationCenter.tsx    (useNotifications, NotificationBanner, NotificationCenter)
+  BeneficiaryHome.tsx       (light mode defaut, notifications WS)
   pro/
-    constants.ts            (API, styles, helpers)
-    GlassModal.tsx          (Modal, ImagePicker, DaysPicker, TimeWheelPicker)
-    ProCalendar.tsx
-    ProDayView.tsx
+    ProDayView.tsx          (carte nutrition/poids refaite)
     ProLibrary.tsx
     ProModals.tsx
 
+frontend/app/
+  meal-detail.tsx           (bouton valider en bas, macros _g)
+  pro-exercise-detail.tsx   (info tags difficulte/zone/equipement)
+  minceur.tsx               (navigation pro meals avec assignmentId)
+  index.tsx                 (login email admin)
+
 backend/routes/
-  notification_routes.py    (CRUD notifications + push subscription + create_notification helper)
-  professional_routes.py    (triggers notification on assign-exercise/meal/reminder)
+  notification_routes.py    (CRUD + create_notification + push)
+  professional_routes.py    (triggers notifications)
+  minceur_routes.py         (injection pro meals avec source/assignment_id)
 backend/ws_manager.py       (AdminWSManager + BeneficiaryWSManager)
 ```
 
@@ -75,7 +67,7 @@ backend/ws_manager.py       (AdminWSManager + BeneficiaryWSManager)
 - [ ] Essai gratuit 7 jours
 - [ ] Integration Vivoo
 - [ ] Validation CRC32 TCP
-- [ ] Refactoring BeneficiaryPopups.tsx
+- [ ] Unifier style cartes repas/exercices (image-left) sur toutes les pages
 - [ ] Refactoring route alerts.tsx (messages vs alertes gardien)
 
 ## Credentials
