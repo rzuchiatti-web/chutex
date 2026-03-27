@@ -6,7 +6,7 @@ from datetime import datetime, timezone
 
 from database import db, client
 from auth import hash_password
-from ws_manager import admin_ws
+from ws_manager import admin_ws, beneficiary_ws
 
 # Import all route modules
 from routes.auth_routes import router as auth_router
@@ -44,6 +44,7 @@ from routes.pro_subscription_routes import router as pro_sub_router
 from routes.pro_application_routes import router as pro_app_router
 from routes.escalation_routes import router as escalation_router
 from routes.intervention_routes import router as intervention_router
+from routes.notification_routes import router as notification_router
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -87,6 +88,7 @@ api_router.include_router(escalation_router)
 api_router.include_router(professional_router)
 api_router.include_router(pro_sub_router)
 api_router.include_router(pro_app_router)
+api_router.include_router(notification_router)
 
 app.include_router(api_router)
 app.add_middleware(CORSMiddleware, allow_credentials=True, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
@@ -121,6 +123,32 @@ async def ws_admin_alerts(ws: WebSocket, token: str = Query(None)):
             await ws.receive_text()  # keep-alive
     except WebSocketDisconnect:
         admin_ws.disconnect(user_id)
+
+
+# WebSocket endpoint for beneficiary notifications
+@app.websocket("/api/ws/beneficiary")
+async def ws_beneficiary(ws: WebSocket, token: str = Query(None)):
+    """WebSocket for real-time notifications to beneficiary users."""
+    if not token:
+        await ws.close(code=4001, reason="Token requis")
+        return
+    from auth import decode_token
+    try:
+        payload = decode_token(token)
+        user_id = payload.get("user_id")
+        if not user_id:
+            await ws.close(code=4001, reason="Token invalide")
+            return
+    except Exception:
+        await ws.close(code=4001, reason="Token invalide")
+        return
+
+    await beneficiary_ws.connect(ws, user_id)
+    try:
+        while True:
+            await ws.receive_text()
+    except WebSocketDisconnect:
+        beneficiary_ws.disconnect(ws, user_id)
 
 
 # Security headers middleware

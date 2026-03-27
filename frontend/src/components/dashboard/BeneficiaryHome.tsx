@@ -20,6 +20,7 @@ import { requestNotificationPermission, startReminderChecker, notifyAlert } from
 import { SubscriptionBanner, SubscriptionGate } from '../SubscriptionGate';
 import WeightGoalDashCard from './WeightGoalDashCard';
 import { DailyObjectivesOnDashboard } from './DailyObjectives';
+import { useNotifications, NotificationBanner, NotificationCenter } from './NotificationCenter';
 
 const IMG_GUARDIANS = 'https://customer-assets.emergentagent.com/job_ba3a5789-c8f1-4b12-b5d8-478a7f99aaea/artifacts/ashlkedd_img_gardians.png';
 
@@ -95,6 +96,10 @@ export function BeneficiaryHome({ token, user }: { token: string; user: any }) {
   const [remForm, setRemForm] = useState({ title: '', time: '08:00', reminder_type: 'hydration', notes: '', days: ['lun','mar','mer','jeu','ven','sam','dim'] });
   const sosPulse = useRef(new Animated.Value(1)).current;
   const { refreshUser } = useAuth();
+
+  // Real-time notifications via WebSocket
+  const { notifications: liveNotifs, unreadCount: liveUnread, liveBanner, markRead, markAllRead, dismissBanner } = useNotifications(token);
+  const [notifCenterOpen, setNotifCenterOpen] = useState(false);
 
   useEffect(() => {
     Animated.loop(Animated.sequence([
@@ -332,10 +337,15 @@ export function BeneficiaryHome({ token, user }: { token: string; user: any }) {
                   <div data-testid="theme-toggle-btn" onClick={toggleTheme} style={{ width: 36, height: 36, borderRadius: 18, background: 'rgba(255,255,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}>
                     <i className={isDark ? 'ri-sun-line' : 'ri-moon-line'} style={{ fontSize: 18, color: '#FFF' }} />
                   </div>
-                  <div data-testid="notif-bell" onClick={() => setShowNotifs(!showNotifs)} style={{ width: 36, height: 36, borderRadius: 18, background: 'rgba(255,255,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', position: 'relative' } as any}>
-                    <i className="ri-notification-4-line" style={{ fontSize: 18, color: '#FFF' }} />
-                    {(guardianRequests.length > 0 || activeAlerts.length > 0 || predictiveAlerts.length > 0) && <div style={{ position: 'absolute', top: -1, right: -1, width: 9, height: 9, borderRadius: 5, background: '#EF4444', border: '2px solid rgba(0,0,0,0.3)' } as any} />}
-                  </div>
+                  <NotificationCenter
+                    notifications={liveNotifs}
+                    unreadCount={liveUnread}
+                    onMarkRead={markRead}
+                    onMarkAllRead={markAllRead}
+                    onClose={() => setNotifCenterOpen(false)}
+                    isOpen={notifCenterOpen}
+                    onToggle={() => setNotifCenterOpen(!notifCenterOpen)}
+                  />
                   <div data-testid="lang-picker-btn" onClick={() => setLangOpen(!langOpen)} style={{ width: 36, height: 36, borderRadius: 18, background: 'rgba(255,255,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', fontSize: 18, lineHeight: 1 } as any}>
                     {lang === 'FR' ? '\u{1F1EB}\u{1F1F7}' : lang === 'EN' ? '\u{1F1EC}\u{1F1E7}' : lang === 'ES' ? '\u{1F1EA}\u{1F1F8}' : lang === 'DE' ? '\u{1F1E9}\u{1F1EA}' : lang === 'IT' ? '\u{1F1EE}\u{1F1F9}' : lang === 'PT' ? '\u{1F1F5}\u{1F1F9}' : lang === 'NL' ? '\u{1F1F3}\u{1F1F1}' : '\u{1F30D}'}
                   </div>
@@ -347,6 +357,9 @@ export function BeneficiaryHome({ token, user }: { token: string; user: any }) {
             <NotificationsPopup show={showNotifs} onClose={() => setShowNotifs(false)} activeAlerts={activeAlerts} guardianRequests={guardianRequests} predictiveAlerts={predictiveAlerts} token={token} onRefresh={fetchData} />
             <LanguagePopup show={langOpen} onClose={() => setLangOpen(false)} lang={lang} setLang={setLang} />
           </div>
+
+          {/* Live notification banner */}
+          <NotificationBanner notification={liveBanner} onDismiss={dismissBanner} />
 
           {Platform.OS === 'web' && <TeamActivityToast token={token} />}
 

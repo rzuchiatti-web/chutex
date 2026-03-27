@@ -1,8 +1,8 @@
-"""WebSocket connection manager for real-time admin alerts."""
+"""WebSocket connection managers for real-time notifications."""
 import logging
 import json
 from fastapi import WebSocket
-from typing import Dict
+from typing import Dict, List
 
 logger = logging.getLogger(__name__)
 
@@ -48,4 +48,42 @@ class AdminWSManager:
             self.active.pop(uid, None)
 
 
+class BeneficiaryWSManager:
+    """Manages WebSocket connections for beneficiary users (multi-connection per user)."""
+
+    def __init__(self):
+        self.active: Dict[str, List[WebSocket]] = {}
+
+    async def connect(self, ws: WebSocket, user_id: str):
+        await ws.accept()
+        if user_id not in self.active:
+            self.active[user_id] = []
+        self.active[user_id].append(ws)
+        logger.info(f"Beneficiary WS connected: {user_id} (connections: {len(self.active[user_id])})")
+
+    def disconnect(self, ws: WebSocket, user_id: str):
+        if user_id in self.active:
+            self.active[user_id] = [w for w in self.active[user_id] if w is not ws]
+            if not self.active[user_id]:
+                del self.active[user_id]
+        logger.info(f"Beneficiary WS disconnected: {user_id}")
+
+    async def send_to_user(self, user_id: str, payload: dict):
+        """Send a notification to a specific beneficiary."""
+        connections = self.active.get(user_id, [])
+        if not connections:
+            return
+        text = json.dumps(payload)
+        dead = []
+        for ws in connections:
+            try:
+                await ws.send_text(text)
+            except Exception:
+                dead.append(ws)
+        for ws in dead:
+            if user_id in self.active:
+                self.active[user_id] = [w for w in self.active[user_id] if w is not ws]
+
+
 admin_ws = AdminWSManager()
+beneficiary_ws = BeneficiaryWSManager()

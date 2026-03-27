@@ -871,6 +871,22 @@ async def assign_reminder(data: AssignReminderCreate, user=Depends(get_current_u
     }
     await db.pro_assigned_reminders.insert_one(assigned)
     assigned.pop('_id', None)
+    # Notify beneficiary
+    try:
+        from routes.notification_routes import create_notification
+        pro_name = user.get('name', 'Votre coach')
+        rtype = "Rappel hydratation" if tpl.get("reminder_type") == "hydration" else "Nouveau complement"
+        await create_notification(
+            user_id=data.beneficiary_id,
+            notif_type="reminder",
+            title=rtype,
+            body=f"{pro_name} vous a prescrit : {tpl.get('title', '')}",
+            icon="ri-capsule-line" if tpl.get("reminder_type") != "hydration" else "ri-drop-line",
+            color="#F59E0B" if tpl.get("reminder_type") != "hydration" else "#38BDF8",
+            data={"assignment_id": assigned["id"], "type": "reminder"},
+        )
+    except Exception:
+        pass
     return assigned
 
 @router.get("/pro/assigned-reminders/{beneficiary_id}")
@@ -942,6 +958,21 @@ async def assign_meal(data: AssignMealCreate, user=Depends(get_current_user)):
     }
     await db.pro_assigned_meals.insert_one(assigned)
     assigned.pop('_id', None)
+    # Notify beneficiary
+    try:
+        from routes.notification_routes import create_notification
+        pro_name = user.get('name', 'Votre coach')
+        await create_notification(
+            user_id=data.beneficiary_id,
+            notif_type="meal",
+            title="Nouveau repas assigne",
+            body=f"{pro_name} vous a prescrit : {tpl.get('title', '')}",
+            icon="ri-restaurant-line",
+            color="#10B981",
+            data={"assignment_id": assigned["id"], "type": "meal"},
+        )
+    except Exception:
+        pass
     return assigned
 
 @router.get("/pro/assigned-meals/{beneficiary_id}")
@@ -1381,6 +1412,21 @@ async def assign_exercise(data: AssignExerciseCreate, user=Depends(get_current_u
     }
     await db.pro_assigned_exercises.insert_one(assignment)
     assignment.pop('_id', None)
+    # Notify beneficiary
+    try:
+        from routes.notification_routes import create_notification
+        pro_name = user.get('name', 'Votre coach')
+        await create_notification(
+            user_id=data.beneficiary_id,
+            notif_type="exercise",
+            title="Nouvel exercice assigne",
+            body=f"{pro_name} vous a assigne : {tpl['title']}",
+            icon="ri-run-line",
+            color="#EF4444",
+            data={"assignment_id": assignment["id"], "type": "exercise"},
+        )
+    except Exception:
+        pass
     return assignment
 
 @router.get("/pro/assigned-exercises/{beneficiary_id}")
