@@ -383,17 +383,18 @@ export default function ProSpace({ token, user }: { token: string; user: any }) 
 
       {/* GUIDE POPUP */}
       {showGuide && (
-        <div data-testid="pro-guide-overlay" onClick={() => setShowGuide(false)}
-          style={{ position: 'fixed', inset: 0, zIndex: 9999, display: 'flex', alignItems: 'flex-end', justifyContent: 'center', backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)', background: 'rgba(0,0,0,0.55)' } as any}>
-          <div onClick={e => e.stopPropagation()} style={{ width: '100%', maxWidth: 440, maxHeight: '82vh', overflowY: 'auto', WebkitOverflowScrolling: 'touch', borderRadius: '28px 28px 0 0', background: 'rgba(20,20,30,0.82)', boxShadow: '0 -8px 40px rgba(0,0,0,0.3)', padding: '24px 20px 28px' } as any}>
-            <div style={{ width: 40, height: 4, borderRadius: 2, background: 'rgba(255,255,255,0.15)', margin: '0 auto 20px' } as any} />
+        <div data-testid="pro-guide-overlay" style={{ position: 'fixed', inset: 0, zIndex: 99990, backdropFilter: 'blur(32px)', WebkitBackdropFilter: 'blur(32px)', background: 'rgba(0,0,0,0.55)', overflowY: 'scroll', WebkitOverflowScrolling: 'touch' } as any}>
+          <div onClick={(e: any) => e.stopPropagation()} style={{ width: '100%', maxWidth: 400, margin: '0 auto', padding: '40px 28px 120px', boxSizing: 'border-box' } as any}>
+            <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 20 } as any}>
+              <div onClick={() => setShowGuide(false)} style={{ width: 38, height: 38, borderRadius: 999, background: 'rgba(255,255,255,0.12)', border: '1px solid rgba(255,255,255,0.18)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}><i className="ri-close-line" style={{ fontSize: 18, color: '#FFF' }} /></div>
+            </div>
 
-            <div style={{ textAlign: 'center', marginBottom: 24 } as any}>
-              <div style={{ width: 52, height: 52, borderRadius: 16, background: `${AC}25`, display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 12px', border: `1.5px solid ${AC}40` } as any}>
-                <i className={isCoach ? 'ri-run-line' : 'ri-shield-user-line'} style={{ fontSize: 24, color: '#FFF' }} />
+            <div style={{ textAlign: 'center', marginBottom: 28 } as any}>
+              <div style={{ width: 56, height: 56, borderRadius: 16, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', marginBottom: 14 } as any}>
+                <i className={isCoach ? 'ri-run-line' : 'ri-shield-user-line'} style={{ fontSize: 26, color: AC }} />
               </div>
-              <div style={{ fontSize: 20, fontWeight: 900, color: '#FFF' }}>Votre espace activite</div>
-              <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', marginTop: 4 }}>Tout ce que vous pouvez faire ici</div>
+              <div style={{ fontSize: 22, fontWeight: 900, color: '#FFF' }}>Votre espace activite</div>
+              <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.4)', marginTop: 4 }}>Tout ce que vous pouvez faire ici</div>
             </div>
 
             {[
@@ -405,21 +406,16 @@ export default function ProSpace({ token, user }: { token: string; user: any }) 
               { icon: 'ri-restaurant-line', color: '#10B981', title: 'Repas sur mesure', desc: 'Creez des repas avec ingredients et etapes. Ils remplaceront les suggestions de Nora.' },
               { icon: 'ri-book-2-line', color: '#A78BFA', title: 'Bibliotheque', desc: 'Creez, modifiez et supprimez vos modeles d\'exercices, complements et repas.' },
             ].map((item, i) => (
-              <div key={i} style={{ display: 'flex', gap: 12, padding: '12px 0', borderBottom: i < 6 ? '1px solid rgba(255,255,255,0.06)' : 'none' } as any}>
-                <div style={{ width: 36, height: 36, borderRadius: 10, background: `${item.color}18`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}>
-                  <i className={item.icon} style={{ fontSize: 17, color: item.color }} />
+              <div key={i} style={{ borderRadius: 22, background: 'rgba(0,0,0,0.25)', border: '1px solid rgba(255,255,255,0.1)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', padding: 16, marginBottom: 12 } as any}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 6 } as any}>
+                  <div style={{ width: 32, height: 32, borderRadius: 10, background: `${item.color}15`, display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}>
+                    <i className={item.icon} style={{ fontSize: 16, color: item.color }} />
+                  </div>
+                  <span style={{ fontSize: 14, fontWeight: 800, color: '#FFF' }}>{item.title}</span>
                 </div>
-                <div style={{ flex: 1 } as any}>
-                  <div style={{ fontSize: 13, fontWeight: 800, color: '#FFF', marginBottom: 2 }}>{item.title}</div>
-                  <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', lineHeight: 1.5 }}>{item.desc}</div>
-                </div>
+                <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.45)', lineHeight: 1.6 }}>{item.desc}</div>
               </div>
             ))}
-
-            <div data-testid="guide-close-btn" onClick={() => setShowGuide(false)}
-              style={{ marginTop: 20, padding: '14px', borderRadius: 999, background: '#FFF', textAlign: 'center', cursor: 'pointer', fontSize: 14, fontWeight: 800, color: '#111' } as any}>
-              C'est compris
-            </div>
           </div>
         </div>
       )}
