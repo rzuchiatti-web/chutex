@@ -625,40 +625,4 @@ async def get_today_tracking(user=Depends(get_current_user)):
 
 
 
-@router.get("/nora/minceur-analysis")
-async def get_nora_minceur_analysis(user=Depends(get_current_user)):
-    """Lazy-loaded Nora analysis — only generates when user clicks the button."""
-    uid = user["id"]
-    today_str = datetime.now(timezone.utc).strftime("%Y-%m-%d")
-
-    # Check if cached insight exists
-    cached = await db.minceur_daily_cache.find_one(
-        {"user_id": uid, "date": today_str}, {"_id": 0}
-    )
-    if cached and cached.get("recommendations", {}).get("nora_insight"):
-        return {
-            "insight": cached["recommendations"]["nora_insight"],
-            "tip": cached["recommendations"].get("tip_of_the_day", ""),
-            "cached": True,
-        }
-
-    # Generate fresh if not cached
-    u = await db.users.find_one({"id": uid}, {"_id": 0})
-    if not u:
-        return {"insight": "", "tip": "", "cached": False}
-
-    latest = await db.device_readings.find_one(
-        {"user_id": uid, "device_type": "scale"}, {"_id": 0},
-        sort=[("timestamp", -1)]
-    )
-    latest_data = latest.get("data", {}) if latest else {}
-    goal = await db.minceur_goals.find_one({"user_id": uid}, {"_id": 0})
-
-    recs = await generate_daily_recommendations(uid, u, latest_data, goal)
-    if recs and recs.get("nora_insight"):
-        return {
-            "insight": recs["nora_insight"],
-            "tip": recs.get("tip_of_the_day", ""),
-            "cached": False,
-        }
-    return {"insight": "", "tip": "", "cached": False}
+# Nora minceur analysis moved to routes/nora_routes.py
