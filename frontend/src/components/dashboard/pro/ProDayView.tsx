@@ -52,33 +52,35 @@ export function ProDayView(props: ProDayViewProps) {
 
           {benNutrition && benNutrition.daily_calories > 0 && (
             <>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4 } as any}>
-                <div style={{ fontSize: 10, fontWeight: 700, color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: 1.5 }}>Consommation par jour</div>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 } as any}>
+                <div style={{ fontSize: 12, fontWeight: 600, color: '#6B7280' }}>Apport calorique journalier</div>
                 <i className="ri-arrow-right-s-line" style={{ fontSize: 18, color: '#9CA3AF' }} />
               </div>
 
-              <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', marginBottom: 16 } as any}>
+              <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', marginBottom: 0 } as any}>
                 <div>
-                  <span style={{ fontSize: 42, fontWeight: 900, color: '#111', letterSpacing: -2, lineHeight: 1 }}>{benNutrition.daily_calories}</span>
-                  <span style={{ fontSize: 14, fontWeight: 600, color: '#9CA3AF', marginLeft: 4 }}>kcal</span>
+                  <span style={{ fontSize: 32, fontWeight: 900, color: '#111', letterSpacing: -1, lineHeight: 1 }}>{benNutrition.daily_calories}</span>
+                  <span style={{ fontSize: 13, fontWeight: 600, color: '#9CA3AF', marginLeft: 4 }}>kcal</span>
                 </div>
-                <div style={{ padding: '10px 14px', borderRadius: 14, background: '#E5E7EB', display: 'flex', alignItems: 'center', gap: 6 } as any}>
-                  <i className="ri-drop-fill" style={{ fontSize: 16, color: '#3B82F6' }} />
-                  <span style={{ fontSize: 14, fontWeight: 800, color: '#3B82F6' }}>{benNutrition.water_ml >= 1000 ? `${(benNutrition.water_ml / 1000).toFixed(1)}L` : `${benNutrition.water_ml}ml`}</span>
+                <div style={{ padding: '8px 12px', borderRadius: 12, background: '#E5E7EB', display: 'flex', alignItems: 'center', gap: 6 } as any}>
+                  <i className="ri-drop-fill" style={{ fontSize: 14, color: '#3B82F6' }} />
+                  <span style={{ fontSize: 13, fontWeight: 800, color: '#3B82F6' }}>{benNutrition.water_ml >= 1000 ? `${(benNutrition.water_ml / 1000).toFixed(1)}L` : `${benNutrition.water_ml}ml`}</span>
                 </div>
               </div>
 
+              <div style={{ height: 1, background: '#E5E7EB', margin: '14px 0' } as any} />
+
               <div style={{ display: 'flex', alignItems: 'center' } as any}>
                 {[
-                  { label: 'PROTEINES', val: benNutrition.macros?.proteines_g || 0, color: '#10B981' },
-                  { label: 'GLUCIDES', val: benNutrition.macros?.glucides_g || 0, color: '#F59E0B' },
-                  { label: 'LIPIDES', val: benNutrition.macros?.lipides_g || 0, color: '#EF4444' },
+                  { label: 'Proteines', val: benNutrition.macros?.proteines_g || 0, color: '#10B981' },
+                  { label: 'Glucides', val: benNutrition.macros?.glucides_g || 0, color: '#F59E0B' },
+                  { label: 'Lipides', val: benNutrition.macros?.lipides_g || 0, color: '#EF4444' },
                 ].map((m, i) => (
                   <React.Fragment key={m.label}>
                     {i > 0 && <div style={{ width: 1, height: 32, background: '#E5E7EB' } as any} />}
                     <div style={{ flex: 1, textAlign: 'center' } as any}>
-                      <div style={{ fontSize: 22, fontWeight: 900, color: '#111', lineHeight: 1 }}>{m.val}<span style={{ fontSize: 10, fontWeight: 600, color: '#9CA3AF' }}>g</span></div>
-                      <div style={{ fontSize: 8, fontWeight: 700, color: m.color, textTransform: 'uppercase', letterSpacing: 0.8, marginTop: 4 }}>{m.label}</div>
+                      <div style={{ fontSize: 20, fontWeight: 900, color: '#111', lineHeight: 1 }}>{m.val}<span style={{ fontSize: 10, fontWeight: 600, color: '#9CA3AF' }}>g</span></div>
+                      <div style={{ fontSize: 9, fontWeight: 700, color: m.color, marginTop: 4 }}>{m.label}</div>
                     </div>
                   </React.Fragment>
                 ))}
