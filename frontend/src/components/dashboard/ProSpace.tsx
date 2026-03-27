@@ -35,6 +35,7 @@ export default function ProSpace({ token, user }: { token: string; user: any }) 
   const [benOpen, setBenOpen] = useState(false);
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [libraryFilter, setLibraryFilter] = useState('exercices');
+  const [showGuide, setShowGuide] = useState(() => typeof localStorage !== 'undefined' ? !localStorage.getItem('chutex_pro_guide_seen') : false);
 
   // Form states
   const emptyEx = { title: '', description: '', sets: 3, reps: 12, duration_minutes: 0, image: '', days: [] as string[], rest_seconds: 60 };
@@ -238,6 +239,11 @@ export default function ProSpace({ token, user }: { token: string; user: any }) 
             </div>
             <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.55)', marginBottom: 18 }}>{bens.length} {patientSingle}{bens.length !== 1 ? 's' : ''}</div>
 
+            {/* Help button */}
+            <div data-testid="guide-btn" onClick={() => setShowGuide(true)} style={{ position: 'absolute', top: 28, right: 20, width: 34, height: 34, borderRadius: 999, background: 'rgba(255,255,255,0.12)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)', border: '1px solid rgba(255,255,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}>
+              <i className="ri-question-line" style={{ fontSize: 16, color: 'rgba(255,255,255,0.7)' }} />
+            </div>
+
             {/* PILL TABS */}
             <div data-testid="space-tabs" style={{ display: 'inline-flex', borderRadius: 999, background: 'rgba(255,255,255,0.08)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', border: '1px solid rgba(255,255,255,0.12)', padding: 3, gap: 2 } as any}>
               {(['patients', 'library'] as const).map(t => (
@@ -374,6 +380,47 @@ export default function ProSpace({ token, user }: { token: string; user: any }) 
         editingTemplateId={editingTemplateId}
         emptyEx={emptyEx}
       />
+
+      {/* GUIDE POPUP */}
+      {showGuide && (
+        <div data-testid="pro-guide-overlay" onClick={() => { setShowGuide(false); localStorage.setItem('chutex_pro_guide_seen', '1'); }}
+          style={{ position: 'fixed', inset: 0, zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20, backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)', background: 'rgba(0,0,0,0.4)' } as any}>
+          <div onClick={e => e.stopPropagation()} style={{ width: '100%', maxWidth: 400, maxHeight: '80vh', overflowY: 'auto', borderRadius: 24, background: '#FFF', boxShadow: '0 24px 64px rgba(0,0,0,0.2)', padding: '28px 24px' } as any}>
+            <div style={{ textAlign: 'center', marginBottom: 20 } as any}>
+              <div style={{ width: 52, height: 52, borderRadius: 16, background: `${AC}12`, display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 12px' } as any}>
+                <i className={isCoach ? 'ri-run-line' : 'ri-shield-user-line'} style={{ fontSize: 24, color: AC }} />
+              </div>
+              <div style={{ fontSize: 20, fontWeight: 900, color: '#111' }}>Bienvenue dans votre espace</div>
+              <div style={{ fontSize: 12, color: '#9CA3AF', marginTop: 4 }}>Tout ce que vous pouvez faire ici</div>
+            </div>
+
+            {[
+              { icon: 'ri-user-heart-line', color: '#3B82F6', title: 'Selectionnez un beneficiaire', desc: 'Choisissez parmi vos beneficiaires pour gerer leur programme personnalise.' },
+              { icon: 'ri-calendar-check-line', color: AC, title: 'Planifiez par jour', desc: 'Utilisez le calendrier horizontal pour voir et assigner des exercices, complements et repas jour par jour.' },
+              { icon: 'ri-run-line', color: '#EF4444', title: 'Exercices', desc: 'Assignez des exercices depuis la bibliotheque. Definissez les series, repetitions et jours de la semaine.' },
+              { icon: 'ri-capsule-line', color: '#F59E0B', title: 'Complements & Rappels', desc: 'Programmez des rappels de complements avec heure et dosage. Le beneficiaire recevra une notification.' },
+              { icon: 'ri-drop-line', color: '#38BDF8', title: 'Hydratation', desc: 'Ajoutez des rappels d\'hydratation personnalises pour suivre la consommation d\'eau.' },
+              { icon: 'ri-restaurant-line', color: '#10B981', title: 'Repas sur mesure', desc: 'Creez et assignez des repas avec ingredients, etapes et valeurs nutritionnelles. Ils remplaceront les suggestions de Nora.' },
+              { icon: 'ri-book-2-line', color: '#A78BFA', title: 'Bibliotheque', desc: 'L\'onglet Bibliotheque contient tous vos modeles. Creez, modifiez et supprimez vos exercices, complements et repas.' },
+            ].map((item, i) => (
+              <div key={i} style={{ display: 'flex', gap: 12, padding: '12px 0', borderBottom: i < 6 ? '1px solid #E5E7EB' : 'none' } as any}>
+                <div style={{ width: 36, height: 36, borderRadius: 10, background: `${item.color}10`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}>
+                  <i className={item.icon} style={{ fontSize: 17, color: item.color }} />
+                </div>
+                <div style={{ flex: 1 } as any}>
+                  <div style={{ fontSize: 13, fontWeight: 800, color: '#111', marginBottom: 2 }}>{item.title}</div>
+                  <div style={{ fontSize: 11, color: '#6B7280', lineHeight: 1.5 }}>{item.desc}</div>
+                </div>
+              </div>
+            ))}
+
+            <div data-testid="guide-close-btn" onClick={() => { setShowGuide(false); localStorage.setItem('chutex_pro_guide_seen', '1'); }}
+              style={{ marginTop: 20, padding: '14px', borderRadius: 999, background: '#111', textAlign: 'center', cursor: 'pointer', fontSize: 14, fontWeight: 800, color: '#FFF' } as any}>
+              C'est compris
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
