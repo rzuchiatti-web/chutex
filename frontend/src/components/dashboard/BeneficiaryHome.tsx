@@ -22,6 +22,14 @@ import WeightGoalDashCard from './WeightGoalDashCard';
 import NoraHealthOverlay from './NoraHealthOverlay';
 import { useNotifications, NotificationBanner, NotificationCenter } from './NotificationCenter';
 
+const portalMount = (node: React.ReactNode) => {
+  if (Platform.OS === 'web' && typeof document !== 'undefined') {
+    const ReactDOM = require('react-dom');
+    return ReactDOM.createPortal(node, document.body);
+  }
+  return node;
+};
+
 const IMG_GUARDIANS = 'https://customer-assets.emergentagent.com/job_ba3a5789-c8f1-4b12-b5d8-478a7f99aaea/artifacts/ashlkedd_img_gardians.png';
 
 export function BeneficiaryHome({ token, user }: { token: string; user: any }) {
@@ -338,15 +346,10 @@ export function BeneficiaryHome({ token, user }: { token: string; user: any }) {
                   <div data-testid="theme-toggle-btn" onClick={toggleTheme} style={{ width: 36, height: 36, borderRadius: 18, background: 'rgba(255,255,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}>
                     <i className={isDark ? 'ri-sun-line' : 'ri-moon-line'} style={{ fontSize: 18, color: '#FFF' }} />
                   </div>
-                  <NotificationCenter
-                    notifications={liveNotifs}
-                    unreadCount={liveUnread}
-                    onMarkRead={markRead}
-                    onMarkAllRead={markAllRead}
-                    onClose={() => setNotifCenterOpen(false)}
-                    isOpen={notifCenterOpen}
-                    onToggle={() => setNotifCenterOpen(!notifCenterOpen)}
-                  />
+                  <div data-testid="notification-bell" onClick={() => setNotifCenterOpen(!notifCenterOpen)} style={{ width: 36, height: 36, borderRadius: 18, background: 'rgba(255,255,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', position: 'relative' } as any}>
+                    <i className="ri-notification-4-line" style={{ fontSize: 18, color: '#FFF' }} />
+                    {liveUnread > 0 && <div style={{ position: 'absolute', top: -2, right: -2, minWidth: 16, height: 16, borderRadius: 999, background: '#EF4444', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 9, fontWeight: 800, color: '#FFF', padding: '0 3px', border: '2px solid rgba(0,0,0,0.3)' } as any}>{liveUnread > 9 ? '9+' : liveUnread}</div>}
+                  </div>
                   <div data-testid="lang-picker-btn" onClick={() => setLangOpen(!langOpen)} style={{ width: 36, height: 36, borderRadius: 18, background: 'rgba(255,255,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', fontSize: 18, lineHeight: 1 } as any}>
                     {lang === 'FR' ? '\u{1F1EB}\u{1F1F7}' : lang === 'EN' ? '\u{1F1EC}\u{1F1E7}' : lang === 'ES' ? '\u{1F1EA}\u{1F1F8}' : lang === 'DE' ? '\u{1F1E9}\u{1F1EA}' : lang === 'IT' ? '\u{1F1EE}\u{1F1F9}' : lang === 'PT' ? '\u{1F1F5}\u{1F1F9}' : lang === 'NL' ? '\u{1F1F3}\u{1F1F1}' : '\u{1F30D}'}
                   </div>
@@ -357,6 +360,40 @@ export function BeneficiaryHome({ token, user }: { token: string; user: any }) {
             </div>
             <NotificationsPopup show={showNotifs} onClose={() => setShowNotifs(false)} activeAlerts={activeAlerts} guardianRequests={guardianRequests} predictiveAlerts={predictiveAlerts} token={token} onRefresh={fetchData} />
             <LanguagePopup show={langOpen} onClose={() => setLangOpen(false)} lang={lang} setLang={setLang} />
+            {/* Notification Center Glass Popup */}
+            {notifCenterOpen && portalMount(
+              <div onClick={() => setNotifCenterOpen(false)} style={{ position: 'fixed', inset: 0, zIndex: 99990, backdropFilter: 'blur(32px)', WebkitBackdropFilter: 'blur(32px)', background: 'rgba(0,0,0,0.55)', overflowY: 'auto' } as any}>
+                <div onClick={(e: any) => e.stopPropagation()} style={{ width: '100%', maxWidth: 420, margin: '0 auto', padding: '40px 24px 120px', boxSizing: 'border-box' } as any}>
+                  <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 20 } as any}>
+                    <div onClick={() => setNotifCenterOpen(false)} style={{ width: 36, height: 36, borderRadius: 999, background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}><i className="ri-close-line" style={{ fontSize: 18, color: 'rgba(255,255,255,0.8)' }} /></div>
+                  </div>
+                  <div style={{ textAlign: 'center', marginBottom: 28 } as any}>
+                    <div style={{ width: 56, height: 56, borderRadius: 16, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', marginBottom: 14 } as any}><i className="ri-notification-4-line" style={{ fontSize: 26, color: 'rgba(255,255,255,0.6)' }} /></div>
+                    <div style={{ fontSize: 22, fontWeight: 900, color: '#FFF' }}>Notifications</div>
+                    <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.3)', marginTop: 4 }}>{liveUnread > 0 ? `${liveUnread} non lue${liveUnread > 1 ? 's' : ''}` : 'Toutes lues'}</div>
+                  </div>
+                  {liveUnread > 0 && <div onClick={markAllRead} style={{ textAlign: 'center', marginBottom: 16, fontSize: 12, fontWeight: 700, color: '#3B82F6', cursor: 'pointer' }}>Tout marquer comme lu</div>}
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 6 } as any}>
+                    {liveNotifs.length === 0 && <div style={{ textAlign: 'center', padding: '30px', color: 'rgba(255,255,255,0.2)', fontSize: 13 }}>Aucune notification</div>}
+                    {liveNotifs.map((n: any) => (
+                      <div key={n.id} onClick={() => { if (!n.read) markRead(n.id); }}
+                        style={{ display: 'flex', alignItems: 'flex-start', gap: 12, padding: '14px 18px', borderRadius: 18, cursor: n.read ? 'default' : 'pointer', background: n.read ? 'rgba(255,255,255,0.02)' : 'rgba(255,255,255,0.06)', border: `1px solid ${n.read ? 'rgba(255,255,255,0.05)' : 'rgba(255,255,255,0.1)'}`, transition: 'all 0.2s' } as any}>
+                        <div style={{ width: 36, height: 36, borderRadius: 12, background: `${n.color || '#3B82F6'}15`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, marginTop: 2 } as any}>
+                          <i className={n.icon || 'ri-notification-3-line'} style={{ fontSize: 16, color: n.color || '#3B82F6' }} />
+                        </div>
+                        <div style={{ flex: 1, minWidth: 0 } as any}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 2 } as any}>
+                            <span style={{ fontSize: 13, fontWeight: 700, color: n.read ? 'rgba(255,255,255,0.4)' : '#FFF' }}>{n.title}</span>
+                            {!n.read && <div style={{ width: 6, height: 6, borderRadius: 3, background: n.color || '#3B82F6', flexShrink: 0 } as any} />}
+                          </div>
+                          <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)', lineHeight: 1.4 }}>{n.body}</div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Live notification banner */}
