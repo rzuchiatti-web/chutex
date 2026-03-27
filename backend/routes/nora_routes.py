@@ -4,7 +4,8 @@ Consolidates all lazy-loaded LLM analysis endpoints into a single intelligent ro
 """
 from fastapi import APIRouter, Depends, Query
 from datetime import datetime, timezone
-import os, uuid
+import os
+import uuid
 
 from database import db
 from auth import get_current_user
