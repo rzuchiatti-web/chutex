@@ -39,18 +39,33 @@ Refondre l'espace d'activite (ProSpace) des coachs/gardiens pour la gestion dire
 - [x] Refonte pages detail (meal-detail, pro-exercise-detail) en Light Theme
 - [x] Correction Dark Mode force (profile.tsx, beneficiary-detail.tsx)
 - [x] Login admin par email (detection @ dans formulaire login)
+- [x] **Notifications Push en temps reel (WebSocket + Browser Push + In-App)**
+  - WebSocket /api/ws/beneficiary pour notifications live
+  - Banniere animee slide-in avec shake (NotificationBanner)
+  - Centre de notifications (cloche + badge non-lus + dropdown historique)
+  - Declenchement auto lors de l'assignation d'exercice, repas ou rappel
+  - Notifications navigateur via Web Push API (VAPID)
+  - Endpoints CRUD: GET/PUT /api/notifications, /api/notifications/unread-count
+  - Stockage MongoDB: collections 'notifications' et 'push_subscriptions'
 
 ## Structure
 ```
 frontend/src/components/dashboard/
   ProSpace.tsx              (orchestrateur + libraryFilter + editingTemplateId)
+  NotificationCenter.tsx    (useNotifications hook + NotificationBanner + NotificationCenter)
+  BeneficiaryHome.tsx       (integre NotificationCenter + WebSocket)
   pro/
     constants.ts            (API, styles, helpers)
     GlassModal.tsx          (Modal, ImagePicker, DaysPicker, TimeWheelPicker)
     ProCalendar.tsx
-    ProDayView.tsx           (icones exercices + icones repas par type)
-    ProLibrary.tsx           (LibraryFilterDropdown + contenu)
-    ProModals.tsx            (Modales + filtre hydratation exclu des complements)
+    ProDayView.tsx
+    ProLibrary.tsx
+    ProModals.tsx
+
+backend/routes/
+  notification_routes.py    (CRUD notifications + push subscription + create_notification helper)
+  professional_routes.py    (triggers notification on assign-exercise/meal/reminder)
+backend/ws_manager.py       (AdminWSManager + BeneficiaryWSManager)
 ```
 
 ## Backlog P2
