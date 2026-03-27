@@ -176,68 +176,77 @@ export default function GuardianHome({ token, user }: { token: string; user: any
           {/* ═══ CONTENT CARD ═══ */}
           <div style={{ padding: '24px 16px 120px', marginTop: -16, borderRadius: '24px 24px 0 0', background: contentBg, position: 'relative', zIndex: 10, borderTop: isDark ? '1px solid rgba(255,255,255,0.1)' : '1px solid rgba(0,0,0,0.08)', minHeight: 'calc(100vh - 180px)' } as any}>
 
-            <div style={{ fontSize: 13, fontWeight: 700, color: subColor, letterSpacing: 1, textTransform: 'uppercase', marginBottom: 12 }}>Mes beneficiaires</div>
+            {/* Section header — same as "Mes gardiens" in BeneficiaryHome */}
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 } as any}>
+              <div style={{ fontSize: 20, fontWeight: 900, color: textColor, letterSpacing: '-0.3px' }}>Mes beneficiaires</div>
+            </div>
+            <div style={{ fontSize: 13, color: subColor, marginBottom: 16, lineHeight: '1.45' }}>Retrouvez l'ensemble de vos beneficiaires que vous suivez au quotidien.</div>
 
-            {/* Beneficiary cards */}
-            {bens.map((b: any) => (
-              <div key={b.id} onClick={() => router.push({ pathname: '/beneficiary-detail', params: { beneficiaryId: b.id } })} style={{ borderRadius: 18, background: cardBg, marginBottom: 10, cursor: 'pointer', overflow: 'hidden' } as any}>
-                <div style={{ padding: '14px 16px 12px', display: 'flex', alignItems: 'center', gap: 14 } as any}>
-                  <div style={{ width: 52, height: 52, borderRadius: 16, background: 'linear-gradient(135deg, #D4845A, #E8A87C)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, border: '2px solid rgba(255,255,255,0.15)' } as any}><span style={{ fontSize: 22, fontWeight: 900, color: '#FFF' }}>{b.name?.charAt(0)}</span></div>
-                  <div style={{ flex: 1 } as any}>
-                    <div style={{ fontSize: 17, fontWeight: 800, color: textColor, marginBottom: 2 }}>{b.name}</div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 6 } as any}>
-                      {b.date_of_birth && !isNaN(new Date(b.date_of_birth).getTime()) && <span style={{ fontSize: 10, color: subColor }}>{Math.floor((Date.now() - new Date(b.date_of_birth).getTime()) / (1000 * 60 * 60 * 24 * 365))} ans</span>}
+            {/* Beneficiary cards — "Mes Gardiens" style */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 10 } as any}>
+              {bens.map((b: any) => (
+                <div key={b.id} onClick={() => router.push({ pathname: '/beneficiary-detail', params: { beneficiaryId: b.id } })}
+                  style={{ borderRadius: 18, background: cardBg, cursor: 'pointer', transition: 'transform 0.15s', overflow: 'hidden' } as any}
+                  onMouseEnter={(e: any) => { e.currentTarget.style.transform = 'translateY(-2px)'; }}
+                  onMouseLeave={(e: any) => { e.currentTarget.style.transform = ''; }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '14px 16px' } as any}>
+                    <div style={{ width: 50, height: 50, borderRadius: 999, background: '#3A3A42', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', flexShrink: 0 } as any}>
+                      {b.avatar_url ? <img src={b.avatar_url} style={{ width: 50, height: 50, borderRadius: 999, objectFit: 'cover' } as any} /> : <span style={{ fontSize: 20, fontWeight: 800, color: '#FFF' }}>{b.name?.charAt(0)}</span>}
                     </div>
-                  </div>
-                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 4 } as any}>
-                    {b.active_alerts > 0 && <div style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '4px 8px', borderRadius: 99, background: 'rgba(239,68,68,0.2)' } as any}><span style={{ width: 5, height: 5, borderRadius: 99, background: '#EF4444' } as any} /><span style={{ fontSize: 10, fontWeight: 700, color: '#EF4444' }}>{b.active_alerts}</span></div>}
-                    <i className="ri-arrow-right-s-line" style={{ fontSize: 16, color: isDark ? 'rgba(255,255,255,0.25)' : 'rgba(0,0,0,0.2)' }} />
-                  </div>
-                </div>
-                {b.latest_vitals && (
-                  <div style={{ display: 'flex', borderTop: `1px solid ${sepColor}`, padding: '10px 16px 12px', gap: 6 } as any}>
-                    {[
-                      { val: b.latest_vitals.heart_rate, unit: 'bpm', color: '#EF4444' },
-                      { val: b.latest_vitals.spo2, unit: '%', color: '#60A5FA' },
-                      { val: b.latest_vitals.blood_pressure_systolic ? `${b.latest_vitals.blood_pressure_systolic}/${b.latest_vitals.blood_pressure_diastolic}` : null, unit: 'mmHg', color: '#C084FC' },
-                      { val: b.latest_vitals.temperature, unit: '°C', color: '#FB923C' },
-                    ].map((s: any, i: number) => (
-                      <div key={i} style={{ flex: 1, padding: '6px 4px', borderRadius: 10, background: s.val ? `${s.color}15` : (isDark ? 'rgba(255,255,255,0.03)' : 'rgba(0,0,0,0.03)'), textAlign: 'center' } as any}>
-                        <div style={{ fontSize: 14, fontWeight: 900, color: s.val ? s.color : (isDark ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.15)'), lineHeight: 1 }}>{s.val || '--'}</div>
-                        <div style={{ fontSize: 8, color: subColor, textTransform: 'uppercase', letterSpacing: 0.3, marginTop: 2 }}>{s.unit}</div>
+                    <div style={{ flex: 1 } as any}>
+                      <div style={{ fontSize: 15, fontWeight: 700, color: textColor }}>{b.name}</div>
+                      <div style={{ fontSize: 12, color: subColor, marginTop: 2 }}>
+                        {b.date_of_birth && !isNaN(new Date(b.date_of_birth).getTime()) ? `${Math.floor((Date.now() - new Date(b.date_of_birth).getTime()) / (1000 * 60 * 60 * 24 * 365))} ans` : 'Beneficiaire'}
                       </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-            ))}
-            {bens.length === 0 && <div style={{ textAlign: 'center', padding: '30px', borderRadius: 20, background: cardBg, marginBottom: 10 } as any}><i className="ri-group-line" style={{ fontSize: 36, color: subColor }} /><div style={{ fontSize: 15, fontWeight: 700, color: textColor, marginTop: 10 }}>Aucun beneficiaire</div></div>}
-
-            {/* Revenue Card for Coach/Physio → navigates to dedicated page */}
-            {isCoachOrPhysio && (
-              <div data-testid="revenue-card" onClick={() => router.push('/pro-revenue' as any)}
-                style={{ borderRadius: 18, background: cardBg, marginBottom: 16, padding: '16px 18px', cursor: 'pointer', transition: 'transform 0.15s' } as any}
-                onMouseEnter={(e: any) => { e.currentTarget.style.transform = 'translateY(-2px)'; }}
-                onMouseLeave={(e: any) => { e.currentTarget.style.transform = ''; }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 14 } as any}>
-                  <div style={{ width: 50, height: 50, borderRadius: 16, background: 'linear-gradient(135deg, #10B981, #059669)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}>
-                    <i className="ri-wallet-3-line" style={{ fontSize: 22, color: '#FFF' }} />
-                  </div>
-                  <div style={{ flex: 1 } as any}>
-                    <div style={{ fontSize: 15, fontWeight: 800, color: textColor }}>Mes revenus</div>
-                    <div style={{ fontSize: 12, color: subColor, marginTop: 2 }}>
-                      {paymentDash?.projected_monthly_ht ? `${paymentDash.projected_monthly_ht} € HT / mois` : 'Gestion de vos paiements'}
+                    </div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 6 } as any}>
+                      {b.active_alerts > 0 && <div style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '4px 8px', borderRadius: 99, background: 'rgba(239,68,68,0.15)' } as any}><span style={{ width: 5, height: 5, borderRadius: 99, background: '#EF4444' } as any} /><span style={{ fontSize: 10, fontWeight: 700, color: '#EF4444' }}>{b.active_alerts}</span></div>}
+                      <i className="ri-arrow-right-s-line" style={{ fontSize: 20, color: isDark ? 'rgba(255,255,255,0.25)' : 'rgba(0,0,0,0.2)' }} />
                     </div>
                   </div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 } as any}>
-                    {!paymentDash?.iban_configured && <span style={{ width: 8, height: 8, borderRadius: 4, background: '#F59E0B' } as any} />}
-                    <i className="ri-arrow-right-s-line" style={{ fontSize: 20, color: isDark ? 'rgba(255,255,255,0.25)' : 'rgba(0,0,0,0.2)' }} />
-                  </div>
+                  {b.latest_vitals && (
+                    <div style={{ display: 'flex', borderTop: `1px solid ${sepColor}`, padding: '10px 16px 12px', gap: 6 } as any}>
+                      {[
+                        { val: b.latest_vitals.heart_rate, unit: 'bpm', color: '#EF4444' },
+                        { val: b.latest_vitals.spo2, unit: '%', color: '#60A5FA' },
+                        { val: b.latest_vitals.blood_pressure_systolic ? `${b.latest_vitals.blood_pressure_systolic}/${b.latest_vitals.blood_pressure_diastolic}` : null, unit: 'mmHg', color: '#C084FC' },
+                        { val: b.latest_vitals.temperature, unit: '°C', color: '#FB923C' },
+                      ].map((s: any, i: number) => (
+                        <div key={i} style={{ flex: 1, padding: '6px 4px', borderRadius: 10, background: s.val ? `${s.color}15` : (isDark ? 'rgba(255,255,255,0.03)' : 'rgba(0,0,0,0.03)'), textAlign: 'center' } as any}>
+                          <div style={{ fontSize: 14, fontWeight: 900, color: s.val ? s.color : (isDark ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.15)'), lineHeight: 1 }}>{s.val || '--'}</div>
+                          <div style={{ fontSize: 8, color: subColor, textTransform: 'uppercase', letterSpacing: 0.3, marginTop: 2 }}>{s.unit}</div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
-              </div>
+              ))}
+              {bens.length === 0 && <div style={{ padding: '20px', borderRadius: 18, background: cardBg, textAlign: 'center' } as any}><div style={{ fontSize: 13, color: subColor }}>Aucun beneficiaire pour le moment</div></div>}
+            </div>
+
+            {/* Separator + Revenue Card — above add button */}
+            {isCoachOrPhysio && (
+              <>
+                <div style={{ height: 1, background: sepColor, margin: '20px 0' } as any} />
+                <div data-testid="revenue-card" onClick={() => router.push('/pro-revenue' as any)}
+                  style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '14px 16px', borderRadius: 18, background: cardBg, cursor: 'pointer', transition: 'transform 0.15s', marginBottom: 16 } as any}
+                  onMouseEnter={(e: any) => { e.currentTarget.style.transform = 'translateY(-2px)'; }}
+                  onMouseLeave={(e: any) => { e.currentTarget.style.transform = ''; }}>
+                  <div style={{ width: 50, height: 50, borderRadius: 999, background: 'linear-gradient(135deg, #10B981, #047857)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}>
+                    <span style={{ fontSize: 20, fontWeight: 900, color: '#FFF' }}>€</span>
+                  </div>
+                  <div style={{ flex: 1 } as any}>
+                    <div style={{ fontSize: 15, fontWeight: 700, color: textColor }}>Mes revenus</div>
+                    <div style={{ fontSize: 12, color: subColor, marginTop: 2 }}>
+                      {paymentDash?.total_revenue_ht ? `${paymentDash.total_revenue_ht} € HT au total` : 'Gestion de vos paiements'}
+                    </div>
+                  </div>
+                  <i className="ri-arrow-right-s-line" style={{ fontSize: 20, color: isDark ? 'rgba(255,255,255,0.25)' : 'rgba(0,0,0,0.2)' }} />
+                </div>
+              </>
             )}
 
-            <div onClick={() => setShowAddBenPopup(true)} style={{ marginTop: 14, padding: '16px', borderRadius: 999, textAlign: 'center', cursor: 'pointer', background: isDark ? '#FFF' : '#000', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10, transition: 'opacity 0.15s' } as any}
+            <div onClick={() => setShowAddBenPopup(true)} style={{ padding: '16px', borderRadius: 999, textAlign: 'center', cursor: 'pointer', background: isDark ? '#FFF' : '#000', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10, transition: 'opacity 0.15s' } as any}
               onMouseEnter={(e: any) => { e.currentTarget.style.opacity = '0.85'; }}
               onMouseLeave={(e: any) => { e.currentTarget.style.opacity = '1'; }}>
               <i className="ri-heart-add-line" style={{ fontSize: 18, color: isDark ? '#000' : '#FFF' }} />
