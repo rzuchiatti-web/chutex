@@ -3,6 +3,7 @@ import { Platform } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useAuth } from '../src/context/AuthContext';
 import { apiFetch } from '../src/services/api';
+import NoraOverlay, { NoraButton } from '../src/components/dashboard/NoraOverlay';
 
 const P = '#A78BFA', G = '#10B981', GL_H = '#84CC16', A = '#F59E0B', O = '#F97316', R = '#EF4444', B = '#60A5FA';
 const GL: any = { borderRadius: 22, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' };
@@ -24,6 +25,7 @@ export default function GlycemiaDetailPage() {
   const [calibrations, setCalibrations] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [calibValue, setCalibValue] = useState('');
+  const [showNoraGlycemia, setShowNoraGlycemia] = useState(false);
   const [calibContext, setCalibContext] = useState('random');
   const [saving, setSaving] = useState(false);
   const [showHistory, setShowHistory] = useState(false);
@@ -67,6 +69,8 @@ export default function GlycemiaDetailPage() {
 
           {!loading && data && (
             <>
+              {/* Nora Glycemia Analysis */}
+              <NoraButton label="Analyse glycemique" sublabel="Analyse par Nora de votre glycemie" onClick={() => setShowNoraGlycemia(true)} />
               {/* Hero image */}
               <div style={{ textAlign: 'center', marginBottom: 0, position: 'relative', zIndex: 2 } as any}>
                 <img src={META_IMG} alt="" style={{ width: 180, height: 180, objectFit: 'contain', margin: '0 auto', display: 'block', filter: 'drop-shadow(0 16px 40px rgba(0,0,0,0.5))', position: 'relative', zIndex: 3, marginBottom: -45 } as any} />
@@ -299,6 +303,7 @@ export default function GlycemiaDetailPage() {
         </div>
       </div>
       <style dangerouslySetInnerHTML={{ __html: `@keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}` }} />
+      {showNoraGlycemia && <NoraOverlay token={token} endpoint="/api/nora/page-analysis?context=glycemia" title="Analyse glycemique" subtitle="Analyse par Nora de votre glycemie" onClose={() => setShowNoraGlycemia(false)} />}
     </div>
   );
 }

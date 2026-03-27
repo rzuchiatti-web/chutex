@@ -6,6 +6,7 @@ import { apiFetch } from '../src/services/api';
 import FullScreenLoader from '../src/components/FullScreenLoader';
 import NativePageView from '../src/components/NativePageView';
 import NoraCard from '../src/components/shared/NoraCard';
+import NoraOverlay, { NoraButton } from '../src/components/dashboard/NoraOverlay';
 
 const BG = 'https://customer-assets.emergentagent.com/job_443c9c6e-0feb-4920-a358-fe7cc1a6289b/artifacts/mhh7xwy3_ChatGPT%20Image%2017%20f%C3%A9vr.%202026%2C%2014_08_43.png';
 const G: any = { borderRadius: 20, background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' };
@@ -124,6 +125,7 @@ export default function MetricDetailScreen() {
   const [thMax, setThMax] = useState('');
   const [thSaving, setThSaving] = useState(false);
   const [showExplain, setShowExplain] = useState(false);
+  const [showNoraMetric, setShowNoraMetric] = useState(false);
   const isReadonly = !!beneficiaryId;
 
   const load = async (r: string) => {
@@ -489,7 +491,7 @@ export default function MetricDetailScreen() {
         )}
 
         {/* ─── Nora analysis ─── */}
-        <NoraCard title={`Analyse ${m.title?.toLowerCase()}`} text={noraText(key || '', m, currentVal, avg, isNormal, stats)} />
+        <NoraButton label={`Analyse ${m.title?.toLowerCase()}`} sublabel={`Analyse par Nora de votre ${m.title?.toLowerCase()}`} onClick={() => setShowNoraMetric(true)} />
 
         {/* ─── What is this metric? (Expandable) ─── */}
         <div data-testid="explain-section" onClick={() => setShowExplain(!showExplain)} style={{ ...G, padding: '16px 18px', marginBottom: 14, cursor: 'pointer' } as any}>
@@ -670,6 +672,7 @@ export default function MetricDetailScreen() {
         })()}
 
       </div>
+      {showNoraMetric && <NoraOverlay token={token} endpoint={`/api/nora/page-analysis?context=${key}`} title={`Analyse ${m.title?.toLowerCase()}`} subtitle={`Analyse detaillee de votre ${m.title?.toLowerCase()}`} onClose={() => setShowNoraMetric(false)} />}
     </div>
   );
 }

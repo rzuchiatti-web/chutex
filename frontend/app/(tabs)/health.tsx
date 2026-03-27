@@ -203,6 +203,20 @@ export default function HealthScreen() {
             borderTop: isDark ? '1px solid rgba(255,255,255,0.1)' : '1px solid rgba(0,0,0,0.08)',
           } as any}>
 
+          {/* Nora Aging Analysis Button — above vitals */}
+          <div data-testid="nora-aging-btn" onClick={() => setShowNoraAging(true)}
+            style={{ borderRadius: 16, background: '#000', padding: '14px 16px', marginBottom: 16, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 12, transition: 'opacity 0.15s' } as any}
+            onMouseEnter={(e: any) => { e.currentTarget.style.opacity = '0.85'; }}
+            onMouseLeave={(e: any) => { e.currentTarget.style.opacity = '1'; }}>
+            <video autoPlay loop muted playsInline style={{ width: 36, height: 36, borderRadius: 12, objectFit: 'contain', flexShrink: 0 } as any}
+              src="https://customer-assets.emergentagent.com/job_ba3a5789-c8f1-4b12-b5d8-478a7f99aaea/artifacts/b6eh1r76_Nora_video.mp4" />
+            <div style={{ flex: 1 } as any}>
+              <div style={{ fontSize: 13, fontWeight: 800, color: '#FFF' }}>Analyse biologique</div>
+              <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.35)', marginTop: 1 }}>Age biologique et rythme de vieillissement</div>
+            </div>
+            <i className="ri-arrow-right-s-line" style={{ fontSize: 18, color: 'rgba(255,255,255,0.3)' }} />
+          </div>
+
           {/* Vitals Row */}
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 14 } as any}>
             {[
@@ -232,21 +246,7 @@ export default function HealthScreen() {
 
           <div style={{ height: 1, background: sepColor, margin: '12px 0 16px' } as any} />
 
-          {/* Nora Aging Analysis Button */}
-          <div data-testid="nora-aging-btn" onClick={() => setShowNoraAging(true)}
-            style={{ borderRadius: 16, background: '#000', padding: '14px 16px', marginBottom: 16, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 12, transition: 'opacity 0.15s' } as any}
-            onMouseEnter={(e: any) => { e.currentTarget.style.opacity = '0.85'; }}
-            onMouseLeave={(e: any) => { e.currentTarget.style.opacity = '1'; }}>
-            <video autoPlay loop muted playsInline style={{ width: 36, height: 36, borderRadius: 12, objectFit: 'contain', flexShrink: 0 } as any}
-              src="https://customer-assets.emergentagent.com/job_ba3a5789-c8f1-4b12-b5d8-478a7f99aaea/artifacts/b6eh1r76_Nora_video.mp4" />
-            <div style={{ flex: 1 } as any}>
-              <div style={{ fontSize: 13, fontWeight: 800, color: '#FFF' }}>Age biologique et vieillissement</div>
-              <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.35)', marginTop: 1 }}>Analyse par Nora de votre rythme de vieillissement</div>
-            </div>
-            <i className="ri-arrow-right-s-line" style={{ fontSize: 18, color: 'rgba(255,255,255,0.3)' }} />
-          </div>
-
-          {/* 4b. Activity Card — uses same goals as daily objectives */}
+          {/* 4b. Activity Card */}
           {(() => {
             const stepPlan = filteredPlan.find((p: any) => p.key === 'steps');
             const sGoal = stepPlan ? parseInt(stepPlan.value) || 6000 : 6000;

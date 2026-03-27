@@ -845,3 +845,58 @@ Redige une analyse en 4-5 phrases courtes. Commente l'ecart entre age reel et bi
     except Exception as e:
         print(f"Nora aging analysis error: {e}")
         return {"analysis": "", "cached": False}
+
+
+
+@router.get("/nora/page-analysis")
+async def get_nora_page_analysis(context: str = "general", user=Depends(get_current_user)):
+    """Generic on-demand Nora analysis for any page. Context: activity, sleep, glycemia, heart_rate, spo2, blood_pressure, temperature."""
+    uid = user['id']
+    today_str = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+    cache_key = f"{uid}_{context}_{today_str}"
+
+    cached = await db.nora_page_analysis_cache.find_one({"cache_key": cache_key}, {"_id": 0})
+    if cached and cached.get("analysis"):
+        return {"analysis": cached["analysis"], "cached": True}
+
+    u = await db.users.find_one({"id": uid}, {"_id": 0, "password_hash": 0})
+    if not u:
+        return {"analysis": "", "cached": False}
+
+    br_doc = await db.device_readings.find_one({"user_id": uid, "device_type": "bracelet"}, {"_id": 0}, sort=[("timestamp", -1)])
+    sc_doc = await db.device_readings.find_one({"user_id": uid, "device_type": "scale"}, {"_id": 0}, sort=[("timestamp", -1)])
+    br = br_doc.get("data", {}) if br_doc else {}
+    sc = sc_doc.get("data", {}) if sc_doc else {}
+    age = 0
+    if u.get("date_of_birth"):
+        try:
+            from dateutil.parser import parse as dparse
+            age = (datetime.now(timezone.utc) - dparse(u["date_of_birth"]).replace(tzinfo=timezone.utc)).days // 365
+        except Exception:
+            pass
+
+    context_prompts = {
+        "activity": f"Analyse l'activite physique: {br.get('steps','--')} pas, {br.get('calories','--')} kcal brulees, {br.get('distance_km','--')} km, stress {br.get('stress_level','--')}, recuperation {br.get('recovery_score','--')}. Donne des conseils d'activite adaptes a un senior de {age} ans.",
+        "sleep": f"Analyse le sommeil: qualite {br.get('sleep_quality','--')}/100, duree {br.get('sleep_hours','--')}h, phases profondes {br.get('deep_sleep_pct','--')}%, phases legeres {br.get('light_sleep_pct','--')}%, REM {br.get('rem_sleep_pct','--')}%. Conseils pour ameliorer le sommeil a {age} ans.",
+        "glycemia": f"Analyse la glycemie: derniere mesure {br.get('glucose','--')} mg/dL, HbA1c estimee {br.get('hba1c','--')}%. Conditions: {u.get('medical_conditions','Aucune')}. Conseils nutritionnels pour un senior de {age} ans.",
+        "heart_rate": f"Analyse le rythme cardiaque: {br.get('heart_rate','--')} bpm au repos, variabilite {br.get('hrv','--')}ms. Antecedents: {u.get('medical_conditions','Aucune')}. Interpretation et conseils pour {age} ans.",
+        "spo2": f"Analyse la saturation en oxygene: SpO2 {br.get('spo2','--')}%. Contexte: {u.get('medical_conditions','Aucune')}. Interpretation et quand consulter pour un patient de {age} ans.",
+        "blood_pressure": f"Analyse la tension: {br.get('blood_pressure_systolic','--')}/{br.get('blood_pressure_diastolic','--')} mmHg. Conditions: {u.get('medical_conditions','Aucune')}. Interpretation, risques et conseils pour {age} ans.",
+        "temperature": f"Analyse la temperature: {br.get('temperature','--')}°C. Contexte medical: {u.get('medical_conditions','Aucune')}. Interpretation pour un patient de {age} ans.",
+    }
+    detail = context_prompts.get(context, f"Analyse generale de sante pour un patient de {age} ans.")
+    prompt = f"Tu es Nora, assistante sante. Profil: {u.get('name','')}, {age} ans, {u.get('gender','')}, {sc.get('weight',u.get('weight_kg',0))}kg. {detail} Redige 4-5 phrases courtes et bienveillantes. Pas d'emoji. Francais."
+
+    api_key = os.environ.get("EMERGENT_LLM_KEY", "")
+    if not api_key:
+        return {"analysis": "", "cached": False}
+    try:
+        from emergentintegrations.llm.chat import LlmChat, UserMessage
+        llm = LlmChat(api_key=api_key, session_id=f"nora-{context}-{uid[:8]}-{today_str}", system_message="Tu es Nora. Texte brut. Pas d'emoji. Francais.").with_model("openai", "gpt-5.2")
+        resp = await llm.send_message(UserMessage(text=prompt))
+        analysis = resp.strip()
+        await db.nora_page_analysis_cache.update_one({"cache_key": cache_key}, {"$set": {"cache_key": cache_key, "user_id": uid, "context": context, "date": today_str, "analysis": analysis}}, upsert=True)
+        return {"analysis": analysis, "cached": False}
+    except Exception as e:
+        print(f"Nora page analysis error ({context}): {e}")
+        return {"analysis": "", "cached": False}
