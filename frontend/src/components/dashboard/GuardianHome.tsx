@@ -229,19 +229,21 @@ export default function GuardianHome({ token, user }: { token: string; user: any
               <>
                 <div style={{ height: 1, background: sepColor, margin: '20px 0' } as any} />
                 <div data-testid="revenue-card" onClick={() => router.push('/pro-revenue' as any)}
-                  style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '14px 16px', borderRadius: 18, background: cardBg, cursor: 'pointer', transition: 'transform 0.15s', marginBottom: 16 } as any}
+                  style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '14px 16px', borderRadius: 18, cursor: 'pointer', transition: 'transform 0.15s', marginBottom: 16, position: 'relative', overflow: 'hidden' } as any}
                   onMouseEnter={(e: any) => { e.currentTarget.style.transform = 'translateY(-2px)'; }}
                   onMouseLeave={(e: any) => { e.currentTarget.style.transform = ''; }}>
-                  <div style={{ width: 50, height: 50, borderRadius: 999, background: 'linear-gradient(135deg, #10B981, #047857)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}>
+                  <img src="https://customer-assets.emergentagent.com/job_6e5f29d8-07a7-4d8a-88cc-8e0eebe2b466/artifacts/jgg2zwgt_ChatGPT%20Image%2018%20f%C3%A9vr.%202026%2C%2008_31_33.png" alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 } as any} />
+                  <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.25)', zIndex: 1 } as any} />
+                  <div style={{ width: 50, height: 50, borderRadius: 999, background: 'rgba(255,255,255,0.15)', backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, position: 'relative', zIndex: 2, border: '1px solid rgba(255,255,255,0.2)' } as any}>
                     <span style={{ fontSize: 20, fontWeight: 900, color: '#FFF' }}>€</span>
                   </div>
-                  <div style={{ flex: 1 } as any}>
-                    <div style={{ fontSize: 15, fontWeight: 700, color: textColor }}>Mes revenus</div>
-                    <div style={{ fontSize: 12, color: subColor, marginTop: 2 }}>
+                  <div style={{ flex: 1, position: 'relative', zIndex: 2 } as any}>
+                    <div style={{ fontSize: 15, fontWeight: 700, color: '#FFF' }}>Mes revenus</div>
+                    <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.65)', marginTop: 2 }}>
                       {paymentDash?.total_revenue_ht ? `${paymentDash.total_revenue_ht} € HT au total` : 'Gestion de vos paiements'}
                     </div>
                   </div>
-                  <i className="ri-arrow-right-s-line" style={{ fontSize: 20, color: isDark ? 'rgba(255,255,255,0.25)' : 'rgba(0,0,0,0.2)' }} />
+                  <i className="ri-arrow-right-s-line" style={{ fontSize: 20, color: 'rgba(255,255,255,0.5)', position: 'relative', zIndex: 2 }} />
                 </div>
               </>
             )}

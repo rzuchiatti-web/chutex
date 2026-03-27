@@ -6,7 +6,7 @@ import { apiFetch } from '../src/services/api';
 
 const API = process.env.EXPO_PUBLIC_BACKEND_URL || '';
 const BG = 'https://customer-assets.emergentagent.com/job_443c9c6e-0feb-4920-a358-fe7cc1a6289b/artifacts/mhh7xwy3_ChatGPT%20Image%2017%20f%C3%A9vr.%202026%2C%2014_08_43.png';
-const GREEN_BG = 'linear-gradient(135deg, #059669 0%, #10B981 40%, #34D399 100%)';
+const GREEN_BG_IMG = 'https://customer-assets.emergentagent.com/job_6e5f29d8-07a7-4d8a-88cc-8e0eebe2b466/artifacts/jgg2zwgt_ChatGPT%20Image%2018%20f%C3%A9vr.%202026%2C%2008_31_33.png';
 const INP: any = { width: '100%', padding: '12px 14px', borderRadius: 12, background: '#F4F4F5', border: '1px solid #E5E7EB', color: '#111', fontSize: 13, outline: 'none', fontFamily: 'inherit', boxSizing: 'border-box' };
 
 export default function ProRevenuePage() {
@@ -79,7 +79,7 @@ export default function ProRevenuePage() {
 
         {/* HEADER */}
         <div style={{ position: 'relative', zIndex: 1, minHeight: 180 } as any}>
-          <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', background: GREEN_BG } as any} />
+          <img src={GREEN_BG_IMG} alt="" style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 } as any} />
           <div style={{ position: 'relative', zIndex: 2, padding: '28px 20px 32px' } as any}>
             <div data-testid="back-btn" onClick={() => router.back()} style={{ width: 40, height: 40, borderRadius: 12, background: 'rgba(255,255,255,0.12)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', border: '1px solid rgba(255,255,255,0.15)', marginBottom: 16 } as any}>
               <i className="ri-arrow-left-line" style={{ fontSize: 18, color: '#FFF' }} />

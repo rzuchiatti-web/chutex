@@ -38,78 +38,79 @@ export function ProDayView(props: ProDayViewProps) {
 
   return (
     <>
-      {/* Nutrition + Weight Goal Combined Card */}
+      {/* Nutrition + Weight Goal Combined Card — Dark style */}
       {(benNutrition?.daily_calories > 0 || (benWeightGoal && benWeightGoal.has_goal)) && (
         <div data-testid="nutrition-weight-card" onClick={() => router.push({ pathname: '/minceur' as any, params: { beneficiaryId: activeBenId } })}
-          style={{ borderRadius: 16, background: '#FFF', border: '1px solid #E5E7EB', padding: '18px', marginBottom: 18, cursor: 'pointer', boxShadow: '0 2px 8px rgba(0,0,0,0.04)' } as any}>
+          style={{ borderRadius: 20, background: 'linear-gradient(145deg, #0F172A 0%, #1E293B 100%)', padding: '20px 18px', marginBottom: 18, cursor: 'pointer', position: 'relative', overflow: 'hidden' } as any}>
 
-          {/* Title */}
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 } as any}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8 } as any}>
-              <div style={{ width: 32, height: 32, borderRadius: 10, background: '#7C3AED12', display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}>
-                <i className="ri-heart-pulse-line" style={{ fontSize: 16, color: '#7C3AED' }} />
-              </div>
-              <span style={{ fontSize: 14, fontWeight: 800, color: '#111' }}>Suivi Nutrition & Poids</span>
-            </div>
-            <i className="ri-arrow-right-s-line" style={{ fontSize: 18, color: '#9CA3AF' }} />
+          {/* Subtle glow */}
+          <div style={{ position: 'absolute', top: -40, right: -40, width: 120, height: 120, borderRadius: '50%', background: 'radial-gradient(circle, rgba(59,130,246,0.12) 0%, transparent 70%)' } as any} />
+
+          {/* Header + arrow */}
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4 } as any}>
+            <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', letterSpacing: 1.5 }}>Consommation par jour</div>
+            <i className="ri-arrow-right-s-line" style={{ fontSize: 18, color: 'rgba(255,255,255,0.3)' }} />
           </div>
 
-          {/* Nutrition row */}
           {benNutrition && benNutrition.daily_calories > 0 && (
-            <div style={{ display: 'flex', gap: 8, marginBottom: benWeightGoal?.has_goal ? 14 : 0 } as any}>
-              <div style={{ flex: 1, padding: '10px 8px', borderRadius: 12, background: '#F4F4F5', textAlign: 'center' } as any}>
-                <i className="ri-fire-line" style={{ fontSize: 14, color: '#F59E0B' }} />
-                <div style={{ fontSize: 18, fontWeight: 900, color: '#111', marginTop: 2 }}>{benNutrition.daily_calories}</div>
-                <div style={{ fontSize: 8, fontWeight: 700, color: '#9CA3AF', textTransform: 'uppercase' }}>kcal/jour</div>
+            <>
+              {/* Kcal + Water row */}
+              <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', marginBottom: 16 } as any}>
+                <div>
+                  <span style={{ fontSize: 42, fontWeight: 900, color: '#FFF', letterSpacing: -2, lineHeight: 1 }}>{benNutrition.daily_calories}</span>
+                  <span style={{ fontSize: 14, fontWeight: 600, color: 'rgba(255,255,255,0.4)', marginLeft: 4 }}>kcal</span>
+                </div>
+                <div style={{ padding: '10px 14px', borderRadius: 14, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)', display: 'flex', alignItems: 'center', gap: 6 } as any}>
+                  <i className="ri-drop-fill" style={{ fontSize: 16, color: '#60A5FA' }} />
+                  <span style={{ fontSize: 14, fontWeight: 800, color: '#60A5FA' }}>{benNutrition.water_ml >= 1000 ? `${(benNutrition.water_ml / 1000).toFixed(1)}L` : `${benNutrition.water_ml}ml`}</span>
+                </div>
               </div>
-              <div style={{ flex: 1, padding: '10px 8px', borderRadius: 12, background: '#F4F4F5', textAlign: 'center' } as any}>
-                <i className="ri-leaf-line" style={{ fontSize: 14, color: '#10B981' }} />
-                <div style={{ fontSize: 18, fontWeight: 900, color: '#111', marginTop: 2 }}>{benNutrition.macros?.proteines_g || 0}<span style={{ fontSize: 9, color: '#9CA3AF' }}>g</span></div>
-                <div style={{ fontSize: 8, fontWeight: 700, color: '#9CA3AF', textTransform: 'uppercase' }}>Proteines</div>
+
+              {/* Macros row */}
+              <div style={{ display: 'flex', gap: 8 } as any}>
+                {[
+                  { label: 'PROTEINES', val: benNutrition.macros?.proteines_g || 0, color: '#10B981' },
+                  { label: 'GLUCIDES', val: benNutrition.macros?.glucides_g || 0, color: '#F59E0B' },
+                  { label: 'LIPIDES', val: benNutrition.macros?.lipides_g || 0, color: '#EF4444' },
+                ].map((m) => (
+                  <div key={m.label} style={{ flex: 1, padding: '12px 8px', borderRadius: 14, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.06)', textAlign: 'center' } as any}>
+                    <div style={{ fontSize: 22, fontWeight: 900, color: '#FFF', lineHeight: 1 }}>{m.val}<span style={{ fontSize: 10, fontWeight: 600, color: 'rgba(255,255,255,0.3)' }}>g</span></div>
+                    <div style={{ fontSize: 8, fontWeight: 700, color: m.color, textTransform: 'uppercase', letterSpacing: 0.8, marginTop: 4 }}>{m.label}</div>
+                  </div>
+                ))}
               </div>
-              <div style={{ flex: 1, padding: '10px 8px', borderRadius: 12, background: '#F4F4F5', textAlign: 'center' } as any}>
-                <i className="ri-drop-fill" style={{ fontSize: 14, color: '#38BDF8' }} />
-                <div style={{ fontSize: 18, fontWeight: 900, color: '#111', marginTop: 2 }}>{benNutrition.water_ml >= 1000 ? `${(benNutrition.water_ml / 1000).toFixed(1)}` : benNutrition.water_ml}</div>
-                <div style={{ fontSize: 8, fontWeight: 700, color: '#9CA3AF', textTransform: 'uppercase' }}>{benNutrition.water_ml >= 1000 ? 'Litres' : 'ml'} / jour</div>
-              </div>
-            </div>
+            </>
           )}
 
           {/* Weight Goal section */}
           {benWeightGoal && benWeightGoal.has_goal && (
-            <div style={{ padding: '14px', borderRadius: 12, background: '#F9F5FF', border: '1px solid #E9DFFF' } as any}>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 } as any}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 6 } as any}>
-                  <i className="ri-scales-3-line" style={{ fontSize: 14, color: '#7C3AED' }} />
-                  <span style={{ fontSize: 11, fontWeight: 800, color: '#7C3AED' }}>Objectif poids</span>
-                </div>
-                {benWeightGoal.weeks > 0 && <span style={{ fontSize: 10, fontWeight: 600, color: '#9CA3AF', background: '#FFF', padding: '2px 8px', borderRadius: 999 }}>{benWeightGoal.weeks} semaines</span>}
+            <>
+              <div style={{ height: 1, background: 'rgba(255,255,255,0.06)', margin: '16px 0' } as any} />
+              <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 10 } as any}>
+                <i className="ri-scales-3-line" style={{ fontSize: 14, color: '#A78BFA' }} />
+                <span style={{ fontSize: 11, fontWeight: 800, color: '#A78BFA' }}>Objectif poids</span>
+                {benWeightGoal.weeks > 0 && <span style={{ fontSize: 9, color: 'rgba(255,255,255,0.3)', marginLeft: 'auto' }}>{benWeightGoal.weeks} semaines</span>}
               </div>
-
-              {/* Weight visual: current → target */}
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 } as any}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10 } as any}>
                 <div style={{ textAlign: 'center' } as any}>
-                  <div style={{ fontSize: 10, fontWeight: 600, color: '#9CA3AF', marginBottom: 2 }}>Actuel</div>
-                  <div style={{ fontSize: 20, fontWeight: 900, color: '#111' }}>{benWeightGoal.current_kg}<span style={{ fontSize: 10, color: '#9CA3AF' }}>kg</span></div>
+                  <div style={{ fontSize: 22, fontWeight: 900, color: '#FFF' }}>{benWeightGoal.current_kg}<span style={{ fontSize: 9, color: 'rgba(255,255,255,0.3)' }}>kg</span></div>
+                  <div style={{ fontSize: 8, color: 'rgba(255,255,255,0.25)', fontWeight: 600, textTransform: 'uppercase', marginTop: 2 }}>Actuel</div>
                 </div>
                 <div style={{ flex: 1 } as any}>
-                  <div style={{ height: 8, borderRadius: 4, background: '#E5E7EB', overflow: 'hidden' } as any}>
-                    <div style={{ height: '100%', borderRadius: 4, background: 'linear-gradient(90deg, #7C3AED, #A78BFA)', width: `${Math.min(100, benWeightGoal.progress_pct || 0)}%`, transition: 'width 0.6s' } as any} />
+                  <div style={{ height: 6, borderRadius: 3, background: 'rgba(255,255,255,0.06)', overflow: 'hidden' } as any}>
+                    <div style={{ height: '100%', borderRadius: 3, background: 'linear-gradient(90deg, #7C3AED, #A78BFA)', width: `${Math.min(100, benWeightGoal.progress_pct || 0)}%` } as any} />
                   </div>
                   <div style={{ textAlign: 'center', marginTop: 4 } as any}>
-                    <span style={{ fontSize: 12, fontWeight: 800, color: '#7C3AED' }}>{Math.round(benWeightGoal.progress_pct || 0)}%</span>
-                    <span style={{ fontSize: 9, color: '#9CA3AF', marginLeft: 4 }}>atteint</span>
+                    <span style={{ fontSize: 11, fontWeight: 800, color: '#A78BFA' }}>{Math.round(benWeightGoal.progress_pct || 0)}%</span>
                   </div>
                 </div>
                 <div style={{ textAlign: 'center' } as any}>
-                  <div style={{ fontSize: 10, fontWeight: 600, color: '#9CA3AF', marginBottom: 2 }}>Objectif</div>
-                  <div style={{ fontSize: 20, fontWeight: 900, color: '#7C3AED' }}>{benWeightGoal.target_kg}<span style={{ fontSize: 10, color: '#9CA3AF' }}>kg</span></div>
+                  <div style={{ fontSize: 22, fontWeight: 900, color: '#A78BFA' }}>{benWeightGoal.target_kg}<span style={{ fontSize: 9, color: 'rgba(255,255,255,0.3)' }}>kg</span></div>
+                  <div style={{ fontSize: 8, color: 'rgba(255,255,255,0.25)', fontWeight: 600, textTransform: 'uppercase', marginTop: 2 }}>Objectif</div>
                 </div>
               </div>
-
-              {/* Remaining */}
               {benWeightGoal.current_kg > 0 && benWeightGoal.target_kg > 0 && (
-                <div style={{ textAlign: 'center', fontSize: 11, color: '#6B7280' }}>
+                <div style={{ textAlign: 'center', fontSize: 10, color: 'rgba(255,255,255,0.3)', marginTop: 8 }}>
                   {benWeightGoal.current_kg > benWeightGoal.target_kg
                     ? `Encore ${(benWeightGoal.current_kg - benWeightGoal.target_kg).toFixed(1)} kg a perdre`
                     : benWeightGoal.current_kg < benWeightGoal.target_kg
@@ -118,7 +119,7 @@ export function ProDayView(props: ProDayViewProps) {
                   }
                 </div>
               )}
-            </div>
+            </>
           )}
         </div>
       )}
