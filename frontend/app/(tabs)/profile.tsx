@@ -61,7 +61,7 @@ const LANGUAGES = [
 
 function ProfileMenuItem({ icon, label, onPress, danger, testID }: any) {
   if (Platform.OS === 'web') {
-    const dk = typeof localStorage !== 'undefined' ? localStorage.getItem('chutex_dark') !== '0' : true;
+    const dk = typeof localStorage !== 'undefined' ? localStorage.getItem('chutex_dark') === '1' : false;
     return (
       <div data-testid={testID} onClick={onPress} style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '14px 0', borderBottom: `1px solid ${dk ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.06)'}`, cursor: 'pointer' } as any}>
         <div style={{ width: 38, height: 38, borderRadius: 12, background: danger ? 'rgba(239,68,68,0.12)' : (dk ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.05)'), border: `1px solid ${danger ? 'rgba(239,68,68,0.2)' : (dk ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.06)')}`, display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}>
@@ -218,7 +218,7 @@ export default function ProfileScreen() {
   React.useEffect(() => {
     const iv = setInterval(() => {
       if (typeof localStorage !== 'undefined') {
-        const v = localStorage.getItem('chutex_dark') !== '0';
+        const v = localStorage.getItem('chutex_dark') === '1';
         setIsDark(prev => prev !== v ? v : prev);
       }
     }, 500);
