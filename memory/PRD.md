@@ -32,6 +32,13 @@ Refondre l'espace d'activite (ProSpace) des coachs/gardiens pour la gestion dire
 - [x] Refactoring ProSpace (6 sous-composants)
 - [x] Admin Revenue Dashboard
 - [x] TabBar cachee quand GlassModal ouverte
+- [x] Upload video (mp4, mov, webm) pour exercices
+- [x] Merge dynamique assignation/template (video, image, steps)
+- [x] Synchronisation Gardien -> Beneficiaire (exercices + repas)
+- [x] Popup guide Glass dans ProSpace (style profile.tsx)
+- [x] Refonte pages detail (meal-detail, pro-exercise-detail) en Light Theme
+- [x] Correction Dark Mode force (profile.tsx, beneficiary-detail.tsx)
+- [x] Login admin par email (detection @ dans formulaire login)
 
 ## Structure
 ```
@@ -46,11 +53,6 @@ frontend/src/components/dashboard/
     ProModals.tsx            (Modales + filtre hydratation exclu des complements)
 ```
 
-## Backlog P1
-- [ ] Verifier Admin Revenue dashboard via login admin UI
-- [ ] Tester upload video pour exercices
-- [ ] Admin login via telephone
-
 ## Backlog P2
 - [ ] Balance/gilet connectes
 - [ ] Signature electronique
@@ -59,6 +61,7 @@ frontend/src/components/dashboard/
 - [ ] Integration Vivoo
 - [ ] Validation CRC32 TCP
 - [ ] Refactoring BeneficiaryPopups.tsx
+- [ ] Refactoring route alerts.tsx (messages vs alertes gardien)
 
 ## Credentials
 - Coach: +33655443322 / test123
