@@ -87,7 +87,7 @@ export default function NoraHealthOverlay({ token, onClose }: { token: string | 
       </div>
 
       {phase === 'done' && (
-        <div style={{ position: 'sticky', bottom: 0, padding: '16px 24px 36px', background: 'linear-gradient(0deg, #000 60%, transparent)' } as any}>
+        <div style={{ position: 'fixed', bottom: 0, left: 0, right: 0, padding: '16px 24px 36px', background: 'linear-gradient(0deg, #000 60%, transparent)', zIndex: 100000 } as any}>
           <div data-testid="nora-health-back-btn" onClick={onClose} style={{
             width: '100%', maxWidth: 380, margin: '0 auto', padding: '16px',
             borderRadius: 999, background: '#FFF', textAlign: 'center',
