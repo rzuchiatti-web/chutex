@@ -205,17 +205,20 @@ export default function GuardianHome({ token, user }: { token: string; user: any
                     </div>
                   </div>
                   {b.latest_vitals && (
-                    <div style={{ display: 'flex', borderTop: `1px solid ${sepColor}`, padding: '10px 16px 12px', gap: 6 } as any}>
+                    <div style={{ display: 'flex', borderTop: `1px solid ${sepColor}`, padding: '10px 16px 12px' } as any}>
                       {[
-                        { val: b.latest_vitals.heart_rate, unit: 'bpm', color: '#EF4444' },
-                        { val: b.latest_vitals.spo2, unit: '%', color: '#60A5FA' },
-                        { val: b.latest_vitals.blood_pressure_systolic ? `${b.latest_vitals.blood_pressure_systolic}/${b.latest_vitals.blood_pressure_diastolic}` : null, unit: 'mmHg', color: '#C084FC' },
-                        { val: b.latest_vitals.temperature, unit: '°C', color: '#FB923C' },
+                        { val: b.latest_vitals.heart_rate, unit: 'bpm', color: '#EF4444', label: 'Pouls' },
+                        { val: b.latest_vitals.spo2, unit: '%', color: '#60A5FA', label: 'SpO2' },
+                        { val: b.latest_vitals.blood_pressure_systolic ? `${b.latest_vitals.blood_pressure_systolic}/${b.latest_vitals.blood_pressure_diastolic}` : null, unit: 'mmHg', color: '#C084FC', label: 'Tension' },
+                        { val: b.latest_vitals.temperature, unit: '°C', color: '#FB923C', label: 'Temp' },
                       ].map((s: any, i: number) => (
-                        <div key={i} style={{ flex: 1, padding: '6px 4px', borderRadius: 10, background: s.val ? `${s.color}15` : (isDark ? 'rgba(255,255,255,0.03)' : 'rgba(0,0,0,0.03)'), textAlign: 'center' } as any}>
-                          <div style={{ fontSize: 14, fontWeight: 900, color: s.val ? s.color : (isDark ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.15)'), lineHeight: 1 }}>{s.val || '--'}</div>
-                          <div style={{ fontSize: 8, color: subColor, textTransform: 'uppercase', letterSpacing: 0.3, marginTop: 2 }}>{s.unit}</div>
-                        </div>
+                        <React.Fragment key={i}>
+                          {i > 0 && <div style={{ width: 1, height: 28, background: sepColor, alignSelf: 'center' } as any} />}
+                          <div style={{ flex: 1, textAlign: 'center' } as any}>
+                            <div style={{ fontSize: 15, fontWeight: 900, color: s.val ? s.color : (isDark ? 'rgba(255,255,255,0.15)' : 'rgba(0,0,0,0.12)'), lineHeight: 1 }}>{s.val || '--'}</div>
+                            <div style={{ fontSize: 8, color: subColor, textTransform: 'uppercase', letterSpacing: 0.3, marginTop: 3 }}>{s.unit}</div>
+                          </div>
+                        </React.Fragment>
                       ))}
                     </div>
                   )}

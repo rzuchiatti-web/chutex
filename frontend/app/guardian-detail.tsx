@@ -44,7 +44,7 @@ export default function GuardianDetailScreen() {
   const [guardian, setGuardian] = useState<any>(null);
   const [perms, setPerms] = useState<any>(null);
   const [loading, setLoading] = useState(true);
-  const [isDark, setIsDark] = useState(true);
+  const [isDark, setIsDark] = useState(false);
   const [expandedSection, setExpandedSection] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
 
@@ -59,7 +59,7 @@ export default function GuardianDetailScreen() {
 
   useEffect(() => {
     if (typeof localStorage !== 'undefined') {
-      const check = () => setIsDark(localStorage.getItem('chutex_dark') !== '0');
+      const check = () => setIsDark(localStorage.getItem('chutex_dark') === '1');
       check();
       const iv = setInterval(check, 400);
       return () => clearInterval(iv);
@@ -186,11 +186,7 @@ export default function GuardianDetailScreen() {
           <div style={{ position: 'relative', zIndex: 2, padding: '18px 20px 44px' } as any}>
             {/* Back button */}
             <div data-testid="guardian-back-btn" onClick={() => {
-              if (isFromBeneficiary && fromBeneficiary) {
-                router.push({ pathname: '/beneficiary-detail' as any, params: { beneficiaryId: fromBeneficiary } });
-              } else {
-                try { router.back(); } catch { router.push('/(tabs)/home' as any); }
-              }
+              try { router.back(); } catch { router.push('/(tabs)' as any); }
             }} style={{ width: 36, height: 36, borderRadius: 10, background: 'rgba(255,255,255,0.15)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', marginBottom: 18 } as any}>
               <i className="ri-arrow-left-s-line" style={{ fontSize: 20, color: '#FFF' }} />
             </div>

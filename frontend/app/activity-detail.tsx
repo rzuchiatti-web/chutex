@@ -339,29 +339,20 @@ export default function ActivityDetailPage() {
                   {proExercises.map((ex: any, i: number) => (
                     <div key={ex.id || i} data-testid={`pro-exercise-${i}`}
                       onClick={() => router.push({ pathname: '/pro-exercise-detail' as any, params: { id: ex.exercise_template_id || ex.id, mode: 'assigned', assignmentId: ex.id } })}
-                      style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 14px', borderRadius: 14, background: ex.completed_today ? 'rgba(16,185,129,0.08)' : 'rgba(255,255,255,0.03)', border: `1px solid ${ex.completed_today ? G + '25' : 'rgba(255,255,255,0.05)'}`, marginBottom: 6, cursor: 'pointer', transition: 'background 0.15s' } as any}
-                      onMouseEnter={(e: any) => { if (!ex.completed_today) e.currentTarget.style.background = 'rgba(255,255,255,0.06)'; }}
-                      onMouseLeave={(e: any) => { e.currentTarget.style.background = ex.completed_today ? 'rgba(16,185,129,0.08)' : 'rgba(255,255,255,0.03)'; }}>
-                      <div style={{ width: 44, height: 44, borderRadius: 12, background: 'rgba(239,68,68,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}>
-                        <i className={ex.icon || 'ri-run-line'} style={{ fontSize: 20, color: R }} />
+                      style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 12px', borderRadius: 14,
+                        background: ex.completed_today ? 'rgba(16,185,129,0.12)' : '#E8E8EA',
+                        marginBottom: 6, cursor: 'pointer', transition: 'background 0.15s' } as any}>
+                      <div style={{ width: 44, height: 44, borderRadius: 12, background: ex.completed_today ? 'rgba(16,185,129,0.15)' : 'rgba(0,0,0,0.06)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}>
+                        <i className={ex.icon || 'ri-run-line'} style={{ fontSize: 20, color: ex.completed_today ? G : '#374151' }} />
                       </div>
                       <div style={{ flex: 1, minWidth: 0 } as any}>
-                        <div style={{ fontSize: 13, fontWeight: 800, color: '#FFF', textDecoration: ex.completed_today ? 'line-through' : 'none' }}>{ex.title}</div>
-                        <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.35)', marginTop: 2 }}>
+                        <div style={{ fontSize: 13, fontWeight: 800, color: ex.completed_today ? G : '#111', textDecoration: ex.completed_today ? 'line-through' : 'none' }}>{ex.title}</div>
+                        <div style={{ fontSize: 10, color: ex.completed_today ? 'rgba(16,185,129,0.6)' : 'rgba(0,0,0,0.4)', marginTop: 2 }}>
                           {ex.sets > 0 && `${ex.sets} series x ${ex.repetitions} reps`}
                           {ex.rest_seconds > 0 && ` · ${ex.rest_seconds}s repos`}
                         </div>
                       </div>
-                      {ex.completed_today ? (
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '5px 10px', borderRadius: 999, background: `${G}12` } as any}>
-                          <i className="ri-checkbox-circle-fill" style={{ fontSize: 14, color: G }} />
-                          <span style={{ fontSize: 10, fontWeight: 700, color: G }}>Fait</span>
-                        </div>
-                      ) : (
-                        <div style={{ padding: '7px 14px', borderRadius: 999, background: `${G}12`, border: `1px solid ${G}25` } as any}>
-                          <span style={{ fontSize: 11, fontWeight: 700, color: G }}>Faire</span>
-                        </div>
-                      )}
+                      {ex.completed_today && <i className="ri-checkbox-circle-fill" style={{ fontSize: 18, color: G, flexShrink: 0 }} />}
                     </div>
                   ))}
                 </div>
