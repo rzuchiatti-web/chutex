@@ -137,6 +137,35 @@ export default function ProRevenuePage() {
               {/* OVERVIEW TAB */}
               {tab === 'overview' && (
                 <>
+                  {/* Revenue Chart */}
+                  {months.length > 0 && (() => {
+                    const chartMonths = [...months].reverse().slice(-6);
+                    const maxVal = Math.max(...chartMonths.map(([, d]) => d.total), 1);
+                    return (
+                      <div data-testid="revenue-chart" style={{ borderRadius: 16, background: '#F4F4F5', padding: '18px 16px', marginBottom: 18 } as any}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 16 } as any}>
+                          <i className="ri-bar-chart-grouped-line" style={{ fontSize: 14, color: '#10B981' }} />
+                          <span style={{ fontSize: 12, fontWeight: 700, color: '#6B7280', textTransform: 'uppercase', letterSpacing: 0.5 }}>Evolution des revenus</span>
+                        </div>
+                        <div style={{ display: 'flex', alignItems: 'flex-end', gap: 8, padding: '0 4px' } as any}>
+                          {chartMonths.map(([key, data], i) => {
+                            const ratio = data.total / maxVal;
+                            const barPx = Math.max(14, Math.round(ratio * 90));
+                            const label = data.items[0]?._label?.split(' ')[0]?.slice(0, 3) || key.split('-')[1];
+                            const isLast = i === chartMonths.length - 1;
+                            return (
+                              <div key={key} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center' } as any}>
+                                <span style={{ fontSize: 10, fontWeight: 800, color: isLast ? '#10B981' : '#6B7280', marginBottom: 4 }}>{data.total > 0 ? `${data.total.toFixed(0)}€` : ''}</span>
+                                <div style={{ width: '65%', maxWidth: 40, borderRadius: 8, background: isLast ? 'linear-gradient(180deg, #10B981, #059669)' : '#D1D5DB', height: barPx } as any} />
+                                <span style={{ fontSize: 9, fontWeight: 600, color: '#9CA3AF', textTransform: 'capitalize', marginTop: 4 }}>{label}</span>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    );
+                  })()}
+
                   <div style={{ fontSize: 14, fontWeight: 800, color: '#111', marginBottom: 12 }}>Revenus par mois</div>
                   {months.length === 0 && <div style={{ textAlign: 'center', padding: '30px', color: '#9CA3AF', fontSize: 13 }}>Aucun revenu pour le moment</div>}
                   {months.map(([key, data]) => (
