@@ -88,8 +88,8 @@ export default function MealDetailPage() {
                 <div style={{ width: 56, height: 56, borderRadius: 18, background: `${col}30`, display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 12, border: `2px solid ${col}50` } as any}>
                   <i className={icon} style={{ fontSize: 26, color: '#FFF' }} />
                 </div>
-                <div style={{ fontSize: 22, fontWeight: 900, color: '#FFF', marginBottom: 4, textAlign: 'center', textTransform: 'capitalize' }}>{m.title || m.name}</div>
-                <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.55)', fontWeight: 600 }}>{label}</div>
+                <div style={{ fontSize: 11, fontWeight: 700, color: col, textTransform: 'uppercase', letterSpacing: 1, marginBottom: 4 }}>{label}</div>
+                <div style={{ fontSize: 22, fontWeight: 900, color: '#FFF', textAlign: 'center', textTransform: 'capitalize' }}>{m.title || m.name}</div>
               </div>
             )}
           </div>
@@ -109,10 +109,7 @@ export default function MealDetailPage() {
                     <i className="ri-fire-line" style={{ fontSize: 14, color: col }} />
                     <span style={{ fontSize: 11, fontWeight: 700, color: '#6B7280', textTransform: 'uppercase', letterSpacing: 0.5 }}>Valeurs nutritionnelles</span>
                   </div>
-                  {!mode && <div data-testid="track-meal-btn" onClick={toggle} style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '6px 12px', borderRadius: 999, background: done ? '#10B981' : '#E5E7EB', cursor: 'pointer', transition: 'all 0.2s' } as any}>
-                    <i className={done ? 'ri-check-line' : 'ri-checkbox-blank-circle-line'} style={{ fontSize: 13, color: done ? '#FFF' : '#9CA3AF' }} />
-                    <span style={{ fontSize: 11, fontWeight: 700, color: done ? '#FFF' : '#6B7280' }}>{done ? 'Valide' : 'Valider'}</span>
-                  </div>}
+                  {!mode && <div data-testid="track-meal-placeholder" />}
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4, marginBottom: 12 } as any}>
                   <span style={{ fontSize: 32, fontWeight: 900, color: '#111', letterSpacing: -1 }}>{m.calories || 0}</span>
@@ -121,9 +118,9 @@ export default function MealDetailPage() {
                 <div style={{ height: 1, background: '#E5E7EB', marginBottom: 12 } as any} />
                 <div style={{ display: 'flex', alignItems: 'center' } as any}>
                   {[
-                    { label: 'Proteines', val: m.proteins || m.proteines || 0, color: '#10B981' },
-                    { label: 'Glucides', val: m.glucides || 0, color: '#F59E0B' },
-                    { label: 'Lipides', val: m.lipides || 0, color: '#EF4444' },
+                    { label: 'Proteines', val: m.proteins || m.proteines || m.proteines_g || 0, color: '#10B981' },
+                    { label: 'Glucides', val: m.glucides || m.glucides_g || 0, color: '#F59E0B' },
+                    { label: 'Lipides', val: m.lipides || m.lipides_g || 0, color: '#EF4444' },
                   ].map((mc, i) => (
                     <React.Fragment key={mc.label}>
                       {i > 0 && <div style={{ width: 1, height: 28, background: '#E5E7EB' } as any} />}
@@ -187,6 +184,26 @@ export default function MealDetailPage() {
           )}
         </div>
       </div>
+
+      {/* Fixed green validate button at bottom */}
+      {!loading && m && !mode && (
+        <div data-testid="track-meal-btn" onClick={toggle} style={{
+          position: 'sticky', bottom: 0, left: 0, right: 0, padding: '12px 16px 28px',
+          background: 'linear-gradient(0deg, #FFF 60%, transparent)', zIndex: 20,
+        } as any}>
+          <div style={{
+            width: '100%', padding: '16px', borderRadius: 16,
+            background: done ? '#10B981' : '#111',
+            textAlign: 'center', cursor: 'pointer',
+            display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+            boxShadow: '0 4px 20px rgba(0,0,0,0.15)',
+          } as any}>
+            <i className={done ? 'ri-checkbox-circle-fill' : 'ri-check-line'} style={{ fontSize: 18, color: '#FFF' }} />
+            <span style={{ fontSize: 15, fontWeight: 800, color: '#FFF' }}>{done ? 'Repas valide !' : 'Valider ce repas'}</span>
+          </div>
+        </div>
+      )}
+
       <style dangerouslySetInnerHTML={{ __html: `@keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}` }} />
     </div>
   );

@@ -29,9 +29,9 @@ export function BeneficiaryHome({ token, user }: { token: string; user: any }) {
   const { t, lang, setLang, flags: langFlags } = useI18n();
   const [isDark, setIsDark] = useState(() => {
     if (typeof localStorage !== 'undefined') {
-      return localStorage.getItem('chutex_dark') !== '0';
+      return localStorage.getItem('chutex_dark') === '1';
     }
-    return true;
+    return false;
   });
   const toggleTheme = useCallback(() => {
     setIsDark(prev => {

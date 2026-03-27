@@ -92,11 +92,6 @@ export default function ProExerciseDetailPage() {
                   <i className={icon} style={{ fontSize: 26, color: '#FFF' }} />
                 </div>
                 <div style={{ fontSize: 22, fontWeight: 900, color: '#FFF', marginBottom: 6, textAlign: 'center', textTransform: 'capitalize' }}>{ex.title}</div>
-                <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', justifyContent: 'center' } as any}>
-                  {ex.difficulty && <span style={{ fontSize: 10, fontWeight: 700, padding: '3px 10px', borderRadius: 999, background: `${accent}30`, color: '#FFF' }}>{DIFF_LABELS[ex.difficulty] || ex.difficulty}</span>}
-                  {ex.muscle_group && <span style={{ fontSize: 10, fontWeight: 700, padding: '3px 10px', borderRadius: 999, background: 'rgba(255,255,255,0.15)', color: 'rgba(255,255,255,0.7)' }}>{ex.muscle_group}</span>}
-                  {ex.equipment && ex.equipment !== 'Aucun' && <span style={{ fontSize: 10, fontWeight: 700, padding: '3px 10px', borderRadius: 999, background: 'rgba(255,255,255,0.15)', color: 'rgba(255,255,255,0.7)' }}>{ex.equipment}</span>}
-                </div>
               </div>
             )}
           </div>
@@ -108,6 +103,30 @@ export default function ProExerciseDetailPage() {
 
           {!loading && ex && (
             <>
+              {/* Exercise info tags */}
+              {(ex.difficulty || ex.muscle_group || ex.equipment) && (
+                <div data-testid="exercise-info" style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginBottom: 14 } as any}>
+                  {ex.difficulty && (
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 14px', borderRadius: 12, background: `${accent}08`, border: `1px solid ${accent}15` } as any}>
+                      <i className="ri-speed-line" style={{ fontSize: 14, color: accent }} />
+                      <div><div style={{ fontSize: 9, fontWeight: 700, color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: 0.5 }}>Difficulte</div><div style={{ fontSize: 13, fontWeight: 800, color: '#111' }}>{DIFF_LABELS[ex.difficulty] || ex.difficulty}</div></div>
+                    </div>
+                  )}
+                  {ex.muscle_group && (
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 14px', borderRadius: 12, background: '#F4F4F5' } as any}>
+                      <i className="ri-body-scan-line" style={{ fontSize: 14, color: '#6B7280' }} />
+                      <div><div style={{ fontSize: 9, fontWeight: 700, color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: 0.5 }}>Zone</div><div style={{ fontSize: 13, fontWeight: 800, color: '#111' }}>{ex.muscle_group}</div></div>
+                    </div>
+                  )}
+                  {ex.equipment && ex.equipment !== 'Aucun' && (
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 14px', borderRadius: 12, background: '#F4F4F5' } as any}>
+                      <i className="ri-tools-line" style={{ fontSize: 14, color: '#6B7280' }} />
+                      <div><div style={{ fontSize: 9, fontWeight: 700, color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: 0.5 }}>Equipement</div><div style={{ fontSize: 13, fontWeight: 800, color: '#111' }}>{ex.equipment}</div></div>
+                    </div>
+                  )}
+                </div>
+              )}
+
               {/* Stats */}
               <div data-testid="exercise-stats" style={{ borderRadius: 16, background: '#F4F4F5', padding: 0, marginBottom: 14, overflow: 'hidden' } as any}>
                 <div style={{ display: 'flex' } as any}>

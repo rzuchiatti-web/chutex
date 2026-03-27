@@ -1,0 +1,60 @@
+{
+  "summary": "Tested UI/UX improvements for iteration 181. Backend APIs working correctly. Frontend has one critical bug: minceur page navigation to meal-detail not passing mode=assigned and assignmentId params for pro meals, causing macros to show 0.",
+  "backend_issues": {
+    "critical": [],
+    "minor": []
+  },
+  "frontend_issues": {
+    "ui_bugs": [
+      {
+        "component": "minceur.tsx",
+        "issue": "Pro meal click navigates to meal-detail?index=0 instead of meal-detail?mode=assigned&assignmentId=... causing macros to show 0g for proteins, glucides, lipides",
+        "selector": "[data-testid='meal-breakfast']",
+        "priority": "HIGH"
+      }
+    ],
+    "integration_issues": [
+      {
+        "flow": "Minceur -> Meal Detail navigation",
+        "issue": "isProMeal check (meal.source === 'pro' && meal.assignment_id) evaluates to false despite backend returning correct data. Navigation falls back to index param instead of mode=assigned&assignmentId",
+        "affected_selectors": ["[data-testid='meal-breakfast']", "[data-testid='meal-nutrition']"]
+      }
+    ],
+    "design_issues": []
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_ui_ux_iter181.py",
+    "/app/test_reports/pytest/pytest_results_iter181.xml"
+  ],
+  "action_items": [
+    "CRITICAL: Fix minceur.tsx meal navigation - isProMeal check not working. Backend returns source='pro' and assignment_id but frontend navigation uses index=0. Debug why meal.source and meal.assignment_id are undefined/falsy during render",
+    "Verify meal data has source and assignment_id fields when component renders (may be race condition or data transformation issue)"
+  ],
+  "critical_code_review_comments": [
+    "minceur.tsx line 533: isProMeal = meal.source === 'pro' && meal.assignment_id - this check is failing despite backend returning correct data. Need to debug why meal object doesn't have these fields during render"
+  ],
+  "updated_files": [
+    "/app/backend/tests/test_ui_ux_iter181.py"
+  ],
+  "success_rate": {
+    "backend": "100%",
+    "frontend": "80%"
+  },
+  "test_credentials": {
+    "coach": "+33655443322 / test123",
+    "beneficiary": "+33651245918 / test123"
+  },
+  "seed_data_creation": "None",
+  "retest_needed": true,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "Backend APIs all working. GET /api/pro/assigned-meal-detail/{id} returns correct macros (proteins=18, glucides=58, lipides=20 for Overnight oats). GET /api/minceur/weight-details returns meals with source='pro' and assignment_id. Issue is frontend minceur.tsx not correctly detecting pro meals during navigation. Light mode working (chutex_dark='0'). Exercise detail shows metadata in header pills (Moyen, Quadriceps/Fessiers, Banc halteres). ProDayView nutrition-weight-card only shows when beneficiary has nutrition/weight goals set.",
+  "verified_features": [
+    "Backend: GET /api/pro/assigned-meal-detail/{id} returns correct proteins, glucides, lipides values - PASS",
+    "Backend: Minceur endpoint returns pro meals with assignment_id and source=pro - PASS",
+    "Frontend: Beneficiary dashboard defaults to light mode (white background) - PASS",
+    "Frontend: Exercise detail page shows difficulty, zone, equipment in header pills - PASS (pills visible in header area)",
+    "Frontend: Meal detail page shows macros correctly when accessed directly with mode=assigned - PASS",
+    "Frontend: Meal detail page shows 0 macros when accessed from minceur page - FAIL (navigation bug)"
+  ],
+  "rca_of_the_issue": "The minceur.tsx component checks meal.source === 'pro' && meal.assignment_id to determine if a meal is a pro-assigned meal. The backend correctly returns these fields in the API response. However, when the user clicks on the meal card, the navigation goes to /meal-detail?index=0 instead of /meal-detail?mode=assigned&assignmentId=... This suggests the isProMeal variable evaluates to false. Possible causes: 1) Data not yet loaded when component renders, 2) Data transformation stripping these fields, 3) React state not updating correctly. The meal-detail page then falls back to fetching from /api/minceur/weight-details using index, which returns the meal without the proteines_g, glucides_g, lipides_g fields being read correctly."
+}

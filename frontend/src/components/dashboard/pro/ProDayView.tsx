@@ -41,50 +41,85 @@ export function ProDayView(props: ProDayViewProps) {
       {/* Nutrition + Weight Goal Combined Card */}
       {(benNutrition?.daily_calories > 0 || (benWeightGoal && benWeightGoal.has_goal)) && (
         <div data-testid="nutrition-weight-card" onClick={() => router.push({ pathname: '/minceur' as any, params: { beneficiaryId: activeBenId } })}
-          style={{ borderRadius: 16, background: '#F4F4F5', padding: '16px 18px', marginBottom: 18, cursor: 'pointer' } as any}>
-          {benNutrition && benNutrition.daily_calories > 0 && (<>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 } as any}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 6 } as any}>
-                <i className="ri-sparkling-2-line" style={{ fontSize: 14, color: '#7C3AED' }} />
-                <span style={{ fontSize: 11, fontWeight: 700, color: '#6B7280', textTransform: 'uppercase', letterSpacing: 0.5 }}>Nutrition & Poids</span>
+          style={{ borderRadius: 16, background: '#FFF', border: '1px solid #E5E7EB', padding: '18px', marginBottom: 18, cursor: 'pointer', boxShadow: '0 2px 8px rgba(0,0,0,0.04)' } as any}>
+
+          {/* Title */}
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 } as any}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8 } as any}>
+              <div style={{ width: 32, height: 32, borderRadius: 10, background: '#7C3AED12', display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}>
+                <i className="ri-heart-pulse-line" style={{ fontSize: 16, color: '#7C3AED' }} />
               </div>
-              <i className="ri-arrow-right-s-line" style={{ fontSize: 18, color: '#9CA3AF' }} />
+              <span style={{ fontSize: 14, fontWeight: 800, color: '#111' }}>Suivi Nutrition & Poids</span>
             </div>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 } as any}>
-              <div style={{ display: 'flex', alignItems: 'baseline', gap: 4 } as any}>
-                <span style={{ fontSize: 28, fontWeight: 900, color: '#111', letterSpacing: -1 }}>{benNutrition.daily_calories}</span>
-                <span style={{ fontSize: 12, fontWeight: 600, color: '#9CA3AF' }}>kcal/jour</span>
+            <i className="ri-arrow-right-s-line" style={{ fontSize: 18, color: '#9CA3AF' }} />
+          </div>
+
+          {/* Nutrition row */}
+          {benNutrition && benNutrition.daily_calories > 0 && (
+            <div style={{ display: 'flex', gap: 8, marginBottom: benWeightGoal?.has_goal ? 14 : 0 } as any}>
+              <div style={{ flex: 1, padding: '10px 8px', borderRadius: 12, background: '#F4F4F5', textAlign: 'center' } as any}>
+                <i className="ri-fire-line" style={{ fontSize: 14, color: '#F59E0B' }} />
+                <div style={{ fontSize: 18, fontWeight: 900, color: '#111', marginTop: 2 }}>{benNutrition.daily_calories}</div>
+                <div style={{ fontSize: 8, fontWeight: 700, color: '#9CA3AF', textTransform: 'uppercase' }}>kcal/jour</div>
               </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '5px 12px', borderRadius: 999, background: '#FFF', border: '1px solid #E5E7EB' } as any}>
-                <i className="ri-drop-fill" style={{ fontSize: 13, color: '#38BDF8' }} />
-                <span style={{ fontSize: 12, fontWeight: 700, color: '#374151' }}>{benNutrition.water_ml >= 1000 ? `${(benNutrition.water_ml / 1000).toFixed(1)}L` : `${benNutrition.water_ml}ml`}</span>
+              <div style={{ flex: 1, padding: '10px 8px', borderRadius: 12, background: '#F4F4F5', textAlign: 'center' } as any}>
+                <i className="ri-leaf-line" style={{ fontSize: 14, color: '#10B981' }} />
+                <div style={{ fontSize: 18, fontWeight: 900, color: '#111', marginTop: 2 }}>{benNutrition.macros?.proteines_g || 0}<span style={{ fontSize: 9, color: '#9CA3AF' }}>g</span></div>
+                <div style={{ fontSize: 8, fontWeight: 700, color: '#9CA3AF', textTransform: 'uppercase' }}>Proteines</div>
+              </div>
+              <div style={{ flex: 1, padding: '10px 8px', borderRadius: 12, background: '#F4F4F5', textAlign: 'center' } as any}>
+                <i className="ri-drop-fill" style={{ fontSize: 14, color: '#38BDF8' }} />
+                <div style={{ fontSize: 18, fontWeight: 900, color: '#111', marginTop: 2 }}>{benNutrition.water_ml >= 1000 ? `${(benNutrition.water_ml / 1000).toFixed(1)}` : benNutrition.water_ml}</div>
+                <div style={{ fontSize: 8, fontWeight: 700, color: '#9CA3AF', textTransform: 'uppercase' }}>{benNutrition.water_ml >= 1000 ? 'Litres' : 'ml'} / jour</div>
               </div>
             </div>
-            <div style={{ display: 'flex', alignItems: 'center', marginBottom: benWeightGoal?.has_goal ? 12 : 0 } as any}>
-              {[{ label: 'Proteines', val: benNutrition.macros?.proteines_g || 0 }, { label: 'Glucides', val: benNutrition.macros?.glucides_g || 0 }, { label: 'Lipides', val: benNutrition.macros?.lipides_g || 0 }].map((m, i) => (
-                <React.Fragment key={m.label}>
-                  {i > 0 && <div style={{ width: 1, height: 28, background: '#E5E7EB' } as any} />}
-                  <div style={{ flex: 1, textAlign: 'center' } as any}>
-                    <div style={{ fontSize: 16, fontWeight: 800, color: '#111' }}>{m.val}<span style={{ fontSize: 10, color: '#9CA3AF' }}>g</span></div>
-                    <div style={{ fontSize: 9, fontWeight: 600, color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: 0.5, marginTop: 2 }}>{m.label}</div>
+          )}
+
+          {/* Weight Goal section */}
+          {benWeightGoal && benWeightGoal.has_goal && (
+            <div style={{ padding: '14px', borderRadius: 12, background: '#F9F5FF', border: '1px solid #E9DFFF' } as any}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 } as any}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 6 } as any}>
+                  <i className="ri-scales-3-line" style={{ fontSize: 14, color: '#7C3AED' }} />
+                  <span style={{ fontSize: 11, fontWeight: 800, color: '#7C3AED' }}>Objectif poids</span>
+                </div>
+                {benWeightGoal.weeks > 0 && <span style={{ fontSize: 10, fontWeight: 600, color: '#9CA3AF', background: '#FFF', padding: '2px 8px', borderRadius: 999 }}>{benWeightGoal.weeks} semaines</span>}
+              </div>
+
+              {/* Weight visual: current → target */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 } as any}>
+                <div style={{ textAlign: 'center' } as any}>
+                  <div style={{ fontSize: 10, fontWeight: 600, color: '#9CA3AF', marginBottom: 2 }}>Actuel</div>
+                  <div style={{ fontSize: 20, fontWeight: 900, color: '#111' }}>{benWeightGoal.current_kg}<span style={{ fontSize: 10, color: '#9CA3AF' }}>kg</span></div>
+                </div>
+                <div style={{ flex: 1 } as any}>
+                  <div style={{ height: 8, borderRadius: 4, background: '#E5E7EB', overflow: 'hidden' } as any}>
+                    <div style={{ height: '100%', borderRadius: 4, background: 'linear-gradient(90deg, #7C3AED, #A78BFA)', width: `${Math.min(100, benWeightGoal.progress_pct || 0)}%`, transition: 'width 0.6s' } as any} />
                   </div>
-                </React.Fragment>
-              ))}
-            </div>
-          </>)}
-          {benWeightGoal && benWeightGoal.has_goal && (<>
-            {benNutrition?.daily_calories > 0 && <div style={{ height: 1, background: '#E5E7EB', marginBottom: 12 } as any} />}
-            <div style={{ display: 'flex', alignItems: 'center', gap: 16 } as any}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 6 } as any}>
-                <i className="ri-scales-3-line" style={{ fontSize: 14, color: '#7C3AED' }} />
-                <span style={{ fontSize: 18, fontWeight: 900, color: '#111' }}>{benWeightGoal.current_kg}<span style={{ fontSize: 10, color: '#9CA3AF' }}>kg</span></span>
+                  <div style={{ textAlign: 'center', marginTop: 4 } as any}>
+                    <span style={{ fontSize: 12, fontWeight: 800, color: '#7C3AED' }}>{Math.round(benWeightGoal.progress_pct || 0)}%</span>
+                    <span style={{ fontSize: 9, color: '#9CA3AF', marginLeft: 4 }}>atteint</span>
+                  </div>
+                </div>
+                <div style={{ textAlign: 'center' } as any}>
+                  <div style={{ fontSize: 10, fontWeight: 600, color: '#9CA3AF', marginBottom: 2 }}>Objectif</div>
+                  <div style={{ fontSize: 20, fontWeight: 900, color: '#7C3AED' }}>{benWeightGoal.target_kg}<span style={{ fontSize: 10, color: '#9CA3AF' }}>kg</span></div>
+                </div>
               </div>
-              <div style={{ flex: 1, height: 6, borderRadius: 3, background: '#E5E7EB' } as any}>
-                <div style={{ height: '100%', borderRadius: 3, background: '#7C3AED', width: `${Math.min(100, benWeightGoal.progress_pct || 0)}%` } as any} />
-              </div>
-              <span style={{ fontSize: 18, fontWeight: 900, color: '#7C3AED' }}>{benWeightGoal.target_kg}<span style={{ fontSize: 10, color: '#9CA3AF' }}>kg</span></span>
+
+              {/* Remaining */}
+              {benWeightGoal.current_kg > 0 && benWeightGoal.target_kg > 0 && (
+                <div style={{ textAlign: 'center', fontSize: 11, color: '#6B7280' }}>
+                  {benWeightGoal.current_kg > benWeightGoal.target_kg
+                    ? `Encore ${(benWeightGoal.current_kg - benWeightGoal.target_kg).toFixed(1)} kg a perdre`
+                    : benWeightGoal.current_kg < benWeightGoal.target_kg
+                    ? `Encore ${(benWeightGoal.target_kg - benWeightGoal.current_kg).toFixed(1)} kg a prendre`
+                    : 'Objectif atteint !'
+                  }
+                </div>
+              )}
             </div>
-          </>)}
+          )}
         </div>
       )}
 
