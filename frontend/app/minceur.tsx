@@ -15,13 +15,12 @@ function NoraAnalysisOverlay({ text: initialText, onClose }: { text: string; onC
   const [analysisText, setAnalysisText] = useState(initialText);
 
   useEffect(() => {
-    // Lazy fetch from dedicated endpoint (uses cache if available)
     if (token) {
       apiFetch('/api/nora/minceur-analysis', {}, token)
         .then((r: any) => { if (r?.insight) setAnalysisText(`${r.insight}${r.tip ? ` ${r.tip}` : ''}`); })
         .catch(() => {});
     }
-    const t1 = setTimeout(() => setPhase('typing'), 2500);
+    const t1 = setTimeout(() => setPhase('typing'), 2800);
     return () => clearTimeout(t1);
   }, [token]);
 
@@ -31,9 +30,20 @@ function NoraAnalysisOverlay({ text: initialText, onClose }: { text: string; onC
     const iv = setInterval(() => {
       if (i <= analysisText.length) { setTyped(analysisText.slice(0, i)); i++; }
       else { clearInterval(iv); setPhase('done'); }
-    }, 14);
+    }, 12);
     return () => clearInterval(iv);
   }, [phase, analysisText]);
+
+  // Format text into paragraphs for readability
+  const formatText = (t: string) => {
+    const sentences = t.split(/(?<=\.)\s+/);
+    const paragraphs: string[][] = [[]];
+    sentences.forEach((s, i) => {
+      paragraphs[paragraphs.length - 1].push(s);
+      if ((i + 1) % 2 === 0 && i < sentences.length - 1) paragraphs.push([]);
+    });
+    return paragraphs.map(p => p.join(' '));
+  };
 
   return (
     <div data-testid="nora-analysis-overlay" style={{
@@ -43,38 +53,56 @@ function NoraAnalysisOverlay({ text: initialText, onClose }: { text: string; onC
     } as any}>
       <style dangerouslySetInnerHTML={{ __html: `
         @keyframes noraFadeIn{from{opacity:0}to{opacity:1}}
-        @keyframes noraPulse{0%,100%{transform:scale(1);opacity:0.8}50%{transform:scale(1.05);opacity:1}}
-        @keyframes noraTextIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+        @keyframes noraPulse{0%,100%{transform:scale(1);opacity:0.85}50%{transform:scale(1.08);opacity:1}}
+        @keyframes noraTextIn{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+        @keyframes noraSlideUp{from{padding-top:30vh}to{padding-top:40px}}
       ` }} />
 
-      <div style={{ flex: 1, overflowY: 'auto', WebkitOverflowScrolling: 'touch', display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '60px 28px 120px' } as any}>
+      <div style={{
+        flex: 1, overflowY: 'auto', WebkitOverflowScrolling: 'touch',
+        display: 'flex', flexDirection: 'column', alignItems: 'center',
+        paddingTop: phase === 'intro' ? '30vh' : 40,
+        paddingLeft: 28, paddingRight: 28, paddingBottom: 120,
+        transition: 'padding-top 1s cubic-bezier(0.22,0.61,0.36,1)',
+      } as any}>
 
-        {/* Nora video — always big and centered */}
+        {/* Nora video — big, centered, slides up */}
         <video autoPlay loop muted playsInline style={{
-          width: 80, height: 80, borderRadius: 28, objectFit: 'contain',
-          opacity: phase === 'intro' ? 1 : 0.9,
-          animation: phase === 'intro' ? 'noraPulse 2s ease infinite' : 'none',
-          marginBottom: 20,
+          width: phase === 'intro' ? 110 : 70,
+          height: phase === 'intro' ? 110 : 70,
+          borderRadius: phase === 'intro' ? 40 : 24,
+          objectFit: 'contain',
+          animation: phase === 'intro' ? 'noraPulse 2.2s ease infinite' : 'none',
+          marginBottom: phase === 'intro' ? 20 : 24,
+          transition: 'all 1s cubic-bezier(0.22,0.61,0.36,1)',
+          boxShadow: '0 0 60px rgba(167,139,250,0.15)',
         } as any} src={NORA_VIDEO} />
 
         {phase === 'intro' && (
           <div style={{ textAlign: 'center', animation: 'noraTextIn 0.6s ease 0.3s both' } as any}>
-            <div style={{ fontSize: 16, fontWeight: 800, color: '#FFF' }}>Nora analyse...</div>
-            <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.3)', marginTop: 6 }}>Votre bilan nutritionnel personnalise</div>
+            <div style={{ fontSize: 18, fontWeight: 800, color: '#FFF' }}>Nora analyse...</div>
+            <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.25)', marginTop: 8 }}>Votre bilan nutritionnel personnalise</div>
           </div>
         )}
 
         {(phase === 'typing' || phase === 'done') && (
-          <div style={{ width: '100%', maxWidth: 380, textAlign: 'center', animation: 'noraTextIn 0.5s ease both' } as any}>
-            <div style={{ fontSize: 15, fontWeight: 800, color: '#FFF', marginBottom: 16 }}>Analyse de Nora</div>
-            <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.55)', lineHeight: 1.8, textAlign: 'center' }}>
-              {typed}<span style={{ opacity: phase === 'typing' ? 1 : 0, color: 'rgba(255,255,255,0.15)', transition: 'opacity 0.3s' } as any}>|</span>
+          <div style={{ width: '100%', maxWidth: 380, animation: 'noraTextIn 0.5s ease both' } as any}>
+            <div style={{ textAlign: 'center', marginBottom: 20 } as any}>
+              <div style={{ fontSize: 16, fontWeight: 800, color: '#FFF' }}>Analyse de Nora</div>
+              <div style={{ height: 2, width: 40, borderRadius: 1, background: 'rgba(167,139,250,0.4)', margin: '10px auto 0' } as any} />
             </div>
+            {formatText(typed).map((para, i) => (
+              <div key={i}>
+                {i > 0 && <div style={{ height: 1, background: 'rgba(255,255,255,0.04)', margin: '14px 0' } as any} />}
+                <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.55)', lineHeight: 1.85, textAlign: 'center' }}>{para}</div>
+              </div>
+            ))}
+            {phase === 'typing' && <span style={{ display: 'block', textAlign: 'center', color: 'rgba(255,255,255,0.12)', fontSize: 13 }}>|</span>}
           </div>
         )}
       </div>
 
-      {/* Back button — only when done */}
+      {/* Back button */}
       {phase === 'done' && (
         <div style={{ position: 'sticky', bottom: 0, padding: '16px 24px 36px', background: 'linear-gradient(0deg, #000 60%, transparent)' } as any}>
           <div data-testid="nora-back-btn" onClick={onClose} style={{
@@ -573,6 +601,22 @@ export default function MinceurPage() {
                 {data.last_reading_date && <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.12)', textAlign: 'right', marginTop: 8 }}>Pesee : {new Date(data.last_reading_date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })}</div>}
               </div>
 
+              {/* ══ NORA BUTTON — between graph card and recommendations ══ */}
+              {recs?.nora_insight && (
+                <div data-testid="nora-analysis-btn" onClick={() => setShowNoraAnalysis(true)}
+                  style={{ borderRadius: 16, background: '#000', padding: '14px 16px', marginBottom: 14, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 12, transition: 'opacity 0.15s' } as any}
+                  onMouseEnter={(e: any) => { e.currentTarget.style.opacity = '0.85'; }}
+                  onMouseLeave={(e: any) => { e.currentTarget.style.opacity = '1'; }}>
+                  <video autoPlay loop muted playsInline style={{ width: 36, height: 36, borderRadius: 12, objectFit: 'contain', flexShrink: 0 } as any}
+                    src="https://customer-assets.emergentagent.com/job_ba3a5789-c8f1-4b12-b5d8-478a7f99aaea/artifacts/b6eh1r76_Nora_video.mp4" />
+                  <div style={{ flex: 1 } as any}>
+                    <div style={{ fontSize: 13, fontWeight: 800, color: '#FFF' }}>Voir l'analyse de Nora</div>
+                    <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.35)', marginTop: 1 }}>Analyse personnalisee de votre nutrition</div>
+                  </div>
+                  <i className="ri-arrow-right-s-line" style={{ fontSize: 18, color: 'rgba(255,255,255,0.3)' }} />
+                </div>
+              )}
+
               {/* ══ RECOMMENDATIONS ══ */}
               {recs && (
                 <div style={{ ...fade(0.2) } as any}>
@@ -631,22 +675,6 @@ export default function MinceurPage() {
                       </div>
                     ); })}
                   </div>}
-
-                  {/* Nora analysis button */}
-                  {recs.nora_insight && (
-                    <div data-testid="nora-analysis-btn" onClick={() => setShowNoraAnalysis(true)}
-                      style={{ borderRadius: 16, background: '#000', padding: '14px 16px', marginBottom: 14, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 12, transition: 'opacity 0.15s' } as any}
-                      onMouseEnter={(e: any) => { e.currentTarget.style.opacity = '0.85'; }}
-                      onMouseLeave={(e: any) => { e.currentTarget.style.opacity = '1'; }}>
-                      <video autoPlay loop muted playsInline style={{ width: 36, height: 36, borderRadius: 12, objectFit: 'contain', flexShrink: 0 } as any}
-                        src="https://customer-assets.emergentagent.com/job_ba3a5789-c8f1-4b12-b5d8-478a7f99aaea/artifacts/b6eh1r76_Nora_video.mp4" />
-                      <div style={{ flex: 1 } as any}>
-                        <div style={{ fontSize: 13, fontWeight: 800, color: '#FFF' }}>Voir l'analyse de Nora</div>
-                        <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.35)', marginTop: 1 }}>Analyse personnalisee de votre nutrition</div>
-                      </div>
-                      <i className="ri-arrow-right-s-line" style={{ fontSize: 18, color: 'rgba(255,255,255,0.3)' }} />
-                    </div>
-                  )}
                 </div>
               )}
               {!recs && !loading && <div style={{ ...CD, padding: 28, textAlign: 'center', ...fade(0.2) } as any}><div style={{ width: 32, height: 32, margin: '0 auto 10px', borderRadius: '50%', border: '2px solid rgba(255,255,255,0.05)', borderTopColor: P, animation: 'spin 0.8s linear infinite' } as any} /><div style={{ fontSize: 12, color: 'rgba(255,255,255,0.2)' }}>Generation des recommandations...</div></div>}
