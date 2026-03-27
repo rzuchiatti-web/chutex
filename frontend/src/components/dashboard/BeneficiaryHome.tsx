@@ -19,7 +19,7 @@ import { apiFetch, clearApiCache } from '../../services/api';
 import { requestNotificationPermission, startReminderChecker, notifyAlert } from '../../services/notifications';
 import { SubscriptionBanner, SubscriptionGate } from '../SubscriptionGate';
 import WeightGoalDashCard from './WeightGoalDashCard';
-import { DailyObjectivesOnDashboard } from './DailyObjectives';
+import NoraHealthOverlay from './NoraHealthOverlay';
 import { useNotifications, NotificationBanner, NotificationCenter } from './NotificationCenter';
 
 const IMG_GUARDIANS = 'https://customer-assets.emergentagent.com/job_ba3a5789-c8f1-4b12-b5d8-478a7f99aaea/artifacts/ashlkedd_img_gardians.png';
@@ -100,6 +100,7 @@ export function BeneficiaryHome({ token, user }: { token: string; user: any }) {
   // Real-time notifications via WebSocket
   const { notifications: liveNotifs, unreadCount: liveUnread, liveBanner, markRead, markAllRead, dismissBanner } = useNotifications(token);
   const [notifCenterOpen, setNotifCenterOpen] = useState(false);
+  const [showNoraHealth, setShowNoraHealth] = useState(false);
 
   useEffect(() => {
     Animated.loop(Animated.sequence([
@@ -373,7 +374,18 @@ export function BeneficiaryHome({ token, user }: { token: string; user: any }) {
             borderTop: isDark ? '1px solid rgba(255,255,255,0.1)' : '1px solid rgba(0,0,0,0.08)',
           } as any}>
 
-          <DailyObjectivesOnDashboard token={token} isDark={isDark} />
+          <div data-testid="nora-health-btn" onClick={() => setShowNoraHealth(true)}
+            style={{ borderRadius: 16, background: '#000', padding: '14px 16px', marginBottom: 16, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 12, transition: 'opacity 0.15s' } as any}
+            onMouseEnter={(e: any) => { e.currentTarget.style.opacity = '0.85'; }}
+            onMouseLeave={(e: any) => { e.currentTarget.style.opacity = '1'; }}>
+            <video autoPlay loop muted playsInline style={{ width: 36, height: 36, borderRadius: 12, objectFit: 'contain', flexShrink: 0 } as any}
+              src="https://customer-assets.emergentagent.com/job_ba3a5789-c8f1-4b12-b5d8-478a7f99aaea/artifacts/b6eh1r76_Nora_video.mp4" />
+            <div style={{ flex: 1 } as any}>
+              <div style={{ fontSize: 13, fontWeight: 800, color: '#FFF' }}>Mon bilan sante avec Nora</div>
+              <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.35)', marginTop: 1 }}>Analyse personnalisee de votre etat de sante</div>
+            </div>
+            <i className="ri-arrow-right-s-line" style={{ fontSize: 18, color: 'rgba(255,255,255,0.3)' }} />
+          </div>
 
           {/* ── TEAM INVITATIONS ── */}
           {teamInvitations.length > 0 && teamInvitations.map((inv: any) => (
@@ -681,7 +693,10 @@ export function BeneficiaryHome({ token, user }: { token: string; user: any }) {
         <AddGuardianPopup show={showAddGuardianPopup} onClose={() => { setShowAddGuardianPopup(false); setInviteGuardPhone(""); setInviteGuardRelationship(""); setInviteGuardMsg(""); }} phone={inviteGuardPhone} setPhone={setInviteGuardPhone} relationship={inviteGuardRelationship} setRelationship={setInviteGuardRelationship} msg={inviteGuardMsg} setMsg={setInviteGuardMsg} loading={inviteGuardLoading} setLoading={setInviteGuardLoading} token={token} fetchData={fetchData} />
         <CheckinPopup show={showCheckin} onClose={() => setShowCheckin(false)} activeProgram={activeProgram} mood={checkinMood} setMood={setCheckinMood} note={checkinNote} setNote={setCheckinNote} sending={checkinSending} setSending={setCheckinSending} feedback={checkinFeedback} setFeedback={setCheckinFeedback} token={token} fetchData={fetchData} />
         <GuardianActivationPopup show={showGuardianActivation} onClose={() => { setShowGuardianActivation(false); setActiveTab("beneficiary"); }} step={guardianActivationStep} setStep={setGuardianActivationStep} alertSms={alertSms} setAlertSms={setAlertSms} alertEmail={alertEmail} setAlertEmail={setAlertEmail} activating={activatingGuardian} onActivate={activateGuardianMode} />
-        <style dangerouslySetInnerHTML={{ __html: `@keyframes spin{to{transform:rotate(360deg)}} @keyframes pulseRing{0%{transform:scale(1);opacity:0.3}100%{transform:scale(1.5);opacity:0}} @keyframes twBlink{0%,100%{opacity:1}50%{opacity:0}} @keyframes dashSlideUp{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}} .dash-slide-up{animation:dashSlideUp 0.5s ease-out both} .dash-slide-up:nth-child(1){animation-delay:0s} .dash-slide-up:nth-child(2){animation-delay:0.08s} .dash-slide-up:nth-child(3){animation-delay:0.16s} .dash-slide-up:nth-child(4){animation-delay:0.24s} .dash-slide-up:nth-child(5){animation-delay:0.32s} .dash-slide-up:nth-child(6){animation-delay:0.4s} .tw-cursor{animation:twBlink 1s step-end infinite}` }} />
+        <style dangerouslySetInnerHTML={{ __html: `@keyframes spin{to{transform:rotate(360deg)}} @keyframes pulseRing{0%{transform:scale(1);opacity:0.3}100%{transform:scale(1.5);opacity:0}} @keyframes twBlink{0%,100%{opacity:1}50%{opacity:0}} @keyframes dashSlideUp{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}} .dash-slide-up{animation:dashSlideUp 0.5s ease-out both} .dash-slide-up:nth-child(1){animation-delay:0s} .dash-slide-up:nth-child(2){animation-delay:0.08s} .dash-slide-up:nth-child(3){animation-delay:0.16s} .dash-slide-up:nth-child(4){animation-delay:0.24s} .dash-slide-up:nth-child(5){animation-delay:0.32s} .dash-slide-up:nth-child(6){animation-delay:0.4s} .tw-cursor{animation:twBlink 1s step-end infinite} @keyframes noraFadeIn{from{opacity:0}to{opacity:1}} @keyframes noraPulse{0%,100%{transform:scale(1);opacity:0.85}50%{transform:scale(1.08);opacity:1}} @keyframes noraTextIn{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}` }} />
+
+        {/* ═══ NORA HEALTH OVERLAY ═══ */}
+        {showNoraHealth && <NoraHealthOverlay token={token} onClose={() => setShowNoraHealth(false)} />}
       </div>
     );
   }

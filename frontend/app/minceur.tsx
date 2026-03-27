@@ -68,9 +68,9 @@ function NoraAnalysisOverlay({ text: initialText, onClose }: { text: string; onC
 
         {/* Nora video — big, centered, slides up */}
         <video autoPlay loop muted playsInline style={{
-          width: phase === 'intro' ? 110 : 70,
-          height: phase === 'intro' ? 110 : 70,
-          borderRadius: phase === 'intro' ? 40 : 24,
+          width: phase === 'intro' ? 140 : 90,
+          height: phase === 'intro' ? 140 : 90,
+          borderRadius: phase === 'intro' ? 50 : 30,
           objectFit: 'contain',
           animation: phase === 'intro' ? 'noraPulse 2.2s ease infinite' : 'none',
           marginBottom: phase === 'intro' ? 20 : 24,
@@ -93,7 +93,7 @@ function NoraAnalysisOverlay({ text: initialText, onClose }: { text: string; onC
             </div>
             {formatText(typed).map((para, i) => (
               <div key={i}>
-                {i > 0 && <div style={{ height: 1, background: 'rgba(255,255,255,0.04)', margin: '14px 0' } as any} />}
+                {i > 0 && <div style={{ height: 1, background: 'rgba(255,255,255,0.08)', margin: '16px 0' } as any} />}
                 <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.55)', lineHeight: 1.85, textAlign: 'center' }}>{para}</div>
               </div>
             ))}

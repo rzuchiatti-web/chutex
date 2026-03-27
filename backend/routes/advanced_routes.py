@@ -678,3 +678,90 @@ async def nora_speak_briefing(user=Depends(get_current_user)):
         print(f"TTS briefing error: {e}")
         raise HTTPException(status_code=500, detail="Erreur generation audio")
 
+
+
+
+# ═══════════════════════════════════════════
+#  NORA HEALTH ANALYSIS — Lazy loaded (on-demand)
+# ═══════════════════════════════════════════
+
+@router.get("/nora/health-analysis")
+async def get_nora_health_analysis(user=Depends(get_current_user)):
+    """On-demand Nora health analysis for dashboard — only called when user clicks button."""
+    uid = user['id']
+    today_str = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+
+    # Check cache
+    cached = await db.nora_health_analysis_cache.find_one(
+        {"user_id": uid, "date": today_str}, {"_id": 0}
+    )
+    if cached and cached.get("analysis"):
+        return {"analysis": cached["analysis"], "cached": True}
+
+    # Gather health data
+    u = await db.users.find_one({"id": uid}, {"_id": 0, "password_hash": 0})
+    if not u:
+        return {"analysis": "", "cached": False}
+
+    latest_bracelet = await db.device_readings.find_one(
+        {"user_id": uid, "device_type": "bracelet"}, {"_id": 0}, sort=[("timestamp", -1)]
+    )
+    latest_scale = await db.device_readings.find_one(
+        {"user_id": uid, "device_type": "scale"}, {"_id": 0}, sort=[("timestamp", -1)]
+    )
+    goal = await db.minceur_goals.find_one({"user_id": uid}, {"_id": 0})
+
+    br = latest_bracelet.get("data", {}) if latest_bracelet else {}
+    sc = latest_scale.get("data", {}) if latest_scale else {}
+    weight = sc.get("weight") or u.get("weight_kg", 0)
+    height = u.get("height_cm", 170)
+    age_str = u.get("date_of_birth", "")
+    age = 0
+    if age_str:
+        try:
+            from dateutil.parser import parse as dparse
+            age = (datetime.now(timezone.utc) - dparse(age_str).replace(tzinfo=timezone.utc)).days // 365
+        except Exception:
+            pass
+
+    prompt = f"""Tu es Nora, assistante sante bienveillante. Fais une analyse de sante globale pour ce patient.
+
+PROFIL: {u.get('name','')}, {age} ans, {u.get('gender','')}, {height}cm, {weight}kg
+CONDITIONS: {u.get('medical_conditions','Aucune')}
+ALLERGIES: {u.get('allergies','Aucune')}
+
+DONNEES VITALES:
+- Pouls: {br.get('heart_rate', '--')} bpm
+- SpO2: {br.get('spo2', '--')}%
+- Tension: {br.get('blood_pressure_systolic','--')}/{br.get('blood_pressure_diastolic','--')} mmHg
+- Temperature: {br.get('temperature', '--')}°C
+- Poids: {weight}kg | IMC: {round(weight/((height/100)**2),1) if weight and height else '--'}
+- Masse grasse: {sc.get('body_fat_pct','--')}% | Masse musculaire: {sc.get('muscle_pct','--')}%
+{f"OBJECTIF POIDS: {goal['target_kg']}kg en {goal.get('weeks',0)} semaines" if goal else ""}
+
+Redige une analyse en 4-5 phrases courtes et bienveillantes. Commente l'etat cardiaque, le poids, les constantes, et donne un conseil. Pas d'emoji. Francais."""
+
+    api_key = os.environ.get("EMERGENT_LLM_KEY", "")
+    if not api_key:
+        return {"analysis": "", "cached": False}
+
+    try:
+        from emergentintegrations.llm.chat import LlmChat, UserMessage
+        llm = LlmChat(
+            api_key=api_key,
+            session_id=f"nora-health-{uid[:8]}-{today_str}",
+            system_message="Tu es Nora, assistante sante. Reponds en texte brut uniquement. Pas d'emoji. Francais."
+        ).with_model("openai", "gpt-5.2")
+
+        resp = await llm.send_message(UserMessage(text=prompt))
+        analysis = resp.strip()
+        # Cache
+        await db.nora_health_analysis_cache.update_one(
+            {"user_id": uid, "date": today_str},
+            {"$set": {"user_id": uid, "date": today_str, "analysis": analysis, "created_at": datetime.now(timezone.utc).isoformat()}},
+            upsert=True,
+        )
+        return {"analysis": analysis, "cached": False}
+    except Exception as e:
+        print(f"Nora health analysis error: {e}")
+        return {"analysis": "", "cached": False}
