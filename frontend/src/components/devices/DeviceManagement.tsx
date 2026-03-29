@@ -49,16 +49,15 @@ export function DeviceManagement({ token }: { token: string }) {
 
   /* ── Web rendering ── */
   if (Platform.OS === 'web') {
-    const BG_IMG = 'https://customer-assets.emergentagent.com/job_443c9c6e-0feb-4920-a358-fe7cc1a6289b/artifacts/1lq6xl58_ChatGPT%20Image%2017%20f%C3%A9vr.%202026%2C%2008_54_55.png';
     return (
       <div data-testid="devices-page" style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', fontFamily: 'Inter, system-ui, sans-serif', overflow: 'hidden', background: '#FFF' } as any}>
         <div style={{ flex: 1, overflowY: 'auto', WebkitOverflowScrolling: 'touch' } as any}>
 
-          {/* HEADER with BG image */}
+          {/* HEADER — black bg image, centered title */}
           <div style={{ position: 'relative', zIndex: 1, minHeight: 180 } as any}>
-            <img src={BG_IMG} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 } as any} />
-            <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.35)', zIndex: 1 } as any} />
-            <div style={{ position: 'relative', zIndex: 2, padding: 'calc(env(safe-area-inset-top, 20px) + 12px) 20px 60px', maxWidth: 480, margin: '0 auto', textAlign: 'center' } as any}>
+            <img src={BG_BLACK} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 } as any} />
+            <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.25)', zIndex: 1 } as any} />
+            <div style={{ position: 'relative', zIndex: 2, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: 180, padding: '0 20px', textAlign: 'center' } as any}>
               <div style={{ fontSize: 24, fontWeight: 900, color: '#FFF', marginBottom: 4 }}>Dispositifs connectes</div>
               <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.5)' }}>Gerez vos dispositifs de sante Chutex</div>
             </div>
