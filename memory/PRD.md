@@ -47,6 +47,7 @@ L'objectif est une UI Glassmorphism + Light mode avec synchronisation en temps r
 - [x] **Refactoring health-detail.tsx** — 1125 -> 470 lignes, 6 composants extraits (2026-03-29)
 - [x] **Bug fix KeyError device_type** dans guardian_routes.py ai-report (2026-03-29)
 - [x] **Page glycemia-detail** — suppression carte "Que faire?", ajout boutons (i) explicatifs avec popups dark animees (2026-03-29)
+- [x] **Calendrier glycemie** — calendrier horizontal + carte stats Plus haut/Moyenne/Plus bas par jour (2026-03-29)
 
 ## Code Architecture (post-refactoring)
 ```
