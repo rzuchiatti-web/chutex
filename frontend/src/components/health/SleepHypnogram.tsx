@@ -13,6 +13,25 @@ const COLORS: Record<SleepStage, string> = { awake: '#E87C8A', rem: '#A8B4F0', l
 const LABELS: Record<SleepStage, string> = { awake: 'Eveil', rem: 'REM', light: 'Leger', deep: 'Profond', unknown: '' };
 const GLOW: Record<SleepStage, string> = { awake: '#E87C8A40', rem: '#A8B4F040', light: '#6B7BD940', deep: '#3A409940', unknown: 'transparent' };
 
+const STAGE_MAP: Record<number, SleepStage> = { 0: 'awake', 1: 'deep', 2: 'light', 3: 'rem' };
+
+export function fromBraceletStages(stages: number[], startHour = 22, startMinute = 30): SleepSession {
+  const INTERVAL = 5;
+  const base = new Date();
+  base.setHours(startHour, startMinute, 0, 0);
+  if (startHour >= 18) base.setDate(base.getDate() - 1);
+  const points = stages.map((s, i) => ({
+    time: new Date(base.getTime() + i * INTERVAL * 60000).toISOString(),
+    stage: STAGE_MAP[s] || 'unknown' as SleepStage,
+  }));
+  return {
+    startTime: points[0]?.time || base.toISOString(),
+    endTime: new Date(base.getTime() + stages.length * INTERVAL * 60000).toISOString(),
+    points,
+  };
+}
+
+
 function parseDate(s: string): number | null {
   if (!s) return null;
   const t = new Date(s).getTime();
