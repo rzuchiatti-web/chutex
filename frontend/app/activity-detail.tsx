@@ -42,6 +42,21 @@ function HorizontalCalendar({ selectedDate, onSelect }: { selectedDate: Date; on
   const todayStr = toDateStr(new Date());
   const selStr = toDateStr(selectedDate);
 
+  // Auto-scroll to selected day (centered)
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      try {
+        const container = document.getElementById('activity-cal-scroll');
+        const el = document.getElementById(`cal-item-${selStr}`);
+        if (container && el) {
+          const scrollLeft = el.offsetLeft - container.clientWidth / 2 + el.clientWidth / 2;
+          container.scrollLeft = Math.max(0, scrollLeft);
+        }
+      } catch {}
+    }, 200);
+    return () => clearTimeout(timer);
+  }, [selStr, viewMonth, viewYear]);
+
   return (
     <div data-testid="horizontal-calendar" style={{ width: '100%', marginTop: 16 } as any}>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 16, marginBottom: 12 } as any}>
@@ -53,14 +68,14 @@ function HorizontalCalendar({ selectedDate, onSelect }: { selectedDate: Date; on
           <i className="ri-arrow-right-s-line" style={{ fontSize: 16, color: '#FFF' }} />
         </div>
       </div>
-      <div style={{ display: 'flex', gap: 6, overflowX: 'auto', paddingBottom: 4, scrollbarWidth: 'none' } as any}>
+      <div id="activity-cal-scroll" style={{ display: 'flex', gap: 6, overflowX: 'auto', paddingBottom: 4, scrollbarWidth: 'none' } as any}>
         {dates.map(d => {
           const ds = toDateStr(d);
           const isToday = ds === todayStr;
           const isSel = ds === selStr;
           const dayIdx = d.getDay() === 0 ? 6 : d.getDay() - 1;
           return (
-            <div key={ds} data-testid={`cal-day-${ds}`} onClick={() => onSelect(d)} style={{
+            <div key={ds} id={`cal-item-${ds}`} data-testid={`cal-day-${ds}`} onClick={() => onSelect(d)} style={{
               minWidth: 48, padding: '8px 4px 10px', borderRadius: 14, textAlign: 'center', cursor: 'pointer', flexShrink: 0,
               background: isSel ? 'rgba(255,255,255,0.18)' : isToday ? 'rgba(255,255,255,0.08)' : 'rgba(255,255,255,0.03)',
               border: isSel ? '1.5px solid rgba(255,255,255,0.35)' : isToday ? '1.5px solid rgba(255,255,255,0.15)' : '1.5px solid transparent',
