@@ -87,6 +87,7 @@ export default function HealthDetailScreen() {
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [showSleepInfo, setShowSleepInfo] = useState(false);
   const [sleepAnalysis, setSleepAnalysis] = useState<any>(null);
+  const [explainSleep, setExplainSleep] = useState<string | null>(null);
 
   /* ── Per-night sleep data: uses REAL bracelet data only ── */
   const [sleepData, setSleepData] = useState<any>(null);
@@ -273,7 +274,12 @@ export default function HealthDetailScreen() {
                   {/* Hypnogram card */}
                   {nightData && sleepSession && (
                     <div style={{ borderRadius: 18, background: '#F4F4F5', padding: '16px', marginBottom: 12, overflow: 'hidden' } as any}>
-                      <div style={{ fontSize: 13, fontWeight: 800, color: '#111', marginBottom: 8 }}>Hypnogramme</div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 } as any}>
+                        <i className="ri-bar-chart-horizontal-line" style={{ fontSize: 14, color: '#A78BFA' }} />
+                        <span style={{ fontSize: 13, fontWeight: 800, color: '#111' }}>Hypnogramme</span>
+                        <div style={{ marginLeft: 'auto' } as any} />
+                        <div onClick={() => setExplainSleep('hypnogram')} style={{ width: 28, height: 28, borderRadius: 999, background: '#FFF', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}><i className="ri-information-line" style={{ fontSize: 14, color: '#A78BFA' }} /></div>
+                      </div>
                       <SleepHypnogram session={sleepSession} width={700} height={240} showLabels={true} timeLabelCount={5} />
                       <div style={{ display: 'flex', gap: 6, marginTop: 10 } as any}>
                         {[
@@ -299,6 +305,7 @@ export default function HealthDetailScreen() {
                         <i className="ri-star-line" style={{ fontSize: 14, color: nightQuality >= 80 ? '#10B981' : '#F59E0B' }} />
                         <span style={{ fontSize: 13, fontWeight: 800, color: '#111' }}>Qualite du sommeil</span>
                         <span style={{ fontSize: 16, fontWeight: 900, color: nightQuality >= 80 ? '#10B981' : nightQuality >= 60 ? '#F59E0B' : '#EF4444', marginLeft: 'auto' }}>{nightQuality}%</span>
+                        <div onClick={() => setExplainSleep('quality')} style={{ width: 28, height: 28, borderRadius: 999, background: '#FFF', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', flexShrink: 0 } as any}><i className="ri-information-line" style={{ fontSize: 14, color: '#A78BFA' }} /></div>
                       </div>
                       <div style={{ height: 8, borderRadius: 4, background: '#E5E7EB', overflow: 'hidden' } as any}><div style={{ height: '100%', borderRadius: 4, width: `${nightQuality}%`, background: nightQuality >= 80 ? '#10B981' : nightQuality >= 60 ? '#F59E0B' : '#EF4444', transition: 'width 0.8s' } as any} /></div>
                     </div>
@@ -326,6 +333,43 @@ export default function HealthDetailScreen() {
             })()}
           </div>
         </div>
+
+        {/* ══ SLEEP EXPLAIN POPUP ══ */}
+        {explainSleep && (() => {
+          const sleepExplanations: Record<string, { icon: string; color: string; title: string; desc: string; ranges: { label: string; value: string; color: string }[]; tip: string }> = {
+            hypnogram: { icon: 'ri-bar-chart-horizontal-line', color: '#A78BFA', title: 'Cycles du sommeil', desc: "Votre sommeil alterne entre phases legeres, profondes et paradoxales (REM). Chaque cycle dure environ 90 minutes. Le sommeil profond regenere le corps, le REM consolide la memoire.", ranges: [{ label: 'Profond ideal', value: '15-25%', color: '#3A4099' }, { label: 'Leger normal', value: '45-55%', color: '#6B7BD9' }, { label: 'REM ideal', value: '20-25%', color: '#A8B4F0' }], tip: 'Un bon ratio de sommeil profond (>20%) est essentiel pour la recuperation physique. Le REM est crucial pour la memoire et la regulation emotionnelle.' },
+            quality: { icon: 'ri-star-line', color: '#A78BFA', title: 'Qualite du sommeil', desc: "La qualite est calculee a partir de la duree, la proportion de sommeil profond et REM, et le nombre d'interruptions. Un score eleve indique un sommeil reparateur.", ranges: [{ label: 'Excellent', value: '> 80%', color: '#10B981' }, { label: 'Bon', value: '60-80%', color: '#22D3EE' }, { label: 'Moyen', value: '40-60%', color: '#F59E0B' }, { label: 'Mauvais', value: '< 40%', color: '#EF4444' }], tip: 'Evitez les ecrans 1h avant le coucher, maintenez une temperature fraiche (18-20°C) et couchez-vous a heures regulieres.' },
+            interruptions: { icon: 'ri-alarm-line', color: '#F59E0B', title: 'Interruptions', desc: "Le nombre de fois ou vous vous etes reveille pendant la nuit. Des reveils frequents fragmentent le sommeil et reduisent sa qualite reparatrice.", ranges: [{ label: 'Excellent', value: '0-1', color: '#10B981' }, { label: 'Bon', value: '2', color: '#22D3EE' }, { label: 'Modere', value: '3-4', color: '#F59E0B' }, { label: 'Eleve', value: '> 4', color: '#EF4444' }], tip: "Limitez la cafeine apres 14h, evitez l'alcool le soir, et assurez-vous que votre chambre est sombre et silencieuse." },
+            apnea: { icon: 'ri-lungs-line', color: '#EF4444', title: "Risque d'apnee", desc: "Estimation du risque d'apnee du sommeil basee sur les interruptions, la qualite du sommeil et les mouvements detectes. L'apnee provoque des micro-reveils repetitifs.", ranges: [{ label: 'Faible', value: '< 30%', color: '#10B981' }, { label: 'Modere', value: '30-60%', color: '#F59E0B' }, { label: 'Eleve', value: '> 60%', color: '#EF4444' }], tip: "Si le risque est eleve de maniere recurrente, consultez un medecin. L'apnee du sommeil non traitee augmente les risques cardiovasculaires." },
+          };
+          const e = sleepExplanations[explainSleep] || sleepExplanations.quality;
+          return (
+            <div data-testid="sleep-explain-popup" onClick={() => setExplainSleep(null)} style={{ position: 'fixed', inset: 0, zIndex: 9999, backdropFilter: 'blur(48px)', WebkitBackdropFilter: 'blur(48px)', background: 'rgba(0,0,0,0.82)', overflowY: 'auto', animation: 'popIn 0.3s ease' } as any}>
+              <style dangerouslySetInnerHTML={{ __html: `@keyframes popIn{from{opacity:0;transform:scale(0.95) translateY(20px)}to{opacity:1;transform:scale(1) translateY(0)}}@keyframes slideUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}` }} />
+              <div onClick={(ev: any) => ev.stopPropagation()} style={{ width: '100%', maxWidth: 400, margin: '0 auto', padding: '50px 28px 120px', boxSizing: 'border-box' } as any}>
+                <div onClick={() => setExplainSleep(null)} style={{ position: 'absolute', top: 20, right: 20, width: 40, height: 40, borderRadius: 999, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}><i className="ri-close-line" style={{ fontSize: 22, color: '#FFF' }} /></div>
+                <div style={{ textAlign: 'center', marginBottom: 32, animation: 'slideUp 0.4s ease 0.1s both' } as any}>
+                  <i className={e.icon} style={{ fontSize: 44, color: e.color }} />
+                  <div style={{ fontSize: 28, fontWeight: 900, color: '#FFF', marginTop: 14 }}>{e.title}</div>
+                </div>
+                <div style={{ fontSize: 15, color: 'rgba(255,255,255,0.6)', lineHeight: 1.9, marginBottom: 32, animation: 'slideUp 0.4s ease 0.2s both' } as any}>{e.desc}</div>
+                <div style={{ marginBottom: 32, animation: 'slideUp 0.4s ease 0.3s both' } as any}>
+                  <div style={{ fontSize: 10, fontWeight: 700, color: e.color, textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 14 }}>Valeurs de reference</div>
+                  {e.ranges.map((r, ri) => (
+                    <div key={ri} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 0', borderBottom: ri < e.ranges.length - 1 ? '1px solid rgba(255,255,255,0.06)' : 'none' } as any}>
+                      <span style={{ fontSize: 14, color: '#FFF', fontWeight: 600 }}>{r.label}</span>
+                      <span style={{ fontSize: 14, color: r.color, fontWeight: 800 }}>{r.value}</span>
+                    </div>
+                  ))}
+                </div>
+                <div style={{ display: 'flex', gap: 12, alignItems: 'flex-start', animation: 'slideUp 0.4s ease 0.4s both' } as any}>
+                  <i className="ri-lightbulb-line" style={{ fontSize: 20, color: '#F59E0B', flexShrink: 0, marginTop: 2 }} />
+                  <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.45)', lineHeight: 1.8 }}>{e.tip}</div>
+                </div>
+              </div>
+            </div>
+          );
+        })()}
       </div>
     );
   }
