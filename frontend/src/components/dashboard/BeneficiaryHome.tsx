@@ -431,26 +431,26 @@ export function BeneficiaryHome({ token, user }: { token: string; user: any }) {
             const recs = minceurData.recommendations;
             return (
               <div data-testid="calorie-intake-card" onClick={() => router.push('/minceur' as any)}
-                style={{ borderRadius: 18, background: cardBg, padding: '16px 18px', marginBottom: 16, cursor: 'pointer', transition: 'transform 0.15s' } as any}
+                style={{ borderRadius: 18, background: C.card, padding: '16px 18px', marginBottom: 16, cursor: 'pointer', transition: 'transform 0.15s', ...glass } as any}
                 onMouseEnter={(e: any) => { e.currentTarget.style.transform = 'translateY(-1px)'; }}
                 onMouseLeave={(e: any) => { e.currentTarget.style.transform = ''; }}>
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 } as any}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8 } as any}>
                     <i className="ri-fire-line" style={{ fontSize: 14, color: '#F59E0B' }} />
-                    <span style={{ fontSize: 12, fontWeight: 700, color: subColor }}>Apport calorique journalier</span>
+                    <span style={{ fontSize: 12, fontWeight: 700, color: C.sub }}>Apport calorique journalier</span>
                   </div>
-                  <i className="ri-arrow-right-s-line" style={{ fontSize: 16, color: isDark ? 'rgba(255,255,255,0.15)' : 'rgba(0,0,0,0.12)' }} />
+                  <i className="ri-arrow-right-s-line" style={{ fontSize: 16, color: C.arrow }} />
                 </div>
                 <div style={{ display: 'flex', alignItems: 'baseline', gap: 4, marginBottom: 10 } as any}>
-                  <span style={{ fontSize: 32, fontWeight: 900, color: textColor, lineHeight: 1, letterSpacing: -0.5 }}>{recs.daily_calories}</span>
-                  <span style={{ fontSize: 12, fontWeight: 600, color: subColor }}>kcal</span>
+                  <span style={{ fontSize: 32, fontWeight: 900, color: C.text, lineHeight: 1, letterSpacing: -0.5 }}>{recs.daily_calories}</span>
+                  <span style={{ fontSize: 12, fontWeight: 600, color: C.sub }}>kcal</span>
                   {recs.water_ml > 0 && <span style={{ fontSize: 12, fontWeight: 800, color: '#60A5FA', marginLeft: 'auto' }}><i className="ri-drop-fill" style={{ fontSize: 12 }} /> {(recs.water_ml / 1000).toFixed(1)}L</span>}
                 </div>
                 {recs.macros && (
                   <div style={{ display: 'flex', gap: 6 } as any}>
                     {[{ l: 'Prot.', v: recs.macros.proteines_g, c: '#10B981' }, { l: 'Gluc.', v: recs.macros.glucides_g, c: '#F59E0B' }, { l: 'Lip.', v: recs.macros.lipides_g, c: '#EF4444' }].map((m, i) => (
                       <div key={i} style={{ flex: 1, padding: '6px 4px', borderRadius: 10, background: isDark ? 'rgba(255,255,255,0.04)' : '#FFF', textAlign: 'center' } as any}>
-                        <div style={{ fontSize: 16, fontWeight: 900, color: textColor, lineHeight: 1 }}>{m.v}<span style={{ fontSize: 8, color: subColor }}>g</span></div>
+                        <div style={{ fontSize: 16, fontWeight: 900, color: C.text, lineHeight: 1 }}>{m.v}<span style={{ fontSize: 8, color: C.sub }}>g</span></div>
                         <div style={{ fontSize: 8, color: m.c, fontWeight: 700, marginTop: 2 }}>{m.l}</div>
                       </div>
                     ))}

@@ -101,8 +101,8 @@ export default function ActivityDetailPage() {
   const [exercises, setExercises] = useState<any[]>([]);
   const [tracked, setTracked] = useState<Record<string, boolean>>({});
   const [loading, setLoading] = useState(true);
-  const [showExplain, setShowExplain] = useState(false);
   const [showNoraActivity, setShowNoraActivity] = useState(false);
+  const [explainMetric, setExplainMetric] = useState<string | null>(null);
   const [hasProPrograms, setHasProPrograms] = useState(false);
   const [proExercises, setProExercises] = useState<any[]>([]);
   const [selectedDate, setSelectedDate] = useState(new Date());
@@ -197,70 +197,67 @@ export default function ActivityDetailPage() {
               {/* Nora Activity Analysis */}
               <NoraButton label="Analyse de l'activite" sublabel="Analyse par Nora de votre activite physique" onClick={() => setShowNoraActivity(true)} />
 
-              {/* ── CARTE 1: Activité + Récupération + VO2 ── */}
-              <div style={{ padding: 20, borderRadius: 18, background: '#F4F4F5', marginBottom: 14 } as any}>
-                <div style={{ textAlign: 'center', marginBottom: 14 } as any}>
-                  <div style={{ fontSize: 11, fontWeight: 700, color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: 1.5 }}>Activite du jour</div>
-                  {st.current_streak > 0 && <div style={{ display: 'inline-flex', alignItems: 'center', gap: 5, padding: '4px 12px', borderRadius: 999, background: 'rgba(245,158,11,0.1)', marginTop: 6 } as any}><i className="ri-fire-fill" style={{ fontSize: 11, color: A }} /><span style={{ fontSize: 11, fontWeight: 900, color: A }}>{st.current_streak}j consecutifs</span></div>}
-                </div>
+              {/* ── STREAK ── */}
+              {st.current_streak > 0 && <div style={{ textAlign: 'center', marginBottom: 14 } as any}><div style={{ display: 'inline-flex', alignItems: 'center', gap: 5, padding: '4px 12px', borderRadius: 999, background: 'rgba(245,158,11,0.1)' } as any}><i className="ri-fire-fill" style={{ fontSize: 11, color: A }} /><span style={{ fontSize: 11, fontWeight: 900, color: A }}>{st.current_streak}j consecutifs</span></div></div>}
 
-                {/* Steps + Calories + Distance */}
-                <div style={{ display: 'flex', gap: 8, marginBottom: 16 } as any}>
-                  {[
-                    { label: 'Pas', value: steps, goal: 6000, icon: 'ri-footprint-line', color: G, key: 'steps' },
-                    { label: 'Calories', value: cal, goal: 300, icon: 'ri-fire-line', color: A, key: 'calories' },
-                    { label: 'Distance', value: dist, goal: 4, icon: 'ri-route-line', color: B, decimal: true, key: 'distance_km' },
-                  ].map((m, i) => {
-                    const pct = m.goal > 0 ? Math.min(100, Math.round((m.value / m.goal) * 100)) : 0;
-                    const has = m.value > 0;
-                    return (
-                      <div key={i} onClick={(e) => { e.stopPropagation(); router.push({ pathname: '/metric-detail' as any, params: { key: m.key } }); }} style={{ flex: 1, padding: '12px 8px', borderRadius: 14, background: '#FFF', textAlign: 'center', cursor: 'pointer' } as any}>
-                        <i className={m.icon} style={{ fontSize: 14, color: m.color, display: 'block', marginBottom: 4 }} />
-                        <div style={{ fontSize: 20, fontWeight: 900, color: has ? '#111' : '#D1D5DB', lineHeight: 1 }}>{has ? (m.decimal ? m.value.toFixed(1) : m.value.toLocaleString()) : '--'}</div>
-                        <div style={{ fontSize: 8, color: m.color, fontWeight: 700, marginTop: 2, textTransform: 'uppercase' }}>{m.label}</div>
-                        <div style={{ height: 3, borderRadius: 2, background: '#E5E7EB', overflow: 'hidden', marginTop: 6 } as any}><div style={{ height: '100%', borderRadius: 2, width: `${pct}%`, background: m.color } as any} /></div>
+              {/* ── 3 CARTES: Pas, Calories, Distance ── */}
+              {[
+                { label: 'Pas', value: steps, goal: 6000, icon: 'ri-footprint-line', color: G, key: 'steps', unit: '', decimal: false },
+                { label: 'Calories', value: cal, goal: 300, icon: 'ri-fire-line', color: A, key: 'calories', unit: 'kcal', decimal: false },
+                { label: 'Distance', value: dist, goal: 4, icon: 'ri-route-line', color: B, key: 'distance_km', unit: 'km', decimal: true },
+              ].map((m, i) => {
+                const pct = m.goal > 0 ? Math.min(100, Math.round((m.value / m.goal) * 100)) : 0;
+                const has = m.value > 0;
+                return (
+                  <div key={i} data-testid={`card-${m.key}`} style={{ borderRadius: 18, background: '#F4F4F5', padding: '16px 18px', marginBottom: 10 } as any}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 } as any}>
+                      <i className={m.icon} style={{ fontSize: 14, color: m.color }} />
+                      <span style={{ fontSize: 13, fontWeight: 800, color: '#111' }}>{m.label}</span>
+                      <span style={{ fontSize: 11, fontWeight: 900, color: m.color, marginLeft: 'auto' }}>{has ? (m.decimal ? m.value.toFixed(1) : m.value.toLocaleString()) : '--'}{m.unit && has ? m.unit : ''}</span>
+                      <div onClick={() => setExplainMetric(m.key)} style={{ width: 28, height: 28, borderRadius: 999, background: '#FFF', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', flexShrink: 0 } as any}><i className="ri-information-line" style={{ fontSize: 14, color: m.color }} /></div>
+                    </div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 12 } as any}>
+                      <div style={{ fontSize: 32, fontWeight: 900, color: has ? '#111' : '#D1D5DB', lineHeight: 1 }}>{has ? (m.decimal ? m.value.toFixed(1) : m.value.toLocaleString()) : '--'}</div>
+                      <div style={{ flex: 1 } as any}>
+                        <div style={{ height: 6, borderRadius: 3, background: '#E5E7EB', overflow: 'hidden' } as any}><div style={{ height: '100%', borderRadius: 3, width: `${pct}%`, background: m.color, transition: 'width 0.8s' } as any} /></div>
+                        <div style={{ fontSize: 9, color: '#9CA3AF', marginTop: 3, textAlign: 'right' }}>{pct}% de {m.goal.toLocaleString()}{m.unit || ''}</div>
                       </div>
-                    );
-                  })}
-                </div>
-
-                {/* Récupération */}
-                <div style={{ padding: '14px 0', borderTop: '1px solid #E5E7EB' } as any}>
-                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 } as any}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 6 } as any}><i className="ri-battery-charge-line" style={{ fontSize: 14, color: recCol }} /><span style={{ fontSize: 12, fontWeight: 700, color: '#6B7280' }}>Recuperation</span></div>
-                    <span style={{ fontSize: 16, fontWeight: 900, color: recCol }}>{recPct}%</span>
-                  </div>
-                  <div style={{ height: 8, borderRadius: 4, background: '#E5E7EB', overflow: 'hidden', marginBottom: 8 } as any}><div style={{ height: '100%', borderRadius: 4, width: `${recPct}%`, background: `linear-gradient(90deg, ${recCol}80, ${recCol})`, transition: 'width 0.8s' } as any} /></div>
-                  <div style={{ display: 'flex', gap: 8 } as any}>
-                    <div style={{ flex: 1, padding: '8px 10px', borderRadius: 10, background: '#FFF', textAlign: 'center' } as any}>
-                      <div style={{ fontSize: 14, fontWeight: 900, color: recCol }}>{recLabel}</div>
-                      <div style={{ fontSize: 8, color: '#9CA3AF', fontWeight: 700 }}>NIVEAU</div>
-                    </div>
-                    <div style={{ flex: 1, padding: '8px 10px', borderRadius: 10, background: '#FFF', textAlign: 'center' } as any}>
-                      <div style={{ fontSize: 14, fontWeight: 900, color: '#111' }}>{recTimeStr}</div>
-                      <div style={{ fontSize: 8, color: '#9CA3AF', fontWeight: 700 }}>TEMPS ESTIME</div>
                     </div>
                   </div>
-                </div>
+                );
+              })}
 
-                {/* VO2 Max */}
-                <div style={{ padding: '14px 0', display: 'flex', alignItems: 'center', gap: 16, borderTop: '1px solid #E5E7EB' } as any}>
+              {/* ── CARTE RECUPERATION ── */}
+              <div data-testid="card-recovery" style={{ borderRadius: 18, background: '#F4F4F5', padding: '16px 18px', marginBottom: 10 } as any}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 } as any}>
+                  <i className="ri-battery-charge-line" style={{ fontSize: 14, color: recCol }} />
+                  <span style={{ fontSize: 13, fontWeight: 800, color: '#111' }}>Recuperation</span>
+                  <span style={{ fontSize: 16, fontWeight: 900, color: recCol, marginLeft: 'auto' }}>{recPct}%</span>
+                  <div onClick={() => setExplainMetric('recovery')} style={{ width: 28, height: 28, borderRadius: 999, background: '#FFF', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', flexShrink: 0 } as any}><i className="ri-information-line" style={{ fontSize: 14, color: recCol }} /></div>
+                </div>
+                <div style={{ height: 8, borderRadius: 4, background: '#E5E7EB', overflow: 'hidden', marginBottom: 10 } as any}><div style={{ height: '100%', borderRadius: 4, width: `${recPct}%`, background: `linear-gradient(90deg, ${recCol}80, ${recCol})`, transition: 'width 0.8s' } as any} /></div>
+                <div style={{ display: 'flex', gap: 8 } as any}>
+                  <div style={{ flex: 1, padding: '8px 10px', borderRadius: 10, background: '#FFF', textAlign: 'center' } as any}><div style={{ fontSize: 14, fontWeight: 900, color: recCol }}>{recLabel}</div><div style={{ fontSize: 8, color: '#9CA3AF', fontWeight: 700 }}>NIVEAU</div></div>
+                  <div style={{ flex: 1, padding: '8px 10px', borderRadius: 10, background: '#FFF', textAlign: 'center' } as any}><div style={{ fontSize: 14, fontWeight: 900, color: '#111' }}>{recTimeStr}</div><div style={{ fontSize: 8, color: '#9CA3AF', fontWeight: 700 }}>TEMPS ESTIME</div></div>
+                </div>
+              </div>
+
+              {/* ── CARTE VO2 MAX ── */}
+              <div data-testid="card-vo2" style={{ borderRadius: 18, background: '#F4F4F5', padding: '16px 18px', marginBottom: 14 } as any}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 } as any}>
+                  <i className="ri-lungs-line" style={{ fontSize: 14, color: vo2Col }} />
+                  <span style={{ fontSize: 13, fontWeight: 800, color: '#111' }}>VO2 Max</span>
+                  <span style={{ marginLeft: 'auto' } as any} />
+                  <div onClick={() => setExplainMetric('vo2')} style={{ width: 28, height: 28, borderRadius: 999, background: '#FFF', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', flexShrink: 0 } as any}><i className="ri-information-line" style={{ fontSize: 14, color: vo2Col }} /></div>
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 16 } as any}>
                   <GaugeRing pct={vo2 > 0 ? Math.min(100, (vo2 / 50) * 100) : 0} color={vo2Col}>
                     <span style={{ fontSize: 16, fontWeight: 900, color: vo2 > 0 ? vo2Col : '#D1D5DB' }}>{vo2 > 0 ? vo2 : '--'}</span>
                   </GaugeRing>
                   <div style={{ flex: 1 } as any}>
-                    <div style={{ fontSize: 13, fontWeight: 800, color: '#111' }}>VO2 Max</div>
-                    <div style={{ fontSize: 10, color: '#9CA3AF', marginTop: 2 }}>Capacite aerobique maximale</div>
-                    <div style={{ display: 'inline-flex', alignItems: 'center', gap: 4, padding: '2px 8px', borderRadius: 999, background: `${vo2Col}15`, marginTop: 4 } as any}>
-                      <span style={{ fontSize: 10, fontWeight: 700, color: vo2Col }}>{vo2Label}</span>
-                      <span style={{ fontSize: 8, color: '#9CA3AF' }}>ml/kg/min</span>
-                    </div>
+                    <div style={{ fontSize: 13, fontWeight: 800, color: '#111' }}>Capacite aerobique</div>
+                    <div style={{ display: 'inline-flex', alignItems: 'center', gap: 4, padding: '2px 8px', borderRadius: 999, background: `${vo2Col}15`, marginTop: 4 } as any}><span style={{ fontSize: 10, fontWeight: 700, color: vo2Col }}>{vo2Label}</span><span style={{ fontSize: 8, color: '#9CA3AF' }}>ml/kg/min</span></div>
                   </div>
-                </div>
-
-                {/* Comprendre mes indicateurs */}
-                <div onClick={() => setShowExplain(true)} style={{ textAlign: 'center', padding: 10, borderRadius: 12, background: '#FFF', cursor: 'pointer', marginTop: 4 } as any}>
-                  <span style={{ fontSize: 10, fontWeight: 700, color: P }}><i className="ri-information-line" style={{ fontSize: 12, marginRight: 4 }} />Comprendre mes indicateurs</span>
                 </div>
               </div>
 
@@ -335,43 +332,45 @@ export default function ActivityDetailPage() {
             </>
           )}
 
-          {/* ── POPUP EXPLICATIVE ── */}
-          {showExplain && (
-            <div data-testid="explain-popup" onClick={() => setShowExplain(false)} style={{ position: 'fixed', inset: 0, zIndex: 9999, backdropFilter: 'blur(32px)', WebkitBackdropFilter: 'blur(32px)', background: 'rgba(0,0,0,0.4)', overflowY: 'auto' } as any}>
-              <div onClick={(e: any) => e.stopPropagation()} style={{ width: '100%', maxWidth: 420, margin: '0 auto', padding: '40px 24px 120px', boxSizing: 'border-box' } as any}>
-                <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 20 } as any}>
-                  <div onClick={() => setShowExplain(false)} style={{ width: 36, height: 36, borderRadius: 999, background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}>
-                    <i className="ri-close-line" style={{ fontSize: 18, color: 'rgba(255,255,255,0.8)' }} />
+          {/* ── POPUP EXPLICATIVE (clean dark style) ── */}
+          {explainMetric && (() => {
+            const explanations: Record<string, { icon: string; color: string; title: string; desc: string; ranges: { label: string; value: string; color: string }[]; tip: string }> = {
+              steps: { icon: 'ri-footprint-line', color: G, title: 'Nombre de pas', desc: "Le nombre de pas quotidien est un indicateur cle de votre activite physique. L'objectif recommande pour les seniors est de 6000 pas par jour.", ranges: [{ label: 'Sedentaire', value: '< 3 000', color: R }, { label: 'Actif', value: '3 000 - 6 000', color: A }, { label: 'Tres actif', value: '> 6 000', color: G }], tip: 'Essayez d\'augmenter progressivement de 500 pas par semaine. Chaque pas compte !' },
+              calories: { icon: 'ri-fire-line', color: A, title: 'Calories brulees', desc: "Les calories depensees par votre activite physique, hors metabolisme de base. Un objectif de 300 kcal/jour est recommande.", ranges: [{ label: 'Faible', value: '< 150 kcal', color: R }, { label: 'Modere', value: '150 - 300 kcal', color: A }, { label: 'Actif', value: '> 300 kcal', color: G }], tip: '30 minutes de marche rapide brulent environ 150 kcal. La regularite compte plus que l\'intensite.' },
+              distance_km: { icon: 'ri-route-line', color: B, title: 'Distance parcourue', desc: "La distance quotidienne reflete votre mobilite globale. Un objectif de 4 km/jour est adapte aux seniors actifs.", ranges: [{ label: 'Faible', value: '< 2 km', color: R }, { label: 'Modere', value: '2 - 4 km', color: A }, { label: 'Actif', value: '> 4 km', color: G }], tip: 'Variez vos itineraires pour maintenir la motivation. La marche en exterieur est benefique pour le moral.' },
+              recovery: { icon: 'ri-battery-charge-line', color: CY, title: 'Recuperation', desc: "Indique si votre corps a suffisamment recupere pour un nouvel effort. Base sur le sommeil, le stress et la frequence cardiaque.", ranges: [{ label: 'Faible', value: '< 40%', color: R }, { label: 'Moderee', value: '40 - 60%', color: A }, { label: 'Bonne', value: '60 - 80%', color: CY }, { label: 'Optimale', value: '> 80%', color: G }], tip: 'Un bon sommeil et une hydratation suffisante sont les cles d\'une recuperation optimale.' },
+              vo2: { icon: 'ri-lungs-line', color: G, title: 'VO2 Max', desc: "La quantite maximale d'oxygene que votre corps peut utiliser pendant l'effort. C'est le meilleur indicateur de votre forme cardiovasculaire.", ranges: [{ label: 'Faible', value: '< 20', color: R }, { label: 'Moyen', value: '20 - 30', color: A }, { label: 'Bon', value: '30 - 40', color: CY }, { label: 'Excellent', value: '> 40', color: G }], tip: 'Le VO2 Max peut s\'ameliorer a tout age avec un entrainement regulier en endurance (marche rapide, velo, natation).' },
+            };
+            const e = explanations[explainMetric] || explanations.steps;
+            return (
+              <div data-testid="explain-popup" onClick={() => setExplainMetric(null)} style={{ position: 'fixed', inset: 0, zIndex: 9999, backdropFilter: 'blur(48px)', WebkitBackdropFilter: 'blur(48px)', background: 'rgba(0,0,0,0.82)', overflowY: 'auto', animation: 'popIn 0.3s ease' } as any}>
+                <div onClick={(ev: any) => ev.stopPropagation()} style={{ width: '100%', maxWidth: 400, margin: '0 auto', padding: '50px 28px 120px', boxSizing: 'border-box' } as any}>
+                  <div onClick={() => setExplainMetric(null)} style={{ position: 'absolute', top: 20, right: 20, width: 40, height: 40, borderRadius: 999, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}><i className="ri-close-line" style={{ fontSize: 22, color: '#FFF' }} /></div>
+                  <div style={{ textAlign: 'center', marginBottom: 32, animation: 'slideUp 0.4s ease 0.1s both' } as any}>
+                    <i className={e.icon} style={{ fontSize: 44, color: e.color }} />
+                    <div style={{ fontSize: 28, fontWeight: 900, color: '#FFF', marginTop: 14 }}>{e.title}</div>
+                  </div>
+                  <div style={{ fontSize: 15, color: 'rgba(255,255,255,0.6)', lineHeight: 1.9, marginBottom: 32, animation: 'slideUp 0.4s ease 0.2s both' } as any}>{e.desc}</div>
+                  <div style={{ marginBottom: 32, animation: 'slideUp 0.4s ease 0.3s both' } as any}>
+                    <div style={{ fontSize: 10, fontWeight: 700, color: e.color, textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 14 }}>Valeurs de reference</div>
+                    {e.ranges.map((r, ri) => (
+                      <div key={ri} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 0', borderBottom: ri < e.ranges.length - 1 ? '1px solid rgba(255,255,255,0.06)' : 'none' } as any}>
+                        <span style={{ fontSize: 14, color: '#FFF', fontWeight: 600 }}>{r.label}</span>
+                        <span style={{ fontSize: 14, color: r.color, fontWeight: 800 }}>{r.value}</span>
+                      </div>
+                    ))}
+                  </div>
+                  <div style={{ display: 'flex', gap: 12, alignItems: 'flex-start', animation: 'slideUp 0.4s ease 0.4s both' } as any}>
+                    <i className="ri-lightbulb-line" style={{ fontSize: 20, color: A, flexShrink: 0, marginTop: 2 }} />
+                    <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.45)', lineHeight: 1.8 }}>{e.tip}</div>
                   </div>
                 </div>
-                <div style={{ textAlign: 'center', marginBottom: 28 } as any}>
-                  <div style={{ width: 56, height: 56, borderRadius: 16, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', marginBottom: 14 } as any}><i className="ri-heart-pulse-fill" style={{ fontSize: 26, color: G }} /></div>
-                  <div style={{ fontSize: 22, fontWeight: 900, color: '#FFF' }}>Vos indicateurs</div>
-                  <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.4)', marginTop: 4 }}>Comprendre votre activite physique</div>
-                </div>
-                {[
-                  { title: 'VO2 Max', icon: 'ri-lungs-line', color: G, desc: 'La quantite maximale d\'oxygene que votre corps peut utiliser pendant l\'effort.', ranges: 'Faible: <20 · Moyen: 20-30 · Bon: 30-40 · Excellent: >40 ml/kg/min' },
-                  { title: 'Recuperation', icon: 'ri-battery-charge-line', color: CY, desc: 'Indique si votre corps a suffisamment recupere pour un nouvel effort.', ranges: 'Faible: <40% · Moderee: 40-60% · Bonne: 60-80% · Optimale: >80%' },
-                  { title: 'Temps de recuperation', icon: 'ri-time-line', color: A, desc: 'Estimation du temps necessaire avant un effort intense.', ranges: 'Optimale: 4-6h · Bonne: 8-12h · Moderee: 12-18h · Faible: 18-24h' },
-                  { title: 'Nombre de pas', icon: 'ri-footprint-line', color: G, desc: 'Objectif recommande pour les seniors : 6000 pas par jour.', ranges: 'Sedentaire: <3000 · Actif: 3000-6000 · Tres actif: >6000 pas' },
-                  { title: 'Calories brulees', icon: 'ri-fire-line', color: A, desc: 'Calories depensees par votre activite physique (hors metabolisme de base).', ranges: 'Faible: <150 · Modere: 150-300 · Actif: >300 kcal' },
-                ].map((e, i) => (
-                  <div key={i} style={{ marginBottom: 20 } as any}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 6 } as any}>
-                      <i className={e.icon} style={{ fontSize: 16, color: e.color }} />
-                      <span style={{ fontSize: 15, fontWeight: 800, color: '#FFF' }}>{e.title}</span>
-                    </div>
-                    <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.5)', lineHeight: 1.7, marginBottom: 6 }}>{e.desc}</div>
-                    <div style={{ fontSize: 10, color: e.color, fontWeight: 600 }}>{e.ranges}</div>
-                    {i < 4 && <div style={{ height: 1, background: 'rgba(255,255,255,0.06)', marginTop: 16 } as any} />}
-                  </div>
-                ))}
               </div>
-            </div>
-          )}
+            );
+          })()}
         </div>
       </div>
-      <style dangerouslySetInnerHTML={{ __html: `@keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}` }} />
+      <style dangerouslySetInnerHTML={{ __html: `@keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}@keyframes popIn{from{opacity:0;transform:scale(0.95) translateY(20px)}to{opacity:1;transform:scale(1) translateY(0)}}@keyframes slideUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}` }} />
       {showNoraActivity && <NoraOverlay token={token} endpoint="/api/nora/page-analysis?context=activity" title="Analyse activite" subtitle="Analyse par Nora de votre activite physique" onClose={() => setShowNoraActivity(false)} />}
     </div>
   );
