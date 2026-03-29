@@ -231,9 +231,10 @@ export default function HealthDetailScreen() {
             <div style={{ position: 'relative', zIndex: 2, padding: 'calc(env(safe-area-inset-top, 20px) + 12px) 20px 60px', maxWidth: 480, margin: '0 auto' } as any}>
               <div onClick={() => { try { router.back(); } catch { router.push('/(tabs)/health' as any); } }} style={{ width: 44, height: 44, borderRadius: 14, background: 'rgba(255,255,255,0.12)', border: '1px solid rgba(255,255,255,0.15)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}><i className="ri-arrow-left-line" style={{ fontSize: 18, color: '#FFF' }} /></div>
               <div style={{ textAlign: 'center', marginTop: 8 } as any}>
-                <div style={{ fontSize: 22, fontWeight: 900, color: '#FFF', marginBottom: 4 }}>Sommeil</div>
-                {sleepNightData && <div style={{ fontSize: 36, fontWeight: 900, color: '#FFF', lineHeight: 1 }}>{Math.floor(sleepNightData.duration / 60)}h{String(sleepNightData.duration % 60).padStart(2, '0')}</div>}
-                {!sleepNightData && <div style={{ fontSize: 14, color: 'rgba(255,255,255,0.4)' }}>Analyse detaillee de votre sommeil</div>}
+                <div style={{ fontSize: 22, fontWeight: 900, color: '#FFF', marginBottom: 2 }}>Sommeil</div>
+                <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)', marginBottom: 12 }}>Analyse detaillee de votre nuit</div>
+                {sleepNightData && <div style={{ display: 'inline-flex', alignItems: 'baseline', gap: 4 } as any}><span style={{ fontSize: 48, fontWeight: 900, color: '#FFF', lineHeight: 1, letterSpacing: -1 }}>{Math.floor(sleepNightData.duration / 60)}</span><span style={{ fontSize: 16, fontWeight: 600, color: 'rgba(255,255,255,0.4)' }}>h</span><span style={{ fontSize: 48, fontWeight: 900, color: '#FFF', lineHeight: 1, letterSpacing: -1 }}>{String(sleepNightData.duration % 60).padStart(2, '0')}</span><span style={{ fontSize: 16, fontWeight: 600, color: 'rgba(255,255,255,0.4)' }}>min</span></div>}
+                {!sleepNightData && <div style={{ fontSize: 14, color: 'rgba(255,255,255,0.3)' }}>Aucune donnee disponible</div>}
               </div>
               {/* Calendar — identical to activity-detail / minceur */}
               <HorizontalCalendar selectedDate={selectedDate} onSelect={setSelectedDate} accent="#A78BFA" />
