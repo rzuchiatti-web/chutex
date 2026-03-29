@@ -224,6 +224,7 @@ export default function MinceurPage() {
   const [showNoraAnalysis, setShowNoraAnalysis] = useState(false);
   const [showGoalConfirm, setShowGoalConfirm] = useState(false);
   const [selectedDate, setSelectedDate] = useState(new Date());
+  const [explainMetric, setExplainMetric] = useState<string | null>(null);
 
   useEffect(() => { setMounted(true); }, []);
 
@@ -298,15 +299,13 @@ export default function MinceurPage() {
               <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)', marginTop: 2 }}>{isReadonly ? 'Vue gardien (lecture seule)' : 'Suivi personnalise'}</div>
             </div>
 
-            {/* Centered weight + IMC */}
+            {/* Centered weight */}
             {!loading && data && (
               <div style={{ textAlign: 'center', marginBottom: 4 } as any}>
                 <div style={{ display: 'inline-flex', alignItems: 'baseline', gap: 4 } as any}>
                   <span style={{ fontSize: 52, fontWeight: 900, color: '#FFF', lineHeight: 1, letterSpacing: -1 }}>{cr.weight > 0 ? cr.weight : '--'}</span>
                   <span style={{ fontSize: 16, fontWeight: 600, color: 'rgba(255,255,255,0.3)' }}>kg</span>
                 </div>
-                {cr.bmi > 0 && <div style={{ fontSize: 12, fontWeight: 700, color: cr.bmi_info?.color || A, marginTop: 6 }}>IMC {cr.bmi} · {cr.bmi_info?.label}</div>}
-                {cr.bmi > 0 && <div style={{ maxWidth: 280, margin: '0 auto' } as any}><BMIBar bmi={cr.bmi} info={cr.bmi_info} /></div>}
               </div>
             )}
 
@@ -333,25 +332,54 @@ export default function MinceurPage() {
                 </div>
               )}
 
+              {/* ══ IMC CARD (dedicated) ══ */}
+              {cr.bmi > 0 && (
+                <div data-testid="bmi-card" style={{ borderRadius: 18, background: '#F4F4F5', padding: '16px 20px', marginBottom: 12 } as any}>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 } as any}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8 } as any}><i className="ri-body-scan-line" style={{ fontSize: 14, color: P }} /><span style={{ fontSize: 13, fontWeight: 800, color: '#111' }}>Indice de Masse Corporelle</span></div>
+                    <div onClick={() => setExplainMetric('bmi')} style={{ width: 28, height: 28, borderRadius: 999, background: '#FFF', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}><i className="ri-information-line" style={{ fontSize: 14, color: P }} /></div>
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 16 } as any}>
+                    <div style={{ textAlign: 'center' } as any}>
+                      <div style={{ fontSize: 36, fontWeight: 900, color: cr.bmi_info?.color || A, lineHeight: 1 }}>{cr.bmi}</div>
+                      <div style={{ fontSize: 10, fontWeight: 700, color: cr.bmi_info?.color || A, marginTop: 4 }}>{cr.bmi_info?.label}</div>
+                    </div>
+                    <div style={{ flex: 1 } as any}><BMIBar bmi={cr.bmi} info={cr.bmi_info} /></div>
+                  </div>
+                </div>
+              )}
+
               {/* ══ 3 SEPARATE CHARTS ══ */}
               {history.length >= 2 && (
                 <>
                   {history.some((h: any) => h.weight > 0) && (
                     <div data-testid="chart-weight" style={{ borderRadius: 18, background: '#F4F4F5', padding: '16px 20px', marginBottom: 12 } as any}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 } as any}><i className="ri-scales-3-line" style={{ fontSize: 14, color: A }} /><span style={{ fontSize: 13, fontWeight: 800, color: '#111' }}>Evolution du poids</span>{cr.weight > 0 && <span style={{ fontSize: 11, fontWeight: 900, color: A, marginLeft: 'auto' }}>{cr.weight}kg</span>}</div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 } as any}>
+                        <i className="ri-scales-3-line" style={{ fontSize: 14, color: A }} /><span style={{ fontSize: 13, fontWeight: 800, color: '#111' }}>Evolution du poids</span>
+                        {cr.weight > 0 && <span style={{ fontSize: 11, fontWeight: 900, color: A, marginLeft: 'auto' }}>{cr.weight}kg</span>}
+                        <div onClick={() => setExplainMetric('weight')} style={{ width: 28, height: 28, borderRadius: 999, background: '#FFF', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', flexShrink: 0 } as any}><i className="ri-information-line" style={{ fontSize: 14, color: A }} /></div>
+                      </div>
                       <Chart history={history} metric="weight" />
                     </div>
                   )}
                   {history.some((h: any) => h.body_fat_pct > 0) && (
                     <div data-testid="chart-fat" style={{ borderRadius: 18, background: '#F4F4F5', padding: '16px 20px', marginBottom: 12 } as any}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 } as any}><i className="ri-fire-line" style={{ fontSize: 14, color: '#F97316' }} /><span style={{ fontSize: 13, fontWeight: 800, color: '#111' }}>Masse grasse</span>{bc.body_fat_pct > 0 && <span style={{ fontSize: 11, fontWeight: 900, color: '#F97316', marginLeft: 'auto' }}>{bc.body_fat_pct}%</span>}</div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 } as any}>
+                        <i className="ri-fire-line" style={{ fontSize: 14, color: '#F97316' }} /><span style={{ fontSize: 13, fontWeight: 800, color: '#111' }}>Masse grasse</span>
+                        {bc.body_fat_pct > 0 && <span style={{ fontSize: 11, fontWeight: 900, color: '#F97316', marginLeft: 'auto' }}>{bc.body_fat_pct}%</span>}
+                        <div onClick={() => setExplainMetric('body_fat')} style={{ width: 28, height: 28, borderRadius: 999, background: '#FFF', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', flexShrink: 0 } as any}><i className="ri-information-line" style={{ fontSize: 14, color: '#F97316' }} /></div>
+                      </div>
                       <Chart history={history} metric="body_fat_pct" />
                       <Insight metric="body_fat_pct" value={bc.body_fat_pct} gender={data?.profile?.gender || ''} weight={cr.weight || 0} />
                     </div>
                   )}
                   {history.some((h: any) => h.muscle_pct > 0) && (
                     <div data-testid="chart-muscle" style={{ borderRadius: 18, background: '#F4F4F5', padding: '16px 20px', marginBottom: 12 } as any}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 } as any}><i className="ri-body-scan-line" style={{ fontSize: 14, color: G }} /><span style={{ fontSize: 13, fontWeight: 800, color: '#111' }}>Masse musculaire</span>{bc.muscle_pct > 0 && <span style={{ fontSize: 11, fontWeight: 900, color: G, marginLeft: 'auto' }}>{bc.muscle_pct}%</span>}</div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 } as any}>
+                        <i className="ri-body-scan-line" style={{ fontSize: 14, color: G }} /><span style={{ fontSize: 13, fontWeight: 800, color: '#111' }}>Masse musculaire</span>
+                        {bc.muscle_pct > 0 && <span style={{ fontSize: 11, fontWeight: 900, color: G, marginLeft: 'auto' }}>{bc.muscle_pct}%</span>}
+                        <div onClick={() => setExplainMetric('muscle')} style={{ width: 28, height: 28, borderRadius: 999, background: '#FFF', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', flexShrink: 0 } as any}><i className="ri-information-line" style={{ fontSize: 14, color: G }} /></div>
+                      </div>
                       <Chart history={history} metric="muscle_pct" />
                       <Insight metric="muscle_pct" value={bc.muscle_pct} gender={data?.profile?.gender || ''} weight={cr.weight || 0} />
                     </div>
@@ -500,6 +528,42 @@ export default function MinceurPage() {
         const fullText = `${recs.nora_insight}${recs.tip_of_the_day ? ` ${recs.tip_of_the_day}` : ''}`;
         return <NoraAnalysisOverlay text={fullText} onClose={() => setShowNoraAnalysis(false)} history={history} current={cr} bodyComp={bc} />;
       })()}
+
+      {/* ══ METRIC EXPLAIN POPUP ══ */}
+      {explainMetric && (
+        <div data-testid="explain-popup" onClick={() => setExplainMetric(null)} style={{ position: 'fixed', inset: 0, zIndex: 9999, backdropFilter: 'blur(32px)', WebkitBackdropFilter: 'blur(32px)', background: 'rgba(0,0,0,0.4)', overflowY: 'auto' } as any}>
+          <div onClick={(e: any) => e.stopPropagation()} style={{ width: '100%', maxWidth: 420, margin: '0 auto', padding: '40px 24px 120px', boxSizing: 'border-box' } as any}>
+            <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 20 } as any}><div onClick={() => setExplainMetric(null)} style={{ width: 36, height: 36, borderRadius: 999, background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}><i className="ri-close-line" style={{ fontSize: 18, color: 'rgba(255,255,255,0.8)' }} /></div></div>
+            {(() => {
+              const explanations: Record<string, { icon: string; color: string; title: string; desc: string; ranges: string; tip: string }> = {
+                bmi: { icon: 'ri-body-scan-line', color: P, title: 'Indice de Masse Corporelle (IMC)', desc: "L'IMC est un indicateur simple qui met en relation votre poids et votre taille. Il permet d'evaluer votre corpulence et les risques associes.", ranges: 'Maigreur: < 18.5 · Normal: 18.5-25 · Surpoids: 25-30 · Obesite: > 30', tip: "L'IMC ne distingue pas masse grasse et masse musculaire. Un sportif muscle peut avoir un IMC eleve sans exces de graisse." },
+                weight: { icon: 'ri-scales-3-line', color: A, title: 'Evolution du poids', desc: "Le suivi regulier du poids permet de detecter les tendances sur plusieurs semaines. Les variations quotidiennes (eau, repas) sont normales.", ranges: 'Perte saine: 0.3-0.7 kg/semaine · Maintien: +/- 0.5 kg · Prise: selon objectif', tip: 'Pesez-vous toujours au meme moment (le matin a jeun) pour des mesures comparables.' },
+                body_fat: { icon: 'ri-fire-line', color: '#F97316', title: 'Masse grasse', desc: "Le pourcentage de masse grasse indique la proportion de graisse dans votre corps. Un taux equilibre est essentiel pour la sante.", ranges: 'Homme: 14-25% (normal) · Femme: 20-33% (normal)', tip: 'La masse grasse protege les organes et regule les hormones. Un taux trop bas est aussi risque qu\'un taux trop eleve.' },
+                muscle: { icon: 'ri-body-scan-line', color: G, title: 'Masse musculaire', desc: "Le pourcentage de masse musculaire mesure la proportion de muscles dans votre composition corporelle. Elle est essentielle pour le metabolisme et la mobilite.", ranges: 'Homme: 33-39% (normal) · Femme: 24-30% (normal)', tip: 'La masse musculaire diminue avec l\'age (sarcopenie). L\'exercice de resistance et un apport suffisant en proteines aident a la maintenir.' },
+              };
+              const e = explanations[explainMetric] || explanations.weight;
+              return (
+                <>
+                  <div style={{ textAlign: 'center', marginBottom: 28 } as any}>
+                    <div style={{ width: 56, height: 56, borderRadius: 16, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', marginBottom: 14 } as any}><i className={e.icon} style={{ fontSize: 26, color: e.color }} /></div>
+                    <div style={{ fontSize: 22, fontWeight: 900, color: '#FFF' }}>{e.title}</div>
+                  </div>
+                  <div style={{ borderRadius: 22, background: 'rgba(0,0,0,0.25)', border: '1px solid rgba(255,255,255,0.1)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', padding: '18px 16px', marginBottom: 16 } as any}>
+                    <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.55)', lineHeight: 1.8 }}>{e.desc}</div>
+                  </div>
+                  <div style={{ borderRadius: 22, background: 'rgba(0,0,0,0.25)', border: '1px solid rgba(255,255,255,0.1)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', padding: '18px 16px', marginBottom: 16 } as any}>
+                    <div style={{ fontSize: 10, fontWeight: 700, color: e.color, textTransform: 'uppercase', letterSpacing: 1, marginBottom: 8 }}>Valeurs de reference</div>
+                    <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.45)', lineHeight: 1.7 }}>{e.ranges}</div>
+                  </div>
+                  <div style={{ borderRadius: 22, background: 'rgba(0,0,0,0.25)', border: '1px solid rgba(255,255,255,0.1)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', padding: '18px 16px' } as any}>
+                    <div style={{ display: 'flex', gap: 10, alignItems: 'flex-start' } as any}><i className="ri-lightbulb-line" style={{ fontSize: 16, color: A, marginTop: 2, flexShrink: 0 }} /><div style={{ fontSize: 12, color: 'rgba(255,255,255,0.45)', lineHeight: 1.6 }}>{e.tip}</div></div>
+                  </div>
+                </>
+              );
+            })()}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
