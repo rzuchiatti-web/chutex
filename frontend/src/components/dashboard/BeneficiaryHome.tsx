@@ -431,27 +431,32 @@ export function BeneficiaryHome({ token, user }: { token: string; user: any }) {
             const recs = minceurData.recommendations;
             return (
               <div data-testid="calorie-intake-card" onClick={() => router.push('/minceur' as any)}
-                style={{ borderRadius: 18, background: C.card, padding: '16px 18px', marginBottom: 16, cursor: 'pointer', transition: 'transform 0.15s', ...glass } as any}
+                style={{ borderRadius: 18, background: '#F4F4F5', padding: 0, marginBottom: 16, overflow: 'hidden', cursor: 'pointer', transition: 'transform 0.15s' } as any}
                 onMouseEnter={(e: any) => { e.currentTarget.style.transform = 'translateY(-1px)'; }}
                 onMouseLeave={(e: any) => { e.currentTarget.style.transform = ''; }}>
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 } as any}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 } as any}>
-                    <i className="ri-fire-line" style={{ fontSize: 14, color: '#F59E0B' }} />
-                    <span style={{ fontSize: 12, fontWeight: 700, color: C.sub }}>Apport calorique journalier</span>
+                <div style={{ padding: '18px 18px 14px' } as any}>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' } as any}>
+                    <div>
+                      <div style={{ fontSize: 8, fontWeight: 700, color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: 1.5 }}>Apport calorique journalier</div>
+                      <div style={{ display: 'flex', alignItems: 'baseline', gap: 4, marginTop: 4 } as any}>
+                        <span style={{ fontSize: 38, fontWeight: 900, color: '#111', lineHeight: 1, letterSpacing: -1 }}>{recs.daily_calories}</span>
+                        <span style={{ fontSize: 13, fontWeight: 600, color: '#9CA3AF' }}>kcal</span>
+                      </div>
+                    </div>
+                    {recs.water_ml > 0 && (
+                      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '10px 14px', borderRadius: 14, background: 'rgba(96,165,250,0.1)' } as any}>
+                        <i className="ri-drop-fill" style={{ fontSize: 18, color: '#60A5FA' }} />
+                        <span style={{ fontSize: 14, fontWeight: 900, color: '#60A5FA', marginTop: 2 }}>{(recs.water_ml / 1000).toFixed(1)}L</span>
+                      </div>
+                    )}
                   </div>
-                  <i className="ri-arrow-right-s-line" style={{ fontSize: 16, color: C.arrow }} />
-                </div>
-                <div style={{ display: 'flex', alignItems: 'baseline', gap: 4, marginBottom: 10 } as any}>
-                  <span style={{ fontSize: 32, fontWeight: 900, color: C.text, lineHeight: 1, letterSpacing: -0.5 }}>{recs.daily_calories}</span>
-                  <span style={{ fontSize: 12, fontWeight: 600, color: C.sub }}>kcal</span>
-                  {recs.water_ml > 0 && <span style={{ fontSize: 12, fontWeight: 800, color: '#60A5FA', marginLeft: 'auto' }}><i className="ri-drop-fill" style={{ fontSize: 12 }} /> {(recs.water_ml / 1000).toFixed(1)}L</span>}
                 </div>
                 {recs.macros && (
-                  <div style={{ display: 'flex', gap: 6 } as any}>
-                    {[{ l: 'Prot.', v: recs.macros.proteines_g, c: '#10B981' }, { l: 'Gluc.', v: recs.macros.glucides_g, c: '#F59E0B' }, { l: 'Lip.', v: recs.macros.lipides_g, c: '#EF4444' }].map((m, i) => (
-                      <div key={i} style={{ flex: 1, padding: '6px 4px', borderRadius: 10, background: isDark ? 'rgba(255,255,255,0.04)' : '#FFF', textAlign: 'center' } as any}>
-                        <div style={{ fontSize: 16, fontWeight: 900, color: C.text, lineHeight: 1 }}>{m.v}<span style={{ fontSize: 8, color: C.sub }}>g</span></div>
-                        <div style={{ fontSize: 8, color: m.c, fontWeight: 700, marginTop: 2 }}>{m.l}</div>
+                  <div style={{ display: 'flex', borderTop: '1px solid #E5E7EB' } as any}>
+                    {[{ l: 'Proteines', v: recs.macros.proteines_g, c: '#10B981' }, { l: 'Glucides', v: recs.macros.glucides_g, c: '#F59E0B' }, { l: 'Lipides', v: recs.macros.lipides_g, c: '#EF4444' }].map((m, i) => (
+                      <div key={i} style={{ flex: 1, padding: '12px 8px', textAlign: 'center', borderRight: i < 2 ? '1px solid #E5E7EB' : 'none' } as any}>
+                        <div style={{ fontSize: 20, fontWeight: 900, color: '#111', lineHeight: 1 }}>{m.v}<span style={{ fontSize: 9, color: '#9CA3AF' }}>g</span></div>
+                        <div style={{ fontSize: 8, color: m.c, fontWeight: 700, marginTop: 3, textTransform: 'uppercase', letterSpacing: 0.5 }}>{m.l}</div>
                       </div>
                     ))}
                   </div>
@@ -681,7 +686,9 @@ export function BeneficiaryHome({ token, user }: { token: string; user: any }) {
                   </div>
                 </div>
                 <div style={{ fontSize: 13, color: C.sub, marginBottom: 16, lineHeight: '1.45' } as any}>Vos appareils connectes pour le suivi de votre sante au quotidien.</div>
-                <DeviceCards br={br} sc={sc} vs={vs} weighings={weighings} onStartWeighing={() => setShowWeighing(true)} onRefresh={fetchData} subscription={subscription} />
+                <div style={{ borderRadius: 18, background: '#F4F4F5', padding: 14 } as any}>
+                  <DeviceCards br={br} sc={sc} vs={vs} weighings={weighings} onStartWeighing={() => setShowWeighing(true)} onRefresh={fetchData} subscription={subscription} />
+                </div>
               </div>
               <div style={{ height: 1, background: C.sep, margin: "10px 0 24px" } as any} />
             </>

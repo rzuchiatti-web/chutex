@@ -27,6 +27,7 @@ const POP: any = { position: 'fixed', inset: 0, zIndex: 99990, backdropFilter: '
 const POP_CENTER: any = { ...POP, display: 'flex', alignItems: 'center', justifyContent: 'center', overflowY: 'auto' };
 
 const glass = Platform.OS === 'web' ? { backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)', boxShadow: '0 2px 20px rgba(0,0,0,0.05)' } : {};
+const BG_RED = 'https://customer-assets.emergentagent.com/job_443c9c6e-0feb-4920-a358-fe7cc1a6289b/artifacts/mhh7xwy3_ChatGPT%20Image%2017%20f%C3%A9vr.%202026%2C%2014_08_43.png';
 const GlassCard = ({ children, style }: any) => (
   <View style={[{ backgroundColor: '#FFFFFF', borderRadius: 24, borderWidth: 1, borderColor: 'rgba(0,0,0,0.06)', padding: 18, marginBottom: 14, ...glass }, style]}>{children}</View>
 );
@@ -139,6 +140,8 @@ export default function ProfileScreen() {
   const [notifPrefs, setNotifPrefs] = useState<any>(null);
   const [savingNotif, setSavingNotif] = useState(false);
   const [showCareDetail, setShowCareDetail] = useState(false);
+  const [showSportDetail, setShowSportDetail] = useState(false);
+  const [hasCoach, setHasCoach] = useState(false);
   const [showMedical, setShowMedical] = useState(false);
   const [showRGPD, setShowRGPD] = useState(false);
   const [rgpdRight, setRgpdRight] = useState('access');
@@ -197,6 +200,7 @@ export default function ProfileScreen() {
   useEffect(() => {
     if (token && (user?.role === 'beneficiary' || user?.active_role === 'beneficiary')) {
       apiFetch('/api/subscriptions/my', {}, token).then(setSubData).catch(() => {});
+      apiFetch('/api/pro/has-active-programs', {}, token).then((r: any) => { if (r?.has_programs) setHasCoach(true); }).catch(() => {});
     }
   }, [token, user?.role, user?.active_role]);
 
@@ -403,6 +407,23 @@ const BG_PROFILE = 'https://customer-assets.emergentagent.com/job_9950a869-9328-
               <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.25)', borderRadius: 22 } as any} />
               <div style={{ position: 'relative', zIndex: 2, display: 'flex', alignItems: 'center', justifyContent: 'space-between', height: '100%', padding: '0 22px' } as any}>
                 <div style={{ fontSize: 18, fontWeight: 800, color: '#FFF', letterSpacing: -0.3 }}>{subData.subscription_type === 'sport' ? 'Abonnement Sport' : subData.subscription_type === 'physio' ? 'Abonnement Physio' : 'Bracelet Elio'}</div>
+                <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '5px 14px', borderRadius: 999, background: 'rgba(16,185,129,0.25)', border: '1px solid rgba(16,185,129,0.4)' } as any}>
+                  <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#10B981' } as any} />
+                  <span style={{ fontSize: 11, fontWeight: 700, color: '#10B981' }}>Actif</span>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Sport Subscription card — shown if beneficiary has a coach */}
+          {isBen && hasCoach && (
+            <div onClick={() => setShowSportDetail(true)} data-testid="sport-subscription-card" style={{ position: 'relative', overflow: 'hidden', borderRadius: 22, height: 90, marginBottom: 14, cursor: 'pointer', transition: 'transform 0.15s', border: isDark ? '1.5px solid rgba(255,255,255,0.18)' : '1.5px solid rgba(0,0,0,0.08)', boxShadow: isDark ? '0 4px 24px rgba(0,0,0,0.4), 0 0 0 1px rgba(255,255,255,0.08)' : '0 4px 16px rgba(0,0,0,0.08)' } as any}
+              onMouseEnter={(e: any) => { e.currentTarget.style.transform = 'scale(1.01)'; }}
+              onMouseLeave={(e: any) => { e.currentTarget.style.transform = 'scale(1)'; }}>
+              <img src={BG_RED} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', borderRadius: 22 } as any} />
+              <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.25)', borderRadius: 22 } as any} />
+              <div style={{ position: 'relative', zIndex: 2, display: 'flex', alignItems: 'center', justifyContent: 'space-between', height: '100%', padding: '0 22px' } as any}>
+                <div style={{ fontSize: 18, fontWeight: 800, color: '#FFF', letterSpacing: -0.3 }}>Abonnement Sport</div>
                 <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '5px 14px', borderRadius: 999, background: 'rgba(16,185,129,0.25)', border: '1px solid rgba(16,185,129,0.4)' } as any}>
                   <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#10B981' } as any} />
                   <span style={{ fontSize: 11, fontWeight: 700, color: '#10B981' }}>Actif</span>
@@ -645,6 +666,86 @@ const BG_PROFILE = 'https://customer-assets.emergentagent.com/job_9950a869-9328-
 
           {/* SUBSCRIPTION MANAGEMENT POPUP */}
           <SubscriptionManagePopup show={showCareDetail} onClose={() => setShowCareDetail(false)} subData={subData} onRefresh={() => apiFetch('/api/subscriptions/my', {}, token).then(setSubData).catch(() => {})} />
+
+          {/* SPORT SUBSCRIPTION POPUP — fond rouge */}
+          {showSportDetail && Platform.OS === 'web' && portalMount(
+            <div data-testid="sport-subscription-popup" style={{ position: 'fixed', inset: 0, zIndex: 99999, display: 'flex', flexDirection: 'column', fontFamily: 'Inter, system-ui, sans-serif', overflow: 'hidden' } as any}>
+              <img src={BG_RED} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 } as any} />
+              <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.35)', zIndex: 1 } as any} />
+              <div style={{ flex: 1, overflowY: 'auto', position: 'relative', zIndex: 5, WebkitOverflowScrolling: 'touch', paddingTop: 'env(safe-area-inset-top, 44px)' } as any}>
+                <div style={{ width: '100%', maxWidth: 420, margin: '0 auto', padding: '24px 22px 120px', boxSizing: 'border-box' } as any}>
+                  {/* Back */}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 20 } as any}>
+                    <div onClick={() => setShowSportDetail(false)} data-testid="sport-back-btn" style={{ width: 40, height: 40, borderRadius: 999, background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}>
+                      <i className="ri-arrow-left-s-line" style={{ fontSize: 20, color: '#FFF' }} />
+                    </div>
+                    <span style={{ fontSize: 15, fontWeight: 700, color: '#FFF' }}>Mon abonnement Sport</span>
+                  </div>
+                  {/* Header */}
+                  <div style={{ textAlign: 'center', marginBottom: 28 } as any}>
+                    <div style={{ width: 64, height: 64, borderRadius: 20, background: 'rgba(239,68,68,0.25)', border: '1px solid rgba(239,68,68,0.4)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', marginBottom: 12 } as any}>
+                      <i className="ri-boxing-line" style={{ fontSize: 32, color: '#FFF' }} />
+                    </div>
+                    <div style={{ fontSize: 22, fontWeight: 800, color: '#FFF' }}>Chutex Sport</div>
+                    <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', marginTop: 4 }}>Coaching personnalise et suivi sportif</div>
+                    <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '4px 14px', borderRadius: 999, background: 'rgba(16,185,129,0.2)', border: '1px solid rgba(16,185,129,0.3)', marginTop: 10 } as any}>
+                      <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#10B981' } as any} />
+                      <span style={{ fontSize: 11, fontWeight: 700, color: '#10B981' }}>Actif</span>
+                    </div>
+                  </div>
+                  {/* Info cards — fond blanc, écriture noire */}
+                  <div style={{ borderRadius: 22, background: '#FFF', padding: '20px', marginBottom: 14 } as any}>
+                    <div style={{ fontSize: 11, fontWeight: 700, color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 14 }}>Votre abonnement</div>
+                    {[
+                      { label: 'Formule', value: 'Chutex Sport' },
+                      { label: 'Type', value: 'Coaching sportif personnalise' },
+                      { label: 'Statut', value: 'Actif' },
+                      { label: 'Inclus', value: 'Programmes, exercices, suivi nutrition' },
+                    ].map((item, i) => (
+                      <div key={i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 0', borderTop: i > 0 ? '1px solid #F4F4F5' : 'none' } as any}>
+                        <span style={{ fontSize: 13, color: '#6B7280' }}>{item.label}</span>
+                        <span style={{ fontSize: 13, fontWeight: 700, color: '#111', textAlign: 'right', maxWidth: '60%' }}>{item.value}</span>
+                      </div>
+                    ))}
+                  </div>
+                  {/* Services inclus — fond blanc */}
+                  <div style={{ borderRadius: 22, background: '#FFF', padding: '20px', marginBottom: 14 } as any}>
+                    <div style={{ fontSize: 11, fontWeight: 700, color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 14 }}>Services inclus</div>
+                    {[
+                      { icon: 'ri-user-star-line', color: '#EF4444', label: 'Coach dedie', desc: 'Un coach professionnel vous accompagne' },
+                      { icon: 'ri-calendar-check-line', color: '#F59E0B', label: 'Programmes personnalises', desc: 'Exercices adaptes a votre profil' },
+                      { icon: 'ri-restaurant-2-line', color: '#10B981', label: 'Suivi nutritionnel', desc: 'Repas et apports caloriques optimises' },
+                      { icon: 'ri-line-chart-line', color: '#60A5FA', label: 'Suivi des progres', desc: 'Statistiques et evolution en temps reel' },
+                      { icon: 'ri-chat-3-line', color: '#A78BFA', label: 'Messagerie coach', desc: 'Echangez directement avec votre coach' },
+                    ].map((s, i) => (
+                      <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '12px 0', borderTop: i > 0 ? '1px solid #F4F4F5' : 'none' } as any}>
+                        <div style={{ width: 36, height: 36, borderRadius: 12, background: `${s.color}10`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}>
+                          <i className={s.icon} style={{ fontSize: 18, color: s.color }} />
+                        </div>
+                        <div>
+                          <div style={{ fontSize: 13, fontWeight: 700, color: '#111' }}>{s.label}</div>
+                          <div style={{ fontSize: 11, color: '#9CA3AF', marginTop: 2 }}>{s.desc}</div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                  {/* Contrat — fond blanc, écriture noire */}
+                  <div style={{ borderRadius: 22, background: '#FFF', padding: '20px', marginBottom: 14 } as any}>
+                    <div style={{ fontSize: 11, fontWeight: 700, color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 14 }}>Contrat</div>
+                    <div style={{ fontSize: 13, color: '#374151', lineHeight: 1.7, marginBottom: 16 }}>
+                      Votre abonnement Chutex Sport vous donne acces a un coach professionnel dedie, des programmes d'exercices personnalises, un suivi nutritionnel adapte a vos objectifs, et un suivi de vos progres en temps reel via l'application Chutex.
+                    </div>
+                    <div style={{ fontSize: 13, color: '#374151', lineHeight: 1.7, marginBottom: 16 }}>
+                      Le coaching inclut la creation de programmes sur mesure, l'assignation d'exercices quotidiens, la planification de repas equilibres et l'acces a la messagerie directe avec votre coach pour un accompagnement continu.
+                    </div>
+                    <div style={{ fontSize: 11, color: '#9CA3AF', lineHeight: 1.6 }}>
+                      L'abonnement est lie a votre compte beneficiaire Chutex. Pour toute question relative a votre contrat, contactez le support Chutex ou votre coach directement via l'application.
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
 
           {/* Face ID Popup */}
           {showFaceId && Platform.OS === 'web' && portalMount(
