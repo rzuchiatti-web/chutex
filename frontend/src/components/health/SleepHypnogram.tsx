@@ -88,9 +88,10 @@ type Props = {
   smoothShortSpikes?: boolean;
   minStageDurationMinutes?: number;
   compact?: boolean;
+  light?: boolean;
 };
 
-export default function SleepHypnogram({ session, compact = false }: Props) {
+export default function SleepHypnogram({ session, compact = false, light = false }: Props) {
   const W = 500;
   const H = compact ? 160 : 340;
   const LEFT = compact ? 0 : 80;
@@ -106,7 +107,7 @@ export default function SleepHypnogram({ session, compact = false }: Props) {
   if (!startMs || !endMs || endMs <= startMs || session.points.length === 0) {
     return (
       <svg width="100%" viewBox={`0 0 ${W} ${H}`} style={{ display: 'block' }}>
-        <text x={W / 2} y={H / 2} textAnchor="middle" fill="rgba(255,255,255,0.2)" fontSize="16" fontFamily="Inter, system-ui, sans-serif">
+        <text x={W / 2} y={H / 2} textAnchor="middle" fill={light ? '#9CA3AF' : 'rgba(255,255,255,0.2)'} fontSize="16" fontFamily="Inter, system-ui, sans-serif">
           Aucune donnee
         </text>
       </svg>
@@ -116,6 +117,9 @@ export default function SleepHypnogram({ session, compact = false }: Props) {
   const segments = buildSegments(session);
   const toX = (ts: number) => LEFT + ((ts - startMs) / (endMs - startMs)) * GW;
   const toY = (stage: SleepStage) => TOP + Y_POS[stage] * GH;
+  const gridColor = light ? 'rgba(0,0,0,0.06)' : 'rgba(255,255,255,0.06)';
+  const axisTextColor = light ? '#9CA3AF' : 'rgba(255,255,255,0.45)';
+  const connectorColor = light ? 'rgba(0,0,0,0.08)' : 'rgba(255,255,255,0.1)';
 
   // Time labels
   const labelCount = compact ? 3 : 6;
@@ -163,7 +167,7 @@ export default function SleepHypnogram({ session, compact = false }: Props) {
         const y = toY(stage);
         return (
           <g key={stage}>
-            <line x1={LEFT} y1={y} x2={W - RIGHT} y2={y} stroke="rgba(255,255,255,0.06)" strokeDasharray="3,5" />
+            <line x1={LEFT} y1={y} x2={W - RIGHT} y2={y} stroke={gridColor} strokeDasharray="3,5" />
             <text x={LEFT - 12} y={y + 5} textAnchor="end" fill={COLORS[stage]} fontSize="14" fontWeight="700" fontFamily="Inter, system-ui, sans-serif">
               {LABELS[stage]}
             </text>
@@ -201,7 +205,7 @@ export default function SleepHypnogram({ session, compact = false }: Props) {
         const y1 = toY(seg.stage);
         const y2 = toY(next.stage);
         if (Math.abs(y2 - y1) < 4) return null;
-        return <line key={`c${i}`} x1={x} y1={y1} x2={x} y2={y2} stroke="rgba(255,255,255,0.1)" strokeWidth="1.5" strokeLinecap="round" />;
+        return <line key={`c${i}`} x1={x} y1={y1} x2={x} y2={y2} stroke={connectorColor} strokeWidth="1.5" strokeLinecap="round" />;
       })}
 
       {/* X-axis time labels */}
@@ -209,26 +213,14 @@ export default function SleepHypnogram({ session, compact = false }: Props) {
         const x = toX(tl.ts);
         return (
           <g key={`t${i}`}>
-            <line x1={x} y1={TOP + GH} x2={x} y2={TOP + GH + 6} stroke="rgba(255,255,255,0.08)" strokeWidth="1" />
-            <text
-              x={x}
-              y={H - 10}
-              fill="rgba(255,255,255,0.45)"
-              fontSize="14"
-              fontWeight="600"
-              fontFamily="Inter, system-ui, sans-serif"
-              textAnchor="middle"
-            >
-              {tl.label}
-            </text>
+            <line x1={x} y1={TOP + GH} x2={x} y2={TOP + GH + 6} stroke={gridColor} strokeWidth="1" />
+            <text x={x} y={H - 10} fill={axisTextColor} fontSize="14" fontWeight="600" fontFamily="Inter, system-ui, sans-serif" textAnchor="middle">{tl.label}</text>
           </g>
         );
       })}
 
-      {/* Left axis line */}
-      {!compact && <line x1={LEFT} y1={TOP} x2={LEFT} y2={TOP + GH} stroke="rgba(255,255,255,0.06)" strokeWidth="1" />}
-      {/* Bottom axis line */}
-      {!compact && <line x1={LEFT} y1={TOP + GH} x2={W - RIGHT} y2={TOP + GH} stroke="rgba(255,255,255,0.06)" strokeWidth="1" />}
+      {!compact && <line x1={LEFT} y1={TOP} x2={LEFT} y2={TOP + GH} stroke={gridColor} strokeWidth="1" />}
+      {!compact && <line x1={LEFT} y1={TOP + GH} x2={W - RIGHT} y2={TOP + GH} stroke={gridColor} strokeWidth="1" />}
     </svg>
   );
 }

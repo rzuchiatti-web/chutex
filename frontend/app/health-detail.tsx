@@ -243,14 +243,12 @@ export default function HealthDetailScreen() {
           {/* WHITE CONTENT CARD */}
           <div style={{ padding: '24px 16px 120px', marginTop: -24, borderRadius: '24px 24px 0 0', background: '#FFF', position: 'relative', zIndex: 10, maxWidth: 480, margin: '-24px auto 0', width: '100%' } as any}>
 
-            {/* Nora sleep analysis button */}
-            {sectionAi?.summary && (
-              <div data-testid="nora-sleep-btn" onClick={() => setShowSleepInfo(true)} style={{ borderRadius: 16, background: '#000', padding: '14px 16px', marginBottom: 14, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 12 } as any}>
-                <video autoPlay loop muted playsInline style={{ width: 36, height: 36, borderRadius: 12, objectFit: 'contain', flexShrink: 0 } as any} src="https://customer-assets.emergentagent.com/job_ba3a5789-c8f1-4b12-b5d8-478a7f99aaea/artifacts/b6eh1r76_Nora_video.mp4" />
-                <div style={{ flex: 1 } as any}><div style={{ fontSize: 13, fontWeight: 800, color: '#FFF' }}>Analyse du sommeil</div><div style={{ fontSize: 10, color: 'rgba(255,255,255,0.35)', marginTop: 1 }}>Analyse par Nora de votre nuit</div></div>
-                <i className="ri-arrow-right-s-line" style={{ fontSize: 18, color: 'rgba(255,255,255,0.3)' }} />
-              </div>
-            )}
+            {/* Nora sleep analysis button — always visible */}
+            <div data-testid="nora-sleep-btn" onClick={() => setShowSleepInfo(true)} style={{ borderRadius: 16, background: '#000', padding: '14px 16px', marginBottom: 14, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 12 } as any}>
+              <video autoPlay loop muted playsInline style={{ width: 36, height: 36, borderRadius: 12, objectFit: 'contain', flexShrink: 0 } as any} src="https://customer-assets.emergentagent.com/job_ba3a5789-c8f1-4b12-b5d8-478a7f99aaea/artifacts/b6eh1r76_Nora_video.mp4" />
+              <div style={{ flex: 1 } as any}><div style={{ fontSize: 13, fontWeight: 800, color: '#FFF' }}>Analyse du sommeil</div><div style={{ fontSize: 10, color: 'rgba(255,255,255,0.35)', marginTop: 1 }}>Analyse par Nora de votre nuit</div></div>
+              <i className="ri-arrow-right-s-line" style={{ fontSize: 18, color: 'rgba(255,255,255,0.3)' }} />
+            </div>
 
             {/* Sleep content — render with gray cards */}
             {(() => {
@@ -278,7 +276,7 @@ export default function HealthDetailScreen() {
                           <div style={{ marginLeft: 'auto' } as any} />
                           <div onClick={() => setExplainSleep('hypnogram')} style={{ width: 28, height: 28, borderRadius: 999, background: '#FFF', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}><i className="ri-information-line" style={{ fontSize: 14, color: '#A78BFA' }} /></div>
                         </div>
-                        <SleepHypnogram session={sleepSession} width={700} height={200} showLabels={true} timeLabelCount={5} />
+                        <SleepHypnogram session={sleepSession} width={700} height={200} showLabels={true} timeLabelCount={5} light={true} />
                       </div>
                       {/* Stages breakdown */}
                       <div style={{ display: 'flex', borderTop: '1px solid #E5E7EB' } as any}>
