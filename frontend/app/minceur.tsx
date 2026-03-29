@@ -332,6 +332,43 @@ export default function MinceurPage() {
                 </div>
               )}
 
+              {/* ══ GOAL SECTION (above IMC) ══ */}
+              <div data-testid="goal-card" style={{ borderRadius: 18, background: '#F4F4F5', padding: 16, marginBottom: 12 } as any}>
+                {!goal && !isReadonly && (
+                  <div data-testid="set-goal-button" onClick={() => setShowGoalForm(true)} style={{ display: 'flex', alignItems: 'center', gap: 12, cursor: 'pointer' } as any}>
+                    <img src="https://customer-assets.emergentagent.com/job_e5e873d0-c3a6-4073-8807-5b369c712c84/artifacts/d7demq52_img_objectif_poids.png" alt="" style={{ width: 44, height: 44, objectFit: 'contain', flexShrink: 0 } as any} />
+                    <div style={{ flex: 1 } as any}><div style={{ fontSize: 13, fontWeight: 800, color: '#111' }}>Definir un objectif de poids</div><div style={{ fontSize: 10, color: '#9CA3AF', marginTop: 1 }}>Nora adaptera vos repas et apports caloriques</div></div>
+                    <i className="ri-arrow-right-s-line" style={{ fontSize: 18, color: A }} />
+                  </div>
+                )}
+                {goal && (() => {
+                  const diff = cr.weight > 0 ? cr.weight - goal.target_kg : 0;
+                  const kpw = goal.weeks > 0 ? Math.abs(diff) / goal.weeks : 0;
+                  const progressPct = diff > 0 ? Math.max(0, Math.min(100, (1 - (cr.weight - goal.target_kg) / (diff || 1)) * 100)) : 0;
+                  const goalDays = goal.created_at ? Math.max(1, Math.floor((Date.now() - new Date(goal.created_at).getTime()) / 86400000)) : 1;
+                  return (
+                    <div>
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 } as any}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 8 } as any}><img src="https://customer-assets.emergentagent.com/job_e5e873d0-c3a6-4073-8807-5b369c712c84/artifacts/d7demq52_img_objectif_poids.png" alt="" style={{ width: 28, height: 28, objectFit: 'contain' } as any} /><span style={{ fontSize: 9, fontWeight: 800, color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: 1 }}>Votre objectif</span></div>
+                        <span data-testid="edit-goal" onClick={() => setShowGoalForm(true)} style={{ fontSize: 10, color: A, cursor: 'pointer', fontWeight: 700, padding: '3px 10px', borderRadius: 999, background: `${A}10` } as any}>Modifier</span>
+                      </div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 10 } as any}>
+                        <div style={{ flex: 1 } as any}><div style={{ display: 'flex', alignItems: 'baseline', gap: 3 } as any}><span style={{ fontSize: 24, fontWeight: 900, color: '#111' }}>{cr.weight > 0 ? cr.weight : '--'}</span><span style={{ fontSize: 10, color: '#9CA3AF' }}>kg</span><i className="ri-arrow-right-line" style={{ fontSize: 12, color: '#D1D5DB', margin: '0 2px' }} /><span style={{ fontSize: 24, fontWeight: 900, color: A }}>{goal.target_kg}</span><span style={{ fontSize: 10, color: `${A}50` }}>kg</span></div></div>
+                        <div style={{ textAlign: 'right' } as any}><div style={{ fontSize: 20, fontWeight: 900, color: G }}>{goalDays}<span style={{ fontSize: 9, color: `${G}60` }}> j</span></div><div style={{ fontSize: 8, color: '#9CA3AF', fontWeight: 700 }}>ACTIF</div></div>
+                      </div>
+                      <div style={{ height: 5, borderRadius: 3, background: '#E5E7EB', overflow: 'hidden', marginBottom: 3 } as any}><div style={{ height: '100%', borderRadius: 3, background: `linear-gradient(90deg, ${A}, ${G})`, width: `${progressPct}%`, transition: 'width 1s ease' } as any} /></div>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8 } as any}><span style={{ fontSize: 9, color: '#9CA3AF' }}>{diff > 0 ? `-${diff.toFixed(1)}kg` : `+${Math.abs(diff).toFixed(1)}kg`} · {kpw.toFixed(1)}kg/sem</span><span style={{ fontSize: 9, color: A, fontWeight: 700 }}>{Math.round(progressPct)}%</span></div>
+                      <div style={{ display: 'flex', gap: 6 } as any}>
+                        {[{ l: 'KCAL/JOUR', v: recs?.daily_calories || '--' }, { l: 'SEMAINES', v: goal.weeks || 0 }, { l: 'REPAS', v: recs?.meals?.length || 4 }].map((s, i) => (
+                          <div key={i} style={{ flex: 1, padding: '6px 4px', borderRadius: 8, background: '#FFF', textAlign: 'center' } as any}><div style={{ fontSize: 13, fontWeight: 900, color: '#111' }}>{s.v}</div><div style={{ fontSize: 7, color: '#9CA3AF', fontWeight: 700 }}>{s.l}</div></div>
+                        ))}
+                      </div>
+                    </div>
+                  );
+                })()}
+                {data.last_reading_date && <div style={{ fontSize: 9, color: '#9CA3AF', textAlign: 'right', marginTop: 8 }}>Pesee : {new Date(data.last_reading_date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })}</div>}
+              </div>
+
               {/* ══ IMC CARD (dedicated) ══ */}
               {cr.bmi > 0 && (
                 <div data-testid="bmi-card" style={{ borderRadius: 18, background: '#F4F4F5', padding: '16px 20px', marginBottom: 12 } as any}>
@@ -388,43 +425,6 @@ export default function MinceurPage() {
               )}
               {history.length === 0 && <div style={{ textAlign: 'center', padding: '20px', borderRadius: 18, background: '#F4F4F5', marginBottom: 12 } as any}><i className="ri-scales-3-line" style={{ fontSize: 24, color: '#D1D5DB', display: 'block', marginBottom: 4 }} /><span style={{ fontSize: 12, color: '#9CA3AF' }}>Pesez-vous pour commencer le suivi</span></div>}
 
-              {/* ══ GOAL SECTION ══ */}
-              <div data-testid="goal-card" style={{ borderRadius: 18, background: '#F4F4F5', padding: 16, marginBottom: 14 } as any}>
-                {!goal && !isReadonly && (
-                  <div data-testid="set-goal-button" onClick={() => setShowGoalForm(true)} style={{ display: 'flex', alignItems: 'center', gap: 12, cursor: 'pointer' } as any}>
-                    <img src="https://customer-assets.emergentagent.com/job_e5e873d0-c3a6-4073-8807-5b369c712c84/artifacts/d7demq52_img_objectif_poids.png" alt="" style={{ width: 44, height: 44, objectFit: 'contain', flexShrink: 0 } as any} />
-                    <div style={{ flex: 1 } as any}><div style={{ fontSize: 13, fontWeight: 800, color: '#111' }}>Definir un objectif de poids</div><div style={{ fontSize: 10, color: '#9CA3AF', marginTop: 1 }}>Nora adaptera vos repas et apports caloriques</div></div>
-                    <i className="ri-arrow-right-s-line" style={{ fontSize: 18, color: A }} />
-                  </div>
-                )}
-                {goal && (() => {
-                  const diff = cr.weight > 0 ? cr.weight - goal.target_kg : 0;
-                  const kpw = goal.weeks > 0 ? Math.abs(diff) / goal.weeks : 0;
-                  const progressPct = diff > 0 ? Math.max(0, Math.min(100, (1 - (cr.weight - goal.target_kg) / (diff || 1)) * 100)) : 0;
-                  const goalDays = goal.created_at ? Math.max(1, Math.floor((Date.now() - new Date(goal.created_at).getTime()) / 86400000)) : 1;
-                  return (
-                    <div>
-                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 } as any}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 8 } as any}><img src="https://customer-assets.emergentagent.com/job_e5e873d0-c3a6-4073-8807-5b369c712c84/artifacts/d7demq52_img_objectif_poids.png" alt="" style={{ width: 28, height: 28, objectFit: 'contain' } as any} /><span style={{ fontSize: 9, fontWeight: 800, color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: 1 }}>Votre objectif</span></div>
-                        <span data-testid="edit-goal" onClick={() => setShowGoalForm(true)} style={{ fontSize: 10, color: A, cursor: 'pointer', fontWeight: 700, padding: '3px 10px', borderRadius: 999, background: `${A}10` } as any}>Modifier</span>
-                      </div>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 10 } as any}>
-                        <div style={{ flex: 1 } as any}><div style={{ display: 'flex', alignItems: 'baseline', gap: 3 } as any}><span style={{ fontSize: 24, fontWeight: 900, color: '#111' }}>{cr.weight > 0 ? cr.weight : '--'}</span><span style={{ fontSize: 10, color: '#9CA3AF' }}>kg</span><i className="ri-arrow-right-line" style={{ fontSize: 12, color: '#D1D5DB', margin: '0 2px' }} /><span style={{ fontSize: 24, fontWeight: 900, color: A }}>{goal.target_kg}</span><span style={{ fontSize: 10, color: `${A}50` }}>kg</span></div></div>
-                        <div style={{ textAlign: 'right' } as any}><div style={{ fontSize: 20, fontWeight: 900, color: G }}>{goalDays}<span style={{ fontSize: 9, color: `${G}60` }}> j</span></div><div style={{ fontSize: 8, color: '#9CA3AF', fontWeight: 700 }}>ACTIF</div></div>
-                      </div>
-                      <div style={{ height: 5, borderRadius: 3, background: '#E5E7EB', overflow: 'hidden', marginBottom: 3 } as any}><div style={{ height: '100%', borderRadius: 3, background: `linear-gradient(90deg, ${A}, ${G})`, width: `${progressPct}%`, transition: 'width 1s ease' } as any} /></div>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8 } as any}><span style={{ fontSize: 9, color: '#9CA3AF' }}>{diff > 0 ? `-${diff.toFixed(1)}kg` : `+${Math.abs(diff).toFixed(1)}kg`} · {kpw.toFixed(1)}kg/sem</span><span style={{ fontSize: 9, color: A, fontWeight: 700 }}>{Math.round(progressPct)}%</span></div>
-                      <div style={{ display: 'flex', gap: 6 } as any}>
-                        {[{ l: 'KCAL/JOUR', v: recs?.daily_calories || '--' }, { l: 'SEMAINES', v: goal.weeks || 0 }, { l: 'REPAS', v: recs?.meals?.length || 4 }, { l: 'EXERCICES', v: recs?.exercises?.length || 2 }].map((s, i) => (
-                          <div key={i} style={{ flex: 1, padding: '6px 4px', borderRadius: 8, background: '#FFF', textAlign: 'center' } as any}><div style={{ fontSize: 13, fontWeight: 900, color: '#111' }}>{s.v}</div><div style={{ fontSize: 7, color: '#9CA3AF', fontWeight: 700 }}>{s.l}</div></div>
-                        ))}
-                      </div>
-                    </div>
-                  );
-                })()}
-                {data.last_reading_date && <div style={{ fontSize: 9, color: '#9CA3AF', textAlign: 'right', marginTop: 8 }}>Pesee : {new Date(data.last_reading_date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })}</div>}
-              </div>
-
               {/* ══ CALORIES + MACROS ══ */}
               {recs && (
                 <>
@@ -462,22 +462,46 @@ export default function MinceurPage() {
         </div>
       </div>
 
-      <style dangerouslySetInnerHTML={{ __html: `@keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}@keyframes fadeSlide{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.4}}` }} />
+      <style dangerouslySetInnerHTML={{ __html: `@keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}@keyframes fadeSlide{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.4}}@keyframes popIn{from{opacity:0;transform:scale(0.95) translateY(20px)}to{opacity:1;transform:scale(1) translateY(0)}}@keyframes slideUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}` }} />
 
-      {/* ══ STREAK INFO POPUP ══ */}
+      {/* ══ STREAK POPUP — clean dark ══ */}
       {showStreakInfo && (
-        <div data-testid="streak-popup" onClick={() => setShowStreakInfo(false)} style={{ position: 'fixed', inset: 0, zIndex: 9999, backdropFilter: 'blur(32px)', WebkitBackdropFilter: 'blur(32px)', background: 'rgba(0,0,0,0.4)', overflowY: 'auto' } as any}>
-          <div onClick={(e: any) => e.stopPropagation()} style={{ width: '100%', maxWidth: 420, margin: '0 auto', padding: '40px 24px 120px', boxSizing: 'border-box' } as any}>
-            <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 20 } as any}><div onClick={() => setShowStreakInfo(false)} style={{ width: 36, height: 36, borderRadius: 999, background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}><i className="ri-close-line" style={{ fontSize: 18, color: 'rgba(255,255,255,0.8)' }} /></div></div>
-            <div style={{ textAlign: 'center', marginBottom: 28 } as any}><div style={{ width: 56, height: 56, borderRadius: 16, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', marginBottom: 14 } as any}><i className="ri-fire-fill" style={{ fontSize: 26, color: A }} /></div><div style={{ fontSize: 22, fontWeight: 900, color: '#FFF' }}>Votre suivi quotidien</div><div style={{ fontSize: 13, color: 'rgba(255,255,255,0.4)', marginTop: 6 }}>Suivez votre regularite et vos progres</div></div>
-            <div style={{ borderRadius: 22, background: 'rgba(0,0,0,0.25)', border: '1px solid rgba(255,255,255,0.1)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', padding: '18px 16px', marginBottom: 16 } as any}><div style={{ display: 'flex', gap: 16 } as any}><div style={{ flex: 1, textAlign: 'center', padding: '12px 0' } as any}><i className="ri-fire-fill" style={{ fontSize: 28, color: A, display: 'block', marginBottom: 8 }} /><div style={{ fontSize: 36, fontWeight: 900, color: A }}>{streak}</div><div style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', marginTop: 4 }}>jours consecutifs</div></div><div style={{ width: 1, background: 'rgba(255,255,255,0.08)' } as any} /><div style={{ flex: 1, textAlign: 'center', padding: '12px 0' } as any}><i className="ri-check-double-line" style={{ fontSize: 28, color: done === total ? G : '#FFF', display: 'block', marginBottom: 8 }} /><div style={{ fontSize: 36, fontWeight: 900, color: done === total ? G : '#FFF' }}>{done}/{total}</div><div style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', marginTop: 4 }}>valides aujourd'hui</div></div></div></div>
-            {recs && (<div style={{ borderRadius: 22, background: 'rgba(0,0,0,0.25)', border: '1px solid rgba(255,255,255,0.1)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', padding: '14px 16px', marginBottom: 16 } as any}><div style={{ fontSize: 9, fontWeight: 700, color: 'rgba(255,255,255,0.25)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 10 }}>Detail du jour</div>{recs.meals?.map((meal: any, i: number) => { const dk = tracked[`meal_${i}`]; return (<div key={`m${i}`} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '8px 0', borderBottom: '1px solid rgba(255,255,255,0.04)' } as any}><i className={dk ? 'ri-check-line' : 'ri-checkbox-blank-circle-line'} style={{ fontSize: 14, color: dk ? G : 'rgba(255,255,255,0.15)' }} /><span style={{ fontSize: 13, color: dk ? 'rgba(255,255,255,0.6)' : 'rgba(255,255,255,0.35)', textDecoration: dk ? 'line-through' : 'none', flex: 1 }}>{meal.name}</span><span style={{ fontSize: 9, color: 'rgba(255,255,255,0.2)' }}>{meal.calories}kcal</span></div>); })}{recs.exercises?.map((ex: any, i: number) => { const dk = tracked[`exercise_${i}`]; return (<div key={`e${i}`} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '8px 0', borderBottom: '1px solid rgba(255,255,255,0.04)' } as any}><i className={dk ? 'ri-check-line' : 'ri-checkbox-blank-circle-line'} style={{ fontSize: 14, color: dk ? G : 'rgba(255,255,255,0.15)' }} /><span style={{ fontSize: 13, color: dk ? 'rgba(255,255,255,0.6)' : 'rgba(255,255,255,0.35)', textDecoration: dk ? 'line-through' : 'none', flex: 1 }}>{ex.name}</span><span style={{ fontSize: 9, color: 'rgba(255,255,255,0.2)' }}>{ex.duration}</span></div>); })}</div>)}
-            <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.3)', lineHeight: 1.6, textAlign: 'center', padding: '0 16px' }}>Validez vos repas et exercices chaque jour. Nora adapte ses recommandations selon votre regularite.</div>
+        <div data-testid="streak-popup" onClick={() => setShowStreakInfo(false)} style={{ position: 'fixed', inset: 0, zIndex: 9999, backdropFilter: 'blur(48px)', WebkitBackdropFilter: 'blur(48px)', background: 'rgba(0,0,0,0.8)', overflowY: 'auto', animation: 'popIn 0.3s ease' } as any}>
+          <div onClick={(e: any) => e.stopPropagation()} style={{ width: '100%', maxWidth: 400, margin: '0 auto', padding: '50px 28px 120px', boxSizing: 'border-box' } as any}>
+            <div onClick={() => setShowStreakInfo(false)} style={{ position: 'absolute', top: 20, right: 20, width: 40, height: 40, borderRadius: 999, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}><i className="ri-close-line" style={{ fontSize: 22, color: '#FFF' }} /></div>
+            <div style={{ textAlign: 'center', marginBottom: 40, animation: 'slideUp 0.4s ease 0.1s both' } as any}>
+              <i className="ri-fire-fill" style={{ fontSize: 48, color: A }} />
+              <div style={{ fontSize: 64, fontWeight: 900, color: '#FFF', lineHeight: 1, marginTop: 12 }}>{streak}</div>
+              <div style={{ fontSize: 14, color: 'rgba(255,255,255,0.4)', marginTop: 8, fontWeight: 600 }}>jours consecutifs</div>
+            </div>
+            <div style={{ display: 'flex', gap: 24, justifyContent: 'center', marginBottom: 40, animation: 'slideUp 0.4s ease 0.2s both' } as any}>
+              <div style={{ textAlign: 'center' } as any}><div style={{ fontSize: 32, fontWeight: 900, color: done === total ? G : '#FFF' }}>{done}/{total}</div><div style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)', marginTop: 4 }}>valides aujourd'hui</div></div>
+            </div>
+            {recs && (
+              <div style={{ animation: 'slideUp 0.4s ease 0.3s both' } as any}>
+                <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.2)', textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 16 }}>Detail du jour</div>
+                {recs.meals?.map((meal: any, i: number) => { const dk = tracked[`meal_${i}`]; return (
+                  <div key={`m${i}`} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 0', borderBottom: '1px solid rgba(255,255,255,0.06)' } as any}>
+                    <i className={dk ? 'ri-checkbox-circle-fill' : 'ri-checkbox-blank-circle-line'} style={{ fontSize: 18, color: dk ? G : 'rgba(255,255,255,0.12)' }} />
+                    <span style={{ fontSize: 14, color: '#FFF', fontWeight: dk ? 400 : 600, textDecoration: dk ? 'line-through' : 'none', opacity: dk ? 0.4 : 1, flex: 1 }}>{meal.name}</span>
+                    <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.2)', fontWeight: 700 }}>{meal.calories}kcal</span>
+                  </div>
+                ); })}
+                {recs.exercises?.map((ex: any, i: number) => { const dk = tracked[`exercise_${i}`]; return (
+                  <div key={`e${i}`} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 0', borderBottom: '1px solid rgba(255,255,255,0.06)' } as any}>
+                    <i className={dk ? 'ri-checkbox-circle-fill' : 'ri-checkbox-blank-circle-line'} style={{ fontSize: 18, color: dk ? G : 'rgba(255,255,255,0.12)' }} />
+                    <span style={{ fontSize: 14, color: '#FFF', fontWeight: dk ? 400 : 600, textDecoration: dk ? 'line-through' : 'none', opacity: dk ? 0.4 : 1, flex: 1 }}>{ex.name}</span>
+                    <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.2)' }}>{ex.duration}</span>
+                  </div>
+                ); })}
+                <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.2)', lineHeight: 1.7, textAlign: 'center', marginTop: 24 }}>Validez vos repas chaque jour pour maintenir votre serie.</div>
+              </div>
+            )}
           </div>
         </div>
       )}
 
-      {/* ══ GOAL FORM POPUP ══ */}
+      {/* ══ GOAL FORM POPUP — clean dark ══ */}
       {showGoalForm && !isReadonly && (() => {
         const diff = cr.weight > 0 ? cr.weight - targetKg : 0;
         const kgPerWeek = goalWeeks > 0 ? Math.abs(diff) / goalWeeks : 0;
@@ -487,38 +511,65 @@ export default function MinceurPage() {
         const wOpts: number[] = []; for (let w = Math.max(40, Math.round(baseW) - 15); w <= Math.round(baseW) + 5; w++) wOpts.push(w);
         const dOpts: number[] = []; for (let w = 2; w <= 24; w++) dOpts.push(w);
         return (
-          <div data-testid="goal-form-popup" onClick={() => setShowGoalForm(false)} style={{ position: 'fixed', inset: 0, zIndex: 9999, backdropFilter: 'blur(32px)', WebkitBackdropFilter: 'blur(32px)', background: 'rgba(0,0,0,0.4)', overflowY: 'auto' } as any}>
-            <div onClick={(e: any) => e.stopPropagation()} style={{ width: '100%', maxWidth: 420, margin: '0 auto', padding: '40px 24px 120px', boxSizing: 'border-box' } as any}>
-              <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 20 } as any}><div onClick={() => setShowGoalForm(false)} style={{ width: 36, height: 36, borderRadius: 999, background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}><i className="ri-close-line" style={{ fontSize: 18, color: 'rgba(255,255,255,0.8)' }} /></div></div>
-              <div style={{ textAlign: 'center', marginBottom: 28 } as any}><img src="https://customer-assets.emergentagent.com/job_e5e873d0-c3a6-4073-8807-5b369c712c84/artifacts/d7demq52_img_objectif_poids.png" alt="" style={{ width: 64, height: 64, objectFit: 'contain', display: 'block', margin: '0 auto 12px' } as any} /><div style={{ fontSize: 22, fontWeight: 900, color: '#FFF' }}>Objectif de poids</div></div>
-              <div style={{ borderRadius: 22, background: 'rgba(0,0,0,0.25)', border: '1px solid rgba(255,255,255,0.1)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', padding: '18px 16px', marginBottom: 16 } as any}>
-                <div style={{ fontSize: 9, fontWeight: 700, color: 'rgba(255,255,255,0.25)', textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 10, textAlign: 'center' }}>Poids cible</div>
-                <SwipePicker values={wOpts} selected={targetKg} onChange={setTargetKg} unit="kg" color={A} />
-                {cr.weight > 0 && <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)', marginTop: 6, textAlign: 'center' }}>{diff > 0 ? `-${diff.toFixed(1)}` : `+${Math.abs(diff).toFixed(1)}`}kg par rapport a aujourd'hui</div>}
+          <div data-testid="goal-form-popup" onClick={() => setShowGoalForm(false)} style={{ position: 'fixed', inset: 0, zIndex: 9999, backdropFilter: 'blur(48px)', WebkitBackdropFilter: 'blur(48px)', background: 'rgba(0,0,0,0.8)', overflowY: 'auto', animation: 'popIn 0.3s ease' } as any}>
+            <div onClick={(e: any) => e.stopPropagation()} style={{ width: '100%', maxWidth: 400, margin: '0 auto', padding: '50px 28px 120px', boxSizing: 'border-box' } as any}>
+              <div onClick={() => setShowGoalForm(false)} style={{ position: 'absolute', top: 20, right: 20, width: 40, height: 40, borderRadius: 999, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}><i className="ri-close-line" style={{ fontSize: 22, color: '#FFF' }} /></div>
+              <div style={{ textAlign: 'center', marginBottom: 36, animation: 'slideUp 0.4s ease 0.1s both' } as any}>
+                <i className="ri-scales-3-line" style={{ fontSize: 40, color: A }} />
+                <div style={{ fontSize: 24, fontWeight: 900, color: '#FFF', marginTop: 12 }}>Objectif de poids</div>
+                <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.3)', marginTop: 6 }}>Definissez votre cible et Nora s'adapte</div>
               </div>
-              <div style={{ borderRadius: 22, background: 'rgba(0,0,0,0.25)', border: '1px solid rgba(255,255,255,0.1)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', padding: '18px 16px', marginBottom: 16 } as any}>
-                <div style={{ fontSize: 9, fontWeight: 700, color: 'rgba(255,255,255,0.25)', textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 10, textAlign: 'center' }}>Duree de l'objectif</div>
+              <div style={{ animation: 'slideUp 0.4s ease 0.2s both' } as any}>
+                <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.25)', textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 12, textAlign: 'center' }}>Poids cible</div>
+                <SwipePicker values={wOpts} selected={targetKg} onChange={setTargetKg} unit="kg" color={A} />
+                {cr.weight > 0 && <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.3)', marginTop: 8, textAlign: 'center' }}>{diff > 0 ? `-${diff.toFixed(1)}` : `+${Math.abs(diff).toFixed(1)}`}kg par rapport a aujourd'hui</div>}
+              </div>
+              <div style={{ height: 1, background: 'rgba(255,255,255,0.06)', margin: '24px 0' } as any} />
+              <div style={{ animation: 'slideUp 0.4s ease 0.3s both' } as any}>
+                <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.25)', textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 12, textAlign: 'center' }}>Duree</div>
                 <SwipePicker values={dOpts} selected={goalWeeks} onChange={setGoalWeeks} unit="sem" color={G} />
               </div>
-              {diff > 0 && (<div style={{ textAlign: 'center', marginBottom: 12, padding: '8px 14px', borderRadius: 12, background: tooFast ? 'rgba(239,68,68,0.08)' : tooSlow ? 'rgba(96,165,250,0.08)' : 'rgba(16,185,129,0.08)', border: `1px solid ${tooFast ? 'rgba(239,68,68,0.15)' : tooSlow ? 'rgba(96,165,250,0.15)' : 'rgba(16,185,129,0.15)'}` } as any}><div style={{ fontSize: 11, fontWeight: 700, color: tooFast ? R : tooSlow ? B : G }}>{tooFast ? 'Rythme trop rapide' : tooSlow ? 'Rythme tres progressif' : 'Rythme recommande'}</div><div style={{ fontSize: 10, color: 'rgba(255,255,255,0.35)', marginTop: 2 }}>{kgPerWeek.toFixed(1)}kg/semaine {tooFast ? '· max 0.7kg/sem recommande' : ''}</div></div>)}
-              <div style={{ display: 'flex', gap: 8 } as any}>
-                <div data-testid="save-goal" onClick={() => setShowGoalConfirm(true)} style={{ flex: 1, padding: 14, borderRadius: 999, background: tooFast ? 'rgba(255,255,255,0.08)' : `linear-gradient(135deg, ${A}, #D97706)`, cursor: saving ? 'wait' : 'pointer', textAlign: 'center', fontSize: 14, fontWeight: 800, color: '#FFF', opacity: saving ? 0.6 : 1, boxShadow: tooFast ? 'none' : `0 8px 24px ${A}30` } as any}>{saving ? '...' : "Valider l'objectif"}</div>
-                <div onClick={() => setShowGoalForm(false)} style={{ padding: '14px 16px', borderRadius: 999, background: 'rgba(255,255,255,0.04)', cursor: 'pointer', fontSize: 13, fontWeight: 700, color: 'rgba(255,255,255,0.3)' } as any}>Annuler</div>
+              {diff > 0 && (
+                <div style={{ textAlign: 'center', marginTop: 20, animation: 'slideUp 0.4s ease 0.35s both' } as any}>
+                  <span style={{ fontSize: 13, fontWeight: 700, color: tooFast ? R : tooSlow ? B : G }}>{tooFast ? 'Rythme trop rapide' : tooSlow ? 'Tres progressif' : 'Rythme ideal'}</span>
+                  <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.25)', marginLeft: 8 }}>{kgPerWeek.toFixed(1)}kg/sem</span>
+                </div>
+              )}
+              <div style={{ marginTop: 28, display: 'flex', gap: 10, animation: 'slideUp 0.4s ease 0.4s both' } as any}>
+                <div data-testid="save-goal" onClick={() => setShowGoalConfirm(true)} style={{ flex: 1, padding: 16, borderRadius: 999, background: tooFast ? 'rgba(255,255,255,0.08)' : `linear-gradient(135deg, ${A}, #D97706)`, cursor: saving ? 'wait' : 'pointer', textAlign: 'center', fontSize: 15, fontWeight: 800, color: '#FFF', opacity: saving ? 0.6 : 1 } as any}>{saving ? '...' : "Valider"}</div>
+                <div onClick={() => setShowGoalForm(false)} style={{ padding: '16px 20px', borderRadius: 999, cursor: 'pointer', fontSize: 14, fontWeight: 700, color: 'rgba(255,255,255,0.3)' } as any}>Annuler</div>
               </div>
-              {goal && <div data-testid="remove-goal" onClick={removeGoal} style={{ textAlign: 'center', padding: 10, marginTop: 6, fontSize: 11, color: 'rgba(239,68,68,0.4)', cursor: 'pointer' } as any}>Supprimer l'objectif</div>}
+              {goal && <div data-testid="remove-goal" onClick={removeGoal} style={{ textAlign: 'center', padding: 12, marginTop: 8, fontSize: 12, color: 'rgba(239,68,68,0.5)', cursor: 'pointer' } as any}>Supprimer l'objectif</div>}
             </div>
           </div>
         );
       })()}
 
-      {/* ══ GOAL CONFIRMATION POPUP ══ */}
+      {/* ══ GOAL CONFIRM POPUP — clean dark ══ */}
       {showGoalConfirm && (
-        <div data-testid="goal-confirm-popup" onClick={() => setShowGoalConfirm(false)} style={{ position: 'fixed', inset: 0, zIndex: 9999, backdropFilter: 'blur(32px)', WebkitBackdropFilter: 'blur(32px)', background: 'rgba(0,0,0,0.4)', overflowY: 'auto' } as any}>
-          <div onClick={(e: any) => e.stopPropagation()} style={{ width: '100%', maxWidth: 420, margin: '0 auto', padding: '40px 24px 120px', boxSizing: 'border-box' } as any}>
-            <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 20 } as any}><div onClick={() => setShowGoalConfirm(false)} style={{ width: 36, height: 36, borderRadius: 999, background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}><i className="ri-close-line" style={{ fontSize: 18, color: 'rgba(255,255,255,0.8)' }} /></div></div>
-            <div style={{ textAlign: 'center', marginBottom: 28 } as any}><img src="https://customer-assets.emergentagent.com/job_e5e873d0-c3a6-4073-8807-5b369c712c84/artifacts/d7demq52_img_objectif_poids.png" alt="" style={{ width: 80, height: 80, objectFit: 'contain', display: 'block', margin: '0 auto 16px' } as any} /><div style={{ fontSize: 22, fontWeight: 900, color: '#FFF' }}>Lancer votre objectif ?</div><div style={{ fontSize: 14, color: 'rgba(255,255,255,0.5)', marginTop: 6 }}>Objectif : {targetKg}kg en {goalWeeks} semaines</div></div>
-            <div style={{ borderRadius: 22, background: 'rgba(0,0,0,0.25)', border: '1px solid rgba(255,255,255,0.1)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', padding: '18px 16px', marginBottom: 16 } as any}><div style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)', lineHeight: 1.7 }}>En lancant cet objectif, Nora va adapter pour vous :</div><div style={{ marginTop: 12, display: 'flex', flexDirection: 'column', gap: 10 } as any}>{[{ icon: 'ri-fire-line', color: A, text: "Votre apport calorique quotidien sera ajuste pour atteindre votre poids cible dans le delai choisi." }, { icon: 'ri-restaurant-2-line', color: G, text: 'Des repas personnalises avec les bons macronutriments seront generes chaque jour.' }, { icon: 'ri-drop-line', color: B, text: "Votre consommation d'eau sera adaptee a votre profil et votre activite." }, { icon: 'ri-checkbox-circle-line', color: P, text: 'Validez vos repas chaque jour pour suivre votre progression.' }].map((item, i) => (<div key={i} style={{ display: 'flex', gap: 10, alignItems: 'flex-start' } as any}><i className={item.icon} style={{ fontSize: 16, color: item.color, marginTop: 2, flexShrink: 0 }} /><div style={{ fontSize: 12, color: 'rgba(255,255,255,0.45)', lineHeight: 1.5 }}>{item.text}</div></div>))}</div></div>
-            <div onClick={() => { setShowGoalConfirm(false); saveGoal(); }} style={{ padding: 16, borderRadius: 999, background: `linear-gradient(135deg, ${A}, #D97706)`, textAlign: 'center', fontSize: 16, fontWeight: 900, color: '#FFF', cursor: saving ? 'wait' : 'pointer', boxShadow: `0 8px 24px ${A}30`, opacity: saving ? 0.6 : 1 } as any}>{saving ? 'Lancement en cours...' : "Confirmer et lancer l'objectif"}</div>
+        <div data-testid="goal-confirm-popup" onClick={() => setShowGoalConfirm(false)} style={{ position: 'fixed', inset: 0, zIndex: 10000, backdropFilter: 'blur(48px)', WebkitBackdropFilter: 'blur(48px)', background: 'rgba(0,0,0,0.85)', overflowY: 'auto', animation: 'popIn 0.3s ease' } as any}>
+          <div onClick={(e: any) => e.stopPropagation()} style={{ width: '100%', maxWidth: 400, margin: '0 auto', padding: '50px 28px 120px', boxSizing: 'border-box' } as any}>
+            <div onClick={() => setShowGoalConfirm(false)} style={{ position: 'absolute', top: 20, right: 20, width: 40, height: 40, borderRadius: 999, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}><i className="ri-close-line" style={{ fontSize: 22, color: '#FFF' }} /></div>
+            <div style={{ textAlign: 'center', marginBottom: 36, animation: 'slideUp 0.4s ease 0.1s both' } as any}>
+              <i className="ri-rocket-2-line" style={{ fontSize: 44, color: A }} />
+              <div style={{ fontSize: 26, fontWeight: 900, color: '#FFF', marginTop: 14 }}>Lancer l'objectif ?</div>
+              <div style={{ fontSize: 14, color: 'rgba(255,255,255,0.4)', marginTop: 8 }}>{targetKg}kg en {goalWeeks} semaines</div>
+            </div>
+            <div style={{ animation: 'slideUp 0.4s ease 0.2s both' } as any}>
+              <div style={{ fontSize: 14, color: 'rgba(255,255,255,0.5)', lineHeight: 1.8, marginBottom: 28 }}>Nora va adapter pour vous :</div>
+              {[
+                { icon: 'ri-fire-line', color: A, text: 'Apport calorique ajuste a votre objectif' },
+                { icon: 'ri-restaurant-2-line', color: G, text: 'Repas personnalises chaque jour' },
+                { icon: 'ri-drop-line', color: B, text: "Hydratation adaptee a votre profil" },
+                { icon: 'ri-checkbox-circle-line', color: P, text: 'Suivi quotidien de votre progression' },
+              ].map((item, i) => (
+                <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 18, animation: `slideUp 0.4s ease ${0.25 + i * 0.06}s both` } as any}>
+                  <i className={item.icon} style={{ fontSize: 20, color: item.color, flexShrink: 0 }} />
+                  <span style={{ fontSize: 14, color: '#FFF', fontWeight: 500 }}>{item.text}</span>
+                </div>
+              ))}
+            </div>
+            <div onClick={() => { setShowGoalConfirm(false); saveGoal(); }} style={{ marginTop: 20, padding: 18, borderRadius: 999, background: `linear-gradient(135deg, ${A}, #D97706)`, textAlign: 'center', fontSize: 16, fontWeight: 900, color: '#FFF', cursor: saving ? 'wait' : 'pointer', opacity: saving ? 0.6 : 1, animation: 'slideUp 0.4s ease 0.5s both' } as any}>{saving ? 'Lancement...' : "Confirmer"}</div>
           </div>
         </div>
       )}
@@ -529,41 +580,41 @@ export default function MinceurPage() {
         return <NoraAnalysisOverlay text={fullText} onClose={() => setShowNoraAnalysis(false)} history={history} current={cr} bodyComp={bc} />;
       })()}
 
-      {/* ══ METRIC EXPLAIN POPUP ══ */}
-      {explainMetric && (
-        <div data-testid="explain-popup" onClick={() => setExplainMetric(null)} style={{ position: 'fixed', inset: 0, zIndex: 9999, backdropFilter: 'blur(32px)', WebkitBackdropFilter: 'blur(32px)', background: 'rgba(0,0,0,0.4)', overflowY: 'auto' } as any}>
-          <div onClick={(e: any) => e.stopPropagation()} style={{ width: '100%', maxWidth: 420, margin: '0 auto', padding: '40px 24px 120px', boxSizing: 'border-box' } as any}>
-            <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 20 } as any}><div onClick={() => setExplainMetric(null)} style={{ width: 36, height: 36, borderRadius: 999, background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}><i className="ri-close-line" style={{ fontSize: 18, color: 'rgba(255,255,255,0.8)' }} /></div></div>
-            {(() => {
-              const explanations: Record<string, { icon: string; color: string; title: string; desc: string; ranges: string; tip: string }> = {
-                bmi: { icon: 'ri-body-scan-line', color: P, title: 'Indice de Masse Corporelle (IMC)', desc: "L'IMC est un indicateur simple qui met en relation votre poids et votre taille. Il permet d'evaluer votre corpulence et les risques associes.", ranges: 'Maigreur: < 18.5 · Normal: 18.5-25 · Surpoids: 25-30 · Obesite: > 30', tip: "L'IMC ne distingue pas masse grasse et masse musculaire. Un sportif muscle peut avoir un IMC eleve sans exces de graisse." },
-                weight: { icon: 'ri-scales-3-line', color: A, title: 'Evolution du poids', desc: "Le suivi regulier du poids permet de detecter les tendances sur plusieurs semaines. Les variations quotidiennes (eau, repas) sont normales.", ranges: 'Perte saine: 0.3-0.7 kg/semaine · Maintien: +/- 0.5 kg · Prise: selon objectif', tip: 'Pesez-vous toujours au meme moment (le matin a jeun) pour des mesures comparables.' },
-                body_fat: { icon: 'ri-fire-line', color: '#F97316', title: 'Masse grasse', desc: "Le pourcentage de masse grasse indique la proportion de graisse dans votre corps. Un taux equilibre est essentiel pour la sante.", ranges: 'Homme: 14-25% (normal) · Femme: 20-33% (normal)', tip: 'La masse grasse protege les organes et regule les hormones. Un taux trop bas est aussi risque qu\'un taux trop eleve.' },
-                muscle: { icon: 'ri-body-scan-line', color: G, title: 'Masse musculaire', desc: "Le pourcentage de masse musculaire mesure la proportion de muscles dans votre composition corporelle. Elle est essentielle pour le metabolisme et la mobilite.", ranges: 'Homme: 33-39% (normal) · Femme: 24-30% (normal)', tip: 'La masse musculaire diminue avec l\'age (sarcopenie). L\'exercice de resistance et un apport suffisant en proteines aident a la maintenir.' },
-              };
-              const e = explanations[explainMetric] || explanations.weight;
-              return (
-                <>
-                  <div style={{ textAlign: 'center', marginBottom: 28 } as any}>
-                    <div style={{ width: 56, height: 56, borderRadius: 16, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', marginBottom: 14 } as any}><i className={e.icon} style={{ fontSize: 26, color: e.color }} /></div>
-                    <div style={{ fontSize: 22, fontWeight: 900, color: '#FFF' }}>{e.title}</div>
+      {/* ══ METRIC EXPLAIN POPUP — clean dark ══ */}
+      {explainMetric && (() => {
+        const explanations: Record<string, { icon: string; color: string; title: string; desc: string; ranges: { label: string; value: string; color: string }[]; tip: string }> = {
+          bmi: { icon: 'ri-body-scan-line', color: P, title: 'IMC', desc: "L'Indice de Masse Corporelle met en relation votre poids et votre taille pour evaluer votre corpulence.", ranges: [{ label: 'Maigreur', value: '< 18.5', color: B }, { label: 'Normal', value: '18.5 - 25', color: G }, { label: 'Surpoids', value: '25 - 30', color: A }, { label: 'Obesite', value: '> 30', color: R }], tip: "L'IMC ne distingue pas masse grasse et masse musculaire. Un sportif muscle peut avoir un IMC eleve sans exces de graisse." },
+          weight: { icon: 'ri-scales-3-line', color: A, title: 'Poids', desc: 'Le suivi regulier du poids permet de detecter les tendances. Les variations quotidiennes sont normales (eau, repas, hormones).', ranges: [{ label: 'Perte saine', value: '0.3-0.7 kg/sem', color: G }, { label: 'Maintien', value: '+/- 0.5 kg', color: B }, { label: 'Prise', value: 'selon objectif', color: A }], tip: 'Pesez-vous toujours au meme moment, le matin a jeun, pour des mesures comparables.' },
+          body_fat: { icon: 'ri-fire-line', color: '#F97316', title: 'Masse grasse', desc: 'Le pourcentage de masse grasse indique la proportion de graisse dans votre corps. Un taux equilibre est essentiel.', ranges: [{ label: 'Homme normal', value: '14-25%', color: G }, { label: 'Femme normal', value: '20-33%', color: G }, { label: 'Eleve', value: '> 30% / > 39%', color: R }], tip: "La masse grasse protege les organes et regule les hormones. Un taux trop bas est aussi risque qu'un taux trop eleve." },
+          muscle: { icon: 'ri-body-scan-line', color: G, title: 'Masse musculaire', desc: 'La proportion de muscles dans votre composition corporelle. Essentielle pour le metabolisme, la mobilite et la prevention des chutes.', ranges: [{ label: 'Homme normal', value: '33-39%', color: G }, { label: 'Femme normal', value: '24-30%', color: G }, { label: 'Faible', value: '< 33% / < 24%', color: R }], tip: "La masse musculaire diminue avec l'age. L'exercice de resistance et les proteines aident a la maintenir." },
+        };
+        const e = explanations[explainMetric] || explanations.weight;
+        return (
+          <div data-testid="explain-popup" onClick={() => setExplainMetric(null)} style={{ position: 'fixed', inset: 0, zIndex: 9999, backdropFilter: 'blur(48px)', WebkitBackdropFilter: 'blur(48px)', background: 'rgba(0,0,0,0.82)', overflowY: 'auto', animation: 'popIn 0.3s ease' } as any}>
+            <div onClick={(ev: any) => ev.stopPropagation()} style={{ width: '100%', maxWidth: 400, margin: '0 auto', padding: '50px 28px 120px', boxSizing: 'border-box' } as any}>
+              <div onClick={() => setExplainMetric(null)} style={{ position: 'absolute', top: 20, right: 20, width: 40, height: 40, borderRadius: 999, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}><i className="ri-close-line" style={{ fontSize: 22, color: '#FFF' }} /></div>
+              <div style={{ textAlign: 'center', marginBottom: 32, animation: 'slideUp 0.4s ease 0.1s both' } as any}>
+                <i className={e.icon} style={{ fontSize: 44, color: e.color }} />
+                <div style={{ fontSize: 28, fontWeight: 900, color: '#FFF', marginTop: 14 }}>{e.title}</div>
+              </div>
+              <div style={{ fontSize: 15, color: 'rgba(255,255,255,0.6)', lineHeight: 1.9, marginBottom: 32, animation: 'slideUp 0.4s ease 0.2s both' } as any}>{e.desc}</div>
+              <div style={{ marginBottom: 32, animation: 'slideUp 0.4s ease 0.3s both' } as any}>
+                <div style={{ fontSize: 10, fontWeight: 700, color: e.color, textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 14 }}>Valeurs de reference</div>
+                {e.ranges.map((r, i) => (
+                  <div key={i} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 0', borderBottom: i < e.ranges.length - 1 ? '1px solid rgba(255,255,255,0.06)' : 'none' } as any}>
+                    <span style={{ fontSize: 14, color: '#FFF', fontWeight: 600 }}>{r.label}</span>
+                    <span style={{ fontSize: 14, color: r.color, fontWeight: 800 }}>{r.value}</span>
                   </div>
-                  <div style={{ borderRadius: 22, background: 'rgba(0,0,0,0.25)', border: '1px solid rgba(255,255,255,0.1)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', padding: '18px 16px', marginBottom: 16 } as any}>
-                    <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.55)', lineHeight: 1.8 }}>{e.desc}</div>
-                  </div>
-                  <div style={{ borderRadius: 22, background: 'rgba(0,0,0,0.25)', border: '1px solid rgba(255,255,255,0.1)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', padding: '18px 16px', marginBottom: 16 } as any}>
-                    <div style={{ fontSize: 10, fontWeight: 700, color: e.color, textTransform: 'uppercase', letterSpacing: 1, marginBottom: 8 }}>Valeurs de reference</div>
-                    <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.45)', lineHeight: 1.7 }}>{e.ranges}</div>
-                  </div>
-                  <div style={{ borderRadius: 22, background: 'rgba(0,0,0,0.25)', border: '1px solid rgba(255,255,255,0.1)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', padding: '18px 16px' } as any}>
-                    <div style={{ display: 'flex', gap: 10, alignItems: 'flex-start' } as any}><i className="ri-lightbulb-line" style={{ fontSize: 16, color: A, marginTop: 2, flexShrink: 0 }} /><div style={{ fontSize: 12, color: 'rgba(255,255,255,0.45)', lineHeight: 1.6 }}>{e.tip}</div></div>
-                  </div>
-                </>
-              );
-            })()}
+                ))}
+              </div>
+              <div style={{ display: 'flex', gap: 12, alignItems: 'flex-start', animation: 'slideUp 0.4s ease 0.4s both' } as any}>
+                <i className="ri-lightbulb-line" style={{ fontSize: 20, color: A, flexShrink: 0, marginTop: 2 }} />
+                <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.45)', lineHeight: 1.8 }}>{e.tip}</div>
+              </div>
+            </div>
           </div>
-        </div>
-      )}
+        );
+      })()}
     </div>
   );
 }
