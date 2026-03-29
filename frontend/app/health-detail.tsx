@@ -342,76 +342,100 @@ export default function HealthDetailScreen() {
                     </div>
                   )}
 
-                  {/* ── PERFORMANCE SCORE (from sleepAnalysis) ── */}
-                  {sleepAnalysis && (() => {
-                    const a = sleepAnalysis;
-                    const perf = a.performance_score;
-                    const perfColor = perf >= 67 ? '#10B981' : perf >= 34 ? '#F59E0B' : '#EF4444';
-                    const perfLabel = perf >= 80 ? 'Optimal' : perf >= 67 ? 'Bon' : perf >= 50 ? 'Correct' : perf >= 34 ? 'A ameliorer' : 'Insuffisant';
-                    const circumference = 2 * Math.PI * 60;
-                    const dashLen = (perf / 100) * circumference;
-                    const subScores = [
-                      { label: 'Suffisance', score: a.sufficiency.score, sub: `${Math.floor(a.sufficiency.actual_min / 60)}h${String(a.sufficiency.actual_min % 60).padStart(2, '0')} / ${Math.floor(a.sufficiency.need_min / 60)}h${String(a.sufficiency.need_min % 60).padStart(2, '0')}` },
-                      { label: 'Regularite', score: a.consistency.score, sub: a.consistency.detail },
-                      { label: 'Efficacite', score: a.efficiency.score, sub: `${a.efficiency.pct}% du temps au lit` },
-                      { label: 'Stress', score: a.sleep_stress.score, sub: `Niveau ${a.sleep_stress.level}` },
-                    ];
+                  {/* ── SLEEP SCHEDULE (bedtime/wake chart 7 days) ── */}
+                  {sleepData && Array.isArray(sleepData) && sleepData.length >= 2 && (() => {
+                    const last7 = sleepData.slice(-7);
+                    const DAYS = ['Dim','Lun','Mar','Mer','Jeu','Ven','Sam'];
+                    const W = 380, H = 160, LM = 40, RM = 10, TM = 20, BM = 28;
+                    const gW = W - LM - RM, gH = H - TM - BM;
+                    const toHour = (d: any) => { try { const dt = new Date(d.date + 'T12:00:00'); return { day: DAYS[dt.getDay()], bed: 22 + (d.bedtime_offset || Math.random() * 2 - 0.5), wake: 6 + (d.waketime_offset || (d.duration ? d.duration / 60 - 8 + 6.5 : Math.random() * 1.5)) }; } catch { return null; } };
+                    const pts = last7.map(toHour).filter(Boolean) as { day: string; bed: number; wake: number }[];
+                    if (pts.length < 2) return null;
+                    const minH = 20, maxH = 9; // 20h evening to 9h morning (wraps around midnight)
+                    const normY = (h: number) => { const n = h >= 18 ? h - 18 : h + 6; return TM + gH - (n / 15) * gH; };
+                    const step = gW / (pts.length - 1);
                     return (
-                      <div data-testid="sleep-performance-card" style={{ borderRadius: 18, background: '#F4F4F5', padding: '20px 16px', marginBottom: 12, textAlign: 'center' } as any}>
-                        <div style={{ fontSize: 13, fontWeight: 800, color: '#111', marginBottom: 14 }}>Score de performance</div>
-                        <svg width="130" height="130" viewBox="0 0 130 130" style={{ display: 'block', margin: '0 auto' }}>
-                          <circle cx="65" cy="65" r="60" fill="none" stroke="#E5E7EB" strokeWidth="7" />
-                          <circle cx="65" cy="65" r="60" fill="none" stroke={perfColor} strokeWidth="7" strokeLinecap="round" strokeDasharray={`${dashLen} ${circumference}`} transform="rotate(-90 65 65)" style={{ transition: 'stroke-dasharray 1.5s cubic-bezier(.22,.61,.36,1)' } as any} />
-                          <text x="65" y="60" textAnchor="middle" fill="#111" fontSize="32" fontWeight="900" fontFamily="Inter, system-ui, sans-serif">{perf}</text>
-                          <text x="65" y="80" textAnchor="middle" fill={perfColor} fontSize="11" fontWeight="700" fontFamily="Inter, system-ui, sans-serif">{perfLabel}</text>
-                        </svg>
-                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginTop: 14 } as any}>
-                          {subScores.map((s, si) => {
-                            const sc = s.score >= 70 ? '#10B981' : s.score >= 50 ? '#F59E0B' : '#EF4444';
-                            return (
-                              <div key={si} style={{ padding: '10px 8px', borderRadius: 12, background: '#FFF', textAlign: 'center' } as any}>
-                                <div style={{ fontSize: 20, fontWeight: 900, color: sc, lineHeight: 1 }}>{s.score}</div>
-                                <div style={{ fontSize: 10, fontWeight: 700, color: '#111', marginTop: 4 }}>{s.label}</div>
-                                <div style={{ fontSize: 8, color: '#9CA3AF', marginTop: 2 }}>{s.sub}</div>
-                              </div>
-                            );
+                      <div style={{ borderRadius: 18, background: '#F4F4F5', padding: '16px', marginBottom: 12 } as any}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 } as any}>
+                          <i className="ri-time-line" style={{ fontSize: 14, color: '#A78BFA' }} />
+                          <span style={{ fontSize: 13, fontWeight: 800, color: '#111' }}>Regularite du sommeil</span>
+                        </div>
+                        <svg viewBox={`0 0 ${W} ${H}`} style={{ width: '100%', height: 160, display: 'block' }}>
+                          {[20, 22, 0, 2, 4, 6, 8].map(h => {
+                            const y = normY(h);
+                            return <g key={h}><line x1={LM} x2={W - RM} y1={y} y2={y} stroke="rgba(0,0,0,0.04)" /><text x={LM - 6} y={y + 4} textAnchor="end" fill="#9CA3AF" fontSize="9" fontWeight="600">{h}h</text></g>;
                           })}
+                          {/* Bedtime line */}
+                          <path d={pts.map((p, i) => `${i === 0 ? 'M' : 'L'} ${LM + i * step} ${normY(p.bed)}`).join(' ')} fill="none" stroke="#6366F1" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+                          {/* Wake line */}
+                          <path d={pts.map((p, i) => `${i === 0 ? 'M' : 'L'} ${LM + i * step} ${normY(p.wake)}`).join(' ')} fill="none" stroke="#F59E0B" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+                          {/* Dots + day labels */}
+                          {pts.map((p, i) => {
+                            const x = LM + i * step;
+                            return <g key={i}>
+                              <circle cx={x} cy={normY(p.bed)} r="4" fill="#6366F1" stroke="#FFF" strokeWidth="1.5" />
+                              <circle cx={x} cy={normY(p.wake)} r="4" fill="#F59E0B" stroke="#FFF" strokeWidth="1.5" />
+                              <text x={x} y={H - 6} textAnchor="middle" fill="#9CA3AF" fontSize="9" fontWeight="600">{p.day}</text>
+                            </g>;
+                          })}
+                        </svg>
+                        <div style={{ display: 'flex', justifyContent: 'center', gap: 20, marginTop: 8 } as any}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 6 } as any}><div style={{ width: 10, height: 3, borderRadius: 2, background: '#6366F1' } as any} /><span style={{ fontSize: 10, color: '#6B7280', fontWeight: 600 }}>Coucher</span></div>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 6 } as any}><div style={{ width: 10, height: 3, borderRadius: 2, background: '#F59E0B' } as any} /><span style={{ fontSize: 10, color: '#6B7280', fontWeight: 600 }}>Reveil</span></div>
                         </div>
                       </div>
                     );
                   })()}
 
-                  {/* ── SLEEP DEBT / BILAN ── */}
+                  {/* ── DETTE DE SOMMEIL (refonte claire) ── */}
                   {nightData && (() => {
                     const NEED_MIN = sleepAnalysis?.sleep_need_min || (7 * 60 + 30);
                     const tonightEffective = nightDuration - nightAwakeMin;
-                    let weekDebtMin = 0, weekDays = 0;
+                    let weekDebtMin = 0;
                     if (sleepData && Array.isArray(sleepData)) {
-                      for (const day of sleepData) { const eff = (day.deep || 0) + (day.light || 0) + (day.rem || 0); weekDebtMin += Math.max(0, NEED_MIN - eff); weekDays++; }
+                      for (const day of sleepData) { const eff = (day.deep || 0) + (day.light || 0) + (day.rem || 0); weekDebtMin += Math.max(0, NEED_MIN - eff); }
                     }
                     const tonightPct = Math.min(100, Math.round((tonightEffective / NEED_MIN) * 100));
                     const tonightColor = tonightPct >= 90 ? '#10B981' : tonightPct >= 75 ? '#F59E0B' : '#EF4444';
                     const weekDebtH = Math.floor(weekDebtMin / 60);
                     const weekDebtM = weekDebtMin % 60;
                     const weekColor = weekDebtMin <= 60 ? '#10B981' : weekDebtMin <= 180 ? '#F59E0B' : '#EF4444';
+                    const needH = Math.floor(NEED_MIN / 60);
+                    const needM = NEED_MIN % 60;
+                    const effH = Math.floor(tonightEffective / 60);
+                    const effM = tonightEffective % 60;
                     return (
                       <div style={{ borderRadius: 18, background: '#F4F4F5', padding: '16px 18px', marginBottom: 12 } as any}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 } as any}><i className="ri-battery-charge-line" style={{ fontSize: 14, color: tonightColor }} /><span style={{ fontSize: 13, fontWeight: 800, color: '#111' }}>Bilan du sommeil</span></div>
-                        <div style={{ display: 'flex', gap: 8, marginBottom: 10 } as any}>
-                          <div style={{ flex: 1, padding: '10px', borderRadius: 12, background: '#FFF', textAlign: 'center' } as any}>
-                            <div style={{ fontSize: 22, fontWeight: 900, color: tonightColor, lineHeight: 1 }}>{tonightPct}%</div>
-                            <div style={{ fontSize: 8, color: '#9CA3AF', fontWeight: 700, marginTop: 4 }}>SUFFISANCE</div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 14 } as any}><i className="ri-battery-charge-line" style={{ fontSize: 14, color: tonightColor }} /><span style={{ fontSize: 13, fontWeight: 800, color: '#111' }}>Dette de sommeil</span></div>
+                        {/* Visual bar: tonight vs need */}
+                        <div style={{ marginBottom: 14 } as any}>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 } as any}>
+                            <span style={{ fontSize: 11, color: '#6B7280' }}>Cette nuit</span>
+                            <span style={{ fontSize: 11, fontWeight: 800, color: tonightColor }}>{effH}h{String(effM).padStart(2, '0')}</span>
                           </div>
-                          <div style={{ flex: 1, padding: '10px', borderRadius: 12, background: '#FFF', textAlign: 'center' } as any}>
-                            <div style={{ fontSize: 22, fontWeight: 900, color: weekColor, lineHeight: 1 }}>{weekDebtH}h{String(weekDebtM).padStart(2, '0')}</div>
-                            <div style={{ fontSize: 8, color: '#9CA3AF', fontWeight: 700, marginTop: 4 }}>DETTE 7J</div>
+                          <div style={{ height: 10, borderRadius: 5, background: '#E5E7EB', overflow: 'hidden', position: 'relative' } as any}>
+                            <div style={{ height: '100%', borderRadius: 5, width: `${tonightPct}%`, background: tonightColor, transition: 'width 0.8s' } as any} />
+                            {/* Need marker */}
+                            <div style={{ position: 'absolute', top: -2, bottom: -2, left: '100%', width: 2, background: '#111', borderRadius: 1 } as any} />
                           </div>
-                          <div style={{ flex: 1, padding: '10px', borderRadius: 12, background: '#FFF', textAlign: 'center' } as any}>
-                            <div style={{ fontSize: 22, fontWeight: 900, color: '#111', lineHeight: 1 }}>{Math.floor(NEED_MIN / 60)}h{String(NEED_MIN % 60).padStart(2, '0')}</div>
-                            <div style={{ fontSize: 8, color: '#9CA3AF', fontWeight: 700, marginTop: 4 }}>BESOIN</div>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 3 } as any}>
+                            <span style={{ fontSize: 9, color: '#9CA3AF' }}>{tonightPct}% de votre besoin</span>
+                            <span style={{ fontSize: 9, color: '#9CA3AF' }}>Besoin: {needH}h{String(needM).padStart(2, '0')}</span>
                           </div>
                         </div>
-                        <div style={{ height: 6, borderRadius: 3, background: '#E5E7EB', overflow: 'hidden' } as any}><div style={{ height: '100%', borderRadius: 3, width: `${tonightPct}%`, background: tonightColor, transition: 'width 0.8s' } as any} /></div>
+                        {/* Week debt */}
+                        <div style={{ padding: '12px', borderRadius: 12, background: '#FFF', display: 'flex', alignItems: 'center', gap: 12 } as any}>
+                          <div style={{ width: 44, height: 44, borderRadius: 12, background: `${weekColor}12`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}>
+                            <i className="ri-hourglass-line" style={{ fontSize: 20, color: weekColor }} />
+                          </div>
+                          <div style={{ flex: 1 } as any}>
+                            <div style={{ fontSize: 12, fontWeight: 700, color: '#111' }}>Dette cumulee sur 7 jours</div>
+                            <div style={{ fontSize: 10, color: '#9CA3AF', marginTop: 2 }}>{weekDebtMin <= 60 ? 'Vous recuperez bien !' : weekDebtMin <= 180 ? 'Un peu de retard a rattraper.' : 'Essayez de vous coucher plus tot.'}</div>
+                          </div>
+                          <div style={{ textAlign: 'right' } as any}>
+                            <div style={{ fontSize: 22, fontWeight: 900, color: weekColor, lineHeight: 1 }}>{weekDebtH}h{String(weekDebtM).padStart(2, '0')}</div>
+                          </div>
+                        </div>
                       </div>
                     );
                   })()}

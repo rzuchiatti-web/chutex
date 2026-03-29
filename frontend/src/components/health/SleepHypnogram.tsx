@@ -93,11 +93,11 @@ type Props = {
 
 export default function SleepHypnogram({ session, compact = false, light = false }: Props) {
   const W = 500;
-  const H = compact ? 160 : 340;
-  const LEFT = compact ? 0 : 80;
-  const RIGHT = 16;
-  const TOP = 24;
-  const BOTTOM = compact ? 8 : 50;
+  const H = compact ? 140 : 260;
+  const LEFT = compact ? 0 : 70;
+  const RIGHT = 12;
+  const TOP = 16;
+  const BOTTOM = compact ? 6 : 36;
   const GH = H - TOP - BOTTOM;
   const GW = W - LEFT - RIGHT;
 
@@ -147,6 +147,11 @@ export default function SleepHypnogram({ session, compact = false, light = false
   return (
     <svg width="100%" viewBox={`0 0 ${W} ${H}`} style={{ display: 'block' }}>
       <defs>
+        <linearGradient id="areaFillLight" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor="#C4B5FD" stopOpacity="0.15" />
+          <stop offset="45%" stopColor="#818CF8" stopOpacity="0.1" />
+          <stop offset="100%" stopColor="#4338CA" stopOpacity="0.06" />
+        </linearGradient>
         <linearGradient id="areaFill" x1="0" y1="0" x2="0" y2="1">
           <stop offset="0%" stopColor="#C4B5FD" stopOpacity="0.3" />
           <stop offset="45%" stopColor="#818CF8" stopOpacity="0.2" />
@@ -168,7 +173,7 @@ export default function SleepHypnogram({ session, compact = false, light = false
         return (
           <g key={stage}>
             <line x1={LEFT} y1={y} x2={W - RIGHT} y2={y} stroke={gridColor} strokeDasharray="3,5" />
-            <text x={LEFT - 12} y={y + 5} textAnchor="end" fill={COLORS[stage]} fontSize="14" fontWeight="700" fontFamily="Inter, system-ui, sans-serif">
+            <text x={LEFT - 10} y={y + 5} textAnchor="end" fill={light ? '#6B7280' : COLORS[stage]} fontSize="11" fontWeight="700" fontFamily="Inter, system-ui, sans-serif">
               {LABELS[stage]}
             </text>
           </g>
@@ -176,7 +181,7 @@ export default function SleepHypnogram({ session, compact = false, light = false
       })}
 
       {/* Filled area */}
-      <path d={area} fill="url(#areaFill)" />
+      <path d={area} fill={light ? 'url(#areaFillLight)' : 'url(#areaFill)'} />
 
       {/* Stage bars with glow */}
       {segments.map((seg, i) => {
