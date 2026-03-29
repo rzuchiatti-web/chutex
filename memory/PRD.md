@@ -32,6 +32,10 @@ L'objectif est une UI Glassmorphism + Light mode avec synchronisation en temps r
 - [x] **Page metric-detail light theme** (header image + conteneur blanc + cartes grises)
 - [x] **Historique analyses Nora** (/nora-history) accessible depuis le profil beneficiaire
 - [x] **Suppression "Exercices prescrits"** — section retirée de activity-detail.tsx, logique simplifiée (Coach exercises OU Nora exercises)
+- [x] **Page Sante light par defaut** — isDark=false quand chutex_dark non defini dans localStorage
+- [x] **Refonte page Poids & Nutrition** — header bleu + image balance + barre IMC, carte blanche arrondie, Nora en haut, 3 graphiques separes (poids, graisse, muscle), apport calorique, section exercices, goal form en popup dark glass
+- [x] **Cartes repas uniformes** — image reelle a gauche, fond gris #F4F4F5, texte noir, design identique dans ProDayView et minceur.tsx
+- [x] **Cartes exercices uniformes** — image a gauche, fond gris, texte noir, design identique dans ProDayView et activity-detail.tsx
 
 ## Backlog P2
 - [ ] Balance/gilet connectes
