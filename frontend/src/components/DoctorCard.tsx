@@ -10,7 +10,7 @@ export function DoctorCard({ onPress }: { onPress: () => void }) {
     return (
       <div data-testid="doctor-teleconsult-card" onClick={onPress} style={{
         borderRadius: 22, overflow: 'hidden', position: 'relative', cursor: 'pointer',
-        minHeight: 170, display: 'flex', alignItems: 'flex-end',
+        minHeight: 130, display: 'flex', alignItems: 'flex-end',
         marginBottom: 14,
         border: '1.5px solid rgba(255,255,255,0.25)',
         boxShadow: '0 0 30px rgba(255,255,255,0.08), 0 0 60px rgba(167,139,250,0.06), 0 8px 40px rgba(0,0,0,0.5)',
@@ -30,12 +30,12 @@ export function DoctorCard({ onPress }: { onPress: () => void }) {
         } as any} />
 
         {/* Content */}
-        <div style={{ position: 'relative', zIndex: 3, padding: '22px 18px', flex: 1, maxWidth: '58%' } as any}>
-          <div style={{ fontSize: 22, fontWeight: 800, color: '#FFF', lineHeight: 1.1, marginBottom: 6 }}>
+        <div style={{ position: 'relative', zIndex: 3, padding: '18px 16px', flex: 1, maxWidth: '52%' } as any}>
+          <div style={{ fontSize: 18, fontWeight: 800, color: '#FFF', lineHeight: 1.15, marginBottom: 4 }}>
             Teleconsultation
           </div>
-          <div style={{ fontSize: 14, color: 'rgba(255,255,255,.7)', marginBottom: 18, fontWeight: 500 }}>
-            Medecin disponible 24/7
+          <div style={{ fontSize: 12, color: 'rgba(255,255,255,.6)', marginBottom: 12, fontWeight: 500 }}>
+            Medecin 24/7
           </div>
 
           {/* Button — gray pill with white phone circle */}
