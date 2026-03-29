@@ -674,7 +674,11 @@ export function BeneficiaryHome({ token, user }: { token: string; user: any }) {
               <div data-testid="devices-section" className="dash-slide-up" style={{ marginBottom: 28 } as any}>
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 } as any}>
                   <div style={{ fontSize: 20, fontWeight: 900, color: C.text, letterSpacing: '-0.3px' } as any}>Mes dispositifs</div>
-                  <div onClick={() => router.push('/(tabs)/devices' as any)} style={{ fontSize: 11, fontWeight: 700, color: '#A78BFA', cursor: 'pointer', padding: '4px 12px', borderRadius: 999, background: isDark ? 'rgba(167,139,250,0.08)' : 'rgba(167,139,250,0.06)' } as any}>Gerer</div>
+                  <div onClick={() => router.push('/(tabs)/devices' as any)} style={{ width: 34, height: 34, borderRadius: 999, background: isDark ? '#FFF' : '#111', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', transition: 'transform 0.15s' } as any}
+                    onMouseEnter={(e: any) => { e.currentTarget.style.transform = 'scale(1.08)'; }}
+                    onMouseLeave={(e: any) => { e.currentTarget.style.transform = ''; }}>
+                    <i className="ri-add-line" style={{ fontSize: 18, color: isDark ? '#111' : '#FFF' }} />
+                  </div>
                 </div>
                 <div style={{ fontSize: 13, color: C.sub, marginBottom: 16, lineHeight: '1.45' } as any}>Vos appareils connectes pour le suivi de votre sante au quotidien.</div>
                 <DeviceCards br={br} sc={sc} vs={vs} weighings={weighings} onStartWeighing={() => setShowWeighing(true)} onRefresh={fetchData} subscription={subscription} />

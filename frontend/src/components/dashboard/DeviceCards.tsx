@@ -173,16 +173,7 @@ export default function DeviceCards({ br, sc, vs, onStartWeighing, weighings = [
 
   return (
     <>
-      <div style={{ padding: '16px', borderRadius: 20, background: 'var(--card-bg, #EDEDF0)', marginBottom: 20 } as any}>
-      <div style={{ display: 'flex', alignItems: 'center', marginBottom: 12 } as any}>
-        <div style={{ fontSize: 16, fontWeight: 900, color: 'var(--card-text, #111)', flex: 1 }}>Dispositifs</div>
-        <div data-testid="add-device-btn" onClick={() => router.push('/(tabs)/devices' as any)}
-          style={{ width: 32, height: 32, borderRadius: 999, background: '#FFF', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', boxShadow: '0 2px 8px rgba(0,0,0,0.1)', transition: 'transform 0.15s, box-shadow 0.15s', flexShrink: 0 } as any}
-          onMouseEnter={(e: any) => { e.currentTarget.style.transform = 'scale(1.08)'; e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)'; }}
-          onMouseLeave={(e: any) => { e.currentTarget.style.transform = ''; e.currentTarget.style.boxShadow = '0 2px 8px rgba(0,0,0,0.1)'; }}>
-          <i className="ri-add-line" style={{ fontSize: 18, color: '#111', fontWeight: 700 }} />
-        </div>
-      </div>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 10 } as any}>
       {connectedDevices.map((d, idx) => (
         <div key={d.id} data-testid={`device-card-${d.id}`} onClick={() => router.push('/(tabs)/devices' as any)} style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '12px 0', borderTop: idx > 0 ? '1px solid rgba(255,255,255,0.08)' : 'none', cursor: 'pointer' } as any}>
           <img src={d.img} alt="" style={{ width: 48, height: 48, objectFit: 'contain', flexShrink: 0 } as any} />
