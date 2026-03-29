@@ -103,12 +103,8 @@ export default function ActivityDetailPage() {
   const [loading, setLoading] = useState(true);
   const [showExplain, setShowExplain] = useState(false);
   const [showNoraActivity, setShowNoraActivity] = useState(false);
-  const [proPrograms, setProPrograms] = useState<any[]>([]);
   const [hasProPrograms, setHasProPrograms] = useState(false);
   const [proExercises, setProExercises] = useState<any[]>([]);
-  const [completingSession, setCompletingSession] = useState<string | null>(null);
-  const [painLevel, setPainLevel] = useState(0);
-  const [patientNotes, setPatientNotes] = useState('');
   const [selectedDate, setSelectedDate] = useState(new Date());
 
   const fetchData = useCallback(() => {
@@ -118,14 +114,12 @@ export default function ActivityDetailPage() {
     Promise.all([
       apiFetch('/api/health/activity-streak', {}, token).catch(() => ({})),
       apiFetch('/api/pro/has-active-programs', {}, token).catch(() => ({ has_programs: false })),
-      apiFetch('/api/pro/my-programs', {}, token).catch(() => []),
       apiFetch('/api/minceur/today-tracking', {}, token).catch(() => ({})),
       apiFetch('/api/pro/beneficiary-today-exercises', {}, token).catch(() => []),
-    ]).then(([st, proCheck, myProgs, trk, proEx]) => {
+    ]).then(([st, proCheck, trk, proEx]) => {
       setStreak(st);
       const hasPro = proCheck?.has_programs || false;
       setHasProPrograms(hasPro);
-      setProPrograms(Array.isArray(myProgs) ? myProgs : []);
       setProExercises(Array.isArray(proEx) ? proEx : []);
       if (trk?.completed) setTracked(trk.completed);
       if (!hasPro) {
@@ -146,13 +140,6 @@ export default function ActivityDetailPage() {
     const k = `exercise_${index}`, was = tracked[k];
     setTracked(p => ({ ...p, [k]: !was }));
     try { await apiFetch('/api/minceur/track', { method: 'POST', body: JSON.stringify({ type: 'exercise', index }) }, token); } catch { setTracked(p => ({ ...p, [k]: was })); }
-  };
-
-  const completeProSession = async (programId: string, sessionId: string, status: string) => {
-    try {
-      await apiFetch(`/api/pro/sessions/${programId}/${sessionId}/complete`, { method: 'POST', body: JSON.stringify({ status, pain_level: painLevel > 0 ? painLevel : null, patient_notes: patientNotes }) }, token);
-      setCompletingSession(null); setPainLevel(0); setPatientNotes(''); fetchData();
-    } catch {}
   };
 
   if (Platform.OS !== 'web') return null;
@@ -274,87 +261,6 @@ export default function ActivityDetailPage() {
                   <span style={{ fontSize: 10, fontWeight: 700, color: P }}><i className="ri-information-line" style={{ fontSize: 12, marginRight: 4 }} />Comprendre mes indicateurs</span>
                 </div>
               </div>
-
-              {/* ── EXERCICES PRESCRITS PAR LE PRO ── */}
-              {hasProPrograms && proPrograms.length > 0 && (
-                <div style={{ borderRadius: 18, background: '#F4F4F5', padding: 16, marginBottom: 14 } as any}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 } as any}>
-                    <i className="ri-stethoscope-line" style={{ fontSize: 14, color: P }} />
-                    <span style={{ fontSize: 13, fontWeight: 800, color: '#111' }}>Exercices prescrits</span>
-                  </div>
-                  <div style={{ fontSize: 11, color: '#9CA3AF', marginBottom: 12 }}>Programmes de votre professionnel de sante</div>
-                  {proPrograms.map((prog: any) => {
-                    const sessions = prog.sessions || [];
-                    if (sessions.length === 0) return null;
-                    const catColors: Record<string, string> = { cardio: R, renforcement: A, souplesse: P, equilibre: B, reeducation: G };
-                    const pColor = catColors[prog.category] || B;
-                    return (
-                      <div key={prog.id} style={{ marginBottom: 12 }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 8 } as any}>
-                          <div style={{ width: 6, height: 6, borderRadius: 3, background: pColor }} />
-                          <span style={{ fontSize: 12, fontWeight: 700, color: pColor }}>{prog.title}</span>
-                          <span style={{ fontSize: 10, color: '#9CA3AF' }}>{prog.professional_name}</span>
-                        </div>
-                        {sessions.map((session: any) => {
-                          const completions = session.completions || [];
-                          const todayStr = new Date().toISOString().split('T')[0];
-                          const todayDone = completions.find((c: any) => c.date?.startsWith(todayStr));
-                          const isDone = todayDone?.status === 'done';
-                          const isPartial = todayDone?.status === 'partial';
-                          const isCompleting = completingSession === `${prog.id}_${session.id}`;
-                          return (
-                            <div key={session.id} data-testid={`pro-session-${session.id}`} style={{ borderRadius: 14, background: '#FFF', border: `1px solid ${isDone ? G + '25' : '#E5E7EB'}`, padding: '12px 14px', marginBottom: 6, opacity: isDone ? 0.65 : 1 } as any}>
-                              <div style={{ display: 'flex', alignItems: 'center', gap: 10 } as any}>
-                                <div style={{ width: 40, height: 40, borderRadius: 12, background: `${pColor}10`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}>
-                                  <i className="ri-heart-pulse-line" style={{ fontSize: 18, color: pColor }} />
-                                </div>
-                                <div style={{ flex: 1, minWidth: 0 }}>
-                                  <div style={{ fontSize: 13, fontWeight: 800, color: '#111', textDecoration: isDone ? 'line-through' : 'none' }}>{session.title}</div>
-                                  {session.description && <div style={{ fontSize: 10, color: '#6B7280', marginTop: 2, lineHeight: 1.4 }}>{session.description}</div>}
-                                  <div style={{ display: 'flex', gap: 6, marginTop: 4, flexWrap: 'wrap' } as any}>
-                                    {session.sets > 0 && <span style={{ fontSize: 9, color: '#9CA3AF', background: '#F4F4F5', padding: '2px 6px', borderRadius: 4 }}>{session.sets}x{session.repetitions || 0}</span>}
-                                    {session.duration_min > 0 && <span style={{ fontSize: 9, color: '#9CA3AF', background: '#F4F4F5', padding: '2px 6px', borderRadius: 4 }}>{session.duration_min} min</span>}
-                                  </div>
-                                </div>
-                                {todayDone ? (
-                                  <div style={{ padding: '4px 10px', borderRadius: 8, background: isDone ? `${G}12` : `${A}12` }}>
-                                    <span style={{ fontSize: 10, fontWeight: 700, color: isDone ? G : A }}>{isDone ? 'Fait' : isPartial ? 'Partiel' : 'Passe'}</span>
-                                  </div>
-                                ) : (
-                                  <div onClick={() => setCompletingSession(`${prog.id}_${session.id}`)} style={{ padding: '8px 14px', borderRadius: 999, background: '#111', cursor: 'pointer' } as any}>
-                                    <span style={{ fontSize: 11, fontWeight: 700, color: '#FFF' }}>Valider</span>
-                                  </div>
-                                )}
-                              </div>
-                              {isCompleting && (
-                                <div style={{ marginTop: 10, padding: 12, borderRadius: 12, background: '#F4F4F5' } as any}>
-                                  <div style={{ fontSize: 11, fontWeight: 700, color: '#6B7280', marginBottom: 8 }}>Comment s'est passe l'exercice ?</div>
-                                  <div style={{ fontSize: 10, color: '#9CA3AF', marginBottom: 4 }}>Niveau de douleur (optionnel)</div>
-                                  <div style={{ display: 'flex', gap: 4, marginBottom: 10 } as any}>
-                                    {[0,1,2,3,4,5,6,7,8,9,10].map(lvl => (
-                                      <div key={lvl} onClick={() => setPainLevel(lvl)} style={{ width: 26, height: 26, borderRadius: 6, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', fontSize: 10, fontWeight: 700,
-                                        background: painLevel === lvl ? (lvl <= 3 ? `${G}20` : lvl <= 6 ? `${A}20` : `${R}20`) : '#FFF',
-                                        border: `1px solid ${painLevel === lvl ? (lvl <= 3 ? G : lvl <= 6 ? A : R) : '#E5E7EB'}`,
-                                        color: painLevel === lvl ? '#111' : '#9CA3AF',
-                                      } as any}>{lvl}</div>
-                                    ))}
-                                  </div>
-                                  <textarea value={patientNotes} onChange={(e: any) => setPatientNotes(e.target.value)} placeholder="Notes (optionnel)" style={{ width: '100%', padding: '8px 10px', borderRadius: 10, background: '#FFF', border: '1px solid #E5E7EB', color: '#111', fontSize: 12, outline: 'none', minHeight: 36, resize: 'vertical', marginBottom: 10 } as any} />
-                                  <div style={{ display: 'flex', gap: 6 } as any}>
-                                    <div onClick={() => completeProSession(prog.id, session.id, 'done')} style={{ flex: 1, padding: 10, borderRadius: 999, textAlign: 'center', cursor: 'pointer', background: '#111', fontSize: 12, fontWeight: 700, color: '#FFF' } as any}>Fait</div>
-                                    <div onClick={() => completeProSession(prog.id, session.id, 'partial')} style={{ flex: 1, padding: 10, borderRadius: 999, textAlign: 'center', cursor: 'pointer', background: `${A}15`, fontSize: 12, fontWeight: 700, color: A } as any}>Partiel</div>
-                                    <div onClick={() => completeProSession(prog.id, session.id, 'skipped')} style={{ flex: 1, padding: 10, borderRadius: 999, textAlign: 'center', cursor: 'pointer', background: '#FFF', border: '1px solid #E5E7EB', fontSize: 12, fontWeight: 700, color: '#9CA3AF' } as any}>Passe</div>
-                                  </div>
-                                </div>
-                              )}
-                            </div>
-                          );
-                        })}
-                      </div>
-                    );
-                  })}
-                </div>
-              )}
 
               {/* ── EXERCICES DU JOUR (Coach) — cartes individuelles, image réelle ── */}
               {proExercises.length > 0 && (

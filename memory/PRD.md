@@ -31,6 +31,7 @@ L'objectif est une UI Glassmorphism + Light mode avec synchronisation en temps r
 - [x] **Page glycemia-detail light theme** (header image + conteneur blanc + cartes grises)
 - [x] **Page metric-detail light theme** (header image + conteneur blanc + cartes grises)
 - [x] **Historique analyses Nora** (/nora-history) accessible depuis le profil beneficiaire
+- [x] **Suppression "Exercices prescrits"** — section retirée de activity-detail.tsx, logique simplifiée (Coach exercises OU Nora exercises)
 
 ## Backlog P2
 - [ ] Balance/gilet connectes
