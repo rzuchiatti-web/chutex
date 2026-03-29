@@ -112,7 +112,6 @@ export default function GlycemiaDetailPage() {
           <div style={{ position: 'relative', zIndex: 2, padding: 'calc(env(safe-area-inset-top, 20px) + 12px) 20px 70px', maxWidth: 480, margin: '0 auto' } as any}>
             <div data-testid="back-button" onClick={() => router.back()} style={{ width: 44, height: 44, borderRadius: 14, background: 'rgba(255,255,255,0.12)', border: '1px solid rgba(255,255,255,0.15)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}><i className="ri-arrow-left-line" style={{ fontSize: 18, color: '#FFF' }} /></div>
             <div style={{ textAlign: 'center', marginTop: 12 } as any}>
-              <img src={META_IMG} alt="" style={{ width: 120, height: 120, objectFit: 'contain', margin: '0 auto', display: 'block', filter: 'drop-shadow(0 16px 40px rgba(0,0,0,0.5))' } as any} />
               <div style={{ fontSize: 22, fontWeight: 900, color: '#FFF', marginTop: 8 }}>Glycemie</div>
               <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.5)' }}>Estimation et suivi glycemique</div>
             </div>
@@ -156,21 +155,15 @@ export default function GlycemiaDetailPage() {
                 const getCol = (v: number) => v < 1.0 ? G : v < 1.1 ? GL_H : v < 1.26 ? A : v < 1.4 ? O : R;
                 return (
                   <div data-testid="glycemia-stats-card" style={{ borderRadius: 18, background: '#F4F4F5', padding: '16px', marginBottom: 14 } as any}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 14 } as any}>
-                      <i className="ri-bar-chart-2-line" style={{ fontSize: 14, color: P }} />
-                      <span style={{ fontSize: 12, fontWeight: 800, color: '#111' }}>{isWindow ? 'Statistiques 7 jours' : `Statistiques du ${selectedDate.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })}`}</span>
-                    </div>
-                    <div style={{ display: 'flex', gap: 8 } as any}>
+                    <div style={{ fontSize: 12, fontWeight: 800, color: '#111', marginBottom: 12 }}>{isWindow ? 'Statistiques 7 jours' : `Statistiques du ${selectedDate.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })}`}</div>
+                    <div style={{ display: 'flex', alignItems: 'center' } as any}>
                       {[
-                        { label: 'Plus haut', value: high, icon: 'ri-arrow-up-line' },
-                        { label: 'Moyenne', value: avg, icon: 'ri-subtract-line' },
-                        { label: 'Plus bas', value: low, icon: 'ri-arrow-down-line' },
+                        { label: 'Plus haut', value: high },
+                        { label: 'Moyenne', value: avg },
+                        { label: 'Plus bas', value: low },
                       ].map((s, i) => (
-                        <div key={i} style={{ flex: 1, padding: '14px 8px', borderRadius: 14, background: '#FFF', textAlign: 'center' } as any}>
-                          <div style={{ width: 28, height: 28, borderRadius: 10, background: `${getCol(s.value)}12`, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', marginBottom: 8 } as any}>
-                            <i className={s.icon} style={{ fontSize: 14, color: getCol(s.value) }} />
-                          </div>
-                          <div style={{ fontSize: 20, fontWeight: 900, color: getCol(s.value), lineHeight: 1 }}>{s.value}</div>
+                        <div key={i} style={{ flex: 1, textAlign: 'center', padding: '10px 0', borderRight: i < 2 ? '1px solid rgba(0,0,0,0.08)' : 'none' } as any}>
+                          <div style={{ fontSize: 20, fontWeight: 900, color: '#111', lineHeight: 1 }}>{s.value}</div>
                           <div style={{ fontSize: 9, fontWeight: 600, color: '#9CA3AF', marginTop: 4 }}>g/L</div>
                           <div style={{ fontSize: 10, fontWeight: 700, color: '#6B7280', marginTop: 4 }}>{s.label}</div>
                         </div>
