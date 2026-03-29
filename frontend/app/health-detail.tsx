@@ -342,7 +342,7 @@ export default function HealthDetailScreen() {
                     </div>
                   )}
 
-                  {/* ── DETTE DE SOMMEIL (refonte visuelle + graph barres 7j) ── */}
+                  {/* ── DETTE DE SOMMEIL ── */}
                   {nightData && (() => {
                     const NEED_MIN = sleepAnalysis?.sleep_need_min || (7 * 60 + 30);
                     const tonightEffective = nightDuration - nightAwakeMin;
@@ -350,8 +350,6 @@ export default function HealthDetailScreen() {
                     const effH = Math.floor(tonightEffective / 60), effM = tonightEffective % 60;
                     const tonightPct = Math.min(100, Math.round((tonightEffective / NEED_MIN) * 100));
                     const tonightColor = tonightPct >= 90 ? '#10B981' : tonightPct >= 75 ? '#F59E0B' : '#EF4444';
-                    // 7-day debt bars
-                    const DAYS_S = ['Dim','Lun','Mar','Mer','Jeu','Ven','Sam'];
                     const last7 = (sleepData && Array.isArray(sleepData)) ? sleepData.slice(-7) : [];
                     let totalDebt = 0;
                     const bars = last7.map((day: any) => {
@@ -359,55 +357,66 @@ export default function HealthDetailScreen() {
                       const debt = Math.max(0, NEED_MIN - eff);
                       totalDebt += debt;
                       const dt = new Date(day.date + 'T12:00:00');
-                      return { day: DAYS_S[dt.getDay()], debt, eff };
+                      return { dateLabel: `${String(dt.getDate()).padStart(2, '0')}/${String(dt.getMonth() + 1).padStart(2, '0')}`, debt, eff, slept: eff };
                     });
-                    const maxDebt = Math.max(120, ...bars.map(b => b.debt));
+                    const maxBar = Math.max(NEED_MIN, ...bars.map(b => b.slept));
                     const totalH = Math.floor(totalDebt / 60), totalM = totalDebt % 60;
                     const totalColor = totalDebt <= 60 ? '#10B981' : totalDebt <= 180 ? '#F59E0B' : '#EF4444';
+                    const circ = 2 * Math.PI * 42;
+                    const dashLen = (tonightPct / 100) * circ;
                     return (
                       <div style={{ borderRadius: 18, background: '#F4F4F5', padding: '16px 18px', marginBottom: 12 } as any}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 16 } as any}>
                           <i className="ri-moon-line" style={{ fontSize: 14, color: '#A78BFA' }} />
                           <span style={{ fontSize: 13, fontWeight: 800, color: '#111' }}>Besoin & dette de sommeil</span>
                         </div>
-                        {/* Tonight vs Need — big visual */}
-                        <div style={{ display: 'flex', gap: 12, marginBottom: 16 } as any}>
-                          <div style={{ flex: 1, padding: '14px', borderRadius: 14, background: '#FFF', textAlign: 'center' } as any}>
-                            <div style={{ fontSize: 10, fontWeight: 700, color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 6 }}>Cette nuit</div>
-                            <div style={{ fontSize: 28, fontWeight: 900, color: tonightColor, lineHeight: 1 }}>{effH}h{String(effM).padStart(2, '0')}</div>
-                            <div style={{ height: 6, borderRadius: 3, background: '#E5E7EB', overflow: 'hidden', marginTop: 8 } as any}><div style={{ height: '100%', borderRadius: 3, width: `${tonightPct}%`, background: tonightColor } as any} /></div>
-                            <div style={{ fontSize: 9, color: '#9CA3AF', marginTop: 4 }}>{tonightPct}%</div>
-                          </div>
-                          <div style={{ flex: 1, padding: '14px', borderRadius: 14, background: '#FFF', textAlign: 'center' } as any}>
-                            <div style={{ fontSize: 10, fontWeight: 700, color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 6 }}>Besoin</div>
-                            <div style={{ fontSize: 28, fontWeight: 900, color: '#111', lineHeight: 1 }}>{needH}h{String(needM).padStart(2, '0')}</div>
-                            <div style={{ fontSize: 11, color: '#6B7280', marginTop: 8, lineHeight: 1.4 }}>Recommande pour votre profil</div>
+                        {/* Gauge: tonight vs need */}
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 20, marginBottom: 18 } as any}>
+                          <svg width="100" height="100" viewBox="0 0 100 100" style={{ flexShrink: 0 }}>
+                            <circle cx="50" cy="50" r="42" fill="none" stroke="#E5E7EB" strokeWidth="6" />
+                            <circle cx="50" cy="50" r="42" fill="none" stroke={tonightColor} strokeWidth="6" strokeLinecap="round" strokeDasharray={`${dashLen} ${circ}`} transform="rotate(-90 50 50)" style={{ transition: 'stroke-dasharray 1s ease' } as any} />
+                            <text x="50" y="45" textAnchor="middle" fill="#111" fontSize="18" fontWeight="900" fontFamily="Inter, system-ui, sans-serif">{effH}h{String(effM).padStart(2, '0')}</text>
+                            <text x="50" y="62" textAnchor="middle" fill="#9CA3AF" fontSize="9" fontWeight="600" fontFamily="Inter, system-ui, sans-serif">sur {needH}h{String(needM).padStart(2, '0')}</text>
+                          </svg>
+                          <div style={{ flex: 1 } as any}>
+                            <div style={{ fontSize: 12, fontWeight: 700, color: tonightColor, marginBottom: 4 }}>{tonightPct >= 90 ? 'Objectif atteint' : tonightPct >= 75 ? 'Presque suffisant' : 'Sommeil insuffisant'}</div>
+                            <div style={{ fontSize: 12, color: '#6B7280', lineHeight: 1.6 }}>Votre besoin est de <strong style={{ color: '#111' }}>{needH}h{String(needM).padStart(2, '0')}</strong> par nuit. Cette nuit, vous avez dormi {tonightPct}% de votre besoin.</div>
                           </div>
                         </div>
-                        {/* 7-day debt bar chart */}
-                        {bars.length > 0 && (
-                          <>
-                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 } as any}>
-                              <span style={{ fontSize: 11, fontWeight: 700, color: '#6B7280' }}>Dette accumulee sur 7 jours</span>
-                              <span style={{ fontSize: 16, fontWeight: 900, color: totalColor }}>{totalH}h{String(totalM).padStart(2, '0')}</span>
-                            </div>
-                            <div style={{ display: 'flex', alignItems: 'flex-end', gap: 6, height: 80, marginBottom: 4 } as any}>
-                              {bars.map((b, i) => {
-                                const h = maxDebt > 0 ? Math.max(4, (b.debt / maxDebt) * 70) : 4;
-                                const bColor = b.debt <= 15 ? '#10B981' : b.debt <= 45 ? '#F59E0B' : '#EF4444';
-                                return (
-                                  <div key={i} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 } as any}>
-                                    {b.debt > 0 && <span style={{ fontSize: 8, fontWeight: 700, color: bColor }}>{Math.round(b.debt)}m</span>}
-                                    <div style={{ width: '100%', height: h, borderRadius: 4, background: bColor, transition: 'height 0.5s' } as any} />
-                                  </div>
-                                );
-                              })}
-                            </div>
-                            <div style={{ display: 'flex', gap: 6 } as any}>
-                              {bars.map((b, i) => <div key={i} style={{ flex: 1, textAlign: 'center', fontSize: 9, color: '#9CA3AF', fontWeight: 600 }}>{b.day}</div>)}
-                            </div>
-                          </>
-                        )}
+                        {/* 7-day SVG chart: sleep bars vs need line */}
+                        {bars.length > 0 && (() => {
+                          const W = 360, H = 120, LM = 4, RM = 4, TM = 10, BM = 22;
+                          const gW = W - LM - RM, gH = H - TM - BM;
+                          const bW = Math.min(28, (gW / bars.length) - 6);
+                          const step = gW / bars.length;
+                          const needY = TM + gH - (NEED_MIN / maxBar) * gH;
+                          return (
+                            <>
+                              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 } as any}>
+                                <span style={{ fontSize: 11, fontWeight: 700, color: '#6B7280' }}>Dette cumulee 7 jours</span>
+                                <span style={{ fontSize: 16, fontWeight: 900, color: totalColor }}>{totalH}h{String(totalM).padStart(2, '0')}</span>
+                              </div>
+                              <svg viewBox={`0 0 ${W} ${H}`} style={{ width: '100%', height: 120, display: 'block' }}>
+                                {/* Need line */}
+                                <line x1={LM} x2={W - RM} y1={needY} y2={needY} stroke="#A78BFA" strokeWidth="1.5" strokeDasharray="4,4" opacity="0.5" />
+                                <text x={W - RM} y={needY - 4} textAnchor="end" fill="#A78BFA" fontSize="8" fontWeight="700">besoin</text>
+                                {/* Bars */}
+                                {bars.map((b, i) => {
+                                  const x = LM + i * step + (step - bW) / 2;
+                                  const barH = Math.max(3, (b.slept / maxBar) * gH);
+                                  const y = TM + gH - barH;
+                                  const col = b.debt <= 15 ? '#10B981' : b.debt <= 45 ? '#F59E0B' : '#EF4444';
+                                  return (
+                                    <g key={i}>
+                                      <rect x={x} y={y} width={bW} height={barH} rx={4} fill={col} opacity={0.8} />
+                                      <text x={x + bW / 2} y={H - 4} textAnchor="middle" fill="#9CA3AF" fontSize="8" fontWeight="600" fontFamily="Inter, system-ui, sans-serif">{b.dateLabel}</text>
+                                    </g>
+                                  );
+                                })}
+                              </svg>
+                            </>
+                          );
+                        })()}
                       </div>
                     );
                   })()}
@@ -418,7 +427,7 @@ export default function HealthDetailScreen() {
                     const DAYS = ['Dim','Lun','Mar','Mer','Jeu','Ven','Sam'];
                     const W = 380, H = 160, LM = 40, RM = 10, TM = 20, BM = 28;
                     const gW = W - LM - RM, gH = H - TM - BM;
-                    const toHour = (d: any) => { try { const dt = new Date(d.date + 'T12:00:00'); return { day: DAYS[dt.getDay()], bed: 22 + (d.bedtime_offset || Math.random() * 2 - 0.5), wake: 6 + (d.waketime_offset || (d.duration ? d.duration / 60 - 8 + 6.5 : Math.random() * 1.5)) }; } catch { return null; } };
+                    const toHour = (d: any) => { try { const dt = new Date(d.date + 'T12:00:00'); return { day: `${String(dt.getDate()).padStart(2, '0')}/${String(dt.getMonth() + 1).padStart(2, '0')}`, bed: 22 + (d.bedtime_offset || Math.random() * 2 - 0.5), wake: 6 + (d.waketime_offset || (d.duration ? d.duration / 60 - 8 + 6.5 : Math.random() * 1.5)) }; } catch { return null; } };
                     const pts = last7.map(toHour).filter(Boolean) as { day: string; bed: number; wake: number }[];
                     if (pts.length < 2) return null;
                     const minH = 20, maxH = 9; // 20h evening to 9h morning (wraps around midnight)
