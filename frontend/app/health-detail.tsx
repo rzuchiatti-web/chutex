@@ -6,6 +6,7 @@ import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator, Platform }
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useAuth } from '../src/context/AuthContext';
 import { apiFetch } from '../src/services/api';
+import { HorizontalCalendar } from '../src/components/dashboard/pro/ProCalendar';
 
 const SECTIONS: Record<string, { title: string; color: string; img: string; metrics: { key: string; label: string; unit: string; explain: string }[] }> = {
   cardio: {
@@ -224,7 +225,7 @@ export default function HealthDetailScreen() {
         <div style={{ flex: 1, overflowY: 'auto', WebkitOverflowScrolling: 'touch' } as any}>
 
           {/* HEADER with violet BG */}
-          <div style={{ position: 'relative', zIndex: 1, minHeight: 220 } as any}>
+          <div style={{ position: 'relative', zIndex: 1, minHeight: 260 } as any}>
             <img src={BG_VIOLET} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 } as any} />
             <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.35)', zIndex: 1 } as any} />
             <div style={{ position: 'relative', zIndex: 2, padding: 'calc(env(safe-area-inset-top, 20px) + 12px) 20px 60px', maxWidth: 480, margin: '0 auto' } as any}>
@@ -234,12 +235,8 @@ export default function HealthDetailScreen() {
                 {sleepNightData && <div style={{ fontSize: 36, fontWeight: 900, color: '#FFF', lineHeight: 1 }}>{Math.floor(sleepNightData.duration / 60)}h{String(sleepNightData.duration % 60).padStart(2, '0')}</div>}
                 {!sleepNightData && <div style={{ fontSize: 14, color: 'rgba(255,255,255,0.4)' }}>Analyse detaillee de votre sommeil</div>}
               </div>
-              {/* Date selector */}
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, marginTop: 14 } as any}>
-                <div onClick={() => changeDate(-1)} style={{ width: 32, height: 32, borderRadius: 999, background: 'rgba(255,255,255,0.12)', border: '1px solid rgba(255,255,255,0.18)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}><i className="ri-arrow-left-s-line" style={{ fontSize: 16, color: '#FFF' }} /></div>
-                <div style={{ padding: '6px 16px', borderRadius: 999, background: 'rgba(255,255,255,0.12)', border: '1px solid rgba(255,255,255,0.18)' } as any}><span style={{ fontSize: 12, fontWeight: 700, color: '#FFF' }}>{dateLabel}</span></div>
-                {!isToday && <div onClick={() => changeDate(1)} style={{ width: 32, height: 32, borderRadius: 999, background: 'rgba(255,255,255,0.12)', border: '1px solid rgba(255,255,255,0.18)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}><i className="ri-arrow-right-s-line" style={{ fontSize: 16, color: '#FFF' }} /></div>}
-              </div>
+              {/* Calendar — identical to activity-detail / minceur */}
+              <HorizontalCalendar selectedDate={selectedDate} onSelect={setSelectedDate} accent="#A78BFA" />
             </div>
           </div>
 
@@ -271,34 +268,45 @@ export default function HealthDetailScreen() {
               const sleepSession = nightData?.session;
               return (
                 <>
-                  {/* Hypnogram card */}
+                  {/* ── HYPNOGRAM CARD (with stages + interruptions integrated) ── */}
                   {nightData && sleepSession && (
-                    <div style={{ borderRadius: 18, background: '#F4F4F5', padding: '16px', marginBottom: 12, overflow: 'hidden' } as any}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 } as any}>
-                        <i className="ri-bar-chart-horizontal-line" style={{ fontSize: 14, color: '#A78BFA' }} />
-                        <span style={{ fontSize: 13, fontWeight: 800, color: '#111' }}>Hypnogramme</span>
-                        <div style={{ marginLeft: 'auto' } as any} />
-                        <div onClick={() => setExplainSleep('hypnogram')} style={{ width: 28, height: 28, borderRadius: 999, background: '#FFF', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}><i className="ri-information-line" style={{ fontSize: 14, color: '#A78BFA' }} /></div>
+                    <div style={{ borderRadius: 18, background: '#F4F4F5', marginBottom: 12, overflow: 'hidden' } as any}>
+                      <div style={{ padding: '16px 16px 0' } as any}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 } as any}>
+                          <i className="ri-moon-line" style={{ fontSize: 14, color: '#A78BFA' }} />
+                          <span style={{ fontSize: 13, fontWeight: 800, color: '#111' }}>Cycles du sommeil</span>
+                          <div style={{ marginLeft: 'auto' } as any} />
+                          <div onClick={() => setExplainSleep('hypnogram')} style={{ width: 28, height: 28, borderRadius: 999, background: '#FFF', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}><i className="ri-information-line" style={{ fontSize: 14, color: '#A78BFA' }} /></div>
+                        </div>
+                        <SleepHypnogram session={sleepSession} width={700} height={200} showLabels={true} timeLabelCount={5} />
                       </div>
-                      <SleepHypnogram session={sleepSession} width={700} height={240} showLabels={true} timeLabelCount={5} />
-                      <div style={{ display: 'flex', gap: 6, marginTop: 10 } as any}>
+                      {/* Stages breakdown */}
+                      <div style={{ display: 'flex', borderTop: '1px solid #E5E7EB' } as any}>
                         {[
-                          { l: 'Profond', v: `${Math.floor(nightDeepMin / 60)}h${String(nightDeepMin % 60).padStart(2, '0')}`, pct: nightTotalSleep > 0 ? Math.round(nightDeepMin / nightTotalSleep * 100) : 0, c: '#3A4099' },
-                          { l: 'Leger', v: `${Math.floor(nightLightMin / 60)}h${String(nightLightMin % 60).padStart(2, '0')}`, pct: nightTotalSleep > 0 ? Math.round(nightLightMin / nightTotalSleep * 100) : 0, c: '#6B7BD9' },
-                          { l: 'REM', v: `${Math.floor(nightRemMin / 60)}h${String(nightRemMin % 60).padStart(2, '0')}`, pct: nightTotalSleep > 0 ? Math.round(nightRemMin / nightTotalSleep * 100) : 0, c: '#A8B4F0' },
-                          { l: 'Qualite', v: nightQuality > 0 ? `${nightQuality}%` : '--', c: nightQuality >= 80 ? '#10B981' : '#F59E0B' },
+                          { l: 'Profond', v: nightDeepMin, pct: nightTotalSleep > 0 ? Math.round(nightDeepMin / nightTotalSleep * 100) : 0, c: '#3A4099' },
+                          { l: 'Leger', v: nightLightMin, pct: nightTotalSleep > 0 ? Math.round(nightLightMin / nightTotalSleep * 100) : 0, c: '#6B7BD9' },
+                          { l: 'REM', v: nightRemMin, pct: nightTotalSleep > 0 ? Math.round(nightRemMin / nightTotalSleep * 100) : 0, c: '#A8B4F0' },
+                          { l: 'Eveil', v: nightAwakeMin, pct: 0, c: '#E87C8A' },
                         ].map((s, si) => (
-                          <div key={si} style={{ flex: 1, textAlign: 'center', padding: '8px 4px', borderRadius: 10, background: '#FFF' } as any}>
-                            <div style={{ width: 8, height: 8, borderRadius: 3, background: s.c, margin: '0 auto 4px' } as any} />
-                            <div style={{ fontSize: 13, fontWeight: 800, color: '#111' }}>{s.v}</div>
-                            <div style={{ fontSize: 8, color: '#9CA3AF' }}>{s.l}{s.pct ? ` ${s.pct}%` : ''}</div>
+                          <div key={si} style={{ flex: 1, padding: '10px 4px', textAlign: 'center', borderRight: si < 3 ? '1px solid #E5E7EB' : 'none' } as any}>
+                            <div style={{ width: 10, height: 10, borderRadius: 3, background: s.c, margin: '0 auto 4px' } as any} />
+                            <div style={{ fontSize: 14, fontWeight: 900, color: '#111', lineHeight: 1 }}>{Math.floor(s.v / 60)}h{String(s.v % 60).padStart(2, '0')}</div>
+                            <div style={{ fontSize: 8, color: '#9CA3AF', marginTop: 2 }}>{s.l}{s.pct > 0 ? ` ${s.pct}%` : ''}</div>
                           </div>
                         ))}
+                      </div>
+                      {/* Interruptions row inside hypnogram card */}
+                      <div style={{ display: 'flex', alignItems: 'center', padding: '10px 16px', borderTop: '1px solid #E5E7EB', gap: 10 } as any}>
+                        <i className="ri-alarm-line" style={{ fontSize: 14, color: nightInterruptions <= 2 ? '#10B981' : nightInterruptions <= 4 ? '#F59E0B' : '#EF4444' }} />
+                        <span style={{ fontSize: 12, fontWeight: 700, color: '#111' }}>Interruptions</span>
+                        <span style={{ fontSize: 18, fontWeight: 900, color: nightInterruptions <= 2 ? '#10B981' : nightInterruptions <= 4 ? '#F59E0B' : '#EF4444', marginLeft: 'auto' }}>{nightInterruptions}</span>
+                        <span style={{ fontSize: 10, fontWeight: 700, color: nightInterruptions <= 2 ? '#10B981' : nightInterruptions <= 4 ? '#F59E0B' : '#EF4444' }}>{nightInterruptions <= 2 ? 'Bon' : nightInterruptions <= 4 ? 'Modere' : 'Eleve'}</span>
+                        <div onClick={() => setExplainSleep('interruptions')} style={{ width: 24, height: 24, borderRadius: 999, background: '#FFF', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', flexShrink: 0 } as any}><i className="ri-information-line" style={{ fontSize: 12, color: '#9CA3AF' }} /></div>
                       </div>
                     </div>
                   )}
 
-                  {/* Quality card */}
+                  {/* ── QUALITY CARD ── */}
                   {nightData && (
                     <div style={{ borderRadius: 18, background: '#F4F4F5', padding: '16px 18px', marginBottom: 12 } as any}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 } as any}>
@@ -311,20 +319,27 @@ export default function HealthDetailScreen() {
                     </div>
                   )}
 
-                  {/* Interruptions + Apnea */}
+                  {/* ── APNEA DEDICATED CARD ── */}
                   {nightData && (
-                    <div style={{ display: 'flex', gap: 10, marginBottom: 12 } as any}>
-                      <div onClick={() => setExplainSleep('interruptions')} style={{ flex: 1, borderRadius: 18, background: '#F4F4F5', padding: '16px', textAlign: 'center', cursor: 'pointer' } as any}>
-                        <i className="ri-alarm-line" style={{ fontSize: 18, color: nightInterruptions <= 2 ? '#10B981' : nightInterruptions <= 4 ? '#F59E0B' : '#EF4444', display: 'block', marginBottom: 4 }} />
-                        <div style={{ fontSize: 28, fontWeight: 900, color: '#111', lineHeight: 1 }}>{nightInterruptions}</div>
-                        <div style={{ fontSize: 9, color: '#9CA3AF', marginTop: 4 }}>Interruptions</div>
-                        <div style={{ fontSize: 10, fontWeight: 700, color: nightInterruptions <= 2 ? '#10B981' : nightInterruptions <= 4 ? '#F59E0B' : '#EF4444', marginTop: 4 }}>{nightInterruptions <= 2 ? 'Bon' : nightInterruptions <= 4 ? 'Modere' : 'Eleve'}</div>
+                    <div style={{ borderRadius: 18, background: '#F4F4F5', padding: '16px 18px', marginBottom: 12 } as any}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 } as any}>
+                        <i className="ri-lungs-line" style={{ fontSize: 14, color: nightApnea < 30 ? '#10B981' : nightApnea < 60 ? '#F59E0B' : '#EF4444' }} />
+                        <span style={{ fontSize: 13, fontWeight: 800, color: '#111' }}>Risque d'apnee du sommeil</span>
+                        <div onClick={() => setExplainSleep('apnea')} style={{ width: 28, height: 28, borderRadius: 999, background: '#FFF', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', flexShrink: 0, marginLeft: 'auto' } as any}><i className="ri-information-line" style={{ fontSize: 14, color: '#EF4444' }} /></div>
                       </div>
-                      <div onClick={() => setExplainSleep('apnea')} style={{ flex: 1, borderRadius: 18, background: '#F4F4F5', padding: '16px', textAlign: 'center', cursor: 'pointer' } as any}>
-                        <i className="ri-lungs-line" style={{ fontSize: 18, color: nightApnea < 30 ? '#10B981' : nightApnea < 60 ? '#F59E0B' : '#EF4444', display: 'block', marginBottom: 4 }} />
-                        <div style={{ fontSize: 28, fontWeight: 900, color: '#111', lineHeight: 1 }}>{nightApnea}%</div>
-                        <div style={{ fontSize: 9, color: '#9CA3AF', marginTop: 4 }}>Risque apnee</div>
-                        <div style={{ fontSize: 10, fontWeight: 700, color: nightApnea < 30 ? '#10B981' : nightApnea < 60 ? '#F59E0B' : '#EF4444', marginTop: 4 }}>{nightApnea < 30 ? 'Faible' : nightApnea < 60 ? 'Modere' : 'Eleve'}</div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 16 } as any}>
+                        <div style={{ textAlign: 'center' } as any}>
+                          <div style={{ fontSize: 40, fontWeight: 900, color: nightApnea < 30 ? '#10B981' : nightApnea < 60 ? '#F59E0B' : '#EF4444', lineHeight: 1 }}>{nightApnea}%</div>
+                          <div style={{ fontSize: 10, fontWeight: 700, color: nightApnea < 30 ? '#10B981' : nightApnea < 60 ? '#F59E0B' : '#EF4444', marginTop: 4 }}>{nightApnea < 30 ? 'Faible' : nightApnea < 60 ? 'Modere' : 'Eleve'}</div>
+                        </div>
+                        <div style={{ flex: 1 } as any}>
+                          <div style={{ height: 8, borderRadius: 4, background: '#E5E7EB', overflow: 'hidden', marginBottom: 6 } as any}>
+                            <div style={{ height: '100%', borderRadius: 4, width: `${nightApnea}%`, background: `linear-gradient(90deg, #10B981, #F59E0B 50%, #EF4444)`, transition: 'width 0.8s' } as any} />
+                          </div>
+                          <div style={{ fontSize: 11, color: '#6B7280', lineHeight: 1.5 }}>
+                            {nightApnea < 30 ? 'Votre sommeil semble continu et sans episodes respiratoires significatifs.' : nightApnea < 60 ? 'Quelques episodes detectes. Surveillez l\'evolution.' : 'Risque eleve. Consultez un medecin pour un diagnostic.'}
+                          </div>
+                        </div>
                       </div>
                     </div>
                   )}
