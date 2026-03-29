@@ -36,6 +36,7 @@ L'objectif est une UI Glassmorphism + Light mode avec synchronisation en temps r
 - [x] **Refonte page Poids & Nutrition** — header bleu + image balance + barre IMC, carte blanche arrondie, Nora en haut, 3 graphiques separes (poids, graisse, muscle), apport calorique, section exercices, goal form en popup dark glass
 - [x] **Cartes repas uniformes** — image reelle a gauche, fond gris #F4F4F5, texte noir, design identique dans ProDayView et minceur.tsx
 - [x] **Cartes exercices uniformes** — image a gauche, fond gris, texte noir, design identique dans ProDayView et activity-detail.tsx
+- [x] **Page Poids & Nutrition v2** — balance supprimée, titre centré, poids+IMC+barre centrés, calendrier horizontal identique (ProCalendar), exercices supprimés de la page
 
 ## Backlog P2
 - [ ] Balance/gilet connectes

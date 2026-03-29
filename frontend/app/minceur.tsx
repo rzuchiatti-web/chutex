@@ -5,10 +5,10 @@ import { useAuth } from '../src/context/AuthContext';
 import { apiFetch } from '../src/services/api';
 import NoraCard from '../src/components/shared/NoraCard';
 import { BG_IMAGES } from '../src/components/dashboard/constants';
+import { HorizontalCalendar } from '../src/components/dashboard/pro/ProCalendar';
 
 const NORA_VIDEO = 'https://customer-assets.emergentagent.com/job_ba3a5789-c8f1-4b12-b5d8-478a7f99aaea/artifacts/b6eh1r76_Nora_video.mp4';
 const BLUE_BG = 'https://customer-assets.emergentagent.com/job_443c9c6e-0feb-4920-a358-fe7cc1a6289b/artifacts/v5t9l2mb_ChatGPT%20Image%2017%20f%C3%A9vr.%202026%2C%2014_10_07.png';
-const BALANCE_IMG = 'https://customer-assets.emergentagent.com/job_8afdc991-0ab2-4687-a2a5-438b9a5f0711/artifacts/dwmw2i8r_Balance_connecte_Vita_chutex.svg';
 
 function NoraAnalysisOverlay({ text: initialText, onClose }: { text: string; onClose: () => void }) {
   const { token } = useAuth();
@@ -65,7 +65,6 @@ const A = '#F59E0B', G = '#10B981', R = '#EF4444', B = '#60A5FA', P = '#A78BFA';
 const MM: Record<string, { icon: string; grad: string }> = { breakfast: { icon: 'ri-cup-line', grad: 'linear-gradient(135deg, #F59E0B22, #F59E0B08)' }, lunch: { icon: 'ri-restaurant-2-line', grad: 'linear-gradient(135deg, #10B98122, #10B98108)' }, snack: { icon: 'ri-apple-line', grad: 'linear-gradient(135deg, #A78BFA22, #A78BFA08)' }, dinner: { icon: 'ri-moon-line', grad: 'linear-gradient(135deg, #60A5FA22, #60A5FA08)' } };
 const MC: Record<string, string> = { breakfast: A, lunch: G, snack: P, dinner: B };
 const MI: Record<string, string> = { breakfast: 'https://static.prod-images.emergentagent.com/jobs/151f0047-e744-48e3-8d63-62902a0935f7/images/ccd32d626e54c78fac3e5a12346ad156c67fb52d47febfdedc24d0f29e171ac6.png', lunch: 'https://static.prod-images.emergentagent.com/jobs/151f0047-e744-48e3-8d63-62902a0935f7/images/528ae850a1d0143524ec5cc75d58c126e9cec798303da7ceb8ac4a1ca68374d8.png', snack: 'https://static.prod-images.emergentagent.com/jobs/151f0047-e744-48e3-8d63-62902a0935f7/images/95af5f12498ba3ce4c96135afbe07e314012e9ff8da9410d9e9ac56376d9cb02.png', dinner: 'https://static.prod-images.emergentagent.com/jobs/151f0047-e744-48e3-8d63-62902a0935f7/images/3b64345e4d34dc8d5bacd6f55747323e3202d76c19e319a024b7214ca02e9877.png' };
-const EX_IMG: Record<string, string> = { cardio: 'https://static.prod-images.emergentagent.com/jobs/151f0047-e744-48e3-8d63-62902a0935f7/images/05d45697f644e6b656496155421c6e39c60b73d67f7fb18522a76692b56fa394.png', renforcement: 'https://static.prod-images.emergentagent.com/jobs/151f0047-e744-48e3-8d63-62902a0935f7/images/b50d815f482c848c380f0e911d719876a2f9f0ff00967feef900297d858f39ef.png' };
 
 type MK = 'weight' | 'body_fat_pct' | 'muscle_pct';
 const CFG: Record<MK, { color: string; unit: string; label: string; gid: string }> = { weight: { color: A, unit: 'kg', label: 'Poids', gid: 'gw' }, body_fat_pct: { color: '#F97316', unit: '%', label: 'Graisse', gid: 'gf' }, muscle_pct: { color: G, unit: '%', label: 'Muscle', gid: 'gm' } };
@@ -178,6 +177,7 @@ export default function MinceurPage() {
   const [mounted, setMounted] = useState(false);
   const [showNoraAnalysis, setShowNoraAnalysis] = useState(false);
   const [showGoalConfirm, setShowGoalConfirm] = useState(false);
+  const [selectedDate, setSelectedDate] = useState(new Date());
 
   useEffect(() => { setMounted(true); }, []);
 
@@ -232,9 +232,9 @@ export default function MinceurPage() {
           <div style={{ position: 'relative', zIndex: 2, padding: 'calc(env(safe-area-inset-top, 20px) + 12px) 20px 60px', maxWidth: 480, margin: '0 auto' } as any}>
 
             {/* Title row */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 20 } as any}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16 } as any}>
               <div data-testid="back-button" onClick={() => router.back()} style={{ width: 44, height: 44, borderRadius: 14, background: 'rgba(255,255,255,0.12)', border: '1px solid rgba(255,255,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}><i className="ri-arrow-left-line" style={{ fontSize: 18, color: '#FFF' }} /></div>
-              <div style={{ flex: 1 } as any}><div style={{ fontSize: 22, fontWeight: 900, color: '#FFF', letterSpacing: -0.3 }}>Poids & Nutrition</div><div style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)' }}>{isReadonly ? 'Vue gardien (lecture seule)' : 'Suivi personnalise'}</div></div>
+              <div style={{ flex: 1 } as any} />
               {recs && total > 0 && (
                 <div data-testid="daily-progress" onClick={() => setShowStreakInfo(true)} style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '6px 12px', borderRadius: 999, background: done === total ? 'rgba(16,185,129,0.12)' : 'rgba(255,255,255,0.06)', border: `1px solid ${done === total ? 'rgba(16,185,129,0.25)' : 'rgba(255,255,255,0.08)'}`, cursor: 'pointer' } as any}>
                   {streak > 0 && <><i className="ri-fire-fill" style={{ fontSize: 11, color: A }} /><span style={{ fontSize: 10, fontWeight: 800, color: A }}>{streak}j</span><span style={{ width: 1, height: 10, background: 'rgba(255,255,255,0.08)' } as any} /></>}
@@ -244,18 +244,26 @@ export default function MinceurPage() {
               {!isReadonly && <div data-testid="refresh-button" onClick={refreshRecs} style={{ width: 38, height: 38, borderRadius: 12, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}><i className="ri-refresh-line" style={{ fontSize: 15, color: 'rgba(255,255,255,0.35)', animation: refreshing ? 'spin 1s linear infinite' : 'none' }} /></div>}
             </div>
 
-            {/* Weight display + Balance image */}
+            {/* Centered title */}
+            <div style={{ textAlign: 'center', marginBottom: 16 } as any}>
+              <div style={{ fontSize: 22, fontWeight: 900, color: '#FFF', letterSpacing: -0.3 }}>Poids & Nutrition</div>
+              <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)', marginTop: 2 }}>{isReadonly ? 'Vue gardien (lecture seule)' : 'Suivi personnalise'}</div>
+            </div>
+
+            {/* Centered weight + IMC */}
             {!loading && data && (
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' } as any}>
-                <div>
-                  <div style={{ fontSize: 9, fontWeight: 700, color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', letterSpacing: 1 }}>Poids actuel</div>
-                  <div style={{ display: 'flex', alignItems: 'baseline', gap: 2 } as any}><span style={{ fontSize: 52, fontWeight: 900, color: '#FFF', lineHeight: 1, letterSpacing: -1 }}>{cr.weight > 0 ? cr.weight : '--'}</span><span style={{ fontSize: 16, fontWeight: 600, color: 'rgba(255,255,255,0.3)' }}>kg</span></div>
-                  {cr.bmi > 0 && <div style={{ fontSize: 12, fontWeight: 700, color: cr.bmi_info?.color || A, marginTop: 4 }}>IMC {cr.bmi} · {cr.bmi_info?.label}</div>}
+              <div style={{ textAlign: 'center', marginBottom: 4 } as any}>
+                <div style={{ display: 'inline-flex', alignItems: 'baseline', gap: 4 } as any}>
+                  <span style={{ fontSize: 52, fontWeight: 900, color: '#FFF', lineHeight: 1, letterSpacing: -1 }}>{cr.weight > 0 ? cr.weight : '--'}</span>
+                  <span style={{ fontSize: 16, fontWeight: 600, color: 'rgba(255,255,255,0.3)' }}>kg</span>
                 </div>
-                <img src={BALANCE_IMG} alt="" style={{ width: 100, height: 100, objectFit: 'contain', filter: 'drop-shadow(0 8px 20px rgba(0,0,0,0.4))' } as any} />
+                {cr.bmi > 0 && <div style={{ fontSize: 12, fontWeight: 700, color: cr.bmi_info?.color || A, marginTop: 6 }}>IMC {cr.bmi} · {cr.bmi_info?.label}</div>}
+                {cr.bmi > 0 && <div style={{ maxWidth: 280, margin: '0 auto' } as any}><BMIBar bmi={cr.bmi} info={cr.bmi_info} /></div>}
               </div>
             )}
-            {!loading && cr.bmi > 0 && <BMIBar bmi={cr.bmi} info={cr.bmi_info} />}
+
+            {/* Calendar — identical to activity-detail / ProCalendar */}
+            <HorizontalCalendar selectedDate={selectedDate} onSelect={setSelectedDate} accent={A} />
           </div>
         </div>
 
@@ -370,25 +378,6 @@ export default function MinceurPage() {
                       </div>
                     ); })}
                   </div>}
-
-                  {/* ══ EXERCISES — uniform card design ══ */}
-                  {recs.exercises && recs.exercises.length > 0 && (
-                    <>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10, marginTop: 4 } as any}><i className="ri-heart-pulse-line" style={{ fontSize: 14, color: R }} /><span style={{ fontSize: 13, fontWeight: 800, color: '#111' }}>Vos exercices du jour</span></div>
-                      {recs.exercises.map((ex: any, i: number) => { const int = ex.intensity || 'modere'; const intC = int === 'leger' ? G : int === 'modere' ? A : R; const dn = tracked[`exercise_${i}`]; const catKey = (ex.category || 'cardio').toLowerCase(); const img = EX_IMG[catKey] || EX_IMG.cardio; return (
-                        <div key={i} data-testid={`exercise-${i}`} onClick={() => router.push({ pathname: '/exercise-detail' as any, params: { index: i } })}
-                          style={{ borderRadius: 14, background: dn ? `${G}08` : '#F4F4F5', overflow: 'hidden', cursor: 'pointer', opacity: dn ? 0.65 : 1, display: 'flex', minHeight: 80, marginBottom: 8 } as any}>
-                          <div style={{ width: 88, flexShrink: 0, position: 'relative', overflow: 'hidden' } as any}><img src={img} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' } as any} /></div>
-                          <div style={{ flex: 1, minWidth: 0, padding: '10px 12px', display: 'flex', flexDirection: 'column', justifyContent: 'center' } as any}>
-                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' } as any}><span style={{ fontSize: 8, fontWeight: 700, color: intC, textTransform: 'uppercase', letterSpacing: 0.6 }}>{int} {ex.duration ? `· ${ex.duration}` : ''}</span>{ex.calories_burned > 0 && <span style={{ fontSize: 12, fontWeight: 900, color: '#9CA3AF' }}>{ex.calories_burned}<span style={{ fontSize: 7 }}>kcal</span></span>}</div>
-                            <div style={{ fontSize: 14, fontWeight: 800, color: '#111', textDecoration: dn ? 'line-through' : 'none', marginTop: 2 }}>{ex.name}</div>
-                            <span style={{ fontSize: 9, color: R, fontWeight: 700, marginTop: 3 }}>Voir le detail <i className="ri-arrow-right-s-line" style={{ fontSize: 8 }} /></span>
-                          </div>
-                          <div data-testid={`track-ex-${i}`} onClick={(e) => { e.stopPropagation(); toggleTrack('exercise', i); }} style={{ width: 40, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', flexShrink: 0 } as any}><i className="ri-check-line" style={{ fontSize: 16, color: dn ? G : '#D1D5DB' }} /></div>
-                        </div>
-                      ); })}
-                    </>
-                  )}
                 </>
               )}
               {!recs && !loading && <div style={{ padding: 28, borderRadius: 20, background: '#F4F4F5', textAlign: 'center' } as any}><div style={{ width: 32, height: 32, margin: '0 auto 10px', borderRadius: '50%', border: '3px solid #E5E7EB', borderTopColor: P, animation: 'spin 0.8s linear infinite' } as any} /><div style={{ fontSize: 12, color: '#9CA3AF' }}>Generation des recommandations...</div></div>}
