@@ -314,13 +314,13 @@ export default function HealthDetailScreen() {
                   {/* Interruptions + Apnea */}
                   {nightData && (
                     <div style={{ display: 'flex', gap: 10, marginBottom: 12 } as any}>
-                      <div style={{ flex: 1, borderRadius: 18, background: '#F4F4F5', padding: '16px', textAlign: 'center' } as any}>
+                      <div onClick={() => setExplainSleep('interruptions')} style={{ flex: 1, borderRadius: 18, background: '#F4F4F5', padding: '16px', textAlign: 'center', cursor: 'pointer' } as any}>
                         <i className="ri-alarm-line" style={{ fontSize: 18, color: nightInterruptions <= 2 ? '#10B981' : nightInterruptions <= 4 ? '#F59E0B' : '#EF4444', display: 'block', marginBottom: 4 }} />
                         <div style={{ fontSize: 28, fontWeight: 900, color: '#111', lineHeight: 1 }}>{nightInterruptions}</div>
                         <div style={{ fontSize: 9, color: '#9CA3AF', marginTop: 4 }}>Interruptions</div>
                         <div style={{ fontSize: 10, fontWeight: 700, color: nightInterruptions <= 2 ? '#10B981' : nightInterruptions <= 4 ? '#F59E0B' : '#EF4444', marginTop: 4 }}>{nightInterruptions <= 2 ? 'Bon' : nightInterruptions <= 4 ? 'Modere' : 'Eleve'}</div>
                       </div>
-                      <div style={{ flex: 1, borderRadius: 18, background: '#F4F4F5', padding: '16px', textAlign: 'center' } as any}>
+                      <div onClick={() => setExplainSleep('apnea')} style={{ flex: 1, borderRadius: 18, background: '#F4F4F5', padding: '16px', textAlign: 'center', cursor: 'pointer' } as any}>
                         <i className="ri-lungs-line" style={{ fontSize: 18, color: nightApnea < 30 ? '#10B981' : nightApnea < 60 ? '#F59E0B' : '#EF4444', display: 'block', marginBottom: 4 }} />
                         <div style={{ fontSize: 28, fontWeight: 900, color: '#111', lineHeight: 1 }}>{nightApnea}%</div>
                         <div style={{ fontSize: 9, color: '#9CA3AF', marginTop: 4 }}>Risque apnee</div>
@@ -328,6 +328,80 @@ export default function HealthDetailScreen() {
                       </div>
                     </div>
                   )}
+
+                  {/* ── PERFORMANCE SCORE (from sleepAnalysis) ── */}
+                  {sleepAnalysis && (() => {
+                    const a = sleepAnalysis;
+                    const perf = a.performance_score;
+                    const perfColor = perf >= 67 ? '#10B981' : perf >= 34 ? '#F59E0B' : '#EF4444';
+                    const perfLabel = perf >= 80 ? 'Optimal' : perf >= 67 ? 'Bon' : perf >= 50 ? 'Correct' : perf >= 34 ? 'A ameliorer' : 'Insuffisant';
+                    const circumference = 2 * Math.PI * 60;
+                    const dashLen = (perf / 100) * circumference;
+                    const subScores = [
+                      { label: 'Suffisance', score: a.sufficiency.score, sub: `${Math.floor(a.sufficiency.actual_min / 60)}h${String(a.sufficiency.actual_min % 60).padStart(2, '0')} / ${Math.floor(a.sufficiency.need_min / 60)}h${String(a.sufficiency.need_min % 60).padStart(2, '0')}` },
+                      { label: 'Regularite', score: a.consistency.score, sub: a.consistency.detail },
+                      { label: 'Efficacite', score: a.efficiency.score, sub: `${a.efficiency.pct}% du temps au lit` },
+                      { label: 'Stress', score: a.sleep_stress.score, sub: `Niveau ${a.sleep_stress.level}` },
+                    ];
+                    return (
+                      <div data-testid="sleep-performance-card" style={{ borderRadius: 18, background: '#F4F4F5', padding: '20px 16px', marginBottom: 12, textAlign: 'center' } as any}>
+                        <div style={{ fontSize: 13, fontWeight: 800, color: '#111', marginBottom: 14 }}>Score de performance</div>
+                        <svg width="130" height="130" viewBox="0 0 130 130" style={{ display: 'block', margin: '0 auto' }}>
+                          <circle cx="65" cy="65" r="60" fill="none" stroke="#E5E7EB" strokeWidth="7" />
+                          <circle cx="65" cy="65" r="60" fill="none" stroke={perfColor} strokeWidth="7" strokeLinecap="round" strokeDasharray={`${dashLen} ${circumference}`} transform="rotate(-90 65 65)" style={{ transition: 'stroke-dasharray 1.5s cubic-bezier(.22,.61,.36,1)' } as any} />
+                          <text x="65" y="60" textAnchor="middle" fill="#111" fontSize="32" fontWeight="900" fontFamily="Inter, system-ui, sans-serif">{perf}</text>
+                          <text x="65" y="80" textAnchor="middle" fill={perfColor} fontSize="11" fontWeight="700" fontFamily="Inter, system-ui, sans-serif">{perfLabel}</text>
+                        </svg>
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginTop: 14 } as any}>
+                          {subScores.map((s, si) => {
+                            const sc = s.score >= 70 ? '#10B981' : s.score >= 50 ? '#F59E0B' : '#EF4444';
+                            return (
+                              <div key={si} style={{ padding: '10px 8px', borderRadius: 12, background: '#FFF', textAlign: 'center' } as any}>
+                                <div style={{ fontSize: 20, fontWeight: 900, color: sc, lineHeight: 1 }}>{s.score}</div>
+                                <div style={{ fontSize: 10, fontWeight: 700, color: '#111', marginTop: 4 }}>{s.label}</div>
+                                <div style={{ fontSize: 8, color: '#9CA3AF', marginTop: 2 }}>{s.sub}</div>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    );
+                  })()}
+
+                  {/* ── SLEEP DEBT / BILAN ── */}
+                  {nightData && (() => {
+                    const NEED_MIN = sleepAnalysis?.sleep_need_min || (7 * 60 + 30);
+                    const tonightEffective = nightDuration - nightAwakeMin;
+                    let weekDebtMin = 0, weekDays = 0;
+                    if (sleepData && Array.isArray(sleepData)) {
+                      for (const day of sleepData) { const eff = (day.deep || 0) + (day.light || 0) + (day.rem || 0); weekDebtMin += Math.max(0, NEED_MIN - eff); weekDays++; }
+                    }
+                    const tonightPct = Math.min(100, Math.round((tonightEffective / NEED_MIN) * 100));
+                    const tonightColor = tonightPct >= 90 ? '#10B981' : tonightPct >= 75 ? '#F59E0B' : '#EF4444';
+                    const weekDebtH = Math.floor(weekDebtMin / 60);
+                    const weekDebtM = weekDebtMin % 60;
+                    const weekColor = weekDebtMin <= 60 ? '#10B981' : weekDebtMin <= 180 ? '#F59E0B' : '#EF4444';
+                    return (
+                      <div style={{ borderRadius: 18, background: '#F4F4F5', padding: '16px 18px', marginBottom: 12 } as any}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 } as any}><i className="ri-battery-charge-line" style={{ fontSize: 14, color: tonightColor }} /><span style={{ fontSize: 13, fontWeight: 800, color: '#111' }}>Bilan du sommeil</span></div>
+                        <div style={{ display: 'flex', gap: 8, marginBottom: 10 } as any}>
+                          <div style={{ flex: 1, padding: '10px', borderRadius: 12, background: '#FFF', textAlign: 'center' } as any}>
+                            <div style={{ fontSize: 22, fontWeight: 900, color: tonightColor, lineHeight: 1 }}>{tonightPct}%</div>
+                            <div style={{ fontSize: 8, color: '#9CA3AF', fontWeight: 700, marginTop: 4 }}>SUFFISANCE</div>
+                          </div>
+                          <div style={{ flex: 1, padding: '10px', borderRadius: 12, background: '#FFF', textAlign: 'center' } as any}>
+                            <div style={{ fontSize: 22, fontWeight: 900, color: weekColor, lineHeight: 1 }}>{weekDebtH}h{String(weekDebtM).padStart(2, '0')}</div>
+                            <div style={{ fontSize: 8, color: '#9CA3AF', fontWeight: 700, marginTop: 4 }}>DETTE 7J</div>
+                          </div>
+                          <div style={{ flex: 1, padding: '10px', borderRadius: 12, background: '#FFF', textAlign: 'center' } as any}>
+                            <div style={{ fontSize: 22, fontWeight: 900, color: '#111', lineHeight: 1 }}>{Math.floor(NEED_MIN / 60)}h{String(NEED_MIN % 60).padStart(2, '0')}</div>
+                            <div style={{ fontSize: 8, color: '#9CA3AF', fontWeight: 700, marginTop: 4 }}>BESOIN</div>
+                          </div>
+                        </div>
+                        <div style={{ height: 6, borderRadius: 3, background: '#E5E7EB', overflow: 'hidden' } as any}><div style={{ height: '100%', borderRadius: 3, width: `${tonightPct}%`, background: tonightColor, transition: 'width 0.8s' } as any} /></div>
+                      </div>
+                    );
+                  })()}
                 </>
               );
             })()}
