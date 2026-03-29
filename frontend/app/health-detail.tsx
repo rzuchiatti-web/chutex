@@ -342,7 +342,77 @@ export default function HealthDetailScreen() {
                     </div>
                   )}
 
-                  {/* ── SLEEP SCHEDULE (bedtime/wake chart 7 days) ── */}
+                  {/* ── DETTE DE SOMMEIL (refonte visuelle + graph barres 7j) ── */}
+                  {nightData && (() => {
+                    const NEED_MIN = sleepAnalysis?.sleep_need_min || (7 * 60 + 30);
+                    const tonightEffective = nightDuration - nightAwakeMin;
+                    const needH = Math.floor(NEED_MIN / 60), needM = NEED_MIN % 60;
+                    const effH = Math.floor(tonightEffective / 60), effM = tonightEffective % 60;
+                    const tonightPct = Math.min(100, Math.round((tonightEffective / NEED_MIN) * 100));
+                    const tonightColor = tonightPct >= 90 ? '#10B981' : tonightPct >= 75 ? '#F59E0B' : '#EF4444';
+                    // 7-day debt bars
+                    const DAYS_S = ['Dim','Lun','Mar','Mer','Jeu','Ven','Sam'];
+                    const last7 = (sleepData && Array.isArray(sleepData)) ? sleepData.slice(-7) : [];
+                    let totalDebt = 0;
+                    const bars = last7.map((day: any) => {
+                      const eff = (day.deep || 0) + (day.light || 0) + (day.rem || 0);
+                      const debt = Math.max(0, NEED_MIN - eff);
+                      totalDebt += debt;
+                      const dt = new Date(day.date + 'T12:00:00');
+                      return { day: DAYS_S[dt.getDay()], debt, eff };
+                    });
+                    const maxDebt = Math.max(120, ...bars.map(b => b.debt));
+                    const totalH = Math.floor(totalDebt / 60), totalM = totalDebt % 60;
+                    const totalColor = totalDebt <= 60 ? '#10B981' : totalDebt <= 180 ? '#F59E0B' : '#EF4444';
+                    return (
+                      <div style={{ borderRadius: 18, background: '#F4F4F5', padding: '16px 18px', marginBottom: 12 } as any}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 16 } as any}>
+                          <i className="ri-moon-line" style={{ fontSize: 14, color: '#A78BFA' }} />
+                          <span style={{ fontSize: 13, fontWeight: 800, color: '#111' }}>Besoin & dette de sommeil</span>
+                        </div>
+                        {/* Tonight vs Need — big visual */}
+                        <div style={{ display: 'flex', gap: 12, marginBottom: 16 } as any}>
+                          <div style={{ flex: 1, padding: '14px', borderRadius: 14, background: '#FFF', textAlign: 'center' } as any}>
+                            <div style={{ fontSize: 10, fontWeight: 700, color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 6 }}>Cette nuit</div>
+                            <div style={{ fontSize: 28, fontWeight: 900, color: tonightColor, lineHeight: 1 }}>{effH}h{String(effM).padStart(2, '0')}</div>
+                            <div style={{ height: 6, borderRadius: 3, background: '#E5E7EB', overflow: 'hidden', marginTop: 8 } as any}><div style={{ height: '100%', borderRadius: 3, width: `${tonightPct}%`, background: tonightColor } as any} /></div>
+                            <div style={{ fontSize: 9, color: '#9CA3AF', marginTop: 4 }}>{tonightPct}%</div>
+                          </div>
+                          <div style={{ flex: 1, padding: '14px', borderRadius: 14, background: '#FFF', textAlign: 'center' } as any}>
+                            <div style={{ fontSize: 10, fontWeight: 700, color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 6 }}>Besoin</div>
+                            <div style={{ fontSize: 28, fontWeight: 900, color: '#111', lineHeight: 1 }}>{needH}h{String(needM).padStart(2, '0')}</div>
+                            <div style={{ fontSize: 11, color: '#6B7280', marginTop: 8, lineHeight: 1.4 }}>Recommande pour votre profil</div>
+                          </div>
+                        </div>
+                        {/* 7-day debt bar chart */}
+                        {bars.length > 0 && (
+                          <>
+                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 } as any}>
+                              <span style={{ fontSize: 11, fontWeight: 700, color: '#6B7280' }}>Dette accumulee sur 7 jours</span>
+                              <span style={{ fontSize: 16, fontWeight: 900, color: totalColor }}>{totalH}h{String(totalM).padStart(2, '0')}</span>
+                            </div>
+                            <div style={{ display: 'flex', alignItems: 'flex-end', gap: 6, height: 80, marginBottom: 4 } as any}>
+                              {bars.map((b, i) => {
+                                const h = maxDebt > 0 ? Math.max(4, (b.debt / maxDebt) * 70) : 4;
+                                const bColor = b.debt <= 15 ? '#10B981' : b.debt <= 45 ? '#F59E0B' : '#EF4444';
+                                return (
+                                  <div key={i} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 } as any}>
+                                    {b.debt > 0 && <span style={{ fontSize: 8, fontWeight: 700, color: bColor }}>{Math.round(b.debt)}m</span>}
+                                    <div style={{ width: '100%', height: h, borderRadius: 4, background: bColor, transition: 'height 0.5s' } as any} />
+                                  </div>
+                                );
+                              })}
+                            </div>
+                            <div style={{ display: 'flex', gap: 6 } as any}>
+                              {bars.map((b, i) => <div key={i} style={{ flex: 1, textAlign: 'center', fontSize: 9, color: '#9CA3AF', fontWeight: 600 }}>{b.day}</div>)}
+                            </div>
+                          </>
+                        )}
+                      </div>
+                    );
+                  })()}
+
+                  {/* ── REGULARITE DU SOMMEIL (coucher/réveil 7j) ── */}
                   {sleepData && Array.isArray(sleepData) && sleepData.length >= 2 && (() => {
                     const last7 = sleepData.slice(-7);
                     const DAYS = ['Dim','Lun','Mar','Mer','Jeu','Ven','Sam'];
@@ -387,58 +457,8 @@ export default function HealthDetailScreen() {
                     );
                   })()}
 
-                  {/* ── DETTE DE SOMMEIL (refonte claire) ── */}
-                  {nightData && (() => {
-                    const NEED_MIN = sleepAnalysis?.sleep_need_min || (7 * 60 + 30);
-                    const tonightEffective = nightDuration - nightAwakeMin;
-                    let weekDebtMin = 0;
-                    if (sleepData && Array.isArray(sleepData)) {
-                      for (const day of sleepData) { const eff = (day.deep || 0) + (day.light || 0) + (day.rem || 0); weekDebtMin += Math.max(0, NEED_MIN - eff); }
-                    }
-                    const tonightPct = Math.min(100, Math.round((tonightEffective / NEED_MIN) * 100));
-                    const tonightColor = tonightPct >= 90 ? '#10B981' : tonightPct >= 75 ? '#F59E0B' : '#EF4444';
-                    const weekDebtH = Math.floor(weekDebtMin / 60);
-                    const weekDebtM = weekDebtMin % 60;
-                    const weekColor = weekDebtMin <= 60 ? '#10B981' : weekDebtMin <= 180 ? '#F59E0B' : '#EF4444';
-                    const needH = Math.floor(NEED_MIN / 60);
-                    const needM = NEED_MIN % 60;
-                    const effH = Math.floor(tonightEffective / 60);
-                    const effM = tonightEffective % 60;
-                    return (
-                      <div style={{ borderRadius: 18, background: '#F4F4F5', padding: '16px 18px', marginBottom: 12 } as any}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 14 } as any}><i className="ri-battery-charge-line" style={{ fontSize: 14, color: tonightColor }} /><span style={{ fontSize: 13, fontWeight: 800, color: '#111' }}>Dette de sommeil</span></div>
-                        {/* Visual bar: tonight vs need */}
-                        <div style={{ marginBottom: 14 } as any}>
-                          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 } as any}>
-                            <span style={{ fontSize: 11, color: '#6B7280' }}>Cette nuit</span>
-                            <span style={{ fontSize: 11, fontWeight: 800, color: tonightColor }}>{effH}h{String(effM).padStart(2, '0')}</span>
-                          </div>
-                          <div style={{ height: 10, borderRadius: 5, background: '#E5E7EB', overflow: 'hidden', position: 'relative' } as any}>
-                            <div style={{ height: '100%', borderRadius: 5, width: `${tonightPct}%`, background: tonightColor, transition: 'width 0.8s' } as any} />
-                            {/* Need marker */}
-                            <div style={{ position: 'absolute', top: -2, bottom: -2, left: '100%', width: 2, background: '#111', borderRadius: 1 } as any} />
-                          </div>
-                          <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 3 } as any}>
-                            <span style={{ fontSize: 9, color: '#9CA3AF' }}>{tonightPct}% de votre besoin</span>
-                            <span style={{ fontSize: 9, color: '#9CA3AF' }}>Besoin: {needH}h{String(needM).padStart(2, '0')}</span>
-                          </div>
-                        </div>
-                        {/* Week debt */}
-                        <div style={{ padding: '12px', borderRadius: 12, background: '#FFF', display: 'flex', alignItems: 'center', gap: 12 } as any}>
-                          <div style={{ width: 44, height: 44, borderRadius: 12, background: `${weekColor}12`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}>
-                            <i className="ri-hourglass-line" style={{ fontSize: 20, color: weekColor }} />
-                          </div>
-                          <div style={{ flex: 1 } as any}>
-                            <div style={{ fontSize: 12, fontWeight: 700, color: '#111' }}>Dette cumulee sur 7 jours</div>
-                            <div style={{ fontSize: 10, color: '#9CA3AF', marginTop: 2 }}>{weekDebtMin <= 60 ? 'Vous recuperez bien !' : weekDebtMin <= 180 ? 'Un peu de retard a rattraper.' : 'Essayez de vous coucher plus tot.'}</div>
-                          </div>
-                          <div style={{ textAlign: 'right' } as any}>
-                            <div style={{ fontSize: 22, fontWeight: 900, color: weekColor, lineHeight: 1 }}>{weekDebtH}h{String(weekDebtM).padStart(2, '0')}</div>
-                          </div>
-                        </div>
-                      </div>
-                    );
-                  })()}
+                  {/* ── REGULARITE DU SOMMEIL (coucher/réveil 7j) — end ── */}
+
                 </>
               );
             })()}
