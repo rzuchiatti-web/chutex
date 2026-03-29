@@ -1033,8 +1033,9 @@ async def beneficiary_today_meals(user=Depends(get_current_user)):
 
 @router.post("/pro/seed-templates")
 async def seed_templates(user=Depends(get_current_user)):
-    """Seed the library with default reminder, meal and exercise templates for this pro"""
-    require_pro(user)
+    """Seed the library with default reminder, meal and exercise templates for this pro/guardian"""
+    if user.get('role') not in ('professional', 'guardian'):
+        raise HTTPException(status_code=403, detail="Pro or Guardian role required")
     pid = user['id']
     now = datetime.now(timezone.utc).isoformat()
 

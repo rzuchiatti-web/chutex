@@ -5,17 +5,17 @@ interface Props { d: any; subs: any; beneficiaryId?: string; }
 
 export default function HealthSections({ d, subs, beneficiaryId }: Props) {
   const router = useRouter();
-  const isDark = typeof localStorage !== 'undefined' ? localStorage.getItem('chutex_dark') !== '0' : true;
+  const isDark = typeof localStorage !== 'undefined' ? localStorage.getItem('chutex_dark') === '1' : false;
   const cardBg = isDark ? 'rgba(70,70,78,0.85)' : '#E8E8EA';
   const textColor = isDark ? '#FFF' : '#1A1A2E';
   const subColor = isDark ? 'rgba(255,255,255,0.35)' : 'rgba(0,0,0,0.4)';
   const arrowColor = isDark ? 'rgba(255,255,255,0.15)' : 'rgba(0,0,0,0.12)';
 
   const sections = [
-    { id: 'cardio', label: 'Sante cardiaque', sub: 'Coeur, circulation, rythme', img: 'https://customer-assets.emergentagent.com/job_92308143-f99e-4bad-8264-e3775a214313/artifacts/8x2d3bbk_hearth%20red%20app%20healthbeat%20Chutex.png', color: '#EF4444' },
-    { id: 'metabolism', label: 'Sante metabolique', sub: 'Glycemie, IMC, graisse viscerale', img: 'https://customer-assets.emergentagent.com/job_92308143-f99e-4bad-8264-e3775a214313/artifacts/5vzwu43l_m%C3%A9tabolique.png', color: '#F59E0B' },
-    { id: 'activity', label: 'Sante physique', sub: 'Pas, depense, stress, VO2 max', img: 'https://customer-assets.emergentagent.com/job_92308143-f99e-4bad-8264-e3775a214313/artifacts/75gbxosw_physique.png', color: '#10B981' },
-    { id: 'composition', label: 'Composition corporelle', sub: 'Poids, muscle, graisse, hydratation', img: 'https://customer-assets.emergentagent.com/job_92308143-f99e-4bad-8264-e3775a214313/artifacts/3yq7hxyr_composition%281%29.png', color: '#F97316' },
+    { id: 'cardio', label: 'Cardiologie', sub: 'Rythme cardiaque, ECG, circulation', img: 'https://customer-assets.emergentagent.com/job_92308143-f99e-4bad-8264-e3775a214313/artifacts/8x2d3bbk_hearth%20red%20app%20healthbeat%20Chutex.png', color: '#EF4444' },
+    { id: 'metabolism', label: 'Metabolisme', sub: 'Glycemie, IMC, graisse viscerale', img: 'https://customer-assets.emergentagent.com/job_92308143-f99e-4bad-8264-e3775a214313/artifacts/5vzwu43l_m%C3%A9tabolique.png', color: '#F59E0B' },
+    { id: 'activity', label: 'Condition physique', sub: 'VO2 max, recuperation, stress', img: 'https://customer-assets.emergentagent.com/job_92308143-f99e-4bad-8264-e3775a214313/artifacts/75gbxosw_physique.png', color: '#10B981' },
+    { id: 'composition', label: 'Composition corporelle', sub: 'Masse grasse, masse musculaire, hydratation', img: 'https://customer-assets.emergentagent.com/job_92308143-f99e-4bad-8264-e3775a214313/artifacts/3yq7hxyr_composition%281%29.png', color: '#F97316' },
   ];
 
   return (

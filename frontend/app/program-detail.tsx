@@ -31,7 +31,7 @@ export default function ProgramDetailScreen() {
   const [invitedFriends, setInvitedFriends] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [invitePrefix, setInvitePrefix] = useState('+33');
-  const [isDark, setIsDark] = useState(() => typeof localStorage !== 'undefined' ? localStorage.getItem('chutex_dark') !== '0' : true);
+  const [isDark, setIsDark] = useState(() => typeof localStorage !== 'undefined' ? localStorage.getItem('chutex_dark') === '1' : false);
 
   useEffect(() => {
     if (typeof localStorage === 'undefined') return;
