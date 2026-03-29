@@ -541,10 +541,6 @@ export function BeneficiaryHome({ token, user }: { token: string; user: any }) {
 
           <WeightGoalDashCard token={token} />
 
-          {(br.connected || br.paired || ((sc.connected || sc.paired) && weighings.length > 0) || vs.connected || vs.paired) && (
-            <DeviceCards br={br} sc={sc} vs={vs} weighings={weighings} onStartWeighing={() => setShowWeighing(true)} onRefresh={fetchData} subscription={subscription} />
-          )}
-
           {showWeighing && <WeighingFlow onClose={() => setShowWeighing(false)} d={dashData?.scale || {}} weighings={weighings} />}
 
           <div style={{ height: 1, background: C.sep, margin: "10px 0 24px" } as any} />
@@ -669,6 +665,22 @@ export function BeneficiaryHome({ token, user }: { token: string; user: any }) {
               )}
               <i className="ri-arrow-right-s-line" style={{ fontSize: 18, color: 'rgba(255,255,255,0.2)' }} />
             </div>
+          )}
+
+          {/* ── Dispositifs connectes ── */}
+          {(br.connected || br.paired || ((sc.connected || sc.paired) && weighings.length > 0) || vs.connected || vs.paired) && (
+            <>
+              <div style={{ height: 1, background: C.sep, margin: "10px 0 24px" } as any} />
+              <div data-testid="devices-section" className="dash-slide-up" style={{ marginBottom: 28 } as any}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 } as any}>
+                  <div style={{ fontSize: 20, fontWeight: 900, color: C.text, letterSpacing: '-0.3px' } as any}>Mes dispositifs</div>
+                  <div onClick={() => router.push('/(tabs)/devices' as any)} style={{ fontSize: 11, fontWeight: 700, color: '#A78BFA', cursor: 'pointer', padding: '4px 12px', borderRadius: 999, background: isDark ? 'rgba(167,139,250,0.08)' : 'rgba(167,139,250,0.06)' } as any}>Gerer</div>
+                </div>
+                <div style={{ fontSize: 13, color: C.sub, marginBottom: 16, lineHeight: '1.45' } as any}>Vos appareils connectes pour le suivi de votre sante au quotidien.</div>
+                <DeviceCards br={br} sc={sc} vs={vs} weighings={weighings} onStartWeighing={() => setShowWeighing(true)} onRefresh={fetchData} subscription={subscription} />
+              </div>
+              <div style={{ height: 1, background: C.sep, margin: "10px 0 24px" } as any} />
+            </>
           )}
 
           {/* ── Rappels ── */}
