@@ -49,27 +49,36 @@ export function DeviceManagement({ token }: { token: string }) {
 
   /* ── Web rendering ── */
   if (Platform.OS === 'web') {
+    const BG_IMG = 'https://customer-assets.emergentagent.com/job_443c9c6e-0feb-4920-a358-fe7cc1a6289b/artifacts/1lq6xl58_ChatGPT%20Image%2017%20f%C3%A9vr.%202026%2C%2008_54_55.png';
     return (
-      <div data-testid="devices-page" style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, display: 'flex', flexDirection: 'column', fontFamily: 'Inter, system-ui, sans-serif', overflow: 'hidden' } as any}>
-        <AnimatedDarkBg />
-        <div style={{ flex: 1, overflowY: 'auto', position: 'relative', zIndex: 5, padding: '0 20px 100px', WebkitOverflowScrolling: 'touch' } as any}>
-          <div style={{ padding: '28px 0 16px', textAlign: 'center' } as any}>
-            <div style={{ fontSize: 26, fontWeight: 800, color: '#FFF', marginBottom: 4 }}>Dispositifs connectes</div>
-            <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)' }}>Gerez vos dispositifs de sante Chutex</div>
+      <div data-testid="devices-page" style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', fontFamily: 'Inter, system-ui, sans-serif', overflow: 'hidden', background: '#FFF' } as any}>
+        <div style={{ flex: 1, overflowY: 'auto', WebkitOverflowScrolling: 'touch' } as any}>
+
+          {/* HEADER with BG image */}
+          <div style={{ position: 'relative', zIndex: 1, minHeight: 180 } as any}>
+            <img src={BG_IMG} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 } as any} />
+            <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.35)', zIndex: 1 } as any} />
+            <div style={{ position: 'relative', zIndex: 2, padding: 'calc(env(safe-area-inset-top, 20px) + 12px) 20px 60px', maxWidth: 480, margin: '0 auto', textAlign: 'center' } as any}>
+              <div style={{ fontSize: 24, fontWeight: 900, color: '#FFF', marginBottom: 4 }}>Dispositifs connectes</div>
+              <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.5)' }}>Gerez vos dispositifs de sante Chutex</div>
+            </div>
           </div>
 
-          {ALL_DEVICE_TYPES.map(dt => (
-            <DeviceCard
-              key={dt}
-              deviceType={dt}
-              device={deviceMap[dt]}
-              subscription={subscription}
-              weighings={weighings}
-              onStartPairing={handleStartPairing}
-              onSelectDevice={setSelectedDevice}
-              onScaleWeighing={openWeighingFlow}
-            />
-          ))}
+          {/* WHITE CONTENT CARD */}
+          <div style={{ padding: '24px 16px 120px', marginTop: -24, borderRadius: '24px 24px 0 0', background: '#FFF', position: 'relative', zIndex: 10, maxWidth: 480, margin: '-24px auto 0', width: '100%' } as any}>
+            {ALL_DEVICE_TYPES.map(dt => (
+              <DeviceCard
+                key={dt}
+                deviceType={dt}
+                device={deviceMap[dt]}
+                subscription={subscription}
+                weighings={weighings}
+                onStartPairing={handleStartPairing}
+                onSelectDevice={setSelectedDevice}
+                onScaleWeighing={openWeighingFlow}
+              />
+            ))}
+          </div>
         </div>
 
         {/* Pairing Steps Popup */}
