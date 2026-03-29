@@ -4,6 +4,7 @@ import { useRouter } from 'expo-router';
 import { useAuth } from '../src/context/AuthContext';
 import { apiFetch } from '../src/services/api';
 import NoraOverlay, { NoraButton } from '../src/components/dashboard/NoraOverlay';
+import { HorizontalCalendar } from '../src/components/dashboard/pro/ProCalendar';
 
 const P = '#A78BFA', G = '#10B981', GL_H = '#84CC16', A = '#F59E0B', O = '#F97316', R = '#EF4444', B = '#60A5FA';
 const META_IMG = 'https://customer-assets.emergentagent.com/job_92308143-f99e-4bad-8264-e3775a214313/artifacts/5vzwu43l_m%C3%A9tabolique.png';
@@ -68,14 +69,20 @@ export default function GlycemiaDetailPage() {
   const [saving, setSaving] = useState(false);
   const [showHistory, setShowHistory] = useState(false);
   const [explainKey, setExplainKey] = useState<string | null>(null);
+  const [selectedDate, setSelectedDate] = useState(new Date());
+  const [trendHistory, setTrendHistory] = useState<any[]>([]);
 
   const fetchAll = () => {
     if (!token) return;
     Promise.all([
       apiFetch('/api/glycemia/estimate', {}, token),
       apiFetch('/api/glycemia/calibrations', {}, token),
-    ]).then(([est, cal]) => { setData(est); setCalibrations(cal?.calibrations || []); })
-      .catch(() => {}).finally(() => setLoading(false));
+      apiFetch('/api/glycemia/trend', {}, token),
+    ]).then(([est, cal, trend]) => {
+      setData(est);
+      setCalibrations(cal?.calibrations || []);
+      setTrendHistory(trend?.history || []);
+    }).catch(() => {}).finally(() => setLoading(false));
   };
   useEffect(fetchAll, [token]);
 
@@ -99,7 +106,7 @@ export default function GlycemiaDetailPage() {
       <div style={{ flex: 1, overflowY: 'auto', WebkitOverflowScrolling: 'touch' } as any}>
 
         {/* HEADER with BG image */}
-        <div style={{ position: 'relative', zIndex: 1, minHeight: 220 } as any}>
+        <div style={{ position: 'relative', zIndex: 1, minHeight: 280 } as any}>
           <img src={BG} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 } as any} />
           <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.35)', zIndex: 1 } as any} />
           <div style={{ position: 'relative', zIndex: 2, padding: 'calc(env(safe-area-inset-top, 20px) + 12px) 20px 70px', maxWidth: 480, margin: '0 auto' } as any}>
@@ -109,6 +116,8 @@ export default function GlycemiaDetailPage() {
               <div style={{ fontSize: 22, fontWeight: 900, color: '#FFF', marginTop: 8 }}>Glycemie</div>
               <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.5)' }}>Estimation et suivi glycemique</div>
             </div>
+            {/* Calendar — identical to activity-detail / minceur */}
+            <HorizontalCalendar selectedDate={selectedDate} onSelect={setSelectedDate} accent={P} />
           </div>
         </div>
 
@@ -121,6 +130,55 @@ export default function GlycemiaDetailPage() {
             <>
               {/* Nora Glycemia Analysis */}
               <NoraButton label="Analyse glycemique" sublabel="Analyse par Nora de votre glycemie" onClick={() => setShowNoraGlycemia(true)} />
+
+              {/* STATS: Plus haut / Plus bas / Moyenne for selected day */}
+              {(() => {
+                const selStr = `${selectedDate.getFullYear()}-${String(selectedDate.getMonth() + 1).padStart(2, '0')}-${String(selectedDate.getDate()).padStart(2, '0')}`;
+                // Gather all values: history estimates + calibrations for the selected date
+                const dayEstimate = trendHistory.find((h: any) => h.date === selStr);
+                const dayCalibs = calibrations.filter((c: any) => c.date?.startsWith(selStr));
+                const allVals: number[] = [];
+                if (dayEstimate?.estimated_glycemia) allVals.push(dayEstimate.estimated_glycemia);
+                dayCalibs.forEach((c: any) => { if (c.glycemia_value) allVals.push(c.glycemia_value); });
+                // If no data for selected day, show 7-day window
+                const windowVals: number[] = [];
+                if (allVals.length === 0) {
+                  const sel = selectedDate.getTime();
+                  trendHistory.forEach((h: any) => { if (h.estimated_glycemia) { const d = new Date(h.date + 'T12:00:00').getTime(); if (Math.abs(d - sel) <= 7 * 86400000) windowVals.push(h.estimated_glycemia); } });
+                  calibrations.forEach((c: any) => { if (c.glycemia_value) { const d = new Date(c.date).getTime(); if (Math.abs(d - sel) <= 7 * 86400000) windowVals.push(c.glycemia_value); } });
+                }
+                const vals = allVals.length > 0 ? allVals : windowVals;
+                const isWindow = allVals.length === 0 && windowVals.length > 0;
+                if (vals.length === 0) return null;
+                const high = Math.max(...vals);
+                const low = Math.min(...vals);
+                const avg = +(vals.reduce((a, b) => a + b, 0) / vals.length).toFixed(2);
+                const getCol = (v: number) => v < 1.0 ? G : v < 1.1 ? GL_H : v < 1.26 ? A : v < 1.4 ? O : R;
+                return (
+                  <div data-testid="glycemia-stats-card" style={{ borderRadius: 18, background: '#F4F4F5', padding: '16px', marginBottom: 14 } as any}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 14 } as any}>
+                      <i className="ri-bar-chart-2-line" style={{ fontSize: 14, color: P }} />
+                      <span style={{ fontSize: 12, fontWeight: 800, color: '#111' }}>{isWindow ? 'Statistiques 7 jours' : `Statistiques du ${selectedDate.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })}`}</span>
+                    </div>
+                    <div style={{ display: 'flex', gap: 8 } as any}>
+                      {[
+                        { label: 'Plus haut', value: high, icon: 'ri-arrow-up-line' },
+                        { label: 'Moyenne', value: avg, icon: 'ri-subtract-line' },
+                        { label: 'Plus bas', value: low, icon: 'ri-arrow-down-line' },
+                      ].map((s, i) => (
+                        <div key={i} style={{ flex: 1, padding: '14px 8px', borderRadius: 14, background: '#FFF', textAlign: 'center' } as any}>
+                          <div style={{ width: 28, height: 28, borderRadius: 10, background: `${getCol(s.value)}12`, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', marginBottom: 8 } as any}>
+                            <i className={s.icon} style={{ fontSize: 14, color: getCol(s.value) }} />
+                          </div>
+                          <div style={{ fontSize: 20, fontWeight: 900, color: getCol(s.value), lineHeight: 1 }}>{s.value}</div>
+                          <div style={{ fontSize: 9, fontWeight: 600, color: '#9CA3AF', marginTop: 4 }}>g/L</div>
+                          <div style={{ fontSize: 10, fontWeight: 700, color: '#6B7280', marginTop: 4 }}>{s.label}</div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                );
+              })()}
 
               {/* CARD 1: Zone + Estimated Value + Graph */}
               <div data-testid="glycemia-estimation-card" style={{ padding: '20px', borderRadius: 18, background: '#F4F4F5', marginBottom: 14 } as any}>
