@@ -31,15 +31,33 @@ L'objectif est une UI Glassmorphism + Light mode avec synchronisation en temps r
 - [x] **Page glycemia-detail light theme** (header image + conteneur blanc + cartes grises)
 - [x] **Page metric-detail light theme** (header image + conteneur blanc + cartes grises)
 - [x] **Historique analyses Nora** (/nora-history) accessible depuis le profil beneficiaire
-- [x] **Suppression "Exercices prescrits"** — section retirée de activity-detail.tsx, logique simplifiée (Coach exercises OU Nora exercises)
-- [x] **Page Sante light par defaut** — isDark=false quand chutex_dark non defini dans localStorage
-- [x] **Refonte page Poids & Nutrition** — header bleu + image balance + barre IMC, carte blanche arrondie, Nora en haut, 3 graphiques separes (poids, graisse, muscle), apport calorique, section exercices, goal form en popup dark glass
-- [x] **Cartes repas uniformes** — image reelle a gauche, fond gris #F4F4F5, texte noir, design identique dans ProDayView et minceur.tsx
-- [x] **Cartes exercices uniformes** — image a gauche, fond gris, texte noir, design identique dans ProDayView et activity-detail.tsx
-- [x] **Page Poids & Nutrition v2** — balance supprimée, titre centré, poids+IMC+barre centrés, calendrier horizontal identique (ProCalendar), exercices supprimés de la page
-- [x] **Auto-scroll calendrier** — ProCalendar auto-scroll au jour selectionne/courant (centrage automatique)
-- [x] **Bilan hebdomadaire Nora** — section "Bilan hebdomadaire" dans l'overlay Nora (poids/graisse/muscle avec delta 7 jours)
-- [x] **Calendrier fonctionnel** — les donnees (exercices, tracking) se mettent a jour selon le jour selectionne dans le calendrier (activity-detail + minceur). Backend: param `date` ajoute a beneficiary-today-exercises et today-tracking
+- [x] **Suppression "Exercices prescrits"** — section retiree de activity-detail.tsx
+- [x] **Page Sante light par defaut** — isDark=false quand chutex_dark non defini
+- [x] **Refonte page Poids & Nutrition** — header bleu + image balance + barre IMC, calendrier horizontal, Nora
+- [x] **Cartes repas/exercices uniformes** — image reelle a gauche, fond gris, texte noir
+- [x] **Page Poids & Nutrition v2** — balance supprimee, titre centre, calendrier horizontal
+- [x] **Auto-scroll calendrier** — ProCalendar auto-scroll au jour selectionne
+- [x] **Bilan hebdomadaire Nora** — section dans l'overlay Nora
+- [x] **Calendrier fonctionnel** — donnees mises a jour selon le jour selectionne
+- [x] **Refonte sleep page Light Theme** — header violet, white card, gray cards, popups dark
+- [x] **Popups explicatives dark** pour dette et regularite du sommeil
+- [x] **Renommage cartes Sante** en termes medicaux
+- [x] **Light Theme force** sur pages Sante et Programmes
+- [x] **Seed templates** accessibles aux gardiens non-pro
+- [x] **Refactoring health-detail.tsx** — 1125 -> 470 lignes, 6 composants extraits (2026-03-29)
+- [x] **Bug fix KeyError device_type** dans guardian_routes.py ai-report (2026-03-29)
+- [x] **Bug fix popup Nora** restaure dans la section light theme sommeil (2026-03-29)
+
+## Code Architecture (post-refactoring)
+```
+/app/frontend/src/components/health/sleep/
+  SleepHypnogramCard.tsx    - Carte cycles + stages + interruptions
+  SleepQualityCard.tsx      - Barre de qualite du sommeil
+  SleepApneaCard.tsx        - Risque d'apnee
+  SleepDebtCard.tsx         - Jauge dette + graphe 7j
+  SleepRegularityCard.tsx   - Regularite coucher/reveil
+  SleepExplainPopup.tsx     - Popup explicative dark unifie
+```
 
 ## Backlog P2
 - [ ] Balance/gilet connectes
