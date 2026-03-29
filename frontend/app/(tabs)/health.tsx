@@ -54,7 +54,7 @@ export default function HealthScreen() {
   useEffect(() => {
     if (typeof localStorage === 'undefined') return;
     const iv = setInterval(() => {
-      const v = localStorage.getItem('chutex_dark') !== '0';
+      const v = localStorage.getItem('chutex_dark') === '1';
       setIsDark(prev => prev !== v ? v : prev);
     }, 400);
     return () => clearInterval(iv);

@@ -135,23 +135,24 @@ export function ProDayView(props: ProDayViewProps) {
       {filteredExercises.length === 0 && <EmptyDay icon="ri-inbox-2-line" text={`Aucun exercice prevu le ${selectedDayFr}`} />}
       {filteredExercises.map(ex => {
         const done = (ex.completions || []).some((c: any) => c.date?.startsWith(selectedDateStr) && c.status === 'done');
-        const partial = (ex.completions || []).some((c: any) => c.date?.startsWith(selectedDateStr) && c.status === 'partial');
+        const exImg = ex.image ? (ex.image.startsWith('/') ? `${API}${ex.image}` : ex.image) : null;
         return (
           <div key={ex.id} data-testid={`day-exercise-${ex.id}`}
             onClick={() => router.push({ pathname: '/pro-exercise-detail' as any, params: { id: ex.exercise_template_id || ex.id, mode: 'assigned', assignmentId: ex.id } })}
-            style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 12px', borderRadius: 16,
-              background: done ? 'rgba(16,185,129,0.12)' : '#F4F4F5', cursor: 'pointer',
-              marginBottom: 8, transition: 'all 0.15s', opacity: done ? 0.7 : 1 } as any}>
-            <div style={{ width: 52, height: 52, borderRadius: 14, overflow: 'hidden', flexShrink: 0, background: done ? 'rgba(16,185,129,0.15)' : '#E5E7EB', display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}>
-              <i className={ex.icon || 'ri-run-line'} style={{ fontSize: 24, color: done ? '#10B981' : AC }} />
+            style={{ borderRadius: 14, background: done ? 'rgba(16,185,129,0.08)' : '#F4F4F5', overflow: 'hidden', cursor: 'pointer', display: 'flex', minHeight: 72, marginBottom: 8, opacity: done ? 0.7 : 1 } as any}>
+            <div style={{ width: 80, flexShrink: 0, position: 'relative', overflow: 'hidden' } as any}>
+              {exImg ? <img src={exImg} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' } as any} /> :
+              <div style={{ position: 'absolute', inset: 0, background: done ? 'rgba(16,185,129,0.15)' : '#E5E7EB', display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}><i className={ex.icon || 'ri-run-line'} style={{ fontSize: 24, color: done ? '#10B981' : AC }} /></div>}
             </div>
-            <div style={{ flex: 1, minWidth: 0 } as any}>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' } as any}>
-                <div style={{ fontSize: 14, fontWeight: 700, color: done ? '#10B981' : '#111', textTransform: 'capitalize', textDecoration: done ? 'line-through' : 'none' }}>{ex.title}</div>
+            <div style={{ flex: 1, minWidth: 0, padding: '10px 12px', display: 'flex', flexDirection: 'column', justifyContent: 'center' } as any}>
+              <span style={{ fontSize: 8, fontWeight: 700, color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: 0.6 }}>{ex.category || 'Exercice'}</span>
+              <div style={{ fontSize: 14, fontWeight: 700, color: done ? '#10B981' : '#111', textDecoration: done ? 'line-through' : 'none', marginTop: 2 }}>{ex.title}</div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 2 } as any}>
+                <span style={{ fontSize: 11, color: done ? 'rgba(16,185,129,0.6)' : '#6B7280' }}>{ex.sets}x{ex.repetitions} reps</span>
+                {ex.rest_seconds > 0 && <span style={{ fontSize: 10, color: '#9CA3AF' }}>{ex.rest_seconds}s repos</span>}
               </div>
-              <div style={{ fontSize: 11, color: done ? 'rgba(16,185,129,0.6)' : '#6B7280', marginTop: 2 }}>{ex.sets}x{ex.repetitions} - {ex.rest_seconds}s repos</div>
             </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 4, flexShrink: 0 } as any} onClick={(e: any) => e.stopPropagation()}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 4, flexShrink: 0, paddingRight: 8 } as any} onClick={(e: any) => e.stopPropagation()}>
               {done && <i className="ri-checkbox-circle-fill" style={{ fontSize: 18, color: '#10B981' }} />}
               <ActionButtons onEdit={() => props.onEditExercise(ex)} onDelete={() => props.onDeleteExercise(ex.id)} testPrefix={`exercise-${ex.id}`} />
             </div>
@@ -227,25 +228,24 @@ export function ProDayView(props: ProDayViewProps) {
       {filteredMeals.length === 0 && <EmptyDay icon="ri-restaurant-line" text={`Aucun repas prevu le ${selectedDayFr}`} />}
       {filteredMeals.map(m => {
         const mealDone = (m.completions || []).some((c: any) => c.date?.startsWith(selectedDateStr) && c.status === 'done');
-        const mealIcon = MEAL_ICONS[m.meal_type] || 'ri-restaurant-line';
         const mealColor = MEAL_COLORS[m.meal_type] || '#10B981';
+        const mealImg = m.image ? (m.image.startsWith('/') ? `${API}${m.image}` : m.image) : (MEAL_IMGS[m.meal_type] || MEAL_IMGS.dejeuner);
         return (
           <div key={m.id} data-testid={`day-meal-${m.id}`}
             onClick={() => router.push({ pathname: '/meal-detail' as any, params: { id: m.meal_template_id || m.id, mode: 'assigned', assignmentId: m.id } })}
-            style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 12px', borderRadius: 16,
-              background: mealDone ? 'rgba(16,185,129,0.12)' : '#F4F4F5', cursor: 'pointer',
-              marginBottom: 8, transition: 'all 0.15s', opacity: mealDone ? 0.7 : 1 } as any}>
-            <div style={{ width: 52, height: 52, borderRadius: 14, flexShrink: 0, background: mealDone ? 'rgba(16,185,129,0.15)' : '#E5E7EB', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' } as any}>
-              {m.image ? <img src={m.image.startsWith('/') ? `${process.env.EXPO_PUBLIC_BACKEND_URL || ''}${m.image}` : m.image} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' } as any} /> : <i className={mealIcon} style={{ fontSize: 24, color: mealDone ? '#10B981' : mealColor }} />}
+            style={{ borderRadius: 14, background: mealDone ? 'rgba(16,185,129,0.08)' : '#F4F4F5', overflow: 'hidden', cursor: 'pointer', display: 'flex', minHeight: 72, marginBottom: 8, opacity: mealDone ? 0.7 : 1 } as any}>
+            <div style={{ width: 80, flexShrink: 0, position: 'relative', overflow: 'hidden' } as any}>
+              <img src={mealImg} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' } as any} />
             </div>
-            <div style={{ flex: 1, minWidth: 0 } as any}>
+            <div style={{ flex: 1, minWidth: 0, padding: '10px 12px', display: 'flex', flexDirection: 'column', justifyContent: 'center' } as any}>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' } as any}>
-                <div style={{ fontSize: 14, fontWeight: 700, color: mealDone ? '#10B981' : '#111', textTransform: 'capitalize', textDecoration: mealDone ? 'line-through' : 'none' }}>{m.title}</div>
-                {m.calories > 0 && <span style={{ fontSize: 12, fontWeight: 800, color: '#9CA3AF' }}>{m.calories}<span style={{ fontSize: 8 }}>kcal</span></span>}
+                <span style={{ fontSize: 8, fontWeight: 700, color: mealColor, textTransform: 'uppercase', letterSpacing: 0.6 }}>{(m.meal_type || '').replace('_', ' ')}</span>
+                {m.calories > 0 && <span style={{ fontSize: 12, fontWeight: 900, color: '#9CA3AF' }}>{m.calories}<span style={{ fontSize: 7 }}>kcal</span></span>}
               </div>
-              <div style={{ fontSize: 11, color: mealDone ? 'rgba(16,185,129,0.6)' : mealColor, marginTop: 2 }}>Voir la recette <i className="ri-arrow-right-s-line" style={{ fontSize: 9 }} /></div>
+              <div style={{ fontSize: 14, fontWeight: 700, color: mealDone ? '#10B981' : '#111', textDecoration: mealDone ? 'line-through' : 'none', marginTop: 2 }}>{m.title}</div>
+              <span style={{ fontSize: 9, color: mealColor, fontWeight: 700, marginTop: 3 }}>Voir la recette <i className="ri-arrow-right-s-line" style={{ fontSize: 8 }} /></span>
             </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 4, flexShrink: 0 } as any} onClick={(e: any) => e.stopPropagation()}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 4, flexShrink: 0, paddingRight: 8 } as any} onClick={(e: any) => e.stopPropagation()}>
               {mealDone && <i className="ri-checkbox-circle-fill" style={{ fontSize: 18, color: '#10B981' }} />}
               <ActionButtons onEdit={() => props.onEditMeal(m)} onDelete={() => props.onDeleteMeal(m.id)} testPrefix={`meal-${m.id}`} />
             </div>
