@@ -37,6 +37,8 @@ L'objectif est une UI Glassmorphism + Light mode avec synchronisation en temps r
 - [x] **Cartes repas uniformes** — image reelle a gauche, fond gris #F4F4F5, texte noir, design identique dans ProDayView et minceur.tsx
 - [x] **Cartes exercices uniformes** — image a gauche, fond gris, texte noir, design identique dans ProDayView et activity-detail.tsx
 - [x] **Page Poids & Nutrition v2** — balance supprimée, titre centré, poids+IMC+barre centrés, calendrier horizontal identique (ProCalendar), exercices supprimés de la page
+- [x] **Auto-scroll calendrier** — ProCalendar auto-scroll au jour selectionne/courant (centrage automatique)
+- [x] **Bilan hebdomadaire Nora** — section "Bilan hebdomadaire" dans l'overlay Nora (poids/graisse/muscle avec delta 7 jours)
 
 ## Backlog P2
 - [ ] Balance/gilet connectes

@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { DAYS_SHORT, MONTHS_FR, toLocalDateStr } from './constants';
 
 export function HorizontalCalendar({ selectedDate, onSelect, accent }: { selectedDate: Date; onSelect: (d: Date) => void; accent: string }) {
@@ -17,6 +17,22 @@ export function HorizontalCalendar({ selectedDate, onSelect, accent }: { selecte
 
   const todayStr = toLocalDateStr(new Date());
   const selStr = toLocalDateStr(selectedDate);
+
+  // Auto-scroll to selected day (centered)
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      try {
+        const el = document.querySelector(`[data-testid="cal-day-${selStr}"]`) as HTMLElement;
+        if (!el?.parentElement) return;
+        const container = el.parentElement as HTMLElement;
+        if (container.scrollWidth > container.clientWidth + 50) {
+          const scrollLeft = el.offsetLeft - container.clientWidth / 2 + el.clientWidth / 2;
+          container.scrollTo({ left: Math.max(0, scrollLeft), behavior: 'instant' as ScrollBehavior });
+        }
+      } catch {}
+    }, 150);
+    return () => clearTimeout(timer);
+  }, [selStr, viewMonth, viewYear]);
 
   return (
     <div data-testid="horizontal-calendar" style={{ width: '100%', marginTop: 28 } as any}>

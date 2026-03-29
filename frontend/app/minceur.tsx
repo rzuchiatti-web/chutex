@@ -10,7 +10,7 @@ import { HorizontalCalendar } from '../src/components/dashboard/pro/ProCalendar'
 const NORA_VIDEO = 'https://customer-assets.emergentagent.com/job_ba3a5789-c8f1-4b12-b5d8-478a7f99aaea/artifacts/b6eh1r76_Nora_video.mp4';
 const BLUE_BG = 'https://customer-assets.emergentagent.com/job_443c9c6e-0feb-4920-a358-fe7cc1a6289b/artifacts/v5t9l2mb_ChatGPT%20Image%2017%20f%C3%A9vr.%202026%2C%2014_10_07.png';
 
-function NoraAnalysisOverlay({ text: initialText, onClose }: { text: string; onClose: () => void }) {
+function NoraAnalysisOverlay({ text: initialText, onClose, history, current, bodyComp }: { text: string; onClose: () => void; history?: any[]; current?: any; bodyComp?: any }) {
   const { token } = useAuth();
   const [phase, setPhase] = useState<'intro' | 'typing' | 'done'>('intro');
   const [typed, setTyped] = useState('');
@@ -54,7 +54,53 @@ function NoraAnalysisOverlay({ text: initialText, onClose }: { text: string; onC
         <div onClick={onClose} style={{ position: 'fixed', top: 20, left: 20, width: 40, height: 40, borderRadius: 999, background: '#FFF', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', zIndex: 100001, boxShadow: '0 4px 16px rgba(0,0,0,0.3)' } as any}><i className="ri-arrow-left-line" style={{ fontSize: 18, color: '#111' }} /></div>
         <video autoPlay loop muted playsInline style={{ width: phase === 'intro' ? 140 : 90, height: phase === 'intro' ? 140 : 90, borderRadius: phase === 'intro' ? 50 : 30, objectFit: 'contain', animation: phase === 'intro' ? 'noraPulse 2.2s ease infinite' : 'none', marginBottom: phase === 'intro' ? 20 : 24, transition: 'all 1s cubic-bezier(0.22,0.61,0.36,1)', boxShadow: '0 0 60px rgba(167,139,250,0.15)' } as any} src={NORA_VIDEO} />
         {phase === 'intro' && (<div style={{ textAlign: 'center', animation: 'noraTextIn 0.6s ease 0.3s both' } as any}><div style={{ fontSize: 18, fontWeight: 800, color: '#FFF' }}>Nora analyse...</div><div style={{ fontSize: 12, color: 'rgba(255,255,255,0.25)', marginTop: 8 }}>Votre bilan nutritionnel personnalise</div></div>)}
-        {(phase === 'typing' || phase === 'done') && (<div style={{ width: '100%', maxWidth: 380, animation: 'noraTextIn 0.5s ease both' } as any}><div style={{ textAlign: 'center', marginBottom: 20 } as any}><div style={{ fontSize: 16, fontWeight: 800, color: '#FFF' }}>Analyse de Nora</div><div style={{ height: 2, width: 40, borderRadius: 1, background: 'rgba(167,139,250,0.4)', margin: '10px auto 0' } as any} /></div>{formatText(typed).map((para, i) => (<div key={i}>{i > 0 && <div style={{ height: 1, background: 'rgba(255,255,255,0.08)', margin: '16px 0' } as any} />}<div style={{ fontSize: 13, color: 'rgba(255,255,255,0.55)', lineHeight: 1.85, textAlign: 'center' }}>{para}</div></div>))}{phase === 'typing' && <span style={{ display: 'block', textAlign: 'center', color: 'rgba(255,255,255,0.12)', fontSize: 13 }}>|</span>}</div>)}
+        {(phase === 'typing' || phase === 'done') && (<div style={{ width: '100%', maxWidth: 380, animation: 'noraTextIn 0.5s ease both' } as any}><div style={{ textAlign: 'center', marginBottom: 20 } as any}><div style={{ fontSize: 16, fontWeight: 800, color: '#FFF' }}>Analyse de Nora</div><div style={{ height: 2, width: 40, borderRadius: 1, background: 'rgba(167,139,250,0.4)', margin: '10px auto 0' } as any} /></div>{formatText(typed).map((para, i) => (<div key={i}>{i > 0 && <div style={{ height: 1, background: 'rgba(255,255,255,0.08)', margin: '16px 0' } as any} />}<div style={{ fontSize: 13, color: 'rgba(255,255,255,0.55)', lineHeight: 1.85, textAlign: 'center' }}>{para}</div></div>))}{phase === 'typing' && <span style={{ display: 'block', textAlign: 'center', color: 'rgba(255,255,255,0.12)', fontSize: 13 }}>|</span>}
+          {/* ── Weekly Summary ── */}
+          {phase === 'done' && history && history.length >= 2 && (() => {
+            const sorted = [...history].reverse();
+            const latest = sorted[0];
+            const weekAgo = sorted.find((h: any) => {
+              const diff = (Date.now() - new Date(h.date).getTime()) / 86400000;
+              return diff >= 6;
+            }) || sorted[Math.min(sorted.length - 1, 7)];
+            const metrics = [
+              { label: 'Poids', key: 'weight', unit: 'kg', color: '#F59E0B', icon: 'ri-scales-3-line' },
+              { label: 'Graisse', key: 'body_fat_pct', unit: '%', color: '#F97316', icon: 'ri-fire-line' },
+              { label: 'Muscle', key: 'muscle_pct', unit: '%', color: '#10B981', icon: 'ri-body-scan-line' },
+            ];
+            return (
+              <div style={{ marginTop: 28 } as any}>
+                <div style={{ height: 1, background: 'rgba(255,255,255,0.08)', marginBottom: 20 } as any} />
+                <div style={{ textAlign: 'center', marginBottom: 16 } as any}>
+                  <div style={{ fontSize: 14, fontWeight: 800, color: '#FFF' }}>Bilan hebdomadaire</div>
+                  <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.25)', marginTop: 4 }}>Evolution sur les 7 derniers jours</div>
+                </div>
+                <div style={{ display: 'flex', gap: 8 } as any}>
+                  {metrics.map(m => {
+                    const cur = latest?.[m.key] || 0;
+                    const prev = weekAgo?.[m.key] || 0;
+                    const diff = cur && prev ? cur - prev : 0;
+                    const isUp = diff > 0;
+                    const diffColor = m.key === 'weight' ? (isUp ? '#EF4444' : '#10B981') : (isUp ? '#10B981' : '#EF4444');
+                    return (
+                      <div key={m.key} style={{ flex: 1, padding: '12px 8px', borderRadius: 16, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.06)', textAlign: 'center' } as any}>
+                        <i className={m.icon} style={{ fontSize: 16, color: m.color, display: 'block', marginBottom: 6 }} />
+                        <div style={{ fontSize: 18, fontWeight: 900, color: cur > 0 ? '#FFF' : 'rgba(255,255,255,0.15)', lineHeight: 1 }}>{cur > 0 ? cur : '--'}<span style={{ fontSize: 8, color: 'rgba(255,255,255,0.25)' }}>{m.unit}</span></div>
+                        <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.3)', marginTop: 4 }}>{m.label}</div>
+                        {diff !== 0 && cur > 0 && prev > 0 && (
+                          <div style={{ display: 'inline-flex', alignItems: 'center', gap: 2, marginTop: 4, padding: '2px 6px', borderRadius: 999, background: `${diffColor}15` } as any}>
+                            <i className={isUp ? 'ri-arrow-up-s-line' : 'ri-arrow-down-s-line'} style={{ fontSize: 10, color: diffColor }} />
+                            <span style={{ fontSize: 9, fontWeight: 800, color: diffColor }}>{Math.abs(diff).toFixed(1)}</span>
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            );
+          })()}
+        </div>)}
       </div>
       {phase === 'done' && (<div style={{ position: 'fixed', bottom: 0, left: 0, right: 0, padding: '16px 24px 36px', background: 'linear-gradient(0deg, #000 60%, transparent)', zIndex: 100000 } as any}><div data-testid="nora-back-btn" onClick={onClose} style={{ width: '100%', maxWidth: 380, margin: '0 auto', padding: '16px', borderRadius: 999, background: '#FFF', textAlign: 'center', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 } as any}><i className="ri-arrow-left-line" style={{ fontSize: 16, color: '#111' }} /><span style={{ fontSize: 15, fontWeight: 800, color: '#111' }}>Retour</span></div></div>)}
     </div>
@@ -450,7 +496,7 @@ export default function MinceurPage() {
       {/* ══ NORA ANALYSIS OVERLAY ══ */}
       {showNoraAnalysis && recs?.nora_insight && (() => {
         const fullText = `${recs.nora_insight}${recs.tip_of_the_day ? ` ${recs.tip_of_the_day}` : ''}`;
-        return <NoraAnalysisOverlay text={fullText} onClose={() => setShowNoraAnalysis(false)} />;
+        return <NoraAnalysisOverlay text={fullText} onClose={() => setShowNoraAnalysis(false)} history={history} current={cr} bodyComp={bc} />;
       })()}
     </div>
   );
