@@ -571,10 +571,10 @@ async def toggle_tracking(data: dict, user=Depends(get_current_user)):
 
 
 @router.get("/minceur/today-tracking")
-async def get_today_tracking(user=Depends(get_current_user)):
-    """Get today's tracking status + adherence stats"""
+async def get_today_tracking(date: str = None, user=Depends(get_current_user)):
+    """Get tracking status for a specific day + adherence stats"""
     uid = user["id"]
-    today_str = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+    today_str = date if date else datetime.now(timezone.utc).strftime("%Y-%m-%d")
 
     tracking = await db.minceur_tracking.find_one(
         {"user_id": uid, "date": today_str}, {"_id": 0}

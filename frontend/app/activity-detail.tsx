@@ -110,18 +110,20 @@ export default function ActivityDetailPage() {
   const fetchData = useCallback(() => {
     if (!token) { setLoading(false); return; }
     setLoading(true);
+    const dateStr = `${selectedDate.getFullYear()}-${String(selectedDate.getMonth()+1).padStart(2,'0')}-${String(selectedDate.getDate()).padStart(2,'0')}`;
     // Fast APIs first — show content quickly
     Promise.all([
       apiFetch('/api/health/activity-streak', {}, token).catch(() => ({})),
       apiFetch('/api/pro/has-active-programs', {}, token).catch(() => ({ has_programs: false })),
-      apiFetch('/api/minceur/today-tracking', {}, token).catch(() => ({})),
-      apiFetch('/api/pro/beneficiary-today-exercises', {}, token).catch(() => []),
+      apiFetch(`/api/minceur/today-tracking?date=${dateStr}`, {}, token).catch(() => ({})),
+      apiFetch(`/api/pro/beneficiary-today-exercises?date=${dateStr}`, {}, token).catch(() => []),
     ]).then(([st, proCheck, trk, proEx]) => {
       setStreak(st);
       const hasPro = proCheck?.has_programs || false;
       setHasProPrograms(hasPro);
       setProExercises(Array.isArray(proEx) ? proEx : []);
       if (trk?.completed) setTracked(trk.completed);
+      else setTracked({});
       if (!hasPro) {
         apiFetch('/api/minceur/exercises', {}, token).catch(() => ({})).then((exData: any) => {
           if (exData?.exercises) setExercises(exData.exercises);
@@ -132,7 +134,7 @@ export default function ActivityDetailPage() {
     apiFetch('/api/health/daily-report', {}, token).catch(() => ({})).then((report: any) => {
       if (report) setD(report);
     });
-  }, [token]);
+  }, [token, selectedDate]);
 
   useFocusEffect(useCallback(() => { fetchData(); }, [fetchData]));
 

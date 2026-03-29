@@ -1495,20 +1495,26 @@ async def delete_assigned_exercise(assignment_id: str, user=Depends(get_current_
     return {"status": "deleted"}
 
 @router.get("/pro/beneficiary-today-exercises")
-async def beneficiary_today_exercises(user=Depends(get_current_user)):
-    """Get exercises scheduled for today (beneficiary view)"""
-    import locale
-    today_idx = datetime.now(timezone.utc).weekday()  # 0=Monday
-    today_fr = DAYS_FR[today_idx]
+async def beneficiary_today_exercises(date: str = None, user=Depends(get_current_user)):
+    """Get exercises scheduled for a specific day (beneficiary view)"""
+    if date:
+        try:
+            target = datetime.strptime(date, '%Y-%m-%d')
+        except ValueError:
+            target = datetime.now(timezone.utc)
+    else:
+        target = datetime.now(timezone.utc)
+    day_idx = target.weekday()  # 0=Monday
+    today_fr = DAYS_FR[day_idx]
     exs = await db.pro_assigned_exercises.find(
         {"beneficiary_id": user['id'], "status": "active"}, {"_id": 0}
     ).to_list(100)
     today_exs = [e for e in exs if today_fr in e.get('days', [])]
-    # Add completion status for today
-    today_str = datetime.now(timezone.utc).strftime('%Y-%m-%d')
+    # Add completion status for that day
+    target_str = target.strftime('%Y-%m-%d')
     for e in today_exs:
         comps = e.get('completions', [])
-        e['completed_today'] = any(c.get('date', '').startswith(today_str) and c.get('status') == 'done' for c in comps)
+        e['completed_today'] = any(c.get('date', '').startswith(target_str) and c.get('status') == 'done' for c in comps)
     return today_exs
 
 @router.get("/pro/beneficiary-all-exercises")

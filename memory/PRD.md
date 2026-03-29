@@ -39,6 +39,7 @@ L'objectif est une UI Glassmorphism + Light mode avec synchronisation en temps r
 - [x] **Page Poids & Nutrition v2** — balance supprimée, titre centré, poids+IMC+barre centrés, calendrier horizontal identique (ProCalendar), exercices supprimés de la page
 - [x] **Auto-scroll calendrier** — ProCalendar auto-scroll au jour selectionne/courant (centrage automatique)
 - [x] **Bilan hebdomadaire Nora** — section "Bilan hebdomadaire" dans l'overlay Nora (poids/graisse/muscle avec delta 7 jours)
+- [x] **Calendrier fonctionnel** — les donnees (exercices, tracking) se mettent a jour selon le jour selectionne dans le calendrier (activity-detail + minceur). Backend: param `date` ajoute a beneficiary-today-exercises et today-tracking
 
 ## Backlog P2
 - [ ] Balance/gilet connectes

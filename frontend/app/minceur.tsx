@@ -241,13 +241,15 @@ export default function MinceurPage() {
   };
   useEffect(() => { fetchData(); }, [token]);
 
+  const selectedDateStr = `${selectedDate.getFullYear()}-${String(selectedDate.getMonth()+1).padStart(2,'0')}-${String(selectedDate.getDate()).padStart(2,'0')}`;
+
   useEffect(() => {
-    const sync = () => { if (token && data) { apiFetch('/api/minceur/today-tracking', {}, token).then(t => { if (t?.completed) setTracked(t.completed); if (t?.streak) setStreak(t.streak); }).catch(() => {}); } };
+    const sync = () => { if (token && data) { apiFetch(`/api/minceur/today-tracking?date=${selectedDateStr}`, {}, token).then(t => { if (t?.completed) setTracked(t.completed); else setTracked({}); if (t?.streak) setStreak(t.streak); }).catch(() => {}); } };
+    // Refetch tracking when date changes
+    sync();
     window.addEventListener('focus', sync);
-    window.addEventListener('popstate', sync);
-    const intervals = [2000, 4000, 6000, 8000, 10000].map(ms => setTimeout(sync, ms));
-    return () => { window.removeEventListener('focus', sync); window.removeEventListener('popstate', sync); intervals.forEach(clearTimeout); };
-  }, [token, data]);
+    return () => { window.removeEventListener('focus', sync); };
+  }, [token, data, selectedDateStr]);
 
   const saveGoal = async () => {
     setSaving(true);
