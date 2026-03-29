@@ -17,6 +17,45 @@ const ZONES_V2 = [
   { zone: 'Alerte', range: '> 1.26 g/L', color: R, desc: 'Risque important. Bilan sanguin urgent.' },
 ];
 
+const GLYCEMIA_EXPLANATIONS: Record<string, { icon: string; color: string; title: string; desc: string; ranges: { label: string; value: string; color: string }[]; tip: string }> = {
+  estimation: {
+    icon: 'ri-pulse-line', color: '#A78BFA',
+    title: 'Glycemie estimee',
+    desc: "Votre glycemie est estimee en combinant les donnees de votre bracelet (frequence cardiaque, variabilite, temperature, activite) avec un modele d'intelligence artificielle entraine sur des milliers de profils metaboliques. Le resultat est une approximation indicative, pas un diagnostic medical.",
+    ranges: [
+      { label: 'Normal', value: '0.70 - 0.99 g/L', color: G },
+      { label: 'Normal haut', value: '0.90 - 1.05 g/L', color: GL_H },
+      { label: 'Vigilance', value: '1.00 - 1.25 g/L', color: A },
+      { label: 'Pre-alerte', value: '1.20 - 1.40 g/L', color: O },
+      { label: 'Alerte', value: '> 1.26 g/L', color: R },
+    ],
+    tip: "Pour obtenir une valeur exacte, faites un bilan sanguin (glycemie a jeun) prescrit par votre medecin. Notre estimation s'affine avec chaque calibration capillaire.",
+  },
+  fiabilite: {
+    icon: 'ri-line-chart-line', color: '#60A5FA',
+    title: 'Fiabilite de l\'estimation',
+    desc: "Le score de fiabilite reflète la precision de l'estimation glycemique. Il augmente avec : le nombre de donnees captees par le bracelet, le nombre de calibrations capillaires realisees, et la regularite du port du bracelet. Sans calibration, l'estimation reste tres approximative.",
+    ranges: [
+      { label: 'Insuffisante', value: '< 15%', color: R },
+      { label: 'Initiale', value: '15 - 29%', color: A },
+      { label: 'En amelioration', value: '30 - 44%', color: GL_H },
+      { label: 'Fiable', value: '45%+', color: G },
+    ],
+    tip: "Portez votre bracelet en continu et realisez une calibration capillaire (piqure au doigt) une fois par mois. Chaque calibration ameliore significativement la precision du modele.",
+  },
+  calibration: {
+    icon: 'ri-drop-fill', color: '#EF4444',
+    title: 'Calibration capillaire',
+    desc: "La calibration consiste a mesurer votre glycemie reelle via une goutte de sang au bout du doigt (lecteur de glycemie). En comparant cette valeur reelle aux donnees estimees par le bracelet, notre algorithme s'ajuste et affine ses predictions pour votre profil unique.",
+    ranges: [
+      { label: 'Idealement a jeun', value: 'Le matin', color: P },
+      { label: 'Apres repas', value: '2h apres', color: A },
+      { label: 'Frequence', value: '1x / mois', color: G },
+    ],
+    tip: "Privilegiez les mesures a jeun le matin pour des valeurs de reference. Indiquez toujours le contexte (a jeun, apres repas) pour une meilleure calibration. Nettoyez votre doigt avant la piqure.",
+  },
+};
+
 export default function GlycemiaDetailPage() {
   const { token } = useAuth();
   const router = useRouter();
@@ -28,6 +67,7 @@ export default function GlycemiaDetailPage() {
   const [calibContext, setCalibContext] = useState('random');
   const [saving, setSaving] = useState(false);
   const [showHistory, setShowHistory] = useState(false);
+  const [explainKey, setExplainKey] = useState<string | null>(null);
 
   const fetchAll = () => {
     if (!token) return;
@@ -83,9 +123,14 @@ export default function GlycemiaDetailPage() {
               <NoraButton label="Analyse glycemique" sublabel="Analyse par Nora de votre glycemie" onClick={() => setShowNoraGlycemia(true)} />
 
               {/* CARD 1: Zone + Estimated Value + Graph */}
-              <div style={{ padding: '20px', borderRadius: 18, background: '#F4F4F5', marginBottom: 14 } as any}>
+              <div data-testid="glycemia-estimation-card" style={{ padding: '20px', borderRadius: 18, background: '#F4F4F5', marginBottom: 14 } as any}>
                 <div style={{ textAlign: 'center', marginBottom: 16 } as any}>
-                  <div style={{ fontSize: 11, fontWeight: 700, color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 8 }}>Glycemie Estimee</div>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, marginBottom: 8 } as any}>
+                    <div style={{ fontSize: 11, fontWeight: 700, color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: 1.5 }}>Glycemie Estimee</div>
+                    <div data-testid="explain-estimation-btn" onClick={() => setExplainKey('estimation')} style={{ width: 26, height: 26, borderRadius: 999, background: '#FFF', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', boxShadow: '0 1px 4px rgba(0,0,0,0.06)' } as any}>
+                      <i className="ri-information-line" style={{ fontSize: 13, color: P }} />
+                    </div>
+                  </div>
                   {data.estimated_glycemia && (
                     <div style={{ fontSize: 42, fontWeight: 900, color: '#111', lineHeight: 1, marginBottom: 6 }}>{data.estimated_glycemia} <span style={{ fontSize: 16, fontWeight: 600, color: '#9CA3AF' }}>g/L</span></div>
                   )}
@@ -148,10 +193,13 @@ export default function GlycemiaDetailPage() {
               </div>
 
               {/* CARD 2: Fiabilite */}
-              <div style={{ padding: '16px 20px', borderRadius: 18, background: '#F4F4F5', marginBottom: 14 } as any}>
+              <div data-testid="glycemia-fiabilite-card" style={{ padding: '16px 20px', borderRadius: 18, background: '#F4F4F5', marginBottom: 14 } as any}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 } as any}>
                   <i className="ri-line-chart-line" style={{ fontSize: 14, color: '#111' }} />
                   <span style={{ fontSize: 12, fontWeight: 800, color: '#111' }}>Fiabilite de l'estimation</span>
+                  <div data-testid="explain-fiabilite-btn" onClick={() => setExplainKey('fiabilite')} style={{ width: 26, height: 26, borderRadius: 999, background: '#FFF', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', marginLeft: 'auto', boxShadow: '0 1px 4px rgba(0,0,0,0.06)' } as any}>
+                    <i className="ri-information-line" style={{ fontSize: 13, color: B }} />
+                  </div>
                 </div>
                 {(() => {
                   const calCount = data.calibration?.count || 0;
@@ -181,28 +229,16 @@ export default function GlycemiaDetailPage() {
                 </div>
               </div>
 
-              {/* CARD 3: Que faire? */}
-              <div style={{ padding: '16px 20px', borderRadius: 18, background: '#F4F4F5', marginBottom: 14 } as any}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10 } as any}>
-                  <div style={{ width: 30, height: 30, borderRadius: 10, flexShrink: 0, background: `${P}15`, display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}><span style={{ fontSize: 11, fontWeight: 900, color: P }}>N</span></div>
-                  <div style={{ fontSize: 14, fontWeight: 800, color: '#111' }}>Que faire ?</div>
-                </div>
-                <div style={{ fontSize: 13, color: '#374151', lineHeight: 1.7 }}>
-                  {data.zone === 'normal' ? 'Tout va bien. Continuez votre mode de vie actuel et faites une calibration capillaire dans un mois pour confirmer.' :
-                   data.zone === 'normal_high' ? 'Vos indicateurs sont dans la norme haute. Privilegiez les aliments a index glycemique bas et marchez 30 minutes par jour.' :
-                   data.zone === 'vigilance' ? 'Consultez votre medecin pour un bilan sanguin (glycemie a jeun + HbA1c). Reduisez les sucres rapides.' :
-                   data.zone === 'pre_alert' ? 'Un bilan sanguin est recommande rapidement. Contactez votre medecin traitant cette semaine.' :
-                   'Consultez votre medecin des que possible pour un bilan complet (glycemie + HbA1c + bilan lipidique).'}
-                </div>
-              </div>
-
-              {/* CARD 4: Calibration */}
-              <div style={{ padding: 20, borderRadius: 18, background: '#F4F4F5', marginBottom: 14 } as any}>
+              {/* CARD 3: Calibration */}
+              <div data-testid="glycemia-calibration-card" style={{ padding: 20, borderRadius: 18, background: '#F4F4F5', marginBottom: 14 } as any}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 6 } as any}>
                   <i className="ri-drop-fill" style={{ fontSize: 18, color: R }} />
                   <div style={{ flex: 1 } as any}>
                     <div style={{ fontSize: 14, fontWeight: 800, color: '#111' }}>Calibration capillaire</div>
                     <div style={{ fontSize: 11, color: '#9CA3AF' }}>{calibrations.length} mesure{calibrations.length !== 1 ? 's' : ''}</div>
+                  </div>
+                  <div data-testid="explain-calibration-btn" onClick={() => setExplainKey('calibration')} style={{ width: 28, height: 28, borderRadius: 999, background: '#FFF', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', boxShadow: '0 1px 4px rgba(0,0,0,0.06)' } as any}>
+                    <i className="ri-information-line" style={{ fontSize: 14, color: R }} />
                   </div>
                 </div>
                 <div style={{ fontSize: 12, color: '#6B7280', lineHeight: 1.7, marginBottom: 14, padding: '10px 12px', borderRadius: 12, background: `${P}08`, border: `1px solid ${P}15` } as any}>
@@ -302,7 +338,55 @@ export default function GlycemiaDetailPage() {
           )}
         </div>
       </div>
-      <style dangerouslySetInnerHTML={{ __html: `@keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}` }} />
+      <style dangerouslySetInnerHTML={{ __html: `@keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}@keyframes popIn{from{opacity:0;transform:scale(0.95) translateY(20px)}to{opacity:1;transform:scale(1) translateY(0)}}@keyframes slideUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}@keyframes pulseGlow{0%,100%{box-shadow:0 0 8px rgba(167,139,250,0.2)}50%{box-shadow:0 0 24px rgba(167,139,250,0.4)}}` }} />
+
+      {/* Glycemia Explain Popup — dark glass overlay */}
+      {explainKey && (() => {
+        const e = GLYCEMIA_EXPLANATIONS[explainKey];
+        if (!e) return null;
+        return (
+          <div data-testid="glycemia-explain-popup" onClick={() => setExplainKey(null)} style={{ position: 'fixed', inset: 0, zIndex: 9999, backdropFilter: 'blur(48px)', WebkitBackdropFilter: 'blur(48px)', background: 'rgba(0,0,0,0.82)', overflowY: 'auto', animation: 'popIn 0.3s ease' } as any}>
+            <div onClick={(ev: any) => ev.stopPropagation()} style={{ width: '100%', maxWidth: 400, margin: '0 auto', padding: '50px 28px 120px', boxSizing: 'border-box' } as any}>
+              <div onClick={() => setExplainKey(null)} style={{ position: 'absolute', top: 20, right: 20, width: 40, height: 40, borderRadius: 999, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}>
+                <i className="ri-close-line" style={{ fontSize: 22, color: '#FFF' }} />
+              </div>
+              {/* Icon + Title */}
+              <div style={{ textAlign: 'center', marginBottom: 32, animation: 'slideUp 0.4s ease 0.1s both' } as any}>
+                <div style={{ width: 72, height: 72, borderRadius: 22, background: `${e.color}15`, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', animation: 'pulseGlow 3s ease-in-out infinite' } as any}>
+                  <i className={e.icon} style={{ fontSize: 32, color: e.color }} />
+                </div>
+                <div style={{ fontSize: 28, fontWeight: 900, color: '#FFF', marginTop: 18, letterSpacing: -0.5 }}>{e.title}</div>
+              </div>
+              {/* Description */}
+              <div style={{ fontSize: 15, color: 'rgba(255,255,255,0.6)', lineHeight: 1.9, marginBottom: 32, animation: 'slideUp 0.4s ease 0.2s both' } as any}>{e.desc}</div>
+              {/* Reference values */}
+              <div style={{ marginBottom: 32, animation: 'slideUp 0.4s ease 0.3s both' } as any}>
+                <div style={{ fontSize: 10, fontWeight: 700, color: e.color, textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 14 }}>Valeurs de reference</div>
+                {e.ranges.map((r, ri) => (
+                  <div key={ri} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px 0', borderBottom: ri < e.ranges.length - 1 ? '1px solid rgba(255,255,255,0.06)' : 'none' } as any}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 10 } as any}>
+                      <div style={{ width: 8, height: 8, borderRadius: 4, background: r.color, boxShadow: `0 0 8px ${r.color}60` } as any} />
+                      <span style={{ fontSize: 14, color: '#FFF', fontWeight: 600 }}>{r.label}</span>
+                    </div>
+                    <span style={{ fontSize: 14, color: r.color, fontWeight: 800 }}>{r.value}</span>
+                  </div>
+                ))}
+              </div>
+              {/* Tip */}
+              <div style={{ display: 'flex', gap: 14, alignItems: 'flex-start', padding: '18px', borderRadius: 16, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.06)', animation: 'slideUp 0.4s ease 0.4s both' } as any}>
+                <div style={{ width: 36, height: 36, borderRadius: 12, background: 'rgba(245,158,11,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}>
+                  <i className="ri-lightbulb-line" style={{ fontSize: 18, color: '#F59E0B' }} />
+                </div>
+                <div>
+                  <div style={{ fontSize: 11, fontWeight: 800, color: '#F59E0B', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 6 }}>Conseil</div>
+                  <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.45)', lineHeight: 1.8 }}>{e.tip}</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        );
+      })()}
+
       {showNoraGlycemia && <NoraOverlay token={token} endpoint="/api/nora/page-analysis?context=glycemia" title="Analyse glycemique" subtitle="Analyse par Nora de votre glycemie" onClose={() => setShowNoraGlycemia(false)} />}
     </div>
   );
