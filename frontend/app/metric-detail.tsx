@@ -120,12 +120,13 @@ export default function MetricDetailScreen() {
   const isReadonly = !!beneficiaryId;
   const chartRef = useRef<HTMLDivElement>(null);
 
-  const load = async (r: string) => {
+  const load = async (r: string, dateOverride?: string) => {
     setLoading(true); setChartReady(false);
     try {
+      const dateParam = r === '24h' && dateOverride ? `&date=${dateOverride}` : '';
       const historyUrl = beneficiaryId
-        ? `/api/guardian/beneficiary/${beneficiaryId}/metric-history/${key}?period=${r}`
-        : `/api/health/metric-history/${key}?period=${r}`;
+        ? `/api/guardian/beneficiary/${beneficiaryId}/metric-history/${key}?period=${r}${dateParam}`
+        : `/api/health/metric-history/${key}?period=${r}${dateParam}`;
       const [d, th] = await Promise.all([
         apiFetch(historyUrl, {}, token),
         beneficiaryId ? Promise.resolve(null) : apiFetch(`/api/health/thresholds/${key}`, {}, token).catch(() => null),
@@ -136,16 +137,22 @@ export default function MetricDetailScreen() {
   };
 
   useEffect(() => { load(range); }, [key, token]);
-  const changeRange = (r: string) => { setRange(r); setSel(null); load(r); };
+  const changeRange = (r: string) => { setRange(r); setSel(null); load(r, toDateStr(selectedDate)); };
 
   const handleDateSelect = useCallback((d: Date) => {
     setSelectedDate(d);
     const ds = toDateStr(d);
-    if (data?.history) {
+    if (range === '24h') {
+      // In 24h mode, reload data for that specific date
+      setSel(null);
+      load('24h', ds);
+    } else if (data?.history) {
+      // In 7j/30j/90j mode, find and highlight matching point
       const idx = data.history.findIndex((h: any) => h.date === ds);
       if (idx >= 0) setSel(idx);
+      else setSel(null);
     }
-  }, [data]);
+  }, [data, range]);
 
   if (Platform.OS !== 'web') return <NativePageView path="/metric-detail" />;
   if (loading) return <FullScreenLoader />;
@@ -181,9 +188,14 @@ export default function MetricDetailScreen() {
   const colW = W / n;
   const toY = (v: number) => padT + chartH - ((v - dMn) / dRg) * chartH;
 
-  /* ── Day initial ── */
+  /* ── Day initial or hour label ── */
   const DAY_INIT = ['D', 'L', 'M', 'M', 'J', 'V', 'S'];
   const getDayInit = (dateStr: string) => { try { return DAY_INIT[new Date(dateStr + 'T12:00:00').getDay()]; } catch { return ''; } };
+  const getXLabel = (h: any) => {
+    // If label contains "h" (hour format from 24h mode), use it directly
+    if (h.label && h.label.includes('h')) return h.label;
+    return getDayInit(h.date);
+  };
 
   /* ── Curve points ── */
   const pts = sliced.map((h: any, i: number) => ({ x: colW * i + colW / 2, y: toY(h.value) }));
@@ -228,7 +240,7 @@ export default function MetricDetailScreen() {
                 <rect x={cx - bwh - 1.5} y={sY} width={bwh} height={base - sY} rx={bwh / 2} fill="#8B5CF6" opacity={isSel ? 1 : 0.45} />
                 <rect x={cx + 1.5} y={dY} width={bwh} height={base - dY} rx={bwh / 2} fill="#C4B5FD" opacity={isSel ? 1 : 0.45} />
                 {isSel && <><rect x={cx - 24} y={Math.min(sY, dY) - 22} width={48} height={18} rx={9} fill="#111" /><text x={cx} y={Math.min(sY, dY) - 10} fill="#FFF" fontSize="10" fontWeight="800" textAnchor="middle">{sys}/{dia}</text></>}
-                <text x={cx} y={H - 8} textAnchor="middle" fill={isSel ? '#111' : '#B8B8BC'} fontSize={isSel ? 12 : 11} fontWeight={isSel ? '800' : '500'}>{getDayInit(h.date)}</text>
+                <text x={cx} y={H - 8} textAnchor="middle" fill={isSel ? '#111' : '#B8B8BC'} fontSize={isSel ? 12 : 11} fontWeight={isSel ? '800' : '500'}>{getXLabel(h)}</text>
               </g>;
             })
           ) : isBarType ? (
@@ -240,7 +252,7 @@ export default function MetricDetailScreen() {
               return <g key={i}>
                 <rect x={cx - bw / 2} y={barY} width={bw} height={barH} rx={bw / 3} fill={color} opacity={isSel ? 0.9 : 0.45} />
                 {isSel && <><rect x={cx - 28} y={barY - 22} width={56} height={18} rx={9} fill="#111" /><text x={cx} y={barY - 10} fill="#FFF" fontSize="10" fontWeight="800" textAnchor="middle">{h.value >= 100 ? Math.round(h.value).toLocaleString() : h.value}</text></>}
-                <text x={cx} y={H - 8} textAnchor="middle" fill={isSel ? '#111' : '#B8B8BC'} fontSize={isSel ? 12 : 11} fontWeight={isSel ? '800' : '500'}>{getDayInit(h.date)}</text>
+                <text x={cx} y={H - 8} textAnchor="middle" fill={isSel ? '#111' : '#B8B8BC'} fontSize={isSel ? 12 : 11} fontWeight={isSel ? '800' : '500'}>{getXLabel(h)}</text>
               </g>;
             })
           ) : graphType === 'scatter' ? (
@@ -251,7 +263,7 @@ export default function MetricDetailScreen() {
                 return <g key={i}>
                   <circle cx={pts[i].x} cy={pts[i].y} r={isSel ? 7 : 4.5} fill={isSel ? '#FFF' : color} stroke={isSel ? color : 'none'} strokeWidth={2.5} opacity={isSel ? 1 : 0.5} />
                   {isSel && <><rect x={pts[i].x - 22} y={pts[i].y - 24} width={44} height={18} rx={9} fill="#111" /><text x={pts[i].x} y={pts[i].y - 12} fill="#FFF" fontSize="10" fontWeight="800" textAnchor="middle">{h.value}</text></>}
-                  <text x={pts[i].x} y={H - 8} textAnchor="middle" fill={isSel ? '#111' : '#B8B8BC'} fontSize={isSel ? 12 : 11} fontWeight={isSel ? '800' : '500'}>{getDayInit(h.date)}</text>
+                  <text x={pts[i].x} y={H - 8} textAnchor="middle" fill={isSel ? '#111' : '#B8B8BC'} fontSize={isSel ? 12 : 11} fontWeight={isSel ? '800' : '500'}>{getXLabel(h)}</text>
                 </g>;
               })}
             </>
@@ -268,7 +280,7 @@ export default function MetricDetailScreen() {
                 return <g key={i}>
                   <circle cx={pts[i].x} cy={pts[i].y} r={isSel ? 6 : 3} fill={isSel ? '#FFF' : color} stroke={isSel ? color : 'none'} strokeWidth={2.5} />
                   {isSel && <><rect x={pts[i].x - 24} y={pts[i].y - 24} width={48} height={18} rx={9} fill="#111" /><text x={pts[i].x} y={pts[i].y - 12} fill="#FFF" fontSize="10" fontWeight="800" textAnchor="middle">{typeof h.value === 'number' ? (Number.isInteger(h.value) ? h.value : h.value.toFixed(1)) : h.value}</text></>}
-                  <text x={pts[i].x} y={H - 8} textAnchor="middle" fill={isSel ? '#111' : '#B8B8BC'} fontSize={isSel ? 12 : 11} fontWeight={isSel ? '800' : '500'}>{getDayInit(h.date)}</text>
+                  <text x={pts[i].x} y={H - 8} textAnchor="middle" fill={isSel ? '#111' : '#B8B8BC'} fontSize={isSel ? 12 : 11} fontWeight={isSel ? '800' : '500'}>{getXLabel(h)}</text>
                 </g>;
               })}
             </>

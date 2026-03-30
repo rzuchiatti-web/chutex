@@ -755,7 +755,7 @@ def _section_fallback_with_data(section: str) -> dict:
 
 
 @router.get("/health/metric-history/{key}")
-async def get_metric_history(key: str, period: str = "7j", user=Depends(get_current_user)):
+async def get_metric_history(key: str, period: str = "7j", date: str = None, user=Depends(get_current_user)):
     """History for a specific metric from REAL device_readings — aggregated per day."""
     from datetime import timedelta
     from collections import defaultdict
@@ -763,7 +763,13 @@ async def get_metric_history(key: str, period: str = "7j", user=Depends(get_curr
     uid = user['id']
 
     days = {"24h": 1, "7j": 7, "30j": 30, "90j": 90}.get(period, 7)
-    since = (now - timedelta(days=days)).isoformat()
+    # For 24h with a specific date, filter that day only
+    if period == "24h" and date:
+        since = f"{date}T00:00:00"
+        until = f"{date}T23:59:59"
+    else:
+        since = (now - timedelta(days=days)).isoformat()
+        until = None
 
     bracelet_keys = {"heart_rate", "hrv", "spo2", "blood_pressure", "temperature", "stress_level", "recovery_score", "steps", "calories", "distance_km", "sleep_quality", "sleep_duration_min", "vo2_max", "glycemia"}
     scale_keys = {"weight", "body_fat_pct", "muscle_pct", "water_pct", "bone_mass_kg", "visceral_fat", "bmi", "body_age", "protein_pct", "skeletal_muscle_pct", "basal_metabolism", "recommended_calories", "waist_hip_ratio", "ideal_weight"}
@@ -775,45 +781,61 @@ async def get_metric_history(key: str, period: str = "7j", user=Depends(get_curr
     last_keys = {"weight", "body_fat_pct", "muscle_pct", "water_pct", "bone_mass_kg", "visceral_fat", "bmi"}
     # Everything else gets averaged per day
 
+    ts_filter: dict = {"$gte": since}
+    if until:
+        ts_filter["$lte"] = until
+
     readings = await db.device_readings.find(
-        {"user_id": uid, "device_type": device_type, "timestamp": {"$gte": since}}, {"_id": 0}
+        {"user_id": uid, "device_type": device_type, "timestamp": ts_filter}, {"_id": 0}
     ).sort("timestamp", 1).to_list(500)
 
     is_bp = key == "blood_pressure"
+    is_24h = period == "24h"
 
-    # Group readings by date
+    # Group readings by date (or by hour for 24h)
     daily: dict = defaultdict(list)
     for r in readings:
         data = r.get("data", {})
         ts = r.get("timestamp", "")
-        date_key = ts[:10]
+        if is_24h:
+            # For 24h view, group by hour for intraday detail
+            group_key = ts[:13]  # "2026-03-30T14"
+        else:
+            group_key = ts[:10]
         if is_bp:
             bp = data.get("blood_pressure", {})
             if bp.get("systolic"):
-                daily[date_key].append({"systolic": bp["systolic"], "diastolic": bp.get("diastolic", 0)})
+                daily[group_key].append({"systolic": bp["systolic"], "diastolic": bp.get("diastolic", 0)})
         else:
             val = data.get(key, 0)
             if val and val > 0:
-                daily[date_key].append(val)
+                daily[group_key].append(val)
 
-    # Aggregate to one point per day
+    # Aggregate to one point per group (day or hour)
     history = []
-    for date_key in sorted(daily.keys()):
-        values = daily[date_key]
+    for group_key in sorted(daily.keys()):
+        values = daily[group_key]
         if not values:
             continue
-        label = date_key[5:10].replace("-", "/")
+        if is_24h:
+            # group_key = "2026-03-30T14" → label = "14h"
+            hour_str = group_key[11:13] if len(group_key) >= 13 else "00"
+            label = f"{hour_str}h"
+            date_val = group_key[:10]
+        else:
+            label = group_key[5:10].replace("-", "/")
+            date_val = group_key
         if is_bp:
             avg_sys = round(sum(v["systolic"] for v in values) / len(values))
             avg_dia = round(sum(v["diastolic"] for v in values) / len(values))
-            history.append({"date": date_key, "label": label, "value": avg_sys, "systolic": avg_sys, "diastolic": avg_dia})
+            history.append({"date": date_val, "label": label, "value": avg_sys, "systolic": avg_sys, "diastolic": avg_dia})
         elif key in max_keys:
-            history.append({"date": date_key, "label": label, "value": max(values)})
+            history.append({"date": date_val, "label": label, "value": max(values)})
         elif key in last_keys:
-            history.append({"date": date_key, "label": label, "value": values[-1]})
+            history.append({"date": date_val, "label": label, "value": values[-1]})
         else:
             avg_val = round(sum(values) / len(values), 1)
-            history.append({"date": date_key, "label": label, "value": avg_val})
+            history.append({"date": date_val, "label": label, "value": avg_val})
 
     vals = [h["value"] for h in history]
     avg = round(sum(vals) / len(vals), 1) if vals else 0
