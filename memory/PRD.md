@@ -54,6 +54,7 @@ L'objectif est une UI Glassmorphism + Light mode avec synchronisation en temps r
 - [x] **Refonte exercices dashboard beneficiaire** — cartes horizontales identiques au ProDayView gardien (image 80px gauche, categorie, titre, sets/reps, checkbox, douleur+notes) (2026-03-30)
 - [x] **Seed 7 jours donnees bracelet Josette** — 88 readings (HR, SpO2, BP, Temp, Steps, Cal, Dist, HRV, Stress, Recovery, Sleep) + 7 scale + 13 glycemia + 5 ECG (2026-03-30)
 - [x] **Fix bug activity-detail** — lecture depuis `report.data` au lieu de `report` directement (2026-03-30)
+- [x] **Refonte metric-detail** — calendrier horizontal header, suppression date picker, graphiques animes (stroke-dashoffset, barres qui montent), tooltips dark, swipe/touch, separation objectifs vs seuils alertes (2026-03-30)
 
 ## Code Architecture (post-refactoring)
 ```
