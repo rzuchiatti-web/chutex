@@ -756,43 +756,70 @@ def _section_fallback_with_data(section: str) -> dict:
 
 @router.get("/health/metric-history/{key}")
 async def get_metric_history(key: str, period: str = "7j", user=Depends(get_current_user)):
-    """History for a specific metric from REAL device_readings"""
+    """History for a specific metric from REAL device_readings — aggregated per day."""
     from datetime import timedelta
+    from collections import defaultdict
     now = datetime.now(timezone.utc)
     uid = user['id']
 
     days = {"24h": 1, "7j": 7, "30j": 30, "90j": 90}.get(period, 7)
     since = (now - timedelta(days=days)).isoformat()
 
-    # Determine device type for this metric
     bracelet_keys = {"heart_rate", "hrv", "spo2", "blood_pressure", "temperature", "stress_level", "recovery_score", "steps", "calories", "distance_km", "sleep_quality", "sleep_duration_min", "vo2_max", "glycemia"}
     scale_keys = {"weight", "body_fat_pct", "muscle_pct", "water_pct", "bone_mass_kg", "visceral_fat", "bmi", "body_age", "protein_pct", "skeletal_muscle_pct", "basal_metabolism", "recommended_calories", "waist_hip_ratio", "ideal_weight"}
     device_type = "bracelet" if key in bracelet_keys or key in ("bp_systolic", "bp_diastolic") else "scale" if key in scale_keys else "bracelet"
 
+    # Metrics where we want the MAX per day (cumulative counters)
+    max_keys = {"steps", "calories", "distance_km"}
+    # Metrics where we want the LAST reading per day
+    last_keys = {"weight", "body_fat_pct", "muscle_pct", "water_pct", "bone_mass_kg", "visceral_fat", "bmi"}
+    # Everything else gets averaged per day
+
     readings = await db.device_readings.find(
         {"user_id": uid, "device_type": device_type, "timestamp": {"$gte": since}}, {"_id": 0}
-    ).sort("timestamp", 1).to_list(200)
+    ).sort("timestamp", 1).to_list(500)
 
-    history = []
     is_bp = key == "blood_pressure"
+
+    # Group readings by date
+    daily: dict = defaultdict(list)
     for r in readings:
         data = r.get("data", {})
         ts = r.get("timestamp", "")
+        date_key = ts[:10]
         if is_bp:
             bp = data.get("blood_pressure", {})
             if bp.get("systolic"):
-                history.append({"date": ts[:10], "label": ts[5:10].replace("-", "/"), "value": bp["systolic"], "systolic": bp["systolic"], "diastolic": bp.get("diastolic", 0)})
+                daily[date_key].append({"systolic": bp["systolic"], "diastolic": bp.get("diastolic", 0)})
         else:
             val = data.get(key, 0)
-            if val:
-                history.append({"date": ts[:10], "label": ts[5:10].replace("-", "/"), "value": val})
+            if val and val > 0:
+                daily[date_key].append(val)
+
+    # Aggregate to one point per day
+    history = []
+    for date_key in sorted(daily.keys()):
+        values = daily[date_key]
+        if not values:
+            continue
+        label = date_key[5:10].replace("-", "/")
+        if is_bp:
+            avg_sys = round(sum(v["systolic"] for v in values) / len(values))
+            avg_dia = round(sum(v["diastolic"] for v in values) / len(values))
+            history.append({"date": date_key, "label": label, "value": avg_sys, "systolic": avg_sys, "diastolic": avg_dia})
+        elif key in max_keys:
+            history.append({"date": date_key, "label": label, "value": max(values)})
+        elif key in last_keys:
+            history.append({"date": date_key, "label": label, "value": values[-1]})
+        else:
+            avg_val = round(sum(values) / len(values), 1)
+            history.append({"date": date_key, "label": label, "value": avg_val})
 
     vals = [h["value"] for h in history]
     avg = round(sum(vals) / len(vals), 1) if vals else 0
     mn_val, mx_val = (min(vals), max(vals)) if vals else (0, 0)
     trend = round(vals[-1] - vals[0], 1) if len(vals) >= 2 else 0
 
-    # Metric meta (same as before)
     meta = {
         "heart_rate": {"title": "Frequence cardiaque", "unit": "bpm", "graph_type": "ecg", "normal_min": 60, "normal_max": 80, "color": "#EF4444", "explain": "Le pouls au repos entre 60 et 80 bpm est sain."},
         "hrv": {"title": "Variabilite cardiaque", "unit": "ms", "graph_type": "scatter", "normal_min": 30, "normal_max": 60, "color": "#A78BFA", "explain": "Plus le HRV est eleve, meilleure est votre recuperation."},

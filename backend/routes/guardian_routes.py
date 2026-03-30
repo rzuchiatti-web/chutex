@@ -634,7 +634,7 @@ async def guardian_beneficiary_subscription(bid: str, user=Depends(get_current_u
 
 @router.get("/guardian/beneficiary/{bid}/metric-history/{key}")
 async def guardian_metric_history(bid: str, key: str, period: str = "7j", user=Depends(get_current_user)):
-    """Same as /health/metric-history/{key} but for a specific beneficiary."""
+    """Same as /health/metric-history/{key} but for a specific beneficiary — aggregated per day."""
     await _ensure_guardian_access_to_beneficiary(bid, user)
     uid = bid
     days = {"24h": 1, "7j": 7, "30j": 30, "90j": 90}.get(period, 7)
@@ -644,23 +644,46 @@ async def guardian_metric_history(bid: str, key: str, period: str = "7j", user=D
     scale_keys = {"weight", "body_fat_pct", "muscle_pct", "water_pct", "bone_mass_kg", "visceral_fat", "bmi", "body_age", "protein_pct", "skeletal_muscle_pct", "basal_metabolism", "recommended_calories", "waist_hip_ratio", "ideal_weight"}
     device_type = "bracelet" if key in bracelet_keys or key in ("bp_systolic", "bp_diastolic") else "scale" if key in scale_keys else "bracelet"
 
+    max_keys = {"steps", "calories", "distance_km"}
+    last_keys = {"weight", "body_fat_pct", "muscle_pct", "water_pct", "bone_mass_kg", "visceral_fat", "bmi"}
+
     readings = await db.device_readings.find(
         {"user_id": uid, "device_type": device_type, "timestamp": {"$gte": since}}, {"_id": 0}
-    ).sort("timestamp", 1).to_list(200)
+    ).sort("timestamp", 1).to_list(500)
 
-    history = []
     is_bp = key == "blood_pressure"
+    from collections import defaultdict
+    daily: dict = defaultdict(list)
     for r in readings:
         data = r.get("data", {})
         ts = r.get("timestamp", "")
+        date_key = ts[:10]
         if is_bp:
             bp = data.get("blood_pressure", {})
             if bp.get("systolic"):
-                history.append({"date": ts[:10], "label": ts[5:10].replace("-", "/"), "value": bp["systolic"], "systolic": bp["systolic"], "diastolic": bp.get("diastolic", 0)})
+                daily[date_key].append({"systolic": bp["systolic"], "diastolic": bp.get("diastolic", 0)})
         else:
             val = data.get(key, 0)
-            if val:
-                history.append({"date": ts[:10], "label": ts[5:10].replace("-", "/"), "value": val})
+            if val and val > 0:
+                daily[date_key].append(val)
+
+    history = []
+    for date_key in sorted(daily.keys()):
+        values = daily[date_key]
+        if not values:
+            continue
+        label = date_key[5:10].replace("-", "/")
+        if is_bp:
+            avg_sys = round(sum(v["systolic"] for v in values) / len(values))
+            avg_dia = round(sum(v["diastolic"] for v in values) / len(values))
+            history.append({"date": date_key, "label": label, "value": avg_sys, "systolic": avg_sys, "diastolic": avg_dia})
+        elif key in max_keys:
+            history.append({"date": date_key, "label": label, "value": max(values)})
+        elif key in last_keys:
+            history.append({"date": date_key, "label": label, "value": values[-1]})
+        else:
+            avg_val = round(sum(values) / len(values), 1)
+            history.append({"date": date_key, "label": label, "value": avg_val})
 
     vals = [h["value"] for h in history]
     avg = round(sum(vals) / len(vals), 1) if vals else 0
