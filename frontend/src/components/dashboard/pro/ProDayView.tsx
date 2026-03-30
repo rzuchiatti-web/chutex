@@ -173,7 +173,7 @@ export function ProDayView(props: ProDayViewProps) {
               </div>
               <div style={{ flex: 1, minWidth: 0, padding: '10px 12px', display: 'flex', flexDirection: 'column', justifyContent: 'center' } as any}>
                 <span style={{ fontSize: 8, fontWeight: 700, color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: 0.6 }}>{ex.category || 'Exercice'}</span>
-                <div style={{ fontSize: 14, fontWeight: 700, color: done ? '#10B981' : '#111', textDecoration: done ? 'line-through' : 'none', marginTop: 2 }}>{ex.title}</div>
+                <div style={{ fontSize: 14, fontWeight: 700, color: done ? '#10B981' : '#111', marginTop: 2 }}>{ex.title}</div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 2 } as any}>
                   <span style={{ fontSize: 11, color: done ? 'rgba(16,185,129,0.6)' : '#6B7280' }}>{ex.sets}x{ex.repetitions} reps</span>
                   {ex.rest_seconds > 0 && <span style={{ fontSize: 10, color: '#9CA3AF' }}>{ex.rest_seconds}s repos</span>}

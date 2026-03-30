@@ -187,10 +187,34 @@ export default function ProExerciseDetailPage() {
               {(mode === 'session' || mode === 'assigned') && (params.assignmentId || (programId && sessionId)) && (
                 <div style={{ borderRadius: 16, background: completed ? 'rgba(16,185,129,0.06)' : '#F4F4F5', border: completed ? '1px solid rgba(16,185,129,0.2)' : '1px solid transparent', padding: 16, marginTop: 14, marginBottom: 14 } as any}>
                   {completed ? (
-                    <div data-testid="exercise-completed" style={{ textAlign: 'center', padding: '12px 0' } as any}>
-                      <i className="ri-checkbox-circle-fill" style={{ fontSize: 36, color: '#10B981', display: 'block', marginBottom: 8 }} />
-                      <div style={{ fontSize: 16, fontWeight: 800, color: '#10B981' }}>Exercice valide !</div>
-                    </div>
+                    (() => {
+                      const today = new Date().toISOString().split('T')[0];
+                      const lastComp = (ex.completions || []).filter((c: any) => c.date?.startsWith(today) && c.status === 'done').slice(-1)[0];
+                      return (
+                        <div data-testid="exercise-completed" style={{ padding: '12px 0' } as any}>
+                          <div style={{ textAlign: 'center', marginBottom: lastComp?.pain_level || lastComp?.patient_notes ? 14 : 0 } as any}>
+                            <i className="ri-checkbox-circle-fill" style={{ fontSize: 36, color: '#10B981', display: 'block', marginBottom: 8 }} />
+                            <div style={{ fontSize: 16, fontWeight: 800, color: '#10B981' }}>Exercice valide !</div>
+                          </div>
+                          {lastComp?.pain_level > 0 && (
+                            <div style={{ marginBottom: 10 } as any}>
+                              <div style={{ fontSize: 11, color: '#6B7280', marginBottom: 6, fontWeight: 600 }}>Niveau de douleur</div>
+                              <div style={{ display: 'flex', gap: 4 } as any}>
+                                {[1,2,3,4,5,6,7,8,9,10].map(n => (
+                                  <div key={n} style={{ flex: 1, height: 28, borderRadius: 6, background: n <= lastComp.pain_level ? (n <= 3 ? '#10B981' : n <= 6 ? '#F59E0B' : '#EF4444') : '#E5E7EB', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 10, fontWeight: 700, color: n <= lastComp.pain_level ? '#FFF' : '#9CA3AF' } as any}>{n}</div>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+                          {lastComp?.patient_notes && (
+                            <div style={{ padding: '10px 14px', borderRadius: 12, background: '#F4F4F5', marginTop: 8 } as any}>
+                              <div style={{ fontSize: 11, color: '#6B7280', marginBottom: 4, fontWeight: 600 }}>Note du patient</div>
+                              <div style={{ fontSize: 13, color: '#111', lineHeight: 1.6 }}>"{lastComp.patient_notes}"</div>
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })()
                   ) : (
                     <>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 14 } as any}>
