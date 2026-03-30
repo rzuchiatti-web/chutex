@@ -324,6 +324,7 @@ export default function ProSpace({ token, user }: { token: string; user: any }) 
               benNutrition={benNutrition}
               benWeightGoal={benWeightGoal}
               activeBenId={activeBen}
+              token={token}
               onAddExercise={() => { setModal('assign-ex'); setModalCtx(null); }}
               onAddReminder={() => { setModal('assign-rem'); setModalCtx(null); }}
               onAddMeal={() => { setModal('assign-meal'); setModalCtx(null); }}

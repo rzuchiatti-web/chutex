@@ -16,7 +16,7 @@ export const MEAL_IMGS: Record<string, string> = {
   diner: 'https://static.prod-images.emergentagent.com/jobs/151f0047-e744-48e3-8d63-62902a0935f7/images/3b64345e4d34dc8d5bacd6f55747323e3202d76c19e319a024b7214ca02e9877.png',
 };
 
-export const INP: any = { width: '100%', padding: '14px 16px', borderRadius: 14, background: '#F4F4F5', border: '1px solid #E5E7EB', color: '#111', fontSize: 15, outline: 'none', fontFamily: 'inherit', boxSizing: 'border-box' };
+export const INP: any = { width: '100%', padding: '14px 16px', borderRadius: 14, background: '#F4F4F5', border: '1px solid #E5E7EB', color: '#111', fontSize: 15, outline: 'none', fontFamily: 'inherit', boxSizing: 'border-box', maxWidth: '100%' };
 export const LBL: any = { fontSize: 10, fontWeight: 700, color: '#6B7280', marginBottom: 6, display: 'block', textTransform: 'uppercase', letterSpacing: 0.8 };
 export const SEL: any = { ...INP, appearance: 'none', WebkitAppearance: 'none', backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%23374151' viewBox='0 0 16 16'%3E%3Cpath d='M8 11L3 6h10z'/%3E%3C/svg%3E")`, backgroundRepeat: 'no-repeat', backgroundPosition: 'right 14px center' };
 

@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { API, MEAL_IMGS, toLocalDateStr } from './constants';
 import { REMINDER_IMAGES } from '../constants';
+import { apiFetch } from '../../../services/api';
 
 const MEAL_ICONS: Record<string, string> = {
   petit_dejeuner: 'ri-sun-line',
@@ -38,13 +39,85 @@ interface ProDayViewProps {
   benNutrition: any;
   benWeightGoal: any;
   activeBenId: string;
+  token: string;
 }
 
 export function ProDayView(props: ProDayViewProps) {
-  const { filteredExercises, filteredReminders, filteredMeals, selectedDayFr, selectedDateStr, AC, router, benNutrition, benWeightGoal, activeBenId } = props;
+  const { filteredExercises, filteredReminders, filteredMeals, selectedDayFr, selectedDateStr, AC, router, benNutrition, benWeightGoal, activeBenId, token } = props;
+
+  /* ── Objectifs journaliers du bénéficiaire (auto-refresh) ── */
+  const [objectives, setObjectives] = useState<any[]>([]);
+  const [tracking, setTracking] = useState<Record<string, boolean>>({});
+
+  useEffect(() => {
+    if (!activeBenId || !token) return;
+    const load = () => {
+      apiFetch(`/api/guardian/beneficiary/${activeBenId}/daily-report`, {}, token).then((r: any) => {
+        const plan = (r?.daily_plan || []).filter((p: any) => p.key !== 'connect' && p.key !== 'stress');
+        setObjectives(plan);
+      }).catch(() => {});
+      apiFetch(`/api/minceur/today-tracking?date=${selectedDateStr}`, {}, token).then((t: any) => {
+        setTracking(t?.completed || {});
+      }).catch(() => {});
+    };
+    load();
+    const iv = setInterval(load, 15000); // Auto-refresh every 15s
+    return () => clearInterval(iv);
+  }, [activeBenId, token, selectedDateStr]);
+
+  const OBJ_CFG: Record<string, { icon: string; color: string; label: string }> = {
+    steps: { icon: 'ri-footprint-line', color: '#10B981', label: 'Activite physique' },
+    hydration: { icon: 'ri-drop-fill', color: '#38BDF8', label: 'Hydratation' },
+    sleep: { icon: 'ri-moon-line', color: '#818CF8', label: 'Endormissement' },
+    calories_intake: { icon: 'ri-fire-line', color: '#F59E0B', label: 'Apport calorique' },
+  };
+  const totalObj = objectives.length;
+  const doneObj = filteredExercises.filter(ex => (ex.completions || []).some((c: any) => c.date?.startsWith(selectedDateStr) && c.status === 'done')).length
+    + Object.values(tracking).filter(Boolean).length;
+  const allDone = totalObj > 0 && doneObj >= totalObj;
+  const pctObj = totalObj > 0 ? Math.min(100, Math.round((doneObj / totalObj) * 100)) : 0;
 
   return (
     <>
+      {/* ── Objectifs du jour ── */}
+      {totalObj > 0 && (
+        <div data-testid="pro-objectives-card" style={{ borderRadius: 20, background: '#F4F4F5', padding: '16px 18px', marginBottom: 18 } as any}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 } as any}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8 } as any}>
+              <div style={{ width: 32, height: 32, borderRadius: 10, background: allDone ? 'rgba(16,185,129,0.12)' : 'rgba(0,0,0,0.04)', display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}>
+                <i className={allDone ? 'ri-check-double-line' : 'ri-list-check-3'} style={{ fontSize: 16, color: allDone ? '#10B981' : '#6B7280' }} />
+              </div>
+              <div>
+                <div style={{ fontSize: 14, fontWeight: 800, color: '#111' }}>Objectifs du jour</div>
+                <div style={{ fontSize: 10, color: '#9CA3AF' }}>{doneObj}/{totalObj} realises{allDone ? ' — Bravo !' : ''}</div>
+              </div>
+            </div>
+            <div style={{ fontSize: 18, fontWeight: 900, color: allDone ? '#10B981' : pctObj > 50 ? '#F59E0B' : '#6B7280' }}>{pctObj}%</div>
+          </div>
+          <div style={{ height: 6, borderRadius: 3, background: '#E5E7EB', overflow: 'hidden', marginBottom: 14 } as any}>
+            <div style={{ height: '100%', borderRadius: 3, width: `${pctObj}%`, background: allDone ? '#10B981' : pctObj > 50 ? '#F59E0B' : '#EF4444', transition: 'width 0.6s ease' } as any} />
+          </div>
+          {objectives.map((obj: any, i: number) => {
+            const cfg = OBJ_CFG[obj.key] || { icon: 'ri-flag-line', color: '#6B7280', label: obj.key };
+            const done = !!tracking[obj.key] || (obj.key === 'steps' && filteredExercises.some(ex => (ex.completions || []).some((c: any) => c.date?.startsWith(selectedDateStr) && c.status === 'done')));
+            return (
+              <div key={obj.key} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 0', borderTop: i > 0 ? '1px solid rgba(0,0,0,0.04)' : 'none' } as any}>
+                <div style={{ width: 28, height: 28, borderRadius: 8, background: done ? `${cfg.color}15` : 'rgba(0,0,0,0.03)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}>
+                  {done ? <i className="ri-check-line" style={{ fontSize: 14, color: cfg.color }} /> : <i className={cfg.icon} style={{ fontSize: 14, color: cfg.color, opacity: 0.5 }} />}
+                </div>
+                <div style={{ flex: 1, minWidth: 0 } as any}>
+                  <div style={{ fontSize: 12, fontWeight: 700, color: done ? '#111' : '#6B7280', textDecoration: done ? 'line-through' : 'none' }}>{cfg.label}</div>
+                  <div style={{ fontSize: 10, color: '#9CA3AF' }}>{obj.value} {obj.key === 'hydration' ? 'L' : obj.key === 'calories_intake' ? 'kcal' : obj.key === 'steps' ? 'pas' : ''}</div>
+                </div>
+                <div style={{ width: 20, height: 20, borderRadius: 6, border: done ? `2px solid ${cfg.color}` : '2px solid #D1D5DB', background: done ? cfg.color : 'transparent', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}>
+                  {done && <i className="ri-check-line" style={{ fontSize: 12, color: '#FFF' }} />}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
+
       {/* Nutrition + Weight Goal Combined Card */}
       {(benNutrition?.daily_calories > 0 || (benWeightGoal && benWeightGoal.has_goal)) && (
         <div data-testid="nutrition-weight-card" onClick={() => router.push({ pathname: '/minceur' as any, params: { beneficiaryId: activeBenId } })}
