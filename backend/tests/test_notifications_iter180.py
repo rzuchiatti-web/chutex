@@ -19,7 +19,7 @@ import time
 import websocket
 import threading
 
-BASE_URL = os.environ.get('REACT_APP_BACKEND_URL', 'https://prospace-ui-refactor.preview.emergentagent.com').rstrip('/')
+BASE_URL = os.environ.get('REACT_APP_BACKEND_URL', 'https://glassmorphism-theme-1.preview.emergentagent.com').rstrip('/')
 
 # Test credentials from review request
 COACH_PHONE = "+33655443322"
