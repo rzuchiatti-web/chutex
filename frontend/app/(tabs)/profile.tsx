@@ -28,6 +28,7 @@ const POP_CENTER: any = { ...POP, display: 'flex', alignItems: 'center', justify
 
 const glass = Platform.OS === 'web' ? { backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)', boxShadow: '0 2px 20px rgba(0,0,0,0.05)' } : {};
 const BG_RED = 'https://customer-assets.emergentagent.com/job_443c9c6e-0feb-4920-a358-fe7cc1a6289b/artifacts/mhh7xwy3_ChatGPT%20Image%2017%20f%C3%A9vr.%202026%2C%2014_08_43.png';
+const BG_ORANGE = 'https://customer-assets.emergentagent.com/job_443c9c6e-0feb-4920-a358-fe7cc1a6289b/artifacts/1lq6xl58_ChatGPT%20Image%2017%20f%C3%A9vr.%202026%2C%2008_54_55.png';
 const GlassCard = ({ children, style }: any) => (
   <View style={[{ backgroundColor: '#FFFFFF', borderRadius: 24, borderWidth: 1, borderColor: 'rgba(0,0,0,0.06)', padding: 18, marginBottom: 14, ...glass }, style]}>{children}</View>
 );
@@ -141,7 +142,9 @@ export default function ProfileScreen() {
   const [savingNotif, setSavingNotif] = useState(false);
   const [showCareDetail, setShowCareDetail] = useState(false);
   const [showSportDetail, setShowSportDetail] = useState(false);
+  const [showPhysioDetail, setShowPhysioDetail] = useState(false);
   const [hasCoach, setHasCoach] = useState(false);
+  const [hasPhysio, setHasPhysio] = useState(false);
   const [showMedical, setShowMedical] = useState(false);
   const [showRGPD, setShowRGPD] = useState(false);
   const [rgpdRight, setRgpdRight] = useState('access');
@@ -201,6 +204,7 @@ export default function ProfileScreen() {
     if (token && (user?.role === 'beneficiary' || user?.active_role === 'beneficiary')) {
       apiFetch('/api/subscriptions/my', {}, token).then(setSubData).catch(() => {});
       apiFetch('/api/pro/has-active-programs', {}, token).then((r: any) => { if (r?.has_programs) setHasCoach(true); }).catch(() => {});
+      apiFetch('/api/subscriptions/my', {}, token).then((s: any) => { if (s?.has_physio) setHasPhysio(true); }).catch(() => {});
     }
   }, [token, user?.role, user?.active_role]);
 
@@ -424,6 +428,23 @@ const BG_PROFILE = 'https://customer-assets.emergentagent.com/job_9950a869-9328-
               <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.25)', borderRadius: 22 } as any} />
               <div style={{ position: 'relative', zIndex: 2, display: 'flex', alignItems: 'center', justifyContent: 'space-between', height: '100%', padding: '0 22px' } as any}>
                 <div style={{ fontSize: 18, fontWeight: 800, color: '#FFF', letterSpacing: -0.3 }}>Abonnement Sport</div>
+                <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '5px 14px', borderRadius: 999, background: 'rgba(16,185,129,0.25)', border: '1px solid rgba(16,185,129,0.4)' } as any}>
+                  <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#10B981' } as any} />
+                  <span style={{ fontSize: 11, fontWeight: 700, color: '#10B981' }}>Actif</span>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Physio Subscription card — shown if beneficiary has physio sub */}
+          {isBen && hasPhysio && (
+            <div onClick={() => setShowPhysioDetail(true)} data-testid="physio-subscription-card" style={{ position: 'relative', overflow: 'hidden', borderRadius: 22, height: 90, marginBottom: 14, cursor: 'pointer', transition: 'transform 0.15s', border: isDark ? '1.5px solid rgba(255,255,255,0.18)' : '1.5px solid rgba(0,0,0,0.08)', boxShadow: isDark ? '0 4px 24px rgba(0,0,0,0.4), 0 0 0 1px rgba(255,255,255,0.08)' : '0 4px 16px rgba(0,0,0,0.08)' } as any}
+              onMouseEnter={(e: any) => { e.currentTarget.style.transform = 'scale(1.01)'; }}
+              onMouseLeave={(e: any) => { e.currentTarget.style.transform = 'scale(1)'; }}>
+              <img src={BG_ORANGE} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', borderRadius: 22 } as any} />
+              <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.25)', borderRadius: 22 } as any} />
+              <div style={{ position: 'relative', zIndex: 2, display: 'flex', alignItems: 'center', justifyContent: 'space-between', height: '100%', padding: '0 22px' } as any}>
+                <div style={{ fontSize: 18, fontWeight: 800, color: '#FFF', letterSpacing: -0.3 }}>Abonnement Physio</div>
                 <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '5px 14px', borderRadius: 999, background: 'rgba(16,185,129,0.25)', border: '1px solid rgba(16,185,129,0.4)' } as any}>
                   <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#10B981' } as any} />
                   <span style={{ fontSize: 11, fontWeight: 700, color: '#10B981' }}>Actif</span>
@@ -746,6 +767,93 @@ const BG_PROFILE = 'https://customer-assets.emergentagent.com/job_9950a869-9328-
                     <div style={{ padding: '14px', borderRadius: 14, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' } as any}>
                       <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6 } as any}>
                         <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.5)' }}>Chutex Sport</span>
+                        <span style={{ fontSize: 12, fontWeight: 700, color: '#FFF' }}>89,00 EUR</span>
+                      </div>
+                      <div style={{ height: 1, background: 'rgba(255,255,255,0.06)', margin: '4px 0' } as any} />
+                      <div style={{ display: 'flex', justifyContent: 'space-between' } as any}>
+                        <span style={{ fontSize: 12, fontWeight: 700, color: 'rgba(255,255,255,0.6)' }}>Total mensuel</span>
+                        <span style={{ fontSize: 14, fontWeight: 900, color: '#FFF' }}>89,00 EUR</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* PHYSIO SUBSCRIPTION POPUP — glass blur sur fond orange, même structure que Care/Sport */}
+          {showPhysioDetail && Platform.OS === 'web' && portalMount(
+            <div data-testid="physio-subscription-popup" style={{ position: 'fixed', inset: 0, zIndex: 99999, display: 'flex', flexDirection: 'column', fontFamily: 'Inter, system-ui, sans-serif', overflow: 'hidden' } as any}>
+              <img src={BG_ORANGE} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 } as any} />
+              <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.35)', zIndex: 1 } as any} />
+              <div style={{ flex: 1, overflowY: 'auto', position: 'relative', zIndex: 5, WebkitOverflowScrolling: 'touch', paddingTop: 'env(safe-area-inset-top, 44px)' } as any}>
+                <div style={{ width: '100%', maxWidth: 420, margin: '0 auto', padding: '24px 22px 120px', boxSizing: 'border-box' } as any}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 20 } as any}>
+                    <div onClick={() => setShowPhysioDetail(false)} data-testid="physio-back-btn" style={{ width: 40, height: 40, borderRadius: 999, background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}>
+                      <i className="ri-arrow-left-s-line" style={{ fontSize: 20, color: '#FFF' }} />
+                    </div>
+                    <span style={{ fontSize: 15, fontWeight: 700, color: '#FFF' }}>Mon abonnement</span>
+                  </div>
+                  <div style={{ textAlign: 'center', marginBottom: 20 } as any}>
+                    <div style={{ width: 64, height: 64, borderRadius: 20, background: 'rgba(249,115,22,0.25)', border: '1px solid rgba(249,115,22,0.4)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', marginBottom: 12 } as any}>
+                      <i className="ri-heart-pulse-line" style={{ fontSize: 32, color: '#FFF' }} />
+                    </div>
+                    <div style={{ fontSize: 22, fontWeight: 800, color: '#FFF' }}>Reeducation Chutex Physio</div>
+                    <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '4px 14px', borderRadius: 999, background: 'rgba(16,185,129,0.2)', border: '1px solid rgba(16,185,129,0.3)', marginTop: 8 } as any}>
+                      <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#10B981' } as any} />
+                      <span style={{ fontSize: 11, fontWeight: 700, color: '#10B981' }}>Actif</span>
+                    </div>
+                  </div>
+                  {[
+                    { icon: 'ri-shield-check-line', label: 'Formule', value: 'Physio — Reeducation personnalisee' },
+                    { icon: 'ri-money-euro-circle-line', label: 'Mensualite', value: '89,00 EUR/mois' },
+                    { icon: 'ri-user-heart-line', label: 'Praticien', value: 'Dr. Sophie Leclerc — Kinesitherapeute' },
+                    { icon: 'ri-calendar-line', label: 'Souscrit le', value: new Date().toLocaleDateString('fr-FR', { day: '2-digit', month: 'long', year: 'numeric' }) },
+                  ].map((item, i, arr) => (
+                    <div key={i}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '13px 0' } as any}>
+                        <div style={{ width: 34, height: 34, borderRadius: 10, background: 'rgba(249,115,22,0.15)', border: '1px solid rgba(249,115,22,0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' } as any}>
+                          <i className={item.icon} style={{ fontSize: 15, color: '#F97316' }} />
+                        </div>
+                        <div style={{ flex: 1 } as any}>
+                          <div style={{ fontSize: 9, fontWeight: 600, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: 0.5 }}>{item.label}</div>
+                          <div style={{ fontSize: 13, color: '#FFF', fontWeight: 500, marginTop: 1 }}>{item.value}</div>
+                        </div>
+                      </div>
+                      {i < arr.length - 1 && <div style={{ height: 1, background: 'rgba(255,255,255,0.05)' } as any} />}
+                    </div>
+                  ))}
+                  <div style={{ marginTop: 16, padding: '14px 16px', borderRadius: 16, background: 'rgba(249,115,22,0.08)', border: '1px solid rgba(249,115,22,0.18)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' } as any}>
+                    <div style={{ fontSize: 9, fontWeight: 700, color: 'rgba(255,255,255,0.3)', letterSpacing: 1.5, textTransform: 'uppercase', marginBottom: 10 }}>Inclus</div>
+                    {['Programmes de reeducation personnalises', 'Suivi par votre kinesitherapeute', 'Exercices adaptes a votre pathologie', 'Evaluation de la douleur et progression', 'Bilans de sante Nora', 'Messagerie directe praticien', 'Historique des seances'].map((f, i) => (
+                      <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 } as any}>
+                        <i className="ri-check-line" style={{ fontSize: 12, color: '#F97316' }} />
+                        <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.6)' }}>{f}</span>
+                      </div>
+                    ))}
+                  </div>
+                  <div style={{ marginTop: 24, marginBottom: 12 } as any}>
+                    <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.3)', letterSpacing: 1.5, textTransform: 'uppercase', marginBottom: 12 }}>Contrat</div>
+                    <div style={{ padding: '12px 14px', borderRadius: 14, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' } as any}>
+                      <div style={{ fontSize: 9, fontWeight: 700, color: 'rgba(255,255,255,0.3)', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 8 }}>Conditions</div>
+                      {[
+                        'Resiliable a tout moment (30 jours de preavis)',
+                        'Protocole de reeducation adapte a votre profil',
+                        'Acces illimite aux exercices et programmes',
+                        'Suivi de la douleur et de la mobilite inclus',
+                      ].map((r, i) => (
+                        <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: 6, marginBottom: 5 } as any}>
+                          <i className="ri-checkbox-circle-line" style={{ fontSize: 12, color: 'rgba(255,255,255,0.2)', marginTop: 1, flexShrink: 0 }} />
+                          <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.45)', lineHeight: 1.4 }}>{r}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                  <div style={{ marginTop: 16 } as any}>
+                    <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.3)', letterSpacing: 1.5, textTransform: 'uppercase', marginBottom: 12 }}>Paiement</div>
+                    <div style={{ padding: '14px', borderRadius: 14, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' } as any}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6 } as any}>
+                        <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.5)' }}>Chutex Physio</span>
                         <span style={{ fontSize: 12, fontWeight: 700, color: '#FFF' }}>89,00 EUR</span>
                       </div>
                       <div style={{ height: 1, background: 'rgba(255,255,255,0.06)', margin: '4px 0' } as any} />

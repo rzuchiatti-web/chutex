@@ -71,7 +71,7 @@ async def get_my_subscription(user=Depends(get_current_user)):
         "can_use_bracelet": sub is not None,
         "has_teleassistance": sub.get('subscription_type') in ('care', 'bracelet_gilet') if sub else False,
         "has_sport": sub.get('subscription_type') == 'sport' if sub else False,
-        "has_physio": sub.get('subscription_type') == 'physio' if sub else False,
+        "has_physio": await db.subscriptions.find_one({"$or": [{"beneficiary_id": user['id']}, {"beneficiary_phone": normalize_phone(user.get('phone', ''))}], "status": "active", "subscription_type": "physio"}, {"_id": 0}) is not None,
         "start_date": sub.get('start_date') or sub.get('created_at') if sub else None,
         "source": sub.get('source') if sub else None,
         "contract": contract_info,

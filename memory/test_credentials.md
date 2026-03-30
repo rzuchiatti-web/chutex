@@ -8,6 +8,11 @@
 - Email: +33655443322
 - Password: test123
 
+## Physio / Kinesitherapeute
+- Email: +33699887766
+- Password: test123
+- Name: Dr. Sophie Leclerc
+
 ## Admin
 - Email: admin@chutex.fr
 - Password: admin123
