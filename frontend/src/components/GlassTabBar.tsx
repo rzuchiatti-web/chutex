@@ -19,14 +19,12 @@ function getGuardianTabs(user: any): TabConfig[] {
   const proType = user?.professional_type;
   const isCoachOrPhysio = proType === 'coach' || proType === 'physio';
 
-  if (hasSaad) {
-    tabs.push({ key: 'teleconsult', icon: 'ri-service-fill', label: 'Care' });
-  }
-  if (hasSaad || isCoachOrPhysio) {
-    tabs.push({ key: 'devices', icon: 'ri-file-list-3-fill', label: 'Prescriptions' });
-  }
   if (isCoachOrPhysio) {
     tabs.push({ key: 'alerts', icon: 'ri-chat-3-fill', label: 'Messages' });
+    tabs.push({ key: 'devices', icon: 'ri-file-list-3-fill', label: 'Prescriptions' });
+  } else if (hasSaad) {
+    tabs.push({ key: 'teleconsult', icon: 'ri-service-fill', label: 'Interventions' });
+    tabs.push({ key: 'devices', icon: 'ri-file-list-3-fill', label: 'Prescriptions' });
   }
   tabs.push({ key: 'profile', icon: 'ri-menu-3-fill', label: 'Plus' });
   return tabs;

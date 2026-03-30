@@ -338,6 +338,13 @@ async def get_payment_dashboard(user=Depends(get_current_user)):
     current_month_payments = [p for p in payments if p.get('date', '').startswith(datetime.now(timezone.utc).strftime('%Y-%m'))]
     monthly_earned_ht = sum(p.get('amount_ht', 0) for p in current_month_payments)
 
+    # Prescription commissions (50€ HT per contract)
+    prescription_commissions = await db.saad_commissions.find(
+        {"prescriber_id": uid}, {"_id": 0}
+    ).sort("created_at", -1).to_list(100)
+    prescription_comm_total = sum(c.get("amount", 0) for c in prescription_commissions if c.get("status") == "paid")
+    prescription_comm_pending = sum(c.get("amount", 0) for c in prescription_commissions if c.get("status") == "pending")
+
     cu = await db.users.find_one({"id": uid}, {"_id": 0})
     pro_app = await db.pro_applications.find_one({"phone": cu.get('phone', ''), "status": {"$in": ["activated", "approved"]}}, {"_id": 0})
 
@@ -351,6 +358,12 @@ async def get_payment_dashboard(user=Depends(get_current_user)):
         "recent_payments": payments[:5],
         "iban_configured": bool(cu.get('iban')),
         "contract_signed": bool(pro_app),
+        "prescription_commissions": {
+            "total_earned": prescription_comm_total,
+            "total_pending": prescription_comm_pending,
+            "count": len(prescription_commissions),
+            "recent": prescription_commissions[:5],
+        },
     }
 
 
