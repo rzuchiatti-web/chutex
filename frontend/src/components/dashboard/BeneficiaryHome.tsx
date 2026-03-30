@@ -552,53 +552,59 @@ export function BeneficiaryHome({ token, user }: { token: string; user: any }) {
 
           {/* ── Abonnement Pro en attente ── */}
           {/* ── Exercices du jour (prescrit par le coach) ── */}
-          {todayExercises.length > 0 && (
+          {todayExercises.length > 0 && (() => {
+            const exDoneCount = todayExercises.filter((e: any) => e.completed_today).length;
+            const exAllDone = exDoneCount >= todayExercises.length;
+            const API = process.env.EXPO_PUBLIC_BACKEND_URL || '';
+            return (
             <div data-testid="today-exercises-dashboard" className="dash-slide-up" style={{ marginBottom: 28 } as any}>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 } as any}>
-                <div style={{ fontSize: 20, fontWeight: 900, color: C.text, letterSpacing: '-0.3px' } as any}>Exercices du jour</div>
-                <div style={{ fontSize: 28, fontWeight: 900, color: C.text }}>{todayExercises.length}</div>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 } as any}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8 } as any}>
+                  <i className="ri-calendar-check-line" style={{ fontSize: 16, color: '#EF4444' }} />
+                  <span style={{ fontSize: 14, fontWeight: 800, color: '#111' }}>Exercices du jour</span>
+                  <span style={{ fontSize: 11, fontWeight: 700, color: exAllDone ? '#10B981' : '#6B7280', background: exAllDone ? 'rgba(16,185,129,0.12)' : '#E5E7EB', padding: '2px 10px', borderRadius: 999 }}>{exDoneCount}/{todayExercises.length}</span>
+                </div>
               </div>
-              <div style={{ fontSize: 13, color: C.sub, marginBottom: 16, lineHeight: '1.45' } as any}>Prescrit par votre coach — {todayExercises.filter((e: any) => e.completed_today).length}/{todayExercises.length} realises</div>
               {todayExercises.map((ex: any, i: number) => {
-                const exImg = ex.image ? (ex.image.startsWith('/') ? `${process.env.EXPO_PUBLIC_BACKEND_URL}${ex.image}` : ex.image) : null;
+                const done = ex.completed_today;
+                const todayStr = new Date().toISOString().split('T')[0];
+                const lastCompletion = (ex.completions || []).filter((c: any) => c.date?.startsWith(todayStr) && c.status === 'done').slice(-1)[0];
+                const exImg = ex.image ? (ex.image.startsWith('/') ? `${API}${ex.image}` : ex.image) : null;
                 return (
                   <div key={ex.id || i} data-testid={`dash-exercise-${i}`}
                     onClick={() => router.push({ pathname: '/pro-exercise-detail' as any, params: { id: ex.exercise_template_id || ex.id, mode: 'assigned', assignmentId: ex.id } })}
-                    style={{ borderRadius: 14, background: ex.completed_today ? 'rgba(16,185,129,0.08)' : '#F4F4F5', overflow: 'hidden', cursor: 'pointer', marginBottom: 8, border: ex.completed_today ? '1px solid rgba(16,185,129,0.15)' : 'none' } as any}>
-                    {exImg && (
-                      <div style={{ width: '100%', height: 120, overflow: 'hidden', position: 'relative' } as any}>
-                        <img src={exImg} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' } as any} />
-                        {ex.completed_today && (
-                          <div style={{ position: 'absolute', top: 8, right: 8, display: 'flex', alignItems: 'center', gap: 4, padding: '4px 10px', borderRadius: 999, background: 'rgba(16,185,129,0.9)' } as any}>
-                            <i className="ri-check-line" style={{ fontSize: 12, color: '#FFF' }} />
-                            <span style={{ fontSize: 10, fontWeight: 700, color: '#FFF' }}>Valide</span>
+                    style={{ borderRadius: 14, background: done ? 'rgba(16,185,129,0.08)' : '#F4F4F5', overflow: 'hidden', cursor: 'pointer', marginBottom: 8, opacity: done ? 0.85 : 1 } as any}>
+                    <div style={{ display: 'flex', minHeight: 72 } as any}>
+                      <div style={{ width: 80, flexShrink: 0, position: 'relative', overflow: 'hidden' } as any}>
+                        {exImg ? <img src={exImg} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' } as any} /> :
+                        <div style={{ position: 'absolute', inset: 0, background: done ? 'rgba(16,185,129,0.15)' : '#E5E7EB', display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}><i className={ex.icon || 'ri-run-line'} style={{ fontSize: 24, color: done ? '#10B981' : '#EF4444' }} /></div>}
+                      </div>
+                      <div style={{ flex: 1, minWidth: 0, padding: '10px 12px', display: 'flex', flexDirection: 'column', justifyContent: 'center' } as any}>
+                        <span style={{ fontSize: 8, fontWeight: 700, color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: 0.6 }}>{ex.category || 'Exercice'}</span>
+                        <div style={{ fontSize: 14, fontWeight: 700, color: done ? '#10B981' : '#111', marginTop: 2 }}>{ex.title}</div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 2 } as any}>
+                          <span style={{ fontSize: 11, color: done ? 'rgba(16,185,129,0.6)' : '#6B7280' }}>{ex.sets}x{ex.repetitions} reps</span>
+                          {ex.rest_seconds > 0 && <span style={{ fontSize: 10, color: '#9CA3AF' }}>{ex.rest_seconds}s repos</span>}
+                        </div>
+                      </div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 4, flexShrink: 0, paddingRight: 10 } as any}>
+                        {done && <i className="ri-checkbox-circle-fill" style={{ fontSize: 18, color: '#10B981' }} />}
+                        {!done && <i className="ri-arrow-right-s-line" style={{ fontSize: 18, color: '#9CA3AF' }} />}
+                      </div>
+                    </div>
+                    {done && lastCompletion && (lastCompletion.pain_level || lastCompletion.patient_notes) && (
+                      <div style={{ padding: '8px 12px 10px', borderTop: '1px solid rgba(16,185,129,0.12)', display: 'flex', alignItems: 'center', gap: 10 } as any}>
+                        {lastCompletion.pain_level > 0 && (
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 4 } as any}>
+                            <i className="ri-heart-pulse-line" style={{ fontSize: 12, color: lastCompletion.pain_level <= 3 ? '#10B981' : lastCompletion.pain_level <= 6 ? '#F59E0B' : '#EF4444' }} />
+                            <span style={{ fontSize: 11, fontWeight: 700, color: lastCompletion.pain_level <= 3 ? '#10B981' : lastCompletion.pain_level <= 6 ? '#F59E0B' : '#EF4444' }}>Douleur {lastCompletion.pain_level}/10</span>
                           </div>
+                        )}
+                        {lastCompletion.patient_notes && (
+                          <div style={{ flex: 1, fontSize: 11, color: '#6B7280', fontStyle: 'italic', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' } as any}>"{lastCompletion.patient_notes}"</div>
                         )}
                       </div>
                     )}
-                    <div style={{ padding: '12px 14px', display: 'flex', alignItems: 'center', gap: 12 } as any}>
-                      {!exImg && (
-                        <div style={{ width: 44, height: 44, borderRadius: 12, background: ex.completed_today ? 'rgba(16,185,129,0.12)' : 'rgba(239,68,68,0.06)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}>
-                          <i className="ri-run-line" style={{ fontSize: 20, color: ex.completed_today ? '#10B981' : '#EF4444' }} />
-                        </div>
-                      )}
-                      <div style={{ flex: 1, minWidth: 0 } as any}>
-                        <div style={{ fontSize: 14, fontWeight: 800, color: ex.completed_today ? '#10B981' : '#111', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' } as any}>{ex.title}</div>
-                        <div style={{ fontSize: 11, color: '#9CA3AF', marginTop: 2 }}>
-                          {ex.sets > 0 && `${ex.sets} series x ${ex.repetitions} reps`}
-                          {ex.rest_seconds > 0 && ` - ${ex.rest_seconds}s repos`}
-                        </div>
-                      </div>
-                      {ex.completed_today && !exImg && (
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '4px 10px', borderRadius: 999, background: 'rgba(16,185,129,0.9)' } as any}>
-                          <i className="ri-check-line" style={{ fontSize: 12, color: '#FFF' }} />
-                          <span style={{ fontSize: 10, fontWeight: 700, color: '#FFF' }}>Valide</span>
-                        </div>
-                      )}
-                      {!ex.completed_today && (
-                        <i className="ri-arrow-right-s-line" style={{ fontSize: 18, color: '#9CA3AF', flexShrink: 0 }} />
-                      )}
-                    </div>
                   </div>
                 );
               })}
@@ -608,7 +614,8 @@ export function BeneficiaryHome({ token, user }: { token: string; user: any }) {
                 Voir mon activite
               </div>
             </div>
-          )}
+            );
+          })()}
 
           {/* ── Abonnement Pro en attente ── */}
           {proSub && proSub.status === 'pending' && (

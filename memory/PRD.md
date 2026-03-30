@@ -51,6 +51,7 @@ L'objectif est une UI Glassmorphism + Light mode avec synchronisation en temps r
 - [x] **Dashboard calories** — carte apport calorique refaite style minceur (fond gris, kcal 38px, eau, macros separees par traits) (2026-03-29)
 - [x] **Dashboard dispositifs** — DeviceCards wrappees dans carte grise #F4F4F5 (2026-03-29)
 - [x] **Abonnement Sport profil** — carte rouge + popup detaille Chutex Sport (fond rouge, cartes blanches, contrat) (2026-03-29)
+- [x] **Refonte exercices dashboard beneficiaire** — cartes horizontales identiques au ProDayView gardien (image 80px gauche, categorie, titre, sets/reps, checkbox, douleur+notes) (2026-03-30)
 
 ## Code Architecture (post-refactoring)
 ```
