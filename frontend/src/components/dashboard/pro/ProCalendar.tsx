@@ -20,7 +20,7 @@ export function HorizontalCalendar({ selectedDate, onSelect, accent }: { selecte
 
   // Auto-scroll to selected day (centered)
   useEffect(() => {
-    const timer = setTimeout(() => {
+    const scroll = () => {
       try {
         const el = document.querySelector(`[data-testid="cal-day-${selStr}"]`) as HTMLElement;
         if (!el?.parentElement) return;
@@ -30,8 +30,12 @@ export function HorizontalCalendar({ selectedDate, onSelect, accent }: { selecte
           container.scrollTo({ left: Math.max(0, scrollLeft), behavior: 'instant' as ScrollBehavior });
         }
       } catch {}
-    }, 150);
-    return () => clearTimeout(timer);
+    };
+    scroll();
+    const t1 = setTimeout(scroll, 100);
+    const t2 = setTimeout(scroll, 400);
+    const t3 = setTimeout(scroll, 800);
+    return () => { clearTimeout(t1); clearTimeout(t2); clearTimeout(t3); };
   }, [selStr, viewMonth, viewYear]);
 
   return (

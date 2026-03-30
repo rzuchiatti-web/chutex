@@ -256,7 +256,6 @@ export default function MinceurPage() {
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [explainMetric, setExplainMetric] = useState<string | null>(null);
   const [mAvgs, setMAvgs] = useState<Record<string, any>>({});
-  const [mAvgPeriod, setMAvgPeriod] = useState<'7j' | '30j' | '90j'>('7j');
 
   useEffect(() => { setMounted(true); }, []);
 
@@ -425,63 +424,55 @@ export default function MinceurPage() {
               {/* ══ 3 SEPARATE CHARTS ══ */}
               {history.length >= 2 && (
                 <>
-                  {/* Period average selector */}
-                  <div data-testid="minceur-avg-selector" style={{ display: 'flex', gap: 6, marginBottom: 12, alignItems: 'center' } as any}>
-                    <span style={{ fontSize: 11, fontWeight: 700, color: '#9CA3AF', marginRight: 4 }}>Moyenne</span>
-                    {(['7j', '30j', '90j'] as const).map(p => (
-                      <div key={p} onClick={() => setMAvgPeriod(p)} style={{ padding: '5px 12px', borderRadius: 8, background: mAvgPeriod === p ? '#111' : '#F4F4F5', cursor: 'pointer', fontSize: 11, fontWeight: 700, color: mAvgPeriod === p ? '#FFF' : '#9CA3AF', transition: 'all 0.2s' } as any}>{p}</div>
-                    ))}
-                  </div>
-
                   {history.some((h: any) => h.weight > 0) && (
-                    <div data-testid="chart-weight" style={{ borderRadius: 18, background: '#F4F4F5', padding: '16px 20px', marginBottom: 12 } as any}>
+                    <div data-testid="chart-weight" onClick={() => router.push({ pathname: '/metric-detail' as any, params: { key: 'weight' } })} style={{ borderRadius: 18, background: '#F4F4F5', padding: '16px 20px', marginBottom: 12, cursor: 'pointer' } as any}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 } as any}>
                         <i className="ri-scales-3-line" style={{ fontSize: 14, color: A }} /><span style={{ fontSize: 13, fontWeight: 800, color: '#111' }}>Evolution du poids</span>
                         {cr.weight > 0 && <span style={{ fontSize: 11, fontWeight: 900, color: A, marginLeft: 'auto' }}>{cr.weight}kg</span>}
-                        <div onClick={() => setExplainMetric('weight')} style={{ width: 28, height: 28, borderRadius: 999, background: '#FFF', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', flexShrink: 0 } as any}><i className="ri-information-line" style={{ fontSize: 14, color: A }} /></div>
+                        <i className="ri-arrow-right-s-line" style={{ fontSize: 16, color: '#9CA3AF' }} />
                       </div>
                       <Chart history={history} metric="weight" />
-                      {mAvgs.weight?.[mAvgPeriod] != null && (
+                      {mAvgs.weight?.['7j'] != null && (
                         <div style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '6px 10px', borderRadius: 10, background: '#FFF', marginTop: 4 } as any}>
                           <i className="ri-line-chart-line" style={{ fontSize: 12, color: A }} />
-                          <span style={{ fontSize: 10, fontWeight: 700, color: '#6B7280' }}>Moy. {mAvgPeriod}</span>
-                          <span style={{ fontSize: 13, fontWeight: 900, color: A, marginLeft: 'auto' }}>{mAvgs.weight[mAvgPeriod]} kg</span>
+                          <span style={{ fontSize: 10, fontWeight: 700, color: '#6B7280' }}>Moy. 7j</span>
+                          <span style={{ fontSize: 13, fontWeight: 900, color: A, marginLeft: 'auto' }}>{mAvgs.weight['7j']} kg</span>
                         </div>
                       )}
                     </div>
                   )}
                   {history.some((h: any) => h.body_fat_pct > 0) && (
-                    <div data-testid="chart-fat" style={{ borderRadius: 18, background: '#F4F4F5', padding: '16px 20px', marginBottom: 12 } as any}>
+                    <div data-testid="chart-fat" onClick={() => router.push({ pathname: '/metric-detail' as any, params: { key: 'body_fat_pct' } })} style={{ borderRadius: 18, background: '#F4F4F5', padding: '16px 20px', marginBottom: 12, cursor: 'pointer' } as any}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 } as any}>
                         <i className="ri-fire-line" style={{ fontSize: 14, color: '#F97316' }} /><span style={{ fontSize: 13, fontWeight: 800, color: '#111' }}>Masse grasse</span>
                         {bc.body_fat_pct > 0 && <span style={{ fontSize: 11, fontWeight: 900, color: '#F97316', marginLeft: 'auto' }}>{bc.body_fat_pct}%</span>}
-                        <div onClick={() => setExplainMetric('body_fat')} style={{ width: 28, height: 28, borderRadius: 999, background: '#FFF', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', flexShrink: 0 } as any}><i className="ri-information-line" style={{ fontSize: 14, color: '#F97316' }} /></div>
+                        <i className="ri-arrow-right-s-line" style={{ fontSize: 16, color: '#9CA3AF' }} />
                       </div>
                       <Chart history={history} metric="body_fat_pct" />
                       <Insight metric="body_fat_pct" value={bc.body_fat_pct} gender={data?.profile?.gender || ''} weight={cr.weight || 0} />
-                      {mAvgs.body_fat_pct?.[mAvgPeriod] != null && (
+                      {mAvgs.body_fat_pct?.['7j'] != null && (
                         <div style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '6px 10px', borderRadius: 10, background: '#FFF', marginTop: 4 } as any}>
                           <i className="ri-line-chart-line" style={{ fontSize: 12, color: '#F97316' }} />
-                          <span style={{ fontSize: 10, fontWeight: 700, color: '#6B7280' }}>Moy. {mAvgPeriod}</span>
-                          <span style={{ fontSize: 13, fontWeight: 900, color: '#F97316', marginLeft: 'auto' }}>{mAvgs.body_fat_pct[mAvgPeriod]}%</span>
+                          <span style={{ fontSize: 10, fontWeight: 700, color: '#6B7280' }}>Moy. 7j</span>
+                          <span style={{ fontSize: 13, fontWeight: 900, color: '#F97316', marginLeft: 'auto' }}>{mAvgs.body_fat_pct['7j']}%</span>
                         </div>
                       )}
                     </div>
                   )}
                   {history.some((h: any) => h.muscle_pct > 0) && (
-                    <div data-testid="chart-muscle" style={{ borderRadius: 18, background: '#F4F4F5', padding: '16px 20px', marginBottom: 12 } as any}>
+                    <div data-testid="chart-muscle" onClick={() => router.push({ pathname: '/metric-detail' as any, params: { key: 'muscle_pct' } })} style={{ borderRadius: 18, background: '#F4F4F5', padding: '16px 20px', marginBottom: 12, cursor: 'pointer' } as any}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 } as any}>
                         <i className="ri-body-scan-line" style={{ fontSize: 14, color: G }} /><span style={{ fontSize: 13, fontWeight: 800, color: '#111' }}>Masse musculaire</span>
                         {bc.muscle_pct > 0 && <span style={{ fontSize: 11, fontWeight: 900, color: G, marginLeft: 'auto' }}>{bc.muscle_pct}%</span>}
-                        <div onClick={() => setExplainMetric('muscle')} style={{ width: 28, height: 28, borderRadius: 999, background: '#FFF', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', flexShrink: 0 } as any}><i className="ri-information-line" style={{ fontSize: 14, color: G }} /></div>
+                        <i className="ri-arrow-right-s-line" style={{ fontSize: 16, color: '#9CA3AF' }} />
                       </div>
                       <Chart history={history} metric="muscle_pct" />
                       <Insight metric="muscle_pct" value={bc.muscle_pct} gender={data?.profile?.gender || ''} weight={cr.weight || 0} />
-                      {mAvgs.muscle_pct?.[mAvgPeriod] != null && (
+                      {mAvgs.muscle_pct?.['7j'] != null && (
                         <div style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '6px 10px', borderRadius: 10, background: '#FFF', marginTop: 4 } as any}>
                           <i className="ri-line-chart-line" style={{ fontSize: 12, color: G }} />
-                          <span style={{ fontSize: 10, fontWeight: 700, color: '#6B7280' }}>Moy. {mAvgPeriod}</span>
-                          <span style={{ fontSize: 13, fontWeight: 900, color: G, marginLeft: 'auto' }}>{mAvgs.muscle_pct[mAvgPeriod]}%</span>
+                          <span style={{ fontSize: 10, fontWeight: 700, color: '#6B7280' }}>Moy. 7j</span>
+                          <span style={{ fontSize: 13, fontWeight: 900, color: G, marginLeft: 'auto' }}>{mAvgs.muscle_pct['7j']}%</span>
                         </div>
                       )}
                     </div>
