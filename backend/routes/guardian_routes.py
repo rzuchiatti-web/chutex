@@ -409,6 +409,8 @@ async def create_prescription(data: PrescriptionCreate, user=Depends(get_current
         "beneficiary_phone": cleaned_phone, "subscription_type": data.subscription_type,
         "guardian_contact_name": data.guardian_contact_name, "guardian_contact_phone": data.guardian_contact_phone,
         "plan_label": plan_label, "price": price,
+        "commission": 50.00,  # 50€ HT souscription fixe
+        "commission_monthly": 5.00,  # 5€ HT/mois fixe
         "notes": data.notes, "status": "pending", "beneficiary_id": None, "subscribed_at": None,
         "commission_payment_date": next_month.isoformat(),
         "tracking_phone": cleaned_phone, "tracking_email": data.beneficiary_email,

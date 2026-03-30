@@ -589,8 +589,8 @@ async def mark_invoice_paid(invoice_id: str):
 # ═══════════════════════════════════════════════════════
 
 SAAD_COMMISSIONS = {
-    "oneshot": {"bracelet": 100.00, "bracelet_gilet": 200.00},
-    "monthly": {"bracelet": 8.00, "bracelet_gilet": 15.00},
+    "subscription_fee": 50.00,   # 50€ HT unique à la souscription
+    "monthly_fee": 5.00,         # 5€ HT/mois récurrent
 }
 
 
@@ -648,8 +648,10 @@ async def get_saad_status(saad_id: str):
     return {
         "registered": True,
         "company_name": doc.get("company_name", ""),
-        "commission_type": doc.get("commission_type", "monthly"),
-        "commission_display": f"{SAAD_COMMISSIONS.get(doc.get('commission_type', 'monthly'), {}).get('bracelet', 8)} EUR" + (" (unique)" if doc.get("commission_type") == "oneshot" else "/mois"),
+        "commission_type": "fixed",
+        "commission_display": "50€ HT (souscription) + 5€ HT/mois",
+        "subscription_fee": SAAD_COMMISSIONS["subscription_fee"],
+        "monthly_fee": SAAD_COMMISSIONS["monthly_fee"],
         "status": doc.get("status", "active"),
         "total_earned": round(sum(c.get("amount", 0) for c in total_earned), 2),
         "total_pending": round(sum(c.get("amount", 0) for c in total_pending), 2),
@@ -671,7 +673,7 @@ async def saad_stripe_status_redirect(saad_id: str):
 
 
 async def _process_saad_commission(contract: dict, contract_id: str, now: str):
-    """Process SAAD commission when a prescribed contract is activated via Mollie."""
+    """Process SAAD commission: 50€ HT at subscription + 5€ HT/month recurring."""
     ben_phone = contract.get("beneficiary", {}).get("phone", "")
     if not ben_phone:
         return
@@ -683,7 +685,7 @@ async def _process_saad_commission(contract: dict, contract_id: str, now: str):
     if not prescription:
         return
 
-    prescriber_id = prescription.get("prescriber_id", "")
+    prescriber_id = prescription.get("prescriber_id") or prescription.get("guardian_id", "")
     if not prescriber_id:
         return
 
@@ -691,56 +693,83 @@ async def _process_saad_commission(contract: dict, contract_id: str, now: str):
     if not prescriber:
         return
 
-    saad_id = prescriber.get("company_id") or prescriber.get("id")
+    saad_id = prescriber.get("company_id") or prescriber.get("prescriber_company_id") or prescriber.get("id")
     saad_account = await db.saad_accounts.find_one({"saad_id": saad_id, "status": "active"}, {"_id": 0})
     if not saad_account:
         logger.info(f"No active SAAD account for prescriber {prescriber_id}, skipping commission")
         return
 
-    commission_type = saad_account.get("commission_type", "monthly")
-    plan_id = contract.get("plan", "bracelet")
-    amount = SAAD_COMMISSIONS.get(commission_type, {}).get(plan_id, SAAD_COMMISSIONS["monthly"]["bracelet"])
+    # ── 1. Subscription fee: 50€ HT (one-time) ──
+    existing_sub_fee = await db.saad_commissions.find_one({
+        "contract_id": contract_id, "saad_id": saad_id, "commission_type": "subscription_fee"
+    })
+    if not existing_sub_fee:
+        sub_fee_id = str(uuid.uuid4())
+        sub_amount = SAAD_COMMISSIONS["subscription_fee"]
+        mollie_sub_id = ""
+        try:
+            base_url = os.environ.get("EXPO_PUBLIC_BACKEND_URL", "")
+            payment = mollie_client.payments.create({
+                "amount": {"currency": "EUR", "value": f"{sub_amount:.2f}"},
+                "description": f"Commission souscription SAAD - {contract.get('contract_number', '')}",
+                "webhookUrl": f"{base_url}/api/mollie/webhook-commission",
+                "metadata": {"commission_id": sub_fee_id, "contract_id": contract_id, "saad_id": saad_id, "type": "saad_subscription_fee"},
+                "method": ["banktransfer"],
+            })
+            mollie_sub_id = payment.id
+            logger.info(f"Mollie subscription fee {payment.id}: {sub_amount}EUR to {saad_account.get('company_name', '')}")
+        except Exception as e:
+            logger.error(f"Mollie subscription fee failed: {e}")
 
-    # Check if oneshot already paid
-    if commission_type == "oneshot":
-        existing = await db.saad_commissions.find_one({"contract_id": contract_id, "saad_id": saad_id, "status": "paid"})
-        if existing:
-            return
+        await db.saad_commissions.insert_one({
+            "id": sub_fee_id,
+            "contract_id": contract_id,
+            "contract_number": contract.get("contract_number", ""),
+            "saad_id": saad_id,
+            "saad_name": saad_account.get("company_name", ""),
+            "prescriber_id": prescriber_id,
+            "commission_type": "subscription_fee",
+            "amount": sub_amount,
+            "mollie_payment_id": mollie_sub_id,
+            "status": "pending" if mollie_sub_id else "manual",
+            "description": "Commission souscription (50€ HT)",
+            "created_at": now,
+        })
+        logger.info(f"SAAD subscription fee: {sub_amount}EUR for {saad_account.get('company_name')} — contract {contract.get('contract_number')}")
 
-    commission_id = str(uuid.uuid4())
-
-    # Create Mollie payment to SAAD
-    mollie_payment_id = ""
+    # ── 2. Monthly fee: 5€ HT (first month) ──
+    monthly_id = str(uuid.uuid4())
+    monthly_amount = SAAD_COMMISSIONS["monthly_fee"]
+    mollie_monthly_id = ""
     try:
-        saad_email = saad_account.get("email", "")
         base_url = os.environ.get("EXPO_PUBLIC_BACKEND_URL", "")
         payment = mollie_client.payments.create({
-            "amount": {"currency": "EUR", "value": f"{amount:.2f}"},
-            "description": f"Commission SAAD {'unique' if commission_type == 'oneshot' else 'mensuelle'} - {contract.get('contract_number', '')}",
+            "amount": {"currency": "EUR", "value": f"{monthly_amount:.2f}"},
+            "description": f"Commission mensuelle SAAD - {contract.get('contract_number', '')}",
             "webhookUrl": f"{base_url}/api/mollie/webhook-commission",
-            "metadata": {"commission_id": commission_id, "contract_id": contract_id, "saad_id": saad_id, "type": f"saad_commission_{commission_type}"},
+            "metadata": {"commission_id": monthly_id, "contract_id": contract_id, "saad_id": saad_id, "type": "saad_monthly_fee"},
             "method": ["banktransfer"],
         })
-        mollie_payment_id = payment.id
-        logger.info(f"Mollie commission payment {payment.id} created: {amount}EUR to {saad_account.get('company_name', '')}")
+        mollie_monthly_id = payment.id
+        logger.info(f"Mollie monthly fee {payment.id}: {monthly_amount}EUR to {saad_account.get('company_name', '')}")
     except Exception as e:
-        logger.error(f"Mollie SAAD commission payment failed: {e}")
+        logger.error(f"Mollie monthly fee failed: {e}")
 
     await db.saad_commissions.insert_one({
-        "id": commission_id,
+        "id": monthly_id,
         "contract_id": contract_id,
         "contract_number": contract.get("contract_number", ""),
         "saad_id": saad_id,
         "saad_name": saad_account.get("company_name", ""),
         "prescriber_id": prescriber_id,
-        "commission_type": commission_type,
-        "amount": amount,
-        "mollie_payment_id": mollie_payment_id,
-        "status": "pending" if mollie_payment_id else "manual",
+        "commission_type": "monthly_fee",
+        "amount": monthly_amount,
+        "mollie_payment_id": mollie_monthly_id,
+        "status": "pending" if mollie_monthly_id else "manual",
+        "description": "Commission mensuelle (5€ HT/mois)",
         "created_at": now,
     })
-
-    logger.info(f"SAAD commission: {amount}EUR ({commission_type}) for {saad_account.get('company_name')} — contract {contract.get('contract_number')}")
+    logger.info(f"SAAD monthly fee: {monthly_amount}EUR for {saad_account.get('company_name')} — contract {contract.get('contract_number')}")
 
 
 @router.post("/mollie/webhook-commission")
