@@ -210,9 +210,7 @@ export default function ProExerciseDetailPage() {
                         <input value={notes} onChange={(e: any) => setNotes(e.target.value)} placeholder="Comment ca s'est passe ?" style={INP} />
                       </div>
                       <div style={{ display: 'flex', gap: 8 } as any}>
-                        <div data-testid="validate-exercise-btn" onClick={() => handleComplete('done')} style={{ flex: 2, padding: '14px', borderRadius: 999, background: '#111', textAlign: 'center', cursor: 'pointer', fontSize: 14, fontWeight: 800, color: '#FFF', opacity: completing ? 0.5 : 1 } as any}>{completing ? 'Validation...' : 'Valider'}</div>
-                        <div onClick={() => handleComplete('partial')} style={{ flex: 1, padding: '14px', borderRadius: 999, background: '#F59E0B15', textAlign: 'center', cursor: 'pointer', fontSize: 12, fontWeight: 700, color: '#F59E0B' } as any}>Partiel</div>
-                        <div onClick={() => handleComplete('skipped')} style={{ flex: 1, padding: '14px', borderRadius: 999, background: '#EF444415', textAlign: 'center', cursor: 'pointer', fontSize: 12, fontWeight: 700, color: '#EF4444' } as any}>Passer</div>
+                        <div data-testid="validate-exercise-btn" onClick={() => handleComplete('done')} style={{ flex: 1, padding: '14px', borderRadius: 999, background: '#111', textAlign: 'center', cursor: 'pointer', fontSize: 14, fontWeight: 800, color: '#FFF', opacity: completing ? 0.5 : 1 } as any}>{completing ? 'Validation...' : 'Valider'}</div>
                       </div>
                     </>
                   )}
