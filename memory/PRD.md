@@ -55,6 +55,10 @@ L'objectif est une UI Glassmorphism + Light mode avec synchronisation en temps r
 - [x] **Seed 7 jours donnees bracelet Josette** — 88 readings (HR, SpO2, BP, Temp, Steps, Cal, Dist, HRV, Stress, Recovery, Sleep) + 7 scale + 13 glycemia + 5 ECG (2026-03-30)
 - [x] **Fix bug activity-detail** — lecture depuis `report.data` au lieu de `report` directement (2026-03-30)
 - [x] **Refonte metric-detail** — calendrier horizontal header, suppression date picker, graphiques animes (stroke-dashoffset, barres qui montent), tooltips dark, swipe/touch, separation objectifs vs seuils alertes (2026-03-30)
+- [x] **Moyennes 7J/30J/90J activite** — cartes Pas, Calories, Distance, VO2 Max avec selecteur de periode et badge moyenne (2026-03-30)
+- [x] **Moyennes 7J/30J/90J minceur** — cartes Poids, Masse grasse, Masse musculaire avec selecteur et badge (2026-03-30)
+- [x] **Refonte graphiques minceur** — courbes bezier lissees, taille augmentee (170px), tooltips dark, labels dates espaces, animation gradient (2026-03-30)
+- [x] **API /api/health/metric-averages** — endpoint retournant les moyennes 7j/30j/90j pour N metriques en un seul appel (2026-03-30)
 
 ## Code Architecture (post-refactoring)
 ```

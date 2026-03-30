@@ -120,23 +120,53 @@ function Chart({ history, metric }: { history: any[]; metric: MK }) {
   const f = [...history].reverse().filter(d => d[metric] > 0).slice(-14);
   if (f.length < 2) return <div style={{ textAlign: 'center', padding: '16px 0', fontSize: 11, color: '#9CA3AF' }}>Pas assez de mesures</div>;
   const vals = f.map(d => d[metric]);
-  const mn = Math.min(...vals) - (metric === 'weight' ? 1 : 0.3), mx = Math.max(...vals) + (metric === 'weight' ? 1 : 0.3);
-  const rng = mx - mn || 1, W = 440, H = 130, LM = 32, RM = 6, TM = 18, BM = 22;
+  const mn = Math.min(...vals) - (metric === 'weight' ? 1 : 0.5), mx = Math.max(...vals) + (metric === 'weight' ? 1 : 0.5);
+  const rng = mx - mn || 1, W = 360, H = 160, LM = 38, RM = 8, TM = 20, BM = 28;
   const pW = W - LM - RM, pH = H - TM - BM;
   const step = pW / (f.length - 1);
   const pts = f.map((d, i) => ({ x: LM + i * step, y: TM + pH - ((d[metric] - mn) / rng) * pH, v: d[metric], dt: d.date }));
-  const lp = pts.map((p, i) => (i === 0 ? `M${p.x},${p.y}` : `L${p.x},${p.y}`)).join(' ');
-  const ap = lp + ` L${pts[pts.length - 1].x},${H - BM} L${pts[0].x},${H - BM} Z`;
-  const yLabels = [mn, mn + rng / 2, mx].map(v => ({ v: Math.round(v * 10) / 10, y: TM + pH - ((v - mn) / rng) * pH }));
   const fmtD = (s: string) => { try { const d = new Date(s); return `${d.getDate()}/${d.getMonth() + 1}`; } catch { return ''; } };
+
+  // Smooth bezier path
+  const smooth = (points: typeof pts): string => {
+    if (points.length < 2) return '';
+    let d = `M${points[0].x},${points[0].y}`;
+    for (let i = 0; i < points.length - 1; i++) {
+      const a = points[Math.max(0, i - 1)], b = points[i], cc = points[i + 1], e = points[Math.min(points.length - 1, i + 2)];
+      d += `C${b.x + (cc.x - a.x) * 0.25},${b.y + (cc.y - a.y) * 0.25},${cc.x - (e.x - b.x) * 0.25},${cc.y - (e.y - b.y) * 0.25},${cc.x},${cc.y}`;
+    }
+    return d;
+  };
+  const lp = smooth(pts);
+  const ap = lp + ` L${pts[pts.length - 1].x},${H - BM} L${pts[0].x},${H - BM} Z`;
+  const yLabels = [mn, mn + rng * 0.33, mn + rng * 0.66, mx].map(v => ({ v: Math.round(v * 10) / 10, y: TM + pH - ((v - mn) / rng) * pH }));
+
   return (
-    <svg viewBox={`0 0 ${W} ${H}`} style={{ width: 'calc(100% + 40px)', height: 140, display: 'block', margin: '0 -20px' }}>
-      <defs><linearGradient id={`${c.gid}a`} x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor={c.color} stopOpacity="0.18" /><stop offset="100%" stopColor={c.color} stopOpacity="0" /></linearGradient><linearGradient id={`${c.gid}l`} x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stopColor={c.color} stopOpacity="0.3" /><stop offset="100%" stopColor={c.color} stopOpacity="1" /></linearGradient></defs>
-      {yLabels.map((yl, i) => <g key={i}><line x1={LM} x2={W - RM} y1={yl.y} y2={yl.y} stroke="rgba(0,0,0,0.06)" strokeWidth="1" /><text x={LM - 4} y={yl.y + 3} textAnchor="end" fill="#9CA3AF" fontSize="8" fontWeight="600">{yl.v}</text></g>)}
-      {f.length > 1 && <><text x={pts[0].x} y={H - 6} textAnchor="start" fill="#9CA3AF" fontSize="8">{fmtD(f[0].date)}</text><text x={pts[pts.length - 1].x} y={H - 6} textAnchor="end" fill="#9CA3AF" fontSize="8">{fmtD(f[f.length - 1].date)}</text></>}
+    <svg viewBox={`0 0 ${W} ${H}`} style={{ width: '100%', height: 170, display: 'block' }}>
+      <defs>
+        <linearGradient id={`${c.gid}a`} x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor={c.color} stopOpacity="0.2" /><stop offset="100%" stopColor={c.color} stopOpacity="0" /></linearGradient>
+        <linearGradient id={`${c.gid}l`} x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stopColor={c.color} stopOpacity="0.3" /><stop offset="100%" stopColor={c.color} stopOpacity="1" /></linearGradient>
+      </defs>
+      {yLabels.map((yl, i) => <g key={i}><line x1={LM} x2={W - RM} y1={yl.y} y2={yl.y} stroke="rgba(0,0,0,0.05)" strokeWidth="1" strokeDasharray="3,3" /><text x={LM - 6} y={yl.y + 3} textAnchor="end" fill="#9CA3AF" fontSize="9" fontWeight="600">{yl.v}</text></g>)}
+      {/* Date labels */}
+      {f.length > 1 && (() => {
+        const labelStep = Math.max(1, Math.floor(f.length / 5));
+        return f.map((d, i) => (i === 0 || i === f.length - 1 || i % labelStep === 0) ? <text key={i} x={pts[i].x} y={H - 8} textAnchor="middle" fill="#9CA3AF" fontSize="9" fontWeight="600">{fmtD(d.date)}</text> : null);
+      })()}
       <path d={ap} fill={`url(#${c.gid}a)`}><animate attributeName="opacity" from="0" to="1" dur="0.5s" fill="freeze" /></path>
-      <path d={lp} fill="none" stroke={`url(#${c.gid}l)`} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
-      {pts.map((p, i) => <g key={i}>{i === pts.length - 1 && <><circle cx={p.x} cy={p.y} r="5" fill={c.color} opacity="0.15"><animate attributeName="r" values="5;9;5" dur="2s" repeatCount="indefinite" /></circle><circle cx={p.x} cy={p.y} r="3.5" fill={c.color} stroke="#FFF" strokeWidth="2" /><text x={Math.min(p.x, W - 30)} y={p.y - 10} textAnchor={p.x > W - 40 ? 'end' : 'middle'} fill={c.color} fontSize="10" fontWeight="800">{p.v}{c.unit}</text></>}{i > 0 && i < pts.length - 1 && <circle cx={p.x} cy={p.y} r="1.5" fill="rgba(0,0,0,0.08)" />}</g>)}
+      <path d={lp} fill="none" stroke={`url(#${c.gid}l)`} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+        <animate attributeName="stroke-dashoffset" from={pW * 3} to="0" dur="1s" fill="freeze" />
+      </path>
+      {pts.map((p, i) => <g key={i}>
+        {i === pts.length - 1 && <>
+          <circle cx={p.x} cy={p.y} r="6" fill={c.color} opacity="0.12"><animate attributeName="r" values="6;10;6" dur="2s" repeatCount="indefinite" /></circle>
+          <circle cx={p.x} cy={p.y} r="4" fill={c.color} stroke="#FFF" strokeWidth="2" />
+          <rect x={Math.min(p.x - 24, W - 52)} y={p.y - 22} width={48} height={18} rx={6} fill="#111" />
+          <text x={Math.min(p.x, W - 28)} y={p.y - 10} textAnchor="middle" fill="#FFF" fontSize="10" fontWeight="800">{p.v}{c.unit}</text>
+        </>}
+        {i > 0 && i < pts.length - 1 && <circle cx={p.x} cy={p.y} r="2" fill={c.color} opacity="0.2" />}
+        {i === 0 && <circle cx={p.x} cy={p.y} r="2.5" fill={c.color} opacity="0.3" />}
+      </g>)}
     </svg>
   );
 }
@@ -225,6 +255,8 @@ export default function MinceurPage() {
   const [showGoalConfirm, setShowGoalConfirm] = useState(false);
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [explainMetric, setExplainMetric] = useState<string | null>(null);
+  const [mAvgs, setMAvgs] = useState<Record<string, any>>({});
+  const [mAvgPeriod, setMAvgPeriod] = useState<'7j' | '30j' | '90j'>('7j');
 
   useEffect(() => { setMounted(true); }, []);
 
@@ -241,6 +273,10 @@ export default function MinceurPage() {
     } catch (e: any) { setError(e.message || 'Erreur'); } finally { setLoading(false); setRefreshing(false); }
   };
   useEffect(() => { fetchData(); }, [token]);
+  useEffect(() => {
+    if (!token) return;
+    apiFetch('/api/health/metric-averages?keys=weight,body_fat_pct,muscle_pct', {}, token).catch(() => ({})).then((a: any) => { if (a && typeof a === 'object') setMAvgs(a); });
+  }, [token]);
 
   const selectedDateStr = `${selectedDate.getFullYear()}-${String(selectedDate.getMonth()+1).padStart(2,'0')}-${String(selectedDate.getDate()).padStart(2,'0')}`;
 
@@ -389,6 +425,14 @@ export default function MinceurPage() {
               {/* ══ 3 SEPARATE CHARTS ══ */}
               {history.length >= 2 && (
                 <>
+                  {/* Period average selector */}
+                  <div data-testid="minceur-avg-selector" style={{ display: 'flex', gap: 6, marginBottom: 12, alignItems: 'center' } as any}>
+                    <span style={{ fontSize: 11, fontWeight: 700, color: '#9CA3AF', marginRight: 4 }}>Moyenne</span>
+                    {(['7j', '30j', '90j'] as const).map(p => (
+                      <div key={p} onClick={() => setMAvgPeriod(p)} style={{ padding: '5px 12px', borderRadius: 8, background: mAvgPeriod === p ? '#111' : '#F4F4F5', cursor: 'pointer', fontSize: 11, fontWeight: 700, color: mAvgPeriod === p ? '#FFF' : '#9CA3AF', transition: 'all 0.2s' } as any}>{p}</div>
+                    ))}
+                  </div>
+
                   {history.some((h: any) => h.weight > 0) && (
                     <div data-testid="chart-weight" style={{ borderRadius: 18, background: '#F4F4F5', padding: '16px 20px', marginBottom: 12 } as any}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 } as any}>
@@ -397,6 +441,13 @@ export default function MinceurPage() {
                         <div onClick={() => setExplainMetric('weight')} style={{ width: 28, height: 28, borderRadius: 999, background: '#FFF', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', flexShrink: 0 } as any}><i className="ri-information-line" style={{ fontSize: 14, color: A }} /></div>
                       </div>
                       <Chart history={history} metric="weight" />
+                      {mAvgs.weight?.[mAvgPeriod] != null && (
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '6px 10px', borderRadius: 10, background: '#FFF', marginTop: 4 } as any}>
+                          <i className="ri-line-chart-line" style={{ fontSize: 12, color: A }} />
+                          <span style={{ fontSize: 10, fontWeight: 700, color: '#6B7280' }}>Moy. {mAvgPeriod}</span>
+                          <span style={{ fontSize: 13, fontWeight: 900, color: A, marginLeft: 'auto' }}>{mAvgs.weight[mAvgPeriod]} kg</span>
+                        </div>
+                      )}
                     </div>
                   )}
                   {history.some((h: any) => h.body_fat_pct > 0) && (
@@ -408,6 +459,13 @@ export default function MinceurPage() {
                       </div>
                       <Chart history={history} metric="body_fat_pct" />
                       <Insight metric="body_fat_pct" value={bc.body_fat_pct} gender={data?.profile?.gender || ''} weight={cr.weight || 0} />
+                      {mAvgs.body_fat_pct?.[mAvgPeriod] != null && (
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '6px 10px', borderRadius: 10, background: '#FFF', marginTop: 4 } as any}>
+                          <i className="ri-line-chart-line" style={{ fontSize: 12, color: '#F97316' }} />
+                          <span style={{ fontSize: 10, fontWeight: 700, color: '#6B7280' }}>Moy. {mAvgPeriod}</span>
+                          <span style={{ fontSize: 13, fontWeight: 900, color: '#F97316', marginLeft: 'auto' }}>{mAvgs.body_fat_pct[mAvgPeriod]}%</span>
+                        </div>
+                      )}
                     </div>
                   )}
                   {history.some((h: any) => h.muscle_pct > 0) && (
@@ -419,6 +477,13 @@ export default function MinceurPage() {
                       </div>
                       <Chart history={history} metric="muscle_pct" />
                       <Insight metric="muscle_pct" value={bc.muscle_pct} gender={data?.profile?.gender || ''} weight={cr.weight || 0} />
+                      {mAvgs.muscle_pct?.[mAvgPeriod] != null && (
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '6px 10px', borderRadius: 10, background: '#FFF', marginTop: 4 } as any}>
+                          <i className="ri-line-chart-line" style={{ fontSize: 12, color: G }} />
+                          <span style={{ fontSize: 10, fontWeight: 700, color: '#6B7280' }}>Moy. {mAvgPeriod}</span>
+                          <span style={{ fontSize: 13, fontWeight: 900, color: G, marginLeft: 'auto' }}>{mAvgs.muscle_pct[mAvgPeriod]}%</span>
+                        </div>
+                      )}
                     </div>
                   )}
                 </>

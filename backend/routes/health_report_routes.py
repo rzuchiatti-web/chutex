@@ -821,6 +821,37 @@ async def get_metric_history(key: str, period: str = "7j", user=Depends(get_curr
     }
 
 
+
+@router.get("/health/metric-averages")
+async def get_metric_averages(keys: str = "steps,calories,distance_km,weight,body_fat_pct,muscle_pct,vo2_max", user=Depends(get_current_user)):
+    """Return 7j/30j/90j averages for multiple metrics in one call."""
+    from datetime import timedelta
+    now = datetime.now(timezone.utc)
+    uid = user['id']
+    metric_keys = [k.strip() for k in keys.split(",") if k.strip()]
+    bracelet_keys = {"heart_rate", "hrv", "spo2", "blood_pressure", "temperature", "stress_level", "recovery_score", "steps", "calories", "distance_km", "sleep_quality", "sleep_duration_min", "vo2_max"}
+    scale_keys = {"weight", "body_fat_pct", "muscle_pct", "water_pct", "bone_mass_kg", "visceral_fat", "bmi"}
+
+    result = {}
+    for mk in metric_keys:
+        device_type = "bracelet" if mk in bracelet_keys else "scale" if mk in scale_keys else "bracelet"
+        avgs = {}
+        for label, days in [("7j", 7), ("30j", 30), ("90j", 90)]:
+            since = (now - timedelta(days=days)).isoformat()
+            readings = await db.device_readings.find(
+                {"user_id": uid, "device_type": device_type, "timestamp": {"$gte": since}}, {"_id": 0, "data": 1}
+            ).to_list(500)
+            vals = []
+            for r in readings:
+                v = r.get("data", {}).get(mk, 0)
+                if v and v > 0:
+                    vals.append(v)
+            avgs[label] = round(sum(vals) / len(vals), 1) if vals else None
+        result[mk] = avgs
+    return result
+
+
+
 @router.get("/health/summary")
 async def get_health_summary(user=Depends(get_current_user)):
     """Lightweight endpoint: AI health summary sentence + recommendation"""

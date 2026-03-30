@@ -106,6 +106,8 @@ export default function ActivityDetailPage() {
   const [hasProPrograms, setHasProPrograms] = useState(false);
   const [proExercises, setProExercises] = useState<any[]>([]);
   const [selectedDate, setSelectedDate] = useState(new Date());
+  const [avgs, setAvgs] = useState<Record<string, any>>({});
+  const [avgPeriod, setAvgPeriod] = useState<'7j' | '30j' | '90j'>('7j');
 
   const fetchData = useCallback(() => {
     if (!token) { setLoading(false); return; }
@@ -133,6 +135,10 @@ export default function ActivityDetailPage() {
     // Slow API — load health report in background (doesn't block UI)
     apiFetch('/api/health/daily-report', {}, token).catch(() => ({})).then((report: any) => {
       if (report) setD(report?.data || report);
+    });
+    // Fetch metric averages
+    apiFetch('/api/health/metric-averages?keys=steps,calories,distance_km,vo2_max', {}, token).catch(() => ({})).then((a: any) => {
+      if (a && typeof a === 'object') setAvgs(a);
     });
   }, [token, selectedDate]);
 
@@ -200,6 +206,14 @@ export default function ActivityDetailPage() {
               {/* ── STREAK ── */}
               {st.current_streak > 0 && <div style={{ textAlign: 'center', marginBottom: 14 } as any}><div style={{ display: 'inline-flex', alignItems: 'center', gap: 5, padding: '4px 12px', borderRadius: 999, background: 'rgba(245,158,11,0.1)' } as any}><i className="ri-fire-fill" style={{ fontSize: 11, color: A }} /><span style={{ fontSize: 11, fontWeight: 900, color: A }}>{st.current_streak}j consecutifs</span></div></div>}
 
+              {/* ── PERIOD AVERAGE SELECTOR ── */}
+              <div data-testid="avg-period-selector" style={{ display: 'flex', gap: 6, marginBottom: 12, alignItems: 'center' } as any}>
+                <span style={{ fontSize: 11, fontWeight: 700, color: '#9CA3AF', marginRight: 4 }}>Moyenne</span>
+                {(['7j', '30j', '90j'] as const).map(p => (
+                  <div key={p} onClick={() => setAvgPeriod(p)} style={{ padding: '5px 12px', borderRadius: 8, background: avgPeriod === p ? '#111' : '#F4F4F5', cursor: 'pointer', fontSize: 11, fontWeight: 700, color: avgPeriod === p ? '#FFF' : '#9CA3AF', transition: 'all 0.2s' } as any}>{p}</div>
+                ))}
+              </div>
+
               {/* ── 3 CARTES: Pas, Calories, Distance ── */}
               {[
                 { label: 'Pas', value: steps, goal: 6000, icon: 'ri-footprint-line', color: G, key: 'steps', unit: '', decimal: false },
@@ -208,8 +222,9 @@ export default function ActivityDetailPage() {
               ].map((m, i) => {
                 const pct = m.goal > 0 ? Math.min(100, Math.round((m.value / m.goal) * 100)) : 0;
                 const has = m.value > 0;
+                const mAvg = avgs[m.key]?.[avgPeriod];
                 return (
-                  <div key={i} data-testid={`card-${m.key}`} onClick={() => router.push({ pathname: '/metric-detail' as any, params: { metric: m.key } })} style={{ borderRadius: 18, background: '#F4F4F5', padding: '16px 18px', marginBottom: 10, cursor: 'pointer', transition: 'transform 0.12s' } as any}
+                  <div key={i} data-testid={`card-${m.key}`} onClick={() => router.push({ pathname: '/metric-detail' as any, params: { key: m.key } })} style={{ borderRadius: 18, background: '#F4F4F5', padding: '16px 18px', marginBottom: 10, cursor: 'pointer', transition: 'transform 0.12s' } as any}
                     onMouseEnter={(e: any) => { e.currentTarget.style.transform = 'translateY(-1px)'; }}
                     onMouseLeave={(e: any) => { e.currentTarget.style.transform = ''; }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 } as any}>
@@ -225,6 +240,14 @@ export default function ActivityDetailPage() {
                         <div style={{ fontSize: 9, color: '#9CA3AF', marginTop: 3, textAlign: 'right' }}>{pct}% de {m.goal.toLocaleString()}{m.unit || ''}</div>
                       </div>
                     </div>
+                    {/* Average badge */}
+                    {mAvg != null && (
+                      <div style={{ marginTop: 10, display: 'flex', alignItems: 'center', gap: 6, padding: '6px 10px', borderRadius: 10, background: '#FFF' } as any}>
+                        <i className="ri-line-chart-line" style={{ fontSize: 12, color: m.color }} />
+                        <span style={{ fontSize: 10, fontWeight: 700, color: '#6B7280' }}>Moy. {avgPeriod}</span>
+                        <span style={{ fontSize: 13, fontWeight: 900, color: m.color, marginLeft: 'auto' }}>{m.decimal ? mAvg.toFixed(1) : Math.round(mAvg).toLocaleString()}{m.unit ? ` ${m.unit}` : ''}</span>
+                      </div>
+                    )}
                   </div>
                 );
               })}
@@ -261,6 +284,13 @@ export default function ActivityDetailPage() {
                     <div style={{ display: 'inline-flex', alignItems: 'center', gap: 4, padding: '2px 8px', borderRadius: 999, background: `${vo2Col}15`, marginTop: 4 } as any}><span style={{ fontSize: 10, fontWeight: 700, color: vo2Col }}>{vo2Label}</span><span style={{ fontSize: 8, color: '#9CA3AF' }}>ml/kg/min</span></div>
                   </div>
                 </div>
+                {avgs.vo2_max?.[avgPeriod] != null && (
+                  <div style={{ marginTop: 10, display: 'flex', alignItems: 'center', gap: 6, padding: '6px 10px', borderRadius: 10, background: '#FFF' } as any}>
+                    <i className="ri-line-chart-line" style={{ fontSize: 12, color: vo2Col }} />
+                    <span style={{ fontSize: 10, fontWeight: 700, color: '#6B7280' }}>Moy. {avgPeriod}</span>
+                    <span style={{ fontSize: 13, fontWeight: 900, color: vo2Col, marginLeft: 'auto' }}>{avgs.vo2_max[avgPeriod]} ml/kg/min</span>
+                  </div>
+                )}
               </div>
 
               {/* ── EXERCICES DU JOUR (Coach) — cartes individuelles, image réelle ── */}
