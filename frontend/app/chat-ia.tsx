@@ -101,15 +101,17 @@ export default function ChatIAScreen() {
     return () => clearInterval(iv);
   }, [greetingDone, hasMessages]);
 
+  const chatSessionId = isGuardian && selectedBen ? `chat-${user?.id}-${role}-${selectedBen}` : `chat-${user?.id}-${role}`;
+
   const loadHistory = async () => {
     setLoading(true);
-    try { const h = await apiFetch('/api/chat/history', {}, token); setMessages(Array.isArray(h) ? h : []); }
+    try { const h = await apiFetch(`/api/chat/history?session_id=${chatSessionId}`, {}, token); setMessages(Array.isArray(h) ? h : []); }
     catch {} finally { setLoading(false); }
   };
 
   const clearChat = async () => {
     if (clearing) return; setClearing(true);
-    try { await apiFetch('/api/chat/clear', { method: 'DELETE' }, token); setMessages([]); }
+    try { await apiFetch(`/api/chat/clear?session_id=${chatSessionId}`, { method: 'DELETE' }, token); setMessages([]); }
     catch {} finally { setClearing(false); }
   };
 
@@ -120,7 +122,7 @@ export default function ChatIAScreen() {
     setMessages(prev => [...prev, { id: 'temp-' + Date.now(), role: 'user', content: msg, created_at: new Date().toISOString() }]);
     setSending(true);
     try {
-      const res = await apiFetch('/api/chat/message', { method: 'POST', body: JSON.stringify({ message: msg, session_id: `chat-${user?.id}-${role}${selectedBen ? '-' + selectedBen : ''}`, beneficiary_id: isGuardian ? selectedBen : undefined }) }, token);
+      const res = await apiFetch('/api/chat/message', { method: 'POST', body: JSON.stringify({ message: msg, session_id: chatSessionId, beneficiary_id: isGuardian ? selectedBen : undefined }) }, token);
       setMessages(prev => [...prev.filter(m => !m.id?.startsWith('temp-')), { id: 'u-' + Date.now(), role: 'user', content: msg, created_at: new Date().toISOString() }, { id: res.id, role: 'assistant', content: res.content, created_at: res.created_at }]);
       setTypingId(res.id);
     } catch {
@@ -136,7 +138,7 @@ export default function ChatIAScreen() {
       {/* Nora video — always visible, premium entrance + animates position */}
       <video autoPlay loop muted playsInline style={{
         position: 'absolute', left: '50%',
-        top: hasMessages ? '12px' : '28%',
+        top: hasMessages ? '70px' : '28%',
         transform: hasMessages ? 'translate(-50%, 0) scale(1)' : 'translate(-50%, -50%) scale(1)',
         width: hasMessages ? 90 : 200, height: hasMessages ? 90 : 200,
         objectFit: 'contain', borderRadius: hasMessages ? 45 : 100,
@@ -151,39 +153,40 @@ export default function ChatIAScreen() {
         <div onClick={() => router.back()} data-testid="chat-back" style={{ width: 38, height: 38, borderRadius: '50%', background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}>
           <i className="ri-arrow-left-s-line" style={{ fontSize: 22, color: '#FFF' }} />
         </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 6 } as any}>
-          {isGuardian && beneficiaries.length > 0 && (
-            <div onClick={() => setShowBenPicker(!showBenPicker)} style={{ position: 'relative', padding: '5px 12px', borderRadius: 99, background: 'rgba(167,139,250,0.15)', border: '1px solid rgba(167,139,250,0.25)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 } as any}>
-              <span style={{ fontSize: 11, fontWeight: 700, color: '#A78BFA' }}>{selectedBenName || 'Choisir'}</span>
-              <i className="ri-arrow-down-s-line" style={{ fontSize: 14, color: '#A78BFA' }} />
-              {showBenPicker && (
-                <div onClick={(e: any) => e.stopPropagation()} style={{ position: 'absolute', top: '100%', right: 0, marginTop: 6, minWidth: 200, borderRadius: 16, background: 'rgba(30,30,40,0.95)', border: '1px solid rgba(255,255,255,0.12)', backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)', padding: '6px', zIndex: 100, boxShadow: '0 12px 40px rgba(0,0,0,0.5)' } as any}>
-                  {beneficiaries.map((ben: any) => (
-                    <div key={ben.id} data-testid={`ben-pick-${ben.id}`} onClick={() => { setSelectedBen(ben.id); setShowBenPicker(false); setMessages([]); }}
-                      style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 12px', borderRadius: 12, cursor: 'pointer', background: selectedBen === ben.id ? 'rgba(167,139,250,0.15)' : 'transparent', transition: 'background 0.15s' } as any}
-                      onMouseEnter={(e: any) => { if (selectedBen !== ben.id) e.currentTarget.style.background = 'rgba(255,255,255,0.06)'; }}
-                      onMouseLeave={(e: any) => { if (selectedBen !== ben.id) e.currentTarget.style.background = 'transparent'; }}>
-                      <div style={{ width: 28, height: 28, borderRadius: 99, background: 'linear-gradient(135deg, #D4845A, #E8A87C)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}>
-                        <span style={{ fontSize: 11, fontWeight: 800, color: '#FFF' }}>{(ben.name || '?')[0]}</span>
-                      </div>
-                      <div style={{ flex: 1 } as any}>
-                        <div style={{ fontSize: 13, fontWeight: 700, color: '#FFF' }}>{ben.name}</div>
-                      </div>
-                      {selectedBen === ben.id && <i className="ri-check-line" style={{ fontSize: 14, color: '#A78BFA' }} />}
-                    </div>
-                  ))}
-                </div>
-              )}
+        {/* Guardian: centered beneficiary picker glass button */}
+        {isGuardian && beneficiaries.length > 0 && (
+          <div style={{ position: 'relative' } as any}>
+            <div onClick={() => setShowBenPicker(!showBenPicker)} data-testid="ben-picker-btn" style={{ padding: '8px 16px', borderRadius: 999, background: 'rgba(255,255,255,0.1)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', border: '1px solid rgba(255,255,255,0.15)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8 } as any}>
+              <div style={{ width: 22, height: 22, borderRadius: 99, background: 'linear-gradient(135deg, #D4845A, #E8A87C)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}>
+                <span style={{ fontSize: 9, fontWeight: 800, color: '#FFF' }}>{(selectedBenName || '?')[0]}</span>
+              </div>
+              <span style={{ fontSize: 13, fontWeight: 700, color: '#FFF' }}>{selectedBenName || 'Choisir'}</span>
+              <i className="ri-arrow-down-s-line" style={{ fontSize: 14, color: 'rgba(255,255,255,0.5)' }} />
             </div>
-          )}
-          {isGuardian && !selectedBenName && <div style={{ padding: '4px 10px', borderRadius: 99, background: 'rgba(167,139,250,0.15)', border: '1px solid rgba(167,139,250,0.25)' } as any}><span style={{ fontSize: 10, fontWeight: 700, color: '#A78BFA', textTransform: 'uppercase', letterSpacing: 0.5 }}>Gardien</span></div>}
+            {showBenPicker && (
+              <div onClick={(e: any) => e.stopPropagation()} style={{ position: 'absolute', top: '100%', left: '50%', transform: 'translateX(-50%)', marginTop: 8, minWidth: 220, borderRadius: 16, background: 'rgba(20,20,30,0.95)', border: '1px solid rgba(255,255,255,0.12)', backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)', padding: '6px', zIndex: 100, boxShadow: '0 12px 40px rgba(0,0,0,0.5)' } as any}>
+                {beneficiaries.map((ben: any) => (
+                  <div key={ben.id} data-testid={`ben-pick-${ben.id}`} onClick={() => { setSelectedBen(ben.id); setShowBenPicker(false); setMessages([]); loadHistory(); }}
+                    style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 12px', borderRadius: 12, cursor: 'pointer', background: selectedBen === ben.id ? 'rgba(167,139,250,0.15)' : 'transparent', transition: 'background 0.15s' } as any}
+                    onMouseEnter={(e: any) => { if (selectedBen !== ben.id) e.currentTarget.style.background = 'rgba(255,255,255,0.06)'; }}
+                    onMouseLeave={(e: any) => { if (selectedBen !== ben.id) e.currentTarget.style.background = 'transparent'; }}>
+                    <div style={{ width: 28, height: 28, borderRadius: 99, background: 'linear-gradient(135deg, #D4845A, #E8A87C)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}>
+                      <span style={{ fontSize: 11, fontWeight: 800, color: '#FFF' }}>{(ben.name || '?')[0]}</span>
+                    </div>
+                    <span style={{ fontSize: 13, fontWeight: 700, color: '#FFF', flex: 1 }}>{ben.name}</span>
+                    {selectedBen === ben.id && <i className="ri-check-line" style={{ fontSize: 14, color: '#A78BFA' }} />}
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
           {hasMessages && (
             <div data-testid="chat-clear" onClick={clearChat} style={{ width: 38, height: 38, borderRadius: '50%', background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', opacity: clearing ? 0.5 : 1 } as any}>
               <i className="ri-delete-bin-line" style={{ fontSize: 16, color: 'rgba(255,255,255,0.5)' }} />
             </div>
           )}
         </div>
-      </div>
 
       {/* Content area */}
       <div style={{ flex: 1, overflowY: 'auto', position: 'relative', zIndex: 5, display: 'flex', flexDirection: 'column', ...(hasMessages ? {} : { justifyContent: 'center' }) } as any}>

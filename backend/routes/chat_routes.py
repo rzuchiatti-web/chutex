@@ -258,23 +258,23 @@ REGLES:
 
 
 @router.get("/chat/history")
-async def get_chat_history(user=Depends(get_current_user)):
+async def get_chat_history(session_id: str = None, user=Depends(get_current_user)):
     """Get chat message history for current role - only today's messages"""
     uid = user['id']
     role = user.get('active_role') or user.get('role', 'beneficiary')
-    session_id = f"chat-{uid}-{role}"
+    sid = session_id or f"chat-{uid}-{role}"
     today_start = datetime.now(timezone.utc).replace(hour=0, minute=0, second=0, microsecond=0).isoformat()
     messages = await db.chat_messages.find(
-        {"user_id": uid, "session_id": session_id, "created_at": {"$gte": today_start}}, {"_id": 0}
+        {"user_id": uid, "session_id": sid, "created_at": {"$gte": today_start}}, {"_id": 0}
     ).sort("created_at", 1).to_list(100)
     return messages
 
 
 @router.delete("/chat/clear")
-async def clear_chat(user=Depends(get_current_user)):
-    """Clear chat history for current role"""
+async def clear_chat(session_id: str = None, user=Depends(get_current_user)):
+    """Clear chat history for specific session"""
     uid = user['id']
     role = user.get('active_role') or user.get('role', 'beneficiary')
-    session_id = f"chat-{uid}-{role}"
-    await db.chat_messages.delete_many({"user_id": uid, "session_id": session_id})
+    sid = session_id or f"chat-{uid}-{role}"
+    await db.chat_messages.delete_many({"user_id": uid, "session_id": sid})
     return {"status": "cleared"}

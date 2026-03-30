@@ -168,15 +168,6 @@ export default function GuardianHome({ token, user }: { token: string; user: any
                 </div>
               </div>
 
-              {/* Nora AI card — dans le header */}
-              <div data-testid="guardian-nora-card" onClick={() => router.push('/chat-ia' as any)} style={{ borderRadius: 16, padding: '14px 16px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 12, marginTop: 10, background: 'rgba(0,0,0,0.35)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1px solid rgba(255,255,255,0.1)' } as any}>
-                <video autoPlay loop muted playsInline style={{ width: 40, height: 40, borderRadius: 12, objectFit: 'contain', flexShrink: 0, pointerEvents: 'none' } as any} src="https://customer-assets.emergentagent.com/job_ba3a5789-c8f1-4b12-b5d8-478a7f99aaea/artifacts/b6eh1r76_Nora_video.mp4" />
-                <div style={{ flex: 1 } as any}>
-                  <div style={{ fontSize: 14, fontWeight: 800, color: '#FFF' }}>Demander a Nora</div>
-                  <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.45)' }}>Questions sante sur vos beneficiaires</div>
-                </div>
-                <i className="ri-arrow-right-s-line" style={{ fontSize: 18, color: 'rgba(255,255,255,0.3)' }} />
-              </div>
             </div>
           </div>
 
@@ -185,6 +176,18 @@ export default function GuardianHome({ token, user }: { token: string; user: any
 
           {/* ═══ CONTENT CARD ═══ */}
           <div style={{ padding: '24px 16px 120px', marginTop: -16, borderRadius: '24px 24px 0 0', background: contentBg, position: 'relative', zIndex: 10, borderTop: isDark ? '1px solid rgba(255,255,255,0.1)' : '1px solid rgba(0,0,0,0.08)', minHeight: 'calc(100vh - 180px)' } as any}>
+
+            {/* Nora AI card — above beneficiaries */}
+            <div data-testid="guardian-nora-card" onClick={() => router.push('/chat-ia' as any)} style={{ borderRadius: 18, background: '#000', padding: '16px 18px', marginBottom: 20, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 14, transition: 'transform 0.15s' } as any}
+              onMouseEnter={(e: any) => { e.currentTarget.style.transform = 'translateY(-1px)'; }}
+              onMouseLeave={(e: any) => { e.currentTarget.style.transform = ''; }}>
+              <video autoPlay loop muted playsInline style={{ width: 44, height: 44, borderRadius: 14, objectFit: 'contain', flexShrink: 0, pointerEvents: 'none' } as any} src="https://customer-assets.emergentagent.com/job_ba3a5789-c8f1-4b12-b5d8-478a7f99aaea/artifacts/b6eh1r76_Nora_video.mp4" />
+              <div style={{ flex: 1 } as any}>
+                <div style={{ fontSize: 14, fontWeight: 800, color: '#FFF' }}>Demander a Nora</div>
+                <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.4)', marginTop: 1 }}>Questions sante sur vos beneficiaires</div>
+              </div>
+              <i className="ri-arrow-right-s-line" style={{ fontSize: 18, color: 'rgba(255,255,255,0.25)' }} />
+            </div>
 
             {/* Section header — same as "Mes gardiens" in BeneficiaryHome */}
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 } as any}>

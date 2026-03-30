@@ -45,79 +45,31 @@ interface ProDayViewProps {
 export function ProDayView(props: ProDayViewProps) {
   const { filteredExercises, filteredReminders, filteredMeals, selectedDayFr, selectedDateStr, AC, router, benNutrition, benWeightGoal, activeBenId, token } = props;
 
-  /* ── Objectifs journaliers du bénéficiaire (auto-refresh) ── */
-  const [objectives, setObjectives] = useState<any[]>([]);
+  /* ── Tracking du bénéficiaire (auto-refresh) ── */
   const [tracking, setTracking] = useState<Record<string, boolean>>({});
 
   useEffect(() => {
     if (!activeBenId || !token) return;
     const load = () => {
-      apiFetch(`/api/guardian/beneficiary/${activeBenId}/daily-report`, {}, token).then((r: any) => {
-        const plan = (r?.daily_plan || []).filter((p: any) => p.key !== 'connect' && p.key !== 'stress');
-        setObjectives(plan);
-      }).catch(() => {});
       apiFetch(`/api/minceur/today-tracking?date=${selectedDateStr}`, {}, token).then((t: any) => {
         setTracking(t?.completed || {});
       }).catch(() => {});
     };
     load();
-    const iv = setInterval(load, 15000); // Auto-refresh every 15s
+    const iv = setInterval(load, 12000);
     return () => clearInterval(iv);
   }, [activeBenId, token, selectedDateStr]);
 
-  const OBJ_CFG: Record<string, { icon: string; color: string; label: string }> = {
-    steps: { icon: 'ri-footprint-line', color: '#10B981', label: 'Activite physique' },
-    hydration: { icon: 'ri-drop-fill', color: '#38BDF8', label: 'Hydratation' },
-    sleep: { icon: 'ri-moon-line', color: '#818CF8', label: 'Endormissement' },
-    calories_intake: { icon: 'ri-fire-line', color: '#F59E0B', label: 'Apport calorique' },
-  };
-  const totalObj = objectives.length;
-  const doneObj = filteredExercises.filter(ex => (ex.completions || []).some((c: any) => c.date?.startsWith(selectedDateStr) && c.status === 'done')).length
-    + Object.values(tracking).filter(Boolean).length;
-  const allDone = totalObj > 0 && doneObj >= totalObj;
-  const pctObj = totalObj > 0 ? Math.min(100, Math.round((doneObj / totalObj) * 100)) : 0;
+  // Compute done counts per section
+  const exerciseDone = filteredExercises.filter(ex => (ex.completions || []).some((c: any) => c.date?.startsWith(selectedDateStr) && c.status === 'done')).length;
+  const reminders = filteredReminders.filter(r => r.reminder_type !== 'hydration');
+  const hydrations = filteredReminders.filter(r => r.reminder_type === 'hydration');
+  const reminderDone = reminders.filter(r => (r.completions || []).some((c: any) => c.date?.startsWith(selectedDateStr) && c.status === 'done') || tracking[`rem_${r.id}`]).length;
+  const hydrationDone = hydrations.filter(r => (r.completions || []).some((c: any) => c.date?.startsWith(selectedDateStr) && c.status === 'done') || tracking[`hyd_${r.id}`]).length;
+  const mealDone = filteredMeals.filter((m: any, i: number) => tracking[`meal_${i}`] || (m.completions || []).some((c: any) => c.date?.startsWith(selectedDateStr) && c.status === 'done')).length;
 
   return (
     <>
-      {/* ── Objectifs du jour ── */}
-      {totalObj > 0 && (
-        <div data-testid="pro-objectives-card" style={{ borderRadius: 20, background: '#F4F4F5', padding: '16px 18px', marginBottom: 18 } as any}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 } as any}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8 } as any}>
-              <div style={{ width: 32, height: 32, borderRadius: 10, background: allDone ? 'rgba(16,185,129,0.12)' : 'rgba(0,0,0,0.04)', display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}>
-                <i className={allDone ? 'ri-check-double-line' : 'ri-list-check-3'} style={{ fontSize: 16, color: allDone ? '#10B981' : '#6B7280' }} />
-              </div>
-              <div>
-                <div style={{ fontSize: 14, fontWeight: 800, color: '#111' }}>Objectifs du jour</div>
-                <div style={{ fontSize: 10, color: '#9CA3AF' }}>{doneObj}/{totalObj} realises{allDone ? ' — Bravo !' : ''}</div>
-              </div>
-            </div>
-            <div style={{ fontSize: 18, fontWeight: 900, color: allDone ? '#10B981' : pctObj > 50 ? '#F59E0B' : '#6B7280' }}>{pctObj}%</div>
-          </div>
-          <div style={{ height: 6, borderRadius: 3, background: '#E5E7EB', overflow: 'hidden', marginBottom: 14 } as any}>
-            <div style={{ height: '100%', borderRadius: 3, width: `${pctObj}%`, background: allDone ? '#10B981' : pctObj > 50 ? '#F59E0B' : '#EF4444', transition: 'width 0.6s ease' } as any} />
-          </div>
-          {objectives.map((obj: any, i: number) => {
-            const cfg = OBJ_CFG[obj.key] || { icon: 'ri-flag-line', color: '#6B7280', label: obj.key };
-            const done = !!tracking[obj.key] || (obj.key === 'steps' && filteredExercises.some(ex => (ex.completions || []).some((c: any) => c.date?.startsWith(selectedDateStr) && c.status === 'done')));
-            return (
-              <div key={obj.key} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 0', borderTop: i > 0 ? '1px solid rgba(0,0,0,0.04)' : 'none' } as any}>
-                <div style={{ width: 28, height: 28, borderRadius: 8, background: done ? `${cfg.color}15` : 'rgba(0,0,0,0.03)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}>
-                  {done ? <i className="ri-check-line" style={{ fontSize: 14, color: cfg.color }} /> : <i className={cfg.icon} style={{ fontSize: 14, color: cfg.color, opacity: 0.5 }} />}
-                </div>
-                <div style={{ flex: 1, minWidth: 0 } as any}>
-                  <div style={{ fontSize: 12, fontWeight: 700, color: done ? '#111' : '#6B7280', textDecoration: done ? 'line-through' : 'none' }}>{cfg.label}</div>
-                  <div style={{ fontSize: 10, color: '#9CA3AF' }}>{obj.value} {obj.key === 'hydration' ? 'L' : obj.key === 'calories_intake' ? 'kcal' : obj.key === 'steps' ? 'pas' : ''}</div>
-                </div>
-                <div style={{ width: 20, height: 20, borderRadius: 6, border: done ? `2px solid ${cfg.color}` : '2px solid #D1D5DB', background: done ? cfg.color : 'transparent', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}>
-                  {done && <i className="ri-check-line" style={{ fontSize: 12, color: '#FFF' }} />}
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      )}
-
       {/* Nutrition + Weight Goal Combined Card */}
       {(benNutrition?.daily_calories > 0 || (benWeightGoal && benWeightGoal.has_goal)) && (
         <div data-testid="nutrition-weight-card" onClick={() => router.push({ pathname: '/minceur' as any, params: { beneficiaryId: activeBenId } })}
@@ -204,7 +156,7 @@ export function ProDayView(props: ProDayViewProps) {
 
       {/* Exercices du jour */}
       <div style={{ height: 1, background: '#E5E7EB', margin: '4px 0 18px' } as any} />
-      <SectionHeader icon="ri-calendar-check-line" iconColor={AC} title={`Exercices du ${selectedDayFr}`} count={filteredExercises.length} onAdd={props.onAddExercise} testId="cat-add-exercices" />
+      <SectionHeader icon="ri-calendar-check-line" iconColor={AC} title={`Exercices du ${selectedDayFr}`} count={filteredExercises.length} doneCount={exerciseDone} onAdd={props.onAddExercise} testId="cat-add-exercices" />
       {filteredExercises.length === 0 && <EmptyDay icon="ri-inbox-2-line" text={`Aucun exercice prevu le ${selectedDayFr}`} />}
       {filteredExercises.map(ex => {
         const done = (ex.completions || []).some((c: any) => c.date?.startsWith(selectedDateStr) && c.status === 'done');
@@ -235,7 +187,7 @@ export function ProDayView(props: ProDayViewProps) {
 
       {/* Traitements du jour (non-hydratation) */}
       <div style={{ height: 1, background: '#E5E7EB', margin: '12px 0 18px' } as any} />
-      <SectionHeader icon="ri-capsule-line" iconColor="#F59E0B" title={`Traitements du ${selectedDayFr}`} count={filteredReminders.filter(r => r.reminder_type !== 'hydration').length} onAdd={props.onAddReminder} testId="cat-add-rappels" />
+      <SectionHeader icon="ri-capsule-line" iconColor="#F59E0B" title={`Traitements du ${selectedDayFr}`} count={reminders.length} doneCount={reminderDone} onAdd={props.onAddReminder} testId="cat-add-rappels" />
       {filteredReminders.filter(r => r.reminder_type !== 'hydration').length === 0 && <EmptyDay icon="ri-capsule-line" text={`Aucun complement prevu le ${selectedDayFr}`} />}
       {filteredReminders.filter(r => r.reminder_type !== 'hydration').map(r => {
         const remImg = r.image || REMINDER_IMAGES.medication;
@@ -266,7 +218,11 @@ export function ProDayView(props: ProDayViewProps) {
             <img src={REMINDER_IMAGES.hydration} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' } as any} />
           </div>
           <span style={{ fontSize: 14, fontWeight: 800, color: '#111' }}>Hydratation du {selectedDayFr}</span>
-          <span style={{ fontSize: 11, fontWeight: 600, color: '#9CA3AF', background: '#E5E7EB', padding: '2px 8px', borderRadius: 999 }}>{filteredReminders.filter(r => r.reminder_type === 'hydration').length}</span>
+          {hydrations.length > 0 ? (
+            <span style={{ fontSize: 11, fontWeight: 700, color: hydrationDone >= hydrations.length ? '#10B981' : '#6B7280', background: hydrationDone >= hydrations.length ? 'rgba(16,185,129,0.12)' : '#E5E7EB', padding: '2px 10px', borderRadius: 999 }}>{hydrationDone}/{hydrations.length}</span>
+          ) : (
+            <span style={{ fontSize: 11, fontWeight: 600, color: '#9CA3AF', background: '#E5E7EB', padding: '2px 8px', borderRadius: 999 }}>{hydrations.length}</span>
+          )}
         </div>
         <div data-testid="cat-add-hydratation" onClick={props.onAddHydration}
           style={{ width: 34, height: 34, borderRadius: 999, background: 'rgba(255,255,255,0.65)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)', border: '1px solid rgba(0,0,0,0.06)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', boxShadow: '0 2px 8px rgba(0,0,0,0.06)' } as any}>
@@ -297,7 +253,7 @@ export function ProDayView(props: ProDayViewProps) {
 
       {/* Repas du jour */}
       <div style={{ height: 1, background: '#E5E7EB', margin: '12px 0 18px' } as any} />
-      <SectionHeader icon="ri-restaurant-line" iconColor="#10B981" title={`Repas du ${selectedDayFr}`} count={filteredMeals.length} onAdd={props.onAddMeal} testId="cat-add-repas" />
+      <SectionHeader icon="ri-restaurant-line" iconColor="#10B981" title={`Repas du ${selectedDayFr}`} count={filteredMeals.length} doneCount={mealDone} onAdd={props.onAddMeal} testId="cat-add-repas" />
       {filteredMeals.length === 0 && <EmptyDay icon="ri-restaurant-line" text={`Aucun repas prevu le ${selectedDayFr}`} />}
       {filteredMeals.map(m => {
         const mealDone = (m.completions || []).some((c: any) => c.date?.startsWith(selectedDateStr) && c.status === 'done');
@@ -331,13 +287,19 @@ export function ProDayView(props: ProDayViewProps) {
 
 /* ── Small helpers ── */
 
-function SectionHeader({ icon, iconColor, title, count, onAdd, testId, style }: { icon: string; iconColor: string; title: string; count: number; onAdd: () => void; testId?: string; style?: any }) {
+function SectionHeader({ icon, iconColor, title, count, doneCount, onAdd, testId, style }: { icon: string; iconColor: string; title: string; count: number; doneCount?: number; onAdd: () => void; testId?: string; style?: any }) {
+  const hasDone = typeof doneCount === 'number' && count > 0;
+  const allDone = hasDone && doneCount >= count;
   return (
     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14, ...style } as any}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 8 } as any}>
         <i className={icon} style={{ fontSize: 16, color: iconColor }} />
         <span style={{ fontSize: 14, fontWeight: 800, color: '#111' }}>{title}</span>
-        <span style={{ fontSize: 11, fontWeight: 600, color: '#9CA3AF', background: '#E5E7EB', padding: '2px 8px', borderRadius: 999 }}>{count}</span>
+        {hasDone ? (
+          <span style={{ fontSize: 11, fontWeight: 700, color: allDone ? '#10B981' : '#6B7280', background: allDone ? 'rgba(16,185,129,0.12)' : '#E5E7EB', padding: '2px 10px', borderRadius: 999 }}>{doneCount}/{count}</span>
+        ) : (
+          <span style={{ fontSize: 11, fontWeight: 600, color: '#9CA3AF', background: '#E5E7EB', padding: '2px 8px', borderRadius: 999 }}>{count}</span>
+        )}
       </div>
       <div data-testid={testId} onClick={onAdd}
         style={{ width: 34, height: 34, borderRadius: 999, background: 'rgba(255,255,255,0.65)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)', border: '1px solid rgba(0,0,0,0.06)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', boxShadow: '0 2px 8px rgba(0,0,0,0.06)' } as any}>
