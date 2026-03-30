@@ -170,145 +170,105 @@ export default function MetricDetailScreen() {
   const isBP = graphType === 'bp_dual';
 
   /* ── Chart dimensions ── */
-  const W = 340, H = 220, padL = 0, padR = 0, padT = 30, padB = 40;
-  const chartW = W, chartH = H - padT - padB;
-  const rg = mx - mn || 1;
-  // For bar charts, always start Y from 0 so bars are proportional
+  const W = 340, H = 200, padT = 24, padB = 32;
+  const chartH = H - padT - padB;
   const isBarType = (m.graph_type === 'bars' || m.graph_type === 'bars_threshold');
-  const dMn = isBarType ? 0 : Math.max(0, mn - rg * 0.05);
-  const dMx = isBarType ? mx * 1.12 : mx + rg * 0.08;
+  const rg = mx - mn || 1;
+  const dMn = isBarType ? 0 : mn - rg * 0.08;
+  const dMx = isBarType ? mx * 1.15 : mx + rg * 0.08;
   const dRg = dMx - dMn || 1;
-  const barGap = sliced.length > 0 ? chartW / sliced.length : chartW;
-  const barW = Math.min(36, Math.max(12, barGap * 0.55));
-  const toBarX = (i: number) => barGap * i + barGap / 2;
+  const n = sliced.length || 1;
+  const colW = W / n;
   const toY = (v: number) => padT + chartH - ((v - dMn) / dRg) * chartH;
-  const toCurveX = (i: number) => padL + 20 + (i / Math.max(sliced.length - 1, 1)) * (chartW - 40);
-  const pts = sliced.map((h: any, i: number) => ({ x: toCurveX(i), y: toY(h.value) }));
 
-  /* ── Clean Y-axis labels (rounded) ── */
-  const niceStep = (range: number, ticks: number) => {
-    const rough = range / ticks;
-    const mag = Math.pow(10, Math.floor(Math.log10(rough)));
-    const res = rough / mag;
-    const nice = res <= 1.5 ? 1 : res <= 3 ? 2 : res <= 7 ? 5 : 10;
-    return nice * mag;
-  };
-  const yStep = niceStep(dRg, 4);
-  const yStart = Math.floor(dMn / yStep) * yStep;
-  const yLabels: { v: number; y: number }[] = [];
-  for (let v = yStart; v <= dMx + yStep * 0.1; v += yStep) {
-    if (v >= dMn - yStep * 0.1) yLabels.push({ v: Math.round(v * 100) / 100, y: toY(v) });
-  }
+  /* ── Day initial ── */
+  const DAY_INIT = ['D', 'L', 'M', 'M', 'J', 'V', 'S'];
+  const getDayInit = (dateStr: string) => { try { return DAY_INIT[new Date(dateStr + 'T12:00:00').getDay()]; } catch { return ''; } };
 
-  /* ── Day labels ── */
-  const DAY_NAMES_SHORT = ['Dim', 'Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam'];
-  const getDayLabel = (dateStr: string) => {
-    try { const d = new Date(dateStr + 'T12:00:00'); return DAY_NAMES_SHORT[d.getDay()]; } catch { return ''; }
-  };
+  /* ── Curve points ── */
+  const pts = sliced.map((h: any, i: number) => ({ x: colW * i + colW / 2, y: toY(h.value) }));
 
-  /* ── Touch/click handler for chart ── */
+  /* ── Touch/click ── */
   const handleChartInteraction = (e: any) => {
     const rect = e.currentTarget.getBoundingClientRect();
     const x = (e.clientX || e.touches?.[0]?.clientX || 0) - rect.left;
-    const ratio = x / rect.width;
-    const idx = Math.round(ratio * (sliced.length - 1));
-    if (idx >= 0 && idx < sliced.length) setSel(idx);
+    const idx = Math.min(n - 1, Math.max(0, Math.floor((x / rect.width) * n)));
+    setSel(idx);
   };
 
   const renderChart = () => {
-    if (!sliced.length) return <div style={{ textAlign: 'center', padding: '40px 0', color: '#9CA3AF', fontSize: 13 }}>Aucune donnee pour cette periode</div>;
+    if (!sliced.length) return <div style={{ textAlign: 'center', padding: '40px 0', color: '#9CA3AF', fontSize: 13 }}>Aucune donnee</div>;
 
-    const isBarChart = graphType === 'bars' || graphType === 'bars_threshold';
+    const bw = Math.min(32, Math.max(14, colW * 0.5));
 
     return (
       <div ref={chartRef} onClick={handleChartInteraction} onTouchMove={handleChartInteraction}
         style={{ touchAction: 'none', position: 'relative', cursor: 'default' } as any}>
         <svg width="100%" viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="xMidYMid meet" style={{ display: 'block' }}>
           <defs>
-            <linearGradient id={`grad-${key}`} x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor={color} stopOpacity="0.18" />
-              <stop offset="100%" stopColor={color} stopOpacity="0.01" />
-            </linearGradient>
-            <linearGradient id={`bar-grad-${key}`} x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor={color} stopOpacity="1" />
-              <stop offset="100%" stopColor={color} stopOpacity="0.6" />
+            <linearGradient id={`fill-${key}`} x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor={color} stopOpacity="0.15" />
+              <stop offset="100%" stopColor={color} stopOpacity="0" />
             </linearGradient>
           </defs>
 
-          {/* Y-axis labels — clean integers, right-aligned, no grid clutter */}
-          {yLabels.map((yl, i) => (
-            <g key={i}>
-              <line x1={0} y1={yl.y} x2={W} y2={yl.y} stroke="rgba(0,0,0,0.04)" />
-              <text x={W - 4} y={yl.y - 6} textAnchor="end" fill="#C8C8CC" fontSize="10" fontWeight="500">
-                {Number.isInteger(yl.v) ? yl.v.toLocaleString() : yl.v.toFixed(1)}
-              </text>
-            </g>
+          {/* 3 subtle guide lines — no text labels */}
+          {[0.25, 0.5, 0.75].map((p) => (
+            <line key={p} x1={0} y1={padT + chartH * p} x2={W} y2={padT + chartH * p} stroke="#E8E8EA" strokeWidth={0.8} />
           ))}
 
           {isBP ? (
-            /* ── BLOOD PRESSURE DUAL BARS ── */
             sliced.map((h: any, i: number) => {
-              const bw = barW * 0.45;
-              const sys = h.systolic || h.value, dia = h.diastolic || h.value * 0.62;
-              const sY = toY(sys), dY = toY(dia), baseY = padT + chartH;
-              const cx = toBarX(i);
+              const cx = colW * i + colW / 2;
+              const bwh = bw * 0.4;
+              const sys = h.systolic || h.value, dia = h.diastolic || 0;
+              const sY = toY(sys), dY = toY(dia), base = padT + chartH;
               const isSel = sel === i;
               return <g key={i}>
-                <rect x={cx - bw - 2} y={sY} width={bw} height={Math.max(2, baseY - sY)} rx={bw / 2} fill="#8B5CF6" opacity={isSel ? 1 : 0.5} />
-                <rect x={cx + 2} y={dY} width={bw} height={Math.max(2, baseY - dY)} rx={bw / 2} fill="#C4B5FD" opacity={isSel ? 1 : 0.5} />
-                {isSel && <><rect x={cx - 26} y={sY - 22} width={52} height={18} rx={9} fill="#111" /><text x={cx} y={sY - 10} fill="#FFF" fontSize="10" fontWeight="800" textAnchor="middle">{sys}/{dia}</text></>}
-                <text x={cx} y={H - 10} textAnchor="middle" fill={isSel ? '#111' : '#B0B0B4'} fontSize="10" fontWeight={isSel ? '800' : '500'}>{getDayLabel(h.date)}</text>
-                <text x={cx} y={H - 0} textAnchor="middle" fill="#D0D0D4" fontSize="8">{h.label}</text>
+                <rect x={cx - bwh - 1.5} y={sY} width={bwh} height={base - sY} rx={bwh / 2} fill="#8B5CF6" opacity={isSel ? 1 : 0.45} />
+                <rect x={cx + 1.5} y={dY} width={bwh} height={base - dY} rx={bwh / 2} fill="#C4B5FD" opacity={isSel ? 1 : 0.45} />
+                {isSel && <><rect x={cx - 24} y={Math.min(sY, dY) - 22} width={48} height={18} rx={9} fill="#111" /><text x={cx} y={Math.min(sY, dY) - 10} fill="#FFF" fontSize="10" fontWeight="800" textAnchor="middle">{sys}/{dia}</text></>}
+                <text x={cx} y={H - 8} textAnchor="middle" fill={isSel ? '#111' : '#B8B8BC'} fontSize={isSel ? 12 : 11} fontWeight={isSel ? '800' : '500'}>{getDayInit(h.date)}</text>
               </g>;
             })
-          ) : isBarChart ? (
-            /* ── BAR CHART (Steps, Calories, etc.) — NO animate, direct render ── */
+          ) : isBarType ? (
             sliced.map((h: any, i: number) => {
-              const barH = Math.max(3, ((h.value - dMn) / dRg) * chartH);
+              const cx = colW * i + colW / 2;
+              const barH = Math.max(4, ((h.value - dMn) / dRg) * chartH);
               const barY = padT + chartH - barH;
-              const cx = toBarX(i);
               const isSel = sel === i;
               return <g key={i}>
-                <rect x={cx - barW / 2} y={barY} width={barW} height={barH} rx={barW / 2.5} fill={isSel ? color : `url(#bar-grad-${key})`} opacity={isSel ? 1 : 0.65} />
-                {isSel && <>
-                  <rect x={cx - 28} y={barY - 24} width={56} height={20} rx={10} fill="#111" />
-                  <text x={cx} y={barY - 11} fill="#FFF" fontSize="11" fontWeight="800" textAnchor="middle">{typeof h.value === 'number' && h.value >= 100 ? Math.round(h.value).toLocaleString() : h.value}</text>
-                </>}
-                <text x={cx} y={H - 10} textAnchor="middle" fill={isSel ? '#111' : '#B0B0B4'} fontSize="10" fontWeight={isSel ? '800' : '500'}>{getDayLabel(h.date)}</text>
-                <text x={cx} y={H - 0} textAnchor="middle" fill="#D0D0D4" fontSize="8">{h.label}</text>
+                <rect x={cx - bw / 2} y={barY} width={bw} height={barH} rx={bw / 3} fill={color} opacity={isSel ? 0.9 : 0.45} />
+                {isSel && <><rect x={cx - 28} y={barY - 22} width={56} height={18} rx={9} fill="#111" /><text x={cx} y={barY - 10} fill="#FFF" fontSize="10" fontWeight="800" textAnchor="middle">{h.value >= 100 ? Math.round(h.value).toLocaleString() : h.value}</text></>}
+                <text x={cx} y={H - 8} textAnchor="middle" fill={isSel ? '#111' : '#B8B8BC'} fontSize={isSel ? 12 : 11} fontWeight={isSel ? '800' : '500'}>{getDayInit(h.date)}</text>
               </g>;
             })
           ) : graphType === 'scatter' ? (
-            /* ── SCATTER ── */
             <>
-              {pts.length >= 2 && <path d={smooth(pts, 0.2)} fill="none" stroke={color} strokeWidth={1.5} opacity={0.12} strokeDasharray="4,4" />}
+              {pts.length >= 2 && <path d={smooth(pts, 0.25)} fill="none" stroke={color} strokeWidth={1.5} opacity={0.15} strokeDasharray="4,3" />}
               {sliced.map((h: any, i: number) => {
                 const isSel = sel === i;
                 return <g key={i}>
-                  <circle cx={pts[i].x} cy={pts[i].y} r={isSel ? 8 : 5} fill={isSel ? '#FFF' : color} stroke={isSel ? color : 'none'} strokeWidth={2.5} opacity={isSel ? 1 : 0.55} />
-                  {isSel && <><rect x={pts[i].x - 22} y={pts[i].y - 26} width={44} height={20} rx={10} fill="#111" /><text x={pts[i].x} y={pts[i].y - 13} fill="#FFF" fontSize="10" fontWeight="800" textAnchor="middle">{h.value}</text></>}
-                  <text x={pts[i].x} y={H - 10} textAnchor="middle" fill={isSel ? '#111' : '#B0B0B4'} fontSize="10" fontWeight={isSel ? '800' : '500'}>{getDayLabel(h.date)}</text>
+                  <circle cx={pts[i].x} cy={pts[i].y} r={isSel ? 7 : 4.5} fill={isSel ? '#FFF' : color} stroke={isSel ? color : 'none'} strokeWidth={2.5} opacity={isSel ? 1 : 0.5} />
+                  {isSel && <><rect x={pts[i].x - 22} y={pts[i].y - 24} width={44} height={18} rx={9} fill="#111" /><text x={pts[i].x} y={pts[i].y - 12} fill="#FFF" fontSize="10" fontWeight="800" textAnchor="middle">{h.value}</text></>}
+                  <text x={pts[i].x} y={H - 8} textAnchor="middle" fill={isSel ? '#111' : '#B8B8BC'} fontSize={isSel ? 12 : 11} fontWeight={isSel ? '800' : '500'}>{getDayInit(h.date)}</text>
                 </g>;
               })}
             </>
           ) : (
-            /* ── SMOOTH CURVE (Heart rate, Temperature, etc.) ── */
             <>
               {pts.length >= 2 && (
                 <>
-                  <path d={`${smooth(pts)}L${pts[pts.length - 1].x},${padT + chartH}L${pts[0].x},${padT + chartH}Z`} fill={`url(#grad-${key})`} style={{ opacity: chartReady ? 1 : 0, transition: 'opacity 0.6s ease 0.3s' }} />
-                  <path d={smooth(pts)} fill="none" stroke={color} strokeWidth={2.5} strokeLinejoin="round" strokeLinecap="round"
-                    strokeDasharray={W * 3} strokeDashoffset={chartReady ? 0 : W * 3}
-                    style={{ transition: 'stroke-dashoffset 1s ease 0.1s' }} />
+                  <path d={`${smooth(pts)}L${pts[pts.length - 1].x},${padT + chartH}L${pts[0].x},${padT + chartH}Z`} fill={`url(#fill-${key})`} />
+                  <path d={smooth(pts)} fill="none" stroke={color} strokeWidth={2.5} strokeLinejoin="round" strokeLinecap="round" />
                 </>
               )}
               {sliced.map((h: any, i: number) => {
                 const isSel = sel === i;
                 return <g key={i}>
-                  <circle cx={pts[i].x} cy={pts[i].y} r={isSel ? 7 : 3.5} fill={isSel ? '#FFF' : color} stroke={isSel ? color : 'none'} strokeWidth={2.5}
-                    style={{ opacity: chartReady ? 1 : 0, transition: `opacity 0.3s ease ${0.3 + i * 0.05}s` }} />
-                  {isSel && <><rect x={pts[i].x - 24} y={pts[i].y - 26} width={48} height={20} rx={10} fill="#111" /><text x={pts[i].x} y={pts[i].y - 13} fill="#FFF" fontSize="10" fontWeight="800" textAnchor="middle">{typeof h.value === 'number' ? (Number.isInteger(h.value) ? h.value : h.value.toFixed(1)) : h.value}</text></>}
-                  <text x={pts[i].x} y={H - 10} textAnchor="middle" fill={isSel ? '#111' : '#B0B0B4'} fontSize="10" fontWeight={isSel ? '800' : '500'}>{getDayLabel(h.date)}</text>
+                  <circle cx={pts[i].x} cy={pts[i].y} r={isSel ? 6 : 3} fill={isSel ? '#FFF' : color} stroke={isSel ? color : 'none'} strokeWidth={2.5} />
+                  {isSel && <><rect x={pts[i].x - 24} y={pts[i].y - 24} width={48} height={18} rx={9} fill="#111" /><text x={pts[i].x} y={pts[i].y - 12} fill="#FFF" fontSize="10" fontWeight="800" textAnchor="middle">{typeof h.value === 'number' ? (Number.isInteger(h.value) ? h.value : h.value.toFixed(1)) : h.value}</text></>}
+                  <text x={pts[i].x} y={H - 8} textAnchor="middle" fill={isSel ? '#111' : '#B8B8BC'} fontSize={isSel ? 12 : 11} fontWeight={isSel ? '800' : '500'}>{getDayInit(h.date)}</text>
                 </g>;
               })}
             </>
