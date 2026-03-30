@@ -567,6 +567,36 @@ async def toggle_tracking(data: dict, user=Depends(get_current_user)):
     )
 
     total = sum(1 for v in completed.values() if v)
+
+    # Notify guardians when all daily objectives are completed (4 objectives = 4 tracked items minimum)
+    if not was_done and total >= 4:
+        try:
+            from ws_manager import manager
+            ben = await db.users.find_one({"id": uid}, {"_id": 0, "name": 1, "guardians": 1})
+            if ben and ben.get("guardians"):
+                ben_name = (ben.get("name") or "Le beneficiaire").split(" ")[0]
+                for gid in ben["guardians"]:
+                    await manager.send_to_guardian(gid, {
+                        "type": "objectives_completed",
+                        "beneficiary_id": uid,
+                        "beneficiary_name": ben.get("name"),
+                        "message": f"{ben_name} a complete tous ses objectifs du jour !",
+                        "total_done": total,
+                    })
+                    # Also store as in-app notification
+                    await db.notifications.insert_one({
+                        "id": str(__import__('uuid').uuid4()),
+                        "user_id": gid,
+                        "type": "objectives_completed",
+                        "title": "Objectifs completes",
+                        "message": f"{ben_name} a realise tous ses objectifs du jour ({total} sur {total})",
+                        "beneficiary_id": uid,
+                        "read": False,
+                        "created_at": now,
+                    })
+        except Exception:
+            pass
+
     return {"status": "ok", "key": key, "done": not was_done, "total_done": total}
 
 

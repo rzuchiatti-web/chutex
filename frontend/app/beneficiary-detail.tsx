@@ -28,6 +28,8 @@ export default function BeneficiaryDetailScreen() {
   const [alerts, setAlerts] = useState<any[]>([]);
   const [devices, setDevices] = useState<any>(null);
   const [noraAnalysis, setNoraAnalysis] = useState('');
+  const [dailyObjectives, setDailyObjectives] = useState<any[]>([]);
+  const [objectivesCompleted, setObjectivesCompleted] = useState<Record<string, boolean>>({});
   const [subInfo, setSubInfo] = useState<any>(null);
   const [geoZones, setGeoZones] = useState<any[]>([]);
   const [geoLocation, setGeoLocation] = useState<any>(null);
@@ -76,6 +78,14 @@ export default function BeneficiaryDetailScreen() {
       if (ben) {
         apiFetch(`/api/guardian/beneficiary/${tb}/ai-report`, {}, token).then((r: any) => setNoraAnalysis(r?.summary || r?.report || '')).catch(() => setNoraAnalysis(''));
         apiFetch(`/api/guardian/beneficiary/${tb}/subscription`, {}, token).then((r: any) => setSubInfo(r)).catch(() => {});
+        apiFetch(`/api/guardian/beneficiary/${tb}/daily-report`, {}, token).then((r: any) => {
+          const plan = r?.daily_plan || [];
+          setDailyObjectives(plan.filter((p: any) => p.key !== 'connect' && p.key !== 'stress'));
+          // Check completion from minceur tracking
+          apiFetch(`/api/minceur/today-tracking?date=${new Date().toISOString().split('T')[0]}&beneficiary_id=${tb}`, {}, token).then((t: any) => {
+            setObjectivesCompleted(t?.completed || {});
+          }).catch(() => {});
+        }).catch(() => {});
         if (user?.id) apiFetch(`/api/guardian-permissions/${user.id}/${tb}`, {}, token).then((p: any) => setGuardianPerms(p)).catch(() => {});
       }
     } catch { setGeoLoading(false); } finally { setLoading(false); }
@@ -254,6 +264,60 @@ export default function BeneficiaryDetailScreen() {
           </div>
 
           <div style={{ height: 1, background: C.sep, margin: '8px 0' } as any} />
+
+          {/* ── OBJECTIFS JOURNALIERS ── */}
+          {dailyObjectives.length > 0 && (() => {
+            const OBJ_ICONS: Record<string, { icon: string; color: string; label: string }> = {
+              steps: { icon: 'ri-footprint-line', color: '#10B981', label: 'Activite physique' },
+              hydration: { icon: 'ri-drop-fill', color: '#38BDF8', label: 'Hydratation' },
+              sleep: { icon: 'ri-moon-line', color: '#818CF8', label: 'Endormissement' },
+              calories_intake: { icon: 'ri-fire-line', color: '#F59E0B', label: 'Apport calorique' },
+            };
+            const total = dailyObjectives.length;
+            const doneCount = dailyObjectives.filter((o: any) => objectivesCompleted[o.key]).length;
+            const allDone = doneCount === total && total > 0;
+            const pct = total > 0 ? Math.round((doneCount / total) * 100) : 0;
+            return (
+              <>
+                <div style={SL}>Objectifs du jour</div>
+                <div data-testid="guardian-objectives-card" style={{ borderRadius: 18, background: '#F4F4F5', padding: '16px', marginBottom: 12 } as any}>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 } as any}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8 } as any}>
+                      <div style={{ width: 32, height: 32, borderRadius: 10, background: allDone ? 'rgba(16,185,129,0.12)' : 'rgba(0,0,0,0.04)', display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}>
+                        <i className={allDone ? 'ri-check-double-line' : 'ri-list-check-3'} style={{ fontSize: 16, color: allDone ? '#10B981' : '#6B7280' }} />
+                      </div>
+                      <div>
+                        <div style={{ fontSize: 14, fontWeight: 800, color: '#111' }}>{doneCount}/{total} realises</div>
+                        <div style={{ fontSize: 10, color: '#9CA3AF' }}>{allDone ? 'Tous les objectifs sont atteints !' : `${total - doneCount} restant${total - doneCount > 1 ? 's' : ''}`}</div>
+                      </div>
+                    </div>
+                    <div style={{ fontSize: 18, fontWeight: 900, color: allDone ? '#10B981' : '#111' }}>{pct}%</div>
+                  </div>
+                  <div style={{ height: 6, borderRadius: 3, background: '#E5E7EB', overflow: 'hidden', marginBottom: 14 } as any}>
+                    <div style={{ height: '100%', borderRadius: 3, width: `${pct}%`, background: allDone ? '#10B981' : pct > 50 ? '#F59E0B' : '#EF4444', transition: 'width 0.6s ease' } as any} />
+                  </div>
+                  {dailyObjectives.map((obj: any, i: number) => {
+                    const cfg = OBJ_ICONS[obj.key] || { icon: 'ri-flag-line', color: '#6B7280', label: obj.key };
+                    const done = !!objectivesCompleted[obj.key];
+                    return (
+                      <div key={obj.key} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 0', borderTop: i > 0 ? '1px solid rgba(0,0,0,0.04)' : 'none' } as any}>
+                        <div style={{ width: 28, height: 28, borderRadius: 8, background: done ? `${cfg.color}15` : 'rgba(0,0,0,0.03)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}>
+                          {done ? <i className="ri-check-line" style={{ fontSize: 14, color: cfg.color }} /> : <i className={cfg.icon} style={{ fontSize: 14, color: cfg.color, opacity: 0.5 }} />}
+                        </div>
+                        <div style={{ flex: 1 } as any}>
+                          <div style={{ fontSize: 12, fontWeight: 700, color: done ? '#111' : '#6B7280', textDecoration: done ? 'line-through' : 'none' }}>{cfg.label}</div>
+                          <div style={{ fontSize: 10, color: '#9CA3AF' }}>{obj.value} {obj.key === 'hydration' ? 'L' : obj.key === 'calories_intake' ? 'kcal' : obj.key === 'steps' ? 'pas' : ''}</div>
+                        </div>
+                        <div style={{ width: 20, height: 20, borderRadius: 6, border: done ? `2px solid ${cfg.color}` : '2px solid #D1D5DB', background: done ? cfg.color : 'transparent', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}>
+                          {done && <i className="ri-check-line" style={{ fontSize: 12, color: '#FFF' }} />}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </>
+            );
+          })()}
 
           {/* ── 3. DONNEES DE SANTE (conditionnelles selon autorisations) ── */}
           <div style={SL}>Donnees de sante</div>
