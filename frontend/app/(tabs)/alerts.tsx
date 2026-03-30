@@ -757,13 +757,39 @@ function ProMessaging({ token, user }: { token: string; user: any }) {
   const fetchConversations = useCallback(async () => {
     try {
       const convos = await apiFetch('/api/pro/conversations', {}, token);
-      setConversations(Array.isArray(convos) ? convos : []);
+      const convoList = Array.isArray(convos) ? convos : [];
+      // Auto-add beneficiaries that don't have a conversation yet
+      try {
+        const bens = await apiFetch('/api/guardian/beneficiaries', {}, token);
+        if (Array.isArray(bens)) {
+          const existingBenIds = new Set(convoList.map((c: any) => c.beneficiary_id || c.other_user_id));
+          for (const ben of bens) {
+            if (!existingBenIds.has(ben.id)) {
+              convoList.push({ id: `new_${ben.id}`, beneficiary_id: ben.id, beneficiary_name: ben.name, other_user_id: ben.id, last_message: '', is_placeholder: true });
+            }
+          }
+        }
+      } catch {}
+      setConversations(convoList);
     } catch {} finally { setLoading(false); }
   }, [token]);
 
   useEffect(() => { fetchConversations(); }, [fetchConversations]);
 
   const openConvo = async (convo: any) => {
+    // If placeholder (no real conversation yet), create one via API
+    if (convo.is_placeholder && convo.beneficiary_id) {
+      try {
+        const realConvo = await apiFetch(`/api/pro/conversations/${convo.beneficiary_id}`, {}, token);
+        if (realConvo?.id) {
+          setActiveConvo(realConvo);
+          const msgs = await apiFetch(`/api/pro/messages/${realConvo.id}`, {}, token);
+          setMessages(Array.isArray(msgs) ? msgs : []);
+          setTimeout(() => { msgEndRef.current?.scrollIntoView({ behavior: 'smooth' }); inputRef.current?.focus(); }, 100);
+          return;
+        }
+      } catch {}
+    }
     setActiveConvo(convo);
     try {
       const msgs = await apiFetch(`/api/pro/messages/${convo.id}`, {}, token);

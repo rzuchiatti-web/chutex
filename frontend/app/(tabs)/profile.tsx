@@ -356,7 +356,7 @@ const BG_PROFILE = 'https://customer-assets.emergentagent.com/job_9950a869-9328-
                   <span style={{ fontSize: 11, fontWeight: 700, color: effectiveRole === 'beneficiary' ? '#111' : 'rgba(255,255,255,0.5)' }}>Beneficiaire</span>
                 </div>
                 <div onClick={async () => {
-                  if (effectiveRole !== 'guardian') {
+                  if (effectiveRole !== 'guardian' && effectiveRole !== 'professional') {
                     if (user.has_guardian_space) {
                       try { await apiFetch('/api/auth/switch-role', { method: 'POST', body: JSON.stringify({ role: 'guardian' }) }, token); await refreshUser(); } catch (e: any) { Alert.alert('Erreur', e.message); }
                     } else {
@@ -364,8 +364,8 @@ const BG_PROFILE = 'https://customer-assets.emergentagent.com/job_9950a869-9328-
                       setGuardianActivationStep(0);
                     }
                   }
-                }} style={{ padding: '7px 16px', borderRadius: 999, cursor: 'pointer', transition: 'all 0.25s ease', background: effectiveRole === 'guardian' ? '#FFF' : 'transparent', boxShadow: effectiveRole === 'guardian' ? '0 2px 8px rgba(0,0,0,0.15)' : 'none' } as any}>
-                  <span style={{ fontSize: 11, fontWeight: 700, color: effectiveRole === 'guardian' ? '#111' : 'rgba(255,255,255,0.5)' }}>Gardien</span>
+                }} style={{ padding: '7px 16px', borderRadius: 999, cursor: 'pointer', transition: 'all 0.25s ease', background: (effectiveRole === 'guardian' || effectiveRole === 'professional') ? '#FFF' : 'transparent', boxShadow: (effectiveRole === 'guardian' || effectiveRole === 'professional') ? '0 2px 8px rgba(0,0,0,0.15)' : 'none' } as any}>
+                  <span style={{ fontSize: 11, fontWeight: 700, color: (effectiveRole === 'guardian' || effectiveRole === 'professional') ? '#111' : 'rgba(255,255,255,0.5)' }}>Gardien</span>
                 </div>
               </div>
               )}
