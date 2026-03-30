@@ -553,52 +553,60 @@ export function BeneficiaryHome({ token, user }: { token: string; user: any }) {
           {/* ── Abonnement Pro en attente ── */}
           {/* ── Exercices du jour (prescrit par le coach) ── */}
           {todayExercises.length > 0 && (
-            <div data-testid="today-exercises-dashboard" className="dash-slide-up" style={{ marginBottom: 20 } as any}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 14 } as any}>
-                <div style={{ width: 44, height: 44, borderRadius: 14, background: 'rgba(239,68,68,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}>
-                  <i className="ri-run-line" style={{ fontSize: 20, color: '#EF4444' }} />
-                </div>
-                <div>
-                  <div style={{ fontSize: 16, fontWeight: 900, color: C.text }}>Exercices du jour</div>
-                  <div style={{ fontSize: 11, color: C.sub }}>Prescrit par votre coach</div>
-                </div>
-                <span style={{ marginLeft: 'auto', fontSize: 11, fontWeight: 700, color: '#9CA3AF', background: isDark ? 'rgba(255,255,255,0.06)' : '#E5E7EB', padding: '3px 10px', borderRadius: 999 }}>{todayExercises.length}</span>
+            <div data-testid="today-exercises-dashboard" className="dash-slide-up" style={{ marginBottom: 28 } as any}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 } as any}>
+                <div style={{ fontSize: 20, fontWeight: 900, color: C.text, letterSpacing: '-0.3px' } as any}>Exercices du jour</div>
+                <div style={{ fontSize: 28, fontWeight: 900, color: C.text }}>{todayExercises.length}</div>
               </div>
-              {todayExercises.map((ex: any, i: number) => (
-                <div key={ex.id || i} data-testid={`dash-exercise-${i}`}
-                  onClick={() => router.push({ pathname: '/pro-exercise-detail' as any, params: { id: ex.exercise_template_id || ex.id, mode: 'assigned', assignmentId: ex.id } })}
-                  style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '14px 16px', borderRadius: 18, background: C.card, marginBottom: 8, cursor: 'pointer',
-                    border: ex.completed_today ? '1px solid rgba(16,185,129,0.2)' : `1px solid ${C.border}`,
-                    transition: 'transform 0.15s', ...glass } as any}
-                  onMouseEnter={(e: any) => e.currentTarget.style.transform = 'translateY(-2px)'}
-                  onMouseLeave={(e: any) => e.currentTarget.style.transform = ''}>
-                  {ex.image ? (
-                    <div style={{ width: 50, height: 50, borderRadius: 12, overflow: 'hidden', flexShrink: 0 } as any}>
-                      <img src={ex.image.startsWith('/') ? `${process.env.EXPO_PUBLIC_BACKEND_URL}${ex.image}` : ex.image} style={{ width: '100%', height: '100%', objectFit: 'cover' } as any} />
-                    </div>
-                  ) : (
-                    <div style={{ width: 50, height: 50, borderRadius: 12, background: isDark ? 'rgba(239,68,68,0.08)' : 'rgba(239,68,68,0.06)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}>
-                      <i className="ri-run-line" style={{ fontSize: 22, color: '#EF4444' }} />
-                    </div>
-                  )}
-                  <div style={{ flex: 1, minWidth: 0 } as any}>
-                    <div style={{ fontSize: 14, fontWeight: 800, color: C.text, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' } as any}>{ex.title}</div>
-                    <div style={{ fontSize: 11, color: C.sub, marginTop: 2 }}>
-                      {ex.sets > 0 && `${ex.sets} series x ${ex.repetitions} reps`}
-                      {ex.rest_seconds > 0 && ` - ${ex.rest_seconds}s repos`}
+              <div style={{ fontSize: 13, color: C.sub, marginBottom: 16, lineHeight: '1.45' } as any}>Prescrit par votre coach — {todayExercises.filter((e: any) => e.completed_today).length}/{todayExercises.length} realises</div>
+              {todayExercises.map((ex: any, i: number) => {
+                const exImg = ex.image ? (ex.image.startsWith('/') ? `${process.env.EXPO_PUBLIC_BACKEND_URL}${ex.image}` : ex.image) : null;
+                return (
+                  <div key={ex.id || i} data-testid={`dash-exercise-${i}`}
+                    onClick={() => router.push({ pathname: '/pro-exercise-detail' as any, params: { id: ex.exercise_template_id || ex.id, mode: 'assigned', assignmentId: ex.id } })}
+                    style={{ borderRadius: 14, background: ex.completed_today ? 'rgba(16,185,129,0.08)' : '#F4F4F5', overflow: 'hidden', cursor: 'pointer', marginBottom: 8, border: ex.completed_today ? '1px solid rgba(16,185,129,0.15)' : 'none' } as any}>
+                    {exImg && (
+                      <div style={{ width: '100%', height: 120, overflow: 'hidden', position: 'relative' } as any}>
+                        <img src={exImg} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' } as any} />
+                        {ex.completed_today && (
+                          <div style={{ position: 'absolute', top: 8, right: 8, display: 'flex', alignItems: 'center', gap: 4, padding: '4px 10px', borderRadius: 999, background: 'rgba(16,185,129,0.9)' } as any}>
+                            <i className="ri-check-line" style={{ fontSize: 12, color: '#FFF' }} />
+                            <span style={{ fontSize: 10, fontWeight: 700, color: '#FFF' }}>Valide</span>
+                          </div>
+                        )}
+                      </div>
+                    )}
+                    <div style={{ padding: '12px 14px', display: 'flex', alignItems: 'center', gap: 12 } as any}>
+                      {!exImg && (
+                        <div style={{ width: 44, height: 44, borderRadius: 12, background: ex.completed_today ? 'rgba(16,185,129,0.12)' : 'rgba(239,68,68,0.06)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}>
+                          <i className="ri-run-line" style={{ fontSize: 20, color: ex.completed_today ? '#10B981' : '#EF4444' }} />
+                        </div>
+                      )}
+                      <div style={{ flex: 1, minWidth: 0 } as any}>
+                        <div style={{ fontSize: 14, fontWeight: 800, color: ex.completed_today ? '#10B981' : '#111', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' } as any}>{ex.title}</div>
+                        <div style={{ fontSize: 11, color: '#9CA3AF', marginTop: 2 }}>
+                          {ex.sets > 0 && `${ex.sets} series x ${ex.repetitions} reps`}
+                          {ex.rest_seconds > 0 && ` - ${ex.rest_seconds}s repos`}
+                        </div>
+                      </div>
+                      {ex.completed_today && !exImg && (
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '4px 10px', borderRadius: 999, background: 'rgba(16,185,129,0.9)' } as any}>
+                          <i className="ri-check-line" style={{ fontSize: 12, color: '#FFF' }} />
+                          <span style={{ fontSize: 10, fontWeight: 700, color: '#FFF' }}>Valide</span>
+                        </div>
+                      )}
+                      {!ex.completed_today && (
+                        <i className="ri-arrow-right-s-line" style={{ fontSize: 18, color: '#9CA3AF', flexShrink: 0 }} />
+                      )}
                     </div>
                   </div>
-                  {ex.completed_today ? (
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '6px 12px', borderRadius: 999, background: 'rgba(16,185,129,0.08)' } as any}>
-                      <i className="ri-checkbox-circle-fill" style={{ fontSize: 16, color: '#10B981' }} />
-                      <span style={{ fontSize: 11, fontWeight: 700, color: '#10B981' }}>Fait</span>
-                    </div>
-                  ) : (
-                    <div style={{ padding: '8px 16px', borderRadius: 999, background: isDark ? 'rgba(16,185,129,0.12)' : 'rgba(16,185,129,0.08)', fontSize: 12, fontWeight: 700, color: '#10B981' }}>Faire</div>
-                  )}
-                </div>
-              ))}
-              <div style={{ height: 1, background: C.sep, margin: '10px 0 0' } as any} />
+                );
+              })}
+              <div onClick={() => router.push('/activity-detail' as any)} data-testid="view-activity-btn" style={{ marginTop: 12, padding: '14px', borderRadius: 999, background: '#111', textAlign: 'center', cursor: 'pointer', fontSize: 14, fontWeight: 800, color: '#FFF', transition: 'opacity 0.15s' } as any}
+                onMouseEnter={(e: any) => { e.currentTarget.style.opacity = '0.85'; }}
+                onMouseLeave={(e: any) => { e.currentTarget.style.opacity = '1'; }}>
+                Voir mon activite
+              </div>
             </div>
           )}
 

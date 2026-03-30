@@ -209,12 +209,14 @@ export default function ActivityDetailPage() {
                 const pct = m.goal > 0 ? Math.min(100, Math.round((m.value / m.goal) * 100)) : 0;
                 const has = m.value > 0;
                 return (
-                  <div key={i} data-testid={`card-${m.key}`} style={{ borderRadius: 18, background: '#F4F4F5', padding: '16px 18px', marginBottom: 10 } as any}>
+                  <div key={i} data-testid={`card-${m.key}`} onClick={() => router.push({ pathname: '/metric-detail' as any, params: { metric: m.key } })} style={{ borderRadius: 18, background: '#F4F4F5', padding: '16px 18px', marginBottom: 10, cursor: 'pointer', transition: 'transform 0.12s' } as any}
+                    onMouseEnter={(e: any) => { e.currentTarget.style.transform = 'translateY(-1px)'; }}
+                    onMouseLeave={(e: any) => { e.currentTarget.style.transform = ''; }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 } as any}>
                       <i className={m.icon} style={{ fontSize: 14, color: m.color }} />
                       <span style={{ fontSize: 13, fontWeight: 800, color: '#111' }}>{m.label}</span>
                       <span style={{ fontSize: 11, fontWeight: 900, color: m.color, marginLeft: 'auto' }}>{has ? (m.decimal ? m.value.toFixed(1) : m.value.toLocaleString()) : '--'}{m.unit && has ? m.unit : ''}</span>
-                      <div onClick={() => setExplainMetric(m.key)} style={{ width: 28, height: 28, borderRadius: 999, background: '#FFF', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', flexShrink: 0 } as any}><i className="ri-information-line" style={{ fontSize: 14, color: m.color }} /></div>
+                      <div onClick={(e: any) => { e.stopPropagation(); setExplainMetric(m.key); }} style={{ width: 28, height: 28, borderRadius: 999, background: '#FFF', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', flexShrink: 0 } as any}><i className="ri-information-line" style={{ fontSize: 14, color: m.color }} /></div>
                     </div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 12 } as any}>
                       <div style={{ fontSize: 32, fontWeight: 900, color: has ? '#111' : '#D1D5DB', lineHeight: 1 }}>{has ? (m.decimal ? m.value.toFixed(1) : m.value.toLocaleString()) : '--'}</div>
