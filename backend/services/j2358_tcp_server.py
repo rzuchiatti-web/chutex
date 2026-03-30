@@ -24,46 +24,29 @@ TCP_PORT = int(os.environ.get("J2358_TCP_PORT", "9001"))
 FRAME_START = b'\x0a\x0d'
 FRAME_END = b'\x0d\x0a'
 HEADER_LEN = 21  # 2(start) + 1(enc) + 1(resp) + 1(type) + 6(dev_type) + 8(dev_id) + 2(biz_len)
-CRC_LEN = 4
+CRC_LEN = 2       # CRC16 = 2 bytes (confirmed by manufacturer: CRC16 Modbus)
 FOOTER_LEN = 2
 
 # J2358 device type: "235809" = hex 32 33 35 38 30 39
 DEVICE_TYPE_J2358 = b'\x32\x33\x35\x38\x30\x39'
 
-# ── CRC32 variants — manufacturer says "custom", we try multiple until confirmed ──
-import zlib
+# ── CRC16 Modbus (poly 0xA001, init 0xFFFF) — confirmed by manufacturer ──
 
-def crc32_standard(data: bytes) -> int:
-    return zlib.crc32(data) & 0xFFFFFFFF
-
-def crc32_mpeg2(data: bytes) -> int:
-    crc = 0xFFFFFFFF
+def crc16_modbus(data: bytes) -> int:
+    """CRC16 Modbus — init 0xFFFF, poly 0xA001 (reflected 0x8005)"""
+    crc = 0xFFFF
     for byte in data:
-        crc ^= byte << 24
+        crc ^= byte & 0x00FF
         for _ in range(8):
-            if crc & 0x80000000:
-                crc = (crc << 1) ^ 0x04C11DB7
+            if crc & 0x0001:
+                crc >>= 1
+                crc ^= 0xA001
             else:
-                crc <<= 1
-            crc &= 0xFFFFFFFF
-    return crc
+                crc >>= 1
+    return crc & 0xFFFF
 
-def crc32_init0(data: bytes) -> int:
-    crc = 0x00000000
-    for byte in data:
-        crc ^= byte << 24
-        for _ in range(8):
-            if crc & 0x80000000:
-                crc = (crc << 1) ^ 0x04C11DB7
-            else:
-                crc <<= 1
-            crc &= 0xFFFFFFFF
-    return crc
-
-CRC_FUNCS = [crc32_standard, crc32_mpeg2, crc32_init0]
-
-def crc32(data: bytes) -> int:
-    return crc32_standard(data)
+def crc16(data: bytes) -> int:
+    return crc16_modbus(data)
 
 # ── Packet parser ──
 def parse_packet(raw: bytes) -> dict | None:
@@ -80,19 +63,14 @@ def parse_packet(raw: bytes) -> dict | None:
     device_id_bytes = raw[11:19]
     biz_len = struct.unpack(">H", raw[19:21])[0]
     biz_data = raw[21:21 + biz_len]
-    crc_received = struct.unpack(">I", raw[21 + biz_len:21 + biz_len + 4])[0]
+    crc_received = struct.unpack(">H", raw[21 + biz_len:21 + biz_len + 2])[0]
 
-    # Verify CRC32 — try multiple variants to identify which one the device uses
+    # Verify CRC16 Modbus
     crc_payload = raw[19:21 + biz_len]  # biz_len bytes + biz_data
-    crc_match = False
-    for fn in CRC_FUNCS:
-        if fn(crc_payload) == crc_received:
-            crc_match = True
-            if fn.__name__ != 'crc32_standard':
-                logger.info(f"CRC matched with {fn.__name__}")
-            break
+    crc_computed = crc16(crc_payload)
+    crc_match = crc_computed == crc_received
     if not crc_match:
-        logger.warning(f"CRC mismatch: recv={crc_received:#010x} | std={crc32_standard(crc_payload):#010x} mpeg2={crc32_mpeg2(crc_payload):#010x} init0={crc32_init0(crc_payload):#010x}")
+        logger.warning(f"CRC16 mismatch: recv={crc_received:#06x} computed={crc_computed:#06x}")
 
     # Device ID: try to decode as ASCII (IMEI) or hex
     try:
@@ -119,8 +97,7 @@ def build_response(device_type_bytes: bytes, device_id_bytes: bytes, biz_data: b
     """Build a response frame to send back to the device."""
     biz_len = struct.pack(">H", len(biz_data))
     crc_payload = biz_len + biz_data
-    # Use standard CRC32 for responses — will adjust once we identify the device's CRC variant
-    crc = struct.pack(">I", crc32(crc_payload))
+    crc = struct.pack(">H", crc16(crc_payload))
     frame = (FRAME_START +
              b'\x00' +  # plaintext (confirmed by manufacturer)
              b'\x00' +  # no response needed
