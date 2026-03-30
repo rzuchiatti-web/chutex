@@ -167,6 +167,16 @@ export default function GuardianHome({ token, user }: { token: string; user: any
                   <i className="ri-arrow-right-s-line" style={{ fontSize: 18, color: 'rgba(255,255,255,0.5)' }} />
                 </div>
               </div>
+
+              {/* Nora AI card — dans le header */}
+              <div data-testid="guardian-nora-card" onClick={() => router.push('/chat-ia' as any)} style={{ borderRadius: 16, padding: '14px 16px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 12, marginTop: 10, background: 'rgba(0,0,0,0.35)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1px solid rgba(255,255,255,0.1)' } as any}>
+                <video autoPlay loop muted playsInline style={{ width: 40, height: 40, borderRadius: 12, objectFit: 'contain', flexShrink: 0, pointerEvents: 'none' } as any} src="https://customer-assets.emergentagent.com/job_ba3a5789-c8f1-4b12-b5d8-478a7f99aaea/artifacts/b6eh1r76_Nora_video.mp4" />
+                <div style={{ flex: 1 } as any}>
+                  <div style={{ fontSize: 14, fontWeight: 800, color: '#FFF' }}>Demander a Nora</div>
+                  <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.45)' }}>Questions sante sur vos beneficiaires</div>
+                </div>
+                <i className="ri-arrow-right-s-line" style={{ fontSize: 18, color: 'rgba(255,255,255,0.3)' }} />
+              </div>
             </div>
           </div>
 

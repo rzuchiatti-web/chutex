@@ -137,19 +137,29 @@ async def send_chat_message(data: dict, user=Depends(get_current_user)):
         "created_at": datetime.now(timezone.utc).isoformat()
     })
 
-    # Build health context — for guardian, include beneficiary data
-    is_guardian = role == 'guardian'
+    # Build health context — for guardian, use specific beneficiary if provided
+    is_guardian = role in ('guardian', 'professional')
+    beneficiary_id = data.get("beneficiary_id")
     health_ctx = ""
+    target_ben_name = ""
     if is_guardian:
-        # Get guardian's beneficiaries
-        ben_links = await db.guardian_beneficiaries.find({"guardian_id": uid}, {"_id": 0}).to_list(10)
-        ben_contexts = []
-        for link in ben_links:
-            ben = await db.users.find_one({"id": link.get("beneficiary_id")}, {"_id": 0})
+        if beneficiary_id:
+            # Specific beneficiary selected
+            ben = await db.users.find_one({"id": beneficiary_id}, {"_id": 0})
             if ben:
                 ctx = await build_health_context(user, for_guardian=True, beneficiary_data=ben)
-                ben_contexts.append(ctx)
-        health_ctx = "\n---\n".join(ben_contexts) if ben_contexts else "Aucun beneficiaire rattache."
+                health_ctx = ctx
+                target_ben_name = (ben.get("name") or "").split(" ")[0]
+        else:
+            # No specific beneficiary — get all
+            ben_links = await db.guardian_beneficiaries.find({"guardian_id": uid}, {"_id": 0}).to_list(10)
+            ben_contexts = []
+            for link in ben_links:
+                ben = await db.users.find_one({"id": link.get("beneficiary_id")}, {"_id": 0})
+                if ben:
+                    ctx = await build_health_context(user, for_guardian=True, beneficiary_data=ben)
+                    ben_contexts.append(ctx)
+            health_ctx = "\n---\n".join(ben_contexts) if ben_contexts else "Aucun beneficiaire rattache."
 
         # Add guardian-specific context (interventions, prescriptions, etc.)
         interventions = await db.interventions.find({"guardian_id": uid}, {"_id": 0}).sort("created_at", -1).to_list(5)
@@ -196,8 +206,9 @@ async def send_chat_message(data: dict, user=Depends(get_current_user)):
                     b = await db.users.find_one({"id": link.get("beneficiary_id")}, {"_id": 0, "name": 1})
                     if b and b.get("name"):
                         ben_names.append(b["name"].split(" ")[0])
+                focus_name = target_ben_name or (ben_names[0] if ben_names else "le patient")
                 names_str = ", ".join(ben_names) if ben_names else "ses beneficiaires"
-                guardian_extra = f"\n- L'utilisateur est un GARDIEN/AIDANT de: {names_str}. Quand tu parles des beneficiaires, utilise TOUJOURS leur prenom (ex: \"{ben_names[0] if ben_names else 'Marie'} presente un...\"). NE DIS JAMAIS \"vous\" ou \"votre\" pour parler du patient. Tutoie le gardien."
+                guardian_extra = f"\n- L'utilisateur est un GARDIEN/AIDANT de: {names_str}. Tu reponds actuellement au sujet de {focus_name}. Quand tu parles des beneficiaires, utilise TOUJOURS leur prenom. NE DIS JAMAIS \"vous\" ou \"votre\" pour parler du patient. Tutoie le gardien."
             system = f"""Tu es Nora, IA de Chutex specialisee en prevention et longevite. Reponds en {lang_name}, ton serieux et factuel, max 3-4 phrases sauf question complexe. L'app s'appelle Chutex (JAMAIS "CareWatch"). Chutex Care = service teleassistance 24/7.
 
 DONNEES SANTE:

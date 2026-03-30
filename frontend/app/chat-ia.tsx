@@ -37,19 +37,24 @@ export default function ChatIAScreen() {
   const [typedGreeting, setTypedGreeting] = useState('');
   const [typedDesc, setTypedDesc] = useState('');
   const [greetingDone, setGreetingDone] = useState(false);
+  const [beneficiaries, setBeneficiaries] = useState<any[]>([]);
+  const [selectedBen, setSelectedBen] = useState<string>('');
+  const [showBenPicker, setShowBenPicker] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
   const role = user?.active_role || user?.role || 'beneficiary';
+  const isGuardian = role === 'guardian' || role === 'professional';
   const firstName = user?.name?.split(' ')[0] || '';
   const hasMessages = messages.length > 0;
-  const descText = role === 'guardian'
-    ? 'Votre assistante sante personnelle. Comment puis-je vous aider aujourd\'hui ?'
+  const selectedBenName = beneficiaries.find(b => b.id === selectedBen)?.name?.split(' ')[0] || '';
+  const descText = isGuardian
+    ? `Selectionnez un beneficiaire et posez vos questions sur sa sante.`
     : 'Votre assistante sante personnelle. Comment puis-je vous aider aujourd\'hui ?';
 
-  const presetQuestions = role === 'guardian'
+  const presetQuestions = isGuardian
     ? [
-        'Comment va mon proche aujourd\'hui ?',
-        'Y a-t-il eu des alertes recemment ?',
-        'Peux-tu me faire un resume de sa semaine ?',
+        `Comment va ${selectedBenName || 'mon proche'} aujourd'hui ?`,
+        `Y a-t-il eu des alertes pour ${selectedBenName || 'mon proche'} ?`,
+        `Fais-moi un bilan sante de ${selectedBenName || 'mon proche'}`,
       ]
     : [
         'Comment ai-je dormi cette nuit ?',
@@ -59,6 +64,17 @@ export default function ChatIAScreen() {
 
   useEffect(() => { loadHistory(); setTimeout(() => setEntered(true), 100); setTimeout(() => setShowText(true), 1400); }, [role]);
   useEffect(() => { bottomRef.current?.scrollIntoView({ behavior: 'smooth' }); }, [messages, typingId]);
+
+  // Fetch beneficiaries for guardian role
+  useEffect(() => {
+    if (!isGuardian || !token) return;
+    apiFetch('/api/guardian/beneficiaries', {}, token).then((bens: any) => {
+      if (Array.isArray(bens) && bens.length > 0) {
+        setBeneficiaries(bens);
+        setSelectedBen(bens[0].id);
+      }
+    }).catch(() => {});
+  }, [isGuardian, token]);
 
   // Typewriter for greeting (after video entrance)
   useEffect(() => {
@@ -104,7 +120,7 @@ export default function ChatIAScreen() {
     setMessages(prev => [...prev, { id: 'temp-' + Date.now(), role: 'user', content: msg, created_at: new Date().toISOString() }]);
     setSending(true);
     try {
-      const res = await apiFetch('/api/chat/message', { method: 'POST', body: JSON.stringify({ message: msg, session_id: `chat-${user?.id}-${role}` }) }, token);
+      const res = await apiFetch('/api/chat/message', { method: 'POST', body: JSON.stringify({ message: msg, session_id: `chat-${user?.id}-${role}${selectedBen ? '-' + selectedBen : ''}`, beneficiary_id: isGuardian ? selectedBen : undefined }) }, token);
       setMessages(prev => [...prev.filter(m => !m.id?.startsWith('temp-')), { id: 'u-' + Date.now(), role: 'user', content: msg, created_at: new Date().toISOString() }, { id: res.id, role: 'assistant', content: res.content, created_at: res.created_at }]);
       setTypingId(res.id);
     } catch {
@@ -136,7 +152,31 @@ export default function ChatIAScreen() {
           <i className="ri-arrow-left-s-line" style={{ fontSize: 22, color: '#FFF' }} />
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 6 } as any}>
-          {role === 'guardian' && <div style={{ padding: '4px 10px', borderRadius: 99, background: 'rgba(167,139,250,0.15)', border: '1px solid rgba(167,139,250,0.25)' } as any}><span style={{ fontSize: 10, fontWeight: 700, color: '#A78BFA', textTransform: 'uppercase', letterSpacing: 0.5 }}>Espace Gardien</span></div>}
+          {isGuardian && beneficiaries.length > 0 && (
+            <div onClick={() => setShowBenPicker(!showBenPicker)} style={{ position: 'relative', padding: '5px 12px', borderRadius: 99, background: 'rgba(167,139,250,0.15)', border: '1px solid rgba(167,139,250,0.25)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 } as any}>
+              <span style={{ fontSize: 11, fontWeight: 700, color: '#A78BFA' }}>{selectedBenName || 'Choisir'}</span>
+              <i className="ri-arrow-down-s-line" style={{ fontSize: 14, color: '#A78BFA' }} />
+              {showBenPicker && (
+                <div onClick={(e: any) => e.stopPropagation()} style={{ position: 'absolute', top: '100%', right: 0, marginTop: 6, minWidth: 200, borderRadius: 16, background: 'rgba(30,30,40,0.95)', border: '1px solid rgba(255,255,255,0.12)', backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)', padding: '6px', zIndex: 100, boxShadow: '0 12px 40px rgba(0,0,0,0.5)' } as any}>
+                  {beneficiaries.map((ben: any) => (
+                    <div key={ben.id} data-testid={`ben-pick-${ben.id}`} onClick={() => { setSelectedBen(ben.id); setShowBenPicker(false); setMessages([]); }}
+                      style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 12px', borderRadius: 12, cursor: 'pointer', background: selectedBen === ben.id ? 'rgba(167,139,250,0.15)' : 'transparent', transition: 'background 0.15s' } as any}
+                      onMouseEnter={(e: any) => { if (selectedBen !== ben.id) e.currentTarget.style.background = 'rgba(255,255,255,0.06)'; }}
+                      onMouseLeave={(e: any) => { if (selectedBen !== ben.id) e.currentTarget.style.background = 'transparent'; }}>
+                      <div style={{ width: 28, height: 28, borderRadius: 99, background: 'linear-gradient(135deg, #D4845A, #E8A87C)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}>
+                        <span style={{ fontSize: 11, fontWeight: 800, color: '#FFF' }}>{(ben.name || '?')[0]}</span>
+                      </div>
+                      <div style={{ flex: 1 } as any}>
+                        <div style={{ fontSize: 13, fontWeight: 700, color: '#FFF' }}>{ben.name}</div>
+                      </div>
+                      {selectedBen === ben.id && <i className="ri-check-line" style={{ fontSize: 14, color: '#A78BFA' }} />}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+          {isGuardian && !selectedBenName && <div style={{ padding: '4px 10px', borderRadius: 99, background: 'rgba(167,139,250,0.15)', border: '1px solid rgba(167,139,250,0.25)' } as any}><span style={{ fontSize: 10, fontWeight: 700, color: '#A78BFA', textTransform: 'uppercase', letterSpacing: 0.5 }}>Gardien</span></div>}
           {hasMessages && (
             <div data-testid="chat-clear" onClick={clearChat} style={{ width: 38, height: 38, borderRadius: '50%', background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', opacity: clearing ? 0.5 : 1 } as any}>
               <i className="ri-delete-bin-line" style={{ fontSize: 16, color: 'rgba(255,255,255,0.5)' }} />
