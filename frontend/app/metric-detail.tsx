@@ -173,7 +173,11 @@ export default function MetricDetailScreen() {
   const W = 340, H = 220, padL = 0, padR = 0, padT = 30, padB = 40;
   const chartW = W, chartH = H - padT - padB;
   const rg = mx - mn || 1;
-  const dMn = Math.max(0, mn - rg * 0.05), dMx = mx + rg * 0.08, dRg = dMx - dMn || 1;
+  // For bar charts, always start Y from 0 so bars are proportional
+  const isBarType = (m.graph_type === 'bars' || m.graph_type === 'bars_threshold');
+  const dMn = isBarType ? 0 : Math.max(0, mn - rg * 0.05);
+  const dMx = isBarType ? mx * 1.12 : mx + rg * 0.08;
+  const dRg = dMx - dMn || 1;
   const barGap = sliced.length > 0 ? chartW / sliced.length : chartW;
   const barW = Math.min(36, Math.max(12, barGap * 0.55));
   const toBarX = (i: number) => barGap * i + barGap / 2;
@@ -443,21 +447,55 @@ export default function MetricDetailScreen() {
                 )}
               </div>
 
-              {/* Selected data point tooltip */}
-              {selData && (
-                <div data-testid="selected-point" style={{ padding: '14px 18px', borderRadius: 18, background: `${color}08`, marginBottom: 14, borderLeft: `3px solid ${color}`, animation: 'fadeSlideIn 0.2s ease' } as any}>
-                  <div style={{ fontSize: 11, color: '#9CA3AF', marginBottom: 4 }}>{selData.label || selData.date}</div>
-                  <div style={{ display: 'flex', alignItems: 'baseline', gap: 6 } as any}>
-                    <span style={{ fontSize: 28, fontWeight: 900, color: '#111' }}>{isBP ? `${selData.systolic}/${selData.diastolic}` : selData.value}</span>
-                    <span style={{ fontSize: 14, color: '#9CA3AF' }}>{m.unit}</span>
-                    {nMin != null && (
-                      <span style={{ marginLeft: 'auto', fontSize: 11, fontWeight: 700, color: selData.value >= nMin && selData.value <= nMax ? '#10B981' : '#EF4444' }}>
-                        {selData.value >= nMin && selData.value <= nMax ? 'Dans la norme' : selData.value < nMin ? 'Sous la norme' : 'Au-dessus'}
-                      </span>
+              {/* Selected data point — rich card */}
+              {selData && (() => {
+                const selVal = selData.value;
+                const inNorm = nMin != null ? (selVal >= nMin && selVal <= nMax) : true;
+                const normColor = nMin != null ? (inNorm ? '#10B981' : selVal < nMin ? '#38BDF8' : '#EF4444') : '#10B981';
+                const normLabel = nMin != null ? (inNorm ? 'Dans la norme' : selVal < nMin ? 'Sous la norme' : 'Au-dessus') : 'Normal';
+                const dayNames = ['Dimanche', 'Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi'];
+                let dayName = '';
+                try { const dd = new Date(selData.date + 'T12:00:00'); dayName = dayNames[dd.getDay()]; } catch {}
+                const diffAvg = typeof selVal === 'number' && avg !== '--' ? selVal - parseFloat(avg as string) : 0;
+                const diffPct = typeof selVal === 'number' && parseFloat(avg as string) > 0 ? Math.round((diffAvg / parseFloat(avg as string)) * 100) : 0;
+                return (
+                  <div data-testid="selected-point" style={{ padding: '16px 18px', borderRadius: 18, background: '#F4F4F5', marginBottom: 14, borderLeft: `4px solid ${normColor}`, animation: 'fadeSlideIn 0.25s ease' } as any}>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 } as any}>
+                      <div>
+                        <div style={{ fontSize: 11, color: '#9CA3AF', fontWeight: 600 }}>{dayName} {selData.label}</div>
+                        <div style={{ display: 'flex', alignItems: 'baseline', gap: 6, marginTop: 2 } as any}>
+                          <span style={{ fontSize: 30, fontWeight: 900, color: '#111' }}>{isBP ? `${selData.systolic}/${selData.diastolic}` : (typeof selVal === 'number' && selVal >= 100 ? Math.round(selVal).toLocaleString() : selVal)}</span>
+                          <span style={{ fontSize: 13, color: '#9CA3AF', fontWeight: 600 }}>{m.unit}</span>
+                        </div>
+                      </div>
+                      <div style={{ padding: '6px 14px', borderRadius: 12, background: `${normColor}12`, border: `1px solid ${normColor}25` } as any}>
+                        <span style={{ fontSize: 12, fontWeight: 800, color: normColor }}>{normLabel}</span>
+                      </div>
+                    </div>
+                    {/* Comparison with average */}
+                    {typeof diffAvg === 'number' && avg !== '--' && (
+                      <div style={{ display: 'flex', gap: 8, marginTop: 4 } as any}>
+                        <div style={{ flex: 1, padding: '8px 10px', borderRadius: 10, background: '#FFF', display: 'flex', alignItems: 'center', gap: 8 } as any}>
+                          <i className={diffAvg >= 0 ? 'ri-arrow-up-line' : 'ri-arrow-down-line'} style={{ fontSize: 13, color: diffAvg >= 0 ? '#10B981' : '#EF4444' }} />
+                          <div>
+                            <div style={{ fontSize: 13, fontWeight: 800, color: '#111' }}>{diffAvg > 0 ? '+' : ''}{typeof diffAvg === 'number' && Math.abs(diffAvg) >= 100 ? Math.round(diffAvg).toLocaleString() : diffAvg.toFixed(1)}</div>
+                            <div style={{ fontSize: 9, color: '#9CA3AF', fontWeight: 600 }}>vs moyenne ({diffPct > 0 ? '+' : ''}{diffPct}%)</div>
+                          </div>
+                        </div>
+                        {nMin != null && (
+                          <div style={{ flex: 1, padding: '8px 10px', borderRadius: 10, background: '#FFF', display: 'flex', alignItems: 'center', gap: 8 } as any}>
+                            <i className="ri-shield-check-line" style={{ fontSize: 13, color: normColor }} />
+                            <div>
+                              <div style={{ fontSize: 13, fontWeight: 800, color: '#111' }}>{nMin} — {nMax}</div>
+                              <div style={{ fontSize: 9, color: '#9CA3AF', fontWeight: 600 }}>plage normale ({m.unit})</div>
+                            </div>
+                          </div>
+                        )}
+                      </div>
                     )}
                   </div>
-                </div>
-              )}
+                );
+              })()}
 
               {/* Stats */}
               <div data-testid="stats-row" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 8, marginBottom: 14 } as any}>
@@ -476,28 +514,77 @@ export default function MetricDetailScreen() {
             </>
           )}
 
-          {/* Explain */}
-          <div data-testid="explain-section" onClick={() => setShowExplain(!showExplain)} style={{ padding: '16px 18px', borderRadius: 18, background: '#F4F4F5', marginBottom: 14, cursor: 'pointer' } as any}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' } as any}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8 } as any}>
-                <i className="ri-book-open-line" style={{ fontSize: 16, color }} />
-                <span style={{ fontSize: 14, fontWeight: 700, color: '#111' }}>Qu'est-ce que {(m.title || '').toLowerCase()} ?</span>
-              </div>
-              <i className={showExplain ? 'ri-arrow-up-s-line' : 'ri-arrow-down-s-line'} style={{ fontSize: 18, color: '#9CA3AF' }} />
-            </div>
-            {showExplain && (
-              <div style={{ marginTop: 12 } as any}>
-                <div style={{ fontSize: 14, color: '#6B7280', lineHeight: 1.7, marginBottom: 10 }}>{m.explain || ''}</div>
-                {nMin != null && (
-                  <div style={{ display: 'flex', gap: 8 } as any}>
-                    <div style={{ flex: 1, padding: '10px', borderRadius: 12, background: 'rgba(56,189,248,0.08)', textAlign: 'center' } as any}><div style={{ fontSize: 9, color: '#9CA3AF', textTransform: 'uppercase', marginBottom: 4 }}>Min normal</div><div style={{ fontSize: 16, fontWeight: 900, color: '#38BDF8' }}>{nMin} <span style={{ fontSize: 9, color: '#9CA3AF' }}>{m.unit}</span></div></div>
-                    <div style={{ flex: 1, padding: '10px', borderRadius: 12, background: 'rgba(16,185,129,0.08)', textAlign: 'center' } as any}><div style={{ fontSize: 9, color: '#9CA3AF', textTransform: 'uppercase', marginBottom: 4 }}>Zone ideale</div><div style={{ fontSize: 16, fontWeight: 900, color: '#10B981' }}>{nMin}-{nMax}</div></div>
-                    <div style={{ flex: 1, padding: '10px', borderRadius: 12, background: 'rgba(239,68,68,0.08)', textAlign: 'center' } as any}><div style={{ fontSize: 9, color: '#9CA3AF', textTransform: 'uppercase', marginBottom: 4 }}>Max normal</div><div style={{ fontSize: 16, fontWeight: 900, color: '#EF4444' }}>{nMax} <span style={{ fontSize: 9, color: '#9CA3AF' }}>{m.unit}</span></div></div>
+          {/* Explain — rich card always open */}
+          {(() => {
+            const RICH_EXPLAIN: Record<string, { desc: string; why: string; ranges: { label: string; range: string; color: string }[]; tip: string; source: string }> = {
+              heart_rate: { desc: "La frequence cardiaque au repos mesure le nombre de battements de votre coeur par minute lorsque vous etes calme et au repos. C'est un indicateur fondamental de votre sante cardiovasculaire.", why: "Un coeur en bonne sante bat moins souvent car il pompe plus de sang a chaque battement. Les athletes ont souvent une FC au repos plus basse.", ranges: [{ label: 'Bradycardie', range: '< 60 bpm', color: '#38BDF8' }, { label: 'Normal', range: '60 — 80 bpm', color: '#10B981' }, { label: 'Eleve', range: '80 — 100 bpm', color: '#F59E0B' }, { label: 'Tachycardie', range: '> 100 bpm', color: '#EF4444' }], tip: "Mesurez toujours au repos, le matin au reveil. Evitez la cafeine avant. Une FC regulierement basse est signe de bonne forme.", source: "OMS, American Heart Association" },
+              spo2: { desc: "La saturation en oxygene (SpO2) indique le pourcentage d'hemoglobine transportant de l'oxygene dans votre sang. Elle reflete l'efficacite de vos poumons.", why: "Vos organes ont besoin d'un apport constant en oxygene. Une SpO2 basse peut indiquer des problemes respiratoires ou cardiaques.", ranges: [{ label: 'Critique', range: '< 90%', color: '#EF4444' }, { label: 'Bas', range: '90 — 94%', color: '#F59E0B' }, { label: 'Normal', range: '95 — 100%', color: '#10B981' }], tip: "En altitude, la SpO2 baisse naturellement. Si elle descend sous 92% au repos a basse altitude, consultez rapidement.", source: "Pulse Oximetry Guidelines, WHO" },
+              blood_pressure: { desc: "La pression arterielle mesure la force exercee par le sang sur les parois de vos arteres. La systolique (haute) correspond a la contraction du coeur, la diastolique (basse) a son repos.", why: "L'hypertension non traitee endommage silencieusement les arteres, le coeur, les reins et le cerveau sur des annees.", ranges: [{ label: 'Basse', range: '< 90/60', color: '#38BDF8' }, { label: 'Optimale', range: '90-120 / 60-80', color: '#10B981' }, { label: 'Elevee', range: '120-140 / 80-90', color: '#F59E0B' }, { label: 'Hypertension', range: '> 140/90', color: '#EF4444' }], tip: "Mesurez au calme, assis depuis 5 min. La tension varie dans la journee — plus haute le matin. Reduisez le sel et le stress.", source: "ESC/ESH Guidelines 2023" },
+              temperature: { desc: "La temperature corporelle fluctue naturellement au cours de la journee. Le matin elle est plus basse (~36.2) et atteint un pic l'apres-midi (~37.0).", why: "La fievre est une reponse immunitaire. Suivre sa temperature aide a detecter precocement infections et inflammations.", ranges: [{ label: 'Hypothermie', range: '< 35°C', color: '#38BDF8' }, { label: 'Normal', range: '36.1 — 37.5°C', color: '#10B981' }, { label: 'Fievre legere', range: '37.5 — 38.5°C', color: '#F59E0B' }, { label: 'Fievre', range: '> 38.5°C', color: '#EF4444' }], tip: "Apres l'exercice, la temperature monte naturellement. Attendez 30 min avant de mesurer.", source: "Medecine interne, Harrison's" },
+              steps: { desc: "Le nombre de pas quotidien est le meilleur indicateur simple de votre niveau d'activite physique. L'OMS recommande 150 min d'activite moderee par semaine, soit environ 7 000 a 8 000 pas/jour.", why: "Marcher reduit le risque cardiovasculaire de 31%, le diabete de 33%, et ameliore l'humeur via la liberation d'endorphines.", ranges: [{ label: 'Sedentaire', range: '< 3 000 pas', color: '#EF4444' }, { label: 'Peu actif', range: '3 000 — 5 000', color: '#F59E0B' }, { label: 'Actif', range: '5 000 — 8 000', color: '#10B981' }, { label: 'Tres actif', range: '> 8 000 pas', color: '#3B82F6' }], tip: "Pour les seniors (65+), 6 000 pas/jour suffisent pour reduire la mortalite de 50%. Augmentez de 500 pas par semaine.", source: "Etude JAMA 2022, Lee et al." },
+              calories: { desc: "Les calories brulees par l'activite physique (hors metabolisme de base). Cette depense varie selon l'intensite, la duree et votre poids corporel.", why: "Bruler des calories par l'activite aide a maintenir un poids sain, renforce le systeme immunitaire et ameliore le sommeil.", ranges: [{ label: 'Faible', range: '< 150 kcal', color: '#EF4444' }, { label: 'Modere', range: '150 — 300 kcal', color: '#F59E0B' }, { label: 'Actif', range: '> 300 kcal', color: '#10B981' }], tip: "30 min de marche rapide = ~150 kcal. La regularite est plus importante que l'intensite pour la sante a long terme.", source: "ACSM Guidelines" },
+              distance_km: { desc: "La distance parcourue dans la journee reflete votre mobilite globale. C'est un indicateur de votre autonomie et de votre capacite fonctionnelle.", why: "Maintenir sa mobilite est essentiel pour prevenir les chutes, l'isolement social et le deconditionnement physique.", ranges: [{ label: 'Faible', range: '< 2 km', color: '#EF4444' }, { label: 'Modere', range: '2 — 4 km', color: '#F59E0B' }, { label: 'Bon', range: '4 — 6 km', color: '#10B981' }, { label: 'Excellent', range: '> 6 km', color: '#3B82F6' }], tip: "Variez les parcours pour stimuler l'equilibre et la coordination. La marche en nature reduit le cortisol de 15%.", source: "Journal of Aging & Physical Activity" },
+              hrv: { desc: "La variabilite de la frequence cardiaque (HRV) mesure les variations entre chaque battement. Un HRV eleve indique que votre systeme nerveux s'adapte bien au stress.", why: "Le HRV reflete l'equilibre entre systeme sympathique (stress) et parasympathique (repos). C'est un marqueur de recuperation.", ranges: [{ label: 'Bas', range: '< 20 ms', color: '#EF4444' }, { label: 'Moyen', range: '20 — 40 ms', color: '#F59E0B' }, { label: 'Bon', range: '40 — 60 ms', color: '#10B981' }, { label: 'Excellent', range: '> 60 ms', color: '#3B82F6' }], tip: "Le HRV se mesure idealement le matin au reveil. La meditation et la respiration profonde l'ameliorent.", source: "European Society of Cardiology" },
+              stress_level: { desc: "Le niveau de stress est estime a partir du HRV, de la frequence cardiaque et de la conductance cutanee. Il refllete l'activation de votre systeme nerveux sympathique.", why: "Le stress chronique eleve augmente l'inflammation, la tension arterielle et le risque de depression.", ranges: [{ label: 'Detendu', range: '0 — 25', color: '#10B981' }, { label: 'Modere', range: '25 — 50', color: '#F59E0B' }, { label: 'Eleve', range: '50 — 75', color: '#EF4444' }, { label: 'Tres eleve', range: '> 75', color: '#991B1B' }], tip: "Pratiquez la coherence cardiaque (5 min, 6 respirations/min) pour faire baisser le stress en 3 minutes.", source: "HeartMath Institute" },
+              recovery_score: { desc: "Le score de recuperation combine la qualite du sommeil, le HRV, la frequence cardiaque au repos et le stress pour evaluer votre capacite a l'effort.", why: "S'entrainer quand la recuperation est basse augmente le risque de blessure et ralentit la progression.", ranges: [{ label: 'Faible', range: '< 40%', color: '#EF4444' }, { label: 'Modere', range: '40 — 70%', color: '#F59E0B' }, { label: 'Bon', range: '70 — 90%', color: '#10B981' }, { label: 'Optimal', range: '> 90%', color: '#3B82F6' }], tip: "Si < 50%, privilegiez la marche douce ou le yoga. Au-dessus de 80%, vous pouvez faire un effort intense.", source: "Sports Science, WHOOP Research" },
+              sleep_quality: { desc: "La qualite du sommeil evalue la duree, la profondeur (sommeil profond + REM) et la continuite de vos nuits.", why: "Le sommeil profond repare les tissus et consolide la memoire. Le sommeil REM gere les emotions et la creativite.", ranges: [{ label: 'Mauvais', range: '< 50%', color: '#EF4444' }, { label: 'Moyen', range: '50 — 75%', color: '#F59E0B' }, { label: 'Bon', range: '75 — 90%', color: '#10B981' }, { label: 'Excellent', range: '> 90%', color: '#3B82F6' }], tip: "Couchez-vous et levez-vous a la meme heure. Evitez les ecrans 1h avant. La chambre doit etre fraiche (18-19°C).", source: "National Sleep Foundation" },
+              weight: { desc: "Le poids corporel seul ne suffit pas a evaluer la sante. Il doit etre croise avec la composition corporelle (graisse, muscle, eau).", why: "Les variations quotidiennes (0.5-1.5 kg) sont normales et liees a l'hydratation, la digestion et le sel.", ranges: [], tip: "Pesez-vous toujours le matin, a jeun, dans les memes conditions. Suivez la tendance sur 2 semaines, pas les variations quotidiennes.", source: "Endocrine Society" },
+            };
+            const info = RICH_EXPLAIN[key || ''] || { desc: m.explain || '', why: '', ranges: [], tip: '', source: '' };
+            return (
+              <div data-testid="explain-section" style={{ borderRadius: 18, background: '#F4F4F5', marginBottom: 14, overflow: 'hidden' } as any}>
+                <div onClick={() => setShowExplain(!showExplain)} style={{ padding: '16px 18px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'space-between' } as any}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 } as any}>
+                    <i className="ri-stethoscope-line" style={{ fontSize: 16, color }} />
+                    <span style={{ fontSize: 14, fontWeight: 700, color: '#111' }}>Comprendre {(m.title || '').toLowerCase()}</span>
+                  </div>
+                  <i className={showExplain ? 'ri-arrow-up-s-line' : 'ri-arrow-down-s-line'} style={{ fontSize: 18, color: '#9CA3AF' }} />
+                </div>
+                {showExplain && (
+                  <div style={{ padding: '0 18px 18px' } as any}>
+                    {/* Description */}
+                    <div style={{ fontSize: 13, color: '#6B7280', lineHeight: 1.7, marginBottom: 14 }}>{info.desc}</div>
+                    {/* Why it matters */}
+                    {info.why && (
+                      <div style={{ padding: '12px 14px', borderRadius: 14, background: '#FFF', marginBottom: 12, display: 'flex', gap: 10 } as any}>
+                        <i className="ri-lightbulb-line" style={{ fontSize: 16, color: '#F59E0B', flexShrink: 0, marginTop: 2 }} />
+                        <div>
+                          <div style={{ fontSize: 11, fontWeight: 800, color: '#F59E0B', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 4 }}>Pourquoi c'est important</div>
+                          <div style={{ fontSize: 12, color: '#6B7280', lineHeight: 1.6 }}>{info.why}</div>
+                        </div>
+                      </div>
+                    )}
+                    {/* Ranges */}
+                    {info.ranges.length > 0 && (
+                      <div style={{ marginBottom: 12 } as any}>
+                        <div style={{ fontSize: 11, fontWeight: 800, color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 8 }}>Echelle de reference</div>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: 4 } as any}>
+                          {info.ranges.map((r, i) => (
+                            <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '8px 12px', borderRadius: 10, background: '#FFF' } as any}>
+                              <div style={{ width: 10, height: 10, borderRadius: 3, background: r.color, flexShrink: 0 } as any} />
+                              <span style={{ fontSize: 12, fontWeight: 700, color: '#111', flex: 1 }}>{r.label}</span>
+                              <span style={{ fontSize: 11, fontWeight: 600, color: '#9CA3AF' }}>{r.range}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                    {/* Tip */}
+                    {info.tip && (
+                      <div style={{ padding: '12px 14px', borderRadius: 14, background: 'rgba(16,185,129,0.06)', border: '1px solid rgba(16,185,129,0.12)', display: 'flex', gap: 10 } as any}>
+                        <i className="ri-heart-pulse-line" style={{ fontSize: 16, color: '#10B981', flexShrink: 0, marginTop: 2 }} />
+                        <div>
+                          <div style={{ fontSize: 11, fontWeight: 800, color: '#10B981', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 4 }}>Conseil</div>
+                          <div style={{ fontSize: 12, color: '#6B7280', lineHeight: 1.6 }}>{info.tip}</div>
+                        </div>
+                      </div>
+                    )}
+                    {info.source && <div style={{ fontSize: 9, color: '#C8C8CC', marginTop: 10, textAlign: 'right' }}>Source : {info.source}</div>}
                   </div>
                 )}
               </div>
-            )}
-          </div>
+            );
+          })()}
 
           {/* Objectives (sport metrics) OR Alert Thresholds (health metrics) */}
           {!isReadonly && isObjective && (() => {
