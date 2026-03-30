@@ -132,7 +132,7 @@ export default function ActivityDetailPage() {
     }).finally(() => setLoading(false));
     // Slow API — load health report in background (doesn't block UI)
     apiFetch('/api/health/daily-report', {}, token).catch(() => ({})).then((report: any) => {
-      if (report) setD(report);
+      if (report) setD(report?.data || report);
     });
   }, [token, selectedDate]);
 
