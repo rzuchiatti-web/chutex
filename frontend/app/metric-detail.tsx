@@ -254,31 +254,22 @@ export default function MetricDetailScreen() {
               const cx = toBarX(i);
               const isSel = sel === i;
               return <g key={i}>
-                <rect x={cx - bw - 2} y={sY} width={bw} height={Math.max(2, baseY - sY)} rx={bw / 2} fill="#8B5CF6" opacity={isSel ? 1 : 0.5}>
-                  <animate attributeName="height" from="0" to={Math.max(2, baseY - sY)} dur="0.5s" fill="freeze" begin={`${i * 0.06}s`} />
-                  <animate attributeName="y" from={baseY} to={sY} dur="0.5s" fill="freeze" begin={`${i * 0.06}s`} />
-                </rect>
-                <rect x={cx + 2} y={dY} width={bw} height={Math.max(2, baseY - dY)} rx={bw / 2} fill="#C4B5FD" opacity={isSel ? 1 : 0.5}>
-                  <animate attributeName="height" from="0" to={Math.max(2, baseY - dY)} dur="0.5s" fill="freeze" begin={`${i * 0.06}s`} />
-                  <animate attributeName="y" from={baseY} to={dY} dur="0.5s" fill="freeze" begin={`${i * 0.06}s`} />
-                </rect>
+                <rect x={cx - bw - 2} y={sY} width={bw} height={Math.max(2, baseY - sY)} rx={bw / 2} fill="#8B5CF6" opacity={isSel ? 1 : 0.5} />
+                <rect x={cx + 2} y={dY} width={bw} height={Math.max(2, baseY - dY)} rx={bw / 2} fill="#C4B5FD" opacity={isSel ? 1 : 0.5} />
                 {isSel && <><rect x={cx - 26} y={sY - 22} width={52} height={18} rx={9} fill="#111" /><text x={cx} y={sY - 10} fill="#FFF" fontSize="10" fontWeight="800" textAnchor="middle">{sys}/{dia}</text></>}
                 <text x={cx} y={H - 10} textAnchor="middle" fill={isSel ? '#111' : '#B0B0B4'} fontSize="10" fontWeight={isSel ? '800' : '500'}>{getDayLabel(h.date)}</text>
                 <text x={cx} y={H - 0} textAnchor="middle" fill="#D0D0D4" fontSize="8">{h.label}</text>
               </g>;
             })
           ) : isBarChart ? (
-            /* ── BAR CHART (Steps, Calories, etc.) ── */
+            /* ── BAR CHART (Steps, Calories, etc.) — NO animate, direct render ── */
             sliced.map((h: any, i: number) => {
               const barH = Math.max(3, ((h.value - dMn) / dRg) * chartH);
               const barY = padT + chartH - barH;
               const cx = toBarX(i);
               const isSel = sel === i;
               return <g key={i}>
-                <rect x={cx - barW / 2} y={padT + chartH} width={barW} height={0} rx={barW / 2.5} fill={isSel ? color : `url(#bar-grad-${key})`} opacity={isSel ? 1 : 0.7}>
-                  <animate attributeName="y" from={padT + chartH} to={barY} dur="0.6s" fill="freeze" begin={`${i * 0.07}s`} calcMode="spline" keySplines="0.34 1.56 0.64 1" />
-                  <animate attributeName="height" from="0" to={barH} dur="0.6s" fill="freeze" begin={`${i * 0.07}s`} calcMode="spline" keySplines="0.34 1.56 0.64 1" />
-                </rect>
+                <rect x={cx - barW / 2} y={barY} width={barW} height={barH} rx={barW / 2.5} fill={isSel ? color : `url(#bar-grad-${key})`} opacity={isSel ? 1 : 0.65} />
                 {isSel && <>
                   <rect x={cx - 28} y={barY - 24} width={56} height={20} rx={10} fill="#111" />
                   <text x={cx} y={barY - 11} fill="#FFF" fontSize="11" fontWeight="800" textAnchor="middle">{typeof h.value === 'number' && h.value >= 100 ? Math.round(h.value).toLocaleString() : h.value}</text>
@@ -447,50 +438,31 @@ export default function MetricDetailScreen() {
                 )}
               </div>
 
-              {/* Selected data point — rich card */}
+              {/* Selected data point — simple grey card */}
               {selData && (() => {
                 const selVal = selData.value;
-                const inNorm = nMin != null ? (selVal >= nMin && selVal <= nMax) : true;
-                const normColor = nMin != null ? (inNorm ? '#10B981' : selVal < nMin ? '#38BDF8' : '#EF4444') : '#10B981';
-                const normLabel = nMin != null ? (inNorm ? 'Dans la norme' : selVal < nMin ? 'Sous la norme' : 'Au-dessus') : 'Normal';
-                const dayNames = ['Dimanche', 'Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi'];
+                const dayNames = ['Dim', 'Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam'];
                 let dayName = '';
                 try { const dd = new Date(selData.date + 'T12:00:00'); dayName = dayNames[dd.getDay()]; } catch {}
                 const diffAvg = typeof selVal === 'number' && avg !== '--' ? selVal - parseFloat(avg as string) : 0;
                 const diffPct = typeof selVal === 'number' && parseFloat(avg as string) > 0 ? Math.round((diffAvg / parseFloat(avg as string)) * 100) : 0;
+                const fmtVal = isBP ? `${selData.systolic}/${selData.diastolic}` : (typeof selVal === 'number' && selVal >= 100 ? Math.round(selVal).toLocaleString() : typeof selVal === 'number' ? selVal.toFixed(1) : selVal);
                 return (
-                  <div data-testid="selected-point" style={{ padding: '16px 18px', borderRadius: 18, background: '#F4F4F5', marginBottom: 14, borderLeft: `4px solid ${normColor}`, animation: 'fadeSlideIn 0.25s ease' } as any}>
-                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 } as any}>
-                      <div>
-                        <div style={{ fontSize: 11, color: '#9CA3AF', fontWeight: 600 }}>{dayName} {selData.label}</div>
-                        <div style={{ display: 'flex', alignItems: 'baseline', gap: 6, marginTop: 2 } as any}>
-                          <span style={{ fontSize: 30, fontWeight: 900, color: '#111' }}>{isBP ? `${selData.systolic}/${selData.diastolic}` : (typeof selVal === 'number' && selVal >= 100 ? Math.round(selVal).toLocaleString() : selVal)}</span>
-                          <span style={{ fontSize: 13, color: '#9CA3AF', fontWeight: 600 }}>{m.unit}</span>
-                        </div>
-                      </div>
-                      <div style={{ padding: '6px 14px', borderRadius: 12, background: `${normColor}12`, border: `1px solid ${normColor}25` } as any}>
-                        <span style={{ fontSize: 12, fontWeight: 800, color: normColor }}>{normLabel}</span>
+                  <div data-testid="selected-point" style={{ padding: '14px 16px', borderRadius: 16, background: '#F4F4F5', marginBottom: 14, display: 'flex', alignItems: 'center', gap: 14 } as any}>
+                    <div style={{ flex: 1 } as any}>
+                      <div style={{ fontSize: 10, color: '#9CA3AF', fontWeight: 600, marginBottom: 2 }}>{dayName} {selData.label}</div>
+                      <div style={{ display: 'flex', alignItems: 'baseline', gap: 4 } as any}>
+                        <span style={{ fontSize: 26, fontWeight: 900, color: '#111' }}>{fmtVal}</span>
+                        <span style={{ fontSize: 12, color: '#9CA3AF', fontWeight: 600 }}>{m.unit}</span>
                       </div>
                     </div>
-                    {/* Comparison with average */}
                     {typeof diffAvg === 'number' && avg !== '--' && (
-                      <div style={{ display: 'flex', gap: 8, marginTop: 4 } as any}>
-                        <div style={{ flex: 1, padding: '8px 10px', borderRadius: 10, background: '#FFF', display: 'flex', alignItems: 'center', gap: 8 } as any}>
-                          <i className={diffAvg >= 0 ? 'ri-arrow-up-line' : 'ri-arrow-down-line'} style={{ fontSize: 13, color: diffAvg >= 0 ? '#10B981' : '#EF4444' }} />
-                          <div>
-                            <div style={{ fontSize: 13, fontWeight: 800, color: '#111' }}>{diffAvg > 0 ? '+' : ''}{typeof diffAvg === 'number' && Math.abs(diffAvg) >= 100 ? Math.round(diffAvg).toLocaleString() : diffAvg.toFixed(1)}</div>
-                            <div style={{ fontSize: 9, color: '#9CA3AF', fontWeight: 600 }}>vs moyenne ({diffPct > 0 ? '+' : ''}{diffPct}%)</div>
-                          </div>
+                      <div style={{ textAlign: 'right' } as any}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 3, justifyContent: 'flex-end' } as any}>
+                          <i className={diffAvg >= 0 ? 'ri-arrow-up-s-line' : 'ri-arrow-down-s-line'} style={{ fontSize: 14, color: diffAvg >= 0 ? '#10B981' : '#EF4444' }} />
+                          <span style={{ fontSize: 14, fontWeight: 800, color: diffAvg >= 0 ? '#10B981' : '#EF4444' }}>{diffPct > 0 ? '+' : ''}{diffPct}%</span>
                         </div>
-                        {nMin != null && (
-                          <div style={{ flex: 1, padding: '8px 10px', borderRadius: 10, background: '#FFF', display: 'flex', alignItems: 'center', gap: 8 } as any}>
-                            <i className="ri-shield-check-line" style={{ fontSize: 13, color: normColor }} />
-                            <div>
-                              <div style={{ fontSize: 13, fontWeight: 800, color: '#111' }}>{nMin} — {nMax}</div>
-                              <div style={{ fontSize: 9, color: '#9CA3AF', fontWeight: 600 }}>plage normale ({m.unit})</div>
-                            </div>
-                          </div>
-                        )}
+                        <div style={{ fontSize: 9, color: '#9CA3AF', marginTop: 1 }}>vs moy. {range}</div>
                       </div>
                     )}
                   </div>
