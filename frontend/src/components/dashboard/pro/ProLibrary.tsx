@@ -121,7 +121,10 @@ export function ProLibrary(props: ProLibraryProps) {
               onDelete={() => props.onDeleteReminderTemplate(r.id)}
               image={r.image || REMINDER_IMAGES.medication} iconFallback="ri-capsule-line" iconColor="#F59E0B">
               <div style={{ fontSize: 14, fontWeight: 700, color: '#111', textTransform: 'capitalize' }}>{r.title}</div>
-              <div style={{ fontSize: 11, color: '#6B7280', marginTop: 2 }}>Complement</div>
+              <div style={{ fontSize: 11, color: '#6B7280', marginTop: 2 }}>
+                {r.category || 'Complement'}{r.dosage ? ` · ${r.dosage}` : ''}
+              </div>
+              {r.description && <div style={{ fontSize: 10, color: '#9CA3AF', marginTop: 2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' } as any}>{r.description}</div>}
             </Card>
           ))}
         </>
@@ -138,7 +141,13 @@ export function ProLibrary(props: ProLibraryProps) {
               onDelete={() => props.onDeleteReminderTemplate(r.id)}
               image={r.image || REMINDER_IMAGES.hydration} iconFallback="ri-drop-line" iconColor="#38BDF8">
               <div style={{ fontSize: 14, fontWeight: 700, color: '#111', textTransform: 'capitalize' }}>{r.title}</div>
-              <div style={{ fontSize: 11, color: '#6B7280', marginTop: 2 }}>Hydratation</div>
+              <div style={{ fontSize: 11, color: '#6B7280', marginTop: 2 }}>
+                {r.category || 'Hydratation'}{r.volume ? ` · ${r.volume}` : ''}
+              </div>
+              {r.description && <div style={{ fontSize: 10, color: '#9CA3AF', marginTop: 2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' } as any}>{r.description}</div>}
+              {Array.isArray(r.ingredients) && r.ingredients.length > 0 && (
+                <div style={{ fontSize: 10, color: '#38BDF8', marginTop: 2 }}>{r.ingredients.slice(0, 3).map((i: any) => i.name).join(', ')}{r.ingredients.length > 3 ? '...' : ''}</div>
+              )}
             </Card>
           ))}
         </>

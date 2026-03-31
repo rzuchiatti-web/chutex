@@ -603,6 +603,11 @@ class ReminderTemplateCreate(BaseModel):
     time: str = "08:00"
     dosage: str = ""
     notes: str = ""
+    description: str = ""
+    ingredients: List[dict] = []
+    volume: str = ""
+    benefits: str = ""
+    category: str = ""
 
 @router.post("/pro/reminder-templates")
 async def create_reminder_template(data: ReminderTemplateCreate, user=Depends(get_current_user)):
@@ -616,6 +621,11 @@ async def create_reminder_template(data: ReminderTemplateCreate, user=Depends(ge
         "time": data.time,
         "dosage": data.dosage,
         "notes": data.notes,
+        "description": data.description,
+        "ingredients": data.ingredients,
+        "volume": data.volume,
+        "benefits": data.benefits,
+        "category": data.category,
         "is_template": True,
         "created_at": datetime.now(timezone.utc).isoformat(),
     }
@@ -643,7 +653,7 @@ async def update_reminder_template(template_id: str, data: dict, user=Depends(ge
     """Update a reminder template."""
     require_pro(user)
     update = {}
-    for k in ["reminder_type", "title", "time", "dosage", "notes"]:
+    for k in ["reminder_type", "title", "time", "dosage", "notes", "description", "ingredients", "volume", "benefits", "category", "image"]:
         if k in data:
             update[k] = data[k]
     if update:
@@ -1046,8 +1056,12 @@ async def seed_templates(user=Depends(get_current_user)):
 
     added_rem, added_meal, added_ex = 0, 0, 0
 
-    # ── Seed exercise templates ──
-    if existing_ex == 0:
+    # ── Seed exercise templates (dedup by title) ──
+    existing_ex_titles = set()
+    if existing_ex > 0:
+        cursor = db.pro_exercise_templates.find({"professional_id": pid}, {"title": 1, "_id": 0})
+        async for doc in cursor:
+            existing_ex_titles.add(doc.get("title", ""))
         ex_templates = [
             {"title": "Squat", "description": "Flexion des genoux, dos droit, descendre jusqu'a 90 degres", "category": "force", "difficulty": "moyen", "muscle_group": "Quadriceps, Fessiers", "icon": "ri-body-scan-line", "sets": 4, "repetitions": 12, "rest_seconds": 90, "equipment": "Barre", "steps": ["Placer la barre sur les trapezes", "Pieds largeur d'epaules", "Descendre en poussant les genoux vers l'exterieur", "Remonter en poussant sur les talons"]},
             {"title": "Developpe couche", "description": "Exercice de base pour les pectoraux", "category": "force", "difficulty": "moyen", "muscle_group": "Pectoraux, Triceps", "icon": "ri-arrow-up-down-line", "sets": 4, "repetitions": 10, "rest_seconds": 90, "equipment": "Banc, Barre", "steps": ["S'allonger sur le banc", "Saisir la barre largeur epaules +", "Descendre la barre au niveau de la poitrine", "Pousser vers le haut"]},
@@ -1070,42 +1084,368 @@ async def seed_templates(user=Depends(get_current_user)):
             {"title": "Burpees", "description": "Exercice full body haute intensite", "category": "cardio", "difficulty": "difficile", "muscle_group": "Full Body", "icon": "ri-pulse-line", "sets": 4, "repetitions": 10, "rest_seconds": 60, "equipment": "Aucun", "steps": ["Position debout", "Descendre en squat, mains au sol", "Sauter les pieds en arriere (planche)", "Pompe", "Sauter les pieds vers les mains", "Sauter en l'air bras tendus"]},
             {"title": "Etirements complets", "description": "Seance d'etirements pour la mobilite", "category": "souplesse", "difficulty": "facile", "muscle_group": "Full Body, Mobilite", "icon": "ri-mind-map", "sets": 1, "repetitions": 1, "duration_min": 15, "rest_seconds": 0, "equipment": "Tapis", "steps": ["Etirement quadriceps 30s chaque cote", "Etirement ischio-jambiers 30s", "Etirement pectoraux 30s", "Etirement dorsaux 30s", "Etirement epaules 30s chaque cote", "Position du pigeon 30s chaque cote"]},
         ]
-        for ex in ex_templates:
-            ex["id"] = str(uuid.uuid4())
-            ex["professional_id"] = pid
-            ex["is_template"] = True
-            ex["created_at"] = now
-            ex["image"] = ""
-            ex["video_url"] = ""
-            ex["notes"] = ""
-        await db.pro_exercise_templates.insert_many(ex_templates)
-        added_ex = len(ex_templates)
+        new_exs = [ex for ex in ex_templates if ex["title"] not in existing_ex_titles]
+        if new_exs:
+            for ex in new_exs:
+                ex["id"] = str(uuid.uuid4())
+                ex["professional_id"] = pid
+                ex["is_template"] = True
+                ex["created_at"] = now
+                ex["image"] = ""
+                ex["video_url"] = ""
+                ex["notes"] = ""
+            await db.pro_exercise_templates.insert_many(new_exs)
+            added_ex = len(new_exs)
 
     REM_IMG_MEDICATION = "https://customer-assets.emergentagent.com/job_1026023a-fd73-4c44-a002-9618d437c4c8/artifacts/y3xje768_traitement.png"
     REM_IMG_HYDRATION = "https://customer-assets.emergentagent.com/job_1026023a-fd73-4c44-a002-9618d437c4c8/artifacts/7s8stuxi_hydratation.png"
 
-    if existing_rem == 0:
-        rem_templates = [
-            {"title": "Creatine monohydrate", "reminder_type": "medication", "dosage": "5g/jour", "time": "08:00", "notes": "Prendre avec un verre d'eau, tous les jours", "image": REM_IMG_MEDICATION},
-            {"title": "Whey Protein", "reminder_type": "medication", "dosage": "30g post-training", "time": "18:00", "notes": "Melanger avec 300ml d'eau ou lait", "image": REM_IMG_MEDICATION},
-            {"title": "BCAA", "reminder_type": "medication", "dosage": "10g intra-training", "time": "17:30", "notes": "Diluer dans 500ml d'eau pendant l'entrainement", "image": REM_IMG_MEDICATION},
-            {"title": "Omega 3", "reminder_type": "medication", "dosage": "2 capsules/jour", "time": "12:00", "notes": "Prendre pendant le repas", "image": REM_IMG_MEDICATION},
-            {"title": "Vitamine D3", "reminder_type": "medication", "dosage": "1000 UI/jour", "time": "08:00", "notes": "Prendre le matin avec le petit-dejeuner", "image": REM_IMG_MEDICATION},
-            {"title": "Magnesium", "reminder_type": "medication", "dosage": "300mg/jour", "time": "21:00", "notes": "Prendre le soir pour favoriser le sommeil", "image": REM_IMG_MEDICATION},
-            {"title": "Zinc", "reminder_type": "medication", "dosage": "15mg/jour", "time": "20:00", "notes": "Prendre loin des repas riches en calcium", "image": REM_IMG_MEDICATION},
-            {"title": "Multivitamines", "reminder_type": "medication", "dosage": "1 comprime/jour", "time": "08:00", "notes": "Prendre avec le petit-dejeuner", "image": REM_IMG_MEDICATION},
-            {"title": "Collagene", "reminder_type": "medication", "dosage": "10g/jour", "time": "07:30", "notes": "Melanger dans un jus ou cafe. Bon pour les articulations", "image": REM_IMG_MEDICATION},
-            {"title": "Glutamine", "reminder_type": "medication", "dosage": "5g post-training", "time": "18:30", "notes": "Aide a la recuperation musculaire", "image": REM_IMG_MEDICATION},
-            {"title": "Boire 2L d'eau", "reminder_type": "hydration", "dosage": "2 litres", "time": "08:00", "notes": "Repartir tout au long de la journee", "image": REM_IMG_HYDRATION},
-            {"title": "Pre-workout", "reminder_type": "medication", "dosage": "1 dose", "time": "16:30", "notes": "30 min avant l'entrainement. Ne pas depasser 1 dose", "image": REM_IMG_MEDICATION},
-        ]
-        for r in rem_templates:
+    # Get existing titles to avoid duplicates
+    existing_rem_titles = set()
+    if existing_rem > 0:
+        cursor = db.pro_reminder_templates.find({"professional_id": pid}, {"title": 1, "_id": 0})
+        async for doc in cursor:
+            existing_rem_titles.add(doc.get("title", ""))
+
+    rem_templates = [
+        # ── Complements / Medicaments ──
+        {"title": "Creatine monohydrate", "reminder_type": "medication", "category": "Performance", "dosage": "5g/jour", "time": "08:00",
+         "description": "Supplement de creatine pour la force et la recuperation musculaire",
+         "benefits": "Augmente la force, accelere la recuperation, ameliore les performances en haute intensite",
+         "notes": "Prendre avec un verre d'eau, tous les jours", "image": REM_IMG_MEDICATION},
+        {"title": "Whey Protein", "reminder_type": "medication", "category": "Proteine", "dosage": "30g post-training", "time": "18:00",
+         "description": "Proteine de lactoserum a absorption rapide pour la recuperation",
+         "benefits": "Synthese proteique rapide, recuperation musculaire, satiete",
+         "notes": "Melanger avec 300ml d'eau ou lait", "image": REM_IMG_MEDICATION},
+        {"title": "BCAA", "reminder_type": "medication", "category": "Performance", "dosage": "10g intra-training", "time": "17:30",
+         "description": "Acides amines branches (leucine, isoleucine, valine)",
+         "benefits": "Reduit la fatigue musculaire, favorise la synthese proteique pendant l'effort",
+         "notes": "Diluer dans 500ml d'eau pendant l'entrainement", "image": REM_IMG_MEDICATION},
+        {"title": "Omega 3", "reminder_type": "medication", "category": "Sante", "dosage": "2 capsules/jour", "time": "12:00",
+         "description": "Acides gras essentiels EPA et DHA pour le coeur et le cerveau",
+         "benefits": "Anti-inflammatoire, sante cardiovasculaire, fonction cerebrale, sante articulaire",
+         "notes": "Prendre pendant le repas pour meilleure absorption", "image": REM_IMG_MEDICATION},
+        {"title": "Vitamine D3", "reminder_type": "medication", "category": "Vitamine", "dosage": "1000 UI/jour", "time": "08:00",
+         "description": "Vitamine du soleil, essentielle pour les os et l'immunite",
+         "benefits": "Renforce les os, stimule l'immunite, ameliore l'humeur, previent les carences hivernales",
+         "notes": "Prendre le matin avec le petit-dejeuner (liposoluble)", "image": REM_IMG_MEDICATION},
+        {"title": "Magnesium bisglycinate", "reminder_type": "medication", "category": "Mineral", "dosage": "300mg/jour", "time": "21:00",
+         "description": "Forme de magnesium hautement biodisponible et douce pour l'estomac",
+         "benefits": "Relaxation musculaire, qualite du sommeil, reduction du stress et des crampes",
+         "notes": "Prendre le soir pour favoriser le sommeil et la relaxation", "image": REM_IMG_MEDICATION},
+        {"title": "Zinc", "reminder_type": "medication", "category": "Mineral", "dosage": "15mg/jour", "time": "20:00",
+         "description": "Oligo-element essentiel pour l'immunite et la cicatrisation",
+         "benefits": "Renforce l'immunite, sante de la peau, synthese de testosterone, cicatrisation",
+         "notes": "Prendre loin des repas riches en calcium pour eviter la competition d'absorption", "image": REM_IMG_MEDICATION},
+        {"title": "Multivitamines", "reminder_type": "medication", "category": "Vitamine", "dosage": "1 comprime/jour", "time": "08:00",
+         "description": "Complexe complet de vitamines et mineraux essentiels",
+         "benefits": "Couvre les besoins quotidiens, previent les carences, soutient l'energie et l'immunite",
+         "notes": "Prendre avec le petit-dejeuner", "image": REM_IMG_MEDICATION},
+        {"title": "Collagene marin", "reminder_type": "medication", "category": "Articulations", "dosage": "10g/jour", "time": "07:30",
+         "description": "Peptides de collagene marin type I et III pour la peau et les articulations",
+         "benefits": "Elasticite de la peau, sante articulaire, renforcement des tendons et ligaments",
+         "notes": "Melanger dans un jus, cafe ou smoothie. A jeun pour meilleure absorption", "image": REM_IMG_MEDICATION},
+        {"title": "Glutamine", "reminder_type": "medication", "category": "Recuperation", "dosage": "5g post-training", "time": "18:30",
+         "description": "Acide amine le plus abondant dans le corps, essentiel pour la recuperation",
+         "benefits": "Recuperation musculaire, sante intestinale, soutien immunitaire apres l'effort",
+         "notes": "Aide a la recuperation musculaire et intestinale", "image": REM_IMG_MEDICATION},
+        {"title": "Pre-workout", "reminder_type": "medication", "category": "Performance", "dosage": "1 dose", "time": "16:30",
+         "description": "Complexe energisant avec cafeine, beta-alanine et citrulline",
+         "benefits": "Boost d'energie, meilleure concentration, vasodilatation, endurance accrue",
+         "notes": "30 min avant l'entrainement. Ne pas depasser 1 dose. Eviter apres 17h", "image": REM_IMG_MEDICATION},
+        {"title": "Probiotiques", "reminder_type": "medication", "category": "Digestion", "dosage": "1 gelule/jour", "time": "07:00",
+         "description": "Souches vivantes de bacteries benefiques (Lactobacillus, Bifidobacterium)",
+         "benefits": "Sante digestive, renforcement de la flore intestinale, immunite, absorption des nutriments",
+         "notes": "A jeun le matin, 30 min avant le petit-dejeuner pour une efficacite optimale", "image": REM_IMG_MEDICATION},
+        {"title": "Curcuma + Piperine", "reminder_type": "medication", "category": "Anti-inflammatoire", "dosage": "500mg/jour", "time": "12:00",
+         "description": "Curcumine combinee a la piperine pour une absorption 20x superieure",
+         "benefits": "Puissant anti-inflammatoire, antioxydant, soulagement articulaire, digestion",
+         "notes": "Prendre pendant un repas contenant des graisses pour meilleure absorption", "image": REM_IMG_MEDICATION},
+        {"title": "Vitamine C", "reminder_type": "medication", "category": "Vitamine", "dosage": "1000mg/jour", "time": "08:00",
+         "description": "Vitamine hydrosoluble essentielle, puissant antioxydant",
+         "benefits": "Immunite, production de collagene, absorption du fer, protection antioxydante",
+         "notes": "A repartir en 2 prises (matin et midi) pour une meilleure absorption", "image": REM_IMG_MEDICATION},
+        {"title": "Fer bisglycinate", "reminder_type": "medication", "category": "Mineral", "dosage": "14mg/jour", "time": "10:00",
+         "description": "Forme de fer chelatee, tres bien toleree et hautement absorbable",
+         "benefits": "Previent l'anemie, transport de l'oxygene, energie, performance physique",
+         "notes": "Prendre avec de la vitamine C et loin du the/cafe (2h). Loin des produits laitiers", "image": REM_IMG_MEDICATION},
+        {"title": "Ashwagandha KSM-66", "reminder_type": "medication", "category": "Adaptogene", "dosage": "600mg/jour", "time": "21:00",
+         "description": "Plante adaptogene ayurvedique, extrait standardise a 5% de withanolides",
+         "benefits": "Reduction du cortisol et du stress, amelioration du sommeil, soutien hormonal",
+         "notes": "Prendre le soir. Deconseille aux femmes enceintes et en cas de troubles thyroidiens", "image": REM_IMG_MEDICATION},
+        {"title": "Melatonine", "reminder_type": "medication", "category": "Sommeil", "dosage": "1.9mg", "time": "22:00",
+         "description": "Hormone naturelle du sommeil pour regler le rythme circadien",
+         "benefits": "Endormissement plus rapide, meilleure qualite de sommeil, reduction du jet lag",
+         "notes": "30 min avant le coucher. Utilisation ponctuelle recommandee, pas en continu", "image": REM_IMG_MEDICATION},
+        {"title": "Vitamine B12", "reminder_type": "medication", "category": "Vitamine", "dosage": "1000mcg/jour", "time": "08:00",
+         "description": "Vitamine essentielle pour le systeme nerveux, souvent deficiente chez les seniors",
+         "benefits": "Energie, fonction nerveuse, formation des globules rouges, memoire",
+         "notes": "Essentiel pour les vegetariens/vegans et les personnes de plus de 50 ans", "image": REM_IMG_MEDICATION},
+        {"title": "Calcium + Vitamine K2", "reminder_type": "medication", "category": "Os", "dosage": "500mg Ca + 100mcg K2", "time": "12:00",
+         "description": "Association calcium et vitamine K2 pour diriger le calcium vers les os",
+         "benefits": "Densite osseuse, prevention de l'osteoporose, sante cardiovasculaire",
+         "notes": "La K2 (MK-7) dirige le calcium vers les os et non les arteres. A prendre au repas", "image": REM_IMG_MEDICATION},
+        {"title": "Caseine", "reminder_type": "medication", "category": "Proteine", "dosage": "30g", "time": "22:00",
+         "description": "Proteine a digestion lente, ideale avant le coucher",
+         "benefits": "Nutrition musculaire nocturne, anti-catabolisme, satiete prolongee",
+         "notes": "Melanger avec un peu de lait ou d'eau. Ideal comme dernier repas du soir", "image": REM_IMG_MEDICATION},
+
+        # ── Hydratation enrichie ──
+        {"title": "Smoothie fraise-banane", "reminder_type": "hydration", "category": "Smoothie", "dosage": "", "time": "08:00",
+         "description": "Smoothie energetique aux fruits rouges et banane, parfait pour le matin",
+         "volume": "400ml",
+         "benefits": "Riche en vitamine C et potassium, energie naturelle, antioxydants, fibres",
+         "ingredients": [
+             {"name": "Fraises fraiches", "quantity": "150", "unit": "g"},
+             {"name": "Banane", "quantity": "1", "unit": "pc"},
+             {"name": "Yaourt grec 0%", "quantity": "100", "unit": "g"},
+             {"name": "Lait d'amande", "quantity": "150", "unit": "ml"},
+             {"name": "Miel", "quantity": "10", "unit": "g"},
+         ],
+         "notes": "Mixer tous les ingredients avec quelques glacons. Servir immediatement", "image": REM_IMG_HYDRATION},
+
+        {"title": "Smoothie vert detox", "reminder_type": "hydration", "category": "Smoothie", "dosage": "", "time": "07:30",
+         "description": "Smoothie vert alcalinisant aux epinards, concombre et pomme verte",
+         "volume": "350ml",
+         "benefits": "Detoxifiant, alcalinisant, riche en chlorophylle, fer et vitamines",
+         "ingredients": [
+             {"name": "Epinards frais", "quantity": "60", "unit": "g"},
+             {"name": "Concombre", "quantity": "100", "unit": "g"},
+             {"name": "Pomme verte", "quantity": "1", "unit": "pc"},
+             {"name": "Citron (jus)", "quantity": "0.5", "unit": "pc"},
+             {"name": "Gingembre frais", "quantity": "5", "unit": "g"},
+             {"name": "Eau de coco", "quantity": "150", "unit": "ml"},
+         ],
+         "notes": "Excellent a jeun le matin. Le gingembre booste le metabolisme", "image": REM_IMG_HYDRATION},
+
+        {"title": "Smoothie proteine chocolat", "reminder_type": "hydration", "category": "Smoothie", "dosage": "", "time": "18:00",
+         "description": "Shake proteine au cacao et beurre de cacahuete, ideal post-training",
+         "volume": "400ml",
+         "benefits": "30g de proteines, recuperation musculaire, magnesium du cacao, energie",
+         "ingredients": [
+             {"name": "Whey protein chocolat", "quantity": "30", "unit": "g"},
+             {"name": "Banane", "quantity": "1", "unit": "pc"},
+             {"name": "Beurre de cacahuete", "quantity": "15", "unit": "g"},
+             {"name": "Cacao en poudre", "quantity": "10", "unit": "g"},
+             {"name": "Lait demi-ecreme", "quantity": "250", "unit": "ml"},
+         ],
+         "notes": "Post-entrainement dans les 30 min. Ajouter des glacons pour un effet milkshake", "image": REM_IMG_HYDRATION},
+
+        {"title": "Smoothie tropical mangue-ananas", "reminder_type": "hydration", "category": "Smoothie", "dosage": "", "time": "10:00",
+         "description": "Smoothie exotique vitamine et rafraichissant",
+         "volume": "350ml",
+         "benefits": "Riche en vitamine A et C, bromelaine (anti-inflammatoire), digestion",
+         "ingredients": [
+             {"name": "Mangue", "quantity": "100", "unit": "g"},
+             {"name": "Ananas", "quantity": "100", "unit": "g"},
+             {"name": "Lait de coco", "quantity": "100", "unit": "ml"},
+             {"name": "Jus d'orange", "quantity": "100", "unit": "ml"},
+             {"name": "Curcuma en poudre", "quantity": "2", "unit": "g"},
+         ],
+         "notes": "Le curcuma ajoute un boost anti-inflammatoire. Bien mixer pour emulsionner", "image": REM_IMG_HYDRATION},
+
+        {"title": "Smoothie myrtilles-avoine", "reminder_type": "hydration", "category": "Smoothie", "dosage": "", "time": "08:00",
+         "description": "Smoothie nourrissant aux myrtilles et flocons d'avoine",
+         "volume": "400ml",
+         "benefits": "Antioxydants puissants, fibres, energie prolongee, satiete",
+         "ingredients": [
+             {"name": "Myrtilles", "quantity": "100", "unit": "g"},
+             {"name": "Flocons d'avoine", "quantity": "30", "unit": "g"},
+             {"name": "Banane", "quantity": "0.5", "unit": "pc"},
+             {"name": "Lait d'amande", "quantity": "200", "unit": "ml"},
+             {"name": "Graines de chia", "quantity": "10", "unit": "g"},
+         ],
+         "notes": "Laisser reposer 5 min pour que l'avoine epaississe. Peut remplacer un petit-dejeuner", "image": REM_IMG_HYDRATION},
+
+        {"title": "The vert matcha latte", "reminder_type": "hydration", "category": "The", "dosage": "", "time": "09:00",
+         "description": "Latte au matcha cremeux, alternative saine au cafe",
+         "volume": "250ml",
+         "benefits": "L-theanine (concentration calme), antioxydants catechines, metabolisme, energie douce sans crash",
+         "ingredients": [
+             {"name": "Matcha en poudre", "quantity": "2", "unit": "g"},
+             {"name": "Eau chaude (80C)", "quantity": "50", "unit": "ml"},
+             {"name": "Lait d'avoine", "quantity": "200", "unit": "ml"},
+             {"name": "Miel ou sirop d'agave", "quantity": "5", "unit": "ml"},
+         ],
+         "notes": "Fouetter le matcha dans l'eau chaude avant d'ajouter le lait chaud mousse", "image": REM_IMG_HYDRATION},
+
+        {"title": "The vert sencha", "reminder_type": "hydration", "category": "The", "dosage": "", "time": "10:00",
+         "description": "The vert japonais classique, riche en catechines",
+         "volume": "250ml",
+         "benefits": "Antioxydant majeur, brule-graisse naturel, concentration, hydratation",
+         "ingredients": [
+             {"name": "The vert sencha", "quantity": "3", "unit": "g"},
+             {"name": "Eau a 75-80C", "quantity": "250", "unit": "ml"},
+         ],
+         "notes": "Infuser 2 min maximum pour eviter l'amertume. Ne pas utiliser d'eau bouillante", "image": REM_IMG_HYDRATION},
+
+        {"title": "Infusion gingembre-citron", "reminder_type": "hydration", "category": "Infusion", "dosage": "", "time": "11:00",
+         "description": "Infusion digestive et stimulante au gingembre frais et citron",
+         "volume": "300ml",
+         "benefits": "Stimule la digestion, anti-nausee, renforce l'immunite, anti-inflammatoire",
+         "ingredients": [
+             {"name": "Gingembre frais (tranche)", "quantity": "10", "unit": "g"},
+             {"name": "Citron (jus)", "quantity": "0.5", "unit": "pc"},
+             {"name": "Miel", "quantity": "10", "unit": "g"},
+             {"name": "Eau bouillante", "quantity": "300", "unit": "ml"},
+         ],
+         "notes": "Laisser infuser 10 min. Peut se boire chaud ou froid. Ideal apres le repas", "image": REM_IMG_HYDRATION},
+
+        {"title": "Tisane camomille-lavande", "reminder_type": "hydration", "category": "Tisane", "dosage": "", "time": "21:00",
+         "description": "Tisane apaisante pour la relaxation et le sommeil",
+         "volume": "250ml",
+         "benefits": "Relaxation, amelioration du sommeil, reduction de l'anxiete, anti-spasmodique",
+         "ingredients": [
+             {"name": "Fleurs de camomille", "quantity": "3", "unit": "g"},
+             {"name": "Fleurs de lavande", "quantity": "1", "unit": "g"},
+             {"name": "Eau bouillante", "quantity": "250", "unit": "ml"},
+         ],
+         "notes": "Infuser 7-10 min a couvert. Boire 30 min avant le coucher", "image": REM_IMG_HYDRATION},
+
+        {"title": "Tisane menthe-verveine", "reminder_type": "hydration", "category": "Tisane", "dosage": "", "time": "14:00",
+         "description": "Tisane digestive et rafraichissante, ideale apres le repas",
+         "volume": "250ml",
+         "benefits": "Digestion, fraicheur, anti-ballonnements, relaxation legere",
+         "ingredients": [
+             {"name": "Feuilles de menthe poivree", "quantity": "3", "unit": "g"},
+             {"name": "Feuilles de verveine", "quantity": "2", "unit": "g"},
+             {"name": "Eau bouillante", "quantity": "250", "unit": "ml"},
+         ],
+         "notes": "Infuser 5-8 min. Excellent aussi en version glacee en ete", "image": REM_IMG_HYDRATION},
+
+        {"title": "Eau detox concombre-citron-menthe", "reminder_type": "hydration", "category": "Eau aromatisee", "dosage": "", "time": "08:00",
+         "description": "Eau infusee rafraichissante et detoxifiante pour la journee",
+         "volume": "1L",
+         "benefits": "Hydratation optimale, drainage, fraicheur, vitamines naturelles, 0 calorie",
+         "ingredients": [
+             {"name": "Concombre (rondelles)", "quantity": "0.5", "unit": "pc"},
+             {"name": "Citron (rondelles)", "quantity": "1", "unit": "pc"},
+             {"name": "Feuilles de menthe", "quantity": "8", "unit": "pc"},
+             {"name": "Eau fraiche", "quantity": "1", "unit": "L"},
+         ],
+         "notes": "Preparer la veille au frigo pour une infusion optimale. Consommer dans la journee", "image": REM_IMG_HYDRATION},
+
+        {"title": "Eau fraise-basilic", "reminder_type": "hydration", "category": "Eau aromatisee", "dosage": "", "time": "10:00",
+         "description": "Eau infusee originale et gourmande, fraises et basilic frais",
+         "volume": "1L",
+         "benefits": "Hydratation delicieuse, antioxydants, anti-inflammatoire, 0 calorie",
+         "ingredients": [
+             {"name": "Fraises (coupees)", "quantity": "100", "unit": "g"},
+             {"name": "Feuilles de basilic", "quantity": "6", "unit": "pc"},
+             {"name": "Eau fraiche", "quantity": "1", "unit": "L"},
+         ],
+         "notes": "Laisser infuser 2h au frigo minimum. Les fraises colorent joliment l'eau", "image": REM_IMG_HYDRATION},
+
+        {"title": "Bouillon d'os maison", "reminder_type": "hydration", "category": "Bouillon", "dosage": "", "time": "12:00",
+         "description": "Bouillon riche en collagene et mineraux, super-aliment ancestral",
+         "volume": "300ml",
+         "benefits": "Collagene naturel, sante articulaire, intestin, peau, ongles, hydratation minerale",
+         "ingredients": [
+             {"name": "Os de boeuf/poulet", "quantity": "500", "unit": "g"},
+             {"name": "Carotte", "quantity": "1", "unit": "pc"},
+             {"name": "Oignon", "quantity": "1", "unit": "pc"},
+             {"name": "Celeri", "quantity": "1", "unit": "branche"},
+             {"name": "Vinaigre de cidre", "quantity": "15", "unit": "ml"},
+             {"name": "Eau", "quantity": "2", "unit": "L"},
+         ],
+         "notes": "Mijoter 12-24h a feu tres doux. Filtrer et conserver au frigo 5 jours ou congeler", "image": REM_IMG_HYDRATION},
+
+        {"title": "Bouillon de legumes anti-inflammatoire", "reminder_type": "hydration", "category": "Bouillon", "dosage": "", "time": "19:00",
+         "description": "Bouillon vegetal riche en mineraux et curcuma",
+         "volume": "300ml",
+         "benefits": "Anti-inflammatoire, hydratation minerale, vitamines, digestion, 0 graisse",
+         "ingredients": [
+             {"name": "Carotte", "quantity": "2", "unit": "pc"},
+             {"name": "Courgette", "quantity": "1", "unit": "pc"},
+             {"name": "Poireau", "quantity": "1", "unit": "pc"},
+             {"name": "Curcuma frais", "quantity": "5", "unit": "g"},
+             {"name": "Gingembre frais", "quantity": "5", "unit": "g"},
+             {"name": "Eau", "quantity": "1.5", "unit": "L"},
+         ],
+         "notes": "Cuire 30-40 min. Peut etre bu tel quel ou utilise comme base de soupe", "image": REM_IMG_HYDRATION},
+
+        {"title": "Eau de coco naturelle", "reminder_type": "hydration", "category": "Boisson isotonique", "dosage": "", "time": "17:00",
+         "description": "Eau de coco 100% naturelle, boisson isotonique naturelle",
+         "volume": "330ml",
+         "benefits": "Electrolytes naturels (potassium), rehydratation rapide, faible en calories",
+         "ingredients": [
+             {"name": "Eau de coco 100%", "quantity": "330", "unit": "ml"},
+         ],
+         "notes": "Ideale pendant ou apres le sport. Choisir sans sucres ajoutes", "image": REM_IMG_HYDRATION},
+
+        {"title": "Boisson electrolytes maison", "reminder_type": "hydration", "category": "Boisson isotonique", "dosage": "", "time": "17:30",
+         "description": "Boisson de rehydratation avec electrolytes, ideale pendant l'effort",
+         "volume": "500ml",
+         "benefits": "Rehydratation optimale, prevention des crampes, maintien de la performance",
+         "ingredients": [
+             {"name": "Eau", "quantity": "500", "unit": "ml"},
+             {"name": "Jus de citron", "quantity": "30", "unit": "ml"},
+             {"name": "Sel de mer", "quantity": "1", "unit": "pincee"},
+             {"name": "Miel ou sirop d'agave", "quantity": "15", "unit": "ml"},
+         ],
+         "notes": "Agiter avant de boire. Consommer par petites gorgees pendant l'effort", "image": REM_IMG_HYDRATION},
+
+        {"title": "Golden milk (lait d'or)", "reminder_type": "hydration", "category": "Boisson chaude", "dosage": "", "time": "21:00",
+         "description": "Lait dore au curcuma et epices, boisson ayurvedique anti-inflammatoire",
+         "volume": "250ml",
+         "benefits": "Anti-inflammatoire puissant, antioxydant, favorise le sommeil, sante articulaire",
+         "ingredients": [
+             {"name": "Lait d'amande", "quantity": "250", "unit": "ml"},
+             {"name": "Curcuma en poudre", "quantity": "5", "unit": "g"},
+             {"name": "Cannelle", "quantity": "2", "unit": "g"},
+             {"name": "Poivre noir", "quantity": "1", "unit": "pincee"},
+             {"name": "Miel", "quantity": "10", "unit": "g"},
+         ],
+         "notes": "Chauffer doucement le lait avec les epices. Le poivre augmente l'absorption du curcuma de 2000%", "image": REM_IMG_HYDRATION},
+
+        {"title": "Jus vert epinard-pomme-celeri", "reminder_type": "hydration", "category": "Jus frais", "dosage": "", "time": "07:30",
+         "description": "Jus vert presse a froid, concentre en micronutriments",
+         "volume": "250ml",
+         "benefits": "Chlorophylle, fer, vitamines, alcalinisant, detox, boost d'energie",
+         "ingredients": [
+             {"name": "Epinards", "quantity": "80", "unit": "g"},
+             {"name": "Pomme verte", "quantity": "2", "unit": "pc"},
+             {"name": "Branches de celeri", "quantity": "2", "unit": "pc"},
+             {"name": "Concombre", "quantity": "0.5", "unit": "pc"},
+             {"name": "Citron", "quantity": "0.5", "unit": "pc"},
+         ],
+         "notes": "Passer a l'extracteur de jus. Boire immediatement pour conserver les enzymes", "image": REM_IMG_HYDRATION},
+
+        {"title": "Jus betterave-carotte-pomme", "reminder_type": "hydration", "category": "Jus frais", "dosage": "", "time": "16:00",
+         "description": "Jus energisant a la betterave, booste les performances sportives",
+         "volume": "250ml",
+         "benefits": "Nitrates (performance sportive), vitamine A, fer, endurance, oxygene musculaire",
+         "ingredients": [
+             {"name": "Betterave crue", "quantity": "1", "unit": "pc"},
+             {"name": "Carottes", "quantity": "2", "unit": "pc"},
+             {"name": "Pomme", "quantity": "1", "unit": "pc"},
+             {"name": "Gingembre frais", "quantity": "3", "unit": "g"},
+         ],
+         "notes": "Boire 2-3h avant l'entrainement pour l'effet nitrates. Attention: colore les urines (normal)", "image": REM_IMG_HYDRATION},
+
+        {"title": "Boire 2L d'eau", "reminder_type": "hydration", "category": "Eau", "dosage": "2 litres", "time": "08:00",
+         "description": "Objectif hydratation quotidien minimum pour un adulte actif",
+         "volume": "2L",
+         "benefits": "Hydratation cellulaire, fonction renale, digestion, concentration, peau, performance",
+         "ingredients": [],
+         "notes": "Repartir tout au long de la journee. Augmenter a 3L les jours d'entrainement", "image": REM_IMG_HYDRATION},
+    ]
+
+    # Filter out templates that already exist (by title)
+    new_rems = [r for r in rem_templates if r["title"] not in existing_rem_titles]
+    if new_rems:
+        for r in new_rems:
             r["id"] = str(uuid.uuid4())
             r["professional_id"] = pid
             r["is_template"] = True
             r["created_at"] = now
-        await db.pro_reminder_templates.insert_many(rem_templates)
-        added_rem = len(rem_templates)
+            r.setdefault("description", "")
+            r.setdefault("ingredients", [])
+            r.setdefault("volume", "")
+            r.setdefault("benefits", "")
+            r.setdefault("category", "")
+        await db.pro_reminder_templates.insert_many(new_rems)
+        added_rem = len(new_rems)
 
     MEAL_IMG_BREAKFAST = "https://static.prod-images.emergentagent.com/jobs/151f0047-e744-48e3-8d63-62902a0935f7/images/ccd32d626e54c78fac3e5a12346ad156c67fb52d47febfdedc24d0f29e171ac6.png"
     MEAL_IMG_LUNCH = "https://static.prod-images.emergentagent.com/jobs/151f0047-e744-48e3-8d63-62902a0935f7/images/528ae850a1d0143524ec5cc75d58c126e9cec798303da7ceb8ac4a1ca68374d8.png"
@@ -1113,8 +1453,15 @@ async def seed_templates(user=Depends(get_current_user)):
     MEAL_IMG_DINNER = "https://static.prod-images.emergentagent.com/jobs/151f0047-e744-48e3-8d63-62902a0935f7/images/3b64345e4d34dc8d5bacd6f55747323e3202d76c19e319a024b7214ca02e9877.png"
 
     if existing_meal == 0:
-        meal_templates = [
-            {
+        existing_meal_titles = set()
+    else:
+        existing_meal_titles = set()
+        cursor = db.pro_meal_templates.find({"professional_id": pid}, {"title": 1, "_id": 0})
+        async for doc in cursor:
+            existing_meal_titles.add(doc.get("title", ""))
+
+    meal_templates_data = [
+        {
                 "title": "Petit-dej proteines", "meal_type": "petit_dejeuner",
                 "image": MEAL_IMG_BREAKFAST,
                 "items": ["3 oeufs brouilles", "Flocons d'avoine 60g", "Banane", "Miel"],
@@ -1363,14 +1710,16 @@ async def seed_templates(user=Depends(get_current_user)):
                 "calories": 580, "proteins": 36, "glucides": 58, "lipides": 22,
                 "notes": "Frais et equilibre",
             },
-        ]
-        for m in meal_templates:
+    ]
+    new_meals = [m for m in meal_templates_data if m["title"] not in existing_meal_titles]
+    if new_meals:
+        for m in new_meals:
             m["id"] = str(uuid.uuid4())
             m["professional_id"] = pid
             m["is_template"] = True
             m["created_at"] = now
-        await db.pro_meal_templates.insert_many(meal_templates)
-        added_meal = len(meal_templates)
+        await db.pro_meal_templates.insert_many(new_meals)
+        added_meal = len(new_meals)
 
     return {"status": "seeded", "reminders_added": added_rem, "meals_added": added_meal, "exercises_added": added_ex}
 

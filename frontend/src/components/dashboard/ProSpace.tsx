@@ -44,7 +44,7 @@ export default function ProSpace({ token, user }: { token: string; user: any }) 
   const [mealAssignForm, setMealAssignForm] = useState({ days: [] as string[], meal_type: 'dejeuner' });
   const emptyMeal = { meal_type: 'dejeuner', title: '', image: '', ingredients: [{ name: '', quantity: '', unit: 'g' }] as any[], steps: [''] as string[], calories: 0, proteins: 0, glucides: 0, lipides: 0, notes: '' };
   const [mealForm, setMealForm] = useState(emptyMeal);
-  const emptyRem = { reminder_type: 'medication', title: '', time: '08:00', dosage: '', notes: '' };
+  const emptyRem = { reminder_type: 'medication', title: '', time: '08:00', dosage: '', notes: '', description: '', ingredients: [] as any[], volume: '', benefits: '', category: '' };
   const [remForm, setRemForm] = useState(emptyRem);
   const emptyExTpl = { title: '', description: '', image: '', video_url: '', category: 'general', difficulty: 'moyen', muscle_group: '', sets: 3, repetitions: 12, duration_min: 0, rest_seconds: 60, steps: [''] as string[], equipment: '', notes: '' };
   const [exTplForm, setExTplForm] = useState(emptyExTpl);
@@ -347,7 +347,7 @@ export default function ProSpace({ token, user }: { token: string; user: any }) 
               router={router}
               onNewExercise={() => { setExTplForm(emptyExTpl); setEditingTemplateId(null); setModal('new-ex-tpl'); }}
               onNewReminder={() => { setRemForm(emptyRem); setEditingTemplateId(null); setModal('new-rem'); }}
-              onNewHydration={() => { setRemForm({ ...emptyRem, reminder_type: 'hydration', title: '', dosage: '' }); setEditingTemplateId(null); setModal('new-rem'); }}
+              onNewHydration={() => { setRemForm({ ...emptyRem, reminder_type: 'hydration', title: '', dosage: '', ingredients: [{ name: '', quantity: '', unit: 'g' }] }); setEditingTemplateId(null); setModal('new-rem'); }}
               onNewMeal={() => { setMealForm(emptyMeal); setEditingTemplateId(null); setModal('new-meal'); }}
               onDeleteExerciseTemplate={deleteExerciseTemplate}
               onDeleteReminderTemplate={deleteReminderTemplate}

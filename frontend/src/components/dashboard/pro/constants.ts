@@ -70,6 +70,11 @@ export const HYDRATION_TYPES = [
   'BCAA dilue', 'Electrolytes', 'Autre',
 ];
 
+export const HYDRATION_CATEGORIES = [
+  'Smoothie', 'The', 'Tisane', 'Infusion', 'Eau aromatisee',
+  'Bouillon', 'Boisson isotonique', 'Boisson chaude', 'Jus frais', 'Eau', 'Autre',
+];
+
 export const INGREDIENT_LIST = [
   'Poulet', 'Dinde', 'Boeuf', 'Veau', 'Porc', 'Agneau',
   'Saumon', 'Thon', 'Cabillaud', 'Crevettes', 'Sardines',

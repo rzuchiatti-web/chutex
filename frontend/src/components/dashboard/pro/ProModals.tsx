@@ -1,6 +1,6 @@
 import React from 'react';
 import { GlassModal, ImagePicker, DaysPicker } from './GlassModal';
-import { API, INP, LBL, SEL, GBTN, MUSCLE_GROUPS, EQUIPMENT_LIST, SUPPLEMENT_TYPES, HYDRATION_TYPES, INGREDIENT_LIST } from './constants';
+import { API, INP, LBL, SEL, GBTN, MUSCLE_GROUPS, EQUIPMENT_LIST, SUPPLEMENT_TYPES, HYDRATION_TYPES, HYDRATION_CATEGORIES, INGREDIENT_LIST } from './constants';
 import { REMINDER_IMAGES } from '../constants';
 
 interface ProModalsProps {
@@ -168,7 +168,7 @@ export function ProModals(props: ProModalsProps) {
                 </div>
                 <div style={{ flex: 1, minWidth: 0 } as any}>
                   <div style={{ fontSize: 13, fontWeight: 700, color: '#111' }}>{tpl.title}</div>
-                  <div style={{ fontSize: 10, color: '#9CA3AF' }}>{tpl.dosage} - {tpl.time}</div>
+                  <div style={{ fontSize: 10, color: '#9CA3AF' }}>{tpl.category || (tpl.reminder_type === 'hydration' ? 'Hydratation' : 'Complement')}{tpl.volume ? ` · ${tpl.volume}` : ''}{tpl.dosage ? ` · ${tpl.dosage}` : ''}</div>
                 </div>
                 <i className="ri-arrow-right-s-line" style={{ fontSize: 18, color: '#D1D5DB' }} />
               </div>
@@ -227,7 +227,7 @@ export function ProModals(props: ProModalsProps) {
                 </div>
                 <div style={{ flex: 1, minWidth: 0 } as any}>
                   <div style={{ fontSize: 13, fontWeight: 700, color: '#111' }}>{tpl.title}</div>
-                  <div style={{ fontSize: 10, color: '#9CA3AF' }}>{tpl.dosage} - {tpl.time}</div>
+                  <div style={{ fontSize: 10, color: '#9CA3AF' }}>{tpl.category || (tpl.reminder_type === 'hydration' ? 'Hydratation' : 'Complement')}{tpl.volume ? ` · ${tpl.volume}` : ''}{tpl.dosage ? ` · ${tpl.dosage}` : ''}</div>
                 </div>
                 <i className="ri-arrow-right-s-line" style={{ fontSize: 18, color: '#D1D5DB' }} />
               </div>
@@ -334,25 +334,79 @@ export function ProModals(props: ProModalsProps) {
         <div data-testid="meal-submit" onClick={mealForm.title || mealForm.ingredients.some((i: any) => i.name) ? props.createMealTemplate : undefined} style={GBTN(!!mealForm.title || mealForm.ingredients.some((i: any) => !!i.name), saving)}>{saving ? 'Enregistrement...' : editingTemplateId ? 'Modifier dans la bibliotheque' : 'Enregistrer dans la bibliotheque'}</div>
       </GlassModal>
 
-      {/* New Reminder (Complement) */}
+      {/* New Reminder (Complement / Hydratation enrichie) */}
       <GlassModal open={modal === 'new-rem'} onClose={() => setModal(null)} title={editingTemplateId ? (remForm.reminder_type === 'hydration' ? 'Modifier hydratation' : 'Modifier complement') : (remForm.reminder_type === 'hydration' ? 'Nouvelle hydratation' : 'Nouveau complement')}>
-        <div style={{ marginBottom: 14 }}><label style={LBL}>Type</label>
-          {remForm.reminder_type === 'hydration' ? (
-            <select value={remForm.title || ''} onChange={(e: any) => setRemForm({ ...remForm, title: e.target.value })} style={SEL}>
-              <option value="">Choisir...</option>
-              {HYDRATION_TYPES.map(t => <option key={t} value={t}>{t}</option>)}
-            </select>
-          ) : (
-            <select value={remForm.title || ''} onChange={(e: any) => setRemForm({ ...remForm, title: e.target.value })} style={SEL}>
-              <option value="">Choisir...</option>
-              {SUPPLEMENT_TYPES.map(t => <option key={t} value={t}>{t}</option>)}
-            </select>
-          )}
-        </div>
-        {remForm.title === 'Autre' && (
-          <div style={{ marginBottom: 14 }}><label style={LBL}>Nom personnalise</label><input value={remForm.notes} onChange={(e: any) => setRemForm({ ...remForm, notes: e.target.value })} style={INP} placeholder="Nom du complement" /></div>
+        {remForm.reminder_type === 'hydration' ? (
+          <>
+            <div style={{ marginBottom: 14 }}><label style={LBL}>Categorie</label>
+              <select value={remForm.category || ''} onChange={(e: any) => setRemForm({ ...remForm, category: e.target.value })} style={SEL}>
+                <option value="">Choisir une categorie...</option>
+                {HYDRATION_CATEGORIES.map(t => <option key={t} value={t}>{t}</option>)}
+              </select>
+            </div>
+            <div style={{ marginBottom: 14 }}><label style={LBL}>Nom</label>
+              <input value={remForm.title || ''} onChange={(e: any) => setRemForm({ ...remForm, title: e.target.value })} style={INP} placeholder="Ex: Smoothie a la fraise" />
+            </div>
+            <div style={{ marginBottom: 14 }}><label style={LBL}>Description</label>
+              <input value={remForm.description || ''} onChange={(e: any) => setRemForm({ ...remForm, description: e.target.value })} style={INP} placeholder="Ex: Smoothie energetique aux fruits rouges" />
+            </div>
+            <div style={{ marginBottom: 14 }}><label style={LBL}>Volume</label>
+              <input value={remForm.volume || ''} onChange={(e: any) => setRemForm({ ...remForm, volume: e.target.value })} style={INP} placeholder="Ex: 400ml" />
+            </div>
+            <div style={{ marginBottom: 10 }}>
+              <label style={LBL}>Ingredients</label>
+              {(remForm.ingredients || []).map((ing: any, idx: number) => (
+                <div key={idx} style={{ display: 'flex', gap: 6, marginBottom: 6 } as any}>
+                  <input value={ing.name} onChange={(e: any) => { const arr = [...(remForm.ingredients || [])]; arr[idx] = { ...arr[idx], name: e.target.value }; setRemForm({ ...remForm, ingredients: arr }); }} style={{ ...INP, flex: 2, marginBottom: 0 }} placeholder="Ingredient" />
+                  <input value={ing.quantity} onChange={(e: any) => { const arr = [...(remForm.ingredients || [])]; arr[idx] = { ...arr[idx], quantity: e.target.value }; setRemForm({ ...remForm, ingredients: arr }); }} style={{ ...INP, flex: 1, marginBottom: 0 }} placeholder="Qte" />
+                  <select value={ing.unit} onChange={(e: any) => { const arr = [...(remForm.ingredients || [])]; arr[idx] = { ...arr[idx], unit: e.target.value }; setRemForm({ ...remForm, ingredients: arr }); }} style={{ ...SEL, flex: 1, marginBottom: 0 }}>
+                    {['g', 'ml', 'pc', 'L', 'cs', 'cc', 'pincee', 'branche'].map(u => <option key={u} value={u}>{u}</option>)}
+                  </select>
+                  <div onClick={() => { const arr = (remForm.ingredients || []).filter((_: any, i: number) => i !== idx); setRemForm({ ...remForm, ingredients: arr }); }}
+                    style={{ width: 32, height: 32, borderRadius: 999, background: 'rgba(239,68,68,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', flexShrink: 0 } as any}>
+                    <i className="ri-close-line" style={{ fontSize: 14, color: '#EF4444' }} />
+                  </div>
+                </div>
+              ))}
+              <div onClick={() => setRemForm({ ...remForm, ingredients: [...(remForm.ingredients || []), { name: '', quantity: '', unit: 'g' }] })}
+                style={{ fontSize: 12, color: '#38BDF8', cursor: 'pointer', fontWeight: 600, display: 'flex', alignItems: 'center', gap: 4, marginTop: 4 } as any}>
+                <i className="ri-add-circle-line" style={{ fontSize: 14 }} /> Ajouter un ingredient
+              </div>
+            </div>
+            <div style={{ marginBottom: 14 }}><label style={LBL}>Bienfaits</label>
+              <input value={remForm.benefits || ''} onChange={(e: any) => setRemForm({ ...remForm, benefits: e.target.value })} style={INP} placeholder="Ex: Riche en vitamine C, antioxydants" />
+            </div>
+            <div style={{ marginBottom: 14 }}><label style={LBL}>Notes / Preparation</label>
+              <input value={remForm.notes || ''} onChange={(e: any) => setRemForm({ ...remForm, notes: e.target.value })} style={INP} placeholder="Ex: Mixer tous les ingredients avec des glacons" />
+            </div>
+            <div data-testid="rem-submit" onClick={remForm.title ? props.createReminderTemplate : undefined} style={GBTN(!!remForm.title, saving)}>{saving ? 'Enregistrement...' : editingTemplateId ? 'Modifier dans la bibliotheque' : 'Enregistrer dans la bibliotheque'}</div>
+          </>
+        ) : (
+          <>
+            <div style={{ marginBottom: 14 }}><label style={LBL}>Type</label>
+              <select value={remForm.title || ''} onChange={(e: any) => setRemForm({ ...remForm, title: e.target.value })} style={SEL}>
+                <option value="">Choisir...</option>
+                {SUPPLEMENT_TYPES.map(t => <option key={t} value={t}>{t}</option>)}
+              </select>
+            </div>
+            {remForm.title === 'Autre' && (
+              <div style={{ marginBottom: 14 }}><label style={LBL}>Nom personnalise</label><input value={remForm.notes} onChange={(e: any) => setRemForm({ ...remForm, notes: e.target.value })} style={INP} placeholder="Nom du complement" /></div>
+            )}
+            <div style={{ marginBottom: 14 }}><label style={LBL}>Description</label>
+              <input value={remForm.description || ''} onChange={(e: any) => setRemForm({ ...remForm, description: e.target.value })} style={INP} placeholder="Description du complement" />
+            </div>
+            <div style={{ marginBottom: 14 }}><label style={LBL}>Dosage</label>
+              <input value={remForm.dosage || ''} onChange={(e: any) => setRemForm({ ...remForm, dosage: e.target.value })} style={INP} placeholder="Ex: 5g/jour" />
+            </div>
+            <div style={{ marginBottom: 14 }}><label style={LBL}>Bienfaits</label>
+              <input value={remForm.benefits || ''} onChange={(e: any) => setRemForm({ ...remForm, benefits: e.target.value })} style={INP} placeholder="Ex: Anti-inflammatoire, sante articulaire" />
+            </div>
+            <div style={{ marginBottom: 14 }}><label style={LBL}>Notes</label>
+              <input value={remForm.notes || ''} onChange={(e: any) => setRemForm({ ...remForm, notes: e.target.value })} style={INP} placeholder="Conseils de prise..." />
+            </div>
+            <div data-testid="rem-submit" onClick={remForm.title ? props.createReminderTemplate : undefined} style={GBTN(!!remForm.title, saving)}>{saving ? 'Enregistrement...' : editingTemplateId ? 'Modifier dans la bibliotheque' : 'Enregistrer dans la bibliotheque'}</div>
+          </>
         )}
-        <div data-testid="rem-submit" onClick={remForm.title ? props.createReminderTemplate : undefined} style={GBTN(!!remForm.title, saving)}>{saving ? 'Enregistrement...' : editingTemplateId ? 'Modifier dans la bibliotheque' : 'Enregistrer dans la bibliotheque'}</div>
       </GlassModal>
 
       {/* New Exercise Template */}
