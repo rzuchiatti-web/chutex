@@ -7,7 +7,7 @@ import requests
 import os
 import uuid
 
-BASE_URL = os.environ.get('REACT_APP_BACKEND_URL', 'https://glassmorphism-theme-1.preview.emergentagent.com').rstrip('/')
+BASE_URL = os.environ.get('REACT_APP_BACKEND_URL', 'https://health-graphs-mvp.preview.emergentagent.com').rstrip('/')
 
 # Test credentials
 PRO_PHONE = "+33655443322"
