@@ -102,7 +102,7 @@ export function ProLibrary(props: ProLibraryProps) {
               onClick={() => router.push({ pathname: '/pro-exercise-detail' as any, params: { id: ex.id, mode: 'template' } })}
               onEdit={props.onEditExerciseTemplate ? () => props.onEditExerciseTemplate!(ex) : undefined}
               onDelete={() => props.onDeleteExerciseTemplate(ex.id)}
-              iconFallback={ex.icon || 'ri-run-line'} iconColor={AC}>
+              image={ex.image} iconFallback={ex.icon || 'ri-run-line'} iconColor={AC}>
               <div style={{ fontSize: 14, fontWeight: 700, color: '#111', textTransform: 'capitalize' }}>{ex.title}</div>
               <div style={{ fontSize: 11, color: '#6B7280', marginTop: 2 }}>{ex.muscle_group || ex.category || ''} {ex.difficulty ? `· ${ex.difficulty}` : ''}</div>
             </Card>

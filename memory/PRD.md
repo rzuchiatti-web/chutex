@@ -62,6 +62,7 @@ L'objectif est une UI Glassmorphism + Light mode avec synchronisation en temps r
 - [x] **Bibliotheque hydratation enrichie** — Templates avec nom, description, ingredients (avec quantites), volume, bienfaits, categorie. 21 templates pre-remplis (smoothies, thes, tisanes, bouillons, eaux aromatisees, jus frais, boissons isotoniques). Formulaire enrichi + affichage premium dans la bibliotheque et les modals d'assignation (2026-03-31)
 - [x] **Bibliotheque complements enrichie** — Ajout des champs description, bienfaits, categorie aux templates. 23 complements pre-remplis avec dosages, descriptions medicales et bienfaits detailles (2026-03-31)
 - [x] **Seed intelligent dedup** — Le seed ajoute les templates manquants sans supprimer les existants (deduplication par titre). Fonctionne pour exercices, hydratation, complements et repas (2026-03-31)
+- [x] **Images reelles pour toute la bibliotheque** — Photos Unsplash/Pexels haute qualite pour 20 exercices (squat, developpe couche, tractions, pompes...), 19 hydratations (smoothies, thes, tisanes, bouillons, jus...) et repas. Mise a jour du seed pour les futurs gardiens (2026-03-31)
 
 ## Code Architecture (post-refactoring)
 ```
