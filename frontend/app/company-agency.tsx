@@ -180,18 +180,18 @@ export default function CompanyAgencyScreen() {
             <div style={{ width: 52, height: 52, borderRadius: 16, background: 'rgba(212,132,90,0.2)', border: '2px solid rgba(212,132,90,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 10px' } as any}>
               <i className="ri-building-line" style={{ fontSize: 24, color: '#D4845A' }} />
             </div>
-            <div style={{ fontSize: 22, fontWeight: 800, color: '#111', marginBottom: 2 }}>{u?.structure_name || u?.name || 'Structure'}</div>
-            {u?.address && <div style={{ fontSize: 11, color: '#6B7280', marginBottom: 2 }}>{u.address}</div>}
-            {u?.siret && <div style={{ fontSize: 10, color: '#9CA3AF', marginBottom: 12 }}>SIRET : {u.siret}</div>}
+            <div style={{ fontSize: 22, fontWeight: 800, color: '#FFF', marginBottom: 2 }}>{u?.structure_name || u?.name || 'Structure'}</div>
+            {u?.address && <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.5)', marginBottom: 2 }}>{u.address}</div>}
+            {u?.siret && <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.4)', marginBottom: 12 }}>SIRET : {u.siret}</div>}
             <div style={{ display: 'flex', gap: 8 } as any}>
               {[
                 { val: agencies.length, label: 'Agences', color: '#D4845A' },
                 { val: intervenants.length, label: 'Intervenants', color: '#A78BFA' },
                 { val: acceptedGuardians, label: 'Gardiens', color: '#10B981' },
               ].map((s, i) => (
-                <div key={i} style={{ flex: 1, padding: '10px 6px', borderRadius: 14, background: '#F4F4F5', border: '1px solid rgba(0,0,0,0.06)', textAlign: 'center' } as any}>
+                <div key={i} style={{ flex: 1, padding: '10px 6px', borderRadius: 14, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)', textAlign: 'center' } as any}>
                   <div style={{ fontSize: 22, fontWeight: 900, color: s.color }}>{s.val}</div>
-                  <div style={{ fontSize: 9, color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: 0.4 }}>{s.label}</div>
+                  <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.35)', textTransform: 'uppercase', letterSpacing: 0.4 }}>{s.label}</div>
                 </div>
               ))}
             </div>
@@ -470,7 +470,6 @@ export default function CompanyAgencyScreen() {
           </div>
         </div>
       )}
-      </div>
     </div>
   );
 }
