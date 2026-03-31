@@ -111,6 +111,20 @@ export default function CompanyHome({ token, user }: { token: string; user: any 
                   <div style={{ fontSize: 18, fontWeight: 900, color: '#FFF', fontFamily: 'monospace', letterSpacing: 2 }}>{user.intervention_code || '--'}</div>
                 </div>
               </div>
+              {/* Alerte glass blur dans le header */}
+              <div style={{ marginTop: 10, padding: '12px 14px', borderRadius: 16, background: activeAlerts.length > 0 ? 'rgba(239,68,68,0.15)' : 'rgba(16,185,129,0.1)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', border: `1px solid ${activeAlerts.length > 0 ? 'rgba(239,68,68,0.3)' : 'rgba(16,185,129,0.2)'}`, display: 'flex', alignItems: 'center', gap: 12 } as any}>
+                <div style={{ width: 36, height: 36, borderRadius: 12, background: activeAlerts.length > 0 ? 'rgba(239,68,68,0.2)' : 'rgba(16,185,129,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}>
+                  <i className={activeAlerts.length > 0 ? 'ri-alarm-warning-fill' : 'ri-shield-check-fill'} style={{ fontSize: 16, color: activeAlerts.length > 0 ? '#FCA5A5' : '#6EE7B7' }} />
+                </div>
+                <div style={{ flex: 1 } as any}>
+                  <div style={{ fontSize: 13, fontWeight: 700, color: '#FFF' }}>{activeAlerts.length > 0 ? `${activeAlerts.length} alerte${activeAlerts.length > 1 ? 's' : ''} active${activeAlerts.length > 1 ? 's' : ''}` : 'Aucune alerte'}</div>
+                  <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.5)' }}>{alerts.filter((a: any) => a.status === 'resolved' || a.status === 'closed').length} resolue{alerts.filter((a: any) => a.status === 'resolved' || a.status === 'closed').length > 1 ? 's' : ''}</div>
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '4px 10px', borderRadius: 999, background: 'rgba(255,255,255,0.1)' } as any}>
+                  <span style={{ width: 5, height: 5, borderRadius: 999, background: activeAlerts.length > 0 ? '#FCA5A5' : '#6EE7B7' } as any} />
+                  <span style={{ fontSize: 10, fontWeight: 600, color: '#FFF' }}>{activeAlerts.length > 0 ? 'Active' : 'RAS'}</span>
+                </div>
+              </div>
             </div>
           </div>
 
@@ -128,7 +142,7 @@ export default function CompanyHome({ token, user }: { token: string; user: any 
             </div>
             <div style={{ flex: 1, position: 'relative', zIndex: 2 } as any}>
               <div style={{ fontSize: 15, fontWeight: 700, color: '#FFF' }}>Mes revenus</div>
-              <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.65)', marginTop: 2 }}>50€ HT/souscription + 5€ HT/mois</div>
+              <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.65)', marginTop: 2 }}>Commissions SAAD par prescription</div>
             </div>
             <i className="ri-arrow-right-s-line" style={{ fontSize: 20, color: 'rgba(255,255,255,0.5)', position: 'relative', zIndex: 2 }} />
           </div>
@@ -338,26 +352,7 @@ export default function CompanyHome({ token, user }: { token: string; user: any 
           )}
 
 
-          {/* Alert card — light style */}
-          {(() => {
-            const totalA = alerts.length;
-            const resolvedA = alerts.filter((a: any) => a.status === 'resolved' || a.status === 'closed').length;
-            return (
-              <div style={{ padding: '16px 18px', borderRadius: 18, background: '#FFF', border: activeAlerts.length > 0 ? '1px solid rgba(239,68,68,0.2)' : '1px solid rgba(0,0,0,0.06)', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 14 } as any}>
-                <div style={{ width: 44, height: 44, borderRadius: 14, background: activeAlerts.length > 0 ? 'rgba(239,68,68,0.1)' : '#F4F4F5', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}>
-                  <i className={activeAlerts.length > 0 ? 'ri-alarm-warning-fill' : 'ri-shield-check-fill'} style={{ fontSize: 20, color: activeAlerts.length > 0 ? '#EF4444' : '#10B981' }} />
-                </div>
-                <div style={{ flex: 1 } as any}>
-                  <div style={{ fontSize: 15, fontWeight: 700, color: '#111' }}>Alertes</div>
-                  <div style={{ fontSize: 11, color: '#6B7280', marginTop: 2 }}>{activeAlerts.length > 0 ? `${activeAlerts.length} alerte${activeAlerts.length > 1 ? 's' : ''} en cours` : 'Aucune alerte active'} · {resolvedA} resolue{resolvedA > 1 ? 's' : ''}</div>
-                </div>
-                <div style={{ display: 'inline-flex', alignItems: 'center', gap: 4, padding: '4px 10px', borderRadius: 999, background: activeAlerts.length > 0 ? 'rgba(239,68,68,0.1)' : 'rgba(16,185,129,0.1)' } as any}>
-                  <span style={{ width: 5, height: 5, borderRadius: 999, background: activeAlerts.length > 0 ? '#EF4444' : '#10B981' } as any} />
-                  <span style={{ fontSize: 10, fontWeight: 600, color: activeAlerts.length > 0 ? '#EF4444' : '#10B981' }}>{activeAlerts.length > 0 ? 'Active' : 'RAS'}</span>
-                </div>
-              </div>
-            );
-          })()}
+
 
           {/* Intervention Care */}
           {(() => {

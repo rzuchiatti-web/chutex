@@ -166,19 +166,19 @@ export default function CompanyAgencyScreen() {
   }
 
   /* ─────────── PAGE PRINCIPALE ─────────── */
+  const isTab = !agencyId;
   return (
-    <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, display: 'flex', flexDirection: 'column', fontFamily: 'Inter, system-ui, sans-serif', overflow: 'hidden' } as any}>
-      <img src={BG} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 } as any} />
-      <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.55)', zIndex: 1 } as any} />
+    <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, display: 'flex', flexDirection: 'column', fontFamily: 'Inter, system-ui, sans-serif', overflow: 'hidden', background: '#111' } as any}>
+      <div style={{ position: 'absolute', inset: 0, background: '#111', zIndex: 0 } as any} />
 
       {/* ── Scrollable content (header + body) ── */}
       <div style={{ flex: 1, overflowY: 'auto', position: 'relative', zIndex: 5, padding: '22px 20px 100px', WebkitOverflowScrolling: 'touch' } as any}>
 
         {/* ── Header (scrolls with content) ── */}
         <div style={{ textAlign: 'center', marginBottom: 14 } as any}>
-          <div onClick={() => router.back()} style={{ position: 'absolute', left: 20, top: 24, width: 36, height: 36, borderRadius: 999, background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}>
+          {!isTab && <div onClick={() => router.back()} style={{ position: 'absolute', left: 20, top: 24, width: 36, height: 36, borderRadius: 999, background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}>
             <i className="ri-arrow-left-s-line" style={{ fontSize: 20, color: '#FFF' }} />
-          </div>
+          </div>}
 
           {/* Structure logo + name */}
           <div style={{ width: 52, height: 52, borderRadius: 16, background: 'rgba(212,132,90,0.2)', border: '2px solid rgba(212,132,90,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 10px' } as any}>
