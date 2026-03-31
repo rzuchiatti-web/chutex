@@ -66,6 +66,7 @@ L'objectif est une UI Glassmorphism + Light mode avec synchronisation en temps r
 - [x] **Espace SAAD — Codes d'intervention et prescription** — Affichage des codes (activation + intervention) dans le profil gardien SAAD avec bouton copier. Assignation des codes aux users SAAD (Sophie MARTIN: 583339/347303, Laurent DUBOIS: 866204/369908) (2026-03-31)
 - [x] **Espace SAAD — Connexion bancaire IBAN/Mollie** — Remplacement du bouton "Stripe Connect" par un formulaire IBAN direct via API Mollie (/api/saad/onboarding). Fonctionnel dans le profil prescriber_company et le dashboard company (2026-03-31)
 - [x] **Espace SAAD — Commission fixe 50+5** — Mise a jour de l'affichage des commissions (50 EUR HT souscription + 5 EUR HT/mois) dans les popups paiements du dashboard et du profil (2026-03-31)
+- [x] **Espace SAAD — Refonte Light Mode** — Dashboard prescriber_company converti du style full-screen dark image vers header image + contenu blanc (identique aux autres espaces). Codes et cartes paiements en light mode. Cartes Intervention/Prescriptions conservent leurs images de fond colorees (2026-03-31)
 
 ## Code Architecture (post-refactoring)
 ```

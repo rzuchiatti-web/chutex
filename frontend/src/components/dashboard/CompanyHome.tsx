@@ -58,57 +58,63 @@ export default function CompanyHome({ token, user }: { token: string; user: any 
 
   if (Platform.OS === 'web') {
     return (
-      <div data-testid="company-dashboard" style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, display: 'flex', flexDirection: 'column', fontFamily: 'Inter, system-ui, sans-serif', overflow: 'hidden' } as any}>
-        <img src={BG_DASH} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 } as any} />
-        <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.08)', zIndex: 1 } as any} />
-        <div style={{ flex: 1, overflowY: 'auto', position: 'relative', zIndex: 5, padding: '20px 20px 100px', WebkitOverflowScrolling: 'touch' } as any} data-animate>
-          {/* Header */}
-          <div onClick={() => router.push('/company-agency' as any)} style={{ padding: '16px 18px', borderRadius: 22, background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)', marginBottom: 14, backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)', cursor: 'pointer' } as any}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 12 } as any}>
-              <div style={{ width: 52, height: 52, borderRadius: 16, background: 'rgba(212,132,90,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '2px solid rgba(212,132,90,0.3)', flexShrink: 0 } as any}><i className="ri-building-line" style={{ fontSize: 24, color: '#D4845A' }} /></div>
-              <div style={{ flex: 1 } as any}>
-                <div style={{ fontSize: 20, fontWeight: 800, color: '#FFF' }}>{user.structure_name || user.name}</div>
-                <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)' }}>{user.address || 'Structure SAAD'}</div>
-                {user.siret && <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.3)', marginTop: 2 }}>SIRET: {user.siret}</div>}
-              </div>
-              <i className="ri-arrow-right-s-line" style={{ fontSize: 20, color: 'rgba(255,255,255,0.3)' }} />
-            </div>
-            <div style={{ display: 'flex', gap: 8 } as any}>
-              {[
-                { val: agencies.length, label: 'Agences', color: '#D4845A' },
-                { val: intervenants.length, label: 'Intervenants', color: '#A78BFA' },
-                { val: stats.total_prescribers || 0, label: 'Prescripteurs', color: '#F59E0B' },
-              ].map((s, i) => (
-                <div key={i} style={{ flex: 1, padding: '8px 6px', borderRadius: 12, background: 'rgba(255,255,255,0.04)', textAlign: 'center', border: '1px solid rgba(255,255,255,0.06)' } as any}>
-                  <div style={{ fontSize: 18, fontWeight: 900, color: s.color }}>{s.val}</div>
-                  <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: 0.4 }}>{s.label}</div>
+      <div data-testid="company-dashboard" style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, display: 'flex', flexDirection: 'column', fontFamily: 'Inter, system-ui, sans-serif', overflow: 'hidden', background: '#F5F5F7' } as any}>
+        <div style={{ flex: 1, overflowY: 'auto', position: 'relative', zIndex: 5, WebkitOverflowScrolling: 'touch' } as any} data-animate>
+          {/* ═══ HEADER WITH IMAGE ═══ */}
+          <div style={{ position: 'relative', minHeight: 260, overflow: 'hidden' } as any}>
+            <img src={BG_DASH} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 } as any} />
+            <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.15)', zIndex: 1 } as any} />
+            <div style={{ position: 'relative', zIndex: 5, padding: '28px 20px 40px' } as any}>
+              {/* Structure info */}
+              <div onClick={() => router.push('/company-agency' as any)} style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 16, cursor: 'pointer' } as any}>
+                <div style={{ width: 52, height: 52, borderRadius: 16, background: 'rgba(255,255,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '2px solid rgba(255,255,255,0.25)', flexShrink: 0, backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)' } as any}><i className="ri-building-line" style={{ fontSize: 24, color: '#FFF' }} /></div>
+                <div style={{ flex: 1 } as any}>
+                  <div style={{ fontSize: 20, fontWeight: 800, color: '#FFF' }}>{user.structure_name || user.name}</div>
+                  <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.6)' }}>{user.address || 'Espace SAAD'}</div>
+                  {user.siret && <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.4)', marginTop: 2 }}>SIRET: {user.siret}</div>}
                 </div>
-              ))}
+                <i className="ri-arrow-right-s-line" style={{ fontSize: 20, color: 'rgba(255,255,255,0.5)' }} />
+              </div>
+              {/* Stats row */}
+              <div style={{ display: 'flex', gap: 8 } as any}>
+                {[
+                  { val: agencies.length, label: 'Agences', color: '#D4845A' },
+                  { val: intervenants.length, label: 'Intervenants', color: '#A78BFA' },
+                  { val: stats.total_prescribers || 0, label: 'Prescripteurs', color: '#F59E0B' },
+                ].map((s, i) => (
+                  <div key={i} style={{ flex: 1, padding: '10px 6px', borderRadius: 14, background: 'rgba(255,255,255,0.12)', textAlign: 'center', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)', border: '1px solid rgba(255,255,255,0.15)' } as any}>
+                    <div style={{ fontSize: 20, fontWeight: 900, color: '#FFF' }}>{s.val}</div>
+                    <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.6)', textTransform: 'uppercase', letterSpacing: 0.4 }}>{s.label}</div>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
+
+          {/* ═══ WHITE CONTENT AREA ═══ */}
+          <div style={{ padding: '24px 20px 120px', marginTop: -16, borderRadius: '24px 24px 0 0', background: '#F5F5F7', position: 'relative', zIndex: 10, borderTop: '1px solid rgba(0,0,0,0.06)' } as any}>
+
           {/* Codes de la structure */}
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 14 } as any}>
-            <div style={{ padding: '14px 16px', borderRadius: 18, background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(245,158,11,0.15)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', display: 'flex', alignItems: 'stretch', gap: 10 } as any}>
+            <div style={{ padding: '14px 16px', borderRadius: 18, background: '#FFF', border: '1px solid rgba(245,158,11,0.2)', display: 'flex', alignItems: 'stretch', gap: 10 } as any}>
               <div style={{ flex: 1 } as any}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 6 } as any}>
                   <i className="ri-key-line" style={{ fontSize: 13, color: '#F59E0B' }} />
-                  <span style={{ fontSize: 9, fontWeight: 700, color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', letterSpacing: 0.5 }}>Code Prescripteur</span>
+                  <span style={{ fontSize: 9, fontWeight: 700, color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: 0.5 }}>Code Prescripteur</span>
                 </div>
                 <div style={{ fontSize: 16, fontWeight: 900, color: '#F59E0B', fontFamily: 'monospace', letterSpacing: 1 }}>{user.activation_code || '--'}</div>
-                <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.3)', marginTop: 4 }}>A partager avec vos gardiens</div>
+                <div style={{ fontSize: 9, color: '#9CA3AF', marginTop: 4 }}>A partager avec vos gardiens</div>
               </div>
-              
             </div>
-            <div style={{ padding: '14px 16px', borderRadius: 18, background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(139,92,246,0.15)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', display: 'flex', alignItems: 'stretch', gap: 10 } as any}>
+            <div style={{ padding: '14px 16px', borderRadius: 18, background: '#FFF', border: '1px solid rgba(139,92,246,0.2)', display: 'flex', alignItems: 'stretch', gap: 10 } as any}>
               <div style={{ flex: 1 } as any}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 6 } as any}>
                   <i className="ri-map-pin-range-line" style={{ fontSize: 13, color: '#8B5CF6' }} />
-                  <span style={{ fontSize: 9, fontWeight: 700, color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', letterSpacing: 0.5 }}>Code Intervention</span>
+                  <span style={{ fontSize: 9, fontWeight: 700, color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: 0.5 }}>Code Intervention</span>
                 </div>
                 <div style={{ fontSize: 16, fontWeight: 900, color: '#8B5CF6', fontFamily: 'monospace', letterSpacing: 1 }}>{user.intervention_code || '--'}</div>
-                <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.3)', marginTop: 4 }}>Pour l'espace intervenant Care</div>
+                <div style={{ fontSize: 9, color: '#9CA3AF', marginTop: 4 }}>Pour l'espace intervenant Care</div>
               </div>
-              
             </div>
           </div>
 
@@ -258,12 +264,12 @@ export default function CompanyHome({ token, user }: { token: string; user: any 
           )}
 
           {/* Commission settings card */}
-          <div onClick={() => user.onboarding_completed || user.commission_type ? setShowStripeManage(true) : setShowStripeSetup(true)} style={{ padding: '18px 20px', borderRadius: 22, background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(124,58,237,0.15)', marginBottom: 14, cursor: 'pointer', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)' } as any}>
+          <div onClick={() => user.onboarding_completed || user.commission_type ? setShowStripeManage(true) : setShowStripeSetup(true)} style={{ padding: '18px 20px', borderRadius: 22, background: '#FFF', border: '1px solid rgba(124,58,237,0.15)', marginBottom: 14, cursor: 'pointer' } as any}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 14 } as any}>
-              <div style={{ width: 44, height: 44, borderRadius: 14, background: 'rgba(124,58,237,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}><i className="ri-bank-card-line" style={{ fontSize: 22, color: '#7C3AED' }} /></div>
+              <div style={{ width: 44, height: 44, borderRadius: 14, background: 'rgba(124,58,237,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}><i className="ri-bank-card-line" style={{ fontSize: 22, color: '#7C3AED' }} /></div>
               <div style={{ flex: 1 } as any}>
-                <div style={{ fontSize: 15, fontWeight: 700, color: '#FFF' }}>{user.saad_registered ? 'Paiements Mollie' : 'Configurer les paiements'}</div>
-                <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', marginTop: 2 }}>Commission fixe : 50 EUR HT + 5 EUR HT/mois</div>
+                <div style={{ fontSize: 15, fontWeight: 700, color: '#111' }}>{user.saad_registered ? 'Paiements Mollie' : 'Configurer les paiements'}</div>
+                <div style={{ fontSize: 11, color: '#6B7280', marginTop: 2 }}>Commission fixe : 50 EUR HT + 5 EUR HT/mois</div>
               </div>
               <div style={{ display: 'inline-flex', alignItems: 'center', gap: 4, padding: '4px 10px', borderRadius: 999, background: user.saad_registered ? 'rgba(16,185,129,0.15)' : 'rgba(245,158,11,0.15)' } as any}>
                 <span style={{ width: 5, height: 5, borderRadius: 999, background: user.saad_registered ? '#10B981' : '#F59E0B' } as any} />
@@ -503,27 +509,28 @@ export default function CompanyHome({ token, user }: { token: string; user: any 
 
           {/* Classement prescripteurs de la structure */}
           {ranking.length > 0 && (
-          <div style={{ padding: '18px 20px', borderRadius: 22, background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)', marginBottom: 12, backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)' } as any}>
+          <div style={{ padding: '18px 20px', borderRadius: 22, background: '#FFF', border: '1px solid rgba(0,0,0,0.06)', marginBottom: 12 } as any}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 } as any}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 10 } as any}>
                 <i className="ri-bar-chart-box-line" style={{ fontSize: 18, color: '#F59E0B' }} />
-                <div style={{ fontSize: 15, fontWeight: 800, color: '#FFF' }}>Meilleurs prescripteurs</div>
+                <div style={{ fontSize: 15, fontWeight: 800, color: '#111' }}>Meilleurs prescripteurs</div>
               </div>
-              <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.35)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: 0.5 }}>{new Date().toLocaleString('fr-FR', { month: 'short' })}</div>
+              <div style={{ fontSize: 10, color: '#9CA3AF', fontWeight: 600, textTransform: 'uppercase', letterSpacing: 0.5 }}>{new Date().toLocaleString('fr-FR', { month: 'short' })}</div>
             </div>
             {ranking.slice(0, 5).map((p: any, i: number) => (
               <div key={p.id || i} onClick={() => router.push({ pathname: '/company-prescriber-detail', params: { prescriberId: p.id } })} style={{ cursor: 'pointer' } as any}>
-                {i > 0 && <div style={{ height: 1, background: 'rgba(255,255,255,0.06)', margin: '6px 0' } as any} />}
+                {i > 0 && <div style={{ height: 1, background: '#E5E7EB', margin: '6px 0' } as any} />}
                 <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '8px 0' } as any}>
-                  <div style={{ width: 28, height: 28, borderRadius: 8, background: i === 0 ? '#FFD700' : i === 1 ? '#C0C0C0' : i === 2 ? '#CD7F32' : 'rgba(255,255,255,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}><span style={{ fontSize: 11, fontWeight: 800, color: '#FFF' }}>#{i + 1}</span></div>
-                  <div style={{ flex: 1 } as any}><div style={{ fontSize: 13, fontWeight: 700, color: '#FFF' }}>{p.name}</div></div>
-                  <div style={{ fontSize: 14, fontWeight: 900, color: '#FFF' }}>{p.prescriptions_count || 0}</div>
-                  <div style={{ fontSize: 8, color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase' }}>presc.</div>
+                  <div style={{ width: 28, height: 28, borderRadius: 8, background: i === 0 ? '#FFD700' : i === 1 ? '#C0C0C0' : i === 2 ? '#CD7F32' : '#F4F4F5', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}><span style={{ fontSize: 11, fontWeight: 800, color: i < 3 ? '#FFF' : '#6B7280' }}>#{i + 1}</span></div>
+                  <div style={{ flex: 1 } as any}><div style={{ fontSize: 13, fontWeight: 700, color: '#111' }}>{p.name}</div></div>
+                  <div style={{ fontSize: 14, fontWeight: 900, color: '#111' }}>{p.prescriptions_count || 0}</div>
+                  <div style={{ fontSize: 8, color: '#9CA3AF', textTransform: 'uppercase' }}>presc.</div>
                 </div>
               </div>
             ))}
           </div>
           )}
+          </div>
         </div>
       </div>
     );
