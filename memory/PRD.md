@@ -63,6 +63,9 @@ L'objectif est une UI Glassmorphism + Light mode avec synchronisation en temps r
 - [x] **Bibliotheque complements enrichie** — Ajout des champs description, bienfaits, categorie aux templates. 23 complements pre-remplis avec dosages, descriptions medicales et bienfaits detailles (2026-03-31)
 - [x] **Seed intelligent dedup** — Le seed ajoute les templates manquants sans supprimer les existants (deduplication par titre). Fonctionne pour exercices, hydratation, complements et repas (2026-03-31)
 - [x] **Images reelles pour toute la bibliotheque** — Photos Unsplash/Pexels haute qualite pour 20 exercices (squat, developpe couche, tractions, pompes...), 19 hydratations (smoothies, thes, tisanes, bouillons, jus...) et repas. Mise a jour du seed pour les futurs gardiens (2026-03-31)
+- [x] **Espace SAAD — Codes d'intervention et prescription** — Affichage des codes (activation + intervention) dans le profil gardien SAAD avec bouton copier. Assignation des codes aux users SAAD (Sophie MARTIN: 583339/347303, Laurent DUBOIS: 866204/369908) (2026-03-31)
+- [x] **Espace SAAD — Connexion bancaire IBAN/Mollie** — Remplacement du bouton "Stripe Connect" par un formulaire IBAN direct via API Mollie (/api/saad/onboarding). Fonctionnel dans le profil prescriber_company et le dashboard company (2026-03-31)
+- [x] **Espace SAAD — Commission fixe 50+5** — Mise a jour de l'affichage des commissions (50 EUR HT souscription + 5 EUR HT/mois) dans les popups paiements du dashboard et du profil (2026-03-31)
 
 ## Code Architecture (post-refactoring)
 ```

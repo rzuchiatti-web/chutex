@@ -138,6 +138,9 @@ export default function ProfileScreen() {
   const [uploading, setUploading] = useState(false);
   const [showNotifPrefs, setShowNotifPrefs] = useState(false);
   const [showStripeConfig, setShowStripeConfig] = useState(false);
+  const [ibanInput, setIbanInput] = useState('');
+  const [ibanSaving, setIbanSaving] = useState(false);
+  const [ibanSaved, setIbanSaved] = useState(false);
   const [notifPrefs, setNotifPrefs] = useState<any>(null);
   const [savingNotif, setSavingNotif] = useState(false);
   const [showCareDetail, setShowCareDetail] = useState(false);
@@ -453,6 +456,37 @@ const BG_PROFILE = 'https://customer-assets.emergentagent.com/job_9950a869-9328-
             </div>
           )}
 
+          {/* SAAD Codes — for prescriber_company and SAAD guardians */}
+          {(effectiveRole === 'prescriber_company' || (isGuardian && user.saad_company_id)) && (user.activation_code || user.intervention_code) && (
+            <div style={{ padding: '18px 20px', borderRadius: 22, background: cardBg, border: `1px solid ${isDark ? 'rgba(167,139,250,0.15)' : 'rgba(167,139,250,0.2)'}`, marginBottom: 14, backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)' } as any}>
+              <div style={{ fontSize: 10, fontWeight: 700, color: subColor, textTransform: 'uppercase', letterSpacing: 1, marginBottom: 14 }}>Codes a partager avec vos gardiens</div>
+              {user.activation_code && (
+                <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 12, padding: '12px 14px', borderRadius: 14, background: isDark ? 'rgba(255,255,255,0.04)' : '#F4F4F5' } as any}>
+                  <div style={{ width: 38, height: 38, borderRadius: 12, background: 'rgba(16,185,129,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}><i className="ri-key-2-line" style={{ fontSize: 16, color: '#10B981' }} /></div>
+                  <div style={{ flex: 1 } as any}>
+                    <div style={{ fontSize: 11, color: subColor }}>Code de prescription</div>
+                    <div style={{ fontSize: 18, fontWeight: 800, color: textColor, letterSpacing: 2 }}>{user.activation_code}</div>
+                  </div>
+                  <div data-testid="copy-activation-code" onClick={() => { navigator.clipboard?.writeText(user.activation_code); window.alert('Code copie !'); }} style={{ width: 34, height: 34, borderRadius: 999, background: isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.06)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}>
+                    <i className="ri-file-copy-line" style={{ fontSize: 14, color: subColor }} />
+                  </div>
+                </div>
+              )}
+              {user.intervention_code && (
+                <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 14px', borderRadius: 14, background: isDark ? 'rgba(255,255,255,0.04)' : '#F4F4F5' } as any}>
+                  <div style={{ width: 38, height: 38, borderRadius: 12, background: 'rgba(59,130,246,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}><i className="ri-map-pin-line" style={{ fontSize: 16, color: '#3B82F6' }} /></div>
+                  <div style={{ flex: 1 } as any}>
+                    <div style={{ fontSize: 11, color: subColor }}>Code d'intervention</div>
+                    <div style={{ fontSize: 18, fontWeight: 800, color: textColor, letterSpacing: 2 }}>{user.intervention_code}</div>
+                  </div>
+                  <div data-testid="copy-intervention-code" onClick={() => { navigator.clipboard?.writeText(user.intervention_code); window.alert('Code copie !'); }} style={{ width: 34, height: 34, borderRadius: 999, background: isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.06)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}>
+                    <i className="ri-file-copy-line" style={{ fontSize: 14, color: subColor }} />
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+
           {/* SAAD Mollie Payment Card */}
           {effectiveRole === 'prescriber_company' && (
             <div onClick={() => setShowStripeConfig(true)} style={{ padding: '18px 20px', borderRadius: 22, background: cardBg, border: `1px solid ${isDark ? 'rgba(124,58,237,0.15)' : 'rgba(124,58,237,0.2)'}`, marginBottom: 14, cursor: 'pointer', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)' } as any}>
@@ -460,81 +494,100 @@ const BG_PROFILE = 'https://customer-assets.emergentagent.com/job_9950a869-9328-
                 <div style={{ width: 44, height: 44, borderRadius: 14, background: 'rgba(124,58,237,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}><i className="ri-bank-card-line" style={{ fontSize: 22, color: '#7C3AED' }} /></div>
                 <div style={{ flex: 1 } as any}>
                   <div style={{ fontSize: 15, fontWeight: 700, color: textColor }}>Configuration paiements</div>
-                  <div style={{ fontSize: 11, color: subColor, marginTop: 2 }}>{user.commission_type === 'oneshot' ? 'Commission unique (100/200 EUR)' : user.commission_type === 'monthly' ? 'Commission mensuelle (8/15 EUR)' : 'Non configure'}</div>
+                  <div style={{ fontSize: 11, color: subColor, marginTop: 2 }}>Commission fixe : 50 EUR + 5 EUR/mois</div>
                 </div>
-                <div style={{ display: 'inline-flex', alignItems: 'center', gap: 4, padding: '4px 10px', borderRadius: 999, background: user.stripe_account_id ? 'rgba(16,185,129,0.15)' : 'rgba(245,158,11,0.15)' } as any}>
-                  <span style={{ width: 5, height: 5, borderRadius: 999, background: user.stripe_account_id ? '#10B981' : '#F59E0B' } as any} />
-                  <span style={{ fontSize: 10, fontWeight: 600, color: user.stripe_account_id ? '#10B981' : '#F59E0B' }}>{user.stripe_account_id ? 'Actif' : 'A configurer'}</span>
+                <div style={{ display: 'inline-flex', alignItems: 'center', gap: 4, padding: '4px 10px', borderRadius: 999, background: user.saad_registered ? 'rgba(16,185,129,0.15)' : 'rgba(245,158,11,0.15)' } as any}>
+                  <span style={{ width: 5, height: 5, borderRadius: 999, background: user.saad_registered ? '#10B981' : '#F59E0B' } as any} />
+                  <span style={{ fontSize: 10, fontWeight: 600, color: user.saad_registered ? '#10B981' : '#F59E0B' }}>{user.saad_registered ? 'Actif' : 'A configurer'}</span>
                 </div>
               </div>
             </div>
           )}
 
-          {/* Stripe Config Popup */}
+          {/* Paiement IBAN Mollie Popup */}
           {showStripeConfig && portalMount(
             <div style={POP as any}>
               <div onClick={(e: any) => e.stopPropagation()} style={{ width: '100%', maxWidth: 420, margin: '0 auto', padding: '40px 28px 120px', boxSizing: 'border-box' } as any}>
                 <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 20 } as any}>
-                  <div onClick={() => setShowStripeConfig(false)} style={{ width: 38, height: 38, borderRadius: 999, background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}><i className="ri-close-line" style={{ fontSize: 18, color: 'rgba(255,255,255,0.8)' }} /></div>
+                  <div onClick={() => { setShowStripeConfig(false); setIbanSaved(false); }} style={{ width: 38, height: 38, borderRadius: 999, background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}><i className="ri-close-line" style={{ fontSize: 18, color: 'rgba(255,255,255,0.8)' }} /></div>
                 </div>
 
                 <div style={{ textAlign: 'center', marginBottom: 24 } as any}>
                   <div style={{ width: 56, height: 56, borderRadius: 16, background: 'rgba(124,58,237,0.15)', border: '1px solid rgba(124,58,237,0.3)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', marginBottom: 14 } as any}><i className="ri-hand-coin-line" style={{ fontSize: 28, color: '#A78BFA' }} /></div>
                   <div style={{ fontSize: 22, fontWeight: 900, color: '#FFF' }}>Paiements & Commissions</div>
-                  <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.4)', marginTop: 6 }}>Gerez votre mode de commissionnement et votre compte Stripe</div>
+                  <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.4)', marginTop: 6 }}>Commissions fixes via Mollie</div>
                 </div>
 
-                <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 12 }}>Mode de commissionnement</div>
-
-                {/* Locked commission display */}
+                {/* Commission display */}
                 <div style={{ padding: '18px 20px', borderRadius: 20, background: 'rgba(124,58,237,0.08)', border: '1.5px solid rgba(124,58,237,0.4)', marginBottom: 16 } as any}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 14 } as any}>
-                    <div style={{ width: 48, height: 48, borderRadius: 14, background: user.commission_type === 'oneshot' ? 'rgba(245,158,11,0.2)' : 'rgba(167,139,250,0.2)', border: `1px solid ${user.commission_type === 'oneshot' ? 'rgba(245,158,11,0.4)' : 'rgba(167,139,250,0.4)'}`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}>
-                      <i className={user.commission_type === 'oneshot' ? 'ri-coin-line' : 'ri-loop-right-line'} style={{ fontSize: 24, color: user.commission_type === 'oneshot' ? '#F59E0B' : '#A78BFA' }} />
+                    <div style={{ width: 48, height: 48, borderRadius: 14, background: 'rgba(167,139,250,0.2)', border: '1px solid rgba(167,139,250,0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}>
+                      <i className="ri-loop-right-line" style={{ fontSize: 24, color: '#A78BFA' }} />
                     </div>
                     <div style={{ flex: 1 } as any}>
-                      <div style={{ fontSize: 18, fontWeight: 800, color: '#FFF' }}>{user.commission_type === 'oneshot' ? 'Commission unique' : 'Commission mensuelle'}</div>
-                      <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.45)', marginTop: 3 }}>{user.commission_type === 'oneshot' ? '100 EUR par bracelet, 200 EUR bracelet + gilet' : '8 EUR/mois par bracelet, 15 EUR/mois bracelet + gilet'}</div>
-                    </div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '4px 10px', borderRadius: 999, background: 'rgba(124,58,237,0.15)' } as any}>
-                      <i className="ri-lock-line" style={{ fontSize: 11, color: '#A78BFA' }} />
-                      <span style={{ fontSize: 10, fontWeight: 600, color: '#A78BFA' }}>Verrouille</span>
+                      <div style={{ fontSize: 18, fontWeight: 800, color: '#FFF' }}>Commission fixe</div>
+                      <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.45)', marginTop: 3 }}>50 EUR HT par souscription + 5 EUR HT/mois</div>
                     </div>
                   </div>
                 </div>
 
                 {/* Simulation */}
-                <div style={{ padding: '16px 18px', borderRadius: 18, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', marginTop: 10, marginBottom: 16 } as any}>
-                  <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.3)', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 12 }}>Simulation pour 10 prescriptions bracelet</div>
+                <div style={{ padding: '16px 18px', borderRadius: 18, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', marginBottom: 16 } as any}>
+                  <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.3)', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 12 }}>Simulation pour 10 prescriptions</div>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 } as any}>
                     <div>
-                      <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)' }}>{user.commission_type === 'oneshot' ? 'Gain unique' : 'Gain mensuel recurrent'}</div>
-                      <div style={{ fontSize: 28, fontWeight: 900, color: '#FFF', letterSpacing: -1 }}>{user.commission_type === 'oneshot' ? '1 000' : '80'} EUR</div>
+                      <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)' }}>A la souscription</div>
+                      <div style={{ fontSize: 28, fontWeight: 900, color: '#FFF', letterSpacing: -1 }}>500 EUR</div>
                     </div>
                     <div style={{ textAlign: 'right' } as any}>
-                      <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)' }}>Sur 12 mois</div>
-                      <div style={{ fontSize: 20, fontWeight: 800, color: user.commission_type === 'monthly' || !user.commission_type ? '#10B981' : '#F59E0B' }}>{user.commission_type === 'oneshot' ? '1 000' : '960'} EUR</div>
+                      <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)' }}>Recurrent /mois</div>
+                      <div style={{ fontSize: 20, fontWeight: 800, color: '#10B981' }}>50 EUR</div>
                     </div>
                   </div>
                   <div style={{ height: 1, background: 'rgba(255,255,255,0.08)', marginBottom: 14 } as any} />
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' } as any}>
                     <div>
-                      <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)' }}>Sur 24 mois</div>
-                      <div style={{ fontSize: 22, fontWeight: 900, color: user.commission_type === 'monthly' || !user.commission_type ? '#10B981' : '#F59E0B' }}>{user.commission_type === 'oneshot' ? '1 000' : '1 920'} EUR</div>
+                      <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)' }}>Sur 12 mois</div>
+                      <div style={{ fontSize: 22, fontWeight: 900, color: '#10B981' }}>1 100 EUR</div>
                     </div>
-                    {(user.commission_type === 'monthly' || !user.commission_type) && (
-                      <div style={{ padding: '5px 12px', borderRadius: 999, background: 'rgba(16,185,129,0.15)', border: '1px solid rgba(16,185,129,0.25)' } as any}>
-                        <span style={{ fontSize: 11, fontWeight: 700, color: '#10B981' }}>+920 EUR vs unique</span>
-                      </div>
-                    )}
+                    <div style={{ textAlign: 'right' } as any}>
+                      <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)' }}>Sur 24 mois</div>
+                      <div style={{ fontSize: 22, fontWeight: 900, color: '#10B981' }}>1 700 EUR</div>
+                    </div>
                   </div>
                 </div>
 
-                {/* Stripe status */}
-                {user.stripe_account_id && <div style={{ padding: '14px 16px', borderRadius: 16, background: 'rgba(16,185,129,0.08)', border: '1px solid rgba(16,185,129,0.15)', display: 'flex', alignItems: 'center', gap: 12, marginBottom: 12 } as any}><i className="ri-shield-check-line" style={{ fontSize: 18, color: '#10B981' }} /><div style={{ flex: 1 } as any}><div style={{ fontSize: 13, fontWeight: 700, color: '#10B981' }}>Stripe Connect actif</div><div style={{ fontSize: 10, color: 'rgba(255,255,255,0.3)', marginTop: 2 }}>Vos commissions sont versees automatiquement</div></div></div>}
-                {!user.stripe_account_id && <div onClick={async () => {
-                  try { const res = await apiFetch('/api/saad/stripe-onboarding', { method: 'POST', body: JSON.stringify({ saad_id: user.id, company_name: user.structure_name || user.name, email: user.email, commission_type: user.commission_type || 'monthly', refresh_url: window.location.href, return_url: window.location.href }) }, token); if (res.onboarding_url) window.open(res.onboarding_url, '_blank'); } catch {}
-                }} style={{ padding: '17px', borderRadius: 999, background: 'linear-gradient(135deg, #10B981, #059669)', color: '#FFF', cursor: 'pointer', textAlign: 'center', fontSize: 16, fontWeight: 800, boxShadow: '0 4px 16px rgba(16,185,129,0.3)' } as any}>Connecter mon compte bancaire</div>}
+                {/* IBAN form */}
+                <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 10 }}>Compte bancaire (IBAN)</div>
+                {ibanSaved ? (
+                  <div style={{ padding: '14px 16px', borderRadius: 16, background: 'rgba(16,185,129,0.08)', border: '1px solid rgba(16,185,129,0.15)', display: 'flex', alignItems: 'center', gap: 12, marginBottom: 12 } as any}>
+                    <i className="ri-shield-check-line" style={{ fontSize: 18, color: '#10B981' }} />
+                    <div style={{ flex: 1 } as any}>
+                      <div style={{ fontSize: 13, fontWeight: 700, color: '#10B981' }}>Compte bancaire enregistre</div>
+                      <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.3)', marginTop: 2 }}>Vos commissions seront versees automatiquement</div>
+                    </div>
+                  </div>
+                ) : user.saad_registered ? (
+                  <div style={{ padding: '14px 16px', borderRadius: 16, background: 'rgba(16,185,129,0.08)', border: '1px solid rgba(16,185,129,0.15)', display: 'flex', alignItems: 'center', gap: 12, marginBottom: 12 } as any}>
+                    <i className="ri-shield-check-line" style={{ fontSize: 18, color: '#10B981' }} />
+                    <div style={{ flex: 1 } as any}>
+                      <div style={{ fontSize: 13, fontWeight: 700, color: '#10B981' }}>Compte enregistre</div>
+                      <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.3)', marginTop: 2 }}>Vous pouvez mettre a jour votre IBAN ci-dessous</div>
+                    </div>
+                  </div>
+                ) : null}
+                <input data-testid="iban-input" value={ibanInput} onChange={(e: any) => setIbanInput(e.target.value.toUpperCase())} placeholder="FR76 1234 5678 9012 3456 7890 123" style={{ width: '100%', padding: '14px 16px', borderRadius: 14, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', color: '#FFF', fontSize: 15, fontWeight: 600, letterSpacing: 1, outline: 'none', boxSizing: 'border-box', marginBottom: 12 } as any} />
+                <div data-testid="save-iban-btn" onClick={async () => {
+                  if (!ibanInput || ibanInput.length < 15) { window.alert('Veuillez entrer un IBAN valide'); return; }
+                  setIbanSaving(true);
+                  try {
+                    await apiFetch('/api/saad/onboarding', { method: 'POST', body: JSON.stringify({ saad_id: user.id, company_name: user.structure_name || user.name, email: user.email || '', iban: ibanInput, commission_type: 'fixed' }) }, token);
+                    setIbanSaved(true);
+                    await refreshUser();
+                    window.alert('IBAN enregistre avec succes !');
+                  } catch (e: any) { window.alert('Erreur: ' + (e.message || 'Echec')); }
+                  finally { setIbanSaving(false); }
+                }} style={{ padding: '17px', borderRadius: 999, background: ibanInput.length >= 15 ? 'linear-gradient(135deg, #10B981, #059669)' : 'rgba(255,255,255,0.06)', color: ibanInput.length >= 15 ? '#FFF' : 'rgba(255,255,255,0.3)', cursor: ibanInput.length >= 15 ? 'pointer' : 'default', textAlign: 'center', fontSize: 16, fontWeight: 800, boxShadow: ibanInput.length >= 15 ? '0 4px 16px rgba(16,185,129,0.3)' : 'none', transition: 'all 0.2s' } as any}>{ibanSaving ? 'Enregistrement...' : 'Enregistrer mon IBAN'}</div>
               </div>
             </div>
           )}

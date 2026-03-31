@@ -262,12 +262,12 @@ export default function CompanyHome({ token, user }: { token: string; user: any 
             <div style={{ display: 'flex', alignItems: 'center', gap: 14 } as any}>
               <div style={{ width: 44, height: 44, borderRadius: 14, background: 'rgba(124,58,237,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}><i className="ri-bank-card-line" style={{ fontSize: 22, color: '#7C3AED' }} /></div>
               <div style={{ flex: 1 } as any}>
-                <div style={{ fontSize: 15, fontWeight: 700, color: '#FFF' }}>{user.stripe_account_id ? 'Stripe Connect' : 'Configurer les paiements'}</div>
-                <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', marginTop: 2 }}>{user.commission_type === 'oneshot' ? 'Commission unique (100/200 EUR)' : user.commission_type === 'monthly' ? 'Commission mensuelle (8/15 EUR)' : 'Non configure'}</div>
+                <div style={{ fontSize: 15, fontWeight: 700, color: '#FFF' }}>{user.saad_registered ? 'Paiements Mollie' : 'Configurer les paiements'}</div>
+                <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', marginTop: 2 }}>Commission fixe : 50 EUR HT + 5 EUR HT/mois</div>
               </div>
-              <div style={{ display: 'inline-flex', alignItems: 'center', gap: 4, padding: '4px 10px', borderRadius: 999, background: user.stripe_account_id ? 'rgba(16,185,129,0.15)' : 'rgba(245,158,11,0.15)' } as any}>
-                <span style={{ width: 5, height: 5, borderRadius: 999, background: user.stripe_account_id ? '#10B981' : '#F59E0B' } as any} />
-                <span style={{ fontSize: 10, fontWeight: 600, color: user.stripe_account_id ? '#10B981' : '#F59E0B' }}>{user.stripe_account_id ? 'Actif' : 'A configurer'}</span>
+              <div style={{ display: 'inline-flex', alignItems: 'center', gap: 4, padding: '4px 10px', borderRadius: 999, background: user.saad_registered ? 'rgba(16,185,129,0.15)' : 'rgba(245,158,11,0.15)' } as any}>
+                <span style={{ width: 5, height: 5, borderRadius: 999, background: user.saad_registered ? '#10B981' : '#F59E0B' } as any} />
+                <span style={{ fontSize: 10, fontWeight: 600, color: user.saad_registered ? '#10B981' : '#F59E0B' }}>{user.saad_registered ? 'Actif' : 'A configurer'}</span>
               </div>
             </div>
           </div>
@@ -284,55 +284,48 @@ export default function CompanyHome({ token, user }: { token: string; user: any 
                   <div style={{ fontSize: 22, fontWeight: 900, color: '#FFF' }}>Paiements & Commissions</div>
                 </div>
 
-                {/* Current commission — locked display */}
+                {/* Current commission — fixed display */}
                 <div style={{ padding: '18px 20px', borderRadius: 20, background: 'rgba(124,58,237,0.08)', border: '1.5px solid rgba(124,58,237,0.4)', marginBottom: 16 } as any}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 14 } as any}>
-                    <div style={{ width: 48, height: 48, borderRadius: 14, background: user.commission_type === 'oneshot' ? 'rgba(245,158,11,0.2)' : 'rgba(167,139,250,0.2)', border: `1px solid ${user.commission_type === 'oneshot' ? 'rgba(245,158,11,0.4)' : 'rgba(167,139,250,0.4)'}`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}>
-                      <i className={user.commission_type === 'oneshot' ? 'ri-coin-line' : 'ri-loop-right-line'} style={{ fontSize: 24, color: user.commission_type === 'oneshot' ? '#F59E0B' : '#A78BFA' }} />
+                    <div style={{ width: 48, height: 48, borderRadius: 14, background: 'rgba(167,139,250,0.2)', border: '1px solid rgba(167,139,250,0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}>
+                      <i className="ri-loop-right-line" style={{ fontSize: 24, color: '#A78BFA' }} />
                     </div>
                     <div style={{ flex: 1 } as any}>
-                      <div style={{ fontSize: 18, fontWeight: 800, color: '#FFF' }}>{user.commission_type === 'oneshot' ? 'Commission unique' : 'Commission mensuelle'}</div>
-                      <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.45)', marginTop: 3 }}>{user.commission_type === 'oneshot' ? '100 EUR par bracelet, 200 EUR bracelet + gilet' : '8 EUR/mois par bracelet, 15 EUR/mois bracelet + gilet'}</div>
-                    </div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '4px 10px', borderRadius: 999, background: 'rgba(124,58,237,0.15)' } as any}>
-                      <i className="ri-lock-line" style={{ fontSize: 11, color: '#A78BFA' }} />
-                      <span style={{ fontSize: 10, fontWeight: 600, color: '#A78BFA' }}>Verrouille</span>
+                      <div style={{ fontSize: 18, fontWeight: 800, color: '#FFF' }}>Commission fixe</div>
+                      <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.45)', marginTop: 3 }}>50 EUR HT par souscription + 5 EUR HT/mois</div>
                     </div>
                   </div>
                 </div>
 
                 {/* Simulation */}
                 <div style={{ padding: '16px 18px', borderRadius: 18, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', marginBottom: 16 } as any}>
-                  <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.3)', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 12 }}>Simulation pour 10 prescriptions bracelet</div>
+                  <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.3)', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 12 }}>Simulation pour 10 prescriptions</div>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 } as any}>
                     <div>
-                      <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)' }}>{user.commission_type === 'oneshot' ? 'Gain unique' : 'Gain mensuel recurrent'}</div>
-                      <div style={{ fontSize: 28, fontWeight: 900, color: '#FFF', letterSpacing: -1 }}>{user.commission_type === 'oneshot' ? '1 000' : '80'} EUR</div>
+                      <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)' }}>A la souscription</div>
+                      <div style={{ fontSize: 28, fontWeight: 900, color: '#FFF', letterSpacing: -1 }}>500 EUR</div>
                     </div>
                     <div style={{ textAlign: 'right' } as any}>
-                      <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)' }}>Sur 12 mois</div>
-                      <div style={{ fontSize: 20, fontWeight: 800, color: user.commission_type === 'monthly' ? '#10B981' : '#F59E0B' }}>{user.commission_type === 'oneshot' ? '1 000' : '960'} EUR</div>
+                      <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)' }}>Recurrent /mois</div>
+                      <div style={{ fontSize: 20, fontWeight: 800, color: '#10B981' }}>50 EUR</div>
                     </div>
                   </div>
                   <div style={{ height: 1, background: 'rgba(255,255,255,0.08)', marginBottom: 14 } as any} />
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' } as any}>
                     <div>
-                      <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)' }}>Sur 24 mois</div>
-                      <div style={{ fontSize: 22, fontWeight: 900, color: user.commission_type === 'monthly' ? '#10B981' : '#F59E0B' }}>{user.commission_type === 'oneshot' ? '1 000' : '1 920'} EUR</div>
+                      <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)' }}>Sur 12 mois</div>
+                      <div style={{ fontSize: 22, fontWeight: 900, color: '#10B981' }}>1 100 EUR</div>
                     </div>
-                    {user.commission_type === 'monthly' && (
-                      <div style={{ padding: '5px 12px', borderRadius: 999, background: 'rgba(16,185,129,0.15)', border: '1px solid rgba(16,185,129,0.25)' } as any}>
-                        <span style={{ fontSize: 11, fontWeight: 700, color: '#10B981' }}>+920 EUR vs unique</span>
-                      </div>
-                    )}
+                    <div style={{ textAlign: 'right' } as any}>
+                      <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)' }}>Sur 24 mois</div>
+                      <div style={{ fontSize: 22, fontWeight: 900, color: '#10B981' }}>1 700 EUR</div>
+                    </div>
                   </div>
                 </div>
 
-                {/* Stripe status */}
-                {user.stripe_account_id && <div style={{ padding: '14px 16px', borderRadius: 16, background: 'rgba(16,185,129,0.08)', border: '1px solid rgba(16,185,129,0.15)', display: 'flex', alignItems: 'center', gap: 12 } as any}><i className="ri-shield-check-line" style={{ fontSize: 18, color: '#10B981' }} /><div style={{ flex: 1 } as any}><div style={{ fontSize: 13, fontWeight: 700, color: '#10B981' }}>Stripe Connect actif</div><div style={{ fontSize: 10, color: 'rgba(255,255,255,0.3)', marginTop: 2 }}>Vos commissions sont versees automatiquement</div></div></div>}
-                {!user.stripe_account_id && <div onClick={async () => {
-                  try { const res = await apiFetch('/api/saad/stripe-onboarding', { method: 'POST', body: JSON.stringify({ saad_id: user.id, company_name: user.structure_name || user.name, email: user.email, commission_type: user.commission_type || 'monthly', refresh_url: window.location.href, return_url: window.location.href }) }, token); if (res.onboarding_url) window.open(res.onboarding_url, '_blank'); } catch {}
-                }} style={{ padding: '17px', borderRadius: 999, background: 'linear-gradient(135deg, #10B981, #059669)', color: '#FFF', cursor: 'pointer', textAlign: 'center', fontSize: 16, fontWeight: 800, boxShadow: '0 4px 16px rgba(16,185,129,0.3)' } as any}>Connecter mon compte bancaire</div>}
+                {/* IBAN status */}
+                {user.saad_registered && <div style={{ padding: '14px 16px', borderRadius: 16, background: 'rgba(16,185,129,0.08)', border: '1px solid rgba(16,185,129,0.15)', display: 'flex', alignItems: 'center', gap: 12 } as any}><i className="ri-shield-check-line" style={{ fontSize: 18, color: '#10B981' }} /><div style={{ flex: 1 } as any}><div style={{ fontSize: 13, fontWeight: 700, color: '#10B981' }}>Compte bancaire enregistre</div><div style={{ fontSize: 10, color: 'rgba(255,255,255,0.3)', marginTop: 2 }}>Vos commissions sont versees automatiquement via Mollie</div></div></div>}
+                {!user.saad_registered && <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', textAlign: 'center', padding: '12px 0' } as any}>Configurez votre IBAN dans l'onglet Profil pour recevoir vos commissions</div>}
               </div>
             </div>
           )}
