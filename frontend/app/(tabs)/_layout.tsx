@@ -19,14 +19,15 @@ export default function TabLayout() {
   const isG = role === 'guardian' || role === 'professional';
   const isWeb = Platform.OS === 'web';
 
-  // GlassTabBar for web beneficiary & guardian (professional is now a guardian variant)
-  const useGlass = isWeb && (isBen || isG);
+  // GlassTabBar for web beneficiary & guardian & company
+  const useGlass = isWeb && (isBen || isG || isCompany);
 
   // Determine effective tab role for GlassTabBar config
   const tabRole = isG ? 'guardian' : isCompany ? 'company' : role === 'teleassistance' ? 'teleassistance' : 'beneficiary';
 
   // Hide default tab bar when using GlassTabBar or admin (has sidebar)
   const hideDefault = useGlass || isAdmin;
+  const showNora = !isCompany;
   const tabStyle = hideDefault
     ? { display: 'none' as const, height: 0, backgroundColor: 'transparent', borderTopWidth: 0, position: 'absolute' as const, overflow: 'hidden' as const }
     : isWeb
@@ -36,7 +37,7 @@ export default function TabLayout() {
   return (
     <Tabs
       key={role}
-      tabBar={useGlass ? (props) => <GlassTabBar {...props} role={tabRole} /> : undefined}
+      tabBar={useGlass ? (props) => <GlassTabBar {...props} role={tabRole} showNora={showNora} /> : undefined}
       sceneContainerStyle={{ backgroundColor: 'transparent' }}
       screenOptions={{
         headerShown: false,

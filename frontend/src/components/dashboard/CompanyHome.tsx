@@ -61,7 +61,7 @@ export default function CompanyHome({ token, user }: { token: string; user: any 
       <div data-testid="company-dashboard" style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, display: 'flex', flexDirection: 'column', fontFamily: 'Inter, system-ui, sans-serif', overflow: 'hidden', background: '#F5F5F7' } as any}>
         <div style={{ flex: 1, overflowY: 'auto', position: 'relative', zIndex: 5, WebkitOverflowScrolling: 'touch' } as any} data-animate>
           {/* ═══ HEADER WITH IMAGE ═══ */}
-          <div style={{ position: 'relative', minHeight: 260, overflow: 'hidden' } as any}>
+          <div style={{ position: 'relative', minHeight: 320, overflow: 'hidden' } as any}>
             <img src={BG_DASH} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 } as any} />
             <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.15)', zIndex: 1 } as any} />
             <div style={{ position: 'relative', zIndex: 5, padding: '28px 20px 40px' } as any}>
@@ -88,34 +88,43 @@ export default function CompanyHome({ token, user }: { token: string; user: any 
                   </div>
                 ))}
               </div>
+              {/* Codes glass blur dans le header */}
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginTop: 14 } as any}>
+                <div style={{ padding: '12px 14px', borderRadius: 16, background: 'rgba(255,255,255,0.1)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', border: '1px solid rgba(255,255,255,0.15)' } as any}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4 } as any}>
+                    <i className="ri-key-2-line" style={{ fontSize: 12, color: '#F59E0B' }} />
+                    <span style={{ fontSize: 8, fontWeight: 700, color: 'rgba(255,255,255,0.5)', textTransform: 'uppercase', letterSpacing: 0.5 }}>Code Prescripteur</span>
+                  </div>
+                  <div style={{ fontSize: 18, fontWeight: 900, color: '#FFF', fontFamily: 'monospace', letterSpacing: 2 }}>{user.activation_code || '--'}</div>
+                </div>
+                <div style={{ padding: '12px 14px', borderRadius: 16, background: 'rgba(255,255,255,0.1)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', border: '1px solid rgba(255,255,255,0.15)' } as any}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4 } as any}>
+                    <i className="ri-map-pin-line" style={{ fontSize: 12, color: '#A78BFA' }} />
+                    <span style={{ fontSize: 8, fontWeight: 700, color: 'rgba(255,255,255,0.5)', textTransform: 'uppercase', letterSpacing: 0.5 }}>Code Intervention</span>
+                  </div>
+                  <div style={{ fontSize: 18, fontWeight: 900, color: '#FFF', fontFamily: 'monospace', letterSpacing: 2 }}>{user.intervention_code || '--'}</div>
+                </div>
+              </div>
             </div>
           </div>
 
-          {/* ═══ WHITE CONTENT AREA ═══ */}
           <div style={{ padding: '24px 20px 120px', marginTop: -16, borderRadius: '24px 24px 0 0', background: '#F5F5F7', position: 'relative', zIndex: 10, borderTop: '1px solid rgba(0,0,0,0.06)' } as any}>
 
-          {/* Codes de la structure */}
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 14 } as any}>
-            <div style={{ padding: '14px 16px', borderRadius: 18, background: '#FFF', border: '1px solid rgba(245,158,11,0.2)', display: 'flex', alignItems: 'stretch', gap: 10 } as any}>
-              <div style={{ flex: 1 } as any}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 6 } as any}>
-                  <i className="ri-key-line" style={{ fontSize: 13, color: '#F59E0B' }} />
-                  <span style={{ fontSize: 9, fontWeight: 700, color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: 0.5 }}>Code Prescripteur</span>
-                </div>
-                <div style={{ fontSize: 16, fontWeight: 900, color: '#F59E0B', fontFamily: 'monospace', letterSpacing: 1 }}>{user.activation_code || '--'}</div>
-                <div style={{ fontSize: 9, color: '#9CA3AF', marginTop: 4 }}>A partager avec vos gardiens</div>
-              </div>
+          {/* Revenue card — green image like Coach/Physio */}
+          <div data-testid="saad-revenue-card" onClick={() => router.push('/pro-revenue' as any)}
+            style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '14px 16px', borderRadius: 18, cursor: 'pointer', transition: 'transform 0.15s', marginBottom: 16, position: 'relative', overflow: 'hidden' } as any}
+            onMouseEnter={(e: any) => { e.currentTarget.style.transform = 'translateY(-2px)'; }}
+            onMouseLeave={(e: any) => { e.currentTarget.style.transform = ''; }}>
+            <img src="https://customer-assets.emergentagent.com/job_6e5f29d8-07a7-4d8a-88cc-8e0eebe2b466/artifacts/jgg2zwgt_ChatGPT%20Image%2018%20f%C3%A9vr.%202026%2C%2008_31_33.png" alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 } as any} />
+            <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.25)', zIndex: 1 } as any} />
+            <div style={{ width: 50, height: 50, borderRadius: 999, background: 'rgba(255,255,255,0.15)', backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, position: 'relative', zIndex: 2, border: '1px solid rgba(255,255,255,0.2)' } as any}>
+              <span style={{ fontSize: 20, fontWeight: 900, color: '#FFF' }}>€</span>
             </div>
-            <div style={{ padding: '14px 16px', borderRadius: 18, background: '#FFF', border: '1px solid rgba(139,92,246,0.2)', display: 'flex', alignItems: 'stretch', gap: 10 } as any}>
-              <div style={{ flex: 1 } as any}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 6 } as any}>
-                  <i className="ri-map-pin-range-line" style={{ fontSize: 13, color: '#8B5CF6' }} />
-                  <span style={{ fontSize: 9, fontWeight: 700, color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: 0.5 }}>Code Intervention</span>
-                </div>
-                <div style={{ fontSize: 16, fontWeight: 900, color: '#8B5CF6', fontFamily: 'monospace', letterSpacing: 1 }}>{user.intervention_code || '--'}</div>
-                <div style={{ fontSize: 9, color: '#9CA3AF', marginTop: 4 }}>Pour l'espace intervenant Care</div>
-              </div>
+            <div style={{ flex: 1, position: 'relative', zIndex: 2 } as any}>
+              <div style={{ fontSize: 15, fontWeight: 700, color: '#FFF' }}>Mes revenus</div>
+              <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.65)', marginTop: 2 }}>50€ HT/souscription + 5€ HT/mois</div>
             </div>
+            <i className="ri-arrow-right-s-line" style={{ fontSize: 20, color: 'rgba(255,255,255,0.5)', position: 'relative', zIndex: 2 }} />
           </div>
 
           {/* Onboarding SAAD — 2-step glass popup */}
