@@ -59,6 +59,9 @@ L'objectif est une UI Glassmorphism + Light mode avec synchronisation en temps r
 - [x] **Moyennes 7J/30J/90J minceur** — cartes Poids, Masse grasse, Masse musculaire avec selecteur et badge (2026-03-30)
 - [x] **Refonte graphiques minceur** — courbes bezier lissees, taille augmentee (170px), tooltips dark, labels dates espaces, animation gradient (2026-03-30)
 - [x] **API /api/health/metric-averages** — endpoint retournant les moyennes 7j/30j/90j pour N metriques en un seul appel (2026-03-30)
+- [x] **Bibliotheque hydratation enrichie** — Templates avec nom, description, ingredients (avec quantites), volume, bienfaits, categorie. 21 templates pre-remplis (smoothies, thes, tisanes, bouillons, eaux aromatisees, jus frais, boissons isotoniques). Formulaire enrichi + affichage premium dans la bibliotheque et les modals d'assignation (2026-03-31)
+- [x] **Bibliotheque complements enrichie** — Ajout des champs description, bienfaits, categorie aux templates. 23 complements pre-remplis avec dosages, descriptions medicales et bienfaits detailles (2026-03-31)
+- [x] **Seed intelligent dedup** — Le seed ajoute les templates manquants sans supprimer les existants (deduplication par titre). Fonctionne pour exercices, hydratation, complements et repas (2026-03-31)
 
 ## Code Architecture (post-refactoring)
 ```
@@ -70,6 +73,12 @@ L'objectif est une UI Glassmorphism + Light mode avec synchronisation en temps r
   SleepRegularityCard.tsx   - Regularite coucher/reveil
   SleepExplainPopup.tsx     - Popup explicative dark unifie
 ```
+
+## Backlog P0
+- [ ] Validation douleur + note pour Complements, Hydratation et Repas (identique aux exercices)
+
+## Backlog P1
+- [ ] Deploiement serveur TCP J2358 sur nouvelle IP
 
 ## Backlog P2
 - [ ] Balance/gilet connectes
