@@ -90,17 +90,23 @@ export default function CompanyHome({ token, user }: { token: string; user: any 
               </div>
               {/* Codes glass blur dans le header */}
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginTop: 14 } as any}>
-                <div style={{ padding: '12px 14px', borderRadius: 16, background: 'rgba(255,255,255,0.1)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', border: '1px solid rgba(255,255,255,0.15)' } as any}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4 } as any}>
-                    <i className="ri-key-2-line" style={{ fontSize: 12, color: '#F59E0B' }} />
-                    <span style={{ fontSize: 8, fontWeight: 700, color: 'rgba(255,255,255,0.5)', textTransform: 'uppercase', letterSpacing: 0.5 }}>Code Prescripteur</span>
+                <div onClick={() => { navigator.clipboard?.writeText(user.activation_code || ''); if (typeof window !== 'undefined') window.alert('Code prescripteur copie !'); }} style={{ padding: '12px 14px', borderRadius: 16, background: 'rgba(255,255,255,0.1)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', border: '1px solid rgba(255,255,255,0.15)', cursor: 'pointer' } as any}>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4 } as any}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 6 } as any}>
+                      <i className="ri-key-2-line" style={{ fontSize: 12, color: '#F59E0B' }} />
+                      <span style={{ fontSize: 8, fontWeight: 700, color: 'rgba(255,255,255,0.5)', textTransform: 'uppercase', letterSpacing: 0.5 }}>Code Prescripteur</span>
+                    </div>
+                    <i className="ri-file-copy-line" style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)' }} />
                   </div>
                   <div style={{ fontSize: 18, fontWeight: 900, color: '#FFF', fontFamily: 'monospace', letterSpacing: 2 }}>{user.activation_code || '--'}</div>
                 </div>
-                <div style={{ padding: '12px 14px', borderRadius: 16, background: 'rgba(255,255,255,0.1)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', border: '1px solid rgba(255,255,255,0.15)' } as any}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4 } as any}>
-                    <i className="ri-map-pin-line" style={{ fontSize: 12, color: '#A78BFA' }} />
-                    <span style={{ fontSize: 8, fontWeight: 700, color: 'rgba(255,255,255,0.5)', textTransform: 'uppercase', letterSpacing: 0.5 }}>Code Intervention</span>
+                <div onClick={() => { navigator.clipboard?.writeText(user.intervention_code || ''); if (typeof window !== 'undefined') window.alert('Code intervention copie !'); }} style={{ padding: '12px 14px', borderRadius: 16, background: 'rgba(255,255,255,0.1)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', border: '1px solid rgba(255,255,255,0.15)', cursor: 'pointer' } as any}>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4 } as any}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 6 } as any}>
+                      <i className="ri-map-pin-line" style={{ fontSize: 12, color: '#A78BFA' }} />
+                      <span style={{ fontSize: 8, fontWeight: 700, color: 'rgba(255,255,255,0.5)', textTransform: 'uppercase', letterSpacing: 0.5 }}>Code Intervention</span>
+                    </div>
+                    <i className="ri-file-copy-line" style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)' }} />
                   </div>
                   <div style={{ fontSize: 18, fontWeight: 900, color: '#FFF', fontFamily: 'monospace', letterSpacing: 2 }}>{user.intervention_code || '--'}</div>
                 </div>
@@ -272,20 +278,6 @@ export default function CompanyHome({ token, user }: { token: string; user: any 
             </div>
           )}
 
-          {/* Commission settings card */}
-          <div onClick={() => user.onboarding_completed || user.commission_type ? setShowStripeManage(true) : setShowStripeSetup(true)} style={{ padding: '18px 20px', borderRadius: 22, background: '#FFF', border: '1px solid rgba(124,58,237,0.15)', marginBottom: 14, cursor: 'pointer' } as any}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 14 } as any}>
-              <div style={{ width: 44, height: 44, borderRadius: 14, background: 'rgba(124,58,237,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}><i className="ri-bank-card-line" style={{ fontSize: 22, color: '#7C3AED' }} /></div>
-              <div style={{ flex: 1 } as any}>
-                <div style={{ fontSize: 15, fontWeight: 700, color: '#111' }}>{user.saad_registered ? 'Paiements Mollie' : 'Configurer les paiements'}</div>
-                <div style={{ fontSize: 11, color: '#6B7280', marginTop: 2 }}>Commission fixe : 50 EUR HT + 5 EUR HT/mois</div>
-              </div>
-              <div style={{ display: 'inline-flex', alignItems: 'center', gap: 4, padding: '4px 10px', borderRadius: 999, background: user.saad_registered ? 'rgba(16,185,129,0.15)' : 'rgba(245,158,11,0.15)' } as any}>
-                <span style={{ width: 5, height: 5, borderRadius: 999, background: user.saad_registered ? '#10B981' : '#F59E0B' } as any} />
-                <span style={{ fontSize: 10, fontWeight: 600, color: user.saad_registered ? '#10B981' : '#F59E0B' }}>{user.saad_registered ? 'Actif' : 'A configurer'}</span>
-              </div>
-            </div>
-          </div>
 
           {/* Stripe Manage Popup — READ ONLY (commission locked once chosen) */}
           {showStripeManage && (
@@ -346,51 +338,22 @@ export default function CompanyHome({ token, user }: { token: string; user: any 
           )}
 
 
-          {/* Alert card */}
+          {/* Alert card — light style */}
           {(() => {
             const totalA = alerts.length;
             const resolvedA = alerts.filter((a: any) => a.status === 'resolved' || a.status === 'closed').length;
-            const resRate = totalA > 0 ? Math.round((resolvedA / totalA) * 100) : 0;
             return (
-              <div onClick={() => router.push('/(tabs)/alerts' as any)} style={{ borderRadius: 22, overflow: 'hidden', position: 'relative', padding: '18px', marginBottom: 12, cursor: 'pointer', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)' } as any}>
-                <img src={BG_RED} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 } as any} />
-                <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.3)', backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)', zIndex: 1 } as any} />
-                <div style={{ position: 'relative', zIndex: 2 } as any}>
-                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 } as any}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 14 } as any}>
-                      <div style={{ fontSize: 32, fontWeight: 900, color: '#FFF' }}>{totalA}</div>
-                      <div>
-                        <div style={{ fontSize: 15, fontWeight: 700, color: '#FFF' }}>Alerte{totalA > 1 ? 's' : ''}</div>
-                        <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.7)' }}>{activeAlerts.length} en cours - {resolvedA} resolue{resolvedA > 1 ? 's' : ''}</div>
-                      </div>
-                    </div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 6 } as any}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '4px 10px', borderRadius: 999, background: 'rgba(255,255,255,0.15)' } as any}><span style={{ width: 6, height: 6, borderRadius: 3, background: '#FFF' } as any} /><span style={{ fontSize: 10, fontWeight: 600, color: '#FFF' }}>{activeAlerts.length > 0 ? 'Active' : 'RAS'}</span></div>
-                      <i className="ri-arrow-right-s-line" style={{ fontSize: 18, color: 'rgba(255,255,255,0.7)' }} />
-                    </div>
-                  </div>
-                  {totalA > 0 && (<>
-                    <div style={{ height: 1, background: 'rgba(255,255,255,0.2)', marginBottom: 12 } as any} />
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 14 } as any}>
-                      <div style={{ flex: 1 } as any}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6 } as any}>
-                          <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.7)', fontWeight: 600 }}>Taux de resolution</span>
-                          <span style={{ fontSize: 12, fontWeight: 800, color: '#FFF' }}>{resRate}%</span>
-                        </div>
-                        <div style={{ height: 5, borderRadius: 99, background: 'rgba(255,255,255,0.2)', overflow: 'hidden' } as any}>
-                          <div style={{ height: '100%', borderRadius: 99, background: '#FFF', width: `${resRate}%` } as any} />
-                        </div>
-                      </div>
-                      <div style={{ display: 'flex', gap: 10 } as any}>
-                        {[{ val: activeAlerts.length, label: 'Actives' }, { val: resolvedA, label: 'Resolues' }].map((s, i) => (
-                          <div key={i} style={{ textAlign: 'center', minWidth: 44 } as any}>
-                            <div style={{ fontSize: 20, fontWeight: 900, color: '#FFF' }}>{s.val}</div>
-                            <div style={{ fontSize: 8, color: 'rgba(255,255,255,0.6)', textTransform: 'uppercase' }}>{s.label}</div>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  </>)}
+              <div style={{ padding: '16px 18px', borderRadius: 18, background: '#FFF', border: activeAlerts.length > 0 ? '1px solid rgba(239,68,68,0.2)' : '1px solid rgba(0,0,0,0.06)', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 14 } as any}>
+                <div style={{ width: 44, height: 44, borderRadius: 14, background: activeAlerts.length > 0 ? 'rgba(239,68,68,0.1)' : '#F4F4F5', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}>
+                  <i className={activeAlerts.length > 0 ? 'ri-alarm-warning-fill' : 'ri-shield-check-fill'} style={{ fontSize: 20, color: activeAlerts.length > 0 ? '#EF4444' : '#10B981' }} />
+                </div>
+                <div style={{ flex: 1 } as any}>
+                  <div style={{ fontSize: 15, fontWeight: 700, color: '#111' }}>Alertes</div>
+                  <div style={{ fontSize: 11, color: '#6B7280', marginTop: 2 }}>{activeAlerts.length > 0 ? `${activeAlerts.length} alerte${activeAlerts.length > 1 ? 's' : ''} en cours` : 'Aucune alerte active'} · {resolvedA} resolue{resolvedA > 1 ? 's' : ''}</div>
+                </div>
+                <div style={{ display: 'inline-flex', alignItems: 'center', gap: 4, padding: '4px 10px', borderRadius: 999, background: activeAlerts.length > 0 ? 'rgba(239,68,68,0.1)' : 'rgba(16,185,129,0.1)' } as any}>
+                  <span style={{ width: 5, height: 5, borderRadius: 999, background: activeAlerts.length > 0 ? '#EF4444' : '#10B981' } as any} />
+                  <span style={{ fontSize: 10, fontWeight: 600, color: activeAlerts.length > 0 ? '#EF4444' : '#10B981' }}>{activeAlerts.length > 0 ? 'Active' : 'RAS'}</span>
                 </div>
               </div>
             );

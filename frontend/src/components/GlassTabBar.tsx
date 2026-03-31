@@ -46,7 +46,8 @@ export const TAB_CONFIGS: Record<string, TabConfig[]> = {
   company: [
     { key: 'index', icon: 'ri-bar-chart-box-fill', label: 'Stats' },
     { key: 'health', icon: 'ri-building-2-fill', label: 'Agence' },
-    { key: 'alerts', icon: 'ri-group-fill', label: 'Equipes' },
+    { key: 'teleconsult', icon: 'ri-service-fill', label: 'Interventions' },
+    { key: 'devices', icon: 'ri-file-list-3-fill', label: 'Prescriptions' },
     { key: 'profile', icon: 'ri-menu-3-fill', label: 'Plus' },
   ],
 };
