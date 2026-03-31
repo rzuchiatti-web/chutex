@@ -111,18 +111,16 @@ export default function CompanyHome({ token, user }: { token: string; user: any 
                   <div style={{ fontSize: 18, fontWeight: 900, color: '#FFF', fontFamily: 'monospace', letterSpacing: 2 }}>{user.intervention_code || '--'}</div>
                 </div>
               </div>
-              {/* Alerte glass blur dans le header */}
-              <div style={{ marginTop: 10, padding: '12px 14px', borderRadius: 16, background: activeAlerts.length > 0 ? 'rgba(239,68,68,0.15)' : 'rgba(16,185,129,0.1)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', border: `1px solid ${activeAlerts.length > 0 ? 'rgba(239,68,68,0.3)' : 'rgba(16,185,129,0.2)'}`, display: 'flex', alignItems: 'center', gap: 12 } as any}>
-                <div style={{ width: 36, height: 36, borderRadius: 12, background: activeAlerts.length > 0 ? 'rgba(239,68,68,0.2)' : 'rgba(16,185,129,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}>
-                  <i className={activeAlerts.length > 0 ? 'ri-alarm-warning-fill' : 'ri-shield-check-fill'} style={{ fontSize: 16, color: activeAlerts.length > 0 ? '#FCA5A5' : '#6EE7B7' }} />
+              {/* Alerte banner — style Coach */}
+              <div data-testid="saad-alert-card" style={{ borderRadius: 16, padding: '14px 16px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: 'rgba(255,255,255,0.12)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1px solid rgba(255,255,255,0.15)', marginTop: 10 } as any}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 14, flex: 1 } as any}>
+                  <div style={{ fontSize: 32, fontWeight: 900, color: '#FFF' }}>{activeAlerts.length}</div>
+                  <div style={{ width: 1, height: 32, background: 'rgba(255,255,255,0.2)', flexShrink: 0 } as any} />
+                  <div><div style={{ fontSize: 14, fontWeight: 700, color: '#FFF' }}>Alerte{activeAlerts.length !== 1 ? 's' : ''}</div><div style={{ fontSize: 11, color: 'rgba(255,255,255,0.6)' }}>{activeAlerts.length > 0 ? `${activeAlerts.length} en cours` : 'Aucune alerte'}</div></div>
                 </div>
-                <div style={{ flex: 1 } as any}>
-                  <div style={{ fontSize: 13, fontWeight: 700, color: '#FFF' }}>{activeAlerts.length > 0 ? `${activeAlerts.length} alerte${activeAlerts.length > 1 ? 's' : ''} active${activeAlerts.length > 1 ? 's' : ''}` : 'Aucune alerte'}</div>
-                  <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.5)' }}>{alerts.filter((a: any) => a.status === 'resolved' || a.status === 'closed').length} resolue{alerts.filter((a: any) => a.status === 'resolved' || a.status === 'closed').length > 1 ? 's' : ''}</div>
-                </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '4px 10px', borderRadius: 999, background: 'rgba(255,255,255,0.1)' } as any}>
-                  <span style={{ width: 5, height: 5, borderRadius: 999, background: activeAlerts.length > 0 ? '#FCA5A5' : '#6EE7B7' } as any} />
-                  <span style={{ fontSize: 10, fontWeight: 600, color: '#FFF' }}>{activeAlerts.length > 0 ? 'Active' : 'RAS'}</span>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 6 } as any}>
+                  {activeAlerts.length > 0 ? <div style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '4px 10px', borderRadius: 999, background: 'rgba(239,68,68,0.3)' } as any}><span style={{ width: 6, height: 6, borderRadius: 3, background: '#EF4444' } as any} /><span style={{ fontSize: 10, fontWeight: 600, color: '#FFF' }}>Active</span></div> : <div style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '4px 10px', borderRadius: 999, background: 'rgba(16,185,129,0.2)' } as any}><span style={{ width: 6, height: 6, borderRadius: 3, background: '#10B981' } as any} /><span style={{ fontSize: 10, fontWeight: 600, color: '#10B981' }}>OK</span></div>}
+                  <i className="ri-arrow-right-s-line" style={{ fontSize: 18, color: 'rgba(255,255,255,0.5)' }} />
                 </div>
               </div>
             </div>

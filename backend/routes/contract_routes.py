@@ -590,8 +590,9 @@ async def mark_invoice_paid(invoice_id: str):
 # ═══════════════════════════════════════════════════════
 
 SAAD_COMMISSIONS = {
-    "subscription_fee": 50.00,   # 50€ HT unique à la souscription
-    "monthly_fee": 5.00,         # 5€ HT/mois récurrent
+    "bracelet": {"subscription_fee": 50.00, "monthly_fee": 5.00},       # Téléassistance standard
+    "bracelet_gilet": {"subscription_fee": 100.00, "monthly_fee": 10.00}, # Bracelet + Gilet
+    "standard": {"subscription_fee": 50.00, "monthly_fee": 0},           # Standard sans téléassistance
 }
 
 
@@ -650,9 +651,8 @@ async def get_saad_status(saad_id: str):
         "registered": True,
         "company_name": doc.get("company_name", ""),
         "commission_type": "fixed",
-        "commission_display": "50€ HT (souscription) + 5€ HT/mois",
-        "subscription_fee": SAAD_COMMISSIONS["subscription_fee"],
-        "monthly_fee": SAAD_COMMISSIONS["monthly_fee"],
+        "commission_display": "50-100€ HT (souscription) + 5-10€ HT/mois selon type",
+        "commission_rates": SAAD_COMMISSIONS,
         "status": doc.get("status", "active"),
         "total_earned": round(sum(c.get("amount", 0) for c in total_earned), 2),
         "total_pending": round(sum(c.get("amount", 0) for c in total_pending), 2),
@@ -716,13 +716,15 @@ async def _process_saad_commission(contract: dict, contract_id: str, now: str):
 
     base_url = os.environ.get("EXPO_PUBLIC_BACKEND_URL", "")
 
-    # ── 1. Subscription fee: 50€ HT (one-time, for both SAAD and coach/physio) ──
+    # ── 1. Subscription fee based on subscription type ──
+    sub_type = contract.get("subscription_type") or prescription.get("subscription_type", "bracelet")
+    comm_tier = SAAD_COMMISSIONS.get(sub_type, SAAD_COMMISSIONS["bracelet"])
     existing_sub_fee = await db.saad_commissions.find_one({
         "contract_id": contract_id, "saad_id": recipient_id, "commission_type": "subscription_fee"
     })
     if not existing_sub_fee:
         sub_fee_id = str(uuid.uuid4())
-        sub_amount = SAAD_COMMISSIONS["subscription_fee"]
+        sub_amount = comm_tier["subscription_fee"]
         mollie_sub_id = ""
         try:
             payment = mollie_client.payments.create({
@@ -753,10 +755,10 @@ async def _process_saad_commission(contract: dict, contract_id: str, now: str):
             "created_at": now,
         })
 
-    # ── 2. Monthly fee: 5€ HT/mois (SAAD only, not coach/physio) ──
-    if saad_account and not is_coach_physio:
+    # ── 2. Monthly fee based on subscription type (SAAD only, not coach/physio) ──
+    if saad_account and not is_coach_physio and comm_tier["monthly_fee"] > 0:
         monthly_id = str(uuid.uuid4())
-        monthly_amount = SAAD_COMMISSIONS["monthly_fee"]
+        monthly_amount = comm_tier["monthly_fee"]
         mollie_monthly_id = ""
         try:
             payment = mollie_client.payments.create({

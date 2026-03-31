@@ -168,63 +168,65 @@ export default function CompanyAgencyScreen() {
   /* ─────────── PAGE PRINCIPALE ─────────── */
   const isTab = !agencyId;
   return (
-    <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, display: 'flex', flexDirection: 'column', fontFamily: 'Inter, system-ui, sans-serif', overflow: 'hidden', background: '#111' } as any}>
-      <div style={{ position: 'absolute', inset: 0, background: '#111', zIndex: 0 } as any} />
+    <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, display: 'flex', flexDirection: 'column', fontFamily: 'Inter, system-ui, sans-serif', overflow: 'hidden', background: '#F5F5F7' } as any}>
+      <div style={{ flex: 1, overflowY: 'auto', position: 'relative', zIndex: 5, WebkitOverflowScrolling: 'touch' } as any}>
 
-      {/* ── Scrollable content (header + body) ── */}
-      <div style={{ flex: 1, overflowY: 'auto', position: 'relative', zIndex: 5, padding: '22px 20px 100px', WebkitOverflowScrolling: 'touch' } as any}>
-
-        {/* ── Header (scrolls with content) ── */}
-        <div style={{ textAlign: 'center', marginBottom: 14 } as any}>
-          {!isTab && <div onClick={() => router.back()} style={{ position: 'absolute', left: 20, top: 24, width: 36, height: 36, borderRadius: 999, background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}>
+        {/* HEADER NOIR */}
+        <div style={{ position: 'relative', minHeight: 220, overflow: 'hidden', background: '#111' } as any}>
+          {!isTab && <div onClick={() => router.back()} style={{ position: 'absolute', left: 20, top: 24, width: 36, height: 36, borderRadius: 999, background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', zIndex: 10 } as any}>
             <i className="ri-arrow-left-s-line" style={{ fontSize: 20, color: '#FFF' }} />
           </div>}
-
-          {/* Structure logo + name */}
-          <div style={{ width: 52, height: 52, borderRadius: 16, background: 'rgba(212,132,90,0.2)', border: '2px solid rgba(212,132,90,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 10px' } as any}>
-            <i className="ri-building-line" style={{ fontSize: 24, color: '#D4845A' }} />
+          <div style={{ padding: '28px 20px 40px', textAlign: 'center' } as any}>
+            <div style={{ width: 52, height: 52, borderRadius: 16, background: 'rgba(212,132,90,0.2)', border: '2px solid rgba(212,132,90,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 10px' } as any}>
+              <i className="ri-building-line" style={{ fontSize: 24, color: '#D4845A' }} />
+            </div>
+            <div style={{ fontSize: 22, fontWeight: 800, color: '#FFF', marginBottom: 2 }}>{u?.structure_name || u?.name || 'Structure'}</div>
+            {u?.address && <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', marginBottom: 2 }}>{u.address}</div>}
+            {u?.siret && <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.3)', marginBottom: 12 }}>SIRET : {u.siret}</div>}
+            <div style={{ display: 'flex', gap: 8 } as any}>
+              {[
+                { val: agencies.length, label: 'Agences', color: '#D4845A' },
+                { val: intervenants.length, label: 'Intervenants', color: '#A78BFA' },
+                { val: acceptedGuardians, label: 'Gardiens', color: '#10B981' },
+              ].map((s, i) => (
+                <div key={i} style={{ flex: 1, padding: '10px 6px', borderRadius: 14, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)', textAlign: 'center' } as any}>
+                  <div style={{ fontSize: 22, fontWeight: 900, color: s.color }}>{s.val}</div>
+                  <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.35)', textTransform: 'uppercase', letterSpacing: 0.4 }}>{s.label}</div>
+                </div>
+              ))}
+            </div>
           </div>
-          <div style={{ fontSize: 22, fontWeight: 800, color: '#FFF', marginBottom: 2 }}>{u?.structure_name || u?.name || 'Structure'}</div>
-          {u?.address && <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', marginBottom: 2 }}>{u.address}</div>}
-          {u?.siret && <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.3)', marginBottom: 12 }}>SIRET : {u.siret}</div>}
+        </div>
 
-          {/* Stats row */}
-          <div style={{ display: 'flex', gap: 8, marginBottom: 14 } as any}>
-            {[
-              { val: agencies.length, label: 'Agences', color: '#D4845A' },
-              { val: intervenants.length, label: 'Intervenants', color: '#A78BFA' },
-              { val: acceptedGuardians, label: 'Gardiens', color: '#10B981' },
-            ].map((s, i) => (
-              <div key={i} style={{ flex: 1, padding: '10px 6px', borderRadius: 14, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)', textAlign: 'center' } as any}>
-                <div style={{ fontSize: 22, fontWeight: 900, color: s.color }}>{s.val}</div>
-                <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.35)', textTransform: 'uppercase', letterSpacing: 0.4 }}>{s.label}</div>
-              </div>
-            ))}
-          </div>
+        {/* CONTENU BLANC ARRONDI */}
+        <div style={{ padding: '24px 20px 120px', marginTop: -16, borderRadius: '24px 24px 0 0', background: '#F5F5F7', position: 'relative', zIndex: 10, borderTop: '1px solid rgba(0,0,0,0.06)' } as any}>
 
           {/* Tabs */}
-          <div style={{ display: 'inline-flex', borderRadius: 999, padding: 3, background: 'rgba(255,255,255,0.12)', border: '1px solid rgba(255,255,255,0.15)' } as any}>
-            {([
-              { k: 'agencies', label: `Agences (${agencies.length})`, icon: 'ri-building-line' },
-              { k: 'guardians', label: `Gardiens (${guardianLinks.length})`, icon: 'ri-shield-user-line', badge: pendingGuardians },
-            ] as const).map(t => (
-              <div key={t.k} onClick={() => setTab(t.k)} style={{ padding: '8px 14px', borderRadius: 999, cursor: 'pointer', fontSize: 11, fontWeight: 700, background: tab === t.k ? '#FFF' : 'transparent', color: tab === t.k ? '#111' : 'rgba(255,255,255,0.7)', transition: 'all 0.2s', position: 'relative', whiteSpace: 'nowrap' } as any}>
-                <i className={t.icon} style={{ marginRight: 4 }} />{t.label}
-                {(t as any).badge > 0 && <span style={{ position: 'absolute', top: 1, right: 1, width: 14, height: 14, borderRadius: 999, background: '#F59E0B', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 8, fontWeight: 800, color: '#FFF' } as any}>{(t as any).badge}</span>}
-              </div>
-            ))}
+          <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 16 } as any}>
+            <div style={{ display: 'inline-flex', borderRadius: 999, padding: 3, background: '#E5E7EB' } as any}>
+              {([
+                { k: 'agencies', label: `Agences (${agencies.length})`, icon: 'ri-building-line' },
+                { k: 'guardians', label: `Gardiens (${guardianLinks.length})`, icon: 'ri-shield-user-line', badge: pendingGuardians },
+              ] as const).map(t => (
+                <div key={t.k} onClick={() => setTab(t.k)} style={{ padding: '8px 14px', borderRadius: 999, cursor: 'pointer', fontSize: 11, fontWeight: 700, background: tab === t.k ? '#FFF' : 'transparent', color: tab === t.k ? '#111' : '#6B7280', transition: 'all 0.2s', position: 'relative', whiteSpace: 'nowrap', boxShadow: tab === t.k ? '0 1px 4px rgba(0,0,0,0.08)' : 'none' } as any}>
+                  <i className={t.icon} style={{ marginRight: 4 }} />{t.label}
+                  {(t as any).badge > 0 && <span style={{ position: 'absolute', top: 1, right: 1, width: 14, height: 14, borderRadius: 999, background: '#F59E0B', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 8, fontWeight: 800, color: '#FFF' } as any}>{(t as any).badge}</span>}
+                </div>
+              ))}
+            </div>
           </div>
-        </div>
 
-        {/* Invite Guardian Card */}
-        <div onClick={() => setShowInvite(true)} style={{ padding: '14px 16px', borderRadius: 18, background: 'linear-gradient(135deg, rgba(16,185,129,0.08), rgba(16,185,129,0.03))', border: '1px solid rgba(16,185,129,0.15)', marginBottom: 14, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 14, backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)' } as any}>
-          <div style={{ width: 40, height: 40, borderRadius: 12, background: 'rgba(16,185,129,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}><i className="ri-user-add-line" style={{ fontSize: 20, color: '#10B981' }} /></div>
-          <div style={{ flex: 1 } as any}>
-            <div style={{ fontSize: 13, fontWeight: 700, color: '#FFF' }}>Inviter un gardien</div>
-            <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.4)' }}>Envoyez un SMS d'invitation pour rejoindre Chutex</div>
+          {/* Invite gardien */}
+          <div onClick={() => setShowInvite(true)} style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '14px 16px', borderRadius: 18, background: '#FFF', border: '1px solid rgba(0,0,0,0.06)', marginBottom: 12, cursor: 'pointer' } as any}>
+            <div style={{ width: 40, height: 40, borderRadius: 12, background: 'rgba(16,185,129,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}>
+              <i className="ri-user-add-line" style={{ fontSize: 18, color: '#10B981' }} />
+            </div>
+            <div style={{ flex: 1 } as any}>
+              <div style={{ fontSize: 14, fontWeight: 700, color: '#111' }}>Inviter un gardien</div>
+              <div style={{ fontSize: 11, color: '#6B7280' }}>Envoyez un SMS d'invitation</div>
+            </div>
+            <i className="ri-send-plane-fill" style={{ fontSize: 16, color: '#10B981' }} />
           </div>
-          <i className="ri-send-plane-line" style={{ fontSize: 18, color: '#10B981' }} />
-        </div>
 
         {/* ── TAB AGENCES ── */}
         {tab === 'agencies' && (<>
@@ -466,6 +468,7 @@ export default function CompanyAgencyScreen() {
           </div>
         </div>
       )}
+      </div>
     </div>
   );
 }
