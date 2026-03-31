@@ -51,7 +51,7 @@ export default function CompanyHome({ token, user }: { token: string; user: any 
   if (loading) return <FullScreenLoader />;
   const activeAlerts = alerts.filter((a: any) => a.status === 'active');
   const activeIvs = interventions.filter((iv: any) => ['in_progress', 'en_route', 'pending_acceptance'].includes(iv.status));
-  const BG_DASH = BG_IMAGES.beneficiary;
+  const BG_DASH = BG_IMAGES.red;
   const BG_RED = BG_IMAGES.red;
   const BG_VIOLET = BG_IMAGES.violet;
   const BG_ORANGE = BG_IMAGES.orange;
