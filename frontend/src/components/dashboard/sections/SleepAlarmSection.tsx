@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { apiFetch } from '../../../services/api';
 import { HEALTH_IMAGES } from '../constants';
 
-function WheelPicker({ value, items, onChange, accent = '#A78BFA' }: { value: number; items: { val: number; label: string }[]; onChange: (v: number) => void; accent?: string }) {
+function WheelPicker({ value, items, onChange, accent = '#FFF' }: { value: number; items: { val: number; label: string }[]; onChange: (v: number) => void; accent?: string }) {
   const ref = useRef<HTMLDivElement>(null);
   const itemH = 44;
   useEffect(() => {
@@ -13,12 +13,12 @@ function WheelPicker({ value, items, onChange, accent = '#A78BFA' }: { value: nu
   }, []);
   return (
     <div style={{ width: 70, height: 132, overflow: 'hidden', position: 'relative', borderRadius: 14 } as any}>
-      <div style={{ position: 'absolute', top: '50%', left: 0, right: 0, height: itemH, marginTop: -itemH / 2, borderTop: `1.5px solid ${accent}40`, borderBottom: `1.5px solid ${accent}40`, zIndex: 1, pointerEvents: 'none', background: `${accent}08` } as any} />
+      <div style={{ position: 'absolute', top: '50%', left: 0, right: 0, height: itemH, marginTop: -itemH / 2, borderTop: '1.5px solid rgba(255,255,255,0.15)', borderBottom: '1.5px solid rgba(255,255,255,0.15)', zIndex: 1, pointerEvents: 'none', background: 'rgba(255,255,255,0.04)' } as any} />
       <div ref={ref as any} style={{ height: '100%', overflowY: 'scroll', scrollSnapType: 'y mandatory', scrollbarWidth: 'none', position: 'relative', zIndex: 3, paddingTop: itemH, paddingBottom: itemH } as any}
         onScroll={(e: any) => { const idx = Math.round(e.target.scrollTop / itemH); if (idx >= 0 && idx < items.length && items[idx].val !== value) onChange(items[idx].val); }}>
         {items.map((item, i) => {
           const sel = item.val === value;
-          return <div key={i} style={{ height: itemH, display: 'flex', alignItems: 'center', justifyContent: 'center', scrollSnapAlign: 'center', fontSize: sel ? 30 : 18, fontWeight: sel ? 900 : 400, color: sel ? '#FFF' : 'rgba(255,255,255,0.12)', transition: 'all 0.15s' } as any}>{item.label}</div>;
+          return <div key={i} style={{ height: itemH, display: 'flex', alignItems: 'center', justifyContent: 'center', scrollSnapAlign: 'center', fontSize: sel ? 30 : 18, fontWeight: sel ? 900 : 400, color: sel ? '#FFF' : 'rgba(255,255,255,0.1)', transition: 'all 0.15s' } as any}>{item.label}</div>;
         })}
       </div>
     </div>
@@ -94,59 +94,69 @@ export function SleepAlarmSection({ sleepAlarm, alarmTime, setAlarmTime, editing
               </div>
             </div>
 
-            {/* Moon image */}
+            {/* Moon image — no shadow */}
             <div style={{ textAlign: 'center', marginBottom: 16 } as any}>
-              <img src={HEALTH_IMAGES.sleep} alt="" style={{ width: 120, height: 120, objectFit: 'contain', margin: '0 auto', display: 'block', filter: 'drop-shadow(0 8px 24px rgba(167,139,250,0.3))' } as any} />
+              <img src={HEALTH_IMAGES.sleep} alt="" style={{ width: 120, height: 120, objectFit: 'contain', margin: '0 auto', display: 'block' } as any} />
             </div>
 
-            {/* Title — centered */}
-            <div style={{ textAlign: 'center', marginBottom: 24 } as any}>
-              <div style={{ fontSize: 22, fontWeight: 900, color: '#FFF' }}>Optimisation du sommeil</div>
-              <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.3)', marginTop: 4 }}>Calculee selon votre physiologie</div>
+            {/* Title */}
+            <div style={{ textAlign: 'center', marginBottom: 28 } as any}>
+              <div style={{ fontSize: 22, fontWeight: 900, color: '#FFF' }}>Votre sommeil ce soir</div>
+              <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.3)', marginTop: 4 }}>Definissez votre heure de reveil, nous calculons le meilleur moment pour vous coucher</div>
             </div>
 
-            {/* Bedtime result — big centered */}
-            <div style={{ background: 'rgba(167,139,250,0.06)', border: '1px solid rgba(167,139,250,0.12)', borderRadius: 18, padding: '18px 20px', marginBottom: 20, textAlign: 'center' } as any}>
-              <div style={{ fontSize: 9, fontWeight: 700, color: '#A78BFA', textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 6 }}>Coucher recommande</div>
-              <div style={{ fontSize: 40, fontWeight: 900, color: '#FFF', fontVariantNumeric: 'tabular-nums', lineHeight: 1 }}>{s.bedtime || '22:00'}</div>
-              <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)', marginTop: 8 }}>
-                {(s.sleep_need_hours || 7)}h{(s.sleep_need_minutes || 30) > 0 ? `${s.sleep_need_minutes || 30}min` : ''} de sommeil
-                {extraMin > 0 && <span style={{ color: '#F59E0B' }}> (+{extraMin}min)</span>}
-              </div>
-            </div>
+            {/* === MAIN SECTION : Wake time → dotted → Bedtime === */}
+            <div style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 20, padding: '20px 16px', marginBottom: 24 } as any}>
 
-            {/* Wake time — wheel picker — centered title */}
-            <div style={{ marginBottom: 20 } as any}>
-              <div style={{ fontSize: 9, fontWeight: 700, color: 'rgba(255,255,255,0.25)', textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 10, textAlign: 'center' }}>Heure de reveil</div>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 } as any}>
+              {/* Wake time label */}
+              <div style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.4)', textAlign: 'center', marginBottom: 8 }}>A quelle heure vous reveillez-vous ?</div>
+
+              {/* Wheel picker */}
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, marginBottom: 16 } as any}>
                 <WheelPicker value={wakeH} items={hours} onChange={(v) => setAlarmTime(`${String(v).padStart(2, '0')}:${String(wakeM).padStart(2, '0')}`)} />
                 <span style={{ fontSize: 32, fontWeight: 900, color: 'rgba(255,255,255,0.15)' }}>:</span>
                 <WheelPicker value={wakeM} items={minutes} onChange={(v) => setAlarmTime(`${String(wakeH).padStart(2, '0')}:${String(v).padStart(2, '0')}`)} />
               </div>
+
+              {/* Dotted line pointing down */}
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 0, margin: '4px 0' } as any}>
+                {[0, 1, 2].map(i => <div key={i} style={{ width: 2, height: 6, borderRadius: 1, background: 'rgba(255,255,255,0.15)', marginBottom: 4 } as any} />)}
+                <i className="ri-arrow-down-s-line" style={{ fontSize: 14, color: 'rgba(255,255,255,0.2)' }} />
+              </div>
+
+              {/* Bedtime result */}
+              <div style={{ textAlign: 'center', marginTop: 8 } as any}>
+                <div style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.4)', marginBottom: 6 }}>Heure de coucher recommandee</div>
+                <div style={{ fontSize: 44, fontWeight: 900, color: '#FFF', fontVariantNumeric: 'tabular-nums', lineHeight: 1 }}>{s.bedtime || '22:00'}</div>
+                <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)', marginTop: 6 }}>
+                  Soit {(s.sleep_need_hours || 7)}h{(s.sleep_need_minutes || 30) > 0 ? `${s.sleep_need_minutes || 30}min` : ''} de sommeil optimal
+                  {extraMin > 0 && <span style={{ color: '#F59E0B' }}> (+{extraMin}min ajustement)</span>}
+                </div>
+              </div>
             </div>
 
-            {/* Factors — centered title */}
+            {/* Factors */}
             <div style={{ marginBottom: 20 } as any}>
-              <div style={{ fontSize: 9, fontWeight: 700, color: 'rgba(255,255,255,0.2)', textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 12, textAlign: 'center' }}>Facteurs d'analyse</div>
+              <div style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.3)', textAlign: 'center', marginBottom: 12 }}>Ce calcul prend en compte</div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 6 } as any}>
                 {factors.map((f, i) => (
-                  <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 14px', borderRadius: 14, background: 'rgba(255,255,255,0.06)', border: `1px solid ${f.color}25` } as any}>
-                    <div style={{ width: 32, height: 32, borderRadius: 10, background: `${f.color}15`, border: `1px solid ${f.color}25`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}>
-                      <i className={f.icon} style={{ fontSize: 15, color: f.color }} />
+                  <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 14px', borderRadius: 14, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.06)' } as any}>
+                    <div style={{ width: 30, height: 30, borderRadius: 10, background: `${f.color}10`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}>
+                      <i className={f.icon} style={{ fontSize: 14, color: f.color }} />
                     </div>
                     <div style={{ flex: 1 } as any}>
-                      <div style={{ fontSize: 13, fontWeight: 700, color: '#FFF' }}>{f.label}</div>
-                      <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.35)', marginTop: 1 }}>{f.desc}</div>
+                      <div style={{ fontSize: 12, fontWeight: 700, color: '#FFF' }}>{f.label}</div>
+                      <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.3)', marginTop: 1 }}>{f.desc}</div>
                     </div>
-                    {f.active && <div style={{ width: 8, height: 8, borderRadius: 4, background: f.color, flexShrink: 0, boxShadow: `0 0 6px ${f.color}60` } as any} />}
+                    {f.active && <div style={{ width: 7, height: 7, borderRadius: 4, background: f.color, flexShrink: 0 } as any} />}
                   </div>
                 ))}
               </div>
             </div>
 
             {/* Explanation */}
-            <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.2)', lineHeight: 1.6, textAlign: 'center', marginBottom: 24, padding: '0 8px' }}>
-              Notre algorithme analyse votre variabilite cardiaque, frequence au repos, stress et qualite des phases de sommeil profond pour determiner votre besoin reel de recuperation.
+            <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.18)', lineHeight: 1.6, textAlign: 'center', marginBottom: 24, padding: '0 8px' }}>
+              Analyse basee sur votre variabilite cardiaque, frequence au repos, niveau de stress et qualite de vos phases de sommeil profond.
             </div>
 
             {/* Save */}
