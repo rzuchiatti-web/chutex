@@ -125,7 +125,7 @@ export function SleepAlarmSection({ sleepAlarm, alarmTime, setAlarmTime, editing
             </div>
 
             {/* Save button */}
-            <div data-testid="save-alarm-btn" onClick={handleSave} style={{ padding: '16px', borderRadius: 999, background: '#FFF', textAlign: 'center', cursor: 'pointer', fontSize: 15, fontWeight: 800, color: '#111', opacity: saving ? 0.5 : 1, transition: 'opacity 0.15s' } as any}>
+            <div data-testid="save-alarm-btn" onClick={handleSave} style={{ padding: '16px', borderRadius: 999, background: '#FFF', textAlign: 'center', cursor: 'pointer', fontSize: 15, fontWeight: 800, color: '#111', opacity: saving ? 0.5 : 1, transition: 'opacity 0.15s', marginBottom: 80 } as any}>
               {saving ? 'Enregistrement...' : 'Enregistrer'}
             </div>
           </div>
