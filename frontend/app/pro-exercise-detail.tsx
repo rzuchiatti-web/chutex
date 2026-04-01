@@ -234,7 +234,7 @@ export default function ProExerciseDetailPage() {
         </div>
 
         {/* CONTENT */}
-        <div style={{ padding: '20px 16px 120px', marginTop: -16, borderRadius: '24px 24px 0 0', background: CARD, position: 'relative', zIndex: 10, maxWidth: 480, margin: '-16px auto 0', width: '100%', boxSizing: 'border-box' } as any}>
+        <div style={{ padding: '20px 16px 120px', marginTop: -16, borderRadius: '24px 24px 0 0', background: CARD, position: 'relative', zIndex: 10, maxWidth: 480, margin: '-16px auto 0', width: '100%', boxSizing: 'border-box', minHeight: 'calc(100vh - 160px)' } as any}>
           {loading && <div style={{ textAlign: 'center', padding: '60px 0', color: T3 }}><i className="ri-loader-4-line" style={{ fontSize: 28, animation: 'spin 0.8s linear infinite', display: 'block', marginBottom: 8 }} />Chargement...</div>}
 
           {!loading && ex && (
