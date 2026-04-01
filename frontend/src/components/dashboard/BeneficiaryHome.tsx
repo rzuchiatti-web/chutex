@@ -432,9 +432,11 @@ export function BeneficiaryHome({ token, user }: { token: string; user: any }) {
             <i className="ri-arrow-right-s-line" style={{ fontSize: 18, color: 'rgba(255,255,255,0.3)' }} />
           </div>
 
-          {/* ── CALORIE INTAKE CARD (below Nora) ── */}
+          {/* ── CALORIE + WEIGHT GOAL COMBINED CARD ── */}
           {minceurData?.recommendations?.daily_calories > 0 && (() => {
             const recs = minceurData.recommendations;
+            const wg = minceurData.goal;
+            const hasGoal = wg && wg.target_kg;
             return (
               <div data-testid="calorie-intake-card" onClick={() => router.push('/minceur' as any)}
                 style={{ borderRadius: 18, background: '#F4F4F5', padding: 0, marginBottom: 16, overflow: 'hidden', cursor: 'pointer', transition: 'transform 0.15s' } as any}
@@ -467,6 +469,23 @@ export function BeneficiaryHome({ token, user }: { token: string; user: any }) {
                     ))}
                   </div>
                 )}
+                {hasGoal && (
+                  <div style={{ borderTop: '1px solid #E5E7EB', padding: '14px 18px' } as any}>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 } as any}>
+                      <div style={{ fontSize: 9, fontWeight: 700, color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: 1 }}>Objectif poids</div>
+                      <span style={{ fontSize: 9, color: '#9CA3AF' }}>{wg.weeks} semaines</span>
+                    </div>
+                    <div style={{ display: 'flex', alignItems: 'baseline', gap: 6, marginBottom: 8 } as any}>
+                      <span style={{ fontSize: 22, fontWeight: 900, color: '#111' }}>{minceurData.current_weight || '--'}</span>
+                      <i className="ri-arrow-right-line" style={{ fontSize: 12, color: '#60A5FA' }} />
+                      <span style={{ fontSize: 22, fontWeight: 900, color: '#60A5FA' }}>{wg.target_kg}</span>
+                      <span style={{ fontSize: 11, color: '#9CA3AF' }}>kg</span>
+                    </div>
+                    <div style={{ height: 6, borderRadius: 3, background: '#E5E7EB', overflow: 'hidden' } as any}>
+                      <div style={{ height: '100%', borderRadius: 3, background: 'linear-gradient(90deg, #60A5FA, #3B82F6)', width: `${Math.max(5, Math.min(95, ((minceurData.current_weight || 0) - wg.target_kg) > 0 ? 100 - (((minceurData.current_weight || 0) - wg.target_kg) / (((minceurData.current_weight || 0) - wg.target_kg) + 2)) * 100 : 50))}%`, transition: 'width 0.8s ease' } as any} />
+                    </div>
+                  </div>
+                )}
               </div>
             );
           })()}
@@ -494,10 +513,7 @@ export function BeneficiaryHome({ token, user }: { token: string; user: any }) {
             </div>
           ))}
 
-          {/* ── PROGRAMME EN COURS ── */}
-          {/* Moved below WeightGoalDashCard */}
-
-          <WeightGoalDashCard token={token} />
+          {/* ── Moved below: Weight goal now inside calorie card ── */}
 
           {showWeighing && <WeighingFlow onClose={() => setShowWeighing(false)} d={dashData?.scale || {}} weighings={weighings} />}
 

@@ -215,17 +215,32 @@ export function ReminderCRUDPopup({ show, editReminder, setEditReminder, onClose
               <input value={editingData?.title || ''} onChange={(e: any) => setEditReminder({ ...editReminder, _editingData: { ...editingData, title: e.target.value } })} placeholder={popupType === 'hydration' ? 'Ex: Mon smoothie maison' : popupType === 'medication' ? 'Ex: Paracetamol 500mg' : 'Ex: Marche quotidienne'} style={{ width: '100%', padding: '12px 16px', borderRadius: 12, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', color: '#FFF', fontSize: 15, fontWeight: 700, fontFamily: 'inherit', boxSizing: 'border-box', outline: 'none' } as any} />
             </div>
 
-            {/* Time picker */}
+            {/* Time picker — wheel style */}
             <div style={{ padding: '16px 20px', borderBottom: '1px solid rgba(255,255,255,0.06)' } as any}>
               <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 10, textAlign: 'center' }}>Heure du rappel</div>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 } as any}>
-                <select value={String(hr).padStart(2, '0')} onChange={(e: any) => setTime(parseInt(e.target.value), mn)} style={{ width: 70, padding: '12px 6px', borderRadius: 12, background: 'rgba(255,255,255,0.06)', border: `1px solid ${accent}30`, color: '#FFF', fontSize: 28, fontWeight: 900, textAlign: 'center', outline: 'none', fontFamily: 'inherit', appearance: 'none', WebkitAppearance: 'none' } as any}>
-                  {Array.from({length: 24}, (_, i) => <option key={i} value={String(i).padStart(2, '0')} style={{ background: '#111' }}>{String(i).padStart(2, '0')}</option>)}
-                </select>
-                <span style={{ fontSize: 28, fontWeight: 900, color: 'rgba(255,255,255,0.15)' }}>:</span>
-                <select value={String(mn).padStart(2, '0')} onChange={(e: any) => setTime(hr, parseInt(e.target.value))} style={{ width: 70, padding: '12px 6px', borderRadius: 12, background: 'rgba(255,255,255,0.06)', border: `1px solid ${accent}30`, color: '#FFF', fontSize: 28, fontWeight: 900, textAlign: 'center', outline: 'none', fontFamily: 'inherit', appearance: 'none', WebkitAppearance: 'none' } as any}>
-                  {Array.from({length: 12}, (_, i) => <option key={i} value={String(i * 5).padStart(2, '0')} style={{ background: '#111' }}>{String(i * 5).padStart(2, '0')}</option>)}
-                </select>
+                <div style={{ width: 70, height: 132, overflow: 'hidden', position: 'relative', borderRadius: 14 } as any}>
+                  <div style={{ position: 'absolute', top: '50%', left: 0, right: 0, height: 44, marginTop: -22, borderTop: `1.5px solid ${accent}40`, borderBottom: `1.5px solid ${accent}40`, zIndex: 1, pointerEvents: 'none', background: `${accent}08` } as any} />
+                  <div data-testid="hour-wheel" style={{ height: '100%', overflowY: 'scroll', scrollSnapType: 'y mandatory', scrollbarWidth: 'none', position: 'relative', zIndex: 3, paddingTop: 44, paddingBottom: 44 } as any}
+                    ref={(el: any) => { if (el && !el._init) { el.scrollTop = hr * 44; el._init = true; } }}
+                    onScroll={(e: any) => { const idx = Math.round(e.target.scrollTop / 44); if (idx >= 0 && idx < 24) setTime(idx, mn); }}>
+                    {Array.from({ length: 24 }, (_, i) => (
+                      <div key={i} style={{ height: 44, display: 'flex', alignItems: 'center', justifyContent: 'center', scrollSnapAlign: 'center', fontSize: i === hr ? 30 : 18, fontWeight: i === hr ? 900 : 400, color: i === hr ? '#FFF' : 'rgba(255,255,255,0.12)', transition: 'all 0.15s' } as any}>{String(i).padStart(2, '0')}</div>
+                    ))}
+                  </div>
+                </div>
+                <span style={{ fontSize: 32, fontWeight: 900, color: 'rgba(255,255,255,0.15)' }}>:</span>
+                <div style={{ width: 70, height: 132, overflow: 'hidden', position: 'relative', borderRadius: 14 } as any}>
+                  <div style={{ position: 'absolute', top: '50%', left: 0, right: 0, height: 44, marginTop: -22, borderTop: `1.5px solid ${accent}40`, borderBottom: `1.5px solid ${accent}40`, zIndex: 1, pointerEvents: 'none', background: `${accent}08` } as any} />
+                  <div data-testid="minute-wheel" style={{ height: '100%', overflowY: 'scroll', scrollSnapType: 'y mandatory', scrollbarWidth: 'none', position: 'relative', zIndex: 3, paddingTop: 44, paddingBottom: 44 } as any}
+                    ref={(el: any) => { if (el && !el._init) { el.scrollTop = Math.round(mn / 5) * 44; el._init = true; } }}
+                    onScroll={(e: any) => { const idx = Math.round(e.target.scrollTop / 44); if (idx >= 0 && idx < 12) setTime(hr, idx * 5); }}>
+                    {Array.from({ length: 12 }, (_, i) => {
+                      const v = i * 5; const sel = v === mn;
+                      return <div key={i} style={{ height: 44, display: 'flex', alignItems: 'center', justifyContent: 'center', scrollSnapAlign: 'center', fontSize: sel ? 30 : 18, fontWeight: sel ? 900 : 400, color: sel ? '#FFF' : 'rgba(255,255,255,0.12)', transition: 'all 0.15s' } as any}>{String(v).padStart(2, '0')}</div>;
+                    })}
+                  </div>
+                </div>
               </div>
             </div>
 
