@@ -108,10 +108,11 @@ export default function ActivityDetailPage() {
   const [explainMetric, setExplainMetric] = useState<string | null>(null);
   const [hasProPrograms, setHasProPrograms] = useState(false);
   const [proExercises, setProExercises] = useState<any[]>([]);
-  const [proMeals, setProMeals] = useState<any[]>([]);
-  const [proReminders, setProReminders] = useState<any[]>([]);
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [avgs, setAvgs] = useState<Record<string, any>>({});
+  const [showAddExercise, setShowAddExercise] = useState(false);
+  const [exerciseLibrary, setExerciseLibrary] = useState<any[]>([]);
+  const [libLoading, setLibLoading] = useState(false);
 
   const fetchData = useCallback(() => {
     if (!token) { setLoading(false); return; }
@@ -123,15 +124,11 @@ export default function ActivityDetailPage() {
       apiFetch('/api/pro/has-active-programs', {}, token).catch(() => ({ has_programs: false })),
       apiFetch(`/api/minceur/today-tracking?date=${dateStr}`, {}, token).catch(() => ({})),
       apiFetch(`/api/pro/beneficiary-today-exercises?date=${dateStr}`, {}, token).catch(() => []),
-      apiFetch(`/api/pro/beneficiary-today-meals?date=${dateStr}`, {}, token).catch(() => []),
-      apiFetch(`/api/pro/beneficiary-today-reminders?date=${dateStr}`, {}, token).catch(() => []),
-    ]).then(([st, proCheck, trk, proEx, proMe, proRem]) => {
+    ]).then(([st, proCheck, trk, proEx]) => {
       setStreak(st);
       const hasPro = proCheck?.has_programs || false;
       setHasProPrograms(hasPro);
       setProExercises(Array.isArray(proEx) ? proEx : []);
-      setProMeals(Array.isArray(proMe) ? proMe : []);
-      setProReminders(Array.isArray(proRem) ? proRem : []);
       if (trk?.completed) setTracked(trk.completed);
       else setTracked({});
       if (!hasPro) {
@@ -293,147 +290,87 @@ export default function ActivityDetailPage() {
                 )}
               </div>
 
-              {/* ── EXERCICES DU JOUR (Coach) — cartes individuelles, image réelle ── */}
-              {proExercises.length > 0 && (
-                <>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10, marginTop: 4 } as any}>
-                    <i className="ri-run-line" style={{ fontSize: 14, color: R }} />
-                    <span style={{ fontSize: 13, fontWeight: 800, color: '#111' }}>Exercices du jour</span>
-                    <span style={{ fontSize: 10, fontWeight: 700, color: '#9CA3AF', background: '#E5E7EB', padding: '2px 8px', borderRadius: 999 }}>{proExercises.length}</span>
+              {/* ── EXERCICES DU JOUR — Section avec titre/sous-titre/bouton + ── */}
+              <div style={{ height: 1, background: 'rgba(0,0,0,0.06)', margin: '14px 0 24px' } as any} />
+              <div data-testid="exercises-section" style={{ marginBottom: 14 } as any}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 } as any}>
+                  <div style={{ fontSize: 20, fontWeight: 900, color: '#111', letterSpacing: '-0.3px' }}>Mes exercices</div>
+                  <div data-testid="add-exercise-btn" onClick={() => {
+                    setShowAddExercise(true);
+                    if (exerciseLibrary.length === 0) {
+                      setLibLoading(true);
+                      apiFetch('/api/pro/exercise-library', {}, token).then((lib: any) => {
+                        setExerciseLibrary(Array.isArray(lib) ? lib : []);
+                      }).catch(() => {}).finally(() => setLibLoading(false));
+                    }
+                  }} style={{ width: 34, height: 34, borderRadius: 999, background: '#111', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', transition: 'transform 0.15s' } as any}
+                    onMouseEnter={(e: any) => { e.currentTarget.style.transform = 'scale(1.08)'; }}
+                    onMouseLeave={(e: any) => { e.currentTarget.style.transform = ''; }}>
+                    <i className="ri-add-line" style={{ fontSize: 18, color: '#FFF' }} />
                   </div>
-                  {proExercises.map((ex: any, i: number) => {
-                    const exImg = ex.image ? (ex.image.startsWith('http') ? ex.image : `${API_URL}${ex.image}`) : EX_IMG[(ex.category || 'cardio').toLowerCase()] || EX_IMG.cardio;
-                    return (
-                      <div key={ex.id || i} data-testid={`pro-exercise-${i}`}
-                        onClick={() => router.push({ pathname: '/pro-exercise-detail' as any, params: { id: ex.exercise_template_id || ex.id, mode: 'assigned', assignmentId: ex.id } })}
-                        style={{ borderRadius: 14, background: ex.completed_today ? `${G}08` : '#F4F4F5', overflow: 'hidden', cursor: 'pointer', display: 'flex', minHeight: 80, marginBottom: 8 } as any}>
-                        <div style={{ width: 88, flexShrink: 0, position: 'relative', overflow: 'hidden' } as any}>
-                          <img src={exImg} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' } as any} />
-                        </div>
-                        <div style={{ flex: 1, minWidth: 0, padding: '10px 12px', display: 'flex', flexDirection: 'column', justifyContent: 'center' } as any}>
-                          <span style={{ fontSize: 8, fontWeight: 700, color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: 0.6 }}>{ex.category || 'Exercice'}</span>
-                          <div style={{ fontSize: 14, fontWeight: 800, color: '#111', textDecoration: ex.completed_today ? 'line-through' : 'none', marginTop: 2 }}>{ex.title}</div>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 4 } as any}>
-                            {ex.sets > 0 && <span style={{ fontSize: 10, color: '#6B7280', fontWeight: 700 }}>{ex.sets}x{ex.repetitions} reps</span>}
-                            {ex.rest_seconds > 0 && <span style={{ fontSize: 10, color: '#9CA3AF' }}>{ex.rest_seconds}s repos</span>}
-                          </div>
-                          <span style={{ fontSize: 9, color: R, fontWeight: 700, marginTop: 3 }}>Voir le detail <i className="ri-arrow-right-s-line" style={{ fontSize: 8 }} /></span>
-                        </div>
-                        {ex.completed_today && <div style={{ width: 40, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}><i className="ri-checkbox-circle-fill" style={{ fontSize: 18, color: G }} /></div>}
-                      </div>
-                    );
-                  })}
-                </>
-              )}
+                </div>
+                <div style={{ fontSize: 13, color: 'rgba(0,0,0,0.45)', marginBottom: 16, lineHeight: '1.45' }}>Exercices prescrits par votre coach ou ajoutes par vous-meme.</div>
 
-              {/* ── EXERCICES MINCEUR (Nora) — cartes individuelles ── */}
-              {!hasProPrograms && exercises.length > 0 && (
-                <>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10, marginTop: 4 } as any}>
-                    <i className="ri-heart-pulse-line" style={{ fontSize: 14, color: G }} />
-                    <span style={{ fontSize: 13, fontWeight: 800, color: '#111' }}>Vos exercices du jour</span>
-                  </div>
-                  {exercises.map((ex: any, i: number) => {
-                    const int = ex.intensity || 'modere';
-                    const intC = int === 'leger' ? G : int === 'modere' ? A : R;
-                    const dn = tracked[`exercise_${i}`];
-                    const catKey = (ex.category || 'cardio').toLowerCase();
-                    const img = EX_IMG[catKey] || EX_IMG.cardio;
-                    return (
-                      <div key={i} onClick={() => router.push({ pathname: '/exercise-detail' as any, params: { index: i } })}
-                        style={{ borderRadius: 14, background: dn ? `${G}08` : '#F4F4F5', overflow: 'hidden', cursor: 'pointer', opacity: dn ? 0.65 : 1, display: 'flex', minHeight: 80, marginBottom: 8 } as any}>
-                        <div style={{ width: 88, flexShrink: 0, position: 'relative', overflow: 'hidden' } as any}>
-                          <img src={img} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' } as any} />
-                        </div>
-                        <div style={{ flex: 1, minWidth: 0, padding: '10px 12px', display: 'flex', flexDirection: 'column', justifyContent: 'center' } as any}>
-                          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' } as any}>
-                            <span style={{ fontSize: 8, fontWeight: 700, color: intC, textTransform: 'uppercase', letterSpacing: 0.6 }}>{int} {ex.duration ? `· ${ex.duration}` : ''}</span>
-                            {ex.calories_burned > 0 && <span style={{ fontSize: 12, fontWeight: 900, color: '#9CA3AF' }}>{ex.calories_burned}<span style={{ fontSize: 7 }}>kcal</span></span>}
-                          </div>
-                          <div style={{ fontSize: 14, fontWeight: 800, color: '#111', textDecoration: dn ? 'line-through' : 'none', marginTop: 2 }}>{ex.name}</div>
-                          <span style={{ fontSize: 9, color: G, fontWeight: 700, marginTop: 3 }}>Voir le detail <i className="ri-arrow-right-s-line" style={{ fontSize: 8 }} /></span>
-                        </div>
-                        <div data-testid={`track-ex-${i}`} onClick={(e) => { e.stopPropagation(); toggleTrack(i); }} style={{ width: 40, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', flexShrink: 0 } as any}>
-                          <i className="ri-check-line" style={{ fontSize: 16, color: dn ? G : '#D1D5DB' }} />
-                        </div>
+                {/* Exercices du coach */}
+                {proExercises.map((ex: any, i: number) => {
+                  const exImg = ex.image ? (ex.image.startsWith('http') ? ex.image : `${API_URL}${ex.image}`) : EX_IMG[(ex.category || 'cardio').toLowerCase()] || EX_IMG.cardio;
+                  return (
+                    <div key={ex.id || i} data-testid={`pro-exercise-${i}`}
+                      onClick={() => router.push({ pathname: '/pro-exercise-detail' as any, params: { id: ex.exercise_template_id || ex.id, mode: 'assigned', assignmentId: ex.id } })}
+                      style={{ borderRadius: 14, background: ex.completed_today ? `${G}08` : '#F4F4F5', overflow: 'hidden', cursor: 'pointer', display: 'flex', minHeight: 80, marginBottom: 8 } as any}>
+                      <div style={{ width: 88, flexShrink: 0, position: 'relative', overflow: 'hidden' } as any}>
+                        <img src={exImg} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' } as any} />
                       </div>
-                    );
-                  })}
-                </>
-              )}
+                      <div style={{ flex: 1, minWidth: 0, padding: '10px 12px', display: 'flex', flexDirection: 'column', justifyContent: 'center' } as any}>
+                        <span style={{ fontSize: 8, fontWeight: 700, color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: 0.6 }}>{ex.category || 'Exercice'}</span>
+                        <div style={{ fontSize: 14, fontWeight: 800, color: '#111', textDecoration: ex.completed_today ? 'line-through' : 'none', marginTop: 2 }}>{ex.title}</div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 4 } as any}>
+                          {ex.sets > 0 && <span style={{ fontSize: 10, color: '#6B7280', fontWeight: 700 }}>{ex.sets}x{ex.repetitions} reps</span>}
+                          {ex.rest_seconds > 0 && <span style={{ fontSize: 10, color: '#9CA3AF' }}>{ex.rest_seconds}s repos</span>}
+                        </div>
+                        <span style={{ fontSize: 9, color: R, fontWeight: 700, marginTop: 3 }}>Voir le detail <i className="ri-arrow-right-s-line" style={{ fontSize: 8 }} /></span>
+                      </div>
+                      {ex.completed_today && <div style={{ width: 40, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}><i className="ri-checkbox-circle-fill" style={{ fontSize: 18, color: G }} /></div>}
+                    </div>
+                  );
+                })}
 
-              {/* ── REPAS DU JOUR (Coach) ── */}
-              {proMeals.length > 0 && (
-                <>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10, marginTop: 14 } as any}>
-                    <i className="ri-restaurant-line" style={{ fontSize: 14, color: G }} />
-                    <span style={{ fontSize: 13, fontWeight: 800, color: '#111' }}>Repas du jour</span>
-                    <span style={{ fontSize: 10, fontWeight: 700, color: '#9CA3AF', background: '#E5E7EB', padding: '2px 8px', borderRadius: 999 }}>{proMeals.length}</span>
-                  </div>
-                  {proMeals.map((meal: any, i: number) => {
-                    const mealImg = meal.image ? (meal.image.startsWith('http') ? meal.image : `${API_URL}${meal.image}`) : '';
-                    const MEAL_COLORS_MAP: Record<string, string> = { petit_dejeuner: '#F59E0B', dejeuner: '#10B981', collation: '#A78BFA', gouter: '#A78BFA', diner: '#60A5FA' };
-                    const MEAL_LABELS_MAP: Record<string, string> = { petit_dejeuner: 'Petit-dej', dejeuner: 'Dejeuner', collation: 'Collation', gouter: 'Gouter', diner: 'Diner' };
-                    const mt = meal.meal_type || 'dejeuner';
-                    const mCol = MEAL_COLORS_MAP[mt] || '#10B981';
-                    return (
-                      <div key={meal.id || i} data-testid={`pro-meal-${i}`}
-                        onClick={() => router.push({ pathname: '/meal-detail' as any, params: { mode: 'assigned', assignmentId: meal.id } })}
-                        style={{ borderRadius: 14, background: meal.completed_today ? `${G}08` : '#F4F4F5', overflow: 'hidden', cursor: 'pointer', display: 'flex', minHeight: 70, marginBottom: 8 } as any}>
-                        {mealImg && (
-                          <div style={{ width: 80, flexShrink: 0, position: 'relative', overflow: 'hidden' } as any}>
-                            <img src={mealImg} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' } as any} />
-                          </div>
-                        )}
-                        <div style={{ flex: 1, minWidth: 0, padding: '10px 12px', display: 'flex', flexDirection: 'column', justifyContent: 'center' } as any}>
-                          <span style={{ fontSize: 8, fontWeight: 700, color: mCol, textTransform: 'uppercase', letterSpacing: 0.6 }}>{MEAL_LABELS_MAP[mt] || mt}{meal.calories ? ` · ${meal.calories} kcal` : ''}</span>
-                          <div style={{ fontSize: 14, fontWeight: 800, color: '#111', textDecoration: meal.completed_today ? 'line-through' : 'none', marginTop: 2 }}>{meal.title}</div>
-                          <span style={{ fontSize: 9, color: mCol, fontWeight: 700, marginTop: 3 }}>Voir le detail <i className="ri-arrow-right-s-line" style={{ fontSize: 8 }} /></span>
-                        </div>
-                        {meal.completed_today && <div style={{ width: 40, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}><i className="ri-checkbox-circle-fill" style={{ fontSize: 18, color: G }} /></div>}
+                {/* Exercices Nora (minceur) */}
+                {!hasProPrograms && exercises.map((ex: any, i: number) => {
+                  const int = ex.intensity || 'modere';
+                  const intC = int === 'leger' ? G : int === 'modere' ? A : R;
+                  const dn = tracked[`exercise_${i}`];
+                  const catKey = (ex.category || 'cardio').toLowerCase();
+                  const img = EX_IMG[catKey] || EX_IMG.cardio;
+                  return (
+                    <div key={`nora-${i}`} onClick={() => router.push({ pathname: '/exercise-detail' as any, params: { index: i } })}
+                      style={{ borderRadius: 14, background: dn ? `${G}08` : '#F4F4F5', overflow: 'hidden', cursor: 'pointer', opacity: dn ? 0.65 : 1, display: 'flex', minHeight: 80, marginBottom: 8 } as any}>
+                      <div style={{ width: 88, flexShrink: 0, position: 'relative', overflow: 'hidden' } as any}>
+                        <img src={img} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' } as any} />
                       </div>
-                    );
-                  })}
-                </>
-              )}
+                      <div style={{ flex: 1, minWidth: 0, padding: '10px 12px', display: 'flex', flexDirection: 'column', justifyContent: 'center' } as any}>
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' } as any}>
+                          <span style={{ fontSize: 8, fontWeight: 700, color: intC, textTransform: 'uppercase', letterSpacing: 0.6 }}>{int} {ex.duration ? `· ${ex.duration}` : ''}</span>
+                          {ex.calories_burned > 0 && <span style={{ fontSize: 12, fontWeight: 900, color: '#9CA3AF' }}>{ex.calories_burned}<span style={{ fontSize: 7 }}>kcal</span></span>}
+                        </div>
+                        <div style={{ fontSize: 14, fontWeight: 800, color: '#111', textDecoration: dn ? 'line-through' : 'none', marginTop: 2 }}>{ex.name}</div>
+                        <span style={{ fontSize: 9, color: G, fontWeight: 700, marginTop: 3 }}>Voir le detail <i className="ri-arrow-right-s-line" style={{ fontSize: 8 }} /></span>
+                      </div>
+                      <div data-testid={`track-ex-${i}`} onClick={(e) => { e.stopPropagation(); toggleTrack(i); }} style={{ width: 40, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', flexShrink: 0 } as any}>
+                        <i className="ri-check-line" style={{ fontSize: 16, color: dn ? G : '#D1D5DB' }} />
+                      </div>
+                    </div>
+                  );
+                })}
 
-              {/* ── COMPLEMENTS & HYDRATATION DU JOUR ── */}
-              {proReminders.length > 0 && (
-                <>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10, marginTop: 14 } as any}>
-                    <i className="ri-capsule-line" style={{ fontSize: 14, color: A }} />
-                    <span style={{ fontSize: 13, fontWeight: 800, color: '#111' }}>Complements & Hydratation</span>
-                    <span style={{ fontSize: 10, fontWeight: 700, color: '#9CA3AF', background: '#E5E7EB', padding: '2px 8px', borderRadius: 999 }}>{proReminders.length}</span>
+                {proExercises.length === 0 && exercises.length === 0 && (
+                  <div style={{ padding: '24px 16px', borderRadius: 16, background: '#F4F4F5', textAlign: 'center' } as any}>
+                    <i className="ri-run-line" style={{ fontSize: 28, color: '#D1D5DB', display: 'block', marginBottom: 8 }} />
+                    <div style={{ fontSize: 13, color: '#9CA3AF' }}>Aucun exercice pour aujourd'hui</div>
+                    <div style={{ fontSize: 11, color: '#D1D5DB', marginTop: 4 }}>Appuyez sur + pour en ajouter</div>
                   </div>
-                  {proReminders.map((rem: any, i: number) => {
-                    const isHydra = rem.reminder_type === 'hydration';
-                    const rCol = isHydra ? '#38BDF8' : '#F59E0B';
-                    const rIcon = isHydra ? 'ri-drop-fill' : 'ri-capsule-fill';
-                    const remImg = rem.image ? (rem.image.startsWith('http') ? rem.image : `${API_URL}${rem.image}`) : '';
-                    return (
-                      <div key={rem.id || i} data-testid={`pro-reminder-${i}`}
-                        onClick={() => router.push({ pathname: '/reminder-detail' as any, params: { id: rem.id, mode: 'assigned' } })}
-                        style={{ borderRadius: 14, background: rem.completed_today ? `${G}08` : '#F4F4F5', overflow: 'hidden', cursor: 'pointer', display: 'flex', minHeight: 70, marginBottom: 8 } as any}>
-                        {remImg ? (
-                          <div style={{ width: 80, flexShrink: 0, position: 'relative', overflow: 'hidden' } as any}>
-                            <img src={remImg} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' } as any} />
-                          </div>
-                        ) : (
-                          <div style={{ width: 64, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', background: `${rCol}10` } as any}>
-                            <i className={rIcon} style={{ fontSize: 22, color: rCol }} />
-                          </div>
-                        )}
-                        <div style={{ flex: 1, minWidth: 0, padding: '10px 12px', display: 'flex', flexDirection: 'column', justifyContent: 'center' } as any}>
-                          <span style={{ fontSize: 8, fontWeight: 700, color: rCol, textTransform: 'uppercase', letterSpacing: 0.6 }}>{isHydra ? 'Hydratation' : 'Complement'}{rem.dosage ? ` · ${rem.dosage}` : ''}{rem.time ? ` · ${rem.time}` : ''}</span>
-                          <div style={{ fontSize: 14, fontWeight: 800, color: '#111', textDecoration: rem.completed_today ? 'line-through' : 'none', marginTop: 2 }}>{rem.title}</div>
-                          <span style={{ fontSize: 9, color: rCol, fontWeight: 700, marginTop: 3 }}>Voir le detail <i className="ri-arrow-right-s-line" style={{ fontSize: 8 }} /></span>
-                        </div>
-                        {rem.completed_today && <div style={{ width: 40, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}><i className="ri-checkbox-circle-fill" style={{ fontSize: 18, color: G }} /></div>}
-                      </div>
-                    );
-                  })}
-                </>
-              )}
+                )}
+              </div>
             </>
           )}
 
@@ -477,6 +414,51 @@ export default function ActivityDetailPage() {
       </div>
       <style dangerouslySetInnerHTML={{ __html: `@keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}@keyframes popIn{from{opacity:0;transform:scale(0.95) translateY(20px)}to{opacity:1;transform:scale(1) translateY(0)}}@keyframes slideUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}` }} />
       {showNoraActivity && <NoraOverlay token={token} endpoint="/api/nora/page-analysis?context=activity" title="Analyse activite" subtitle="Analyse par Nora de votre activite physique" onClose={() => setShowNoraActivity(false)} />}
+
+      {/* ── POPUP AJOUT EXERCICE ── */}
+      {showAddExercise && (
+        <div data-testid="add-exercise-popup" onClick={() => setShowAddExercise(false)} style={{ position: 'fixed', inset: 0, zIndex: 9999, background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)', overflowY: 'auto', animation: 'popIn 0.25s ease' } as any}>
+          <div onClick={(ev: any) => ev.stopPropagation()} style={{ width: '100%', maxWidth: 440, margin: '0 auto', padding: '20px 16px 120px', boxSizing: 'border-box' } as any}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 } as any}>
+              <div style={{ fontSize: 18, fontWeight: 900, color: '#FFF' }}>Ajouter un exercice</div>
+              <div onClick={() => setShowAddExercise(false)} style={{ width: 38, height: 38, borderRadius: 999, background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}>
+                <i className="ri-close-line" style={{ fontSize: 18, color: '#FFF' }} />
+              </div>
+            </div>
+            <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', marginBottom: 20, lineHeight: 1.5 }}>Choisissez un exercice dans la bibliotheque ou creez-en un nouveau.</div>
+
+            {libLoading && <div style={{ textAlign: 'center', padding: '40px 0' }}><i className="ri-loader-4-line" style={{ fontSize: 24, color: '#FFF', animation: 'spin 0.8s linear infinite', display: 'block' }} /></div>}
+
+            {!libLoading && exerciseLibrary.map((tpl: any, i: number) => (
+              <div key={tpl.id || i} data-testid={`lib-exercise-${i}`}
+                onClick={async () => {
+                  try {
+                    const DAYS_ALL = ['lundi','mardi','mercredi','jeudi','vendredi','samedi','dimanche'];
+                    await apiFetch('/api/pro/self-assign-exercise', { method: 'POST', body: JSON.stringify({ exercise_template_id: tpl.id, days: DAYS_ALL }) }, token);
+                    setShowAddExercise(false);
+                    fetchData();
+                  } catch {}
+                }}
+                style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 14px', borderRadius: 16, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', marginBottom: 8, cursor: 'pointer', transition: 'background 0.15s' } as any}
+                onMouseEnter={(e: any) => { e.currentTarget.style.background = 'rgba(255,255,255,0.1)'; }}
+                onMouseLeave={(e: any) => { e.currentTarget.style.background = 'rgba(255,255,255,0.06)'; }}>
+                {tpl.image ? (
+                  <img src={tpl.image.startsWith('http') ? tpl.image : `${API_URL}${tpl.image}`} alt="" style={{ width: 52, height: 52, borderRadius: 12, objectFit: 'cover', flexShrink: 0 } as any} />
+                ) : (
+                  <div style={{ width: 52, height: 52, borderRadius: 12, background: 'rgba(255,255,255,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}>
+                    <i className={tpl.icon || 'ri-run-line'} style={{ fontSize: 20, color: '#EF4444' }} />
+                  </div>
+                )}
+                <div style={{ flex: 1, minWidth: 0 } as any}>
+                  <div style={{ fontSize: 13, fontWeight: 700, color: '#FFF' }}>{tpl.title}</div>
+                  <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.35)', marginTop: 2 }}>{tpl.category || 'Exercice'}{tpl.sets ? ` · ${tpl.sets}x${tpl.repetitions}` : ''}</div>
+                </div>
+                <i className="ri-add-circle-line" style={{ fontSize: 20, color: '#10B981', flexShrink: 0 }} />
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

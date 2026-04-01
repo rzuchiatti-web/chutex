@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, UploadFile, File
+from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, Request
 from pydantic import BaseModel
 from typing import List, Optional
 from datetime import datetime, timezone
@@ -2028,6 +2028,73 @@ async def beneficiary_all_exercises(user=Depends(get_current_user)):
         {"beneficiary_id": user['id'], "status": "active"}, {"_id": 0}
     ).to_list(100)
     return exs
+
+
+@router.get("/pro/exercise-library")
+async def get_exercise_library(user=Depends(get_current_user)):
+    """Get exercise templates from all guardians linked to this beneficiary, or global templates"""
+    # Get linked guardians
+    linked = await db.users.find(
+        {"beneficiaries": user['id'], "role": {"$in": ["guardian", "professional"]}},
+        {"_id": 0, "id": 1}
+    ).to_list(50)
+    guardian_ids = [g['id'] for g in linked]
+    # Get templates from linked guardians
+    templates = []
+    if guardian_ids:
+        templates = await db.pro_exercise_templates.find(
+            {"professional_id": {"$in": guardian_ids}}, {"_id": 0}
+        ).sort("title", 1).to_list(200)
+    # If no guardian templates, get any templates that exist (global seed)
+    if not templates:
+        templates = await db.pro_exercise_templates.find(
+            {}, {"_id": 0}
+        ).sort("title", 1).to_list(200)
+        # Deduplicate by title
+        seen = set()
+        unique = []
+        for t in templates:
+            if t.get('title') not in seen:
+                seen.add(t.get('title'))
+                unique.append(t)
+        templates = unique
+    return templates
+
+
+@router.post("/pro/self-assign-exercise")
+async def self_assign_exercise(request: Request, user=Depends(get_current_user)):
+    """Beneficiary self-assigns an exercise from the library"""
+    body = await request.json()
+    tpl_id = body.get("exercise_template_id", "")
+    days = body.get("days", ["lundi", "mardi", "mercredi", "jeudi", "vendredi", "samedi", "dimanche"])
+    if not tpl_id:
+        raise HTTPException(400, "exercise_template_id requis")
+    tpl = await db.pro_exercise_templates.find_one({"id": tpl_id}, {"_id": 0})
+    if not tpl:
+        raise HTTPException(404, "Template non trouve")
+    now = datetime.now(timezone.utc).isoformat()
+    assignment = {
+        "id": str(uuid.uuid4()),
+        "professional_id": user['id'],
+        "professional_name": user.get('name', 'Moi-meme'),
+        "beneficiary_id": user['id'],
+        "exercise_template_id": tpl_id,
+        "title": tpl.get("title", ""),
+        "category": tpl.get("category", ""),
+        "image": tpl.get("image", ""),
+        "icon": tpl.get("icon", "ri-run-line"),
+        "sets": tpl.get("sets", 3),
+        "repetitions": tpl.get("repetitions", 12),
+        "rest_seconds": tpl.get("rest_seconds", 60),
+        "days": days,
+        "completions": [],
+        "status": "active",
+        "self_assigned": True,
+        "created_at": now,
+    }
+    await db.pro_assigned_exercises.insert_one(assignment)
+    assignment.pop('_id', None)
+    return assignment
 
 @router.post("/pro/exercises/{assignment_id}/complete")
 async def complete_exercise(assignment_id: str, data: SessionCompletion, user=Depends(get_current_user)):
