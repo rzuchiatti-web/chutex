@@ -489,6 +489,13 @@ export function BeneficiaryHome({ token, user }: { token: string; user: any }) {
           ))}
 
           {/* ── PROGRAMME EN COURS ── */}
+          {/* Moved below WeightGoalDashCard */}
+
+          <WeightGoalDashCard token={token} />
+
+          {showWeighing && <WeighingFlow onClose={() => setShowWeighing(false)} d={dashData?.scale || {}} weighings={weighings} />}
+
+          {/* ── PROGRAMME EN COURS (after weight goal) ── */}
           {activeProgram?.active && (() => {
             const ap = activeProgram;
             const clr = ap.program?.color || '#A78BFA';
@@ -498,6 +505,7 @@ export function BeneficiaryHome({ token, user }: { token: string; user: any }) {
             const allDone = totalTasks > 0 && doneCount >= totalTasks;
             return (
               <>
+              <div style={{ height: 1, background: C.sep, margin: "10px 0 24px" } as any} />
               <div data-testid="program-section" className="dash-slide-up" style={{ marginBottom: 28 } as any}>
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 } as any}>
                   <div style={{ fontSize: 20, fontWeight: 900, color: C.text, letterSpacing: '-0.3px' } as any}>Mon programme</div>
@@ -507,7 +515,7 @@ export function BeneficiaryHome({ token, user }: { token: string; user: any }) {
                 </div>
                 <div style={{ fontSize: 13, color: C.sub, marginBottom: 16, lineHeight: '1.45' } as any}>Suivez votre progression quotidienne et restez motive.</div>
                 <div data-testid="active-program-card" className="cl-press" onClick={() => router.push('/(tabs)/chat' as any)}
-                  style={{ borderRadius: 18, background: C.card, padding: '18px', cursor: 'pointer', transition: 'transform 0.18s', ...glass } as any}
+                  style={{ borderRadius: 18, background: '#F4F4F5', padding: '18px', cursor: 'pointer', transition: 'transform 0.18s' } as any}
                   onMouseEnter={(e: any) => { e.currentTarget.style.transform = 'translateY(-2px)'; }}
                   onMouseLeave={(e: any) => { e.currentTarget.style.transform = ''; }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 14 } as any}>
@@ -527,7 +535,7 @@ export function BeneficiaryHome({ token, user }: { token: string; user: any }) {
                     </div>
                     <div style={{ fontSize: 22, fontWeight: 900, color: clr }}>{ap.progress_pct}%</div>
                   </div>
-                  <div style={{ height: 5, borderRadius: 3, background: isDark ? 'rgba(255,255,255,0.06)' : '#E5E7EB', overflow: 'hidden', marginBottom: 14 } as any}>
+                  <div style={{ height: 5, borderRadius: 3, background: '#E5E7EB', overflow: 'hidden', marginBottom: 14 } as any}>
                     <div style={{ height: '100%', borderRadius: 3, width: `${ap.progress_pct}%`, background: `linear-gradient(90deg, ${clr}, ${clr}80)`, transition: 'width 0.8s ease' } as any} />
                   </div>
                   {ap.today_tasks && (
@@ -535,7 +543,7 @@ export function BeneficiaryHome({ token, user }: { token: string; user: any }) {
                       <div style={{ display: 'flex', alignItems: 'center', gap: 8 } as any}>
                         <div style={{ display: 'flex', gap: 3 } as any}>
                           {tasks.slice(0, 5).map((_: any, ti: number) => (
-                            <div key={ti} style={{ width: 8, height: 8, borderRadius: 4, background: ti < doneCount ? '#10B981' : (isDark ? 'rgba(255,255,255,0.08)' : '#D1D5DB'), transition: 'background 0.3s' }} />
+                            <div key={ti} style={{ width: 8, height: 8, borderRadius: 4, background: ti < doneCount ? '#10B981' : '#D1D5DB', transition: 'background 0.3s' }} />
                           ))}
                         </div>
                         <span style={{ fontSize: 11, fontWeight: 700, color: allDone ? '#10B981' : C.sub }}>
@@ -549,14 +557,9 @@ export function BeneficiaryHome({ token, user }: { token: string; user: any }) {
                   )}
                 </div>
               </div>
-              <div style={{ height: 1, background: C.sep, margin: "10px 0 24px" } as any} />
               </>
             );
           })()}
-
-          <WeightGoalDashCard token={token} />
-
-          {showWeighing && <WeighingFlow onClose={() => setShowWeighing(false)} d={dashData?.scale || {}} weighings={weighings} />}
 
           <div style={{ height: 1, background: C.sep, margin: "10px 0 24px" } as any} />
 
@@ -568,12 +571,17 @@ export function BeneficiaryHome({ token, user }: { token: string; user: any }) {
             const API = process.env.EXPO_PUBLIC_BACKEND_URL || '';
             return (
             <div data-testid="today-exercises-dashboard" className="dash-slide-up" style={{ marginBottom: 28 } as any}>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 } as any}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 8 } as any}>
-                  <i className="ri-calendar-check-line" style={{ fontSize: 16, color: '#EF4444' }} />
-                  <span style={{ fontSize: 14, fontWeight: 800, color: '#111' }}>Exercices du jour</span>
-                  <span style={{ fontSize: 11, fontWeight: 700, color: exAllDone ? '#10B981' : '#6B7280', background: exAllDone ? 'rgba(16,185,129,0.12)' : '#E5E7EB', padding: '2px 10px', borderRadius: 999 }}>{exDoneCount}/{todayExercises.length}</span>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 } as any}>
+                <div style={{ fontSize: 20, fontWeight: 900, color: C.text, letterSpacing: '-0.3px' } as any}>Mes exercices</div>
+                <div style={{ display: 'flex', gap: 0 } as any}>
+                  <div style={{ width: 32, height: 32, borderRadius: 999, background: '#EF4444', display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}>
+                    <i className="ri-run-fill" style={{ fontSize: 14, color: '#FFF' }} />
+                  </div>
                 </div>
+              </div>
+              <div style={{ fontSize: 13, color: C.sub, marginBottom: 16, lineHeight: '1.45' } as any}>Exercices prescrits par votre coach pour aujourd'hui.</div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 14 } as any}>
+                <span style={{ fontSize: 11, fontWeight: 700, color: exAllDone ? '#10B981' : '#6B7280', background: exAllDone ? 'rgba(16,185,129,0.12)' : '#E5E7EB', padding: '2px 10px', borderRadius: 999 }}>{exDoneCount}/{todayExercises.length} termine{exDoneCount > 1 ? 's' : ''}</span>
               </div>
               {todayExercises.map((ex: any, i: number) => {
                 const done = ex.completed_today;
@@ -675,27 +683,7 @@ export function BeneficiaryHome({ token, user }: { token: string; user: any }) {
             </div>
           )}
 
-          {/* ── Messages Pro (si conversation existe) ── */}
-          {(proConvo || (proSub && proSub.professional_id)) && (
-            <div data-testid="pro-messages-shortcut" className="dash-slide-up" onClick={() => {
-              const pid = proConvo?.professional_id || proSub?.professional_id;
-              if (pid) router.push({ pathname: '/pro-chat' as any, params: { proId: pid } });
-            }} style={{ marginBottom: 20, padding: '14px 18px', borderRadius: 20, background: C.card, border: '1px solid rgba(255,255,255,0.06)', display: 'flex', alignItems: 'center', gap: 12, cursor: 'pointer', ...glass } as any}>
-              <div style={{ width: 38, height: 38, borderRadius: 12, background: 'rgba(59,130,246,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}>
-                <i className="ri-chat-3-fill" style={{ fontSize: 18, color: '#3B82F6' }} />
-              </div>
-              <div style={{ flex: 1 }}>
-                <div style={{ fontSize: 13, fontWeight: 700, color: C.text }}>Messages avec {proConvo?.professional_name || proSub?.professional_name || 'votre pro'}</div>
-                <div style={{ fontSize: 11, color: C.sub }}>Discutez avec votre professionnel</div>
-              </div>
-              {unreadMsgs > 0 && (
-                <div style={{ width: 22, height: 22, borderRadius: 999, background: '#EF4444', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  <span style={{ fontSize: 10, fontWeight: 800, color: '#FFF' }}>{unreadMsgs}</span>
-                </div>
-              )}
-              <i className="ri-arrow-right-s-line" style={{ fontSize: 18, color: 'rgba(255,255,255,0.2)' }} />
-            </div>
-          )}
+          {/* ── Messages Pro removed from dashboard — now accessible via navbar Messages tab ── */}
 
           {/* ── Dispositifs connectes ── */}
           {(br.connected || br.paired || ((sc.connected || sc.paired) && weighings.length > 0) || vs.connected || vs.paired) && (

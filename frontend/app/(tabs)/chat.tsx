@@ -39,12 +39,12 @@ export default function ProgramsTab() {
   const [joinLoading, setJoinLoading] = useState(false);
   const [joinError, setJoinError] = useState('');
   const [joinSuccess, setJoinSuccess] = useState('');
-  const [isDark, setIsDark] = useState(() => typeof localStorage !== 'undefined' ? localStorage.getItem('chutex_dark') !== '0' : true);
+  const [isDark, setIsDark] = useState(() => typeof localStorage !== 'undefined' ? localStorage.getItem('chutex_dark') === '1' : false);
 
   useEffect(() => {
     if (typeof localStorage === 'undefined') return;
     const iv = setInterval(() => {
-      const v = localStorage.getItem('chutex_dark') !== '0';
+      const v = localStorage.getItem('chutex_dark') === '1';
       setIsDark(prev => prev !== v ? v : prev);
     }, 400);
     return () => clearInterval(iv);

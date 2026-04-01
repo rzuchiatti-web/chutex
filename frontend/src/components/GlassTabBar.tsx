@@ -35,6 +35,7 @@ export const TAB_CONFIGS: Record<string, TabConfig[]> = {
     { key: 'index', icon: 'ri-home-smile-2-fill', label: 'Accueil' },
     { key: 'health', icon: 'ri-heart-pulse-fill', label: 'Sante' },
     { key: 'chat', icon: 'ri-dna-fill', label: 'Programmes' },
+    { key: 'teleconsult', icon: 'ri-chat-3-fill', label: 'Messages' },
     { key: 'profile', icon: 'ri-menu-3-fill', label: 'Plus' },
   ],
   teleassistance: [

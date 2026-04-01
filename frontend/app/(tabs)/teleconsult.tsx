@@ -14,6 +14,58 @@ import { AdminIntervenants } from '../../src/components/teleconsult/AdminInterve
 import { CompanyInterventionsTab } from '../../src/components/teleconsult/CompanyInterventionsTab';
 import ProSpace from '../../src/components/dashboard/ProSpace';
 
+/* ── Beneficiary Messages Content (embedded pro-chat with header rouge style) ── */
+function BeneficiaryMessagesContent({ token, user, router }: { token: string; user: any; router: any }) {
+  const [convos, setConvos] = React.useState<any[]>([]);
+  const [loading, setLoading] = React.useState(true);
+
+  React.useEffect(() => {
+    if (!token) return;
+    apiFetch('/api/pro/conversations', {}, token).then((c: any) => {
+      setConvos(Array.isArray(c) ? c : []);
+    }).catch(() => {}).finally(() => setLoading(false));
+  }, [token]);
+
+  if (loading) return <div style={{ textAlign: 'center', padding: '40px 0', color: '#9CA3AF' }}><i className="ri-loader-4-line" style={{ fontSize: 24, animation: 'spin 0.8s linear infinite', display: 'block', marginBottom: 8 }} />Chargement...</div>;
+
+  if (convos.length === 0) return (
+    <div style={{ textAlign: 'center', padding: '40px 20px' } as any}>
+      <div style={{ width: 64, height: 64, borderRadius: 20, background: '#F4F4F5', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px' } as any}>
+        <i className="ri-chat-3-line" style={{ fontSize: 28, color: '#9CA3AF' }} />
+      </div>
+      <div style={{ fontSize: 16, fontWeight: 800, color: '#111', marginBottom: 6 }}>Aucune conversation</div>
+      <div style={{ fontSize: 13, color: '#9CA3AF', lineHeight: 1.5 }}>Lorsqu'un professionnel vous prendra en charge, vos messages apparaitront ici.</div>
+    </div>
+  );
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 10 } as any}>
+      <style dangerouslySetInnerHTML={{ __html: '@keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}' }} />
+      {convos.map((c: any) => (
+        <div key={c.id || c.professional_id} data-testid={`convo-${c.professional_id}`}
+          onClick={() => router.push({ pathname: '/pro-chat', params: { proId: c.professional_id } })}
+          style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '14px 16px', borderRadius: 18, background: '#F4F4F5', cursor: 'pointer', transition: 'transform 0.15s' } as any}
+          onMouseEnter={(e: any) => { e.currentTarget.style.transform = 'translateY(-2px)'; }}
+          onMouseLeave={(e: any) => { e.currentTarget.style.transform = ''; }}>
+          <div style={{ width: 48, height: 48, borderRadius: 999, background: '#3B82F6', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}>
+            <span style={{ fontSize: 18, fontWeight: 800, color: '#FFF' }}>{(c.professional_name || '?').charAt(0)}</span>
+          </div>
+          <div style={{ flex: 1, minWidth: 0 } as any}>
+            <div style={{ fontSize: 15, fontWeight: 700, color: '#111' }}>{c.professional_name || 'Professionnel'}</div>
+            <div style={{ fontSize: 12, color: '#9CA3AF', marginTop: 2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' } as any}>{c.last_message || 'Commencer la conversation'}</div>
+          </div>
+          {c.unread_count > 0 && (
+            <div style={{ width: 22, height: 22, borderRadius: 999, background: '#EF4444', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <span style={{ fontSize: 10, fontWeight: 800, color: '#FFF' }}>{c.unread_count}</span>
+            </div>
+          )}
+          <i className="ri-arrow-right-s-line" style={{ fontSize: 18, color: '#D1D5DB' }} />
+        </div>
+      ))}
+    </div>
+  );
+}
+
 export default function TeleconsultScreen() {
   const { user, token } = useAuth();
   const { colors } = useTheme();
@@ -45,46 +97,27 @@ export default function TeleconsultScreen() {
     return <GuardianInterventions token={token} user={user} />;
   }
 
-  // Beneficiary: subscription check + QCM
+  // Beneficiary: show Messages page (pro-chat) with guardian-style layout
   if (r === 'beneficiary') {
-    const hasSubscription = subData?.has_subscription || user.has_subscription;
-    if (subLoading) return null;
-    if (!hasSubscription) {
-      if (Platform.OS === 'web') {
-        return (
-          <div data-testid="teleconsult-no-sub" style={{ position: 'fixed', inset: 0, display: 'flex', flexDirection: 'column', fontFamily: 'Inter, system-ui, sans-serif', overflow: 'hidden', zIndex: 50 } as any}>
-            <img src={BG_BLUE} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 } as any} />
-            <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.3)', zIndex: 1 } as any} />
-            <div style={{ position: 'relative', zIndex: 5, flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: 30, textAlign: 'center' } as any}>
-              <div style={{ width: 80, height: 80, borderRadius: 24, background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 20, backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)' } as any}>
-                <i className="ri-shield-star-line" style={{ fontSize: 40, color: '#FFF' }} />
+    if (Platform.OS === 'web') {
+      const BG_RED_MSG = 'https://customer-assets.emergentagent.com/job_443c9c6e-0feb-4920-a358-fe7cc1a6289b/artifacts/mhh7xwy3_ChatGPT%20Image%2017%20f%C3%A9vr.%202026%2C%2014_08_43.png';
+      return (
+        <div data-testid="beneficiary-messages-tab" style={{ position: 'absolute', inset: 0, fontFamily: "'Inter', system-ui, sans-serif", overflow: 'hidden', display: 'flex', flexDirection: 'column', background: '#FFF' } as any}>
+          <div style={{ flex: 1, overflowY: 'auto', WebkitOverflowScrolling: 'touch' } as any}>
+            {/* RED HEADER */}
+            <div style={{ position: 'relative', zIndex: 1, minHeight: 140 } as any}>
+              <img src={BG_RED_MSG} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 } as any} />
+              <div style={{ position: 'relative', zIndex: 2, padding: '28px 20px 40px' } as any}>
+                <div style={{ fontSize: 24, fontWeight: 900, color: '#FFF', letterSpacing: -0.5, textShadow: '0 2px 8px rgba(0,0,0,0.3)' }}>Messages</div>
+                <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.6)', marginTop: 4, textShadow: '0 1px 4px rgba(0,0,0,0.3)' }}>Echangez avec votre professionnel de sante</div>
               </div>
-              <div style={{ fontSize: 24, fontWeight: 900, color: '#FFF', marginBottom: 8 }}>Abonnement requis</div>
-              <div style={{ fontSize: 14, color: 'rgba(255,255,255,0.7)', lineHeight: 1.6, maxWidth: 340, marginBottom: 28 }}>L'espace teleconsultation necessite un abonnement actif pour beneficier de la teleassistance 24/7.</div>
-              <div style={{ padding: '16px 18px', borderRadius: 20, background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.15)', marginBottom: 28, width: '100%', maxWidth: 340, backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)' } as any}>
-                {[
-                  { icon: 'ri-phone-line', text: 'Plateau d\'ecoute 24h/24, 7j/7' },
-                  { icon: 'ri-first-aid-kit-line', text: 'Envoi d\'intervenants a domicile' },
-                  { icon: 'ri-map-pin-line', text: 'Suivi GPS en temps reel' },
-                  { icon: 'ri-file-text-line', text: 'Rapports d\'intervention' },
-                ].map((f, i) => (
-                  <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 0', borderTop: i > 0 ? '1px solid rgba(255,255,255,0.08)' : 'none' } as any}>
-                    <i className={f.icon} style={{ fontSize: 16, color: 'rgba(255,255,255,0.8)' }} />
-                    <span style={{ fontSize: 13, color: 'rgba(255,255,255,0.7)' }}>{f.text}</span>
-                  </div>
-                ))}
-              </div>
-              <div onClick={() => router.push('/subscription' as any)} style={{ padding: '17px 40px', borderRadius: 999, background: '#FFF', color: '#111', cursor: 'pointer', fontSize: 16, fontWeight: 800, boxShadow: '0 4px 20px rgba(255,255,255,0.2)', marginBottom: 12 } as any}>Souscrire un abonnement</div>
-              <div onClick={() => { if (typeof window !== 'undefined') window.open('https://chutex-innovation.com/products/elio-smart-health-bracelet', '_blank'); }} style={{ padding: '15px 40px', borderRadius: 999, background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)', color: '#FFF', cursor: 'pointer', fontSize: 14, fontWeight: 700 } as any}>Acheter sur chutex-innovation.com</div>
+            </div>
+            {/* WHITE CONTENT */}
+            <div style={{ padding: '24px 20px 120px', marginTop: -20, borderRadius: '24px 24px 0 0', background: '#FFF', position: 'relative', zIndex: 10 } as any}>
+              <BeneficiaryMessagesContent token={token} user={user} router={router} />
             </div>
           </div>
-        );
-      }
-      return (
-        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', padding: 30 }}>
-          <Text style={{ fontSize: 20, fontWeight: '800', color: '#111', marginBottom: 8, textAlign: 'center' }}>Abonnement requis</Text>
-          <Text style={{ fontSize: 14, color: '#6B7280', textAlign: 'center', lineHeight: 22 }}>L'espace teleconsultation necessite un abonnement Chutex Care actif.</Text>
-        </View>
+        </div>
       );
     }
     return <BeneficiaryTeleconsult token={token} />;

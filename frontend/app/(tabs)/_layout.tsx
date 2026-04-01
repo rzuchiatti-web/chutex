@@ -27,7 +27,7 @@ export default function TabLayout() {
 
   // Hide default tab bar when using GlassTabBar or admin (has sidebar)
   const hideDefault = useGlass || isAdmin;
-  const showNora = !isCompany;
+  const showNora = !isCompany && !isBen;
   const tabStyle = hideDefault
     ? { display: 'none' as const, height: 0, backgroundColor: 'transparent', borderTopWidth: 0, position: 'absolute' as const, overflow: 'hidden' as const }
     : isWeb
@@ -62,7 +62,7 @@ export default function TabLayout() {
         href: isBen ? null : undefined,
       }} />
       <Tabs.Screen name="teleconsult" options={{
-        tabBarIcon: ({ color, size }) => (isAdmin || isCompany) ? <Icon name="medkit-outline" size={size} color={color} /> : isG ? <Icon name="tab-intervention" size={size} color={color} /> : <Icon name={role === 'teleassistance' ? 'headset-outline' : 'videocam-outline'} size={size} color={color} />,
+        tabBarIcon: ({ color, size }) => (isAdmin || isCompany) ? <Icon name="medkit-outline" size={size} color={color} /> : isG ? <Icon name="tab-intervention" size={size} color={color} /> : <Icon name={role === 'teleassistance' ? 'headset-outline' : 'chatbubble-ellipses-outline'} size={size} color={color} />,
       }} />
       <Tabs.Screen name="devices" options={{
         tabBarIcon: ({ color, size }) => (isCompany || isG) ? <Icon name="document-text-outline" size={size} color={color} /> : <MCIcon name="bluetooth-connect" size={size} color={color} />,
