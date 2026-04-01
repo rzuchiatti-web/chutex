@@ -571,45 +571,35 @@ export function BeneficiaryHome({ token, user }: { token: string; user: any }) {
           <div style={{ height: 1, background: C.sep, margin: "10px 0 24px" } as any} />
 
           {/* ── Sommeil de ce soir ── */}
-          <div data-testid="sleep-alarm-card" className="dash-slide-up" onClick={() => router.push('/health-detail' as any)} style={{ borderRadius: 18, background: C.card, padding: '18px 20px', marginBottom: 20, cursor: 'pointer', ...glass } as any}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 } as any}>
-              <div style={{ fontSize: 13, fontWeight: 800, color: C.text, textTransform: 'uppercase', letterSpacing: 0.5 }}>Sommeil de ce soir</div>
+          <div data-testid="sleep-alarm-card" className="dash-slide-up" onClick={() => router.push({ pathname: '/health-detail' as any, params: { tab: 'sleep' } })} style={{ borderRadius: 18, background: C.card, padding: '16px 20px', marginBottom: 20, cursor: 'pointer', ...glass } as any}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 } as any}>
+              <div style={{ fontSize: 15, fontWeight: 800, color: C.text }}>Sommeil de ce soir</div>
               <i className="ri-arrow-right-s-line" style={{ fontSize: 18, color: C.arrow }} />
             </div>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-around' } as any}>
               {/* Bedtime */}
               <div style={{ textAlign: 'center' } as any}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 6, justifyContent: 'center' } as any}>
-                  <i className="ri-moon-clear-fill" style={{ fontSize: 18, color: '#A78BFA' }} />
-                  <span style={{ fontSize: 28, fontWeight: 900, color: C.text, fontVariantNumeric: 'tabular-nums' } as any}>{sleepAlarm?.bedtime || '22:00'}</span>
+                  <i className="ri-moon-clear-fill" style={{ fontSize: 16, color: '#A78BFA' }} />
+                  <span style={{ fontSize: 26, fontWeight: 900, color: C.text, fontVariantNumeric: 'tabular-nums' } as any}>{sleepAlarm?.bedtime || '22:00'}</span>
                 </div>
-                <div style={{ fontSize: 9, fontWeight: 700, color: C.sub, textTransform: 'uppercase', letterSpacing: 0.8, marginTop: 4 }}>Heure de coucher</div>
-                <div style={{ fontSize: 9, fontWeight: 700, color: '#A78BFA', textTransform: 'uppercase', letterSpacing: 0.5 }}>Recommandee</div>
+                <div style={{ fontSize: 9, fontWeight: 700, color: C.sub, textTransform: 'uppercase', letterSpacing: 0.8, marginTop: 3 }}>Coucher recommande</div>
               </div>
               {/* Dashed line */}
-              <div style={{ width: 40, height: 0, borderTop: `2px dashed ${isDark ? 'rgba(255,255,255,0.15)' : 'rgba(0,0,0,0.1)'}` } as any} />
+              <div style={{ width: 36, height: 0, borderTop: `2px dashed ${isDark ? 'rgba(255,255,255,0.15)' : 'rgba(0,0,0,0.1)'}` } as any} />
               {/* Wake time */}
               <div style={{ textAlign: 'center' } as any}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 6, justifyContent: 'center' } as any}>
-                  <i className="ri-alarm-fill" style={{ fontSize: 18, color: '#F59E0B' }} />
-                  <span style={{ fontSize: 28, fontWeight: 900, color: C.text, fontVariantNumeric: 'tabular-nums' } as any}>{sleepAlarm?.wake_time || alarmTime}</span>
+                  <span style={{ fontSize: 26, fontWeight: 900, color: C.text, fontVariantNumeric: 'tabular-nums' } as any}>{sleepAlarm?.wake_time || alarmTime}</span>
                 </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 4, justifyContent: 'center', marginTop: 4 } as any}>
-                  <span style={{ width: 6, height: 6, borderRadius: 3, background: '#10B981' } as any} />
+                <div style={{ display: 'flex', alignItems: 'center', gap: 4, justifyContent: 'center', marginTop: 3 } as any}>
+                  <span style={{ width: 5, height: 5, borderRadius: 3, background: '#10B981' } as any} />
                   <span style={{ fontSize: 9, fontWeight: 800, color: '#10B981', textTransform: 'uppercase', letterSpacing: 0.5 }}>Alarme activee</span>
                 </div>
-                <div style={{ fontSize: 9, fontWeight: 700, color: C.sub, textTransform: 'uppercase', letterSpacing: 0.5 }}>Reveil</div>
               </div>
             </div>
-            {/* Sleep need info */}
-            {sleepAlarm?.extra_minutes > 0 && sleepAlarm?.adjustments?.length > 0 && (
-              <div style={{ marginTop: 12, padding: '8px 12px', borderRadius: 10, background: isDark ? 'rgba(167,139,250,0.08)' : 'rgba(167,139,250,0.06)', display: 'flex', alignItems: 'center', gap: 6 } as any}>
-                <i className="ri-information-line" style={{ fontSize: 12, color: '#A78BFA', flexShrink: 0 }} />
-                <span style={{ fontSize: 10, color: '#A78BFA', fontWeight: 600 }}>+{sleepAlarm.extra_minutes}min recommandees ({sleepAlarm.adjustments.join(', ')})</span>
-              </div>
-            )}
             {/* Modify button */}
-            <div data-testid="modify-alarm-btn" onClick={(e: any) => { e.stopPropagation(); setEditingAlarm(true); }} style={{ marginTop: 14, padding: '12px', borderRadius: 999, background: isDark ? 'rgba(255,255,255,0.06)' : '#F4F4F5', textAlign: 'center', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 } as any}>
+            <div data-testid="modify-alarm-btn" onClick={(e: any) => { e.stopPropagation(); setEditingAlarm(true); }} style={{ marginTop: 12, padding: '10px', borderRadius: 999, background: isDark ? 'rgba(255,255,255,0.06)' : '#F4F4F5', textAlign: 'center', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 } as any}>
               <i className="ri-edit-line" style={{ fontSize: 14, color: C.sub }} />
               <span style={{ fontSize: 13, fontWeight: 700, color: C.text }}>Modifier l'alarme</span>
             </div>
