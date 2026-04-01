@@ -86,7 +86,8 @@ export default function GlassTabBar({ state, navigation, role, showNora = true }
   }, [currentRoute]);
 
   const guardianSubPages = ['teleconsult', 'devices'];
-  const forceNavDark = guardianSubPages.includes(currentRoute);
+  const isBenRole = role === 'beneficiary';
+  const forceNavDark = !isBenRole && guardianSubPages.includes(currentRoute);
   const navDark = forceNavDark || isDark;
 
   const activeColor = navDark ? '#FFF' : '#111';

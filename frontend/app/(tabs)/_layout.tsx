@@ -27,7 +27,7 @@ export default function TabLayout() {
 
   // Hide default tab bar when using GlassTabBar or admin (has sidebar)
   const hideDefault = useGlass || isAdmin;
-  const showNora = !isCompany && !isBen;
+  const showNora = !isCompany;
   const tabStyle = hideDefault
     ? { display: 'none' as const, height: 0, backgroundColor: 'transparent', borderTopWidth: 0, position: 'absolute' as const, overflow: 'hidden' as const }
     : isWeb
