@@ -193,10 +193,10 @@ export function ReminderCRUDPopup({ show, editReminder, setEditReminder, onClose
     <div style={{ ...OVERLAY, overflowY: 'scroll', WebkitOverflowScrolling: 'touch' } as any}>
       <div style={{ width: '100%', maxWidth: 400, margin: '0 auto', padding: '24px 20px 120px', boxSizing: 'border-box' } as any}>
 
-        {/* Close button */}
+        {/* Close button — round */}
         <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 8 } as any}>
-          <div data-testid="reminder-popup-close" onClick={onClose} style={{ width: 36, height: 36, borderRadius: 10, background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}>
-            <i className="ri-close-line" style={{ fontSize: 18, color: 'rgba(255,255,255,0.6)' }} />
+          <div data-testid="reminder-popup-close" onClick={onClose} style={{ width: 36, height: 36, borderRadius: 999, background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}>
+            <i className="ri-close-line" style={{ fontSize: 18, color: 'rgba(255,255,255,0.8)' }} />
           </div>
         </div>
 
@@ -205,37 +205,27 @@ export function ReminderCRUDPopup({ show, editReminder, setEditReminder, onClose
           <img src={meta.img} alt="" style={{ width: 160, height: 160, objectFit: 'contain', margin: '0 auto', display: 'block', filter: 'drop-shadow(0 12px 32px rgba(0,0,0,0.4))' } as any} />
         </div>
 
-        {/* Edit mode */}
+        {/* Edit mode — full form with title, dosage, ingredients */}
         {editingId ? (
-          <div style={{ borderRadius: 20, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', overflow: 'hidden' } as any}>
+          <div style={{ borderRadius: 20, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', overflow: 'hidden' } as any}>
 
-            {/* Scroll time picker */}
-            <div style={{ padding: '20px', borderBottom: '1px solid rgba(255,255,255,0.06)' } as any}>
-              <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 14, textAlign: 'center' }}>Heure du rappel</div>
+            {/* Title */}
+            <div style={{ padding: '16px 20px', borderBottom: '1px solid rgba(255,255,255,0.06)' } as any}>
+              <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 8 }}>Nom du rappel</div>
+              <input value={editingData?.title || ''} onChange={(e: any) => setEditReminder({ ...editReminder, _editingData: { ...editingData, title: e.target.value } })} placeholder={popupType === 'hydration' ? 'Ex: Mon smoothie maison' : popupType === 'medication' ? 'Ex: Paracetamol 500mg' : 'Ex: Marche quotidienne'} style={{ width: '100%', padding: '12px 16px', borderRadius: 12, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', color: '#FFF', fontSize: 15, fontWeight: 700, fontFamily: 'inherit', boxSizing: 'border-box', outline: 'none' } as any} />
+            </div>
+
+            {/* Time picker */}
+            <div style={{ padding: '16px 20px', borderBottom: '1px solid rgba(255,255,255,0.06)' } as any}>
+              <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 10, textAlign: 'center' }}>Heure du rappel</div>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 } as any}>
-                {/* Hours scroll */}
-                <div style={{ width: 70, height: 150, overflow: 'hidden', position: 'relative', borderRadius: 14 } as any}>
-                  <div style={{ position: 'absolute', top: '50%', left: 0, right: 0, height: 44, marginTop: -22, borderTop: `1px solid ${accent}40`, borderBottom: `1px solid ${accent}40`, zIndex: 1, pointerEvents: 'none' } as any} />
-                  <div data-testid="hour-scroll" style={{ height: '100%', overflowY: 'scroll', scrollSnapType: 'y mandatory', scrollbarWidth: 'none', position: 'relative', zIndex: 3, paddingTop: 53, paddingBottom: 53 } as any}
-                    ref={(el: any) => { if (el && !el._scrolled) { el.scrollTop = hr * 44; el._scrolled = true; } }}
-                    onScroll={(e: any) => { const idx = Math.round(e.target.scrollTop / 44); if (idx >= 0 && idx < 24) setTime(idx, mn); }}>
-                    {Array.from({ length: 24 }, (_, i) => (
-                      <div key={i} style={{ height: 44, display: 'flex', alignItems: 'center', justifyContent: 'center', scrollSnapAlign: 'center', fontSize: i === hr ? 34 : 20, fontWeight: i === hr ? 900 : 400, color: i === hr ? '#FFF' : 'rgba(255,255,255,0.12)', transition: 'all 0.15s' } as any}>{String(i).padStart(2, '0')}</div>
-                    ))}
-                  </div>
-                </div>
-                <span style={{ fontSize: 36, fontWeight: 900, color: 'rgba(255,255,255,0.15)' }}>:</span>
-                {/* Minutes scroll */}
-                <div style={{ width: 70, height: 150, overflow: 'hidden', position: 'relative', borderRadius: 14 } as any}>
-                  <div style={{ position: 'absolute', top: '50%', left: 0, right: 0, height: 44, marginTop: -22, borderTop: `1px solid ${accent}40`, borderBottom: `1px solid ${accent}40`, zIndex: 1, pointerEvents: 'none' } as any} />
-                  <div data-testid="minute-scroll" style={{ height: '100%', overflowY: 'scroll', scrollSnapType: 'y mandatory', scrollbarWidth: 'none', position: 'relative', zIndex: 3, paddingTop: 53, paddingBottom: 53 } as any}
-                    ref={(el: any) => { if (el && !el._scrolled) { el.scrollTop = mn * 44; el._scrolled = true; } }}
-                    onScroll={(e: any) => { const idx = Math.round(e.target.scrollTop / 44); if (idx >= 0 && idx < 60) setTime(hr, idx); }}>
-                    {Array.from({ length: 60 }, (_, i) => (
-                      <div key={i} style={{ height: 44, display: 'flex', alignItems: 'center', justifyContent: 'center', scrollSnapAlign: 'center', fontSize: i === mn ? 34 : 20, fontWeight: i === mn ? 900 : 400, color: i === mn ? '#FFF' : 'rgba(255,255,255,0.12)', transition: 'all 0.15s' } as any}>{String(i).padStart(2, '0')}</div>
-                    ))}
-                  </div>
-                </div>
+                <select value={String(hr).padStart(2, '0')} onChange={(e: any) => setTime(parseInt(e.target.value), mn)} style={{ width: 70, padding: '12px 6px', borderRadius: 12, background: 'rgba(255,255,255,0.06)', border: `1px solid ${accent}30`, color: '#FFF', fontSize: 28, fontWeight: 900, textAlign: 'center', outline: 'none', fontFamily: 'inherit', appearance: 'none', WebkitAppearance: 'none' } as any}>
+                  {Array.from({length: 24}, (_, i) => <option key={i} value={String(i).padStart(2, '0')} style={{ background: '#111' }}>{String(i).padStart(2, '0')}</option>)}
+                </select>
+                <span style={{ fontSize: 28, fontWeight: 900, color: 'rgba(255,255,255,0.15)' }}>:</span>
+                <select value={String(mn).padStart(2, '0')} onChange={(e: any) => setTime(hr, parseInt(e.target.value))} style={{ width: 70, padding: '12px 6px', borderRadius: 12, background: 'rgba(255,255,255,0.06)', border: `1px solid ${accent}30`, color: '#FFF', fontSize: 28, fontWeight: 900, textAlign: 'center', outline: 'none', fontFamily: 'inherit', appearance: 'none', WebkitAppearance: 'none' } as any}>
+                  {Array.from({length: 12}, (_, i) => <option key={i} value={String(i * 5).padStart(2, '0')} style={{ background: '#111' }}>{String(i * 5).padStart(2, '0')}</option>)}
+                </select>
               </div>
             </div>
 
@@ -250,19 +240,50 @@ export function ReminderCRUDPopup({ show, editReminder, setEditReminder, onClose
               </div>
             </div>
 
-            {/* Note */}
+            {/* Dosage / Volume — conditional on type */}
             <div style={{ padding: '16px 20px', borderBottom: '1px solid rgba(255,255,255,0.06)' } as any}>
-              <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 8 }}>Note (optionnel)</div>
-              <input value={editingData?.notes || ''} onChange={(e: any) => setEditReminder({ ...editReminder, _editingData: { ...editingData, notes: e.target.value } })} placeholder="Ex: 2 verres d'eau..." style={{ width: '100%', padding: '12px 16px', borderRadius: 12, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', color: '#FFF', fontSize: 14, fontFamily: 'inherit', boxSizing: 'border-box', outline: 'none' } as any} />
+              <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 8 }}>{popupType === 'medication' ? 'Dosage / Posologie' : popupType === 'hydration' ? 'Volume' : 'Details'}</div>
+              <input value={editingData?.dosage || ''} onChange={(e: any) => setEditReminder({ ...editReminder, _editingData: { ...editingData, dosage: e.target.value } })} placeholder={popupType === 'medication' ? 'Ex: 1 comprime, 500mg, 2x/jour' : popupType === 'hydration' ? 'Ex: 300ml, 1 grand verre' : 'Ex: 15 minutes, intensite legere'} style={{ width: '100%', padding: '12px 16px', borderRadius: 12, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', color: '#FFF', fontSize: 14, fontFamily: 'inherit', boxSizing: 'border-box', outline: 'none' } as any} />
             </div>
+
+            {/* Description / Notes */}
+            <div style={{ padding: '16px 20px', borderBottom: '1px solid rgba(255,255,255,0.06)' } as any}>
+              <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 8 }}>Description</div>
+              <input value={editingData?.notes || ''} onChange={(e: any) => setEditReminder({ ...editReminder, _editingData: { ...editingData, notes: e.target.value } })} placeholder={popupType === 'hydration' ? 'Ex: Smoothie banane-fraise avec yaourt' : popupType === 'medication' ? 'Ex: A prendre pendant le repas' : 'Ex: Etirements doux le matin'} style={{ width: '100%', padding: '12px 16px', borderRadius: 12, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', color: '#FFF', fontSize: 14, fontFamily: 'inherit', boxSizing: 'border-box', outline: 'none' } as any} />
+            </div>
+
+            {/* Ingredients — editable list (hydration/medication) */}
+            {(popupType === 'hydration' || popupType === 'medication') && (
+              <div style={{ padding: '16px 20px', borderBottom: '1px solid rgba(255,255,255,0.06)' } as any}>
+                <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 8 }}>{popupType === 'hydration' ? 'Ingredients' : 'Composition'}</div>
+                {(editingData?._ingredients || []).map((ig: any, ii: number) => (
+                  <div key={ii} style={{ display: 'flex', gap: 6, marginBottom: 6 } as any}>
+                    <input value={ig.name || ''} onChange={(e: any) => { const arr = [...(editingData._ingredients || [])]; arr[ii] = { ...arr[ii], name: e.target.value }; setEditReminder({ ...editReminder, _editingData: { ...editingData, _ingredients: arr } }); }} placeholder="Ingredient" style={{ flex: 2, padding: '10px 12px', borderRadius: 10, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', color: '#FFF', fontSize: 12, fontFamily: 'inherit', boxSizing: 'border-box', outline: 'none' } as any} />
+                    <input value={ig.quantity || ''} onChange={(e: any) => { const arr = [...(editingData._ingredients || [])]; arr[ii] = { ...arr[ii], quantity: e.target.value }; setEditReminder({ ...editReminder, _editingData: { ...editingData, _ingredients: arr } }); }} placeholder="Qte" style={{ flex: 1, padding: '10px 12px', borderRadius: 10, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', color: '#FFF', fontSize: 12, fontFamily: 'inherit', boxSizing: 'border-box', outline: 'none' } as any} />
+                    <div onClick={() => { const arr = (editingData._ingredients || []).filter((_: any, i: number) => i !== ii); setEditReminder({ ...editReminder, _editingData: { ...editingData, _ingredients: arr } }); }} style={{ width: 36, height: 36, borderRadius: 10, background: 'rgba(239,68,68,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', flexShrink: 0 } as any}>
+                      <i className="ri-close-line" style={{ fontSize: 14, color: '#EF4444' }} />
+                    </div>
+                  </div>
+                ))}
+                <div onClick={() => { const arr = [...(editingData?._ingredients || []), { name: '', quantity: '' }]; setEditReminder({ ...editReminder, _editingData: { ...editingData, _ingredients: arr } }); }} style={{ padding: '8px', borderRadius: 10, background: 'rgba(255,255,255,0.03)', border: '1px dashed rgba(255,255,255,0.1)', cursor: 'pointer', textAlign: 'center', fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.3)' } as any}>
+                  <i className="ri-add-line" style={{ fontSize: 12, marginRight: 4 }} />Ajouter un ingredient
+                </div>
+              </div>
+            )}
 
             {/* Actions */}
             <div style={{ padding: '16px 20px', display: 'flex', gap: 10 } as any}>
               <div data-testid="save-reminder-btn" onClick={async () => {
                 const r = typeRems.find((r: any) => r.id === editingId);
                 if (!r) return;
+                const title = editingData?.title || editingData?.notes || meta.label;
+                const saveData: any = { ...editingData, reminder_type: popupType, title };
+                if (editingData?._ingredients?.length > 0) {
+                  saveData.ingredients = JSON.stringify(editingData._ingredients.filter((ig: any) => ig.name));
+                }
+                delete saveData._ingredients;
                 try {
-                  await apiFetch(`/api/reminders/${r.id}`, { method: 'PUT', body: JSON.stringify({ ...editingData, reminder_type: popupType, title: editingData.notes || meta.label }) }, token);
+                  await apiFetch(`/api/reminders/${r.id}`, { method: 'PUT', body: JSON.stringify(saveData) }, token);
                   setEditReminder({ ...editReminder, _editingId: null, _editingData: null });
                   await refreshLocal();
                   if (onCrudDone) onCrudDone(popupType);

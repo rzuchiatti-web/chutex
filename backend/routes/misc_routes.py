@@ -420,7 +420,7 @@ async def get_reminders(user=Depends(get_current_user)):
 @router.put("/reminders/{rid}")
 async def update_reminder(rid: str, data: dict, user=Depends(get_current_user)):
     update = {}
-    for key in ['title', 'time', 'days', 'dosage', 'notes', 'active', 'reminder_type']:
+    for key in ['title', 'time', 'days', 'dosage', 'notes', 'active', 'reminder_type', 'volume', 'benefits', 'ingredients']:
         if key in data:
             update[key] = data[key]
     if update:
