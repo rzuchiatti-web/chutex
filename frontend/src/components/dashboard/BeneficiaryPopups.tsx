@@ -138,12 +138,22 @@ export function LanguagePopup({ show, onClose, lang, setLang }: any) {
 export function ReminderCRUDPopup({ show, editReminder, setEditReminder, onClose, reminders, reminderMeta, token, fetchData, deleteReminder, setReminders, onCrudDone }: any) {
   // Local state: the popup owns its own copy of reminders for instant UI updates
   const [localReminders, setLocalReminders] = useState<any[]>(reminders || []);
+  const [suggestions, setSuggestions] = useState<any[]>([]);
+  const [expandedSugg, setExpandedSugg] = useState<number | null>(null);
   const mountedRef = useRef(true);
 
   // Sync from parent props whenever they change (background refresh, initial load)
   useEffect(() => {
     setLocalReminders(reminders || []);
   }, [reminders]);
+
+  // Fetch enriched suggestions when popup opens
+  useEffect(() => {
+    if (!show || !token) return;
+    apiFetch('/api/pro/reminder-suggestions', {}, token).then((data: any) => {
+      if (data && mountedRef.current) setSuggestions(data);
+    }).catch(() => {});
+  }, [show, token]);
 
   useEffect(() => {
     mountedRef.current = true;
@@ -329,31 +339,55 @@ export function ReminderCRUDPopup({ show, editReminder, setEditReminder, onClose
               </div>
             )}
 
-            {/* Suggestions */}
+            {/* Suggestions enrichies */}
             {(() => {
-              const suggestions: Record<string, string[]> = {
-                hydration: ['Verre d\'eau', 'Smoothie', 'Tisane', 'The vert', 'Jus de fruits', 'Soupe', 'Eau citronnee'],
-                medication: ['Medicament matin', 'Proteine', 'Vitamine D', 'Omega 3', 'Complement fer', 'Probiotiques', 'Magnesium'],
-                alarm: ['Marcher 15min', 'S\'etirer', 'Respiration', 'Mesurer tension', 'Se peser', 'Boire de l\'eau', 'Faire ses exercices'],
-              };
-              const chips = suggestions[popupType] || suggestions.hydration;
+              const typeSuggs = (suggestions as any)[popupType] || [];
+              if (typeSuggs.length === 0) return null;
               return (
                 <div style={{ marginTop: 12, marginBottom: 4 } as any}>
-                  <div style={{ fontSize: 9, fontWeight: 700, color: 'rgba(255,255,255,0.2)', textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 8 }}>Suggestions rapides</div>
-                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 } as any}>
-                    {chips.map((chip: string, ci: number) => (
-                      <div key={ci} data-testid={`suggestion-chip-${ci}`} onClick={async () => {
-                        try {
-                          await apiFetch('/api/reminders', { method: 'POST', body: JSON.stringify({ reminder_type: popupType, title: chip, time: '08:00', days: ['lun','mar','mer','jeu','ven','sam','dim'], notes: '', active: true }) }, token);
-                          await refreshLocal();
-                          if (onCrudDone) onCrudDone(popupType);
-                        } catch {}
-                      }} style={{ padding: '8px 14px', borderRadius: 999, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', cursor: 'pointer', fontSize: 12, fontWeight: 600, color: 'rgba(255,255,255,0.5)', transition: 'all 0.15s' } as any}
-                        onMouseEnter={(e: any) => { e.currentTarget.style.background = 'rgba(255,255,255,0.12)'; e.currentTarget.style.color = '#FFF'; }}
-                        onMouseLeave={(e: any) => { e.currentTarget.style.background = 'rgba(255,255,255,0.06)'; e.currentTarget.style.color = 'rgba(255,255,255,0.5)'; }}>
-                        <i className="ri-add-line" style={{ fontSize: 11, marginRight: 4 }} />{chip}
-                      </div>
-                    ))}
+                  <div style={{ fontSize: 9, fontWeight: 700, color: 'rgba(255,255,255,0.2)', textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 10 }}>Bibliotheque</div>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 6 } as any}>
+                    {typeSuggs.map((s: any, si: number) => {
+                      const isExpanded = expandedSugg === si;
+                      const ingr = s.ingredients || [];
+                      return (
+                        <div key={si} style={{ borderRadius: 14, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', overflow: 'hidden' } as any}>
+                          <div onClick={() => setExpandedSugg(isExpanded ? null : si)} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '12px 14px', cursor: 'pointer' } as any}>
+                            <div style={{ flex: 1, minWidth: 0 } as any}>
+                              <div style={{ fontSize: 13, fontWeight: 700, color: '#FFF', marginBottom: 2 }}>{s.title}</div>
+                              {s.description && <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.3)', lineHeight: 1.4, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: isExpanded ? 'normal' : 'nowrap' } as any}>{s.description}</div>}
+                            </div>
+                            <i className={isExpanded ? 'ri-arrow-up-s-line' : 'ri-arrow-down-s-line'} style={{ fontSize: 16, color: 'rgba(255,255,255,0.3)', flexShrink: 0 }} />
+                          </div>
+                          {isExpanded && (
+                            <div style={{ padding: '0 14px 14px', borderTop: '1px solid rgba(255,255,255,0.05)' } as any}>
+                              {s.benefits && <div style={{ fontSize: 11, color: accent, marginTop: 10, marginBottom: 8 }}>{s.benefits}</div>}
+                              {s.volume && <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.4)', marginBottom: 6 }}>Volume : {s.volume}</div>}
+                              {s.dosage && <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.4)', marginBottom: 6 }}>Dosage : {s.dosage}</div>}
+                              {ingr.length > 0 && (
+                                <div style={{ marginBottom: 8 } as any}>
+                                  <div style={{ fontSize: 9, fontWeight: 700, color: 'rgba(255,255,255,0.2)', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 4 }}>Ingredients</div>
+                                  {ingr.map((ig: any, ii: number) => (
+                                    <div key={ii} style={{ fontSize: 10, color: 'rgba(255,255,255,0.4)', padding: '2px 0' }}>{ig.name} — {ig.quantity}{ig.unit ? ig.unit : ''}</div>
+                                  ))}
+                                </div>
+                              )}
+                              {s.source === 'pro' && <div style={{ fontSize: 9, color: accent, fontWeight: 700, marginBottom: 8 }}>Recommande par votre coach</div>}
+                              <div data-testid={`add-suggestion-${si}`} onClick={async () => {
+                                try {
+                                  await apiFetch('/api/reminders', { method: 'POST', body: JSON.stringify({ reminder_type: popupType, title: s.title, time: '08:00', days: ['lun','mar','mer','jeu','ven','sam','dim'], notes: s.description || '', dosage: s.dosage || '', active: true }) }, token);
+                                  await refreshLocal();
+                                  if (onCrudDone) onCrudDone(popupType);
+                                  setExpandedSugg(null);
+                                } catch {}
+                              }} style={{ padding: '10px', borderRadius: 999, background: '#FFF', textAlign: 'center', cursor: 'pointer', fontSize: 12, fontWeight: 800, color: '#111' } as any}>
+                                Ajouter ce rappel
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
                   </div>
                 </div>
               );

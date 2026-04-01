@@ -664,6 +664,78 @@ async def update_reminder_template(template_id: str, data: dict, user=Depends(ge
 
 
 
+# ── Beneficiary: get reminder suggestions (pro templates + defaults) ──
+@router.get("/pro/reminder-suggestions")
+async def get_reminder_suggestions(user=Depends(get_current_user)):
+    """Return enriched reminder suggestions for the beneficiary: pro templates + defaults."""
+    uid = user['id']
+    linked = await db.users.find(
+        {"beneficiaries": uid, "role": {"$in": ["guardian", "professional"]}},
+        {"_id": 0, "id": 1}
+    ).to_list(50)
+    guardian_ids = [g['id'] for g in linked]
+
+    pro_templates = []
+    if guardian_ids:
+        pro_templates = await db.pro_reminder_templates.find(
+            {"professional_id": {"$in": guardian_ids}}, {"_id": 0}
+        ).sort("created_at", -1).to_list(50)
+
+    defaults = {
+        "hydration": [
+            {"title": "Verre d'eau", "description": "Hydratation pure, essentielle au bon fonctionnement renal et cerebral", "volume": "250ml", "benefits": "Hydratation cellulaire, elimination des toxines", "category": "eau"},
+            {"title": "Smoothie fruits rouges", "description": "Melange de fraises, myrtilles et framboises riches en antioxydants", "ingredients": [{"name": "Fraises", "quantity": "100g"}, {"name": "Myrtilles", "quantity": "50g"}, {"name": "Yaourt nature", "quantity": "100ml"}], "volume": "300ml", "benefits": "Antioxydants, vitamines C et K, fibres", "category": "smoothie"},
+            {"title": "Tisane camomille", "description": "Infusion apaisante, ideale le soir pour favoriser l'endormissement", "volume": "200ml", "benefits": "Relaxation, digestion, sommeil", "category": "tisane"},
+            {"title": "The vert", "description": "Riche en catechines, stimule le metabolisme et la concentration", "volume": "200ml", "benefits": "Antioxydants, concentration, metabolisme", "category": "the"},
+            {"title": "Eau citronnee", "description": "Eau tiede avec jus de citron frais, stimule la digestion matinale", "ingredients": [{"name": "Eau tiede", "quantity": "250ml"}, {"name": "Citron", "quantity": "1/2"}], "volume": "250ml", "benefits": "Vitamine C, digestion, detox", "category": "eau"},
+            {"title": "Soupe de legumes", "description": "Bouillon leger de legumes de saison, hydratant et nutritif", "volume": "300ml", "benefits": "Hydratation, mineraux, fibres", "category": "soupe"},
+            {"title": "Jus de carotte-orange", "description": "Jus frais riche en beta-carotene et vitamine C", "ingredients": [{"name": "Carottes", "quantity": "200g"}, {"name": "Orange", "quantity": "1"}], "volume": "250ml", "benefits": "Vision, immunite, peau", "category": "jus"},
+        ],
+        "medication": [
+            {"title": "Medicament matin", "description": "Prise du traitement quotidien prescrit par votre medecin", "dosage": "Selon prescription", "benefits": "Suivi du traitement medical", "category": "medicament"},
+            {"title": "Proteine (whey)", "description": "Complement proteique pour maintenir la masse musculaire", "dosage": "30g dans 200ml d'eau", "benefits": "Maintien musculaire, recuperation, satiete", "category": "complement"},
+            {"title": "Vitamine D", "description": "Essentielle pour les os et le systeme immunitaire, surtout en hiver", "dosage": "1000 UI", "benefits": "Os, immunite, humeur", "category": "vitamine"},
+            {"title": "Omega 3", "description": "Acides gras essentiels pour le cerveau et le systeme cardiovasculaire", "dosage": "1 gelule (1000mg)", "benefits": "Cerveau, coeur, inflammation", "category": "complement"},
+            {"title": "Magnesium", "description": "Mineral essentiel contre la fatigue et les crampes musculaires", "dosage": "300mg", "benefits": "Fatigue, crampes, sommeil, stress", "category": "mineral"},
+            {"title": "Probiotiques", "description": "Bacteries benefiques pour l'equilibre de la flore intestinale", "dosage": "1 gelule", "benefits": "Digestion, immunite, bien-etre", "category": "complement"},
+            {"title": "Complement fer", "description": "Previent l'anemie et la fatigue chronique", "dosage": "14mg", "benefits": "Energie, oxygenation, vitalite", "category": "mineral"},
+        ],
+        "alarm": [
+            {"title": "Marcher 15 minutes", "description": "Marche douce pour activer la circulation et maintenir la mobilite", "benefits": "Circulation, mobilite, humeur", "category": "activite"},
+            {"title": "S'etirer", "description": "Etirements doux des principaux groupes musculaires (5-10 min)", "benefits": "Souplesse, prevention douleurs, detente", "category": "activite"},
+            {"title": "Exercice de respiration", "description": "Respiration profonde 4-7-8 : inspirer 4s, retenir 7s, expirer 8s", "benefits": "Relaxation, gestion du stress, sommeil", "category": "bien-etre"},
+            {"title": "Mesurer la tension", "description": "Prise de tension arterielle, noter les valeurs", "benefits": "Suivi cardiovasculaire, prevention", "category": "sante"},
+            {"title": "Se peser", "description": "Pesee matinale a jeun pour un suivi precis du poids", "benefits": "Suivi du poids, motivation, objectifs", "category": "sante"},
+            {"title": "Faire ses exercices", "description": "Realiser les exercices prescrits par votre coach", "benefits": "Force, equilibre, prevention chutes", "category": "activite"},
+        ],
+    }
+
+    # Merge: pro templates override defaults with same title
+    result = {}
+    for rtype in ["hydration", "medication", "alarm"]:
+        items = []
+        pro_for_type = [t for t in pro_templates if t.get("reminder_type") == rtype]
+        seen_titles = set()
+        for t in pro_for_type:
+            items.append({
+                "title": t.get("title", ""),
+                "description": t.get("description", ""),
+                "dosage": t.get("dosage", ""),
+                "volume": t.get("volume", ""),
+                "benefits": t.get("benefits", ""),
+                "ingredients": t.get("ingredients", []),
+                "category": t.get("category", ""),
+                "source": "pro",
+                "pro_name": t.get("professional_id", ""),
+            })
+            seen_titles.add(t.get("title", "").lower())
+        for d in defaults.get(rtype, []):
+            if d["title"].lower() not in seen_titles:
+                items.append({**d, "source": "default"})
+        result[rtype] = items
+
+    return result
+
 
 # ── Pro Meals Management ──
 

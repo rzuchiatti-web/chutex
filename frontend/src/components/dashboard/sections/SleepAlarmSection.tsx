@@ -79,7 +79,15 @@ export function SleepAlarmSection({ sleepAlarm, alarmTime, setAlarmTime, editing
             {/* Wake time input */}
             <div style={{ marginBottom: 20 } as any}>
               <div style={{ fontSize: 9, fontWeight: 700, color: 'rgba(255,255,255,0.25)', textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 8 }}>Heure de reveil</div>
-              <input data-testid="wake-time-input" type="time" value={alarmTime} onChange={(e: any) => setAlarmTime(e.target.value)} style={{ width: '100%', padding: '16px', borderRadius: 16, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', color: '#FFF', fontSize: 28, fontWeight: 900, textAlign: 'center', outline: 'none', fontFamily: 'inherit', boxSizing: 'border-box' } as any} />
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 } as any}>
+                <select data-testid="wake-hour" value={alarmTime.split(':')[0] || '07'} onChange={(e: any) => setAlarmTime(`${e.target.value}:${alarmTime.split(':')[1] || '00'}`)} style={{ width: 80, padding: '14px 8px', borderRadius: 14, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', color: '#FFF', fontSize: 32, fontWeight: 900, textAlign: 'center', outline: 'none', fontFamily: 'inherit', appearance: 'none', WebkitAppearance: 'none' } as any}>
+                  {Array.from({length: 24}, (_, i) => <option key={i} value={String(i).padStart(2, '0')} style={{ background: '#111', color: '#FFF' }}>{String(i).padStart(2, '0')}</option>)}
+                </select>
+                <span style={{ fontSize: 32, fontWeight: 900, color: 'rgba(255,255,255,0.2)' }}>:</span>
+                <select data-testid="wake-minute" value={alarmTime.split(':')[1] || '00'} onChange={(e: any) => setAlarmTime(`${alarmTime.split(':')[0] || '07'}:${e.target.value}`)} style={{ width: 80, padding: '14px 8px', borderRadius: 14, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', color: '#FFF', fontSize: 32, fontWeight: 900, textAlign: 'center', outline: 'none', fontFamily: 'inherit', appearance: 'none', WebkitAppearance: 'none' } as any}>
+                  {Array.from({length: 12}, (_, i) => <option key={i} value={String(i * 5).padStart(2, '0')} style={{ background: '#111', color: '#FFF' }}>{String(i * 5).padStart(2, '0')}</option>)}
+                </select>
+              </div>
             </div>
 
             {/* Computed bedtime — glass card */}
