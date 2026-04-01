@@ -228,7 +228,7 @@ export default function ProExerciseDetailPage() {
               <i className="ri-arrow-left-line" style={{ fontSize: 16, color: '#FFF' }} />
             </div>
             {!loading && ex && (
-              <div style={{ fontSize: 24, fontWeight: 900, color: '#FFF', textTransform: 'capitalize', textShadow: '0 2px 8px rgba(0,0,0,0.3)' }}>{ex.title}</div>
+              <div style={{ fontSize: 24, fontWeight: 900, color: '#FFF', textTransform: 'capitalize', textShadow: '0 2px 8px rgba(0,0,0,0.3)', textAlign: 'center' }}>{ex.title}</div>
             )}
           </div>
         </div>
