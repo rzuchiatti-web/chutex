@@ -15,60 +15,36 @@
 - [x] Poids (kg) persistant + graphe SVG evolution
 - [x] Popup workout plein ecran (series + timer repos + son/vibration + validation integree)
 - [x] Light/Dark mode adaptatif, boutons ronds, responsive 480px
-- [x] Validation uniquement apres completion exercice
-- [x] Images coherentes (backend merge template data)
 
 ### Dashboard Beneficiaire
-- [x] Carte Sommeil "Whoop-style" (coucher recommande calcule dynamiquement + alarme reveil)
-- [x] Carte programme, exercices (compteur X/Y, barre douleur progressive)
-- [x] Dispositifs en cartes separees, couleurs uniformes #F4F4F5
-- [x] Teleconsultation -> page dediee /teleconsult-doctor
-- [x] Nora dans navbar, Messages light mode
-- [x] Navigation navbar corrigee (pages hors-tabs)
+- [x] Carte Sommeil "Whoop-style" (coucher recommande + alarme reveil)
+- [x] Carte programme, exercices, dispositifs en cartes separees
+- [x] Navigation navbar corrigee
 
-### Pages Detaillees
-- [x] IMC : header avec valeur, jauge, sparkline enrichi, section "Comprendre" complete
-- [x] Repas : titre centre, images par type, bouton valider en bas, header sans icone
-- [x] Exercices : titre centre, minHeight pleine page
-- [x] Boutons retour ronds (borderRadius: 999) partout
-- [x] Calendrier dynamique sur toutes les pages (activity, health, metric, glycemia)
+### Nora IA — Actions via Chat (COMPLETE)
+- [x] UPDATE_CALORIES : Modifier calories (BLOQUE si objectif poids actif)
+- [x] ADJUST_MACROS : Modifier macros (BLOQUE si objectif poids actif)
+- [x] ADD_EXERCISE : Ajouter exercices (toujours autorise)
+- [x] DELETE_EXERCISE : Supprimer exercices Nora uniquement (jamais coach/gardien)
+- [x] UPDATE_MEAL_PLAN : Generer plan 4 repas personnalise (allergies, conditions, budget cal)
+- [x] LIST_EXERCISES : Lister bibliotheque
+- [x] Cartes confirmation visuelles (vert/rouge) pour toutes les actions
 
-### Nora IA — Function Calling (P0 COMPLETE)
-- [x] Actions via chat : Nora peut executer des actions reelles depuis le chat
-- [x] UPDATE_CALORIES : Modifier l'apport calorique (BLOQUE si objectif poids actif)
-- [x] ADJUST_MACROS : Modifier les macronutriments (BLOQUE si objectif poids actif)
-- [x] ADD_EXERCISE : Ajouter des exercices (TOUJOURS autorise, avec ou sans objectif)
-- [x] CHECK_WEIGHT_GOAL : Verifier si un objectif de poids est en cours
-- [x] LIST_EXERCISES : Lister les exercices disponibles dans la bibliotheque
-- [x] Regles metier strictes : jamais supprimer les prescriptions gardien/coach
-- [x] Cartes de confirmation visuelles (vert succes, rouge echec) dans le chat
+### Nora IA — Contexte Enrichi (COMPLETE)
+- [x] Exercices du jour : titre, series/reps, statut (fait/a faire), prescripteur
+- [x] Nutrition du jour : calories, macros, repas valides/non valides, noms des repas
+- [x] Nora peut dire "Vous avez fait 2/9 exercices" ou "Il vous reste 600 kcal"
 
 ### Refactoring (COMPLETE)
-- [x] pro-exercise-detail.tsx : 606 -> 403 lignes (-33%)
-  - Extraction: WeightChart, StatEditor -> src/components/exercises/WeightChart.tsx
-  - Extraction: WorkoutPopup -> src/components/exercises/WorkoutPopup.tsx
-- [x] BeneficiaryHome.tsx : 885 -> 707 lignes (-20%)
-  - Extraction: SleepAlarmSection -> src/components/dashboard/sections/SleepAlarmSection.tsx
-  - Extraction: TodayExercisesSection -> src/components/dashboard/sections/TodayExercisesSection.tsx
-  - Extraction: RemindersSection -> src/components/dashboard/sections/RemindersSection.tsx
-  - Extraction: GuardiansSection -> src/components/dashboard/sections/GuardiansSection.tsx
-
-### Bug Fixes
-- [x] Programme Solo sans equipe ni notifications
-- [x] TeamActivityToast skip pour solo
-- [x] Image exercice preservee apres update-params (merge template)
-- [x] Navigation navbar depuis pages hors-tabs
-- [x] Session ID chat protege contre user?.id undefined
+- [x] pro-exercise-detail.tsx : 606 -> 403 lignes (WeightChart, WorkoutPopup extraits)
+- [x] BeneficiaryHome.tsx : 885 -> 707 lignes (SleepAlarm, Exercises, Reminders, Guardians extraits)
 
 ## APIs Cles
-- `GET/PUT /api/health/sleep-alarm` — Alarme reveil + coucher recommande
-- `GET /api/pro/beneficiary-today-exercises?date=` — Exercices du jour (merge template)
+- `POST /api/chat/message` — Chat Nora avec 6 actions
+- `GET/PUT /api/health/sleep-alarm` — Alarme reveil + coucher
+- `GET /api/pro/beneficiary-today-exercises` — Exercices du jour
 - `PUT /api/pro/assigned-exercises/{id}/update-params` — Modifier series/reps/repos
-- `PUT /api/pro/assigned-exercises/{id}/save-weight` — Enregistrer poids
-- `POST /api/pro/self-assign-exercise` — Auto-assignation (supporte __custom__)
-- `POST /api/chat/message` — Chat Nora avec actions (retourne actions[] si applicables)
-- `GET /api/chat/history` — Historique chat incluant actions
-- `GET /api/minceur/weight-goal-status` — Statut objectif poids
+- `POST /api/pro/self-assign-exercise` — Auto-assignation
 
 ## Backlog
 - P1 : Deploiement TCP J2358
