@@ -119,12 +119,35 @@ export default function ProExerciseDetailPage() {
     } catch {} finally { setCreating(false); }
   };
 
+  // Sound + vibration alert
+  const playAlert = () => {
+    try {
+      const ctx = new (window.AudioContext || (window as any).webkitAudioContext)();
+      const playBeep = (freq: number, delay: number) => {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.connect(gain); gain.connect(ctx.destination);
+        osc.frequency.value = freq; osc.type = 'sine';
+        gain.gain.setValueAtTime(0.3, ctx.currentTime + delay);
+        gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + delay + 0.3);
+        osc.start(ctx.currentTime + delay);
+        osc.stop(ctx.currentTime + delay + 0.3);
+      };
+      playBeep(880, 0); playBeep(1100, 0.15); playBeep(1320, 0.3);
+    } catch {}
+    try { if (navigator.vibrate) navigator.vibrate([200, 100, 200, 100, 300]); } catch {}
+  };
+
   // Timer logic
   const startRest = () => {
     const restSec = ex?.rest_seconds || editRest || 60;
     setResting(true); setRestTime(restSec);
     restRef.current = setInterval(() => {
-      setRestTime(prev => { if (prev <= 1) { clearInterval(restRef.current); setResting(false); setCurrentSet(s => s + 1); return 0; } return prev - 1; });
+      setRestTime(prev => {
+        if (prev <= 1) { clearInterval(restRef.current); setResting(false); setCurrentSet(s => s + 1); playAlert(); return 0; }
+        if (prev === 4) { try { const ctx = new (window.AudioContext || (window as any).webkitAudioContext)(); const o = ctx.createOscillator(); const g = ctx.createGain(); o.connect(g); g.connect(ctx.destination); o.frequency.value = 440; o.type = 'sine'; g.gain.setValueAtTime(0.15, ctx.currentTime); g.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.15); o.start(); o.stop(ctx.currentTime + 0.15); } catch {} }
+        return prev - 1;
+      });
     }, 1000);
   };
 
