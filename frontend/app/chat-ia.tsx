@@ -102,7 +102,7 @@ export default function ChatIAScreen() {
     return () => clearInterval(iv);
   }, [greetingDone, hasMessages]);
 
-  const chatSessionId = isGuardian && selectedBen ? `chat-${user?.id}-${role}-${selectedBen}` : `chat-${user?.id}-${role}`;
+  const chatSessionId = user?.id ? (isGuardian && selectedBen ? `chat-${user.id}-${role}-${selectedBen}` : `chat-${user.id}-${role}`) : '';
 
   const loadHistory = async () => {
     setLoading(true);

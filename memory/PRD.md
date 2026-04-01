@@ -4,62 +4,67 @@
 - Frontend: Expo Web (React) port 3000
 - Backend: FastAPI port 8001
 - Database: MongoDB
-- Auth: JWT (clé `vl_token`)
+- Auth: JWT (cle `vl_token`)
 - LLM: OpenAI GPT-5.2 via Emergent LLM Key
 
-## Fonctionnalités Implémentées
+## Fonctionnalites Implementees
 
-### Exercices Bénéficiaire
-- [x] Auto-assignation depuis bibliothèque + création personnalisée
-- [x] Modifier séries/reps/repos (bouton crayon toggle)
-- [x] Poids (kg) persistant + graphe SVG évolution
-- [x] Popup workout plein écran (séries + timer repos + son/vibration + validation intégrée)
+### Exercices Beneficiaire
+- [x] Auto-assignation depuis bibliotheque + creation personnalisee
+- [x] Modifier series/reps/repos (bouton crayon toggle)
+- [x] Poids (kg) persistant + graphe SVG evolution
+- [x] Popup workout plein ecran (series + timer repos + son/vibration + validation integree)
 - [x] Light/Dark mode adaptatif, boutons ronds, responsive 480px
-- [x] Validation uniquement après complétion exercice
-- [x] Images cohérentes (backend merge template data)
+- [x] Validation uniquement apres completion exercice
+- [x] Images coherentes (backend merge template data)
 
-### Dashboard Bénéficiaire
-- [x] Carte Sommeil "Whoop-style" (coucher recommandé calculé dynamiquement + alarme réveil)
+### Dashboard Beneficiaire
+- [x] Carte Sommeil "Whoop-style" (coucher recommande calcule dynamiquement + alarme reveil)
 - [x] Carte programme, exercices (compteur X/Y, barre douleur progressive)
-- [x] Dispositifs en cartes séparées, couleurs uniformes #F4F4F5
-- [x] Teleconsultation → page dédiée /teleconsult-doctor
+- [x] Dispositifs en cartes separees, couleurs uniformes #F4F4F5
+- [x] Teleconsultation -> page dediee /teleconsult-doctor
 - [x] Nora dans navbar, Messages light mode
-- [x] Navigation navbar corrigée (pages hors-tabs)
+- [x] Navigation navbar corrigee (pages hors-tabs)
 
-### Pages Détaillées
-- [x] IMC : header avec valeur, jauge, sparkline enrichi, section "Comprendre" complète
-- [x] Repas : titre centré, images par type, bouton valider en bas, header sans icône
-- [x] Exercices : titre centré, minHeight pleine page
+### Pages Detaillees
+- [x] IMC : header avec valeur, jauge, sparkline enrichi, section "Comprendre" complete
+- [x] Repas : titre centre, images par type, bouton valider en bas, header sans icone
+- [x] Exercices : titre centre, minHeight pleine page
 - [x] Boutons retour ronds (borderRadius: 999) partout
 - [x] Calendrier dynamique sur toutes les pages (activity, health, metric, glycemia)
 
+### Nora IA — Function Calling (P0 COMPLETE)
+- [x] Actions via chat : Nora peut executer des actions reelles depuis le chat
+- [x] UPDATE_CALORIES : Modifier l'apport calorique (BLOQUE si objectif poids actif)
+- [x] ADJUST_MACROS : Modifier les macronutriments (BLOQUE si objectif poids actif)
+- [x] ADD_EXERCISE : Ajouter des exercices (TOUJOURS autorise, avec ou sans objectif)
+- [x] CHECK_WEIGHT_GOAL : Verifier si un objectif de poids est en cours
+- [x] LIST_EXERCISES : Lister les exercices disponibles dans la bibliotheque
+- [x] Regles metier strictes : jamais supprimer les prescriptions gardien/coach
+- [x] Cartes de confirmation visuelles (vert succes, rouge echec) dans le chat
+- [x] Action markers <<<ACTION:NAME:json>>> parses par le backend
+
 ### Bug Fixes
-- [x] Programme Solo sans équipe ni notifications
+- [x] Programme Solo sans equipe ni notifications
 - [x] TeamActivityToast skip pour solo
-- [x] Image exercice préservée après update-params (merge template)
+- [x] Image exercice preservee apres update-params (merge template)
 - [x] Navigation navbar depuis pages hors-tabs
+- [x] Session ID chat protege contre user?.id undefined
 
-## Tâche Prioritaire Suivante
-
-### P0 : Nora IA — Gestion exercices et nutrition (function calling)
-**Règles métier :**
-- **Calories/Macros** : Nora ne peut ajuster QUE si AUCUN objectif de poids en cours. Si objectif actif → "Terminez votre objectif de poids d'abord"
-- **Exercices** : Nora peut TOUJOURS ajouter des exercices (dans les 2 cas)
-  - Si gardien/coach a prescrit → Nora ajoute EN PLUS, ne supprime JAMAIS les prescriptions
-  - Si aucune prescription → Nora crée librement depuis la bibliothèque
-- **Sécurité** : Plafond 2h exercice/jour seniors, ajustements progressifs
-
-**Implementation :**
-- Function calls GPT-5.2 : assign_exercise, update_calories, adjust_macros, update_meal_plan
-- Via chat existant /chat-ia (Nora)
-
-## APIs Clés
-- `GET/PUT /api/health/sleep-alarm` — Alarme réveil + coucher recommandé
+## APIs Cles
+- `GET/PUT /api/health/sleep-alarm` — Alarme reveil + coucher recommande
 - `GET /api/pro/beneficiary-today-exercises?date=` — Exercices du jour (merge template)
-- `PUT /api/pro/assigned-exercises/{id}/update-params` — Modifier séries/reps/repos
+- `PUT /api/pro/assigned-exercises/{id}/update-params` — Modifier series/reps/repos
 - `PUT /api/pro/assigned-exercises/{id}/save-weight` — Enregistrer poids
 - `POST /api/pro/self-assign-exercise` — Auto-assignation (supporte __custom__)
+- `POST /api/chat/message` — Chat Nora avec actions (retourne actions[] si applicables)
+- `GET /api/chat/history` — Historique chat incluant actions
+- `GET /api/minceur/weight-goal-status` — Statut objectif poids
 
 ## Backlog
-- P1 : Déploiement TCP J2358
-- P2 : Balance/gilet connectés, Signature électronique, Parrainage, Essai 7j, Vivoo
+- P1 : Deploiement TCP J2358
+- P2 : Balance/gilet connectes, Signature electronique, Parrainage, Essai 7j, Vivoo
+
+## Refactoring
+- pro-exercise-detail.tsx : extraction WeightChart + WorkoutPopup (>600 lignes)
+- BeneficiaryHome.tsx : decoupage en sous-composants
