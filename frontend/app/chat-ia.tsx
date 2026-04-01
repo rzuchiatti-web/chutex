@@ -235,7 +235,7 @@ export default function ChatIAScreen() {
                   {/* Action confirmation cards */}
                   {msg.actions && msg.actions.length > 0 && (
                     <div style={{ display: 'flex', flexDirection: 'column', gap: 6, marginTop: 10 } as any}>
-                      {msg.actions.filter((act: any) => ['UPDATE_CALORIES','ADJUST_MACROS','ADD_EXERCISE','CHECK_WEIGHT_GOAL'].includes(act.action)).map((act: any, ai: number) => {
+                      {msg.actions.filter((act: any) => ['UPDATE_CALORIES','ADJUST_MACROS','ADD_EXERCISE','CHECK_WEIGHT_GOAL','DELETE_EXERCISE','UPDATE_MEAL_PLAN'].includes(act.action)).map((act: any, ai: number) => {
                         const r = act.result || {};
                         const success = r.success !== false;
                         let icon = 'ri-checkbox-circle-line';
@@ -253,6 +253,14 @@ export default function ChatIAScreen() {
                           icon = success ? 'ri-run-line' : 'ri-error-warning-line';
                           label = success ? 'Exercice ajoute' : 'Erreur';
                           detail = success ? `${r.title} (${r.sets}x${r.repetitions})` : (r.message || '');
+                        } else if (act.action === 'DELETE_EXERCISE') {
+                          icon = success ? 'ri-delete-bin-line' : 'ri-error-warning-line';
+                          label = success ? 'Exercice supprime' : 'Suppression refusee';
+                          detail = success ? r.title : (r.message || '');
+                        } else if (act.action === 'UPDATE_MEAL_PLAN') {
+                          icon = success ? 'ri-bowl-line' : 'ri-error-warning-line';
+                          label = success ? 'Plan repas sauvegarde' : 'Erreur';
+                          detail = success ? `${r.meal_count} repas · ${r.total_calories} kcal` : (r.message || '');
                         } else if (act.action === 'CHECK_WEIGHT_GOAL') {
                           icon = r.has_goal ? 'ri-scales-line' : 'ri-checkbox-circle-line';
                           label = r.has_goal ? 'Objectif de poids actif' : 'Pas d\'objectif de poids';

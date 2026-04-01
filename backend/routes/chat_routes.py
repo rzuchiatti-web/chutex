@@ -7,7 +7,7 @@ from auth import get_current_user
 from services.nora_context import build_nora_context, format_nora_context_for_prompt, APP_SERVICES_KNOWLEDGE
 from services.nora_actions import (
     check_weight_goal, update_daily_calories, adjust_macros,
-    list_exercise_library, add_exercise,
+    list_exercise_library, add_exercise, delete_exercise, update_meal_plan,
 )
 
 router = APIRouter()
@@ -59,7 +59,10 @@ _ACTION_KEYWORDS = [
     "exercice", "exercices", "entrainement", "sport", "renforcement",
     "ajoute", "ajouter", "modifie", "modifier", "ajuste", "ajuster",
     "recommande", "propose", "programme", "seance", "workout",
-    "manger", "repas", "regime", "alimentation",
+    "manger", "repas", "regime", "alimentation", "plan", "menu",
+    "supprime", "supprimer", "retire", "retirer", "enleve", "enlever",
+    "petit-dejeuner", "dejeuner", "diner", "collation", "gouter",
+    "que dois-je manger", "quoi manger", "suggestion repas",
 ]
 
 def _is_action_request(msg: str) -> bool:
@@ -114,6 +117,12 @@ async def _execute_actions(actions: list, uid: str, user: dict) -> list:
             elif name == "LIST_EXERCISES":
                 r = await list_exercise_library(uid)
                 results.append({"action": name, "result": r})
+            elif name == "DELETE_EXERCISE":
+                r = await delete_exercise(uid, params.get("exercise_id", ""))
+                results.append({"action": name, "result": r})
+            elif name == "UPDATE_MEAL_PLAN":
+                r = await update_meal_plan(uid, user, params.get("meals", []))
+                results.append({"action": name, "result": r})
         except Exception as e:
             print(f"Nora action error ({name}): {e}")
             results.append({"action": name, "result": {"success": False, "message": str(e)}})
@@ -128,31 +137,35 @@ Tu peux effectuer des actions concretes en inserant des marqueurs dans ta repons
 FORMAT: <<<ACTION:NOM_ACTION:{"param":"valeur"}>>>
 
 ACTIONS:
-1. CHECK_WEIGHT_GOAL — Verifier si un objectif de poids est en cours
-   <<<ACTION:CHECK_WEIGHT_GOAL:{}>>>
-
-2. UPDATE_CALORIES — Modifier l'apport calorique quotidien (INTERDIT si objectif poids actif)
+1. UPDATE_CALORIES — Modifier l'apport calorique quotidien (INTERDIT si objectif poids actif)
    <<<ACTION:UPDATE_CALORIES:{"daily_calories": 1800, "macros": {"proteines_g": 70, "glucides_g": 220, "lipides_g": 50}}>>>
 
-3. ADJUST_MACROS — Modifier les macronutriments individuellement (INTERDIT si objectif poids actif)
+2. ADJUST_MACROS — Modifier les macronutriments individuellement (INTERDIT si objectif poids actif)
    <<<ACTION:ADJUST_MACROS:{"proteines_g": 75, "glucides_g": 200, "lipides_g": 55}>>>
 
-4. ADD_EXERCISE — Ajouter un exercice au programme du beneficiaire
+3. ADD_EXERCISE — Ajouter un exercice au programme du beneficiaire
    Depuis la bibliotheque: <<<ACTION:ADD_EXERCISE:{"template_id": "xxx", "sets": 3, "repetitions": 12, "rest_seconds": 60}>>>
    Personnalise: <<<ACTION:ADD_EXERCISE:{"title": "Marche rapide", "category": "cardio", "sets": 1, "repetitions": 1, "rest_seconds": 0, "description": "30 minutes de marche soutenue", "muscle_group": "jambes"}>>>
 
-5. LIST_EXERCISES — Lister les exercices disponibles dans la bibliotheque
+4. DELETE_EXERCISE — Supprimer un exercice (UNIQUEMENT ceux ajoutes par Nora)
+   <<<ACTION:DELETE_EXERCISE:{"exercise_id": "xxx"}>>>
+   ATTENTION: Tu ne peux supprimer que les exercices marques "prescrit par: Nora" dans la liste. JAMAIS ceux d'un coach ou gardien.
+
+5. UPDATE_MEAL_PLAN — Generer et sauvegarder un plan de repas personnalise pour aujourd'hui
+   <<<ACTION:UPDATE_MEAL_PLAN:{"meals": [{"type": "breakfast", "label": "Petit-dejeuner", "name": "Porridge aux fruits", "description": "Flocons d'avoine avec fruits frais", "calories": 350, "proteines_g": 12, "glucides_g": 50, "lipides_g": 10, "time": "07:30", "ingredients": [{"name": "Flocons d'avoine", "quantity": "60g"}, {"name": "Lait demi-ecreme", "quantity": "200ml"}, {"name": "Banane", "quantity": "1"}], "recipe": ["Chauffer le lait", "Ajouter les flocons", "Couper la banane"], "prep_time": "10 min"}, {"type": "lunch", "label": "Dejeuner", "name": "Poulet grille et legumes", "description": "Filet de poulet avec haricots verts", "calories": 500, "proteines_g": 35, "glucides_g": 40, "lipides_g": 15, "time": "12:30", "ingredients": [{"name": "Filet de poulet", "quantity": "150g"}, {"name": "Haricots verts", "quantity": "200g"}, {"name": "Riz complet", "quantity": "80g"}], "recipe": ["Griller le poulet", "Cuire les haricots a la vapeur", "Servir avec le riz"], "prep_time": "25 min"}, {"type": "snack", "label": "Collation", "name": "Yaourt et noix", "description": "Yaourt nature avec quelques noix", "calories": 150, "proteines_g": 8, "glucides_g": 12, "lipides_g": 7, "time": "16:00", "ingredients": [{"name": "Yaourt nature", "quantity": "125g"}, {"name": "Noix", "quantity": "15g"}], "recipe": ["Servir le yaourt", "Ajouter les noix"], "prep_time": "2 min"}, {"type": "dinner", "label": "Diner", "name": "Soupe de legumes", "description": "Soupe maison legere", "calories": 300, "proteines_g": 10, "glucides_g": 35, "lipides_g": 8, "time": "19:30", "ingredients": [{"name": "Carottes", "quantity": "150g"}, {"name": "Poireaux", "quantity": "100g"}, {"name": "Pomme de terre", "quantity": "100g"}], "recipe": ["Couper les legumes", "Faire mijoter 25 min", "Mixer"], "prep_time": "30 min"}]}>>>
+
+6. LIST_EXERCISES — Lister les exercices disponibles dans la bibliotheque
    <<<ACTION:LIST_EXERCISES:{}>>>
 
-REGLES STRICTES POUR LES ACTIONS:
-- Tu peux utiliser PLUSIEURS actions dans une seule reponse. Le systeme les executera toutes dans l'ordre
-- Pour modifier calories ou macros: emets DIRECTEMENT l'action UPDATE_CALORIES ou ADJUST_MACROS. Le systeme verifie automatiquement s'il y a un objectif de poids et bloquera si necessaire. Tu n'as PAS besoin de faire CHECK_WEIGHT_GOAL avant
-- Si le systeme bloque une modification (objectif actif), dis au patient qu'il doit d'abord terminer ou supprimer son objectif de poids dans l'espace Minceur
-- Tu peux TOUJOURS ajouter des exercices (avec ou sans objectif de poids)
-- Ne SUPPRIME JAMAIS les exercices prescrits par un gardien ou coach
+REGLES STRICTES:
+- Tu peux utiliser PLUSIEURS actions dans une seule reponse
+- Pour calories/macros: emets DIRECTEMENT l'action. Le systeme bloque automatiquement si objectif poids actif
+- Tu peux TOUJOURS ajouter des exercices
+- Tu peux supprimer UNIQUEMENT les exercices ajoutes par Nora (prescrit par: Nora). JAMAIS ceux d'un coach/gardien
+- Pour UPDATE_MEAL_PLAN: genere 4 repas (petit-dej, dejeuner, collation, diner) adaptes aux allergies, conditions medicales et budget calorique du patient. Chaque repas DOIT avoir ingredients, recette et macros. Le plan sera visible dans l'Espace Minceur
 - Plafond 2h d'exercice/jour pour les seniors
-- Ajustements progressifs uniquement (pas de changements drastiques)
-- Quand tu effectues une action, explique au patient ce que tu fais en langage naturel AVANT le marqueur
+- Ajustements progressifs uniquement
+- Explique au patient ce que tu fais en langage naturel AVANT chaque marqueur
 """
 
 

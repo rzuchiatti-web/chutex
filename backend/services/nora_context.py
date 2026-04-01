@@ -116,6 +116,52 @@ async def build_nora_context(user: dict) -> dict:
     weight_goal = await db.minceur_goals.find_one({"user_id": uid}, {"_id": 0})
     ctx["weight_goal"] = weight_goal
 
+    # ── Today's exercises ──
+    today_str = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+    day_names = ["lundi", "mardi", "mercredi", "jeudi", "vendredi", "samedi", "dimanche"]
+    today_day = day_names[datetime.now(timezone.utc).weekday()]
+    assigned = await db.pro_assigned_exercises.find(
+        {"beneficiary_id": uid, "status": "active"}, {"_id": 0}
+    ).to_list(30)
+    today_exercises = []
+    for ex in assigned:
+        days = ex.get("days", [])
+        if not days or today_day in days:
+            done = any(
+                c.get("date", "").startswith(today_str) and c.get("status") == "done"
+                for c in ex.get("completions", [])
+            )
+            today_exercises.append({
+                "id": ex.get("id", ""),
+                "title": ex.get("title", ""),
+                "sets": ex.get("sets", 0),
+                "repetitions": ex.get("repetitions", 0),
+                "completed_today": done,
+                "nora_assigned": ex.get("nora_assigned", False),
+                "self_assigned": ex.get("self_assigned", False),
+                "professional_name": ex.get("professional_name", ""),
+            })
+    ctx["today_exercises"] = today_exercises
+
+    # ── Today's nutrition ──
+    daily_cache = await db.minceur_daily_cache.find_one(
+        {"user_id": uid, "date": today_str}, {"_id": 0}
+    )
+    nutrition_today = None
+    if daily_cache and daily_cache.get("recommendations"):
+        recs = daily_cache["recommendations"]
+        meals = recs.get("meals", [])
+        validated_meals = sum(1 for m in meals if m.get("validated"))
+        nutrition_today = {
+            "daily_calories": recs.get("daily_calories", 0),
+            "macros": recs.get("macros", {}),
+            "total_meals": len(meals),
+            "validated_meals": validated_meals,
+            "has_meal_plan": len(meals) > 0,
+            "meal_names": [m.get("name", m.get("label", "")) for m in meals],
+        }
+    ctx["nutrition_today"] = nutrition_today
+
     # ── Glycemia estimation ──
     glycemia_cals = await db.glycemia_calibrations.count_documents({"user_id": uid})
     ctx["glycemia_calibrations"] = glycemia_cals
@@ -265,6 +311,31 @@ def format_nora_context_for_prompt(ctx: dict) -> str:
     wg = ctx.get("weight_goal")
     if wg and wg.get("target_kg"):
         parts.append(f"Objectif poids: {wg['target_kg']}kg en {wg.get('weeks', 12)} semaines.")
+
+    # Today's exercises
+    tex = ctx.get("today_exercises", [])
+    if tex:
+        done_ex = sum(1 for e in tex if e["completed_today"])
+        ex_lines = []
+        for e in tex:
+            status = "FAIT" if e["completed_today"] else "A FAIRE"
+            source = "Nora" if e.get("nora_assigned") else ("Auto" if e.get("self_assigned") else e.get("professional_name", "Coach"))
+            ex_lines.append(f"  - {e['title']} ({e['sets']}x{e['repetitions']}) [{status}] (prescrit par: {source}, id:{e['id']})")
+        parts.append(f"Exercices aujourd'hui: {done_ex}/{len(tex)} completes.\n" + "\n".join(ex_lines))
+    else:
+        parts.append("Aucun exercice assigne aujourd'hui.")
+
+    # Today's nutrition
+    nt = ctx.get("nutrition_today")
+    if nt and nt.get("daily_calories"):
+        macros = nt.get("macros", {})
+        macro_str = f"P:{macros.get('proteines_g', '?')}g G:{macros.get('glucides_g', '?')}g L:{macros.get('lipides_g', '?')}g" if macros else ""
+        meal_status = f"{nt['validated_meals']}/{nt['total_meals']} repas valides" if nt.get("has_meal_plan") else "Pas de plan repas"
+        parts.append(f"Nutrition aujourd'hui: {nt['daily_calories']} kcal/jour, {macro_str}. {meal_status}.")
+        if nt.get("meal_names"):
+            parts.append(f"Repas prevus: {', '.join(nt['meal_names'])}.")
+    else:
+        parts.append("Aucun plan nutritionnel pour aujourd'hui.")
 
     # Glycemia
     gc = ctx.get("glycemia_calibrations", 0)
