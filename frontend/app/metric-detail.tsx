@@ -363,12 +363,12 @@ export default function MetricDetailScreen() {
             </div>
             <div style={{ textAlign: 'center', marginTop: 8 } as any}>
               <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: 1.2, marginBottom: 4 }}>{m.title || key}</div>
+              <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'center', gap: 8 } as any}>
+                <span data-testid="current-value" style={{ fontSize: 48, fontWeight: 900, color: '#FFF', lineHeight: 1 }}>{isBP && selData ? `${selData.systolic}/${selData.diastolic}` : selData ? selData.value : currentVal}</span>
+                <span style={{ fontSize: 16, fontWeight: 600, color: 'rgba(255,255,255,0.5)' }}>{m.unit}</span>
+              </div>
               {!isGauge && (
                 <>
-                  <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'center', gap: 8 } as any}>
-                    <span data-testid="current-value" style={{ fontSize: 48, fontWeight: 900, color: '#FFF', lineHeight: 1 }}>{isBP && selData ? `${selData.systolic}/${selData.diastolic}` : selData ? selData.value : currentVal}</span>
-                    <span style={{ fontSize: 16, fontWeight: 600, color: 'rgba(255,255,255,0.5)' }}>{m.unit}</span>
-                  </div>
                   {nMin != null && (
                     <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '4px 14px', borderRadius: 999, background: isNormal ? 'rgba(16,185,129,0.2)' : 'rgba(239,68,68,0.2)', marginTop: 6 } as any}>
                       <span style={{ fontSize: 11, fontWeight: 700, color: isNormal ? '#10B981' : '#EF4444' }}>{isNormal ? 'Normal' : currentVal < nMin ? 'Bas' : 'Eleve'}</span>
@@ -473,6 +473,7 @@ export default function MetricDetailScreen() {
               recovery_score: { desc: "Le score de recuperation combine la qualite du sommeil, le HRV, la frequence cardiaque au repos et le stress pour evaluer votre capacite a l'effort.", why: "S'entrainer quand la recuperation est basse augmente le risque de blessure et ralentit la progression.", ranges: [{ label: 'Faible', range: '< 40%', color: '#EF4444' }, { label: 'Modere', range: '40 — 70%', color: '#F59E0B' }, { label: 'Bon', range: '70 — 90%', color: '#10B981' }, { label: 'Optimal', range: '> 90%', color: '#3B82F6' }], tip: "Si < 50%, privilegiez la marche douce ou le yoga. Au-dessus de 80%, vous pouvez faire un effort intense.", source: "Sports Science, WHOOP Research" },
               sleep_quality: { desc: "La qualite du sommeil evalue la duree, la profondeur (sommeil profond + REM) et la continuite de vos nuits.", why: "Le sommeil profond repare les tissus et consolide la memoire. Le sommeil REM gere les emotions et la creativite.", ranges: [{ label: 'Mauvais', range: '< 50%', color: '#EF4444' }, { label: 'Moyen', range: '50 — 75%', color: '#F59E0B' }, { label: 'Bon', range: '75 — 90%', color: '#10B981' }, { label: 'Excellent', range: '> 90%', color: '#3B82F6' }], tip: "Couchez-vous et levez-vous a la meme heure. Evitez les ecrans 1h avant. La chambre doit etre fraiche (18-19°C).", source: "National Sleep Foundation" },
               weight: { desc: "Le poids corporel seul ne suffit pas a evaluer la sante. Il doit etre croise avec la composition corporelle (graisse, muscle, eau).", why: "Les variations quotidiennes (0.5-1.5 kg) sont normales et liees a l'hydratation, la digestion et le sel.", ranges: [], tip: "Pesez-vous toujours le matin, a jeun, dans les memes conditions. Suivez la tendance sur 2 semaines, pas les variations quotidiennes.", source: "Endocrine Society" },
+              bmi: { desc: "L'Indice de Masse Corporelle (IMC) est un indicateur qui met en relation votre poids et votre taille. Il permet d'evaluer votre corpulence et les risques associes au surpoids ou a la maigreur.", why: "Un IMC trop eleve augmente les risques cardiovasculaires, de diabete et d'arthrose. Un IMC trop bas fragilise les os et le systeme immunitaire.", ranges: [{ label: 'Maigreur', range: '< 18.5', color: '#38BDF8' }, { label: 'Normal', range: '18.5 — 25', color: '#10B981' }, { label: 'Surpoids', range: '25 — 30', color: '#F59E0B' }, { label: 'Obesite', range: '> 30', color: '#EF4444' }], tip: "L'IMC ne distingue pas la masse grasse de la masse musculaire. Completez avec la mesure de la composition corporelle.", source: "OMS, HAS" },
             };
             const info = RICH_EXPLAIN[key || ''] || { desc: m.explain || '', why: '', ranges: [], tip: '', source: '' };
             return (
