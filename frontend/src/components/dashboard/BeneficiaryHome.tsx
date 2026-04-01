@@ -313,7 +313,7 @@ export function BeneficiaryHome({ token, user }: { token: string; user: any }) {
     const BG_RED = 'https://customer-assets.emergentagent.com/job_443c9c6e-0feb-4920-a358-fe7cc1a6289b/artifacts/mhh7xwy3_ChatGPT%20Image%2017%20f%C3%A9vr.%202026%2C%2014_08_43.png';
     const C = isDark
       ? { card: 'rgba(70,70,78,0.85)', text: '#FFF', sub: 'rgba(255,255,255,0.55)', arrow: 'rgba(255,255,255,0.4)', border: 'rgba(255,255,255,0.1)', sep: 'rgba(255,255,255,0.08)' }
-      : { card: '#E8E8EA', text: '#1A1A2E', sub: 'rgba(0,0,0,0.45)', arrow: 'rgba(0,0,0,0.3)', border: 'rgba(0,0,0,0.04)', sep: 'rgba(0,0,0,0.06)' };
+      : { card: '#F4F4F5', text: '#1A1A2E', sub: 'rgba(0,0,0,0.45)', arrow: 'rgba(0,0,0,0.3)', border: 'rgba(0,0,0,0.04)', sep: 'rgba(0,0,0,0.06)' };
     const glass = { backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)', border: `1px solid ${C.border}` };
 
     const GC = ({ children, style, onClick, testId }: any) => (
@@ -699,7 +699,7 @@ export function BeneficiaryHome({ token, user }: { token: string; user: any }) {
                   </div>
                 </div>
                 <div style={{ fontSize: 13, color: C.sub, marginBottom: 16, lineHeight: '1.45' } as any}>Vos appareils connectes pour le suivi de votre sante au quotidien.</div>
-                <div style={{ borderRadius: 18, background: '#F4F4F5', padding: 14 } as any}>
+                <div style={{ borderRadius: 18, background: C.card, padding: 14 } as any}>
                   <DeviceCards br={br} sc={sc} vs={vs} weighings={weighings} onStartWeighing={() => setShowWeighing(true)} onRefresh={fetchData} subscription={subscription} />
                 </div>
               </div>
@@ -791,7 +791,11 @@ export function BeneficiaryHome({ token, user }: { token: string; user: any }) {
 
           <div style={{ height: 1, background: C.sep, margin: "10px 0 24px" } as any} />
 
-          <DoctorCard onPress={() => router.push('/(tabs)/teleconsult')} />
+          <DoctorCard onPress={() => {
+            if (typeof window !== 'undefined') {
+              window.open('tel:+33800000000', '_self');
+            }
+          }} />
 
           </div>{/* end gradient content card */}
         </div>{/* end scroll container */}
