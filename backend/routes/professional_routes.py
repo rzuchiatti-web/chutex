@@ -2014,6 +2014,19 @@ async def beneficiary_today_exercises(date: str = None, user=Depends(get_current
         {"beneficiary_id": user['id'], "status": "active"}, {"_id": 0}
     ).to_list(100)
     today_exs = [e for e in exs if today_fr in e.get('days', [])]
+    # Merge template data (image, description, steps, etc.) for display consistency
+    tpl_cache = {}
+    for e in today_exs:
+        tpl_id = e.get("exercise_template_id")
+        if tpl_id and tpl_id != '__custom__':
+            if tpl_id not in tpl_cache:
+                tpl = await db.pro_exercise_templates.find_one({"id": tpl_id}, {"_id": 0})
+                tpl_cache[tpl_id] = tpl
+            tpl = tpl_cache.get(tpl_id)
+            if tpl:
+                for k in ["image", "video_url", "steps", "description", "icon", "equipment", "muscle_group", "difficulty", "category"]:
+                    if tpl.get(k) and not e.get(k):
+                        e[k] = tpl[k]
     # Add completion status for that day
     target_str = target.strftime('%Y-%m-%d')
     for e in today_exs:

@@ -1,0 +1,90 @@
+{
+  "summary": "Iteration 195 testing complete. All backend APIs (8/8) passed. Frontend features verified: weight card (no icon, 70kg large font), weight chart (full-width, clickable points show detail card), weight save refreshes data, calendar dynamic data, exercise images from merged template data.",
+  "backend_issues": {
+    "critical": [],
+    "minor": []
+  },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_iteration195_features.py",
+    "/app/test_reports/pytest/pytest_results_iter195.xml"
+  ],
+  "action_items": [],
+  "critical_code_review_comments": [],
+  "updated_files": [
+    "/app/backend/tests/test_iteration195_features.py"
+  ],
+  "success_rate": {
+    "backend": "100% (8/8 tests passed)",
+    "frontend": "100%"
+  },
+  "test_credentials": "Beneficiaire: +33651245918 / test123 (Josette)",
+  "seed_data_creation": "None - used existing user with Squat exercise (id=e2c5bcdd-b6c0-4ff6-8586-41b9460d7702)",
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "All iteration 195 features verified. Backend beneficiary-today-exercises now merges template data (image, description, equipment, muscle_group). Weight card shows 70kg in large font without icon. Weight chart is full-width with clickable points that show detail card below with date and weight. Calendar on activity-detail page is dynamic - different dates return different exercise counts. Exercise images are correctly displayed from merged template data.",
+  "features_tested": {
+    "backend_beneficiary_today_exercises_merge": {
+      "status": "PASS",
+      "details": "GET /api/pro/beneficiary-today-exercises returns exercises with merged template data (image, description, equipment, muscle_group). Squat has image from pexels, equipment=Barre, muscle_group=Quadriceps, Fessiers."
+    },
+    "backend_calendar_dynamic_data": {
+      "status": "PASS",
+      "details": "?date=YYYY-MM-DD parameter works correctly. Today returns 10 exercises, different dates return different counts based on schedule."
+    },
+    "backend_assigned_exercise_detail": {
+      "status": "PASS",
+      "details": "GET /api/pro/assigned-exercise-detail/{id} returns complete exercise data with weight_history (7 entries), last_weight_kg=70, and merged template fields."
+    },
+    "backend_weight_save": {
+      "status": "PASS",
+      "details": "PUT /api/pro/assigned-exercises/{id}/save-weight correctly saves weight and returns updated last_weight_kg."
+    },
+    "frontend_weight_card": {
+      "status": "PASS",
+      "details": "Weight card shows 'POIDS UTILISE' label with 70kg in large font (~28px). No icon present. Edit button (pencil) visible."
+    },
+    "frontend_weight_chart": {
+      "status": "PASS",
+      "details": "Weight chart is full-width with 'EVOLUTION DU POIDS' label. SVG line chart with 9 clickable circle points. Clicking a point shows detail card below with date and weight (e.g., '01 avr. 2026' and '60kg')."
+    },
+    "frontend_weight_save_refresh": {
+      "status": "PASS",
+      "details": "After saving weight (71kg), 'Enregistre !' message appears. Exercise data is re-fetched and chart updates. Weight restored to 70kg successfully."
+    },
+    "frontend_calendar_dynamic": {
+      "status": "PASS",
+      "details": "Horizontal calendar on activity-detail page. Clicking different dates (MER 1 vs VEN 3) shows different exercise counts (10 vs 0). Calendar navigation (prev/next month) works."
+    },
+    "frontend_exercise_images": {
+      "status": "PASS",
+      "details": "Exercise list on activity-detail shows 10 exercises with images. Squat shows correct pexels image from template. Burpees exercises also have images."
+    },
+    "frontend_exercise_detail_consistency": {
+      "status": "PASS",
+      "details": "Exercise detail page shows: title (Squat), image, difficulty (Moyen), muscle_group (Quadriceps, Fessiers), equipment (Barre), stats (10 series, 21 reps, 130s repos), description, steps."
+    }
+  },
+  "code_review": {
+    "professional_routes_lines_2017-2029": {
+      "status": "VERIFIED",
+      "details": "Template data merge logic correctly iterates through template fields (image, video_url, steps, description, icon, equipment, muscle_group, difficulty, category) and copies to exercise if not already present."
+    },
+    "pro-exercise-detail_tsx_WeightChart": {
+      "status": "VERIFIED",
+      "details": "WeightChart component (lines 391-443) renders full-width SVG with clickable circles. Selected point shows detail card with date and weight."
+    },
+    "pro-exercise-detail_tsx_weight_card": {
+      "status": "VERIFIED",
+      "details": "Weight tracker card (lines 232-262) shows 'POIDS UTILISE' label, large weight (28px font), no icon, edit button. WeightChart rendered inside when weight_history > 1."
+    },
+    "activity-detail_tsx_calendar": {
+      "status": "VERIFIED",
+      "details": "HorizontalCalendar component with date selection. fetchData uses selectedDate to call beneficiary-today-exercises with ?date= parameter."
+    }
+  }
+}

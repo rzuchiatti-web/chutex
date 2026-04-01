@@ -96,7 +96,15 @@ export default function ProExerciseDetailPage() {
     if (!assignmentId || savingWeight || !weightKg) return; setSavingWeight(true);
     try {
       const r = await apiFetch(`/api/pro/assigned-exercises/${assignmentId}/save-weight`, { method: 'PUT', body: JSON.stringify({ weight_kg: parseFloat(weightKg) }) }, token);
-      if (r?.last_weight_kg != null) { setLastWeightKg(r.last_weight_kg); setWeightSaved(true); setEditingWeight(false); setTimeout(() => setWeightSaved(false), 2000); }
+      if (r?.last_weight_kg != null) {
+        setLastWeightKg(r.last_weight_kg);
+        setWeightSaved(true);
+        setEditingWeight(false);
+        setTimeout(() => setWeightSaved(false), 2000);
+        // Re-fetch exercise to get updated weight_history for graph
+        const updated = await apiFetch(`/api/pro/assigned-exercise-detail/${assignmentId}`, {}, token);
+        if (updated) setEx(updated);
+      }
     } catch {} finally { setSavingWeight(false); }
   };
 
@@ -224,13 +232,16 @@ export default function ProExerciseDetailPage() {
               {isAssigned && hasWeight && (
                 <div data-testid="weight-tracker" style={{ borderRadius: 16, background: '#F4F4F5', padding: '14px 16px', marginBottom: 14 } as any}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: editingWeight ? 10 : 0 } as any}>
-                    <i className="ri-scales-3-line" style={{ fontSize: 18, color: '#111' }} />
                     <div style={{ flex: 1 } as any}>
-                      <div style={{ fontSize: 13, fontWeight: 800, color: '#111' }}>Poids utilise</div>
-                      {lastWeightKg != null && <div style={{ fontSize: 11, color: '#6B7280' }}>Dernier : <strong style={{ color: accent }}>{lastWeightKg} kg</strong></div>}
+                      <div style={{ fontSize: 11, fontWeight: 700, color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: 0.5 }}>Poids utilise</div>
+                      {lastWeightKg != null ? (
+                        <div style={{ fontSize: 28, fontWeight: 900, color: '#111', lineHeight: 1.2, marginTop: 2 }}>{lastWeightKg}<span style={{ fontSize: 14, fontWeight: 700, color: '#9CA3AF', marginLeft: 2 }}>kg</span></div>
+                      ) : (
+                        <div style={{ fontSize: 16, fontWeight: 700, color: '#D1D5DB', marginTop: 2 }}>Non defini</div>
+                      )}
                     </div>
                     {weightSaved && <span style={{ fontSize: 11, fontWeight: 700, color: '#10B981' }}>Enregistre !</span>}
-                    <div data-testid="edit-weight-btn" onClick={() => setEditingWeight(!editingWeight)} style={{ width: 32, height: 32, borderRadius: 10, background: editingWeight ? accent : '#E5E7EB', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}>
+                    <div data-testid="edit-weight-btn" onClick={() => setEditingWeight(!editingWeight)} style={{ width: 36, height: 36, borderRadius: 10, background: editingWeight ? accent : '#E5E7EB', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}>
                       <i className={editingWeight ? 'ri-close-line' : 'ri-edit-line'} style={{ fontSize: 14, color: editingWeight ? '#FFF' : '#9CA3AF' }} />
                     </div>
                   </div>
@@ -243,7 +254,7 @@ export default function ProExerciseDetailPage() {
                       <div data-testid="save-weight-btn" onClick={saveWeight} style={{ padding: '12px 18px', borderRadius: 12, cursor: 'pointer', fontSize: 12, fontWeight: 800, background: '#111', color: '#FFF', opacity: savingWeight ? 0.5 : 1 } as any}>{savingWeight ? '...' : 'OK'}</div>
                     </div>
                   )}
-                  {/* Weight chart */}
+                  {/* Weight chart — full width */}
                   {ex.weight_history && ex.weight_history.length > 1 && (
                     <WeightChart data={ex.weight_history} accent={accent} />
                   )}
@@ -376,54 +387,58 @@ function StatEditor({ label, value, onChange, min = 0, max = 999, step = 1, suff
   );
 }
 
-/* ── WeightChart: SVG line chart with clickable points ── */
+/* ── WeightChart: SVG line chart full-width, click point shows card below ── */
 function WeightChart({ data, accent }: { data: any[]; accent: string }) {
   const [selected, setSelected] = useState<number | null>(null);
-  const entries = data.slice(-10);
+  const entries = data.slice(-12);
   if (entries.length < 2) return null;
   const weights = entries.map((w: any) => w.weight_kg);
   const minW = Math.min(...weights) - 2;
   const maxW = Math.max(...weights) + 2;
   const range = maxW - minW || 1;
-  const W = 280, H = 100, padX = 20, padY = 10;
+  const W = 320, H = 110, padX = 10, padY = 12;
   const chartW = W - padX * 2, chartH = H - padY * 2;
   const points = entries.map((w: any, i: number) => ({
     x: padX + (i / (entries.length - 1)) * chartW,
     y: padY + chartH - ((w.weight_kg - minW) / range) * chartH,
     weight: w.weight_kg,
-    date: w.date ? new Date(w.date).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short' }) : '',
+    date: w.date ? new Date(w.date).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short', year: 'numeric' }) : '',
+    dateShort: w.date ? new Date(w.date).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short' }) : '',
   }));
   const linePath = points.map((p, i) => `${i === 0 ? 'M' : 'L'}${p.x},${p.y}`).join(' ');
+  const sel = selected !== null ? points[selected] : null;
 
   return (
-    <div data-testid="weight-chart" style={{ marginTop: 10, padding: '8px 0' } as any}>
-      <div style={{ fontSize: 9, fontWeight: 700, color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 6, paddingLeft: 4 }}>Evolution du poids</div>
-      <svg width="100%" viewBox={`0 0 ${W} ${H + 20}`} style={{ display: 'block' }}>
-        {/* Grid lines */}
-        {[0, 0.25, 0.5, 0.75, 1].map((p, i) => (
-          <line key={i} x1={padX} y1={padY + chartH * (1 - p)} x2={W - padX} y2={padY + chartH * (1 - p)} stroke="#E5E7EB" strokeWidth="0.5" />
+    <div data-testid="weight-chart" style={{ marginTop: 12 } as any}>
+      <div style={{ fontSize: 10, fontWeight: 700, color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 8 }}>Evolution du poids</div>
+      <svg width="100%" viewBox={`0 0 ${W} ${H + 16}`} preserveAspectRatio="xMidYMid meet" style={{ display: 'block' }}>
+        {/* Grid */}
+        {[0, 0.5, 1].map((p, i) => (
+          <line key={i} x1={padX} y1={padY + chartH * (1 - p)} x2={W - padX} y2={padY + chartH * (1 - p)} stroke="#E5E7EB" strokeWidth="0.5" strokeDasharray="4,4" />
         ))}
+        {/* Area fill */}
+        <path d={`${linePath} L${points[points.length - 1].x},${padY + chartH} L${points[0].x},${padY + chartH} Z`} fill={`${accent}10`} />
         {/* Line */}
-        <path d={linePath} fill="none" stroke={accent} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-        {/* Area */}
-        <path d={`${linePath} L${points[points.length - 1].x},${padY + chartH} L${points[0].x},${padY + chartH} Z`} fill={`${accent}12`} />
+        <path d={linePath} fill="none" stroke={accent} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
         {/* Points */}
         {points.map((p, i) => (
-          <g key={i} onClick={() => setSelected(selected === i ? null : i)} style={{ cursor: 'pointer' }}>
-            <circle cx={p.x} cy={p.y} r={selected === i ? 6 : 4} fill={selected === i ? accent : '#FFF'} stroke={accent} strokeWidth="2" />
-            {selected === i && (
-              <>
-                <rect x={p.x - 28} y={p.y - 28} width="56" height="20" rx="6" fill="#111" />
-                <text x={p.x} y={p.y - 15} textAnchor="middle" fill="#FFF" fontSize="10" fontWeight="700">{p.weight} kg</text>
-              </>
-            )}
-          </g>
+          <circle key={i} cx={p.x} cy={p.y} r={selected === i ? 6 : 3.5} fill={selected === i ? accent : '#FFF'} stroke={accent} strokeWidth="2" onClick={() => setSelected(selected === i ? null : i)} style={{ cursor: 'pointer' }} />
         ))}
-        {/* X axis labels */}
-        {points.filter((_, i) => i === 0 || i === points.length - 1 || entries.length <= 5).map((p, i) => (
-          <text key={`label-${i}`} x={p.x} y={H + 14} textAnchor="middle" fill="#9CA3AF" fontSize="8" fontWeight="600">{p.date}</text>
+        {/* X labels */}
+        {points.filter((_, i) => i === 0 || i === points.length - 1).map((p, i) => (
+          <text key={`l-${i}`} x={p.x} y={H + 12} textAnchor={i === 0 ? 'start' : 'end'} fill="#9CA3AF" fontSize="8" fontWeight="600">{p.dateShort}</text>
         ))}
       </svg>
+      {/* Selected point card */}
+      {sel && (
+        <div data-testid="weight-detail-card" style={{ marginTop: 8, padding: '10px 14px', borderRadius: 12, background: '#FFF', border: `1.5px solid ${accent}20`, display: 'flex', alignItems: 'center', gap: 12 } as any}>
+          <div style={{ width: 8, height: 8, borderRadius: 4, background: accent, flexShrink: 0 } as any} />
+          <div style={{ flex: 1 } as any}>
+            <div style={{ fontSize: 11, color: '#9CA3AF', fontWeight: 600 }}>{sel.date}</div>
+          </div>
+          <div style={{ fontSize: 18, fontWeight: 900, color: '#111' }}>{sel.weight}<span style={{ fontSize: 11, color: '#9CA3AF', marginLeft: 2 }}>kg</span></div>
+        </div>
+      )}
     </div>
   );
 }
