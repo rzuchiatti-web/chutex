@@ -54,7 +54,7 @@ function CountdownTimer({ durationSec, color, icon, label, onComplete }: { durat
           <i className={running ? 'ri-pause-fill' : 'ri-play-fill'} style={{ fontSize: 20, color: running ? '#EF4444' : color }} />
         </div>
       </div>
-      <div style={{ height: 4, borderRadius: 2, background: 'rgba(255,255,255,0.04)', overflow: 'hidden' } as any}>
+      <div style={{ height: 4, borderRadius: 2, background: CB, overflow: 'hidden' } as any}>
         <div style={{ height: '100%', borderRadius: 2, background: `linear-gradient(90deg, ${color}, ${color}80)`, width: `${pct}%`, transition: 'width 1s linear' }} />
       </div>
     </div>
@@ -145,7 +145,7 @@ function ExercisePopup({ task, steps, color, category, alreadyDone, onComplete, 
           </div>
         </div>
         {!showExercise ? (
-          <div style={{ borderRadius: 24, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', padding: '28px 24px', textAlign: 'center' } as any}>
+          <div style={{ borderRadius: 24, background: CB2, border: '1px solid rgba(255,255,255,0.12)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', padding: '28px 24px', textAlign: 'center' } as any}>
             <div style={{ width: 64, height: 64, borderRadius: 20, background: `${color}12`, border: `1px solid ${color}25`, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', marginBottom: 16 } as any}>
               <i className="ri-checkbox-circle-fill" style={{ fontSize: 32, color }} />
             </div>
@@ -163,13 +163,13 @@ function ExercisePopup({ task, steps, color, category, alreadyDone, onComplete, 
                 <div key={si} style={{ flex: 1, height: 4, borderRadius: 2, background: si <= currentStep ? color : 'rgba(255,255,255,0.06)', transition: 'background 0.3s', boxShadow: si === currentStep ? `0 0 8px ${color}50` : 'none' } as any} />
               ))}
             </div>
-            <div style={{ borderRadius: 24, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', padding: '28px 24px', textAlign: 'center', marginBottom: 20 } as any}>
+            <div style={{ borderRadius: 24, background: CB2, border: '1px solid rgba(255,255,255,0.12)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', padding: '28px 24px', textAlign: 'center', marginBottom: 20 } as any}>
               {step ? (
                 <>
                   <div style={{ width: 64, height: 64, borderRadius: 20, background: `${color}12`, border: `1px solid ${color}25`, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', marginBottom: 20 } as any}>
                     <i className={step.icon || 'ri-heart-pulse-line'} style={{ fontSize: 32, color }} />
                   </div>
-                  <div style={{ fontSize: 17, fontWeight: 800, color: '#FFF', lineHeight: 1.4, marginBottom: 8 }}>{step.instruction}</div>
+                  <div style={{ fontSize: 17, fontWeight: 800, color: T, lineHeight: 1.4, marginBottom: 8 }}>{step.instruction}</div>
                   <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.3)' }}>Etape {currentStep + 1} sur {totalSteps}</div>
                   {stepChoices && (
                     <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, justifyContent: 'center', marginTop: 16 } as any}>
@@ -186,7 +186,7 @@ function ExercisePopup({ task, steps, color, category, alreadyDone, onComplete, 
                   )}
                 </>
               ) : (
-                <div style={{ fontSize: 17, fontWeight: 800, color: '#FFF', lineHeight: 1.4 }}>{task}</div>
+                <div style={{ fontSize: 17, fontWeight: 800, color: T, lineHeight: 1.4 }}>{task}</div>
               )}
             </div>
             {!stepChoices && (
@@ -196,14 +196,14 @@ function ExercisePopup({ task, steps, color, category, alreadyDone, onComplete, 
             )}
           </>
         ) : (
-          <div style={{ borderRadius: 24, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', padding: '28px 24px', textAlign: 'center' } as any}>
+          <div style={{ borderRadius: 24, background: CB2, border: '1px solid rgba(255,255,255,0.12)', padding: '28px 24px', textAlign: 'center' } as any}>
             <div style={{ width: 64, height: 64, borderRadius: 20, background: 'rgba(16,185,129,0.12)', border: '1px solid rgba(16,185,129,0.25)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', marginBottom: 16 } as any}>
               <i className="ri-checkbox-circle-fill" style={{ fontSize: 32, color: '#10B981' }} />
             </div>
-            <div style={{ fontSize: 18, fontWeight: 900, color: '#FFF', marginBottom: 16 }}>Termine !</div>
+            <div style={{ fontSize: 18, fontWeight: 900, color: T, marginBottom: 16 }}>Termine !</div>
             <div style={{ display: 'flex', justifyContent: 'center', gap: 8, marginBottom: 8 } as any}>
               {evalOptions.map(o => (
-                <div key={o.v} onClick={() => onComplete(o.v, notes)} style={{ width: 44, height: 44, borderRadius: 14, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', fontSize: 18, fontWeight: 900, color: o.c } as any}>{o.l}</div>
+                <div key={o.v} onClick={() => onComplete(o.v, notes)} style={{ width: 44, height: 44, borderRadius: 14, background: CB2, border: '1px solid rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', fontSize: 18, fontWeight: 900, color: o.c } as any}>{o.l}</div>
               ))}
             </div>
           </div>
@@ -225,6 +225,24 @@ export default function ProgramDailyView({ token, onStop }: Props) {
   const [mood, setMood] = useState(0);
   const [checkinNote, setCheckinNote] = useState('');
   const [submittingCheckin, setSubmittingCheckin] = useState(false);
+  const [isDark] = useState(() => typeof localStorage !== 'undefined' ? localStorage.getItem('chutex_dark') === '1' : false);
+
+  // Theme constants for light/dark mode
+  const T = isDark ? '#FFF' : '#1A1A2E';
+  const S = isDark ? 'rgba(255,255,255,0.4)' : 'rgba(0,0,0,0.4)';
+  const S2 = isDark ? 'rgba(255,255,255,0.35)' : 'rgba(0,0,0,0.35)';
+  const S3 = isDark ? 'rgba(255,255,255,0.25)' : 'rgba(0,0,0,0.2)';
+  const S4 = isDark ? 'rgba(255,255,255,0.3)' : 'rgba(0,0,0,0.25)';
+  const S5 = isDark ? 'rgba(255,255,255,0.5)' : 'rgba(0,0,0,0.45)';
+  const S6 = isDark ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.15)';
+  const S1 = isDark ? 'rgba(255,255,255,0.15)' : 'rgba(0,0,0,0.08)';
+  const CB = isDark ? 'rgba(255,255,255,0.03)' : '#F4F4F5';
+  const CB2 = isDark ? 'rgba(255,255,255,0.06)' : '#EBEBED';
+  const BB = isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.06)';
+  const BB2 = isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.04)';
+  const BB3 = isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.08)';
+  const INP_BG = isDark ? 'rgba(255,255,255,0.06)' : '#F4F4F5';
+  const INP_BORDER = isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.08)';
 
   const g = { backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' };
 
@@ -291,15 +309,15 @@ export default function ProgramDailyView({ token, onStop }: Props) {
       `}} />
 
       {/* ═══ HEADER: Day + Phase + Progress ═══ */}
-      <div data-testid="program-header" style={{ padding: '20px', borderRadius: 22, background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', ...g, marginBottom: 14, animation: 'pdv-fade 400ms ease' } as any}>
+      <div data-testid="program-header" style={{ padding: '20px', borderRadius: 22, background: CB, border: `1px solid ${BB}`, marginBottom: 14, animation: 'pdv-fade 400ms ease' } as any}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 } as any}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 12 } as any}>
-            <div style={{ width: 48, height: 48, borderRadius: 16, background: `${clr}12`, border: `1.5px solid ${clr}25`, display: 'flex', alignItems: 'center', justifyContent: 'center', animation: 'pdv-glow 3s ease-in-out infinite' } as any}>
+            <div style={{ width: 48, height: 48, borderRadius: 16, background: `${clr}12`, border: `1.5px solid ${clr}25`, display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}>
               <i className={prog.icon} style={{ fontSize: 24, color: clr }} />
             </div>
             <div>
               <div style={{ fontSize: 11, fontWeight: 800, color: clr, textTransform: 'uppercase', letterSpacing: 1 } as any}>Jour {day} / {prog.duration_days}</div>
-              <div style={{ fontSize: 16, fontWeight: 900, color: '#FFF' }}>{prog.title}</div>
+              <div style={{ fontSize: 16, fontWeight: 900, color: T }}>{prog.title}</div>
             </div>
           </div>
           {streak > 0 && (
@@ -311,17 +329,17 @@ export default function ProgramDailyView({ token, onStop }: Props) {
         </div>
 
         {/* Progress bar */}
-        <div style={{ height: 6, borderRadius: 3, background: 'rgba(255,255,255,0.04)', overflow: 'hidden', marginBottom: 8 } as any}>
-          <div style={{ height: '100%', borderRadius: 3, background: `linear-gradient(90deg, ${clr}, ${clr}80)`, width: `${progress_pct}%`, animation: 'pdv-progress 1s ease', boxShadow: `0 0 12px ${clr}40` } as any} />
+        <div style={{ height: 6, borderRadius: 3, background: isDark ? 'rgba(255,255,255,0.04)' : '#E5E7EB', overflow: 'hidden', marginBottom: 8 } as any}>
+          <div style={{ height: '100%', borderRadius: 3, background: `linear-gradient(90deg, ${clr}, ${clr}80)`, width: `${progress_pct}%`, animation: 'pdv-progress 1s ease' } as any} />
         </div>
 
         {/* Phase pill */}
         {phase && (
           <div style={{ display: 'flex', alignItems: 'center', gap: 6 } as any}>
             <div style={{ width: 8, height: 8, borderRadius: 4, background: phase.color || clr }} />
-            <span style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.35)' }}>{phase.name}</span>
-            <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.15)' }}>•</span>
-            <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.2)' }}>{phase.description}</span>
+            <span style={{ fontSize: 11, fontWeight: 700, color: S2 }}>{phase.name}</span>
+            <span style={{ fontSize: 10, color: S1 }}>•</span>
+            <span style={{ fontSize: 10, color: S6 }}>{phase.description}</span>
           </div>
         )}
       </div>
@@ -333,16 +351,16 @@ export default function ProgramDailyView({ token, onStop }: Props) {
             <i className="ri-focus-3-line" style={{ fontSize: 16, color: clr }} />
             <span style={{ fontSize: 12, fontWeight: 900, color: clr, textTransform: 'uppercase', letterSpacing: 0.5 } as any}>Mission du jour</span>
           </div>
-          <div style={{ fontSize: 16, fontWeight: 800, color: '#FFF', lineHeight: 1.4, marginBottom: 8 }}>{tt.focus}</div>
-          {tt.mission && <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.35)', lineHeight: 1.6 }}>{tt.mission}</div>}
+          <div style={{ fontSize: 16, fontWeight: 800, color: T, lineHeight: 1.4, marginBottom: 8 }}>{tt.focus}</div>
+          {tt.mission && <div style={{ fontSize: 12, color: S2, lineHeight: 1.6 }}>{tt.mission}</div>}
         </div>
       )}
 
       {/* ═══ ACTIONS DU JOUR ═══ */}
       <div data-testid="daily-tasks" style={{ marginBottom: 14, animation: 'pdv-fade 400ms ease 200ms both' } as any}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12, padding: '0 4px' } as any}>
-          <i className="ri-list-check-3" style={{ fontSize: 16, color: 'rgba(255,255,255,0.3)' }} />
-          <span style={{ fontSize: 12, fontWeight: 900, color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', letterSpacing: 0.5 } as any}>Actions</span>
+          <i className="ri-list-check-3" style={{ fontSize: 16, color: S4 }} />
+          <span style={{ fontSize: 12, fontWeight: 900, color: S, textTransform: 'uppercase', letterSpacing: 0.5 } as any}>Actions</span>
           <span style={{ fontSize: 10, fontWeight: 700, color: clr, padding: '2px 8px', borderRadius: 99, background: `${clr}10`, border: `1px solid ${clr}15` }}>
             {doneIndices.length}/{tasks.length}
           </span>
@@ -357,7 +375,7 @@ export default function ProgramDailyView({ token, onStop }: Props) {
 
           return (
             <div key={idx} data-testid={`task-${idx}`}
-              style={{ marginBottom: 8, borderRadius: 18, background: done ? 'rgba(16,185,129,0.04)' : 'rgba(255,255,255,0.03)', border: `1px solid ${done ? 'rgba(16,185,129,0.15)' : expanded ? `${clr}20` : 'rgba(255,255,255,0.06)'}`, ...g, overflow: 'hidden', transition: 'all 300ms', animation: `pdv-fade 300ms ease ${200 + idx * 80}ms both` } as any}>
+              style={{ marginBottom: 8, borderRadius: 18, background: done ? 'rgba(16,185,129,0.04)' : CB, border: `1px solid ${done ? 'rgba(16,185,129,0.15)' : expanded ? `${clr}20` : BB2}`, overflow: 'hidden', transition: 'all 300ms', animation: `pdv-fade 300ms ease ${200 + idx * 80}ms both` } as any}>
               {/* Task header */}
               <div onClick={() => {
                 if (done) return;
@@ -387,7 +405,7 @@ export default function ProgramDailyView({ token, onStop }: Props) {
                 </div>
                 {/* Task text */}
                 <div style={{ flex: 1, minWidth: 0 } as any}>
-                  <div style={{ fontSize: 13, fontWeight: 700, color: done ? 'rgba(255,255,255,0.4)' : '#FFF', textDecoration: done ? 'line-through' : 'none', lineHeight: 1.4, overflow: 'hidden', textOverflow: 'ellipsis', display: '-webkit-box', WebkitLineClamp: expanded ? 99 : 2, WebkitBoxOrient: 'vertical' } as any}>
+                  <div style={{ fontSize: 13, fontWeight: 700, color: done ? S : T, textDecoration: done ? 'line-through' : 'none', lineHeight: 1.4, overflow: 'hidden', textOverflow: 'ellipsis', display: '-webkit-box', WebkitLineClamp: expanded ? 99 : 2, WebkitBoxOrient: 'vertical' } as any}>
                     {task}
                   </div>
                   {inter.type !== 'action' && !done && (
@@ -416,17 +434,17 @@ export default function ProgramDailyView({ token, onStop }: Props) {
                     <RepCounter target={inter.target || 10} color={clr} icon={inter.icon || 'ri-repeat-line'} onComplete={() => saveTask(idx)} />
                   )}
                   {inter.type === 'rating' && (
-                    <div style={{ padding: '14px', borderRadius: 16, background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)', marginTop: 8 } as any}>
+                    <div style={{ padding: '14px', borderRadius: 16, background: CB, border: `1px solid ${BB2}`, marginTop: 8 } as any}>
                       <div style={{ fontSize: 12, fontWeight: 700, color: 'rgba(255,255,255,0.4)', marginBottom: 8, textAlign: 'center' }}>Votre evaluation</div>
                       <RatingInput max={inter.max || 5} color={clr} onRate={(v) => saveTask(idx, v)} />
                     </div>
                   )}
                   {inter.type === 'data_input' && (
-                    <div style={{ padding: '14px', borderRadius: 16, background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)', marginTop: 8 } as any}>
+                    <div style={{ padding: '14px', borderRadius: 16, background: CB, border: `1px solid ${BB2}`, marginTop: 8 } as any}>
                       <div style={{ fontSize: 12, fontWeight: 700, color: 'rgba(255,255,255,0.4)', marginBottom: 8 }}>{inter.label}</div>
                       <div style={{ display: 'flex', gap: 8 } as any}>
                         <input data-testid={`input-${inter.field}`} type={inter.input_type || 'text'} placeholder={inter.input_type === 'time' ? '22:30' : 'Entrez la valeur'}
-                          style={{ flex: 1, padding: '12px 14px', borderRadius: 12, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', color: '#FFF', fontSize: 14, fontFamily: 'inherit', outline: 'none', boxSizing: 'border-box' } as any}
+                          style={{ flex: 1, padding: '12px 14px', borderRadius: 12, background: INP_BG, border: `1px solid ${INP_BORDER}`, color: T, fontSize: 14, fontFamily: 'inherit', outline: 'none', boxSizing: 'border-box' } as any}
                           onKeyDown={(e: any) => { if (e.key === 'Enter') saveTask(idx, 0, { [inter.field]: e.target.value }); }}
                         />
                         <div onClick={(e: any) => { const input = e.currentTarget.previousSibling; if (input?.value) saveTask(idx, 0, { [inter.field]: input.value }); }}
@@ -445,15 +463,15 @@ export default function ProgramDailyView({ token, onStop }: Props) {
 
       {/* ═══ CHECK-IN / BILAN (just below actions) ═══ */}
       {!checkin ? (
-        <div data-testid="checkin-section" style={{ padding: '20px', borderRadius: 22, background: allTasksDone ? `linear-gradient(135deg, ${clr}08, ${clr}03)` : 'rgba(255,255,255,0.02)', border: `1px solid ${allTasksDone ? `${clr}20` : 'rgba(255,255,255,0.06)'}`, ...g, marginBottom: 14, animation: 'pdv-fade 400ms ease 450ms both' } as any}>
+        <div data-testid="checkin-section" style={{ padding: '20px', borderRadius: 22, background: allTasksDone ? `linear-gradient(135deg, ${clr}08, ${clr}03)` : CB, border: `1px solid ${allTasksDone ? `${clr}20` : BB2}`, marginBottom: 14, animation: 'pdv-fade 400ms ease 450ms both' } as any}>
           {!showCheckin ? (
             <div onClick={() => setShowCheckin(true)} style={{ display: 'flex', alignItems: 'center', gap: 14, cursor: 'pointer' } as any}>
               <div style={{ width: 48, height: 48, borderRadius: 16, background: allTasksDone ? `${clr}12` : 'rgba(255,255,255,0.04)', border: `1.5px solid ${allTasksDone ? `${clr}25` : 'rgba(255,255,255,0.08)'}`, display: 'flex', alignItems: 'center', justifyContent: 'center', animation: allTasksDone ? 'pdv-pulse 2s ease-in-out infinite' : 'none' } as any}>
                 <i className="ri-checkbox-circle-line" style={{ fontSize: 24, color: allTasksDone ? clr : 'rgba(255,255,255,0.2)' }} />
               </div>
               <div style={{ flex: 1 } as any}>
-                <div style={{ fontSize: 14, fontWeight: 800, color: allTasksDone ? '#FFF' : 'rgba(255,255,255,0.5)' }}>Bilan du jour</div>
-                <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)', marginTop: 2 }}>
+                <div style={{ fontSize: 14, fontWeight: 800, color: allTasksDone ? T : S5 }}>Bilan du jour</div>
+                <div style={{ fontSize: 11, color: S4, marginTop: 2 }}>
                   {allTasksDone ? 'Toutes les actions sont faites ! Faites votre bilan' : `${doneIndices.length}/${tasks.length} actions faites — completez pour debloquer`}
                 </div>
               </div>
@@ -461,23 +479,23 @@ export default function ProgramDailyView({ token, onStop }: Props) {
             </div>
           ) : (
             <div style={{ animation: 'pdv-fade 300ms ease' } as any}>
-              <div style={{ fontSize: 14, fontWeight: 800, color: '#FFF', marginBottom: 14, textAlign: 'center' }}>Comment vous sentez-vous ?</div>
+              <div style={{ fontSize: 14, fontWeight: 800, color: T, marginBottom: 14, textAlign: 'center' }}>Comment vous sentez-vous ?</div>
               <div style={{ display: 'flex', justifyContent: 'center', gap: 8, marginBottom: 16 } as any}>
                 {MOOD.map(m => (
                   <div key={m.val} onClick={() => setMood(m.val)}
                     style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6, cursor: 'pointer', padding: '12px 8px', borderRadius: 16, background: mood === m.val ? `${m.color}15` : 'rgba(255,255,255,0.03)', border: `1.5px solid ${mood === m.val ? m.color : 'rgba(255,255,255,0.06)'}`, transition: 'all 200ms', minWidth: 52 } as any}>
                     <i className={m.icon} style={{ fontSize: 24, color: mood === m.val ? m.color : 'rgba(255,255,255,0.15)', transition: 'color 200ms' }} />
-                    <span style={{ fontSize: 9, fontWeight: 700, color: mood === m.val ? m.color : 'rgba(255,255,255,0.2)' }}>{m.label}</span>
+                    <span style={{ fontSize: 9, fontWeight: 700, color: mood === m.val ? m.color : S6 }}>{m.label}</span>
                   </div>
                 ))}
               </div>
               <textarea data-testid="checkin-note" value={checkinNote} onChange={(e: any) => setCheckinNote(e.target.value)}
                 placeholder="Une note sur votre journee ? (optionnel)"
-                style={{ width: '100%', minHeight: 60, padding: '12px 14px', borderRadius: 14, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', color: '#FFF', fontSize: 13, fontFamily: 'inherit', resize: 'vertical', outline: 'none', boxSizing: 'border-box', marginBottom: 12 } as any} />
+                style={{ width: '100%', minHeight: 60, padding: '12px 14px', borderRadius: 14, background: INP_BG, border: `1px solid ${INP_BORDER}`, color: T, fontSize: 13, fontFamily: 'inherit', resize: 'vertical', outline: 'none', boxSizing: 'border-box', marginBottom: 12 } as any} />
               <div style={{ display: 'flex', gap: 8 } as any}>
-                <div onClick={() => setShowCheckin(false)} style={{ flex: 1, padding: '14px', borderRadius: 14, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', textAlign: 'center', cursor: 'pointer', fontSize: 13, fontWeight: 700, color: 'rgba(255,255,255,0.4)' } as any}>Annuler</div>
+                <div onClick={() => setShowCheckin(false)} style={{ flex: 1, padding: '14px', borderRadius: 14, background: CB, border: `1px solid ${BB}`, textAlign: 'center', cursor: 'pointer', fontSize: 13, fontWeight: 700, color: S } as any}>Annuler</div>
                 <div data-testid="checkin-submit" onClick={submitCheckin}
-                  style={{ flex: 2, padding: '14px', borderRadius: 14, background: mood ? `linear-gradient(135deg, ${clr}35, ${clr}15)` : 'rgba(255,255,255,0.03)', border: `1px solid ${mood ? `${clr}40` : 'rgba(255,255,255,0.06)'}`, textAlign: 'center', cursor: mood ? 'pointer' : 'not-allowed', fontSize: 14, fontWeight: 900, color: mood ? '#FFF' : 'rgba(255,255,255,0.2)', opacity: submittingCheckin ? 0.6 : 1 } as any}>
+                  style={{ flex: 2, padding: '14px', borderRadius: 14, background: mood ? `linear-gradient(135deg, ${clr}35, ${clr}15)` : CB, border: `1px solid ${mood ? `${clr}40` : BB2}`, textAlign: 'center', cursor: mood ? 'pointer' : 'not-allowed', fontSize: 14, fontWeight: 900, color: mood ? T : S6, opacity: submittingCheckin ? 0.6 : 1 } as any}>
                   {submittingCheckin ? 'Envoi...' : 'Valider le bilan'}
                 </div>
               </div>
@@ -491,7 +509,7 @@ export default function ProgramDailyView({ token, onStop }: Props) {
           </div>
           <div style={{ flex: 1 } as any}>
             <div style={{ fontSize: 13, fontWeight: 700, color: '#10B981' }}>Bilan du jour valide</div>
-            <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.25)', marginTop: 2 }}>
+            <div style={{ fontSize: 11, color: S3, marginTop: 2 }}>
               Humeur : {MOOD.find(m => m.val === checkin.mood)?.label || '?'} • {doneIndices.length} actions
             </div>
           </div>
@@ -504,7 +522,7 @@ export default function ProgramDailyView({ token, onStop }: Props) {
           <div style={{ width: 28, height: 28, borderRadius: 10, background: 'rgba(251,191,36,0.1)', border: '1px solid rgba(251,191,36,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}>
             <i className="ri-lightbulb-line" style={{ fontSize: 14, color: '#FBBF24' }} />
           </div>
-          <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.35)', lineHeight: 1.6 }}>{tt.tip}</div>
+          <div style={{ fontSize: 12, color: S2, lineHeight: 1.6 }}>{tt.tip}</div>
         </div>
       )}
 
@@ -519,7 +537,7 @@ export default function ProgramDailyView({ token, onStop }: Props) {
               <div style={{ width: 24, height: 24, borderRadius: 8, background: 'rgba(167,139,250,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}>
                 <i className="ri-team-line" style={{ fontSize: 13, color: '#A78BFA' }} />
               </div>
-              <span style={{ fontSize: 13, fontWeight: 900, color: '#FFF' }}>Votre equipe</span>
+              <span style={{ fontSize: 13, fontWeight: 900, color: T }}>Votre equipe</span>
             </div>
             <span style={{ fontSize: 10, fontWeight: 700, color: 'rgba(167,139,250,0.6)', padding: '3px 10px', borderRadius: 99, background: 'rgba(167,139,250,0.08)', border: '1px solid rgba(167,139,250,0.15)' }}>
               {team.members.filter((m: any) => m.checked_in_today).length}/{team.members.length} check-ins
@@ -535,10 +553,10 @@ export default function ProgramDailyView({ token, onStop }: Props) {
                 </div>
                 <div style={{ flex: 1, minWidth: 0 } as any}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 6 } as any}>
-                    <span style={{ fontSize: 13, fontWeight: 700, color: '#FFF', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' } as any}>{m.name}</span>
+                    <span style={{ fontSize: 13, fontWeight: 700, color: T, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' } as any}>{m.name}</span>
                     {m.is_me && <span style={{ fontSize: 8, fontWeight: 800, color: '#A78BFA', padding: '1px 6px', borderRadius: 99, background: 'rgba(167,139,250,0.12)' }}>Vous</span>}
                   </div>
-                  <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.35)', marginTop: 2 } as any}>
+                  <div style={{ fontSize: 10, color: S2, marginTop: 2 } as any}>
                     {m.checked_in_today
                       ? <span style={{ color: 'rgba(16,185,129,0.7)' }}>{m.tasks_done_today} action{m.tasks_done_today !== 1 ? 's' : ''} validee{m.tasks_done_today !== 1 ? 's' : ''}</span>
                       : 'Pas encore fait aujourd\'hui'}
@@ -554,8 +572,8 @@ export default function ProgramDailyView({ token, onStop }: Props) {
                     <i className="ri-check-line" style={{ fontSize: 13, color: '#10B981' }} />
                   </div>
                 ) : (
-                  <div style={{ width: 22, height: 22, borderRadius: 7, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}>
-                    <i className="ri-time-line" style={{ fontSize: 12, color: 'rgba(255,255,255,0.2)' }} />
+                  <div style={{ width: 22, height: 22, borderRadius: 7, background: CB, border: `1px solid ${BB}`, display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}>
+                    <i className="ri-time-line" style={{ fontSize: 12, color: S6 }} />
                   </div>
                 )}
               </div>
@@ -563,7 +581,7 @@ export default function ProgramDailyView({ token, onStop }: Props) {
           })}
           <div style={{ marginTop: 12, padding: '8px 12px', borderRadius: 10, background: 'rgba(167,139,250,0.04)', border: '1px solid rgba(167,139,250,0.08)', display: 'flex', alignItems: 'center', gap: 6 } as any}>
             <i className="ri-key-2-line" style={{ fontSize: 12, color: 'rgba(167,139,250,0.5)' }} />
-            <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.3)' }}>Code equipe: <strong style={{ color: '#A78BFA', letterSpacing: 1 }}>{team.invite_code}</strong></span>
+            <span style={{ fontSize: 10, color: S4 }}>Code equipe: <strong style={{ color: '#A78BFA', letterSpacing: 1 }}>{team.invite_code}</strong></span>
           </div>
         </div>
       )}
@@ -575,18 +593,18 @@ export default function ProgramDailyView({ token, onStop }: Props) {
             <div style={{ width: 24, height: 24, borderRadius: 8, background: 'rgba(251,191,36,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}>
               <i className="ri-trophy-line" style={{ fontSize: 13, color: '#FBBF24' }} />
             </div>
-            <span style={{ fontSize: 13, fontWeight: 900, color: '#FFF' }}>Classement</span>
+            <span style={{ fontSize: 13, fontWeight: 900, color: T }}>Classement</span>
           </div>
           {leaderboard.map((m: any, i: number) => {
             const medal = i === 0 ? { c: '#FBBF24', i: 'ri-medal-fill' } : i === 1 ? { c: '#94A3B8', i: 'ri-medal-line' } : { c: '#B45309', i: 'ri-medal-line' };
             return (
               <div key={i} data-testid={`leaderboard-${i}`} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 14px', borderRadius: 14, background: m.is_me ? 'rgba(251,191,36,0.05)' : 'transparent', border: `1px solid ${m.is_me ? 'rgba(251,191,36,0.1)' : 'transparent'}`, marginBottom: 4 } as any}>
                 <div style={{ width: 28, height: 28, borderRadius: 8, background: `${medal.c}12`, border: `1px solid ${medal.c}25`, display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}>
-                  {i < 3 ? <i className={medal.i} style={{ fontSize: 14, color: medal.c }} /> : <span style={{ fontSize: 12, fontWeight: 900, color: 'rgba(255,255,255,0.3)' }}>{m.rank}</span>}
+                  {i < 3 ? <i className={medal.i} style={{ fontSize: 14, color: medal.c }} /> : <span style={{ fontSize: 12, fontWeight: 900, color: S4 }}>{m.rank}</span>}
                 </div>
                 <div style={{ flex: 1 } as any}>
-                  <div style={{ fontSize: 13, fontWeight: 700, color: m.is_me ? '#FBBF24' : '#FFF' }}>{m.name} {m.is_me ? '(vous)' : ''}</div>
-                  <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.25)' }}>{m.streak} jours • {m.tasks_done} actions</div>
+                  <div style={{ fontSize: 13, fontWeight: 700, color: m.is_me ? '#FBBF24' : T }}>{m.name} {m.is_me ? '(vous)' : ''}</div>
+                  <div style={{ fontSize: 10, color: S3 }}>{m.streak} jours • {m.tasks_done} actions</div>
                 </div>
                 <div style={{ fontSize: 16, fontWeight: 900, color: medal.c }}>{m.score}</div>
               </div>
