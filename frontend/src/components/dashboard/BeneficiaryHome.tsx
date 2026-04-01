@@ -432,6 +432,11 @@ export function BeneficiaryHome({ token, user }: { token: string; user: any }) {
             <i className="ri-arrow-right-s-line" style={{ fontSize: 18, color: 'rgba(255,255,255,0.3)' }} />
           </div>
 
+          {/* ── Sommeil (right after Nora) ── */}
+          <SleepAlarmSection sleepAlarm={sleepAlarm} alarmTime={alarmTime} setAlarmTime={setAlarmTime} editingAlarm={editingAlarm} setEditingAlarm={setEditingAlarm} setSleepAlarm={setSleepAlarm} token={token} C={C} glass={glass} isDark={isDark} />
+
+          <div style={{ height: 1, background: C.sep, margin: '4px 0 16px' } as any} />
+
           {/* ── CALORIE + WEIGHT GOAL COMBINED CARD ── */}
           {minceurData?.recommendations?.daily_calories > 0 && (() => {
             const recs = minceurData.recommendations;
@@ -469,23 +474,46 @@ export function BeneficiaryHome({ token, user }: { token: string; user: any }) {
                     ))}
                   </div>
                 )}
-                {hasGoal && (
-                  <div style={{ borderTop: '1px solid #E5E7EB', padding: '14px 18px' } as any}>
-                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 } as any}>
-                      <div style={{ fontSize: 9, fontWeight: 700, color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: 1 }}>Objectif poids</div>
-                      <span style={{ fontSize: 9, color: '#9CA3AF' }}>{wg.weeks} semaines</span>
+                {hasGoal && (() => {
+                  const currentW = minceurData.current_weight || 0;
+                  const diff = currentW - wg.target_kg;
+                  const lost = diff > 0 ? diff : 0;
+                  const progressPct = diff > 0 ? Math.max(5, Math.min(95, 100 - (diff / (diff + 2)) * 100)) : (diff < 0 ? Math.max(5, 50) : 100);
+                  const createdDate = wg.created_at ? new Date(wg.created_at).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' }) : '';
+                  return (
+                  <div style={{ borderTop: '1px solid #E5E7EB', padding: '16px 18px' } as any}>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 } as any}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 6 } as any}>
+                        <i className="ri-scales-line" style={{ fontSize: 14, color: '#3B82F6' }} />
+                        <span style={{ fontSize: 10, fontWeight: 700, color: '#3B82F6', textTransform: 'uppercase', letterSpacing: 0.5 }}>Objectif poids</span>
+                      </div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 6 } as any}>
+                        {createdDate && <span style={{ fontSize: 9, color: '#9CA3AF' }}>depuis {createdDate}</span>}
+                        <span style={{ padding: '2px 8px', borderRadius: 999, background: 'rgba(59,130,246,0.08)', fontSize: 9, fontWeight: 700, color: '#3B82F6' }}>{wg.weeks} sem</span>
+                      </div>
                     </div>
-                    <div style={{ display: 'flex', alignItems: 'baseline', gap: 6, marginBottom: 8 } as any}>
-                      <span style={{ fontSize: 22, fontWeight: 900, color: '#111' }}>{minceurData.current_weight || '--'}</span>
-                      <i className="ri-arrow-right-line" style={{ fontSize: 12, color: '#60A5FA' }} />
-                      <span style={{ fontSize: 22, fontWeight: 900, color: '#60A5FA' }}>{wg.target_kg}</span>
-                      <span style={{ fontSize: 11, color: '#9CA3AF' }}>kg</span>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 10 } as any}>
+                      <div style={{ textAlign: 'center' } as any}>
+                        <div style={{ fontSize: 24, fontWeight: 900, color: '#111', lineHeight: 1 }}>{currentW > 0 ? currentW : '--'}</div>
+                        <div style={{ fontSize: 8, fontWeight: 700, color: '#9CA3AF', textTransform: 'uppercase', marginTop: 2 }}>Actuel</div>
+                      </div>
+                      <div style={{ flex: 1, position: 'relative', height: 8, borderRadius: 4, background: '#E5E7EB', overflow: 'hidden' } as any}>
+                        <div style={{ height: '100%', borderRadius: 4, background: 'linear-gradient(90deg, #60A5FA, #3B82F6)', width: `${progressPct}%`, transition: 'width 0.8s ease' } as any} />
+                      </div>
+                      <div style={{ textAlign: 'center' } as any}>
+                        <div style={{ fontSize: 24, fontWeight: 900, color: '#3B82F6', lineHeight: 1 }}>{wg.target_kg}</div>
+                        <div style={{ fontSize: 8, fontWeight: 700, color: '#3B82F6', textTransform: 'uppercase', marginTop: 2 }}>Cible</div>
+                      </div>
                     </div>
-                    <div style={{ height: 6, borderRadius: 3, background: '#E5E7EB', overflow: 'hidden' } as any}>
-                      <div style={{ height: '100%', borderRadius: 3, background: 'linear-gradient(90deg, #60A5FA, #3B82F6)', width: `${Math.max(5, Math.min(95, ((minceurData.current_weight || 0) - wg.target_kg) > 0 ? 100 - (((minceurData.current_weight || 0) - wg.target_kg) / (((minceurData.current_weight || 0) - wg.target_kg) + 2)) * 100 : 50))}%`, transition: 'width 0.8s ease' } as any} />
-                    </div>
+                    {lost > 0 && (
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4 } as any}>
+                        <i className="ri-arrow-down-line" style={{ fontSize: 12, color: '#10B981' }} />
+                        <span style={{ fontSize: 11, fontWeight: 700, color: '#10B981' }}>-{lost.toFixed(1)}kg restants</span>
+                      </div>
+                    )}
                   </div>
-                )}
+                  );
+                })()}
               </div>
             );
           })()}
@@ -513,12 +541,9 @@ export function BeneficiaryHome({ token, user }: { token: string; user: any }) {
             </div>
           ))}
 
-          {/* ── Moved below: Weight goal now inside calorie card ── */}
+          {/* ── Weight goal now inside calorie card ── */}
 
           {showWeighing && <WeighingFlow onClose={() => setShowWeighing(false)} d={dashData?.scale || {}} weighings={weighings} />}
-
-          {/* ── Sommeil de ce soir (above programme) ── */}
-          <SleepAlarmSection sleepAlarm={sleepAlarm} alarmTime={alarmTime} setAlarmTime={setAlarmTime} editingAlarm={editingAlarm} setEditingAlarm={setEditingAlarm} setSleepAlarm={setSleepAlarm} token={token} C={C} glass={glass} isDark={isDark} />
 
           {/* ── PROGRAMME EN COURS (after weight goal) ── */}
           {activeProgram?.active && (() => {

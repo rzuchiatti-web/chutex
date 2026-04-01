@@ -94,9 +94,9 @@ export function SleepAlarmSection({ sleepAlarm, alarmTime, setAlarmTime, editing
               </div>
             </div>
 
-            {/* Moon image — no shadow */}
+            {/* Moon image — bigger, no shadow */}
             <div style={{ textAlign: 'center', marginBottom: 16 } as any}>
-              <img src={HEALTH_IMAGES.sleep} alt="" style={{ width: 120, height: 120, objectFit: 'contain', margin: '0 auto', display: 'block' } as any} />
+              <img src={HEALTH_IMAGES.sleep} alt="" style={{ width: 160, height: 160, objectFit: 'contain', margin: '0 auto', display: 'block' } as any} />
             </div>
 
             {/* Title */}
@@ -135,6 +135,11 @@ export function SleepAlarmSection({ sleepAlarm, alarmTime, setAlarmTime, editing
               </div>
             </div>
 
+            {/* Save — above factors */}
+            <div data-testid="save-alarm-btn" onClick={handleSave} style={{ padding: '16px', borderRadius: 999, background: '#FFF', textAlign: 'center', cursor: 'pointer', fontSize: 15, fontWeight: 800, color: '#111', opacity: saving ? 0.5 : 1, marginBottom: 24 } as any}>
+              {saving ? 'Enregistrement...' : 'Enregistrer'}
+            </div>
+
             {/* Factors */}
             <div style={{ marginBottom: 20 } as any}>
               <div style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.3)', textAlign: 'center', marginBottom: 12 }}>Ce calcul prend en compte</div>
@@ -155,13 +160,8 @@ export function SleepAlarmSection({ sleepAlarm, alarmTime, setAlarmTime, editing
             </div>
 
             {/* Explanation */}
-            <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.18)', lineHeight: 1.6, textAlign: 'center', marginBottom: 24, padding: '0 8px' }}>
+            <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.18)', lineHeight: 1.6, textAlign: 'center', marginBottom: 80, padding: '0 8px' }}>
               Analyse basee sur votre variabilite cardiaque, frequence au repos, niveau de stress et qualite de vos phases de sommeil profond.
-            </div>
-
-            {/* Save */}
-            <div data-testid="save-alarm-btn" onClick={handleSave} style={{ padding: '16px', borderRadius: 999, background: '#FFF', textAlign: 'center', cursor: 'pointer', fontSize: 15, fontWeight: 800, color: '#111', opacity: saving ? 0.5 : 1, marginBottom: 80 } as any}>
-              {saving ? 'Enregistrement...' : 'Enregistrer'}
             </div>
           </div>
         </div>
