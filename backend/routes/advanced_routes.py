@@ -240,6 +240,41 @@ async def get_morning_briefing(user=Depends(get_current_user)):
     streak_doc = await db.user_streaks.find_one({"user_id": uid}, {"_id": 0})
     streak = streak_doc.get("current_streak", 0) if streak_doc else 0
 
+    # ── Today's exercises ──
+    today_str = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+    day_names = ["lundi", "mardi", "mercredi", "jeudi", "vendredi", "samedi", "dimanche"]
+    today_day = day_names[datetime.now(timezone.utc).weekday()]
+    assigned_exs = await db.pro_assigned_exercises.find(
+        {"beneficiary_id": uid, "status": "active"}, {"_id": 0}
+    ).to_list(30)
+    exercises_today = []
+    for ex in assigned_exs:
+        days = ex.get("days", [])
+        if not days or today_day in days:
+            done = any(c.get("date", "").startswith(today_str) and c.get("status") == "done" for c in ex.get("completions", []))
+            exercises_today.append({"title": ex.get("title", ""), "sets": ex.get("sets", 0), "repetitions": ex.get("repetitions", 0), "done": done})
+
+    # ── Today's nutrition ──
+    daily_cache = await db.minceur_daily_cache.find_one({"user_id": uid, "date": today_str}, {"_id": 0})
+    nutrition = None
+    if daily_cache and daily_cache.get("recommendations"):
+        recs = daily_cache["recommendations"]
+        meals = recs.get("meals", [])
+        nutrition = {
+            "daily_calories": recs.get("daily_calories", 0),
+            "meal_count": len(meals),
+            "meal_names": [m.get("name", m.get("label", "")) for m in meals[:4]],
+            "has_plan": len(meals) > 0,
+        }
+
+    # ── Active reminders ──
+    reminders = await db.reminders.find({"user_id": uid, "active": True}, {"_id": 0}).to_list(10)
+    active_reminders = [{"type": r.get("reminder_type", ""), "time": r.get("time", ""), "title": r.get("title", "")} for r in reminders]
+
+    # ── Sleep alarm ──
+    from routes.health_sleep_routes import get_sleep_alarm
+    sleep_info = await get_sleep_alarm(user)
+
     # Build briefing — objectives come from daily_plan (same as health page)
     briefing_objectives = []
     for p in daily_plan:
@@ -261,6 +296,12 @@ async def get_morning_briefing(user=Depends(get_current_user)):
         "objectives": briefing_objectives,
         "nora_message": "",
         "data_freshness": data_freshness,
+        "exercises": exercises_today,
+        "exercises_done": sum(1 for e in exercises_today if e["done"]),
+        "exercises_total": len(exercises_today),
+        "nutrition": nutrition,
+        "reminders": active_reminders,
+        "sleep": sleep_info,
     }
 
     if hd.get("has_bracelet_data"):

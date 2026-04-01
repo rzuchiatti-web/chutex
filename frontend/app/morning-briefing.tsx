@@ -3,108 +3,60 @@ import { View, Text, Platform } from 'react-native';
 import { useAuth } from '../src/context/AuthContext';
 import { apiFetch } from '../src/services/api';
 import NativePageView from '../src/components/NativePageView';
-import FullScreenLoader from '../src/components/FullScreenLoader';
 
 const NORA_VIDEO = 'https://customer-assets.emergentagent.com/job_ba3a5789-c8f1-4b12-b5d8-478a7f99aaea/artifacts/b6eh1r76_Nora_video.mp4';
 
 export default function MorningBriefingScreen() {
   const { user, token } = useAuth();
+  const [briefing, setBriefing] = useState<any>(null);
   const [displayText, setDisplayText] = useState('');
-  const [fullMessage, setFullMessage] = useState('');
-  const [visibleObjs, setVisibleObjs] = useState(0);
-  const [done, setDone] = useState(false);
-  const [objectives, setObjectives] = useState<any[]>([]);
+  const [phase, setPhase] = useState<'loading' | 'typing' | 'cards' | 'done'>('loading');
+  const [visibleCards, setVisibleCards] = useState(0);
   const [videoUp, setVideoUp] = useState(false);
   const started = useRef(false);
   const scrollRef = useRef<HTMLDivElement>(null);
 
-  const NORA_CONTENT: Record<string, { greeting: string; features: { icon: string; color: string; label: string; value: string; detail: string }[] }> = {
-    beneficiary: {
-      greeting: `Je suis Nora, l'intelligence artificielle developpee par Chutex pour ameliorer votre longevite.\n\nGrace a vos appareils connectes, je vais analyser vos donnees pour vous offrir un suivi personnalise. Voici ce que je peux faire pour vous :`,
-      features: [
-        { icon: 'ri-heart-pulse-line', color: '#EF4444', label: 'Suivi sante', value: 'Surveillance continue', detail: 'Frequence cardiaque, tension, SpO2, sommeil en temps reel' },
-        { icon: 'ri-alarm-warning-line', color: '#F59E0B', label: 'Alertes preventives', value: 'Surveillance intelligente', detail: 'Detection automatique des anomalies et alerte de vos proches' },
-        { icon: 'ri-chat-smile-3-line', color: '#10B981', label: 'Chat IA', value: 'Disponible 24h/24', detail: 'Posez-moi vos questions sante, je suis toujours la pour vous' },
-        { icon: 'ri-calendar-check-line', color: '#A78BFA', label: 'Briefing quotidien', value: 'Chaque matin', detail: 'Un resume personnalise de votre etat et vos objectifs du jour' },
-      ],
-    },
-    guardian: {
-      greeting: `Je suis Nora, l'intelligence artificielle de Chutex.\n\nEn tant que gardien, vous avez un role essentiel dans le suivi de vos proches. Je vous tiendrai informe en temps reel et vous alerterai en cas de besoin. Voici vos outils :`,
-      features: [
-        { icon: 'ri-group-line', color: '#38BDF8', label: 'Suivi de vos proches', value: 'Tableau de bord', detail: 'Visualisez les donnees sante de vos beneficiaires en un coup d\'oeil' },
-        { icon: 'ri-notification-3-line', color: '#EF4444', label: 'Alertes en direct', value: 'Notifications push', detail: 'Soyez prevenu immediatement en cas de chute ou anomalie' },
-        { icon: 'ri-line-chart-line', color: '#10B981', label: 'Rapports sante', value: 'Historique complet', detail: 'Suivez les tendances et partagez avec les professionnels de sante' },
-        { icon: 'ri-chat-smile-3-line', color: '#A78BFA', label: 'Chat avec Nora', value: 'Conseils personnalises', detail: 'Des recommandations adaptees pour accompagner vos proches' },
-      ],
-    },
-    prescriber_company: {
-      greeting: `Je suis Nora, l'intelligence artificielle de Chutex.\n\nVotre structure dispose maintenant d'un outil puissant pour suivre et proteger vos beneficiaires. Voici les fonctionnalites a votre disposition :`,
-      features: [
-        { icon: 'ri-building-2-line', color: '#38BDF8', label: 'Gestion structure', value: 'Back-office complet', detail: 'Gerez vos equipes, beneficiaires et intervenants depuis un seul endroit' },
-        { icon: 'ri-shield-check-line', color: '#10B981', label: 'Teleassistance', value: 'Centre d\'alertes', detail: 'Recevez et gerez les alertes de tous vos beneficiaires' },
-        { icon: 'ri-bar-chart-grouped-line', color: '#F59E0B', label: 'Statistiques', value: 'Rapports detailles', detail: 'Analysez les donnees sante de votre parc de beneficiaires' },
-        { icon: 'ri-robot-2-line', color: '#A78BFA', label: 'IA Nora', value: 'Assistance intelligente', detail: 'Analyses predictives et recommandations pour vos equipes' },
-      ],
-    },
-  };
-
-  // Fetch data
   useEffect(() => {
-    if (started.current || !user) return;
+    if (started.current || !user || !token) return;
     started.current = true;
-    const name = user?.name?.split(' ')[0] || '';
-    const role = user?.active_role || user?.role || 'beneficiary';
-
-    Promise.all([
-      apiFetch('/api/health/daily-report', {}, token).catch(() => null),
-      apiFetch('/api/nora/morning-briefing', {}, token).catch(() => null),
-    ]).then(([report, briefing]) => {
-      const introSeen = typeof localStorage !== 'undefined' && localStorage.getItem('nora_intro_seen');
-      const hasAnyData = report && !report.no_data;
-
-      let msg = '';
-      let objs: any[] = [];
-
-      if (!introSeen && !hasAnyData) {
-        const nora = NORA_CONTENT[role] || NORA_CONTENT.beneficiary;
-        msg = `Bonjour ${name},\n\n${nora.greeting}`;
-        objs = nora.features;
-        if (typeof localStorage !== 'undefined') localStorage.setItem('nora_intro_seen', 'true');
-      } else {
-        if (typeof localStorage !== 'undefined') localStorage.setItem('nora_intro_seen', 'true');
-        msg = briefing?.nora_message || `Bonjour ${name}, bienvenue dans votre journee.`;
-        objs = briefing?.objectives || report?.daily_plan || [];
-      }
-
-      setFullMessage(msg);
-      setObjectives(objs);
+    apiFetch('/api/nora/morning-briefing', {}, token).then(b => {
+      if (b) setBriefing(b);
     }).catch(() => {});
-  }, [user]);
+  }, [user, token]);
 
-  // Typewriter effect - triggered when fullMessage is set
+  // Typewriter for nora_message
   useEffect(() => {
-    if (!fullMessage) return;
-    setVideoUp(true); // Move video up when text starts
+    if (!briefing) return;
+    const msg = briefing.nora_message || `Bonjour ${briefing.user_name || ''}, bienvenue dans votre journee.`;
+    setVideoUp(true);
+    setPhase('typing');
     let idx = 0;
-    setDisplayText('');
     const iv = setInterval(() => {
-      if (idx <= fullMessage.length) { setDisplayText(fullMessage.slice(0, idx)); idx++; }
-      else {
-        clearInterval(iv);
-        objectives.forEach((_, i) => {
-          setTimeout(() => { setVisibleObjs(i + 1); if (scrollRef.current) scrollRef.current.scrollTop = scrollRef.current.scrollHeight; }, 500 + i * 700);
-        });
-        setTimeout(() => setDone(true), 500 + objectives.length * 700 + 400);
-      }
-    }, 22);
+      if (idx <= msg.length) { setDisplayText(msg.slice(0, idx)); idx++; }
+      else { clearInterval(iv); setPhase('cards'); }
+    }, 20);
     return () => clearInterval(iv);
-  }, [fullMessage]);
+  }, [briefing]);
+
+  // Staggered card reveal
+  useEffect(() => {
+    if (phase !== 'cards') return;
+    const totalCards = 4; // sleep, exercises, nutrition, reminders
+    let count = 0;
+    const iv = setInterval(() => {
+      count++;
+      setVisibleCards(count);
+      if (scrollRef.current) scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+      if (count >= totalCards) { clearInterval(iv); setTimeout(() => setPhase('done'), 600); }
+    }, 500);
+    return () => clearInterval(iv);
+  }, [phase]);
 
   // Safety timeout
   useEffect(() => {
-    const timeout = setTimeout(() => { if (!done) setDone(true); }, 30000);
-    return () => clearTimeout(timeout);
-  }, [done]);
+    const t = setTimeout(() => { if (phase !== 'done') setPhase('done'); }, 25000);
+    return () => clearTimeout(t);
+  }, [phase]);
 
   const goToDashboard = () => {
     if (typeof window !== 'undefined') {
@@ -116,54 +68,118 @@ export default function MorningBriefingScreen() {
 
   if (Platform.OS !== 'web') return <NativePageView path="/morning-briefing" />;
 
+  const b = briefing || {};
+  const sleep = b.sleep || {};
+  const exDone = b.exercises_done || 0;
+  const exTotal = b.exercises_total || 0;
+  const nutrition = b.nutrition || {};
+  const reminders = b.reminders || [];
+  const health = b.health || {};
+
+  const cards = [
+    // 1. Sleep
+    { key: 'sleep', icon: 'ri-moon-clear-fill', color: '#A78BFA', title: 'Sommeil', value: `Coucher ${sleep.bedtime || '22:00'}`, detail: `Reveil ${sleep.wake_time || '07:00'} · ${sleep.sleep_need_hours || 7}h${sleep.sleep_need_minutes || 30 > 0 ? (sleep.sleep_need_minutes || 30) + 'min' : ''} recommandees`, extra: sleep.adjustments?.length > 0 ? sleep.adjustments.join(', ') : '' },
+    // 2. Exercises
+    { key: 'exercises', icon: 'ri-run-line', color: '#EF4444', title: 'Exercices', value: exTotal > 0 ? `${exDone}/${exTotal} completes` : 'Aucun exercice', detail: exTotal > 0 ? (b.exercises || []).filter((e: any) => !e.done).slice(0, 2).map((e: any) => e.title).join(', ') || 'Tout fait !' : '', extra: '' },
+    // 3. Nutrition
+    { key: 'nutrition', icon: 'ri-restaurant-line', color: '#F59E0B', title: 'Nutrition', value: nutrition.daily_calories ? `${nutrition.daily_calories} kcal` : 'Pas de plan', detail: nutrition.has_plan ? `${nutrition.meal_count} repas prevus` : 'Demandez a Nora un plan repas', extra: nutrition.meal_names?.slice(0, 2).join(', ') || '' },
+    // 4. Reminders
+    { key: 'reminders', icon: 'ri-notification-4-line', color: '#38BDF8', title: 'Rappels', value: reminders.length > 0 ? `${reminders.length} actif${reminders.length > 1 ? 's' : ''}` : 'Aucun rappel', detail: reminders.slice(0, 2).map((r: any) => `${r.time} ${r.title || r.type}`).join(' · ') || '', extra: '' },
+  ];
+
   return (
     <div data-testid="morning-briefing" style={{ position: 'fixed', inset: 0, zIndex: 99999, display: 'flex', flexDirection: 'column', fontFamily: "'Inter', system-ui, sans-serif", background: '#000' } as any}>
-      {/* Nora video - starts centered, moves up when text arrives — no overlay */}
+      <style dangerouslySetInnerHTML={{ __html: `
+        @keyframes mb-slide{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
+        @keyframes mb-fade{from{opacity:0}to{opacity:1}}
+        @keyframes mb-glow{0%,100%{box-shadow:0 0 0 0 rgba(167,139,250,0)}50%{box-shadow:0 0 20px 4px rgba(167,139,250,0.15)}}
+      `}} />
+
+      {/* Nora video */}
       <video autoPlay loop muted playsInline style={{
-        position: 'absolute', left: '50%', transform: `translate(-50%, -50%)`,
-        top: videoUp ? '18%' : '45%',
-        width: 180, height: 180, objectFit: 'contain', opacity: 1, zIndex: 0,
-        transition: 'top 1.2s cubic-bezier(0.22, 0.61, 0.36, 1), opacity 0.8s',
-        borderRadius: 60,
+        position: 'absolute', left: '50%', transform: 'translate(-50%, -50%)',
+        top: videoUp ? '14%' : '40%',
+        width: videoUp ? 120 : 180, height: videoUp ? 120 : 180,
+        objectFit: 'contain', opacity: 1, zIndex: 0,
+        transition: 'all 1.2s cubic-bezier(0.22, 0.61, 0.36, 1)',
+        borderRadius: videoUp ? 36 : 60,
       } as any} src={NORA_VIDEO} />
 
-      <div ref={scrollRef as any} style={{ flex: 1, position: 'relative', zIndex: 5, overflowY: 'auto', padding: '0 24px', WebkitOverflowScrolling: 'touch', scrollBehavior: 'smooth' } as any}>
-        <div style={{ height: videoUp ? '28vh' : '50vh', flexShrink: 0, transition: 'height 1s ease' } as any} />
+      <div ref={scrollRef as any} style={{ flex: 1, position: 'relative', zIndex: 5, overflowY: 'auto', padding: '0 20px', WebkitOverflowScrolling: 'touch', scrollBehavior: 'smooth' } as any}>
+        <div style={{ height: videoUp ? '22vh' : '48vh', flexShrink: 0, transition: 'height 1s ease' } as any} />
 
-        <div style={{ textAlign: 'center', marginBottom: 28 } as any}>
-          <div style={{ fontSize: 15, fontWeight: 600, color: '#FFF', lineHeight: 1.55, whiteSpace: 'pre-wrap', maxWidth: 300, margin: '0 auto' }}>
-            {displayText}<span style={{ opacity: done ? 0 : 1, transition: 'opacity 0.3s', color: 'rgba(255,255,255,0.3)' }}>|</span>
+        {/* Nora message */}
+        <div style={{ textAlign: 'center', marginBottom: 28, maxWidth: 340, margin: '0 auto 28px' } as any}>
+          <div style={{ fontSize: 14, fontWeight: 500, color: 'rgba(255,255,255,0.8)', lineHeight: 1.65, whiteSpace: 'pre-wrap' }}>
+            {displayText}<span style={{ opacity: phase === 'typing' ? 1 : 0, transition: 'opacity 0.3s', color: 'rgba(255,255,255,0.2)' }}>|</span>
           </div>
         </div>
 
-        {visibleObjs >= 1 && (
-          <div style={{ textAlign: 'center', fontSize: 9, fontWeight: 700, color: 'rgba(255,255,255,0.2)', textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 10 }}>Vos objectifs du jour</div>
+        {/* Health vitals mini-bar */}
+        {phase !== 'loading' && phase !== 'typing' && health.heart_rate > 0 && (
+          <div style={{ display: 'flex', justifyContent: 'center', gap: 16, marginBottom: 24, animation: 'mb-fade 0.5s ease' } as any}>
+            {health.heart_rate > 0 && <div style={{ textAlign: 'center' } as any}><div style={{ fontSize: 18, fontWeight: 900, color: '#EF4444', lineHeight: 1 }}>{health.heart_rate}</div><div style={{ fontSize: 8, color: 'rgba(255,255,255,0.25)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: 0.5, marginTop: 2 }}>bpm</div></div>}
+            {health.spo2 > 0 && <div style={{ textAlign: 'center' } as any}><div style={{ fontSize: 18, fontWeight: 900, color: '#38BDF8', lineHeight: 1 }}>{health.spo2}%</div><div style={{ fontSize: 8, color: 'rgba(255,255,255,0.25)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: 0.5, marginTop: 2 }}>SpO2</div></div>}
+            {health.steps > 0 && <div style={{ textAlign: 'center' } as any}><div style={{ fontSize: 18, fontWeight: 900, color: '#10B981', lineHeight: 1 }}>{health.steps}</div><div style={{ fontSize: 8, color: 'rgba(255,255,255,0.25)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: 0.5, marginTop: 2 }}>pas hier</div></div>}
+            {health.sleep_quality > 0 && <div style={{ textAlign: 'center' } as any}><div style={{ fontSize: 18, fontWeight: 900, color: '#A78BFA', lineHeight: 1 }}>{health.sleep_quality}%</div><div style={{ fontSize: 8, color: 'rgba(255,255,255,0.25)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: 0.5, marginTop: 2 }}>sommeil</div></div>}
+          </div>
         )}
 
-        {objectives.slice(0, visibleObjs).map((o, i) => (
-          <div key={i} style={{ padding: '14px 16px', borderRadius: 16, marginBottom: 8, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)', animation: 'slideUp 0.45s cubic-bezier(.22,.61,.36,1) forwards' } as any}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 4 } as any}>
-              <div style={{ width: 32, height: 32, borderRadius: 10, background: `${o.color}15`, border: `1px solid ${o.color}25`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}>
-                <i className={o.icon} style={{ fontSize: 16, color: o.color }} />
+        {/* Section title */}
+        {visibleCards >= 1 && (
+          <div style={{ textAlign: 'center', fontSize: 9, fontWeight: 700, color: 'rgba(255,255,255,0.15)', textTransform: 'uppercase', letterSpacing: 2, marginBottom: 12, animation: 'mb-fade 0.4s ease' }}>Votre journee</div>
+        )}
+
+        {/* Cards */}
+        {cards.slice(0, visibleCards).map((c, i) => (
+          <div key={c.key} data-testid={`briefing-card-${c.key}`} style={{
+            padding: '16px 18px', borderRadius: 18, marginBottom: 10,
+            background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.07)',
+            animation: 'mb-slide 0.5s cubic-bezier(.22,.61,.36,1) forwards',
+            animationDelay: `${i * 0.08}s`, opacity: 0,
+          } as any}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 14 } as any}>
+              <div style={{ width: 40, height: 40, borderRadius: 14, background: `${c.color}12`, border: `1px solid ${c.color}20`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}>
+                <i className={c.icon} style={{ fontSize: 18, color: c.color }} />
               </div>
-              <div style={{ flex: 1 } as any}>
-                <div style={{ fontSize: 9, fontWeight: 700, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: 0.5 }}>{o.label}</div>
-                <div style={{ fontSize: 15, fontWeight: 900, color: '#FFF' }}>{o.value}</div>
+              <div style={{ flex: 1, minWidth: 0 } as any}>
+                <div style={{ fontSize: 9, fontWeight: 700, color: 'rgba(255,255,255,0.25)', textTransform: 'uppercase', letterSpacing: 0.5 }}>{c.title}</div>
+                <div style={{ fontSize: 16, fontWeight: 900, color: '#FFF', marginTop: 1 }}>{c.value}</div>
               </div>
             </div>
-            <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)', lineHeight: 1.4, paddingLeft: 44 }}>{o.detail}</div>
+            {(c.detail || c.extra) && (
+              <div style={{ paddingLeft: 54, marginTop: 6 } as any}>
+                {c.detail && <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)', lineHeight: 1.4 }}>{c.detail}</div>}
+                {c.extra && <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.2)', lineHeight: 1.4, marginTop: 2, fontStyle: 'italic' }}>{c.extra}</div>}
+              </div>
+            )}
           </div>
         ))}
-        <div style={{ height: 20 } as any} />
+
+        {/* Program info */}
+        {visibleCards >= 4 && b.program && (
+          <div style={{ padding: '12px 16px', borderRadius: 14, marginBottom: 10, background: `${b.program.color || '#A78BFA'}08`, border: `1px solid ${b.program.color || '#A78BFA'}15`, animation: 'mb-slide 0.5s ease forwards', opacity: 0, animationDelay: '0.32s' } as any}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10 } as any}>
+              <i className={b.program.icon || 'ri-calendar-todo-line'} style={{ fontSize: 16, color: b.program.color || '#A78BFA' }} />
+              <div style={{ flex: 1 } as any}>
+                <div style={{ fontSize: 12, fontWeight: 800, color: '#FFF' }}>{b.program.title}</div>
+                <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.3)' }}>Jour {b.program.day}/{b.program.total}</div>
+              </div>
+              {b.streak > 0 && <div style={{ fontSize: 11, fontWeight: 800, color: '#FBBF24' }}>{b.streak} jours</div>}
+            </div>
+          </div>
+        )}
+
+        <div style={{ height: 24 }} />
       </div>
 
-      {/* Bottom actions */}
+      {/* Bottom slide button */}
       <div style={{ position: 'relative', zIndex: 10, padding: '8px 24px 28px', flexShrink: 0 } as any}>
-        {done ? (
-          <div data-testid="briefing-slide" style={{ position: 'relative', height: 56, borderRadius: 999, overflow: 'hidden', background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.15)', animation: 'fadeIn 0.5s ease' } as any}>
-            <div id="slide-fill" style={{ position: 'absolute', top: 0, left: 0, bottom: 0, width: '56px', background: 'rgba(255,255,255,0.06)', borderRadius: 999 } as any} />
+        {phase === 'done' ? (
+          <div data-testid="briefing-slide" style={{ position: 'relative', height: 56, borderRadius: 999, overflow: 'hidden', background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)', animation: 'mb-fade 0.5s ease' } as any}>
+            <div id="slide-fill" style={{ position: 'absolute', top: 0, left: 0, bottom: 0, width: '56px', background: 'rgba(255,255,255,0.04)', borderRadius: 999 } as any} />
             <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', pointerEvents: 'none' } as any}>
-              <span style={{ fontSize: 14, fontWeight: 600, color: 'rgba(255,255,255,0.4)', userSelect: 'none' }}>Glisser pour continuer</span>
+              <span style={{ fontSize: 13, fontWeight: 600, color: 'rgba(255,255,255,0.3)', userSelect: 'none' }}>Glisser pour continuer</span>
             </div>
             <div id="slide-thumb"
               onMouseDown={(e: any) => {
@@ -199,13 +215,11 @@ export default function MorningBriefingScreen() {
           </div>
         ) : (
           <div style={{ padding: '14px', textAlign: 'center' } as any}>
-            <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.15)', marginBottom: 8 }}>Analyse en cours...</div>
-            <div data-testid="skip-briefing" onClick={goToDashboard} style={{ fontSize: 12, fontWeight: 600, color: 'rgba(255,255,255,0.3)', cursor: 'pointer', padding: 6 } as any}>Passer</div>
+            <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.15)', marginBottom: 8 }}>{phase === 'loading' ? 'Chargement...' : 'Analyse en cours...'}</div>
+            <div data-testid="skip-briefing" onClick={goToDashboard} style={{ fontSize: 12, fontWeight: 600, color: 'rgba(255,255,255,0.25)', cursor: 'pointer', padding: 6 } as any}>Passer</div>
           </div>
         )}
       </div>
-
-      <style dangerouslySetInnerHTML={{ __html: '@keyframes slideUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}@keyframes fadeIn{from{opacity:0}to{opacity:1}}' }} />
     </div>
   );
 }
