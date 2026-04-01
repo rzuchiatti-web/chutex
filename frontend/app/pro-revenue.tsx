@@ -182,9 +182,28 @@ export default function ProRevenuePage() {
                     </div>
                   ))}
 
-                  <div style={{ marginTop: 16, padding: '14px 16px', borderRadius: 14, background: '#F4F4F5', display: 'flex', alignItems: 'center', gap: 10 } as any}>
-                    <i className="ri-information-line" style={{ fontSize: 16, color: '#3B82F6', flexShrink: 0 }} />
-                    <span style={{ fontSize: 11, color: '#6B7280', lineHeight: 1.5 }}>Tarif: 45 € HT / beneficiaire / mois. Les virements sont effectues mensuellement sur votre compte bancaire.</span>
+                  {/* Commission info - dynamic based on user type */}
+                  <div style={{ marginTop: 16, borderRadius: 14, background: '#F4F4F5', padding: '14px 16px' } as any}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 } as any}>
+                      <i className="ri-information-line" style={{ fontSize: 16, color: '#3B82F6', flexShrink: 0 }} />
+                      <span style={{ fontSize: 12, fontWeight: 700, color: '#111' }}>Grille tarifaire</span>
+                    </div>
+                    {[
+                      { label: 'Teleassistance (Bracelet)', sub: '50 € souscription + 5 €/mois', icon: 'ri-shield-check-line', color: '#10B981' },
+                      { label: 'Bracelet + Gilet', sub: '100 € souscription + 10 €/mois', icon: 'ri-shirt-line', color: '#3B82F6' },
+                      { label: 'Abonnement Standard', sub: '50 € souscription', icon: 'ri-star-line', color: '#F59E0B' },
+                    ].map((tier, ti) => (
+                      <div key={ti} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '8px 0', borderTop: ti > 0 ? '1px solid #E5E7EB' : 'none' } as any}>
+                        <div style={{ width: 28, height: 28, borderRadius: 8, background: `${tier.color}10`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}>
+                          <i className={tier.icon} style={{ fontSize: 13, color: tier.color }} />
+                        </div>
+                        <div style={{ flex: 1 } as any}>
+                          <div style={{ fontSize: 11, fontWeight: 700, color: '#111' }}>{tier.label}</div>
+                          <div style={{ fontSize: 10, color: '#6B7280' }}>{tier.sub}</div>
+                        </div>
+                      </div>
+                    ))}
+                    <div style={{ fontSize: 10, color: '#9CA3AF', marginTop: 8, lineHeight: 1.5 }}>Montants HT. Les virements sont effectues mensuellement sur votre compte bancaire.</div>
                   </div>
                 </>
               )}

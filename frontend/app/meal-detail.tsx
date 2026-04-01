@@ -31,6 +31,8 @@ function stepIcon(text: string): { icon: string; color: string } {
   return { icon: 'ri-knife-line', color: '#9CA3AF' };
 }
 
+const INP_STYLE: any = { width: '100%', padding: '12px 14px', borderRadius: 12, background: '#F4F4F5', border: '1px solid #E5E7EB', color: '#111', fontSize: 13, outline: 'none', fontFamily: 'inherit', boxSizing: 'border-box' };
+
 export default function MealDetailPage() {
   const { token } = useAuth();
   const router = useRouter();
@@ -40,12 +42,22 @@ export default function MealDetailPage() {
   const [m, setM] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [done, setDone] = useState(false);
+  const [painLevel, setPainLevel] = useState(0);
+  const [notes, setNotes] = useState('');
+  const [completing, setCompleting] = useState(false);
+  const [completed, setCompleted] = useState(false);
 
   useEffect(() => {
     if (!token) return;
     if (mode === 'assigned' && assignmentId) {
       apiFetch(`/api/pro/assigned-meal-detail/${assignmentId}`, {}, token)
-        .then(d => { if (d) setM(d); }).catch(() => {}).finally(() => setLoading(false));
+        .then(d => {
+          if (d) {
+            setM(d);
+            const today = new Date().toISOString().split('T')[0];
+            if (d.completions?.some((c: any) => c.date?.startsWith(today) && c.status === 'done')) setCompleted(true);
+          }
+        }).catch(() => {}).finally(() => setLoading(false));
     } else if (mode === 'template' && id) {
       apiFetch(`/api/pro/meal-template-detail/${id}`, {}, token)
         .then(d => { if (d) setM(d); }).catch(() => {}).finally(() => setLoading(false));
@@ -57,6 +69,14 @@ export default function MealDetailPage() {
   }, [token, idx, id, mode, assignmentId]);
 
   const toggle = async () => { setDone(!done); try { await apiFetch('/api/minceur/track', { method: 'POST', body: JSON.stringify({ type: 'meal', index: idx }) }, token); } catch { setDone(done); } };
+
+  const handleComplete = async (status: string) => {
+    if (completing) return; setCompleting(true);
+    try {
+      await apiFetch(`/api/pro/meals/${assignmentId}/complete`, { method: 'POST', body: JSON.stringify({ status, pain_level: painLevel || null, patient_notes: notes }) }, token);
+      if (status === 'done') setCompleted(true);
+    } catch {} finally { setCompleting(false); }
+  };
 
   if (Platform.OS !== 'web') return null;
 
@@ -180,12 +200,70 @@ export default function MealDetailPage() {
                   ))}
                 </>
               )}
+
+              {/* Validation section for assigned meals (pain + notes) */}
+              {mode === 'assigned' && assignmentId && (
+                <div style={{ borderRadius: 16, background: completed ? 'rgba(16,185,129,0.06)' : '#F4F4F5', border: completed ? '1px solid rgba(16,185,129,0.2)' : '1px solid transparent', padding: 16, marginTop: 14, marginBottom: 14 } as any}>
+                  {completed ? (
+                    (() => {
+                      const today = new Date().toISOString().split('T')[0];
+                      const lastComp = (m.completions || []).filter((c: any) => c.date?.startsWith(today) && c.status === 'done').slice(-1)[0];
+                      return (
+                        <div data-testid="meal-completed" style={{ padding: '12px 0' } as any}>
+                          <div style={{ textAlign: 'center', marginBottom: lastComp?.pain_level || lastComp?.patient_notes ? 14 : 0 } as any}>
+                            <i className="ri-checkbox-circle-fill" style={{ fontSize: 36, color: '#10B981', display: 'block', marginBottom: 8 }} />
+                            <div style={{ fontSize: 16, fontWeight: 800, color: '#10B981' }}>Repas valide !</div>
+                          </div>
+                          {lastComp?.pain_level > 0 && (
+                            <div style={{ marginBottom: 10 } as any}>
+                              <div style={{ fontSize: 11, color: '#6B7280', marginBottom: 6, fontWeight: 600 }}>Niveau de douleur</div>
+                              <div style={{ display: 'flex', gap: 4 } as any}>
+                                {[1,2,3,4,5,6,7,8,9,10].map(n => (
+                                  <div key={n} style={{ flex: 1, height: 28, borderRadius: 6, background: n <= lastComp.pain_level ? (n <= 3 ? '#10B981' : n <= 6 ? '#F59E0B' : '#EF4444') : '#E5E7EB', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 10, fontWeight: 700, color: n <= lastComp.pain_level ? '#FFF' : '#9CA3AF' } as any}>{n}</div>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+                          {lastComp?.patient_notes && (
+                            <div style={{ padding: '10px 14px', borderRadius: 12, background: '#F4F4F5', marginTop: 8 } as any}>
+                              <div style={{ fontSize: 11, color: '#6B7280', marginBottom: 4, fontWeight: 600 }}>Note du patient</div>
+                              <div style={{ fontSize: 13, color: '#111', lineHeight: 1.6 }}>"{lastComp.patient_notes}"</div>
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })()
+                  ) : (
+                    <>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 14 } as any}>
+                        <i className="ri-checkbox-circle-line" style={{ fontSize: 14, color: '#10B981' }} />
+                        <span style={{ fontSize: 11, fontWeight: 700, color: '#6B7280', textTransform: 'uppercase', letterSpacing: 0.5 }}>Validation</span>
+                      </div>
+                      <div style={{ marginBottom: 12 }}>
+                        <div style={{ fontSize: 11, color: '#6B7280', marginBottom: 6, fontWeight: 600 }}>Niveau de douleur / inconfort</div>
+                        <div data-testid="meal-pain-scale" style={{ display: 'flex', gap: 4 } as any}>
+                          {[1,2,3,4,5,6,7,8,9,10].map(n => (
+                            <div key={n} onClick={() => setPainLevel(n)} style={{ flex: 1, height: 28, borderRadius: 6, background: n <= painLevel ? (n <= 3 ? '#10B981' : n <= 6 ? '#F59E0B' : '#EF4444') : '#E5E7EB', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 10, fontWeight: 700, color: n <= painLevel ? '#FFF' : '#9CA3AF', transition: 'all 0.15s' } as any}>{n}</div>
+                          ))}
+                        </div>
+                      </div>
+                      <div style={{ marginBottom: 14 }}>
+                        <div style={{ fontSize: 11, color: '#6B7280', marginBottom: 6, fontWeight: 600 }}>Notes</div>
+                        <input data-testid="meal-notes-input" value={notes} onChange={(e: any) => setNotes(e.target.value)} placeholder="Comment ca s'est passe ?" style={INP_STYLE} />
+                      </div>
+                      <div style={{ display: 'flex', gap: 8 } as any}>
+                        <div data-testid="validate-meal-btn" onClick={() => handleComplete('done')} style={{ flex: 1, padding: '14px', borderRadius: 999, background: '#111', textAlign: 'center', cursor: 'pointer', fontSize: 14, fontWeight: 800, color: '#FFF', opacity: completing ? 0.5 : 1 } as any}>{completing ? 'Validation...' : 'Valider ce repas'}</div>
+                      </div>
+                    </>
+                  )}
+                </div>
+              )}
             </>
           )}
         </div>
       </div>
 
-      {/* Fixed green validate button at bottom */}
+      {/* Fixed green validate button at bottom — only for minceur mode (not assigned) */}
       {!loading && m && !mode && (
         <div data-testid="track-meal-btn" onClick={toggle} style={{
           position: 'sticky', bottom: 0, left: 0, right: 0, padding: '12px 16px 28px',

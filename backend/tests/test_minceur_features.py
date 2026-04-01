@@ -6,7 +6,7 @@ import pytest
 import requests
 import os
 
-BASE_URL = os.environ.get('REACT_APP_BACKEND_URL', 'https://health-graphs-mvp.preview.emergentagent.com').rstrip('/')
+BASE_URL = os.environ.get('REACT_APP_BACKEND_URL', 'https://pro-commission-tiers.preview.emergentagent.com').rstrip('/')
 
 # Test credentials
 TEST_EMAIL = "0651245918"

@@ -108,6 +108,8 @@ export default function ActivityDetailPage() {
   const [explainMetric, setExplainMetric] = useState<string | null>(null);
   const [hasProPrograms, setHasProPrograms] = useState(false);
   const [proExercises, setProExercises] = useState<any[]>([]);
+  const [proMeals, setProMeals] = useState<any[]>([]);
+  const [proReminders, setProReminders] = useState<any[]>([]);
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [avgs, setAvgs] = useState<Record<string, any>>({});
 
@@ -121,11 +123,15 @@ export default function ActivityDetailPage() {
       apiFetch('/api/pro/has-active-programs', {}, token).catch(() => ({ has_programs: false })),
       apiFetch(`/api/minceur/today-tracking?date=${dateStr}`, {}, token).catch(() => ({})),
       apiFetch(`/api/pro/beneficiary-today-exercises?date=${dateStr}`, {}, token).catch(() => []),
-    ]).then(([st, proCheck, trk, proEx]) => {
+      apiFetch(`/api/pro/beneficiary-today-meals?date=${dateStr}`, {}, token).catch(() => []),
+      apiFetch(`/api/pro/beneficiary-today-reminders?date=${dateStr}`, {}, token).catch(() => []),
+    ]).then(([st, proCheck, trk, proEx, proMe, proRem]) => {
       setStreak(st);
       const hasPro = proCheck?.has_programs || false;
       setHasProPrograms(hasPro);
       setProExercises(Array.isArray(proEx) ? proEx : []);
+      setProMeals(Array.isArray(proMe) ? proMe : []);
+      setProReminders(Array.isArray(proRem) ? proRem : []);
       if (trk?.completed) setTracked(trk.completed);
       else setTracked({});
       if (!hasPro) {
@@ -350,6 +356,79 @@ export default function ActivityDetailPage() {
                         <div data-testid={`track-ex-${i}`} onClick={(e) => { e.stopPropagation(); toggleTrack(i); }} style={{ width: 40, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', flexShrink: 0 } as any}>
                           <i className="ri-check-line" style={{ fontSize: 16, color: dn ? G : '#D1D5DB' }} />
                         </div>
+                      </div>
+                    );
+                  })}
+                </>
+              )}
+
+              {/* ── REPAS DU JOUR (Coach) ── */}
+              {proMeals.length > 0 && (
+                <>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10, marginTop: 14 } as any}>
+                    <i className="ri-restaurant-line" style={{ fontSize: 14, color: G }} />
+                    <span style={{ fontSize: 13, fontWeight: 800, color: '#111' }}>Repas du jour</span>
+                    <span style={{ fontSize: 10, fontWeight: 700, color: '#9CA3AF', background: '#E5E7EB', padding: '2px 8px', borderRadius: 999 }}>{proMeals.length}</span>
+                  </div>
+                  {proMeals.map((meal: any, i: number) => {
+                    const mealImg = meal.image ? (meal.image.startsWith('http') ? meal.image : `${API_URL}${meal.image}`) : '';
+                    const MEAL_COLORS_MAP: Record<string, string> = { petit_dejeuner: '#F59E0B', dejeuner: '#10B981', collation: '#A78BFA', gouter: '#A78BFA', diner: '#60A5FA' };
+                    const MEAL_LABELS_MAP: Record<string, string> = { petit_dejeuner: 'Petit-dej', dejeuner: 'Dejeuner', collation: 'Collation', gouter: 'Gouter', diner: 'Diner' };
+                    const mt = meal.meal_type || 'dejeuner';
+                    const mCol = MEAL_COLORS_MAP[mt] || '#10B981';
+                    return (
+                      <div key={meal.id || i} data-testid={`pro-meal-${i}`}
+                        onClick={() => router.push({ pathname: '/meal-detail' as any, params: { mode: 'assigned', assignmentId: meal.id } })}
+                        style={{ borderRadius: 14, background: meal.completed_today ? `${G}08` : '#F4F4F5', overflow: 'hidden', cursor: 'pointer', display: 'flex', minHeight: 70, marginBottom: 8 } as any}>
+                        {mealImg && (
+                          <div style={{ width: 80, flexShrink: 0, position: 'relative', overflow: 'hidden' } as any}>
+                            <img src={mealImg} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' } as any} />
+                          </div>
+                        )}
+                        <div style={{ flex: 1, minWidth: 0, padding: '10px 12px', display: 'flex', flexDirection: 'column', justifyContent: 'center' } as any}>
+                          <span style={{ fontSize: 8, fontWeight: 700, color: mCol, textTransform: 'uppercase', letterSpacing: 0.6 }}>{MEAL_LABELS_MAP[mt] || mt}{meal.calories ? ` · ${meal.calories} kcal` : ''}</span>
+                          <div style={{ fontSize: 14, fontWeight: 800, color: '#111', textDecoration: meal.completed_today ? 'line-through' : 'none', marginTop: 2 }}>{meal.title}</div>
+                          <span style={{ fontSize: 9, color: mCol, fontWeight: 700, marginTop: 3 }}>Voir le detail <i className="ri-arrow-right-s-line" style={{ fontSize: 8 }} /></span>
+                        </div>
+                        {meal.completed_today && <div style={{ width: 40, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}><i className="ri-checkbox-circle-fill" style={{ fontSize: 18, color: G }} /></div>}
+                      </div>
+                    );
+                  })}
+                </>
+              )}
+
+              {/* ── COMPLEMENTS & HYDRATATION DU JOUR ── */}
+              {proReminders.length > 0 && (
+                <>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10, marginTop: 14 } as any}>
+                    <i className="ri-capsule-line" style={{ fontSize: 14, color: A }} />
+                    <span style={{ fontSize: 13, fontWeight: 800, color: '#111' }}>Complements & Hydratation</span>
+                    <span style={{ fontSize: 10, fontWeight: 700, color: '#9CA3AF', background: '#E5E7EB', padding: '2px 8px', borderRadius: 999 }}>{proReminders.length}</span>
+                  </div>
+                  {proReminders.map((rem: any, i: number) => {
+                    const isHydra = rem.reminder_type === 'hydration';
+                    const rCol = isHydra ? '#38BDF8' : '#F59E0B';
+                    const rIcon = isHydra ? 'ri-drop-fill' : 'ri-capsule-fill';
+                    const remImg = rem.image ? (rem.image.startsWith('http') ? rem.image : `${API_URL}${rem.image}`) : '';
+                    return (
+                      <div key={rem.id || i} data-testid={`pro-reminder-${i}`}
+                        onClick={() => router.push({ pathname: '/reminder-detail' as any, params: { id: rem.id, mode: 'assigned' } })}
+                        style={{ borderRadius: 14, background: rem.completed_today ? `${G}08` : '#F4F4F5', overflow: 'hidden', cursor: 'pointer', display: 'flex', minHeight: 70, marginBottom: 8 } as any}>
+                        {remImg ? (
+                          <div style={{ width: 80, flexShrink: 0, position: 'relative', overflow: 'hidden' } as any}>
+                            <img src={remImg} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' } as any} />
+                          </div>
+                        ) : (
+                          <div style={{ width: 64, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', background: `${rCol}10` } as any}>
+                            <i className={rIcon} style={{ fontSize: 22, color: rCol }} />
+                          </div>
+                        )}
+                        <div style={{ flex: 1, minWidth: 0, padding: '10px 12px', display: 'flex', flexDirection: 'column', justifyContent: 'center' } as any}>
+                          <span style={{ fontSize: 8, fontWeight: 700, color: rCol, textTransform: 'uppercase', letterSpacing: 0.6 }}>{isHydra ? 'Hydratation' : 'Complement'}{rem.dosage ? ` · ${rem.dosage}` : ''}{rem.time ? ` · ${rem.time}` : ''}</span>
+                          <div style={{ fontSize: 14, fontWeight: 800, color: '#111', textDecoration: rem.completed_today ? 'line-through' : 'none', marginTop: 2 }}>{rem.title}</div>
+                          <span style={{ fontSize: 9, color: rCol, fontWeight: 700, marginTop: 3 }}>Voir le detail <i className="ri-arrow-right-s-line" style={{ fontSize: 8 }} /></span>
+                        </div>
+                        {rem.completed_today && <div style={{ width: 40, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}><i className="ri-checkbox-circle-fill" style={{ fontSize: 18, color: G }} /></div>}
                       </div>
                     );
                   })}

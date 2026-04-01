@@ -1014,29 +1014,138 @@ async def delete_assigned_meal(assignment_id: str, user=Depends(get_current_user
     return {"status": "deleted"}
 
 
+# ── Completion endpoints for meals & reminders (pain + notes) ──
+
+@router.post("/pro/meals/{assignment_id}/complete")
+async def complete_meal(assignment_id: str, data: SessionCompletion, user=Depends(get_current_user)):
+    """Beneficiary validates a meal with optional pain_level and notes"""
+    completion = {
+        "date": datetime.now(timezone.utc).isoformat(),
+        "status": data.status,
+        "pain_level": data.pain_level,
+        "patient_notes": data.patient_notes,
+        "completed_by": user['id'],
+    }
+    meal = await db.pro_assigned_meals.find_one({"id": assignment_id}, {"_id": 0})
+    if not meal:
+        raise HTTPException(status_code=404, detail="Repas non trouve")
+    await db.pro_assigned_meals.update_one(
+        {"id": assignment_id},
+        {"$push": {"completions": completion}}
+    )
+    status_label = {"done": "termine", "partial": "partiellement fait", "skipped": "passe"}.get(data.status, data.status)
+    await db.pro_notifications.insert_one({
+        "id": str(uuid.uuid4()),
+        "professional_id": meal.get("professional_id"),
+        "beneficiary_id": user['id'],
+        "beneficiary_name": user.get('name', ''),
+        "type": "meal_completion",
+        "exercise_title": meal.get("title", ""),
+        "status": data.status,
+        "message": f"{user.get('name', 'Un beneficiaire')} a {status_label} le repas \"{meal.get('title', '')}\"",
+        "read": False,
+        "created_at": datetime.now(timezone.utc).isoformat(),
+    })
+    return {"status": "ok", "completion": completion}
+
+
+@router.post("/pro/reminders/{assignment_id}/complete")
+async def complete_reminder(assignment_id: str, data: SessionCompletion, user=Depends(get_current_user)):
+    """Beneficiary validates a supplement/hydration reminder with optional pain_level and notes"""
+    completion = {
+        "date": datetime.now(timezone.utc).isoformat(),
+        "status": data.status,
+        "pain_level": data.pain_level,
+        "patient_notes": data.patient_notes,
+        "completed_by": user['id'],
+    }
+    rem = await db.pro_assigned_reminders.find_one({"id": assignment_id}, {"_id": 0})
+    if not rem:
+        raise HTTPException(status_code=404, detail="Rappel non trouve")
+    await db.pro_assigned_reminders.update_one(
+        {"id": assignment_id},
+        {"$push": {"completions": completion}}
+    )
+    rtype = "l'hydratation" if rem.get("reminder_type") == "hydration" else "le complement"
+    status_label = {"done": "termine", "partial": "partiellement fait", "skipped": "passe"}.get(data.status, data.status)
+    await db.pro_notifications.insert_one({
+        "id": str(uuid.uuid4()),
+        "professional_id": rem.get("professional_id"),
+        "beneficiary_id": user['id'],
+        "beneficiary_name": user.get('name', ''),
+        "type": "reminder_completion",
+        "exercise_title": rem.get("title", ""),
+        "status": data.status,
+        "message": f"{user.get('name', 'Un beneficiaire')} a {status_label} {rtype} \"{rem.get('title', '')}\"",
+        "read": False,
+        "created_at": datetime.now(timezone.utc).isoformat(),
+    })
+    return {"status": "ok", "completion": completion}
+
+
+@router.get("/pro/assigned-reminder-detail/{assignment_id}")
+async def get_assigned_reminder_detail(assignment_id: str, user=Depends(get_current_user)):
+    """Get a single assigned reminder by its ID, merged with latest template data"""
+    rem = await db.pro_assigned_reminders.find_one({"id": assignment_id}, {"_id": 0})
+    if not rem:
+        raise HTTPException(status_code=404, detail="Rappel assigne non trouve")
+    tpl_id = rem.get("reminder_template_id")
+    if tpl_id:
+        tpl = await db.pro_reminder_templates.find_one({"id": tpl_id}, {"_id": 0})
+        if tpl:
+            for k in ["image", "description", "benefits", "ingredients", "volume_ml", "category"]:
+                if tpl.get(k):
+                    rem[k] = tpl[k]
+    return rem
+
+
 # ── Beneficiary today's reminders & meals ──
 
 @router.get("/pro/beneficiary-today-reminders")
-async def beneficiary_today_reminders(user=Depends(get_current_user)):
-    """Beneficiary gets reminders assigned for today"""
+async def beneficiary_today_reminders(date: str = None, user=Depends(get_current_user)):
+    """Beneficiary gets reminders assigned for today (or specific date)"""
     DAYS_FR_LOCAL = ["lundi","mardi","mercredi","jeudi","vendredi","samedi","dimanche"]
-    today_idx = datetime.now(timezone.utc).weekday()
+    if date:
+        try:
+            target = datetime.strptime(date, '%Y-%m-%d')
+        except ValueError:
+            target = datetime.now(timezone.utc)
+    else:
+        target = datetime.now(timezone.utc)
+    today_idx = target.weekday()
     today_fr = DAYS_FR_LOCAL[today_idx]
+    target_str = target.strftime('%Y-%m-%d')
     rems = await db.pro_assigned_reminders.find(
         {"beneficiary_id": user['id'], "status": "active"}, {"_id": 0}
     ).to_list(100)
-    return [r for r in rems if today_fr in r.get("days", [])]
+    today_rems = [r for r in rems if today_fr in r.get("days", [])]
+    for r in today_rems:
+        comps = r.get('completions', [])
+        r['completed_today'] = any(c.get('date', '').startswith(target_str) and c.get('status') == 'done' for c in comps)
+    return today_rems
 
 @router.get("/pro/beneficiary-today-meals")
-async def beneficiary_today_meals(user=Depends(get_current_user)):
-    """Beneficiary gets meals assigned for today"""
+async def beneficiary_today_meals(date: str = None, user=Depends(get_current_user)):
+    """Beneficiary gets meals assigned for today (or specific date)"""
     DAYS_FR_LOCAL = ["lundi","mardi","mercredi","jeudi","vendredi","samedi","dimanche"]
-    today_idx = datetime.now(timezone.utc).weekday()
+    if date:
+        try:
+            target = datetime.strptime(date, '%Y-%m-%d')
+        except ValueError:
+            target = datetime.now(timezone.utc)
+    else:
+        target = datetime.now(timezone.utc)
+    today_idx = target.weekday()
     today_fr = DAYS_FR_LOCAL[today_idx]
+    target_str = target.strftime('%Y-%m-%d')
     meals = await db.pro_assigned_meals.find(
         {"beneficiary_id": user['id'], "status": "active"}, {"_id": 0}
     ).to_list(100)
-    return [m for m in meals if today_fr in m.get("days", [])]
+    today_meals = [m for m in meals if today_fr in m.get("days", [])]
+    for m in today_meals:
+        comps = m.get('completions', [])
+        m['completed_today'] = any(c.get('date', '').startswith(target_str) and c.get('status') == 'done' for c in comps)
+    return today_meals
 
 
 # ── Seed default templates ──
