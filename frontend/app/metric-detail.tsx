@@ -323,18 +323,30 @@ export default function MetricDetailScreen() {
 
   const renderSparkline = () => {
     if (sliced.length < 2) return null;
-    const sW = 400, sH = 50;
-    const sPts = sliced.map((h: any, i: number) => ({ x: (i / Math.max(sliced.length - 1, 1)) * sW, y: 4 + (sH - 8) - ((h.value - mn) / (rg || 1)) * (sH - 8) }));
+    const sW = 400, sH = 80, padY = 12;
+    const sPts = sliced.map((h: any, i: number) => ({ x: (i / Math.max(sliced.length - 1, 1)) * sW, y: padY + (sH - padY * 2) - ((h.value - mn) / (rg || 1)) * (sH - padY * 2), value: h.value, date: h.label || h.date }));
+    const first = sliced[0], last = sliced[sliced.length - 1];
+    const diff = last.value - first.value;
     return (
       <div style={{ padding: '14px 16px', borderRadius: 18, background: '#F4F4F5', marginBottom: 14 } as any}>
-        <div style={{ fontSize: 12, fontWeight: 700, color: '#9CA3AF', marginBottom: 10 }}>Evolution recente</div>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 } as any}>
+          <div style={{ fontSize: 12, fontWeight: 700, color: '#9CA3AF' }}>Evolution sur {sliced.length} mesures</div>
+          <div style={{ fontSize: 13, fontWeight: 800, color: diff <= 0 ? '#10B981' : '#F59E0B' }}>{diff > 0 ? '+' : ''}{typeof diff === 'number' ? diff.toFixed(1) : diff} {m.unit}</div>
+        </div>
         <svg width="100%" viewBox={`0 0 ${sW} ${sH}`} preserveAspectRatio="none" style={{ display: 'block' }}>
           <defs><linearGradient id="spark-fill" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor={color} stopOpacity="0.12" /><stop offset="100%" stopColor={color} stopOpacity="0" /></linearGradient></defs>
           <path d={`${smooth(sPts)}L${sPts[sPts.length - 1].x},${sH}L${sPts[0].x},${sH}Z`} fill="url(#spark-fill)" />
-          <path d={smooth(sPts)} fill="none" stroke={color} strokeWidth={2} />
-          <circle cx={sPts[sPts.length - 1].x} cy={sPts[sPts.length - 1].y} r={4} fill={color} />
+          <path d={smooth(sPts)} fill="none" stroke={color} strokeWidth={2.5} />
+          {sPts.map((p: any, i: number) => <circle key={i} cx={p.x} cy={p.y} r={i === sPts.length - 1 ? 5 : 3} fill={i === sPts.length - 1 ? color : '#FFF'} stroke={color} strokeWidth={1.5} />)}
         </svg>
-        {stats.trend != null && <div style={{ fontSize: 12, fontWeight: 700, color: stats.trend <= 0 ? '#10B981' : '#F59E0B', marginTop: 8 }}>Tendance : {stats.trend > 0 ? '+' : ''}{stats.trend} sur la periode</div>}
+        <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 6 } as any}>
+          <div style={{ fontSize: 10, color: '#9CA3AF' }}>{first.label || first.date}</div>
+          <div style={{ fontSize: 10, color: '#9CA3AF' }}>{last.label || last.date}</div>
+        </div>
+        <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 2 } as any}>
+          <div style={{ fontSize: 12, fontWeight: 800, color: '#111' }}>{typeof first.value === 'number' ? first.value.toFixed(1) : first.value}</div>
+          <div style={{ fontSize: 12, fontWeight: 800, color: color }}>{typeof last.value === 'number' ? last.value.toFixed(1) : last.value}</div>
+        </div>
       </div>
     );
   };
@@ -358,7 +370,7 @@ export default function MetricDetailScreen() {
             <div data-testid="back-btn" onClick={() => {
               if (isReadonly && beneficiaryId) router.push({ pathname: '/health-readonly' as any, params: { beneficiaryId } });
               else router.push('/(tabs)/health' as any);
-            }} style={{ width: 44, height: 44, borderRadius: 14, background: 'rgba(255,255,255,0.12)', border: '1px solid rgba(255,255,255,0.15)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}>
+            }} style={{ width: 44, height: 44, borderRadius: 999, background: 'rgba(255,255,255,0.12)', border: '1px solid rgba(255,255,255,0.15)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}>
               <i className="ri-arrow-left-line" style={{ fontSize: 18, color: '#FFF' }} />
             </div>
             <div style={{ textAlign: 'center', marginTop: 8 } as any}>
