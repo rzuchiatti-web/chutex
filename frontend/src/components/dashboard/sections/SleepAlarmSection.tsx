@@ -55,7 +55,7 @@ export function SleepAlarmSection({ sleepAlarm, alarmTime, setAlarmTime, editing
 
       {/* ── GLASS POPUP (same style as notification center) ── */}
       {editingAlarm && (
-        <div data-testid="sleep-popup" onClick={() => setEditingAlarm(false)} style={{ position: 'fixed', inset: 0, zIndex: 99990, backdropFilter: 'blur(32px)', WebkitBackdropFilter: 'blur(32px)', background: 'rgba(0,0,0,0.55)', overflowY: 'auto' } as any}>
+        <div data-testid="sleep-popup" onClick={() => setEditingAlarm(false)} style={{ position: 'fixed', inset: 0, zIndex: 99990, backdropFilter: 'blur(32px)', WebkitBackdropFilter: 'blur(32px)', background: 'rgba(0,0,0,0.78)', overflowY: 'auto' } as any}>
           <div onClick={(e: any) => e.stopPropagation()} style={{ width: '100%', maxWidth: 420, margin: '0 auto', padding: '40px 24px 120px', boxSizing: 'border-box' } as any}>
 
             {/* Close button */}
@@ -97,15 +97,15 @@ export function SleepAlarmSection({ sleepAlarm, alarmTime, setAlarmTime, editing
               <div style={{ fontSize: 9, fontWeight: 700, color: 'rgba(255,255,255,0.2)', textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 12 }}>Facteurs d'analyse</div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 6 } as any}>
                 {factors.map((f, i) => (
-                  <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 14px', borderRadius: 14, background: f.active ? 'rgba(255,255,255,0.04)' : 'transparent', border: `1px solid ${f.active ? `${f.color}25` : 'rgba(255,255,255,0.05)'}` } as any}>
-                    <div style={{ width: 32, height: 32, borderRadius: 10, background: `${f.color}${f.active ? '12' : '06'}`, border: `1px solid ${f.color}${f.active ? '20' : '08'}`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}>
-                      <i className={f.icon} style={{ fontSize: 15, color: f.active ? f.color : 'rgba(255,255,255,0.15)' }} />
+                  <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 14px', borderRadius: 14, background: 'rgba(255,255,255,0.06)', border: `1px solid ${f.color}25` } as any}>
+                    <div style={{ width: 32, height: 32, borderRadius: 10, background: `${f.color}15`, border: `1px solid ${f.color}25`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}>
+                      <i className={f.icon} style={{ fontSize: 15, color: f.color }} />
                     </div>
                     <div style={{ flex: 1 } as any}>
-                      <div style={{ fontSize: 13, fontWeight: 700, color: f.active ? '#FFF' : 'rgba(255,255,255,0.25)' }}>{f.label}</div>
-                      <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.2)', marginTop: 1 }}>{f.desc}</div>
+                      <div style={{ fontSize: 13, fontWeight: 700, color: '#FFF' }}>{f.label}</div>
+                      <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.35)', marginTop: 1 }}>{f.desc}</div>
                     </div>
-                    {f.active && <div style={{ width: 8, height: 8, borderRadius: 4, background: f.color, flexShrink: 0 } as any} />}
+                    {f.active && <div style={{ width: 8, height: 8, borderRadius: 4, background: f.color, flexShrink: 0, boxShadow: `0 0 6px ${f.color}60` } as any} />}
                   </div>
                 ))}
               </div>
