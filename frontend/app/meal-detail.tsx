@@ -105,7 +105,7 @@ export default function MealDetailPage() {
             </div>
 
             {!loading && m && (
-              <div>
+              <div style={{ textAlign: 'center' }}>
                 <div style={{ fontSize: 11, fontWeight: 700, color: col, textTransform: 'uppercase', letterSpacing: 1, marginBottom: 4 }}>{label}</div>
                 <div style={{ fontSize: 24, fontWeight: 900, color: '#FFF', textTransform: 'capitalize', textShadow: '0 2px 8px rgba(0,0,0,0.3)' }}>{m.title || m.name}</div>
               </div>
@@ -199,8 +199,10 @@ export default function MealDetailPage() {
                 </>
               )}
 
-              {/* Validation section for assigned meals (pain + notes) */}
+              {/* Validation section for assigned meals (pain + notes) — pushed to bottom */}
               {mode === 'assigned' && assignmentId && (
+                <>
+                <div style={{ flex: 1, minHeight: 40 } as any} />
                 <div style={{ borderRadius: 16, background: completed ? 'rgba(16,185,129,0.06)' : '#F4F4F5', border: completed ? '1px solid rgba(16,185,129,0.2)' : '1px solid transparent', padding: 16, marginTop: 14, marginBottom: 14 } as any}>
                   {completed ? (
                     (() => {
@@ -255,6 +257,7 @@ export default function MealDetailPage() {
                     </>
                   )}
                 </div>
+                </>
               )}
             </>
           )}
