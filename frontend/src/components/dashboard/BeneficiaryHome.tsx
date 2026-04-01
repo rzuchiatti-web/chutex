@@ -699,8 +699,31 @@ export function BeneficiaryHome({ token, user }: { token: string; user: any }) {
                   </div>
                 </div>
                 <div style={{ fontSize: 13, color: C.sub, marginBottom: 16, lineHeight: '1.45' } as any}>Vos appareils connectes pour le suivi de votre sante au quotidien.</div>
-                <div style={{ borderRadius: 18, background: C.card, padding: 14 } as any}>
-                  <DeviceCards br={br} sc={sc} vs={vs} weighings={weighings} onStartWeighing={() => setShowWeighing(true)} onRefresh={fetchData} subscription={subscription} />
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 10 } as any}>
+                  {[
+                    { show: br.connected || br.paired, name: 'Bracelet Elio', img: 'https://customer-assets.emergentagent.com/job_8afdc991-0ab2-4687-a2a5-438b9a5f0711/artifacts/2fto1qw7_bracelet_sante_connecte_elio_chutex_care_teleassistance_telealarme%281%29.svg', battery: br.battery, connected: br.connected, color: '#22D3EE' },
+                    { show: (sc.connected || sc.paired) && weighings.length > 0, name: 'Balance Vita', img: 'https://customer-assets.emergentagent.com/job_8afdc991-0ab2-4687-a2a5-438b9a5f0711/artifacts/dwmw2i8r_Balance_connecte_Vita_chutex.svg', battery: sc.battery, connected: sc.connected, color: '#A78BFA' },
+                    { show: vs.connected || vs.paired, name: 'Elder', img: 'https://customer-assets.emergentagent.com/job_8afdc991-0ab2-4687-a2a5-438b9a5f0711/artifacts/ljh1zzu3_Gilet_Elder_airbag_Chutex.svg', battery: vs.battery, connected: vs.connected, color: '#F59E0B' },
+                  ].filter(d => d.show).map((d, i) => (
+                    <div key={i} data-testid={`device-card-${i}`} onClick={() => router.push('/(tabs)/devices' as any)}
+                      style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '14px 16px', borderRadius: 18, background: C.card, cursor: 'pointer', transition: 'transform 0.15s', ...glass } as any}
+                      onMouseEnter={(e: any) => { e.currentTarget.style.transform = 'translateY(-2px)'; }}
+                      onMouseLeave={(e: any) => { e.currentTarget.style.transform = ''; }}>
+                      <img src={d.img} alt="" style={{ width: 48, height: 48, objectFit: 'contain', flexShrink: 0 } as any} />
+                      <div style={{ flex: 1, minWidth: 0 } as any}>
+                        <div style={{ fontSize: 15, fontWeight: 700, color: C.text, marginBottom: 3 }}>{d.name}</div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 5 } as any}>
+                          <span style={{ width: 6, height: 6, borderRadius: 3, background: d.connected ? '#10B981' : '#F59E0B' } as any} />
+                          <span style={{ fontSize: 10, fontWeight: 600, color: d.connected ? '#10B981' : '#F59E0B' }}>{d.connected ? 'Connecte' : 'En veille'}</span>
+                        </div>
+                        <div style={{ height: 4, borderRadius: 2, background: C.sep, overflow: 'hidden', marginTop: 6 } as any}>
+                          <div style={{ height: 4, borderRadius: 2, width: `${d.battery}%`, background: d.battery > 50 ? 'linear-gradient(90deg, #059669, #10B981)' : d.battery > 25 ? 'linear-gradient(90deg, #D97706, #F59E0B)' : 'linear-gradient(90deg, #DC2626, #EF4444)' } as any} />
+                        </div>
+                      </div>
+                      <div style={{ fontSize: 14, fontWeight: 900, color: d.battery > 50 ? '#10B981' : d.battery > 25 ? '#F59E0B' : '#EF4444', flexShrink: 0 }}>{d.battery}%</div>
+                      <i className="ri-arrow-right-s-line" style={{ fontSize: 20, color: C.arrow }} />
+                    </div>
+                  ))}
                 </div>
               </div>
               <div style={{ height: 1, background: C.sep, margin: "10px 0 24px" } as any} />
@@ -791,11 +814,7 @@ export function BeneficiaryHome({ token, user }: { token: string; user: any }) {
 
           <div style={{ height: 1, background: C.sep, margin: "10px 0 24px" } as any} />
 
-          <DoctorCard onPress={() => {
-            if (typeof window !== 'undefined') {
-              window.open('tel:+33800000000', '_self');
-            }
-          }} />
+          <DoctorCard onPress={() => router.push('/teleconsult-doctor' as any)} />
 
           </div>{/* end gradient content card */}
         </div>{/* end scroll container */}
