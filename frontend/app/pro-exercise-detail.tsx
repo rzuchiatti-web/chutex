@@ -19,6 +19,27 @@ export default function ProExerciseDetailPage() {
   const sessionId = Array.isArray(params.sessionId) ? params.sessionId[0] : params.sessionId;
   const assignmentId = (Array.isArray(params.assignmentId) ? params.assignmentId[0] : params.assignmentId) || exerciseId;
 
+  // Dark mode detection
+  const [isDark, setIsDark] = useState(() => typeof localStorage !== 'undefined' ? localStorage.getItem('chutex_dark') === '1' : false);
+  useEffect(() => {
+    if (typeof localStorage === 'undefined') return;
+    const iv = setInterval(() => { const v = localStorage.getItem('chutex_dark') === '1'; setIsDark(p => p !== v ? v : p); }, 400);
+    return () => clearInterval(iv);
+  }, []);
+
+  // Theme colors
+  const BG = isDark ? '#0A0A0F' : '#F5F5F5';
+  const CARD = isDark ? '#1A1A22' : '#FFF';
+  const CARD2 = isDark ? '#22222A' : '#F4F4F5';
+  const T = isDark ? '#FFF' : '#111';
+  const T2 = isDark ? 'rgba(255,255,255,0.5)' : '#6B7280';
+  const T3 = isDark ? 'rgba(255,255,255,0.3)' : '#9CA3AF';
+  const BORDER = isDark ? 'rgba(255,255,255,0.08)' : '#E5E7EB';
+  const INP_BG = isDark ? 'rgba(255,255,255,0.06)' : '#F4F4F5';
+  const INP_BORDER = isDark ? 'rgba(255,255,255,0.1)' : '#E5E7EB';
+  const BTN_BG = isDark ? '#FFF' : '#111';
+  const BTN_TEXT = isDark ? '#111' : '#FFF';
+
   const [ex, setEx] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [completing, setCompleting] = useState(false);
@@ -164,32 +185,33 @@ export default function ProExerciseDetailPage() {
 
   // ── CREATE-SELF MODE ──
   if (mode === 'create-self') {
+    const cInp: any = { width: '100%', padding: '12px 14px', borderRadius: 12, background: INP_BG, border: `1px solid ${INP_BORDER}`, color: T, fontSize: 14, outline: 'none', fontFamily: 'inherit', boxSizing: 'border-box' };
     return (
-      <div data-testid="create-exercise-page" style={{ position: 'absolute', inset: 0, background: '#FFF', fontFamily: "'Inter', system-ui, sans-serif", overflow: 'hidden', display: 'flex', flexDirection: 'column' } as any}>
+      <div data-testid="create-exercise-page" style={{ position: 'absolute', inset: 0, background: CARD, fontFamily: "'Inter', system-ui, sans-serif", overflow: 'hidden', display: 'flex', flexDirection: 'column' } as any}>
         <div style={{ flex: 1, overflowY: 'auto', WebkitOverflowScrolling: 'touch', padding: '0 16px 120px' } as any}>
           <div style={{ padding: '20px 0 12px', display: 'flex', alignItems: 'center', gap: 12 } as any}>
-            <div data-testid="create-back-btn" onClick={() => router.back()} style={{ width: 40, height: 40, borderRadius: 12, background: '#F4F4F5', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}><i className="ri-arrow-left-line" style={{ fontSize: 18, color: '#111' }} /></div>
-            <div style={{ fontSize: 20, fontWeight: 900, color: '#111' }}>Creer un exercice</div>
+            <div data-testid="create-back-btn" onClick={() => router.back()} style={{ width: 40, height: 40, borderRadius: 999, background: CARD2, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}><i className="ri-arrow-left-line" style={{ fontSize: 18, color: T }} /></div>
+            <div style={{ fontSize: 20, fontWeight: 900, color: T }}>Creer un exercice</div>
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 14, marginTop: 8 } as any}>
-            <div><div style={{ fontSize: 12, fontWeight: 700, color: '#6B7280', marginBottom: 6 }}>Nom de l'exercice *</div><input data-testid="create-title" value={createForm.title} onChange={(e: any) => setCreateForm(p => ({ ...p, title: e.target.value }))} placeholder="Ex: Developpe couche" style={INP} /></div>
-            <div><div style={{ fontSize: 12, fontWeight: 700, color: '#6B7280', marginBottom: 6 }}>Description</div><input value={createForm.description} onChange={(e: any) => setCreateForm(p => ({ ...p, description: e.target.value }))} placeholder="Description de l'exercice" style={INP} /></div>
-            <div><div style={{ fontSize: 12, fontWeight: 700, color: '#6B7280', marginBottom: 6 }}>Groupe musculaire</div><input value={createForm.muscle_group} onChange={(e: any) => setCreateForm(p => ({ ...p, muscle_group: e.target.value }))} placeholder="Ex: Pectoraux, Triceps" style={INP} /></div>
-            <div><div style={{ fontSize: 12, fontWeight: 700, color: '#6B7280', marginBottom: 6 }}>Equipement</div><input value={createForm.equipment} onChange={(e: any) => setCreateForm(p => ({ ...p, equipment: e.target.value }))} placeholder="Ex: Barre, Halteres" style={INP} /></div>
+            <div><div style={{ fontSize: 12, fontWeight: 700, color: T2, marginBottom: 6 }}>Nom de l'exercice *</div><input data-testid="create-title" value={createForm.title} onChange={(e: any) => setCreateForm(p => ({ ...p, title: e.target.value }))} placeholder="Ex: Developpe couche" style={cInp} /></div>
+            <div><div style={{ fontSize: 12, fontWeight: 700, color: T2, marginBottom: 6 }}>Description</div><input value={createForm.description} onChange={(e: any) => setCreateForm(p => ({ ...p, description: e.target.value }))} placeholder="Description de l'exercice" style={cInp} /></div>
+            <div><div style={{ fontSize: 12, fontWeight: 700, color: T2, marginBottom: 6 }}>Groupe musculaire</div><input value={createForm.muscle_group} onChange={(e: any) => setCreateForm(p => ({ ...p, muscle_group: e.target.value }))} placeholder="Ex: Pectoraux, Triceps" style={cInp} /></div>
+            <div><div style={{ fontSize: 12, fontWeight: 700, color: T2, marginBottom: 6 }}>Equipement</div><input value={createForm.equipment} onChange={(e: any) => setCreateForm(p => ({ ...p, equipment: e.target.value }))} placeholder="Ex: Barre, Halteres" style={cInp} /></div>
             <div style={{ display: 'flex', gap: 10 } as any}>
-              <div style={{ flex: 1 }}><div style={{ fontSize: 12, fontWeight: 700, color: '#6B7280', marginBottom: 6 }}>Series</div><input type="number" value={createForm.sets} onChange={(e: any) => setCreateForm(p => ({ ...p, sets: parseInt(e.target.value) || 0 }))} style={INP} /></div>
-              <div style={{ flex: 1 }}><div style={{ fontSize: 12, fontWeight: 700, color: '#6B7280', marginBottom: 6 }}>Reps</div><input type="number" value={createForm.repetitions} onChange={(e: any) => setCreateForm(p => ({ ...p, repetitions: parseInt(e.target.value) || 0 }))} style={INP} /></div>
-              <div style={{ flex: 1 }}><div style={{ fontSize: 12, fontWeight: 700, color: '#6B7280', marginBottom: 6 }}>Repos (s)</div><input type="number" value={createForm.rest_seconds} onChange={(e: any) => setCreateForm(p => ({ ...p, rest_seconds: parseInt(e.target.value) || 0 }))} style={INP} /></div>
+              <div style={{ flex: 1 }}><div style={{ fontSize: 12, fontWeight: 700, color: T2, marginBottom: 6 }}>Series</div><input type="number" value={createForm.sets} onChange={(e: any) => setCreateForm(p => ({ ...p, sets: parseInt(e.target.value) || 0 }))} style={cInp} /></div>
+              <div style={{ flex: 1 }}><div style={{ fontSize: 12, fontWeight: 700, color: T2, marginBottom: 6 }}>Reps</div><input type="number" value={createForm.repetitions} onChange={(e: any) => setCreateForm(p => ({ ...p, repetitions: parseInt(e.target.value) || 0 }))} style={cInp} /></div>
+              <div style={{ flex: 1 }}><div style={{ fontSize: 12, fontWeight: 700, color: T2, marginBottom: 6 }}>Repos (s)</div><input type="number" value={createForm.rest_seconds} onChange={(e: any) => setCreateForm(p => ({ ...p, rest_seconds: parseInt(e.target.value) || 0 }))} style={cInp} /></div>
             </div>
           </div>
-          <div data-testid="create-submit-btn" onClick={handleCreateExercise} style={{ marginTop: 24, padding: '16px', borderRadius: 16, background: '#111', textAlign: 'center', cursor: 'pointer', fontSize: 15, fontWeight: 800, color: '#FFF', opacity: creating ? 0.5 : 1 } as any}>{creating ? 'Creation...' : 'Creer et ajouter'}</div>
+          <div data-testid="create-submit-btn" onClick={handleCreateExercise} style={{ marginTop: 24, padding: '16px', borderRadius: 999, background: BTN_BG, textAlign: 'center', cursor: 'pointer', fontSize: 15, fontWeight: 800, color: BTN_TEXT, opacity: creating ? 0.5 : 1 } as any}>{creating ? 'Creation...' : 'Creer et ajouter'}</div>
         </div>
       </div>
     );
   }
 
   return (
-    <div data-testid="pro-exercise-detail-page" style={{ position: 'absolute', inset: 0, background: '#F5F5F5', fontFamily: "'Inter', system-ui, sans-serif", overflow: 'hidden', display: 'flex', flexDirection: 'column' } as any}>
+    <div data-testid="pro-exercise-detail-page" style={{ position: 'absolute', inset: 0, background: BG, fontFamily: "'Inter', system-ui, sans-serif", overflow: 'hidden', display: 'flex', flexDirection: 'column' } as any}>
       <style dangerouslySetInnerHTML={{ __html: `@keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}@keyframes pulse-ring{0%,100%{box-shadow:0 0 0 0 rgba(16,185,129,0.3)}50%{box-shadow:0 0 0 8px rgba(16,185,129,0)}}` }} />
       <div style={{ flex: 1, overflowY: 'auto', WebkitOverflowScrolling: 'touch' } as any}>
 
@@ -201,7 +223,7 @@ export default function ProExerciseDetailPage() {
           })()}
           <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', background: 'linear-gradient(180deg, rgba(0,0,0,0.3) 0%, rgba(0,0,0,0.65) 100%)' } as any} />
           <div style={{ position: 'relative', zIndex: 2, padding: '24px 16px 28px', maxWidth: 480, margin: '0 auto', width: '100%', boxSizing: 'border-box' } as any}>
-            <div data-testid="pro-exercise-back-btn" onClick={() => router.back()} style={{ width: 38, height: 38, borderRadius: 12, background: 'rgba(255,255,255,0.15)', backdropFilter: 'blur(12px)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', border: '1px solid rgba(255,255,255,0.15)', marginBottom: 12 } as any}>
+            <div data-testid="pro-exercise-back-btn" onClick={() => router.back()} style={{ width: 38, height: 38, borderRadius: 999, background: 'rgba(255,255,255,0.15)', backdropFilter: 'blur(12px)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', border: '1px solid rgba(255,255,255,0.15)', marginBottom: 12 } as any}>
               <i className="ri-arrow-left-line" style={{ fontSize: 16, color: '#FFF' }} />
             </div>
             {!loading && ex && (
@@ -211,22 +233,22 @@ export default function ProExerciseDetailPage() {
         </div>
 
         {/* CONTENT */}
-        <div style={{ padding: '20px 16px 120px', marginTop: -16, borderRadius: '24px 24px 0 0', background: '#FFF', position: 'relative', zIndex: 10, maxWidth: 480, margin: '-16px auto 0', width: '100%', boxSizing: 'border-box' } as any}>
-          {loading && <div style={{ textAlign: 'center', padding: '60px 0', color: '#9CA3AF' }}><i className="ri-loader-4-line" style={{ fontSize: 28, animation: 'spin 0.8s linear infinite', display: 'block', marginBottom: 8 }} />Chargement...</div>}
+        <div style={{ padding: '20px 16px 120px', marginTop: -16, borderRadius: '24px 24px 0 0', background: CARD, position: 'relative', zIndex: 10, maxWidth: 480, margin: '-16px auto 0', width: '100%', boxSizing: 'border-box' } as any}>
+          {loading && <div style={{ textAlign: 'center', padding: '60px 0', color: T3 }}><i className="ri-loader-4-line" style={{ fontSize: 28, animation: 'spin 0.8s linear infinite', display: 'block', marginBottom: 8 }} />Chargement...</div>}
 
           {!loading && ex && (
             <>
               {/* Info tags */}
               {(ex.difficulty || ex.muscle_group || ex.equipment) && (
                 <div data-testid="exercise-info" style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginBottom: 14 } as any}>
-                  {ex.difficulty && <span style={{ padding: '5px 10px', borderRadius: 8, background: `${accent}10`, fontSize: 11, fontWeight: 700, color: accent }}>{DIFF_LABELS[ex.difficulty] || ex.difficulty}</span>}
-                  {ex.muscle_group && <span style={{ padding: '5px 10px', borderRadius: 8, background: '#F4F4F5', fontSize: 11, fontWeight: 700, color: '#6B7280' }}>{ex.muscle_group}</span>}
-                  {ex.equipment && ex.equipment !== 'Aucun' && <span style={{ padding: '5px 10px', borderRadius: 8, background: '#F4F4F5', fontSize: 11, fontWeight: 700, color: '#6B7280' }}>{ex.equipment}</span>}
+                  {ex.difficulty && <span style={{ padding: '5px 10px', borderRadius: 999, background: `${accent}10`, fontSize: 11, fontWeight: 700, color: accent }}>{DIFF_LABELS[ex.difficulty] || ex.difficulty}</span>}
+                  {ex.muscle_group && <span style={{ padding: '5px 10px', borderRadius: 999, background: CARD2, fontSize: 11, fontWeight: 700, color: T2 }}>{ex.muscle_group}</span>}
+                  {ex.equipment && ex.equipment !== 'Aucun' && <span style={{ padding: '5px 10px', borderRadius: 999, background: CARD2, fontSize: 11, fontWeight: 700, color: T2 }}>{ex.equipment}</span>}
                 </div>
               )}
 
               {/* STATS with edit button */}
-              <div data-testid="exercise-stats" style={{ borderRadius: 16, background: '#F4F4F5', marginBottom: 14, overflow: 'hidden' } as any}>
+              <div data-testid="exercise-stats" style={{ borderRadius: 16, background: CARD2, marginBottom: 14, overflow: 'hidden' } as any}>
                 {editing ? (
                   <>
                     <div style={{ display: 'flex' } as any}>
@@ -253,7 +275,7 @@ export default function ProExerciseDetailPage() {
 
               {/* WEIGHT — behind edit button */}
               {isAssigned && hasWeight && (
-                <div data-testid="weight-tracker" style={{ borderRadius: 16, background: '#F4F4F5', padding: '14px 16px', marginBottom: 14 } as any}>
+                <div data-testid="weight-tracker" style={{ borderRadius: 16, background: CARD2, padding: '14px 16px', marginBottom: 14 } as any}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: editingWeight ? 10 : 0 } as any}>
                     <div style={{ flex: 1 } as any}>
                       <div style={{ fontSize: 11, fontWeight: 700, color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: 0.5 }}>Poids utilise</div>
@@ -286,16 +308,16 @@ export default function ProExerciseDetailPage() {
 
               {/* Description */}
               {ex.description && (
-                <div style={{ borderRadius: 16, background: '#F4F4F5', padding: '14px 16px', marginBottom: 14 } as any}>
-                  <div style={{ fontSize: 11, fontWeight: 700, color: '#6B7280', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 6 }}>Description</div>
-                  <div style={{ fontSize: 13, color: '#6B7280', lineHeight: 1.7 }}>{ex.description}</div>
+                <div style={{ borderRadius: 16, background: CARD2, padding: '14px 16px', marginBottom: 14 } as any}>
+                  <div style={{ fontSize: 11, fontWeight: 700, color: T3, textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 6 }}>Description</div>
+                  <div style={{ fontSize: 13, color: T2, lineHeight: 1.7 }}>{ex.description}</div>
                 </div>
               )}
 
               {/* Video */}
               {videoSrc && (
-                <div style={{ borderRadius: 16, background: '#F4F4F5', padding: '14px 16px', marginBottom: 14, overflow: 'hidden' } as any}>
-                  <div style={{ fontSize: 11, fontWeight: 700, color: '#6B7280', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 8 }}>Video</div>
+                <div style={{ borderRadius: 16, background: CARD2, padding: '14px 16px', marginBottom: 14, overflow: 'hidden' } as any}>
+                  <div style={{ fontSize: 11, fontWeight: 700, color: T3, textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 8 }}>Video</div>
                   {videoSrc.includes('youtube') || videoSrc.includes('youtu.be') ? (
                     <div style={{ borderRadius: 12, overflow: 'hidden', aspectRatio: '16/9' } as any}><iframe src={videoSrc.replace('watch?v=', 'embed/').replace('youtu.be/', 'www.youtube.com/embed/')} style={{ width: '100%', height: '100%', border: 'none' } as any} allowFullScreen /></div>
                   ) : (
@@ -307,11 +329,11 @@ export default function ProExerciseDetailPage() {
               {/* Steps */}
               {steps.length > 0 && steps.some((s: string) => s.trim()) && (
                 <div style={{ marginBottom: 14 }}>
-                  <div style={{ fontSize: 14, fontWeight: 800, color: '#111', marginBottom: 10 }}>Etapes <span style={{ fontSize: 11, fontWeight: 600, color: '#9CA3AF', background: '#E5E7EB', padding: '2px 8px', borderRadius: 999, marginLeft: 6 }}>{steps.filter((s: string) => s.trim()).length}</span></div>
+                  <div style={{ fontSize: 14, fontWeight: 800, color: T, marginBottom: 10 }}>Etapes <span style={{ fontSize: 11, fontWeight: 600, color: T3, background: CARD2, padding: '2px 8px', borderRadius: 999, marginLeft: 6 }}>{steps.filter((s: string) => s.trim()).length}</span></div>
                   {steps.filter((s: string) => s.trim()).map((step: string, i: number) => (
-                    <div key={i} style={{ display: 'flex', gap: 10, padding: '10px 12px', borderRadius: 12, background: '#F4F4F5', marginBottom: 4 } as any}>
+                    <div key={i} style={{ display: 'flex', gap: 10, padding: '10px 12px', borderRadius: 12, background: CARD2, marginBottom: 4 } as any}>
                       <span style={{ fontSize: 15, fontWeight: 900, color: accent, flexShrink: 0, minWidth: 20 }}>{i + 1}.</span>
-                      <div style={{ fontSize: 12, color: '#6B7280', lineHeight: 1.6, flex: 1 }}>{step}</div>
+                      <div style={{ fontSize: 12, color: T2, lineHeight: 1.6, flex: 1 }}>{step}</div>
                     </div>
                   ))}
                 </div>
@@ -319,7 +341,7 @@ export default function ProExerciseDetailPage() {
 
               {/* WORKOUT BUTTON — direct, not in a card */}
               {isAssigned && !completed && !workoutStarted && (
-                <div data-testid="start-workout-btn" onClick={() => { setWorkoutStarted(true); setCurrentSet(1); setResting(false); }} style={{ padding: '16px', borderRadius: 14, background: '#111', textAlign: 'center', cursor: 'pointer', fontSize: 15, fontWeight: 800, color: '#FFF', marginBottom: 14, transition: 'transform 0.12s' } as any}
+                <div data-testid="start-workout-btn" onClick={() => { setWorkoutStarted(true); setCurrentSet(1); setResting(false); }} style={{ padding: '16px', borderRadius: 999, background: BTN_BG, textAlign: 'center', cursor: 'pointer', fontSize: 15, fontWeight: 800, color: BTN_TEXT, marginBottom: 14, transition: 'transform 0.12s' } as any}
                   onMouseEnter={(e: any) => { e.currentTarget.style.transform = 'translateY(-1px)'; }}
                   onMouseLeave={(e: any) => { e.currentTarget.style.transform = ''; }}>
                   <i className="ri-play-fill" style={{ marginRight: 8 }} />Commencer l'exercice
@@ -328,7 +350,7 @@ export default function ProExerciseDetailPage() {
 
               {/* Validation */}
               {(mode === 'session' || mode === 'assigned') && (assignmentId || (programId && sessionId)) && (
-                <div style={{ borderRadius: 16, background: completed ? 'rgba(16,185,129,0.06)' : '#F4F4F5', border: completed ? '1px solid rgba(16,185,129,0.2)' : '1px solid transparent', padding: 16, marginBottom: 14 } as any}>
+                <div style={{ borderRadius: 16, background: completed ? 'rgba(16,185,129,0.06)' : CARD2, border: completed ? '1px solid rgba(16,185,129,0.2)' : '1px solid transparent', padding: 16, marginBottom: 14 } as any}>
                   {completed ? (
                     <div data-testid="exercise-completed" style={{ textAlign: 'center', padding: '12px 0' } as any}>
                       <i className="ri-checkbox-circle-fill" style={{ fontSize: 36, color: '#10B981', display: 'block', marginBottom: 8 }} />
@@ -336,9 +358,9 @@ export default function ProExerciseDetailPage() {
                     </div>
                   ) : (
                     <>
-                      <div style={{ fontSize: 11, fontWeight: 700, color: '#6B7280', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 12 }}>Validation</div>
+                      <div style={{ fontSize: 11, fontWeight: 700, color: T3, textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 12 }}>Validation</div>
                       <div style={{ marginBottom: 12 }}>
-                        <div style={{ fontSize: 11, color: '#6B7280', marginBottom: 6, fontWeight: 600 }}>Niveau de douleur</div>
+                        <div style={{ fontSize: 11, color: T2, marginBottom: 6, fontWeight: 600 }}>Niveau de douleur</div>
                         <div style={{ display: 'flex', gap: 3 } as any}>
                           {[1,2,3,4,5,6,7,8,9,10].map(n => (
                             <div key={n} onClick={() => setPainLevel(n)} style={{ flex: 1, height: 28, borderRadius: 6, background: n <= painLevel ? (n <= 3 ? '#10B981' : n <= 6 ? '#F59E0B' : '#EF4444') : '#E5E7EB', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 9, fontWeight: 700, color: n <= painLevel ? '#FFF' : '#9CA3AF', transition: 'all 0.15s' } as any}>{n}</div>
@@ -346,17 +368,17 @@ export default function ProExerciseDetailPage() {
                         </div>
                       </div>
                       <div style={{ marginBottom: 14 }}>
-                        <div style={{ fontSize: 11, color: '#6B7280', marginBottom: 6, fontWeight: 600 }}>Notes</div>
-                        <input data-testid="exercise-notes-input" value={notes} onChange={(e: any) => setNotes(e.target.value)} placeholder="Comment ca s'est passe ?" style={INP} />
+                        <div style={{ fontSize: 11, color: T2, marginBottom: 6, fontWeight: 600 }}>Notes</div>
+                        <input data-testid="exercise-notes-input" value={notes} onChange={(e: any) => setNotes(e.target.value)} placeholder="Comment ca s'est passe ?" style={{ ...INP, background: INP_BG, border: `1px solid ${INP_BORDER}`, color: T }} />
                       </div>
-                      <div data-testid="validate-exercise-btn" onClick={() => handleComplete('done')} style={{ padding: '14px', borderRadius: 14, background: '#111', textAlign: 'center', cursor: 'pointer', fontSize: 14, fontWeight: 800, color: '#FFF', opacity: completing ? 0.5 : 1 } as any}>{completing ? 'Validation...' : 'Valider'}</div>
+                      <div data-testid="validate-exercise-btn" onClick={() => handleComplete('done')} style={{ padding: '14px', borderRadius: 999, background: BTN_BG, textAlign: 'center', cursor: 'pointer', fontSize: 14, fontWeight: 800, color: BTN_TEXT, opacity: completing ? 0.5 : 1 } as any}>{completing ? 'Validation...' : 'Valider'}</div>
                     </>
                   )}
                 </div>
               )}
             </>
           )}
-          {!loading && !ex && mode !== 'create-self' && <div style={{ textAlign: 'center', padding: '80px 0', color: '#9CA3AF' } as any}><i className="ri-error-warning-line" style={{ fontSize: 32, display: 'block', marginBottom: 8 }} /><div style={{ fontSize: 14, fontWeight: 600 }}>Exercice non trouve</div></div>}
+          {!loading && !ex && mode !== 'create-self' && <div style={{ textAlign: 'center', padding: '80px 0', color: T3 } as any}><i className="ri-error-warning-line" style={{ fontSize: 32, display: 'block', marginBottom: 8 }} /><div style={{ fontSize: 14, fontWeight: 600 }}>Exercice non trouve</div></div>}
         </div>
       </div>
 
