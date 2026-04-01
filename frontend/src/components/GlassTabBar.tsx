@@ -115,6 +115,17 @@ export default function GlassTabBar({ state, navigation, role, showNora = true }
           return (
             <div key={tab.key} data-testid={`nav-tab-${tab.key}`}
               onClick={() => {
+                // If we're on a non-tab page (metric-detail, etc.), use router to go back to tabs
+                if (typeof window !== 'undefined' && window.location) {
+                  const path = window.location.pathname;
+                  const isOutsideTabs = !path.includes('(tabs)');
+                  if (isOutsideTabs) {
+                    const { useRouter } = require('expo-router');
+                    try { navigation.navigate(tab.key); } catch {}
+                    window.location.href = `/(tabs)/${tab.key === 'index' ? '' : tab.key}`;
+                    return;
+                  }
+                }
                 const idx = state.routes.findIndex((r: any) => r.name === tab.key);
                 if (idx >= 0) navigation.navigate(state.routes[idx].name);
               }}
