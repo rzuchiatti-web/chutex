@@ -497,50 +497,60 @@ export function BeneficiaryHome({ token, user }: { token: string; user: any }) {
             const totalTasks = tasks.length;
             const allDone = totalTasks > 0 && doneCount >= totalTasks;
             return (
-              <div data-testid="active-program-card" className="dash-slide-up cl-press" onClick={() => router.push('/(tabs)/chat' as any)}
-                style={{ borderRadius: 14, background: `linear-gradient(135deg, ${clr}10, ${clr}05)`, border: `1px solid ${clr}20`, padding: '18px', marginBottom: 20, cursor: 'pointer', transition: 'transform 0.18s', backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)', position: 'relative', overflow: 'hidden' } as any}
-                onMouseEnter={(e: any) => { e.currentTarget.style.transform = 'translateY(-2px)'; }}
-                onMouseLeave={(e: any) => { e.currentTarget.style.transform = ''; }}>
-                <style dangerouslySetInnerHTML={{ __html: `@keyframes dash-prog-glow { 0%,100% { box-shadow: 0 0 20px ${clr}10; } 50% { box-shadow: 0 0 40px ${clr}25; } }` }} />
-                <div style={{ position: 'absolute', top: -40, right: -40, width: 120, height: 120, borderRadius: '50%', background: `radial-gradient(circle, ${clr}08 0%, transparent 70%)` } as any} />
-                <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 14 } as any}>
-                  <div style={{ width: 48, height: 48, borderRadius: 16, background: `${clr}12`, border: `1.5px solid ${clr}25`, display: 'flex', alignItems: 'center', justifyContent: 'center', animation: 'dash-prog-glow 3s ease-in-out infinite', flexShrink: 0 } as any}>
-                    <i className={ap.program.icon} style={{ fontSize: 22, color: clr }} />
+              <>
+              <div data-testid="program-section" className="dash-slide-up" style={{ marginBottom: 28 } as any}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 } as any}>
+                  <div style={{ fontSize: 20, fontWeight: 900, color: C.text, letterSpacing: '-0.3px' } as any}>Mon programme</div>
+                  <div style={{ width: 36, height: 36, borderRadius: 999, background: clr, display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}>
+                    <i className={ap.program.icon || 'ri-calendar-todo-line'} style={{ fontSize: 16, color: '#FFF' }} />
                   </div>
-                  <div style={{ flex: 1, minWidth: 0 } as any}>
-                    <div style={{ fontSize: 15, fontWeight: 900, color: '#FFF', marginBottom: 2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' } as any}>{ap.program.title}</div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 6 } as any}>
-                      <span style={{ fontSize: 11, fontWeight: 800, color: clr }}>Jour {ap.current_day}/{ap.program.duration_days}</span>
-                      {ap.streak > 0 && (
-                        <span style={{ display: 'inline-flex', alignItems: 'center', gap: 3, fontSize: 10, fontWeight: 800, color: '#FBBF24', padding: '1px 6px', borderRadius: 6, background: 'rgba(251,191,36,0.08)' }}>
-                          <i className="ri-fire-fill" style={{ fontSize: 10 }} />{ap.streak}
-                        </span>
-                      )}
+                </div>
+                <div style={{ fontSize: 13, color: C.sub, marginBottom: 16, lineHeight: '1.45' } as any}>Suivez votre progression quotidienne et restez motive.</div>
+                <div data-testid="active-program-card" className="cl-press" onClick={() => router.push('/(tabs)/chat' as any)}
+                  style={{ borderRadius: 18, background: C.card, padding: '18px', cursor: 'pointer', transition: 'transform 0.18s', ...glass } as any}
+                  onMouseEnter={(e: any) => { e.currentTarget.style.transform = 'translateY(-2px)'; }}
+                  onMouseLeave={(e: any) => { e.currentTarget.style.transform = ''; }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 14 } as any}>
+                    <div style={{ width: 48, height: 48, borderRadius: 16, background: `${clr}15`, border: `1.5px solid ${clr}25`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}>
+                      <i className={ap.program.icon} style={{ fontSize: 22, color: clr }} />
                     </div>
-                  </div>
-                  <div style={{ fontSize: 22, fontWeight: 900, color: clr }}>{ap.progress_pct}%</div>
-                </div>
-                <div style={{ height: 5, borderRadius: 3, background: 'rgba(255,255,255,0.04)', overflow: 'hidden', marginBottom: 14 } as any}>
-                  <div style={{ height: '100%', borderRadius: 3, width: `${ap.progress_pct}%`, background: `linear-gradient(90deg, ${clr}, ${clr}80)`, transition: 'width 0.8s ease', boxShadow: `0 0 12px ${clr}40` } as any} />
-                </div>
-                {ap.today_tasks && (
-                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' } as any}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 8 } as any}>
-                      <div style={{ display: 'flex', gap: 3 } as any}>
-                        {tasks.slice(0, 5).map((_: any, ti: number) => (
-                          <div key={ti} style={{ width: 8, height: 8, borderRadius: 4, background: ti < doneCount ? '#10B981' : 'rgba(255,255,255,0.08)', transition: 'background 0.3s' }} />
-                        ))}
+                    <div style={{ flex: 1, minWidth: 0 } as any}>
+                      <div style={{ fontSize: 15, fontWeight: 900, color: C.text, marginBottom: 2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' } as any}>{ap.program.title}</div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 6 } as any}>
+                        <span style={{ fontSize: 11, fontWeight: 800, color: clr }}>Jour {ap.current_day}/{ap.program.duration_days}</span>
+                        {ap.streak > 0 && (
+                          <span style={{ display: 'inline-flex', alignItems: 'center', gap: 3, fontSize: 10, fontWeight: 800, color: '#FBBF24', padding: '1px 6px', borderRadius: 6, background: 'rgba(251,191,36,0.08)' }}>
+                            <i className="ri-fire-fill" style={{ fontSize: 10 }} />{ap.streak}
+                          </span>
+                        )}
                       </div>
-                      <span style={{ fontSize: 11, fontWeight: 700, color: allDone ? '#10B981' : 'rgba(255,255,255,0.35)' }}>
-                        {allDone ? 'Tout fait !' : `${doneCount}/${totalTasks} actions`}
-                      </span>
                     </div>
-                    <div style={{ padding: '4px 10px', borderRadius: 8, background: ap.today_checkin ? 'rgba(16,185,129,0.08)' : `${clr}08`, border: `1px solid ${ap.today_checkin ? 'rgba(16,185,129,0.15)' : `${clr}12`}`, fontSize: 10, fontWeight: 700, color: ap.today_checkin ? '#10B981' : clr }}>
-                      {ap.today_checkin ? 'Bilan fait' : 'Continuer'}
-                    </div>
+                    <div style={{ fontSize: 22, fontWeight: 900, color: clr }}>{ap.progress_pct}%</div>
                   </div>
-                )}
+                  <div style={{ height: 5, borderRadius: 3, background: isDark ? 'rgba(255,255,255,0.06)' : '#E5E7EB', overflow: 'hidden', marginBottom: 14 } as any}>
+                    <div style={{ height: '100%', borderRadius: 3, width: `${ap.progress_pct}%`, background: `linear-gradient(90deg, ${clr}, ${clr}80)`, transition: 'width 0.8s ease' } as any} />
+                  </div>
+                  {ap.today_tasks && (
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' } as any}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 8 } as any}>
+                        <div style={{ display: 'flex', gap: 3 } as any}>
+                          {tasks.slice(0, 5).map((_: any, ti: number) => (
+                            <div key={ti} style={{ width: 8, height: 8, borderRadius: 4, background: ti < doneCount ? '#10B981' : (isDark ? 'rgba(255,255,255,0.08)' : '#D1D5DB'), transition: 'background 0.3s' }} />
+                          ))}
+                        </div>
+                        <span style={{ fontSize: 11, fontWeight: 700, color: allDone ? '#10B981' : C.sub }}>
+                          {allDone ? 'Tout fait !' : `${doneCount}/${totalTasks} actions`}
+                        </span>
+                      </div>
+                      <div style={{ padding: '4px 10px', borderRadius: 8, background: ap.today_checkin ? 'rgba(16,185,129,0.08)' : `${clr}08`, border: `1px solid ${ap.today_checkin ? 'rgba(16,185,129,0.15)' : `${clr}15`}`, fontSize: 10, fontWeight: 700, color: ap.today_checkin ? '#10B981' : clr }}>
+                        {ap.today_checkin ? 'Bilan fait' : 'Continuer'}
+                      </div>
+                    </div>
+                  )}
+                </div>
               </div>
+              <div style={{ height: 1, background: C.sep, margin: "10px 0 24px" } as any} />
+              </>
             );
           })()}
 
