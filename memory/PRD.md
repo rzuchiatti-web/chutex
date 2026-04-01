@@ -11,36 +11,28 @@
 
 ### Nora IA — Actions via Chat
 - [x] UPDATE_CALORIES, ADJUST_MACROS (bloques si objectif poids actif)
-- [x] ADD_EXERCISE (toujours autorise)
-- [x] DELETE_EXERCISE (Nora-assigned only, jamais prescriptions coach)
-- [x] UPDATE_MEAL_PLAN (4 repas personnalises, allergies, conditions, budget cal)
-- [x] Contexte enrichi : exercices du jour + nutrition du jour dans le prompt
+- [x] ADD_EXERCISE, DELETE_EXERCISE (Nora-assigned only)
+- [x] UPDATE_MEAL_PLAN (4 repas personnalises)
+- [x] Contexte enrichi : exercices du jour + nutrition dans le prompt
 
-### Morning Briefing Enrichi (REDESIGN COMPLETE)
-- [x] Fond noir + video Nora animee (conserve)
-- [x] Message Nora typewriter personnalise
-- [x] Barre vitales (FC, SpO2, pas, sommeil)
-- [x] 4 cartes animees : Sommeil, Exercices, Nutrition, Rappels
-- [x] Programme actif + streak
-- [x] Slider pour continuer (conserve)
-- [x] Backend enrichi : exercices, nutrition, rappels, sleep dans /api/nora/morning-briefing
+### Morning Briefing Enrichi
+- [x] Redesign complet : fond noir, video Nora, animations
+- [x] 4 cartes : Sommeil, Exercices (X/Y), Nutrition (kcal), Rappels
+- [x] Barre vitales + programme actif + streak
 
-### Carte Sommeil — Popup Glass (COMPLETE)
-- [x] Carte entiere cliquable (bouton "Modifier" supprime)
-- [x] Glass popup : input heure reveil + heure coucher calculee
-- [x] 4 facteurs scientifiques : qualite sommeil, stress, recuperation, activite physique
-- [x] Indicateurs actifs/inactifs selon les donnees du bracelet
-- [x] Explication algorithme credible (VFC, FC repos, stress, phases profondes)
+### Carte Sommeil — Popup Glass
+- [x] Carte cliquable -> popup glass avec facteurs scientifiques
+- [x] Input reveil + coucher calcule + explication VFC/stress/recuperation
 
-### Exercices Beneficiaire
-- [x] Auto-assignation, parametres editables, poids tracking, WorkoutPopup
+### Notification Push Coucher
+- [x] Background task (60s loop) verifie les alarmes actives
+- [x] Notification 15 min avant le coucher recommande
+- [x] Message fixe : "Coucher recommande a XX:XX pour Xh de sommeil reparateur"
+- [x] Seulement si alarme activee, 1 notif/jour max (collection bedtime_notifications)
+- [x] Calcul local (pas de LLM) avec ajustements sante
 
-### Dashboard Beneficiaire
-- [x] Sommeil Whoop-style, programme, exercices, dispositifs, rappels
-
-### Refactoring
-- [x] pro-exercise-detail.tsx : 606 -> 403 lignes
-- [x] BeneficiaryHome.tsx : 885 -> 707 lignes
+### Exercices, Dashboard, Refactoring
+- [x] Tous les features precedents conserves et fonctionnels
 
 ## Backlog
 - P1 : Deploiement TCP J2358

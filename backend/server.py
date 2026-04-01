@@ -368,3 +368,120 @@ async def start_j2358_tcp():
     asyncio.create_task(start_tcp_server())
     logger.info("J2358 TCP server task launched")
 
+
+
+# ── Bedtime Reminder — background checker ──
+@app.on_event("startup")
+async def start_bedtime_reminder():
+    """Check every minute if any user needs a bedtime reminder (15min before recommended bedtime)."""
+    import asyncio
+
+    async def _bedtime_loop():
+        while True:
+            try:
+                await _check_bedtime_reminders()
+            except Exception as e:
+                logger.error(f"Bedtime reminder error: {e}")
+            await asyncio.sleep(60)
+
+    asyncio.create_task(_bedtime_loop())
+    logger.info("Bedtime reminder task launched")
+
+
+async def _check_bedtime_reminders():
+    """Find users whose bedtime is in ~15 minutes and send notification."""
+    from datetime import datetime, timezone, timedelta
+    from routes.notification_routes import create_notification
+
+    now = datetime.now(timezone.utc)
+    # Adjust for French timezone (UTC+1 or UTC+2 DST)
+    # Simple heuristic: March-October = UTC+2, else UTC+1
+    month = now.month
+    offset_hours = 2 if 3 <= month <= 10 else 1
+    local_now = now + timedelta(hours=offset_hours)
+    current_hhmm = local_now.strftime("%H:%M")
+
+    # Find all enabled sleep alarms
+    alarms = await db.sleep_alarms.find({"enabled": True}, {"_id": 0}).to_list(500)
+    today_str = now.strftime("%Y-%m-%d")
+
+    for alarm in alarms:
+        uid = alarm.get("user_id", "")
+        wake_time = alarm.get("wake_time", "07:00")
+        if not uid:
+            continue
+
+        # Compute bedtime for this user (lightweight — no LLM)
+        try:
+            u = await db.users.find_one({"id": uid}, {"_id": 0, "date_of_birth": 1})
+            age = 70
+            if u and u.get("date_of_birth"):
+                try:
+                    dob = datetime.fromisoformat(str(u["date_of_birth"]).replace("Z", "+00:00"))
+                    age = (now - dob).days // 365
+                except Exception:
+                    pass
+
+            base_min = 450 if age >= 65 else 480
+            extra_min = 0
+            latest = await db.device_readings.find_one(
+                {"user_id": uid, "device_type": "bracelet"}, {"_id": 0, "data": 1}, sort=[("timestamp", -1)]
+            )
+            if latest and latest.get("data"):
+                bd = latest["data"]
+                if bd.get("recovery_score", 0) > 0 and bd["recovery_score"] < 60:
+                    extra_min += 30
+                if bd.get("stress_level", 0) > 60:
+                    extra_min += 15
+                if bd.get("sleep_quality", 0) > 0 and bd["sleep_quality"] < 70:
+                    extra_min += 15
+
+            total_sleep_min = base_min + extra_min
+            wake_h, wake_m = map(int, wake_time.split(":"))
+            wake_total = wake_h * 60 + wake_m
+            bed_total = wake_total - total_sleep_min
+            if bed_total < 0:
+                bed_total += 1440
+            bed_h = bed_total // 60
+            bed_m = bed_total % 60
+            bedtime = f"{bed_h:02d}:{bed_m:02d}"
+
+            # Target = bedtime - 15 min
+            target_total = bed_total - 15
+            if target_total < 0:
+                target_total += 1440
+            target_hhmm = f"{target_total // 60:02d}:{target_total % 60:02d}"
+
+            if current_hhmm != target_hhmm:
+                continue
+
+            # Check if already sent today
+            already = await db.bedtime_notifications.find_one(
+                {"user_id": uid, "date": today_str}, {"_id": 0}
+            )
+            if already:
+                continue
+
+            # Send notification
+            sleep_h = total_sleep_min // 60
+            sleep_m = total_sleep_min % 60
+            duration_str = f"{sleep_h}h{sleep_m:02d}" if sleep_m > 0 else f"{sleep_h}h"
+
+            await create_notification(
+                user_id=uid,
+                notif_type="bedtime_reminder",
+                title="Bientot l'heure de dormir",
+                body=f"Coucher recommande a {bedtime} pour {duration_str} de sommeil reparateur. Bonne nuit !",
+                icon="ri-moon-clear-fill",
+                color="#A78BFA",
+                data={"bedtime": bedtime, "wake_time": wake_time},
+            )
+
+            # Mark as sent
+            await db.bedtime_notifications.insert_one({
+                "user_id": uid, "date": today_str,
+                "bedtime": bedtime, "sent_at": now.isoformat(),
+            })
+
+        except Exception as e:
+            logger.error(f"Bedtime check for {uid}: {e}")
