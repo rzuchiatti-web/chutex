@@ -255,7 +255,7 @@ export function ReminderCRUDPopup({ show, editReminder, setEditReminder, onClose
                   await refreshLocal();
                   if (onCrudDone) onCrudDone(popupType);
                 } catch {}
-              }} style={{ flex: 1, padding: '14px', borderRadius: 999, background: accent, cursor: 'pointer', textAlign: 'center', fontSize: 14, fontWeight: 800, color: '#FFF' } as any}>Sauvegarder</div>
+              }} style={{ flex: 1, padding: '14px', borderRadius: 999, background: '#FFF', cursor: 'pointer', textAlign: 'center', fontSize: 14, fontWeight: 800, color: '#111' } as any}>Sauvegarder</div>
               <div onClick={() => setEditReminder({ ...editReminder, _editingId: null, _editingData: null })} style={{ padding: '14px 20px', borderRadius: 999, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', cursor: 'pointer', fontSize: 14, fontWeight: 700, color: 'rgba(255,255,255,0.4)' } as any}>Annuler</div>
             </div>
           </div>
@@ -329,19 +329,48 @@ export function ReminderCRUDPopup({ show, editReminder, setEditReminder, onClose
               </div>
             )}
 
+            {/* Suggestions */}
+            {(() => {
+              const suggestions: Record<string, string[]> = {
+                hydration: ['Verre d\'eau', 'Smoothie', 'Tisane', 'The vert', 'Jus de fruits', 'Soupe', 'Eau citronnee'],
+                medication: ['Medicament matin', 'Proteine', 'Vitamine D', 'Omega 3', 'Complement fer', 'Probiotiques', 'Magnesium'],
+                alarm: ['Marcher 15min', 'S\'etirer', 'Respiration', 'Mesurer tension', 'Se peser', 'Boire de l\'eau', 'Faire ses exercices'],
+              };
+              const chips = suggestions[popupType] || suggestions.hydration;
+              return (
+                <div style={{ marginTop: 12, marginBottom: 4 } as any}>
+                  <div style={{ fontSize: 9, fontWeight: 700, color: 'rgba(255,255,255,0.2)', textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 8 }}>Suggestions rapides</div>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 } as any}>
+                    {chips.map((chip: string, ci: number) => (
+                      <div key={ci} data-testid={`suggestion-chip-${ci}`} onClick={async () => {
+                        try {
+                          await apiFetch('/api/reminders', { method: 'POST', body: JSON.stringify({ reminder_type: popupType, title: chip, time: '08:00', days: ['lun','mar','mer','jeu','ven','sam','dim'], notes: '', active: true }) }, token);
+                          await refreshLocal();
+                          if (onCrudDone) onCrudDone(popupType);
+                        } catch {}
+                      }} style={{ padding: '8px 14px', borderRadius: 999, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', cursor: 'pointer', fontSize: 12, fontWeight: 600, color: 'rgba(255,255,255,0.5)', transition: 'all 0.15s' } as any}
+                        onMouseEnter={(e: any) => { e.currentTarget.style.background = 'rgba(255,255,255,0.12)'; e.currentTarget.style.color = '#FFF'; }}
+                        onMouseLeave={(e: any) => { e.currentTarget.style.background = 'rgba(255,255,255,0.06)'; e.currentTarget.style.color = 'rgba(255,255,255,0.5)'; }}>
+                        <i className="ri-add-line" style={{ fontSize: 11, marginRight: 4 }} />{chip}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              );
+            })()}
+
             {/* Add button */}
             <div data-testid="add-reminder-btn" onClick={async () => {
               try {
                 await apiFetch('/api/reminders', { method: 'POST', body: JSON.stringify({ reminder_type: popupType, title: meta.label, time: '08:00', days: ['lun','mar','mer','jeu','ven','sam','dim'], notes: '', active: true }) }, token);
-                // Directly refresh local state — no dependency on parent re-render
                 await refreshLocal();
                 if (onCrudDone) onCrudDone(popupType);
               } catch (err: any) { console.error('[REM] Error adding reminder:', err?.message || err); }
-            }} style={{ padding: '14px', borderRadius: 999, background: `${accent}15`, border: `1px solid ${accent}30`, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, marginTop: 4, transition: 'background 0.15s' } as any}
-              onMouseEnter={(e: any) => { e.currentTarget.style.background = `${accent}25`; }}
-              onMouseLeave={(e: any) => { e.currentTarget.style.background = `${accent}15`; }}>
-              <i className="ri-add-line" style={{ fontSize: 18, color: accent }} />
-              <span style={{ fontSize: 14, fontWeight: 700, color: accent }}>Ajouter un rappel</span>
+            }} style={{ padding: '14px', borderRadius: 999, background: '#FFF', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, marginTop: 12, transition: 'opacity 0.15s' } as any}
+              onMouseEnter={(e: any) => { e.currentTarget.style.opacity = '0.85'; }}
+              onMouseLeave={(e: any) => { e.currentTarget.style.opacity = '1'; }}>
+              <i className="ri-add-line" style={{ fontSize: 18, color: '#111' }} />
+              <span style={{ fontSize: 14, fontWeight: 700, color: '#111' }}>Ajouter un rappel personnalise</span>
             </div>
           </>
         )}
