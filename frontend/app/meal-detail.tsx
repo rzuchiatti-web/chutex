@@ -5,9 +5,10 @@ import { useAuth } from '../src/context/AuthContext';
 import { apiFetch } from '../src/services/api';
 
 const BG = 'https://customer-assets.emergentagent.com/job_443c9c6e-0feb-4920-a358-fe7cc1a6289b/artifacts/v5t9l2mb_ChatGPT%20Image%2017%20f%C3%A9vr.%202026%2C%2014_10_07.png';
-const MEAL_LABELS: Record<string, string> = { petit_dejeuner: 'Petit-dejeuner', dejeuner: 'Dejeuner', collation: 'Collation', gouter: 'Gouter', diner: 'Diner' };
-const MEAL_ICONS: Record<string, string> = { petit_dejeuner: 'ri-sun-line', dejeuner: 'ri-restaurant-line', collation: 'ri-cake-2-line', gouter: 'ri-cup-line', diner: 'ri-moon-line' };
-const MEAL_COLORS: Record<string, string> = { petit_dejeuner: '#F59E0B', dejeuner: '#10B981', collation: '#A78BFA', gouter: '#A78BFA', diner: '#60A5FA' };
+const MEAL_LABELS: Record<string, string> = { petit_dejeuner: 'Petit-dejeuner', dejeuner: 'Dejeuner', collation: 'Collation', gouter: 'Gouter', diner: 'Diner', breakfast: 'Petit-dejeuner', lunch: 'Dejeuner', snack: 'Collation', dinner: 'Diner' };
+const MEAL_ICONS: Record<string, string> = { petit_dejeuner: 'ri-sun-line', dejeuner: 'ri-restaurant-line', collation: 'ri-cake-2-line', gouter: 'ri-cup-line', diner: 'ri-moon-line', breakfast: 'ri-sun-line', lunch: 'ri-restaurant-line', snack: 'ri-cake-2-line', dinner: 'ri-moon-line' };
+const MEAL_COLORS: Record<string, string> = { petit_dejeuner: '#F59E0B', dejeuner: '#10B981', collation: '#A78BFA', gouter: '#A78BFA', diner: '#60A5FA', breakfast: '#F59E0B', lunch: '#10B981', snack: '#A78BFA', dinner: '#60A5FA' };
+const MEAL_IMAGES: Record<string, string> = { breakfast: 'https://static.prod-images.emergentagent.com/jobs/151f0047-e744-48e3-8d63-62902a0935f7/images/ccd32d626e54c78fac3e5a12346ad156c67fb52d47febfdedc24d0f29e171ac6.png', lunch: 'https://static.prod-images.emergentagent.com/jobs/151f0047-e744-48e3-8d63-62902a0935f7/images/528ae850a1d0143524ec5cc75d58c126e9cec798303da7ceb8ac4a1ca68374d8.png', snack: 'https://static.prod-images.emergentagent.com/jobs/151f0047-e744-48e3-8d63-62902a0935f7/images/95af5f12498ba3ce4c96135afbe07e314012e9ff8da9410d9e9ac56376d9cb02.png', dinner: 'https://static.prod-images.emergentagent.com/jobs/151f0047-e744-48e3-8d63-62902a0935f7/images/3b64345e4d34dc8d5bacd6f55747323e3202d76c19e319a024b7214ca02e9877.png', petit_dejeuner: 'https://static.prod-images.emergentagent.com/jobs/151f0047-e744-48e3-8d63-62902a0935f7/images/ccd32d626e54c78fac3e5a12346ad156c67fb52d47febfdedc24d0f29e171ac6.png', dejeuner: 'https://static.prod-images.emergentagent.com/jobs/151f0047-e744-48e3-8d63-62902a0935f7/images/528ae850a1d0143524ec5cc75d58c126e9cec798303da7ceb8ac4a1ca68374d8.png', collation: 'https://static.prod-images.emergentagent.com/jobs/151f0047-e744-48e3-8d63-62902a0935f7/images/95af5f12498ba3ce4c96135afbe07e314012e9ff8da9410d9e9ac56376d9cb02.png', diner: 'https://static.prod-images.emergentagent.com/jobs/151f0047-e744-48e3-8d63-62902a0935f7/images/3b64345e4d34dc8d5bacd6f55747323e3202d76c19e319a024b7214ca02e9877.png' };
 
 const FOOD_E: Record<string, string> = { oeuf: '🥚', lait: '🥛', yaourt: '🥛', fromage: '🧀', beurre: '🧈', huile: '🫒', poulet: '🍗', poisson: '🐟', saumon: '🐟', cabillaud: '🐟', viande: '🥩', steak: '🥩', riz: '🍚', quinoa: '🌾', pate: '🍝', pain: '🍞', avoine: '🌾', flocon: '🌾', lentille: '🫘', pomme: '🍎', fruit: '🍇', banane: '🍌', kiwi: '🥝', orange: '🍊', tomate: '🍅', legume: '🥬', salade: '🥗', epinard: '🥬', brocoli: '🥦', carotte: '🥕', courgette: '🥒', oignon: '🧅', ail: '🧄', amande: '🥜', noix: '🥜', graine: '🌰', miel: '🍯', citron: '🍋', eau: '💧', chia: '🌰', patate: '🥔', olive: '🫒', poivron: '🫑', champignon: '🍄', avocat: '🥑', concombre: '🥒', chou: '🥬', persil: '🌿', herbe: '🌿', chocolat: '🍫', cafe: '☕', the: '🍵', myrtille: '🫐', fraise: '🍓', framboise: '🍓', mangue: '🥭', acai: '🫐', granola: '🥣', whey: '🥤', cacahuete: '🥜', coco: '🥥', sesame: '🌰', soja: '🫘', edamame: '🫛' };
 function foodEmoji(name: string): string { const n = name.toLowerCase(); for (const [k, v] of Object.entries(FOOD_E)) { if (n.includes(k)) return v; } return '🍽️'; }
@@ -94,22 +95,19 @@ export default function MealDetailPage() {
         {/* HEADER */}
         <div style={{ position: 'relative', zIndex: 1, minHeight: 200 } as any}>
           {(() => {
-            const headerImg = m?.image ? (m.image.startsWith('/') ? `${process.env.EXPO_PUBLIC_BACKEND_URL || ''}${m.image}` : m.image) : BG;
+            const headerImg = m?.image ? (m.image.startsWith('/') ? `${process.env.EXPO_PUBLIC_BACKEND_URL || ''}${m.image}` : m.image) : (MEAL_IMAGES[mt] || BG);
             return <img key={headerImg} src={headerImg} alt="" style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', objectFit: 'cover' } as any} />;
           })()}
-          <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', background: m?.image ? 'linear-gradient(180deg, rgba(0,0,0,0.2) 0%, rgba(0,0,0,0.65) 100%)' : 'none' } as any} />
+          <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', background: 'linear-gradient(180deg, rgba(0,0,0,0.2) 0%, rgba(0,0,0,0.65) 100%)' } as any} />
           <div style={{ position: 'relative', zIndex: 2, padding: '28px 20px 32px' } as any}>
-            <div data-testid="back-button" onClick={() => router.back()} style={{ width: 40, height: 40, borderRadius: 12, background: 'rgba(255,255,255,0.12)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', border: '1px solid rgba(255,255,255,0.15)', marginBottom: 16 } as any}>
+            <div data-testid="back-button" onClick={() => router.back()} style={{ width: 40, height: 40, borderRadius: 999, background: 'rgba(255,255,255,0.12)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', border: '1px solid rgba(255,255,255,0.15)', marginBottom: 16 } as any}>
               <i className="ri-arrow-left-line" style={{ fontSize: 18, color: '#FFF' }} />
             </div>
 
             {!loading && m && (
-              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' } as any}>
-                <div style={{ width: 56, height: 56, borderRadius: 18, background: `${col}30`, display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 12, border: `2px solid ${col}50` } as any}>
-                  <i className={icon} style={{ fontSize: 26, color: '#FFF' }} />
-                </div>
+              <div>
                 <div style={{ fontSize: 11, fontWeight: 700, color: col, textTransform: 'uppercase', letterSpacing: 1, marginBottom: 4 }}>{label}</div>
-                <div style={{ fontSize: 22, fontWeight: 900, color: '#FFF', textAlign: 'center', textTransform: 'capitalize' }}>{m.title || m.name}</div>
+                <div style={{ fontSize: 24, fontWeight: 900, color: '#FFF', textTransform: 'capitalize', textShadow: '0 2px 8px rgba(0,0,0,0.3)' }}>{m.title || m.name}</div>
               </div>
             )}
           </div>

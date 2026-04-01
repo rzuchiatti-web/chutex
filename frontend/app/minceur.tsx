@@ -404,12 +404,14 @@ export default function MinceurPage() {
                 {data.last_reading_date && <div style={{ fontSize: 9, color: '#9CA3AF', textAlign: 'right', marginTop: 8 }}>Pesee : {new Date(data.last_reading_date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })}</div>}
               </div>
 
-              {/* ══ IMC CARD (dedicated) ══ */}
+              {/* ══ IMC CARD (dedicated) — clickable ══ */}
               {cr.bmi > 0 && (
-                <div data-testid="bmi-card" style={{ borderRadius: 18, background: '#F4F4F5', padding: '16px 20px', marginBottom: 12 } as any}>
+                <div data-testid="bmi-card" onClick={() => router.push({ pathname: '/metric-detail' as any, params: { key: 'bmi' } })} style={{ borderRadius: 18, background: '#F4F4F5', padding: '16px 20px', marginBottom: 12, cursor: 'pointer', transition: 'transform 0.15s' } as any}
+                  onMouseEnter={(e: any) => { e.currentTarget.style.transform = 'translateY(-1px)'; }}
+                  onMouseLeave={(e: any) => { e.currentTarget.style.transform = ''; }}>
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 } as any}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 8 } as any}><i className="ri-body-scan-line" style={{ fontSize: 14, color: P }} /><span style={{ fontSize: 13, fontWeight: 800, color: '#111' }}>Indice de Masse Corporelle</span></div>
-                    <div onClick={() => setExplainMetric('bmi')} style={{ width: 28, height: 28, borderRadius: 999, background: '#FFF', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}><i className="ri-information-line" style={{ fontSize: 14, color: P }} /></div>
+                    <i className="ri-arrow-right-s-line" style={{ fontSize: 16, color: '#9CA3AF' }} />
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 16 } as any}>
                     <div style={{ textAlign: 'center' } as any}>
@@ -494,8 +496,12 @@ export default function MinceurPage() {
                     {recs.macros && (<div style={{ display: 'flex', borderTop: '1px solid #E5E7EB' } as any}>{[{ l: 'Proteines', v: recs.macros.proteines_g, c: G }, { l: 'Glucides', v: recs.macros.glucides_g, c: A }, { l: 'Lipides', v: recs.macros.lipides_g, c: R }].map((m, i) => (<div key={i} style={{ flex: 1, padding: '12px 8px', textAlign: 'center', borderRight: i < 2 ? '1px solid #E5E7EB' : 'none' } as any}><div style={{ fontSize: 20, fontWeight: 900, color: '#111', lineHeight: 1 }}>{m.v}<span style={{ fontSize: 9, color: '#9CA3AF' }}>g</span></div><div style={{ fontSize: 8, color: m.c, fontWeight: 700, marginTop: 3, textTransform: 'uppercase', letterSpacing: 0.5 }}>{m.l}</div></div>))}</div>)}
                   </div>
 
-                  {/* ══ MEALS — uniform card design ══ */}
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 } as any}><i className="ri-restaurant-2-line" style={{ fontSize: 14, color: G }} /><span style={{ fontSize: 13, fontWeight: 800, color: '#111' }}>Vos repas du jour</span></div>
+                  {/* ══ MEALS — with title, subtitle, separator ══ */}
+                  <div style={{ height: 1, background: 'rgba(0,0,0,0.06)', margin: '14px 0 24px' } as any} />
+                  <div style={{ marginBottom: 6 } as any}>
+                    <div style={{ fontSize: 20, fontWeight: 900, color: '#111', letterSpacing: '-0.3px' }}>Vos repas du jour</div>
+                    <div style={{ fontSize: 13, color: 'rgba(0,0,0,0.45)', marginTop: 4, lineHeight: '1.45' }}>Repas personnalises par Nora selon votre objectif et vos besoins nutritionnels.</div>
+                  </div>
                   {recs.meals && <div data-testid="meals-section" style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 14 } as any}>
                     {recs.meals.map((meal: any, i: number) => { const tp = meal.type || ['breakfast', 'lunch', 'snack', 'dinner'][i] || 'lunch'; const col = MC[tp] || G; const dn = tracked[`meal_${i}`]; const isProMeal = meal.source === 'pro' && meal.assignment_id; return (
                       <div key={i} data-testid={`meal-${tp}`} onClick={() => router.push({ pathname: '/meal-detail' as any, params: isProMeal ? { mode: 'assigned', assignmentId: meal.assignment_id } : { index: i } })}
