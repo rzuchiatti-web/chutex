@@ -13,7 +13,7 @@ const portalMount = (node: React.ReactNode) => {
   return node;
 };
 
-const OVERLAY: any = { position: 'fixed', inset: 0, zIndex: 99990, backdropFilter: 'blur(32px)', WebkitBackdropFilter: 'blur(32px)', background: 'rgba(0,0,0,0.55)', overflowY: 'auto' };
+const OVERLAY: any = { position: 'fixed', inset: 0, zIndex: 99990, backdropFilter: 'blur(32px)', WebkitBackdropFilter: 'blur(32px)', background: 'rgba(0,0,0,0.78)', overflowY: 'auto' };
 const OVERLAY_CENTER: any = { ...OVERLAY, display: 'flex', alignItems: 'center', justifyContent: 'center' };
 
 /* ─── NOTIFICATIONS POPUP ─── */
@@ -141,6 +141,7 @@ export function ReminderCRUDPopup({ show, editReminder, setEditReminder, onClose
   const [suggestions, setSuggestions] = useState<any[]>([]);
   const [expandedSugg, setExpandedSugg] = useState<number | null>(null);
   const [showLibrary, setShowLibrary] = useState(false);
+  const [expandedRem, setExpandedRem] = useState<string | null>(null);
   const mountedRef = useRef(true);
 
   // Sync from parent props whenever they change (background refresh, initial load)
@@ -272,57 +273,85 @@ export function ReminderCRUDPopup({ show, editReminder, setEditReminder, onClose
           </div>
         ) : (
           <>
-            {/* Reminder list — structured display */}
+            {/* Reminder list — expandable cards */}
             {typeRems.map((r: any) => {
               const daysStr = (!r.days || r.days.length === 0 || r.days.length === 7) ? 'Tous les jours' : r.days.join(', ').toUpperCase();
               const isPro = r.source === 'pro';
+              const isOpen = expandedRem === r.id;
+              const ingr = (() => { try { return Array.isArray(r.ingredients) ? r.ingredients : (r.ingredients ? JSON.parse(r.ingredients) : []); } catch { return []; } })();
               return (
-                <div key={r.id} data-testid={`reminder-item-${r.id}`} style={{ padding: '14px 16px', borderRadius: 16, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)', marginBottom: 8 } as any}>
-                  {isPro && r.professional_name && (
-                    <div style={{ display: 'inline-flex', alignItems: 'center', gap: 4, padding: '3px 10px', borderRadius: 999, background: `${accent}20`, border: `1px solid ${accent}40`, marginBottom: 8 } as any}>
-                      <i className="ri-capsule-fill" style={{ fontSize: 10, color: accent }} />
-                      <span style={{ fontSize: 9, fontWeight: 700, color: accent }}>{r.professional_name.split(' ')[0]}</span>
+                <div key={r.id} data-testid={`reminder-item-${r.id}`} style={{ borderRadius: 16, background: 'rgba(255,255,255,0.06)', border: `1px solid ${isOpen ? `${accent}30` : 'rgba(255,255,255,0.08)'}`, marginBottom: 8, overflow: 'hidden', transition: 'border-color 0.2s' } as any}>
+                  {/* Header row — always visible, clickable */}
+                  <div onClick={() => setExpandedRem(isOpen ? null : r.id)} style={{ padding: '14px 16px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 12 } as any}>
+                    <div style={{ width: 40, height: 40, borderRadius: 12, background: `${accent}12`, border: `1px solid ${accent}20`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}>
+                      <i className={popupType === 'hydration' ? 'ri-drop-fill' : popupType === 'medication' ? 'ri-capsule-fill' : 'ri-alarm-fill'} style={{ fontSize: 18, color: r.active ? accent : 'rgba(255,255,255,0.2)' }} />
                     </div>
-                  )}
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 14 } as any}>
-                    <div onClick={() => !isPro && setEditReminder({ ...editReminder, _editingId: r.id, _editingData: { time: r.time, notes: r.notes || '', days: r.days || ['lun','mar','mer','jeu','ven','sam','dim'] } })} style={{ flex: 1, cursor: isPro ? 'default' : 'pointer' } as any}>
-                      {r.title && <div style={{ fontSize: 15, fontWeight: 800, color: r.active ? '#FFF' : 'rgba(255,255,255,0.25)', marginBottom: 6 }}>{r.title}</div>}
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 4 } as any}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 5 } as any}>
-                          <i className="ri-time-line" style={{ fontSize: 12, color: accent }} />
-                          <span style={{ fontSize: 16, fontWeight: 900, color: r.active ? '#FFF' : 'rgba(255,255,255,0.25)' }}>{r.time}</span>
+                    <div style={{ flex: 1, minWidth: 0 } as any}>
+                      <div style={{ fontSize: 14, fontWeight: 800, color: r.active ? '#FFF' : 'rgba(255,255,255,0.25)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{r.title || meta.label}</div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 3 } as any}>
+                        <span style={{ fontSize: 13, fontWeight: 900, color: r.active ? accent : 'rgba(255,255,255,0.2)' }}>{r.time}</span>
+                        <span style={{ fontSize: 9, color: 'rgba(255,255,255,0.25)' }}>{daysStr}</span>
+                      </div>
+                    </div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0 } as any}>
+                      {!isPro && <div data-testid={`toggle-reminder-${r.id}`} onClick={async (e: any) => {
+                        e.stopPropagation();
+                        setLocalReminders(prev => prev.map(rem => rem.id === r.id ? { ...rem, active: !rem.active } : rem));
+                        try { await apiFetch(`/api/reminders/${r.id}/toggle`, { method: 'PUT' }, token); await refreshLocal(); if (onCrudDone) onCrudDone(popupType); } catch { await refreshLocal(); }
+                      }} style={{ width: 44, height: 24, borderRadius: 12, background: r.active ? `${accent}40` : 'rgba(255,255,255,0.08)', border: `1px solid ${r.active ? accent : 'rgba(255,255,255,0.12)'}`, cursor: 'pointer', position: 'relative', transition: 'all 0.2s' } as any}>
+                        <div style={{ width: 18, height: 18, borderRadius: 9, background: r.active ? accent : 'rgba(255,255,255,0.3)', position: 'absolute', top: 2, left: r.active ? 22 : 2, transition: 'left 0.2s' } as any} />
+                      </div>}
+                      {isPro && r.professional_name && <div style={{ padding: '2px 8px', borderRadius: 999, background: `${accent}15` } as any}><span style={{ fontSize: 8, fontWeight: 700, color: accent }}>{r.professional_name.split(' ')[0]}</span></div>}
+                      <i className={isOpen ? 'ri-arrow-up-s-line' : 'ri-arrow-down-s-line'} style={{ fontSize: 16, color: 'rgba(255,255,255,0.2)' }} />
+                    </div>
+                  </div>
+                  {/* Expanded detail */}
+                  {isOpen && (
+                    <div style={{ padding: '0 16px 16px', borderTop: '1px solid rgba(255,255,255,0.06)' } as any}>
+                      {r.dosage && (
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 12, marginBottom: 8 } as any}>
+                          <i className="ri-medicine-bottle-line" style={{ fontSize: 12, color: accent }} />
+                          <span style={{ fontSize: 12, fontWeight: 700, color: accent }}>Dosage : {r.dosage}</span>
                         </div>
-                        {r.dosage && (
-                          <div style={{ padding: '2px 8px', borderRadius: 6, background: `${accent}15`, border: `1px solid ${accent}25` } as any}>
-                            <span style={{ fontSize: 10, fontWeight: 700, color: accent }}>{r.dosage}</span>
-                          </div>
-                        )}
-                      </div>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 4 } as any}>
-                        <i className="ri-calendar-line" style={{ fontSize: 10, color: 'rgba(255,255,255,0.2)' }} />
-                        <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.3)' }}>{daysStr}</span>
-                      </div>
-                      {r.notes && (
-                        <div style={{ marginTop: 6, padding: '8px 10px', borderRadius: 10, background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.05)' } as any}>
+                      )}
+                      {r.volume && (
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 8 } as any}>
+                          <i className="ri-goblet-fill" style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)' }} />
+                          <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)' }}>Volume : {r.volume}</span>
+                        </div>
+                      )}
+                      {r.benefits && (
+                        <div style={{ padding: '8px 12px', borderRadius: 10, background: `${accent}08`, border: `1px solid ${accent}15`, marginBottom: 8 } as any}>
+                          <div style={{ fontSize: 9, fontWeight: 700, color: 'rgba(255,255,255,0.25)', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 3 }}>Bienfaits</div>
+                          <div style={{ fontSize: 11, color: accent, lineHeight: 1.5 }}>{r.benefits}</div>
+                        </div>
+                      )}
+                      {ingr.length > 0 && (
+                        <div style={{ marginBottom: 8 } as any}>
+                          <div style={{ fontSize: 9, fontWeight: 700, color: 'rgba(255,255,255,0.25)', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 6 }}>Ingredients</div>
+                          {ingr.map((ig: any, ii: number) => (
+                            <div key={ii} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '5px 0', borderBottom: ii < ingr.length - 1 ? '1px solid rgba(255,255,255,0.04)' : 'none' } as any}>
+                              <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.5)' }}>{ig.name}</span>
+                              <span style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.35)' }}>{ig.quantity}{ig.unit || ''}</span>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                      {r.notes && !r.benefits && !ingr.length && (
+                        <div style={{ marginTop: 8, padding: '8px 10px', borderRadius: 10, background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.05)' } as any}>
                           <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.4)', lineHeight: 1.5 }}>{r.notes}</div>
                         </div>
                       )}
+                      {/* Actions */}
+                      <div style={{ display: 'flex', gap: 8, marginTop: 12 } as any}>
+                        {!isPro && <div onClick={() => setEditReminder({ ...editReminder, _editingId: r.id, _editingData: { time: r.time, notes: r.notes || '', days: r.days || ['lun','mar','mer','jeu','ven','sam','dim'] } })} style={{ flex: 1, padding: '10px', borderRadius: 999, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', textAlign: 'center', cursor: 'pointer', fontSize: 12, fontWeight: 700, color: '#FFF' } as any}>Modifier</div>}
+                        {!r.source && <div data-testid={`delete-reminder-${r.id}`} onClick={async () => {
+                          setLocalReminders(prev => prev.filter(rem => rem.id !== r.id)); setExpandedRem(null);
+                          try { await apiFetch(`/api/reminders/${r.id}`, { method: 'DELETE' }, token); clearApiCache(); await refreshLocal(); if (onCrudDone) onCrudDone(popupType); } catch { await refreshLocal(); }
+                        }} style={{ padding: '10px 16px', borderRadius: 999, background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.15)', textAlign: 'center', cursor: 'pointer', fontSize: 12, fontWeight: 700, color: '#EF4444' } as any}>Supprimer</div>}
+                      </div>
                     </div>
-                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8, flexShrink: 0 } as any}>
-                      {!isPro && <div data-testid={`toggle-reminder-${r.id}`} onClick={async () => {
-                        setLocalReminders(prev => prev.map(rem => rem.id === r.id ? { ...rem, active: !rem.active } : rem));
-                        try { await apiFetch(`/api/reminders/${r.id}/toggle`, { method: 'PUT' }, token); await refreshLocal(); if (onCrudDone) onCrudDone(popupType); } catch { await refreshLocal(); }
-                      }} style={{ width: 48, height: 26, borderRadius: 13, background: r.active ? `${accent}40` : 'rgba(255,255,255,0.08)', border: `1px solid ${r.active ? accent : 'rgba(255,255,255,0.12)'}`, cursor: 'pointer', position: 'relative', transition: 'all 0.2s' } as any}>
-                        <div style={{ width: 20, height: 20, borderRadius: 10, background: r.active ? accent : 'rgba(255,255,255,0.3)', position: 'absolute', top: 2, left: r.active ? 24 : 2, transition: 'left 0.2s' } as any} />
-                      </div>}
-                      {!r.source && <div data-testid={`delete-reminder-${r.id}`} onClick={async () => {
-                        setLocalReminders(prev => prev.filter(rem => rem.id !== r.id));
-                        try { await apiFetch(`/api/reminders/${r.id}`, { method: 'DELETE' }, token); clearApiCache(); await refreshLocal(); if (onCrudDone) onCrudDone(popupType); } catch { await refreshLocal(); }
-                      }} style={{ cursor: 'pointer', padding: '4px' } as any}>
-                        <i className="ri-delete-bin-line" style={{ fontSize: 14, color: 'rgba(239,68,68,0.4)' }} />
-                      </div>}
-                    </div>
-                  </div>
+                  )}
                 </div>
               );
             })}
@@ -374,7 +403,7 @@ export function ReminderCRUDPopup({ show, editReminder, setEditReminder, onClose
                               {s.source === 'pro' && <div style={{ fontSize: 9, color: accent, fontWeight: 700, marginBottom: 8 }}>Recommande par votre coach</div>}
                               <div data-testid={`add-suggestion-${si}`} onClick={async () => {
                                 try {
-                                  await apiFetch('/api/reminders', { method: 'POST', body: JSON.stringify({ reminder_type: popupType, title: s.title, time: '08:00', days: ['lun','mar','mer','jeu','ven','sam','dim'], notes: s.description || '', dosage: s.dosage || '', active: true }) }, token);
+                                  await apiFetch('/api/reminders', { method: 'POST', body: JSON.stringify({ reminder_type: popupType, title: s.title, time: '08:00', days: ['lun','mar','mer','jeu','ven','sam','dim'], notes: s.description || '', dosage: s.dosage || '', volume: s.volume || '', benefits: s.benefits || '', ingredients: JSON.stringify(s.ingredients || []), active: true }) }, token);
                                   await refreshLocal(); if (onCrudDone) onCrudDone(popupType); setExpandedSugg(null); setShowLibrary(false);
                                 } catch {}
                               }} style={{ padding: '10px', borderRadius: 999, background: '#FFF', textAlign: 'center', cursor: 'pointer', fontSize: 12, fontWeight: 800, color: '#111' } as any}>

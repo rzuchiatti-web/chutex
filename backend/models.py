@@ -193,6 +193,10 @@ class ReminderCreate(BaseModel):
     days: List[str] = []
     notes: str = ""
     active: bool = True
+    dosage: str = ""
+    volume: str = ""
+    benefits: str = ""
+    ingredients: str = ""
 
 
 class DataSharingPrefs(BaseModel):

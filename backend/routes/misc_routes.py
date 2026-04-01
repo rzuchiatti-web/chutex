@@ -404,6 +404,10 @@ async def create_reminder(data: ReminderCreate, user=Depends(get_current_user)):
         "days": data.days, "notes": data.notes, "active": data.active,
         "completed": False, "created_at": datetime.now(timezone.utc).isoformat(),
     }
+    if data.dosage: rem["dosage"] = data.dosage
+    if data.volume: rem["volume"] = data.volume
+    if data.benefits: rem["benefits"] = data.benefits
+    if data.ingredients: rem["ingredients"] = data.ingredients
     await db.reminders.insert_one(rem)
     return {k: v for k, v in rem.items() if k != '_id'}
 
