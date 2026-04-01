@@ -217,3 +217,96 @@ async def get_sleep_analysis(user=Depends(get_current_user)):
         "stages_avg": stages_avg, "sleep_need_min": sleep_need,
         "recommended_bedtime": recommended_bedtime, "weekly_trend": weekly_trend,
     }
+
+
+
+@router.get("/health/sleep-alarm")
+async def get_sleep_alarm(user=Depends(get_current_user)):
+    """Get user's wake alarm and computed recommended bedtime"""
+    uid = user['id']
+    alarm = await db.sleep_alarms.find_one({"user_id": uid}, {"_id": 0})
+    wake_time = alarm.get("wake_time", "07:00") if alarm else "07:00"
+    enabled = alarm.get("enabled", True) if alarm else True
+
+    # Compute recommended bedtime based on health data
+    u = await db.users.find_one({"id": uid}, {"_id": 0})
+    age = 70  # default senior
+    if u and u.get("date_of_birth"):
+        try:
+            dob = datetime.fromisoformat(u["date_of_birth"].replace("Z", "+00:00")) if isinstance(u["date_of_birth"], str) else u["date_of_birth"]
+            age = (datetime.now(timezone.utc) - dob).days // 365
+        except: pass
+
+    # Base sleep need by age
+    if age >= 65: base_min = 450  # 7h30
+    elif age >= 50: base_min = 480  # 8h
+    else: base_min = 480
+
+    # Adjustments from health data
+    extra_min = 0
+    latest = await db.device_readings.find_one(
+        {"user_id": uid, "device_type": "bracelet"}, {"_id": 0}, sort=[("timestamp", -1)]
+    )
+    reasons = []
+    if latest and latest.get("data"):
+        bd = latest["data"]
+        recovery = bd.get("recovery_score", 0)
+        stress = bd.get("stress_level", 0)
+        sleep_q = bd.get("sleep_quality", 0)
+        steps = bd.get("steps", 0)
+        if recovery > 0 and recovery < 60:
+            extra_min += 30
+            reasons.append("Recuperation faible")
+        if stress > 60:
+            extra_min += 15
+            reasons.append("Stress eleve")
+        if sleep_q > 0 and sleep_q < 70:
+            extra_min += 15
+            reasons.append("Sommeil recent insuffisant")
+        if steps > 8000:
+            extra_min += 15
+            reasons.append("Activite physique intense")
+
+    total_sleep_min = base_min + extra_min
+
+    # Compute bedtime from wake time
+    try:
+        wake_h, wake_m = map(int, wake_time.split(":"))
+        wake_total_min = wake_h * 60 + wake_m
+        bed_total_min = wake_total_min - total_sleep_min
+        if bed_total_min < 0: bed_total_min += 1440
+        bed_h = bed_total_min // 60
+        bed_m = bed_total_min % 60
+        bedtime = f"{bed_h:02d}:{bed_m:02d}"
+    except:
+        bedtime = "22:00"
+
+    sleep_h = total_sleep_min // 60
+    sleep_m = total_sleep_min % 60
+
+    return {
+        "wake_time": wake_time,
+        "enabled": enabled,
+        "bedtime": bedtime,
+        "sleep_need_hours": sleep_h,
+        "sleep_need_minutes": sleep_m,
+        "adjustments": reasons,
+        "base_hours": base_min // 60,
+        "base_minutes": base_min % 60,
+        "extra_minutes": extra_min,
+    }
+
+
+@router.put("/health/sleep-alarm")
+async def set_sleep_alarm(data: dict, user=Depends(get_current_user)):
+    """Set user's wake alarm time"""
+    uid = user['id']
+    wake_time = data.get("wake_time", "07:00")
+    enabled = data.get("enabled", True)
+    await db.sleep_alarms.update_one(
+        {"user_id": uid},
+        {"$set": {"user_id": uid, "wake_time": wake_time, "enabled": enabled, "updated_at": datetime.now(timezone.utc).isoformat()}},
+        upsert=True,
+    )
+    # Return updated recommendation
+    return await get_sleep_alarm(user)
