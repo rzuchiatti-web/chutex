@@ -419,12 +419,27 @@ export function ReminderCRUDPopup({ show, editReminder, setEditReminder, onClose
               );
             })()}
 
-            {/* Add button — opens library */}
-            <div data-testid="add-reminder-btn" onClick={() => setShowLibrary(!showLibrary)} style={{ padding: '14px', borderRadius: 999, background: '#FFF', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, marginTop: 12, marginBottom: 80, transition: 'opacity 0.15s' } as any}
-              onMouseEnter={(e: any) => { e.currentTarget.style.opacity = '0.85'; }}
-              onMouseLeave={(e: any) => { e.currentTarget.style.opacity = '1'; }}>
-              <i className={showLibrary ? 'ri-close-line' : 'ri-add-line'} style={{ fontSize: 18, color: '#111' }} />
-              <span style={{ fontSize: 14, fontWeight: 700, color: '#111' }}>{showLibrary ? 'Fermer la bibliotheque' : 'Ajouter un rappel'}</span>
+            {/* Add buttons — custom + library */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginTop: 12, marginBottom: 80 } as any}>
+              <div data-testid="add-custom-reminder-btn" onClick={async () => {
+                try {
+                  const res = await apiFetch('/api/reminders', { method: 'POST', body: JSON.stringify({ reminder_type: popupType, title: '', time: '08:00', days: ['lun','mar','mer','jeu','ven','sam','dim'], notes: '', active: true }) }, token);
+                  await refreshLocal();
+                  if (onCrudDone) onCrudDone(popupType);
+                  if (res?.id) setEditReminder({ ...editReminder, _editingId: res.id, _editingData: { time: '08:00', notes: '', days: ['lun','mar','mer','jeu','ven','sam','dim'] } });
+                } catch {}
+              }} style={{ padding: '14px', borderRadius: 999, background: '#FFF', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, transition: 'opacity 0.15s' } as any}
+                onMouseEnter={(e: any) => { e.currentTarget.style.opacity = '0.85'; }}
+                onMouseLeave={(e: any) => { e.currentTarget.style.opacity = '1'; }}>
+                <i className="ri-add-line" style={{ fontSize: 18, color: '#111' }} />
+                <span style={{ fontSize: 14, fontWeight: 700, color: '#111' }}>Creer un rappel personnalise</span>
+              </div>
+              <div data-testid="browse-library-btn" onClick={() => setShowLibrary(!showLibrary)} style={{ padding: '14px', borderRadius: 999, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, transition: 'opacity 0.15s' } as any}
+                onMouseEnter={(e: any) => { e.currentTarget.style.opacity = '0.85'; }}
+                onMouseLeave={(e: any) => { e.currentTarget.style.opacity = '1'; }}>
+                <i className={showLibrary ? 'ri-close-line' : 'ri-book-open-line'} style={{ fontSize: 16, color: 'rgba(255,255,255,0.6)' }} />
+                <span style={{ fontSize: 13, fontWeight: 700, color: 'rgba(255,255,255,0.6)' }}>{showLibrary ? 'Fermer la bibliotheque' : 'Parcourir la bibliotheque'}</span>
+              </div>
             </div>
           </>
         )}
