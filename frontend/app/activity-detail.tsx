@@ -417,15 +417,32 @@ export default function ActivityDetailPage() {
 
       {/* ── POPUP AJOUT EXERCICE ── */}
       {showAddExercise && (
-        <div data-testid="add-exercise-popup" onClick={() => setShowAddExercise(false)} style={{ position: 'fixed', inset: 0, zIndex: 9999, background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)', overflowY: 'auto', animation: 'popIn 0.25s ease' } as any}>
-          <div onClick={(ev: any) => ev.stopPropagation()} style={{ width: '100%', maxWidth: 440, margin: '0 auto', padding: '20px 16px 120px', boxSizing: 'border-box' } as any}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 } as any}>
-              <div style={{ fontSize: 18, fontWeight: 900, color: '#FFF' }}>Ajouter un exercice</div>
-              <div onClick={() => setShowAddExercise(false)} style={{ width: 38, height: 38, borderRadius: 999, background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}>
-                <i className="ri-close-line" style={{ fontSize: 18, color: '#FFF' }} />
+        <div data-testid="add-exercise-popup" onClick={() => setShowAddExercise(false)} style={{ position: 'fixed', inset: 0, zIndex: 9999, background: 'rgba(0,0,0,0.85)', backdropFilter: 'blur(32px)', WebkitBackdropFilter: 'blur(32px)', overflowY: 'auto', animation: 'popIn 0.25s ease' } as any}>
+          <div onClick={(ev: any) => ev.stopPropagation()} style={{ width: '100%', maxWidth: 440, margin: '0 auto', padding: '40px 20px 120px', boxSizing: 'border-box' } as any}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 } as any}>
+              <div style={{ fontSize: 22, fontWeight: 900, color: '#FFF' }}>Ajouter un exercice</div>
+              <div onClick={() => setShowAddExercise(false)} style={{ width: 40, height: 40, borderRadius: 999, background: 'rgba(255,255,255,0.12)', border: '1px solid rgba(255,255,255,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}>
+                <i className="ri-close-line" style={{ fontSize: 20, color: '#FFF' }} />
               </div>
             </div>
-            <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', marginBottom: 20, lineHeight: 1.5 }}>Choisissez un exercice dans la bibliotheque ou creez-en un nouveau.</div>
+            <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)', marginBottom: 24, lineHeight: 1.5 }}>Choisissez dans la bibliotheque ou creez le votre.</div>
+
+            {/* Bouton creer un exercice personnalise */}
+            <div data-testid="create-custom-exercise-btn" onClick={() => { setShowAddExercise(false); router.push({ pathname: '/pro-exercise-detail' as any, params: { mode: 'create-self' } }); }}
+              style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '16px 18px', borderRadius: 18, background: 'rgba(239,68,68,0.12)', border: '1.5px solid rgba(239,68,68,0.25)', marginBottom: 20, cursor: 'pointer', transition: 'background 0.15s' } as any}
+              onMouseEnter={(e: any) => { e.currentTarget.style.background = 'rgba(239,68,68,0.18)'; }}
+              onMouseLeave={(e: any) => { e.currentTarget.style.background = 'rgba(239,68,68,0.12)'; }}>
+              <div style={{ width: 44, height: 44, borderRadius: 14, background: 'rgba(239,68,68,0.15)', border: '1px solid rgba(239,68,68,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}>
+                <i className="ri-add-line" style={{ fontSize: 22, color: '#EF4444' }} />
+              </div>
+              <div>
+                <div style={{ fontSize: 15, fontWeight: 800, color: '#FFF' }}>Creer un exercice</div>
+                <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', marginTop: 2 }}>Exercice personnalise</div>
+              </div>
+              <i className="ri-arrow-right-s-line" style={{ fontSize: 20, color: 'rgba(255,255,255,0.3)', marginLeft: 'auto' }} />
+            </div>
+
+            <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 14 }}>Bibliotheque</div>
 
             {libLoading && <div style={{ textAlign: 'center', padding: '40px 0' }}><i className="ri-loader-4-line" style={{ fontSize: 24, color: '#FFF', animation: 'spin 0.8s linear infinite', display: 'block' }} /></div>}
 
@@ -439,21 +456,23 @@ export default function ActivityDetailPage() {
                     fetchData();
                   } catch {}
                 }}
-                style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 14px', borderRadius: 16, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', marginBottom: 8, cursor: 'pointer', transition: 'background 0.15s' } as any}
-                onMouseEnter={(e: any) => { e.currentTarget.style.background = 'rgba(255,255,255,0.1)'; }}
-                onMouseLeave={(e: any) => { e.currentTarget.style.background = 'rgba(255,255,255,0.06)'; }}>
+                style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '14px 16px', borderRadius: 16, background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)', marginBottom: 8, cursor: 'pointer', transition: 'background 0.15s' } as any}
+                onMouseEnter={(e: any) => { e.currentTarget.style.background = 'rgba(255,255,255,0.14)'; }}
+                onMouseLeave={(e: any) => { e.currentTarget.style.background = 'rgba(255,255,255,0.08)'; }}>
                 {tpl.image ? (
-                  <img src={tpl.image.startsWith('http') ? tpl.image : `${API_URL}${tpl.image}`} alt="" style={{ width: 52, height: 52, borderRadius: 12, objectFit: 'cover', flexShrink: 0 } as any} />
+                  <img src={tpl.image.startsWith('http') ? tpl.image : `${API_URL}${tpl.image}`} alt="" style={{ width: 52, height: 52, borderRadius: 14, objectFit: 'cover', flexShrink: 0 } as any} />
                 ) : (
-                  <div style={{ width: 52, height: 52, borderRadius: 12, background: 'rgba(255,255,255,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}>
-                    <i className={tpl.icon || 'ri-run-line'} style={{ fontSize: 20, color: '#EF4444' }} />
+                  <div style={{ width: 52, height: 52, borderRadius: 14, background: 'rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}>
+                    <i className={tpl.icon || 'ri-run-line'} style={{ fontSize: 22, color: '#EF4444' }} />
                   </div>
                 )}
                 <div style={{ flex: 1, minWidth: 0 } as any}>
-                  <div style={{ fontSize: 13, fontWeight: 700, color: '#FFF' }}>{tpl.title}</div>
-                  <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.35)', marginTop: 2 }}>{tpl.category || 'Exercice'}{tpl.sets ? ` · ${tpl.sets}x${tpl.repetitions}` : ''}</div>
+                  <div style={{ fontSize: 14, fontWeight: 800, color: '#FFF' }}>{tpl.title}</div>
+                  <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.45)', marginTop: 3 }}>{tpl.category || 'Exercice'}{tpl.sets ? ` · ${tpl.sets}x${tpl.repetitions}` : ''}{tpl.muscle_group ? ` · ${tpl.muscle_group}` : ''}</div>
                 </div>
-                <i className="ri-add-circle-line" style={{ fontSize: 20, color: '#10B981', flexShrink: 0 }} />
+                <div style={{ width: 36, height: 36, borderRadius: 12, background: 'rgba(16,185,129,0.12)', border: '1px solid rgba(16,185,129,0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}>
+                  <i className="ri-add-line" style={{ fontSize: 18, color: '#10B981' }} />
+                </div>
               </div>
             ))}
           </div>
