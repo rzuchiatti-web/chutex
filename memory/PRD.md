@@ -67,6 +67,8 @@ L'objectif est une UI Glassmorphism + Light mode avec synchronisation en temps r
 - [x] **Espace SAAD — Connexion bancaire IBAN/Mollie** — Remplacement du bouton "Stripe Connect" par un formulaire IBAN direct via API Mollie (/api/saad/onboarding). Fonctionnel dans le profil prescriber_company et le dashboard company (2026-03-31)
 - [x] **Espace SAAD — Commission fixe 50+5** — Mise a jour de l'affichage des commissions (50 EUR HT souscription + 5 EUR HT/mois) dans les popups paiements du dashboard et du profil (2026-03-31)
 - [x] **Espace SAAD — Refonte Light Mode** — Dashboard prescriber_company converti du style full-screen dark image vers header image + contenu blanc (identique aux autres espaces). Codes et cartes paiements en light mode. Cartes Intervention/Prescriptions conservent leurs images de fond colorees (2026-03-31)
+- [x] **Validation douleur + note (Repas, Complements, Hydratation)** — Systeme de validation identique aux exercices (echelle douleur 1-10, notes texte, bouton Valider). Backend: POST /api/pro/meals/{id}/complete et POST /api/pro/reminders/{id}/complete avec pain_level + patient_notes. Frontend: meal-detail.tsx affiche la section validation en mode assigne. Nouvelle page reminder-detail.tsx pour les complements/hydratation. activity-detail.tsx affiche les repas et rappels du jour avec statut de completion. (2026-04-01)
+- [x] **Page Revenus SAAD — Paliers commissions** — pro-revenue.tsx affiche la grille tarifaire SAAD: Teleassistance (50EUR+5EUR/mois), Bracelet+Gilet (100EUR+10EUR/mois), Standard (50EUR) au lieu de l'ancien texte generique 45EUR/mois. (2026-04-01)
 
 ## Code Architecture (post-refactoring)
 ```
@@ -80,7 +82,7 @@ L'objectif est une UI Glassmorphism + Light mode avec synchronisation en temps r
 ```
 
 ## Backlog P0
-- [ ] Validation douleur + note pour Complements, Hydratation et Repas (identique aux exercices)
+*(Vide — toutes les taches P0 sont completees)*
 
 ## Backlog P1
 - [ ] Deploiement serveur TCP J2358 sur nouvelle IP

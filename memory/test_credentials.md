@@ -13,6 +13,16 @@
 - Password: test123
 - Name: Dr. Sophie Leclerc
 
+## SAAD Directeur (Company)
+- Email: +33499887766
+- Password: test123
+- Name: Marie Dupont
+
+## SAAD Intervenant (Guardian)
+- Email: +33611223344
+- Password: test123
+- Name: Sophie MARTIN
+
 ## Admin
 - Email: admin@chutex.fr
 - Password: admin123
