@@ -8,49 +8,43 @@ Application santé/coaching (React/Expo Web + FastAPI + MongoDB) pour seniors.
 - **Backend**: FastAPI sur port 8001
 - **Database**: MongoDB
 - **Auth**: JWT via AsyncStorage (clé `vl_token`)
-- **LLM**: OpenAI GPT-5.2 via Emergent LLM Key
 
 ## Fonctionnalités Implémentées
 
-### Espace Bénéficiaire
-- [x] Dashboard Light Mode (#F4F4F5, textes sombres)
-- [x] Carte programme sous objectif de poids
-- [x] Nora dans la navbar bénéficiaire (remise 2026-04-01)
-- [x] Messagerie dans onglet Navbar "Messages" (Light Mode navbar)
-- [x] Vue programme quotidienne en Light Mode
-- [x] Validation douleur + notes pour Repas, Hydratation, Compléments
+### Espace Bénéficiaire - Exercices
 - [x] Auto-assignation exercices depuis bibliothèque
-- [x] **Bug Fix: Programme Solo sans équipe ni notifications** (2026-04-01)
-- [x] **Fix: TeamActivityToast skip polling pour utilisateurs solo** (2026-04-01)
-- [x] **Créer un exercice personnalisé** (formulaire create-self) (2026-04-01)
-- [x] **Exercices: Modifier séries/reps/repos derrière bouton crayon** (2026-04-01)
-- [x] **Exercices: Modifier poids derrière bouton crayon** (2026-04-01)
-- [x] **Exercices: Header simplifié (titre seul, sans icône)** (2026-04-01)
-- [x] **Exercices: Graphe SVG d'évolution du poids (cliquable)** (2026-04-01)
-- [x] **Exercices: Timer de repos entre séries** (2026-04-01)
-- [x] **Exercices: Responsive max-width 480px** (2026-04-01)
-- [x] **Navbar Light Mode sur page Messages bénéficiaire** (2026-04-01)
+- [x] Créer un exercice personnalisé (formulaire create-self)
+- [x] Modifier séries/reps/repos via bouton crayon (toggle)
+- [x] Modifier poids via bouton crayon (toggle)
+- [x] Graphe SVG pleine largeur d'évolution du poids (clic = carte détail)
+- [x] Graph se met à jour après sauvegarde poids (re-fetch)
+- [x] Timer de repos entre les séries (Commencer l'exercice)
+- [x] Header exercice simplifié (titre seul)
+- [x] Carte poids: pas d'icône, chiffre gros (28px)
+- [x] Images exercices cohérentes (backend merge template data)
+- [x] Responsive max-width 480px
 
-### Espace Coach/Pro
-- [x] Gestion programmes, exercices, repas, compléments
-- [x] Templates exercices avec bibliothèque
-- [x] Notifications de complétion bénéficiaire
+### Espace Bénéficiaire - Calendrier Dynamique
+- [x] activity-detail: calendrier + exercices par date
+- [x] health-detail: calendrier + sommeil/constantes par date
+- [x] metric-detail: calendrier + pas/calories/distance par date
+- [x] glycemia-detail: calendrier + glycémie par date
+- [x] Données de complétion stockées par date exacte
 
-## APIs Clés Exercices
+### Espace Bénéficiaire - UI/UX
+- [x] Dashboard Light Mode (#F4F4F5)
+- [x] Nora dans navbar bénéficiaire
+- [x] Messagerie dans onglet "Messages" (navbar Light Mode)
+- [x] Programme Solo sans équipe ni notifications
+- [x] TeamActivityToast skip pour solo
+
+### APIs Clés
+- `GET /api/pro/beneficiary-today-exercises?date=YYYY-MM-DD` - Exercices du jour (merge template)
 - `PUT /api/pro/assigned-exercises/{id}/update-params` - Modifier séries/reps/repos
 - `PUT /api/pro/assigned-exercises/{id}/save-weight` - Enregistrer poids
-- `POST /api/pro/self-assign-exercise` - Auto-assignation (supporte `__custom__` pour créations perso)
-- `GET /api/pro/assigned-exercise-detail/{id}` - Détail avec last_weight_kg, weight_history
+- `POST /api/pro/self-assign-exercise` - Auto-assignation (supporte `__custom__`)
+- `GET /api/pro/assigned-exercise-detail/{id}` - Détail complet avec weight_history
 
-## Tâches En Cours / À Venir
-### P1 - En attente utilisateur
-- Déploiement serveur TCP J2358 sur nouvelle IP
-
-### P2 - Backlog
-- Intégration balance/gilet connectés
-- Signature électronique, Parrainage Gardiens, Essai gratuit 7j, Vivoo
-
-## Intégrations 3ème Partie
-- OpenAI GPT-5.2 (Emergent LLM Key)
-- Mollie (paiements - clé utilisateur requise)
-- SMS Mode (SMS - clé utilisateur requise)
+## Backlog
+- P1: Déploiement TCP J2358 (en attente utilisateur)
+- P2: Balance/gilet connectés, Signature électronique, Parrainage, Essai 7j, Vivoo
