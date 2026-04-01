@@ -60,6 +60,7 @@ export default function ChatIAScreen() {
         'Comment ai-je dormi cette nuit ?',
         'Peux-tu me faire un bilan de sante ?',
         'Quels exercices me recommandes-tu ?',
+        'Ajuste mes calories pour la journee',
       ];
 
   useEffect(() => { loadHistory(); setTimeout(() => setEntered(true), 100); setTimeout(() => setShowText(true), 1400); }, [role]);
@@ -123,7 +124,7 @@ export default function ChatIAScreen() {
     setSending(true);
     try {
       const res = await apiFetch('/api/chat/message', { method: 'POST', body: JSON.stringify({ message: msg, session_id: chatSessionId, beneficiary_id: isGuardian ? selectedBen : undefined }) }, token);
-      setMessages(prev => [...prev.filter(m => !m.id?.startsWith('temp-')), { id: 'u-' + Date.now(), role: 'user', content: msg, created_at: new Date().toISOString() }, { id: res.id, role: 'assistant', content: res.content, created_at: res.created_at }]);
+      setMessages(prev => [...prev.filter(m => !m.id?.startsWith('temp-')), { id: 'u-' + Date.now(), role: 'user', content: msg, created_at: new Date().toISOString() }, { id: res.id, role: 'assistant', content: res.content, created_at: res.created_at, actions: res.actions }]);
       setTypingId(res.id);
     } catch {
       setMessages(prev => [...prev, { id: 'err', role: 'assistant', content: 'Desole, une erreur est survenue.', created_at: new Date().toISOString() }]);
@@ -231,6 +232,48 @@ export default function ChatIAScreen() {
                   <div style={{ fontSize: 14, color: 'rgba(255,255,255,0.85)', lineHeight: 1.65, whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}>
                     {typingId === msg.id ? <TypewriterText text={msg.content} speed={15} onDone={() => setTypingId(null)} /> : msg.content}
                   </div>
+                  {/* Action confirmation cards */}
+                  {msg.actions && msg.actions.length > 0 && (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 6, marginTop: 10 } as any}>
+                      {msg.actions.filter((act: any) => ['UPDATE_CALORIES','ADJUST_MACROS','ADD_EXERCISE','CHECK_WEIGHT_GOAL'].includes(act.action)).map((act: any, ai: number) => {
+                        const r = act.result || {};
+                        const success = r.success !== false;
+                        let icon = 'ri-checkbox-circle-line';
+                        let label = '';
+                        let detail = '';
+                        if (act.action === 'UPDATE_CALORIES') {
+                          icon = success ? 'ri-restaurant-line' : 'ri-error-warning-line';
+                          label = success ? 'Calories mises a jour' : 'Modification refusee';
+                          detail = success ? `${r.daily_calories} kcal/jour` : (r.message || '');
+                        } else if (act.action === 'ADJUST_MACROS') {
+                          icon = success ? 'ri-scales-3-line' : 'ri-error-warning-line';
+                          label = success ? 'Macros ajustees' : 'Modification refusee';
+                          detail = success && r.macros ? `P:${r.macros.proteines_g}g G:${r.macros.glucides_g}g L:${r.macros.lipides_g}g` : (r.message || '');
+                        } else if (act.action === 'ADD_EXERCISE') {
+                          icon = success ? 'ri-run-line' : 'ri-error-warning-line';
+                          label = success ? 'Exercice ajoute' : 'Erreur';
+                          detail = success ? `${r.title} (${r.sets}x${r.repetitions})` : (r.message || '');
+                        } else if (act.action === 'CHECK_WEIGHT_GOAL') {
+                          icon = r.has_goal ? 'ri-scales-line' : 'ri-checkbox-circle-line';
+                          label = r.has_goal ? 'Objectif de poids actif' : 'Pas d\'objectif de poids';
+                          detail = r.has_goal ? `Cible: ${r.target_kg}kg` : '';
+                        }
+                        return (
+                          <div key={ai} data-testid={`action-card-${act.action}`} style={{
+                            display: 'flex', alignItems: 'center', gap: 10, padding: '10px 14px',
+                            borderRadius: 12, border: `1px solid ${success ? 'rgba(16,185,129,0.3)' : 'rgba(239,68,68,0.3)'}`,
+                            background: success ? 'rgba(16,185,129,0.08)' : 'rgba(239,68,68,0.08)',
+                          } as any}>
+                            <i className={icon} style={{ fontSize: 18, color: success ? '#10B981' : '#EF4444', flexShrink: 0 }} />
+                            <div style={{ flex: 1 } as any}>
+                              <div style={{ fontSize: 12, fontWeight: 700, color: success ? '#10B981' : '#EF4444' }}>{label}</div>
+                              {detail && <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.5)', marginTop: 2 }}>{detail}</div>}
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
                   <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.12)', marginTop: 4 }}>{msg.created_at ? new Date(msg.created_at).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }) : ''}</div>
                 </div>
               )

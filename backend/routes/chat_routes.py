@@ -1,10 +1,14 @@
 from fastapi import APIRouter, Depends
 from datetime import datetime, timezone
-import os, uuid, hashlib, time
+import os, uuid, hashlib, time, json, re
 
 from database import db
 from auth import get_current_user
 from services.nora_context import build_nora_context, format_nora_context_for_prompt, APP_SERVICES_KNOWLEDGE
+from services.nora_actions import (
+    check_weight_goal, update_daily_calories, adjust_macros,
+    list_exercise_library, add_exercise,
+)
 
 router = APIRouter()
 
@@ -46,6 +50,110 @@ def _set_cache(key: str, response: str):
         keys_to_del = [k for k, v in _response_cache.items() if v["ts"] < cutoff]
         for k in keys_to_del:
             del _response_cache[k]
+
+
+# ── Action keywords — detect when Nora should attempt actions ──
+_ACTION_KEYWORDS = [
+    "calorie", "calories", "kcal", "apport", "nutrition", "macro", "macros",
+    "proteine", "glucide", "lipide", "proteines", "glucides", "lipides",
+    "exercice", "exercices", "entrainement", "sport", "renforcement",
+    "ajoute", "ajouter", "modifie", "modifier", "ajuste", "ajuster",
+    "recommande", "propose", "programme", "seance", "workout",
+    "manger", "repas", "regime", "alimentation",
+]
+
+def _is_action_request(msg: str) -> bool:
+    m = msg.lower()
+    return sum(1 for kw in _ACTION_KEYWORDS if kw in m) >= 1
+
+
+def _parse_actions(text: str) -> tuple:
+    """Parse action markers from Nora's response. Returns (clean_text, actions_list)."""
+    pattern = r'<<<ACTION:(\w+):(.*?)>>>'
+    actions = []
+    for match in re.finditer(pattern, text, re.DOTALL):
+        action_name = match.group(1)
+        try:
+            params = json.loads(match.group(2).strip())
+        except (json.JSONDecodeError, Exception):
+            params = {}
+        actions.append({"action": action_name, "params": params})
+    clean = re.sub(pattern, '', text).strip()
+    clean = re.sub(r'\n{3,}', '\n\n', clean)
+    return clean, actions
+
+
+async def _execute_actions(actions: list, uid: str, user: dict) -> list:
+    """Execute parsed actions and return results."""
+    results = []
+    for act in actions:
+        name = act["action"]
+        params = act["params"]
+        try:
+            if name == "CHECK_WEIGHT_GOAL":
+                r = await check_weight_goal(uid)
+                results.append({"action": name, "result": r})
+            elif name == "UPDATE_CALORIES":
+                r = await update_daily_calories(
+                    uid,
+                    daily_calories=params.get("daily_calories", 0),
+                    macros=params.get("macros"),
+                )
+                results.append({"action": name, "result": r})
+            elif name == "ADJUST_MACROS":
+                r = await adjust_macros(
+                    uid,
+                    proteines_g=params.get("proteines_g"),
+                    glucides_g=params.get("glucides_g"),
+                    lipides_g=params.get("lipides_g"),
+                )
+                results.append({"action": name, "result": r})
+            elif name == "ADD_EXERCISE":
+                r = await add_exercise(uid, user, params)
+                results.append({"action": name, "result": r})
+            elif name == "LIST_EXERCISES":
+                r = await list_exercise_library(uid)
+                results.append({"action": name, "result": r})
+        except Exception as e:
+            print(f"Nora action error ({name}): {e}")
+            results.append({"action": name, "result": {"success": False, "message": str(e)}})
+    return results
+
+
+# ── Nora action prompt block ──
+NORA_ACTION_INSTRUCTIONS = """
+ACTIONS DISPONIBLES (beneficiaire uniquement):
+Tu peux effectuer des actions concretes en inserant des marqueurs dans ta reponse. Le systeme les executera automatiquement.
+
+FORMAT: <<<ACTION:NOM_ACTION:{"param":"valeur"}>>>
+
+ACTIONS:
+1. CHECK_WEIGHT_GOAL — Verifier si un objectif de poids est en cours
+   <<<ACTION:CHECK_WEIGHT_GOAL:{}>>>
+
+2. UPDATE_CALORIES — Modifier l'apport calorique quotidien (INTERDIT si objectif poids actif)
+   <<<ACTION:UPDATE_CALORIES:{"daily_calories": 1800, "macros": {"proteines_g": 70, "glucides_g": 220, "lipides_g": 50}}>>>
+
+3. ADJUST_MACROS — Modifier les macronutriments individuellement (INTERDIT si objectif poids actif)
+   <<<ACTION:ADJUST_MACROS:{"proteines_g": 75, "glucides_g": 200, "lipides_g": 55}>>>
+
+4. ADD_EXERCISE — Ajouter un exercice au programme du beneficiaire
+   Depuis la bibliotheque: <<<ACTION:ADD_EXERCISE:{"template_id": "xxx", "sets": 3, "repetitions": 12, "rest_seconds": 60}>>>
+   Personnalise: <<<ACTION:ADD_EXERCISE:{"title": "Marche rapide", "category": "cardio", "sets": 1, "repetitions": 1, "rest_seconds": 0, "description": "30 minutes de marche soutenue", "muscle_group": "jambes"}>>>
+
+5. LIST_EXERCISES — Lister les exercices disponibles dans la bibliotheque
+   <<<ACTION:LIST_EXERCISES:{}>>>
+
+REGLES STRICTES POUR LES ACTIONS:
+- Tu peux utiliser PLUSIEURS actions dans une seule reponse. Le systeme les executera toutes dans l'ordre
+- Pour modifier calories ou macros: emets DIRECTEMENT l'action UPDATE_CALORIES ou ADJUST_MACROS. Le systeme verifie automatiquement s'il y a un objectif de poids et bloquera si necessaire. Tu n'as PAS besoin de faire CHECK_WEIGHT_GOAL avant
+- Si le systeme bloque une modification (objectif actif), dis au patient qu'il doit d'abord terminer ou supprimer son objectif de poids dans l'espace Minceur
+- Tu peux TOUJOURS ajouter des exercices (avec ou sans objectif de poids)
+- Ne SUPPRIME JAMAIS les exercices prescrits par un gardien ou coach
+- Plafond 2h d'exercice/jour pour les seniors
+- Ajustements progressifs uniquement (pas de changements drastiques)
+- Quand tu effectues une action, explique au patient ce que tu fais en langage naturel AVANT le marqueur
+"""
 
 
 async def build_health_context(user, for_guardian=False, beneficiary_data=None):
@@ -209,6 +317,25 @@ async def send_chat_message(data: dict, user=Depends(get_current_user)):
                 focus_name = target_ben_name or (ben_names[0] if ben_names else "le patient")
                 names_str = ", ".join(ben_names) if ben_names else "ses beneficiaires"
                 guardian_extra = f"\n- L'utilisateur est un GARDIEN/AIDANT de: {names_str}. Tu reponds actuellement au sujet de {focus_name}. Quand tu parles des beneficiaires, utilise TOUJOURS leur prenom. NE DIS JAMAIS \"vous\" ou \"votre\" pour parler du patient. Tutoie le gardien."
+            # Add action instructions for beneficiaries if the message seems action-related
+            action_block = ""
+            wants_actions = not is_guardian and _is_action_request(user_message)
+            if wants_actions:
+                # Fetch exercise library summary for context
+                lib = await list_exercise_library(uid)
+                ex_list = ", ".join(f"{e['title']} (id:{e['id']})" for e in lib.get("exercises", [])[:15])
+                ex_ctx = f"\nEXERCICES DISPONIBLES DANS LA BIBLIOTHEQUE: {ex_list}" if ex_list else ""
+                # Check current nutrition
+                today_str_n = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+                daily_cache = await db.minceur_daily_cache.find_one(
+                    {"user_id": uid, "date": today_str_n}, {"_id": 0}
+                )
+                nut_ctx = ""
+                if daily_cache and daily_cache.get("recommendations"):
+                    recs_n = daily_cache["recommendations"]
+                    nut_ctx = f"\nNUTRITION ACTUELLE: {recs_n.get('daily_calories', '?')} kcal/jour, macros: {recs_n.get('macros', {})}"
+                action_block = f"\n{NORA_ACTION_INSTRUCTIONS}{ex_ctx}{nut_ctx}"
+
             system = f"""Tu es Nora, IA de Chutex specialisee en prevention et longevite. Reponds en {lang_name}, ton serieux et factuel, max 3-4 phrases sauf question complexe. L'app s'appelle Chutex (JAMAIS "CareWatch"). Chutex Care = service teleassistance 24/7.
 
 DONNEES SANTE:
@@ -223,7 +350,7 @@ REGLES:
 - Si +75 ans sans Care → recommande teleassistance. Si anomalie sommeil → programme sommeil. Si tension elevee → programme tension. Si faible activite → programme activite
 - Symptomes graves → consultation medicale en presentiel
 - Pas d'emojis, pas de felicitations superficielles, pas de bonjour si conversation deja en cours
-- Privilegier longevite, prevention, bien vieillir{guardian_extra}"""
+- Privilegier longevite, prevention, bien vieillir{guardian_extra}{action_block}"""
 
             chat = LlmChat(
                 api_key=api_key,
@@ -234,27 +361,47 @@ REGLES:
             prompt = f"Historique recent:\n{history_str}\n\nNouveau message du {'gardien' if is_guardian else 'patient'}: {user_message}"
             r = await chat.send_message(UserMessage(text=prompt))
             ai_response = r.strip()
-            # Cache the response
-            _set_cache(ckey, ai_response)
+
+            # If not an action-related message, cache it
+            if not wants_actions:
+                _set_cache(ckey, ai_response)
         except Exception as e:
             print(f"Chat AI error: {e}")
 
     if not ai_response:
         ai_response = "Je n'ai pas pu traiter votre question. Pourriez-vous reformuler ?"
 
-    # Save AI response
+    # Parse and execute actions from Nora's response
+    actions_executed = []
+    clean_response = ai_response
+    if "<<<ACTION:" in ai_response:
+        clean_response, parsed_actions = _parse_actions(ai_response)
+        if parsed_actions:
+            u_full = await db.users.find_one({"id": uid}, {"_id": 0})
+            actions_executed = await _execute_actions(parsed_actions, uid, u_full or user)
+            # If an action failed with objectif_poids_actif, inject info into response
+            for ar in actions_executed:
+                if ar.get("result", {}).get("reason") == "objectif_poids_actif":
+                    if "objectif" not in clean_response.lower():
+                        clean_response += "\n\nVous avez un objectif de poids en cours. Vous devez d'abord le terminer ou le supprimer dans l'espace Minceur avant que je puisse modifier vos apports caloriques ou macros."
+
+    # Save AI response (clean version without markers)
     resp_id = str(uuid.uuid4())
     await db.chat_messages.insert_one({
         "id": resp_id, "user_id": uid, "session_id": session_id,
-        "role": "assistant", "content": ai_response,
-        "created_at": datetime.now(timezone.utc).isoformat()
+        "role": "assistant", "content": clean_response,
+        "created_at": datetime.now(timezone.utc).isoformat(),
+        **({"actions": actions_executed} if actions_executed else {}),
     })
 
-    return {
+    response = {
         "id": resp_id,
-        "content": ai_response,
-        "created_at": datetime.now(timezone.utc).isoformat()
+        "content": clean_response,
+        "created_at": datetime.now(timezone.utc).isoformat(),
     }
+    if actions_executed:
+        response["actions"] = actions_executed
+    return response
 
 
 @router.get("/chat/history")
