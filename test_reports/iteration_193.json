@@ -26,7 +26,7 @@
   "seed_data_creation": "None - used existing user with active program and assigned exercises",
   "retest_needed": false,
   "should_main_agent_self_test": false,
-  "context_for_next_testing_agent": "All features verified. User Josette has active solo program '21 jours pour mieux dormir' and assigned exercise 'Squat' (id=e2c5bcdd-b6c0-4ff6-8586-41b9460d7702) with equipment 'Barre'. Exercise params and weight tracking working correctly.",
+  "context_for_next_testing_agent": "All features verified. User Josette has active solo program '21 jours pour mieux dormir' and assigned exercise 'Squat' (id=exercise-params) with equipment 'Barre'. Exercise params and weight tracking working correctly.",
   "features_tested": {
     "bug_solo_program_no_team": {
       "status": "PASS",

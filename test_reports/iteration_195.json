@@ -23,7 +23,7 @@
     "frontend": "100%"
   },
   "test_credentials": "Beneficiaire: +33651245918 / test123 (Josette)",
-  "seed_data_creation": "None - used existing user with Squat exercise (id=e2c5bcdd-b6c0-4ff6-8586-41b9460d7702)",
+  "seed_data_creation": "None - used existing user with Squat exercise (id=exercise-params)",
   "retest_needed": false,
   "should_main_agent_self_test": false,
   "context_for_next_testing_agent": "All iteration 195 features verified. Backend beneficiary-today-exercises now merges template data (image, description, equipment, muscle_group). Weight card shows 70kg in large font without icon. Weight chart is full-width with clickable points that show detail card below with date and weight. Calendar on activity-detail page is dynamic - different dates return different exercise counts. Exercise images are correctly displayed from merged template data.",

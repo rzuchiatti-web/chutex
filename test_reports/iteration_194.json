@@ -26,7 +26,7 @@
   "seed_data_creation": "None - used existing user with active solo program and assigned exercise Squat",
   "retest_needed": false,
   "should_main_agent_self_test": false,
-  "context_for_next_testing_agent": "All iteration 194 features verified. User Josette has active solo program (team=null) and assigned exercise Squat (id=e2c5bcdd-b6c0-4ff6-8586-41b9460d7702) with equipment Barre and weight_history. TeamActivityToast correctly skips polling for solo users. Exercise detail page has edit params (+/- buttons), edit weight (with OK button), weight chart SVG, workout timer with rest countdown, and validation section.",
+  "context_for_next_testing_agent": "All iteration 194 features verified. User Josette has active solo program (team=null) and assigned exercise Squat (id=exercise-params) with equipment Barre and weight_history. TeamActivityToast correctly skips polling for solo users. Exercise detail page has edit params (+/- buttons), edit weight (with OK button), weight chart SVG, workout timer with rest countdown, and validation section.",
   "features_tested": {
     "team_activity_toast_solo_fix": {
       "status": "PASS",

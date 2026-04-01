@@ -20,7 +20,7 @@
     "frontend": "100%"
   },
   "test_credentials": "Beneficiaire: +33651245918 / test123 (Josette)",
-  "seed_data_creation": "None - used existing Squat exercise (id=e2c5bcdd-b6c0-4ff6-8586-41b9460d7702)",
+  "seed_data_creation": "None - used existing Squat exercise (id=exercise-params)",
   "retest_needed": false,
   "should_main_agent_self_test": false,
   "context_for_next_testing_agent": "Workout popup feature fully implemented and tested. The popup is a full-screen overlay (position:fixed, inset:0, zIndex:9999) with dark background (#0A0A0F). It has 3 states: set screen (workout-set-screen), rest screen (workout-rest-screen), finished screen (workout-finished-screen). Exercise has 10 sets, 21 reps, 130s rest.",
