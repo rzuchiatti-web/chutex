@@ -294,45 +294,12 @@ export default function ProExerciseDetailPage() {
                 </div>
               )}
 
-              {/* WORKOUT TIMER */}
-              {isAssigned && !completed && (
-                <div data-testid="workout-section" style={{ borderRadius: 16, background: workoutStarted ? 'rgba(16,185,129,0.04)' : '#F4F4F5', border: workoutStarted ? '1px solid rgba(16,185,129,0.15)' : '1px solid transparent', padding: 16, marginBottom: 14 } as any}>
-                  {!workoutStarted ? (
-                    <div data-testid="start-workout-btn" onClick={() => { setWorkoutStarted(true); setCurrentSet(1); }} style={{ padding: '16px', borderRadius: 14, background: '#111', textAlign: 'center', cursor: 'pointer', fontSize: 15, fontWeight: 800, color: '#FFF' } as any}>
-                      <i className="ri-play-fill" style={{ marginRight: 8 }} />Commencer l'exercice
-                    </div>
-                  ) : (
-                    <>
-                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 } as any}>
-                        <div style={{ fontSize: 14, fontWeight: 800, color: '#111' }}>Serie {currentSet}/{totalSets}</div>
-                        <div style={{ display: 'flex', gap: 3 } as any}>
-                          {Array.from({ length: totalSets }).map((_, i) => (
-                            <div key={i} style={{ width: 8, height: 8, borderRadius: 4, background: i < currentSet ? '#10B981' : '#E5E7EB', transition: 'background 0.3s' } as any} />
-                          ))}
-                        </div>
-                      </div>
-                      {resting ? (
-                        <div data-testid="rest-timer" style={{ textAlign: 'center', padding: '20px 0' } as any}>
-                          <div style={{ fontSize: 11, fontWeight: 700, color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 8 }}>Temps de repos</div>
-                          <div style={{ fontSize: 48, fontWeight: 900, color: accent, fontVariantNumeric: 'tabular-nums' } as any}>{Math.floor(restTime / 60)}:{String(restTime % 60).padStart(2, '0')}</div>
-                          <div style={{ height: 6, borderRadius: 3, background: '#E5E7EB', marginTop: 12, overflow: 'hidden' } as any}><div style={{ height: '100%', borderRadius: 3, background: accent, width: `${(1 - restTime / (ex?.rest_seconds || editRest || 60)) * 100}%`, transition: 'width 1s linear' } as any} /></div>
-                          <div onClick={() => { clearInterval(restRef.current); setResting(false); setCurrentSet(s => s + 1); }} style={{ marginTop: 12, fontSize: 12, fontWeight: 700, color: accent, cursor: 'pointer' }}>Passer le repos</div>
-                        </div>
-                      ) : currentSet <= totalSets ? (
-                        <div style={{ textAlign: 'center' } as any}>
-                          <div style={{ fontSize: 13, color: '#6B7280', marginBottom: 12 }}>{ex.repetitions || editReps} reps</div>
-                          <div data-testid="set-done-btn" onClick={() => { if (currentSet >= totalSets) { setWorkoutStarted(false); } else { startRest(); } }} style={{ padding: '14px', borderRadius: 12, background: currentSet >= totalSets ? '#10B981' : accent, textAlign: 'center', cursor: 'pointer', fontSize: 14, fontWeight: 800, color: '#FFF' } as any}>
-                            {currentSet >= totalSets ? 'Terminer' : 'Serie terminee'}
-                          </div>
-                        </div>
-                      ) : (
-                        <div style={{ textAlign: 'center', padding: '12px 0' } as any}>
-                          <i className="ri-checkbox-circle-fill" style={{ fontSize: 32, color: '#10B981', display: 'block', marginBottom: 8 }} />
-                          <div style={{ fontSize: 14, fontWeight: 800, color: '#10B981' }}>Exercice termine !</div>
-                        </div>
-                      )}
-                    </>
-                  )}
+              {/* WORKOUT BUTTON — direct, not in a card */}
+              {isAssigned && !completed && !workoutStarted && (
+                <div data-testid="start-workout-btn" onClick={() => { setWorkoutStarted(true); setCurrentSet(1); setResting(false); }} style={{ padding: '16px', borderRadius: 14, background: '#111', textAlign: 'center', cursor: 'pointer', fontSize: 15, fontWeight: 800, color: '#FFF', marginBottom: 14, transition: 'transform 0.12s' } as any}
+                  onMouseEnter={(e: any) => { e.currentTarget.style.transform = 'translateY(-1px)'; }}
+                  onMouseLeave={(e: any) => { e.currentTarget.style.transform = ''; }}>
+                  <i className="ri-play-fill" style={{ marginRight: 8 }} />Commencer l'exercice
                 </div>
               )}
 
@@ -369,6 +336,30 @@ export default function ProExerciseDetailPage() {
           {!loading && !ex && mode !== 'create-self' && <div style={{ textAlign: 'center', padding: '80px 0', color: '#9CA3AF' } as any}><i className="ri-error-warning-line" style={{ fontSize: 32, display: 'block', marginBottom: 8 }} /><div style={{ fontSize: 14, fontWeight: 600 }}>Exercice non trouve</div></div>}
         </div>
       </div>
+
+      {/* ── FULL-SCREEN WORKOUT POPUP ── */}
+      {workoutStarted && ex && (
+        <WorkoutPopup
+          ex={ex}
+          totalSets={totalSets}
+          currentSet={currentSet}
+          setCurrentSet={setCurrentSet}
+          resting={resting}
+          setResting={setResting}
+          restTime={restTime}
+          setRestTime={setRestTime}
+          restRef={restRef}
+          accent={accent}
+          onClose={() => { setWorkoutStarted(false); clearInterval(restRef.current); }}
+          startRest={() => {
+            const restSec = ex?.rest_seconds || editRest || 60;
+            setResting(true); setRestTime(restSec);
+            restRef.current = setInterval(() => {
+              setRestTime(prev => { if (prev <= 1) { clearInterval(restRef.current); setResting(false); setCurrentSet(s => s + 1); return 0; } return prev - 1; });
+            }, 1000);
+          }}
+        />
+      )}
     </div>
   );
 }
@@ -439,6 +430,116 @@ function WeightChart({ data, accent }: { data: any[]; accent: string }) {
           <div style={{ fontSize: 18, fontWeight: 900, color: '#111' }}>{sel.weight}<span style={{ fontSize: 11, color: '#9CA3AF', marginLeft: 2 }}>kg</span></div>
         </div>
       )}
+    </div>
+  );
+}
+
+
+/* ── WorkoutPopup: Full-screen immersive workout flow ── */
+function WorkoutPopup({ ex, totalSets, currentSet, setCurrentSet, resting, setResting, restTime, setRestTime, restRef, accent, onClose, startRest }: any) {
+  const steps = (ex?.steps || []).filter((s: string) => s?.trim());
+  const reps = ex?.repetitions || ex?.reps || 12;
+  const restSec = ex?.rest_seconds || 60;
+  const finished = currentSet > totalSets;
+
+  // Progress ring for rest timer
+  const ringSize = 180, ringStroke = 8;
+  const ringR = (ringSize - ringStroke) / 2;
+  const ringCirc = 2 * Math.PI * ringR;
+  const ringPct = restSec > 0 ? restTime / restSec : 0;
+
+  return (
+    <div data-testid="workout-popup" style={{ position: 'fixed', inset: 0, zIndex: 9999, background: '#0A0A0F', fontFamily: "'Inter', system-ui, sans-serif", display: 'flex', flexDirection: 'column', overflow: 'hidden' } as any}>
+      <style dangerouslySetInnerHTML={{ __html: `
+        @keyframes wp-fade-in { from { opacity:0; transform:translateY(20px); } to { opacity:1; transform:translateY(0); } }
+        @keyframes wp-pulse { 0%,100% { transform:scale(1); } 50% { transform:scale(1.04); } }
+        @keyframes wp-ring-glow { 0%,100% { filter: drop-shadow(0 0 8px ${accent}40); } 50% { filter: drop-shadow(0 0 20px ${accent}60); } }
+      `}} />
+
+      {/* Top bar */}
+      <div style={{ padding: '16px 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexShrink: 0 } as any}>
+        <div data-testid="workout-close-btn" onClick={onClose} style={{ width: 40, height: 40, borderRadius: 12, background: 'rgba(255,255,255,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}>
+          <i className="ri-close-line" style={{ fontSize: 18, color: '#FFF' }} />
+        </div>
+        <div style={{ fontSize: 13, fontWeight: 700, color: 'rgba(255,255,255,0.4)' }}>{ex.title}</div>
+        <div style={{ width: 40 }} />
+      </div>
+
+      {/* Progress dots */}
+      <div style={{ display: 'flex', gap: 4, justifyContent: 'center', padding: '0 20px 16px' } as any}>
+        {Array.from({ length: totalSets }).map((_, i) => (
+          <div key={i} style={{ flex: 1, height: 4, borderRadius: 2, maxWidth: 32, background: i < currentSet - (resting ? 0 : 1) ? accent : i === currentSet - 1 && !resting ? `${accent}60` : 'rgba(255,255,255,0.1)', transition: 'background 0.4s' } as any} />
+        ))}
+      </div>
+
+      {/* Main content area */}
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '0 24px', overflow: 'auto' } as any}>
+
+        {/* ── REST SCREEN ── */}
+        {resting && !finished && (
+          <div data-testid="workout-rest-screen" style={{ textAlign: 'center', animation: 'wp-fade-in 0.4s ease' } as any}>
+            <div style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: 2, marginBottom: 24 }}>Temps de repos</div>
+            {/* Ring timer */}
+            <div style={{ position: 'relative', width: ringSize, height: ringSize, margin: '0 auto 24px', animation: 'wp-ring-glow 2s ease-in-out infinite' } as any}>
+              <svg width={ringSize} height={ringSize} style={{ transform: 'rotate(-90deg)' }}>
+                <circle cx={ringSize/2} cy={ringSize/2} r={ringR} fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth={ringStroke} />
+                <circle cx={ringSize/2} cy={ringSize/2} r={ringR} fill="none" stroke={accent} strokeWidth={ringStroke} strokeDasharray={`${ringPct * ringCirc} ${ringCirc}`} strokeLinecap="round" style={{ transition: 'stroke-dasharray 1s linear' }} />
+              </svg>
+              <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' } as any}>
+                <div style={{ fontSize: 52, fontWeight: 900, color: '#FFF', fontVariantNumeric: 'tabular-nums', lineHeight: 1 } as any}>{Math.floor(restTime / 60)}:{String(restTime % 60).padStart(2, '0')}</div>
+              </div>
+            </div>
+            <div style={{ fontSize: 14, color: 'rgba(255,255,255,0.5)', marginBottom: 6 }}>Prochaine serie : <strong style={{ color: '#FFF' }}>{currentSet + 1}/{totalSets}</strong></div>
+            <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.3)' }}>{reps} reps</div>
+            <div data-testid="skip-rest-btn" onClick={() => { clearInterval(restRef.current); setResting(false); setCurrentSet((s: number) => s + 1); }} style={{ marginTop: 32, padding: '14px 32px', borderRadius: 14, background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)', cursor: 'pointer', fontSize: 14, fontWeight: 700, color: '#FFF', display: 'inline-block' } as any}>
+              Passer le repos
+            </div>
+          </div>
+        )}
+
+        {/* ── EXERCISE SET SCREEN ── */}
+        {!resting && !finished && (
+          <div data-testid="workout-set-screen" style={{ textAlign: 'center', width: '100%', maxWidth: 380, animation: 'wp-fade-in 0.4s ease' } as any}>
+            <div style={{ fontSize: 11, fontWeight: 700, color: accent, textTransform: 'uppercase', letterSpacing: 2, marginBottom: 8 }}>Serie {currentSet} sur {totalSets}</div>
+            <div style={{ fontSize: 64, fontWeight: 900, color: '#FFF', lineHeight: 1, marginBottom: 4, animation: 'wp-pulse 2s ease-in-out infinite' } as any}>{reps}</div>
+            <div style={{ fontSize: 16, color: 'rgba(255,255,255,0.4)', fontWeight: 600, marginBottom: 32 }}>repetitions</div>
+
+            {/* Steps reminder */}
+            {steps.length > 0 && (
+              <div style={{ textAlign: 'left', marginBottom: 32, padding: '16px', borderRadius: 16, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.06)' } as any}>
+                <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.25)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 10 }}>Rappel des etapes</div>
+                {steps.map((step: string, i: number) => (
+                  <div key={i} style={{ display: 'flex', gap: 10, padding: '6px 0', borderBottom: i < steps.length - 1 ? '1px solid rgba(255,255,255,0.04)' : 'none' } as any}>
+                    <span style={{ fontSize: 13, fontWeight: 800, color: accent, minWidth: 18, flexShrink: 0 }}>{i + 1}.</span>
+                    <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.5)', lineHeight: 1.5 }}>{step}</span>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            <div data-testid="set-done-btn" onClick={() => { if (currentSet >= totalSets) { setCurrentSet((s: number) => s + 1); } else { startRest(); } }} style={{ padding: '18px', borderRadius: 16, background: currentSet >= totalSets ? '#10B981' : accent, textAlign: 'center', cursor: 'pointer', fontSize: 16, fontWeight: 800, color: '#FFF', transition: 'transform 0.12s' } as any}
+              onMouseEnter={(e: any) => { e.currentTarget.style.transform = 'scale(1.02)'; }}
+              onMouseLeave={(e: any) => { e.currentTarget.style.transform = ''; }}>
+              {currentSet >= totalSets ? 'Terminer l\'exercice' : 'Serie terminee'}
+            </div>
+          </div>
+        )}
+
+        {/* ── FINISHED SCREEN ── */}
+        {finished && (
+          <div data-testid="workout-finished-screen" style={{ textAlign: 'center', animation: 'wp-fade-in 0.5s ease' } as any}>
+            <div style={{ width: 80, height: 80, borderRadius: 999, background: 'rgba(16,185,129,0.12)', border: '2px solid rgba(16,185,129,0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 20px' } as any}>
+              <i className="ri-check-line" style={{ fontSize: 40, color: '#10B981' }} />
+            </div>
+            <div style={{ fontSize: 28, fontWeight: 900, color: '#FFF', marginBottom: 8 }}>Bravo !</div>
+            <div style={{ fontSize: 15, color: 'rgba(255,255,255,0.4)', marginBottom: 8 }}>{ex.title} termine</div>
+            <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.25)', marginBottom: 40 }}>{totalSets} series x {reps} reps</div>
+            <div data-testid="workout-finish-btn" onClick={onClose} style={{ padding: '16px 48px', borderRadius: 14, background: '#10B981', textAlign: 'center', cursor: 'pointer', fontSize: 15, fontWeight: 800, color: '#FFF', display: 'inline-block' } as any}>
+              Fermer
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   );
 }
