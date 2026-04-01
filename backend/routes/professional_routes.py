@@ -2184,6 +2184,14 @@ async def update_exercise_params(assignment_id: str, request: Request, user=Depe
         update["updated_at"] = datetime.now(timezone.utc).isoformat()
         await db.pro_assigned_exercises.update_one({"id": assignment_id}, {"$set": update})
     updated = await db.pro_assigned_exercises.find_one({"id": assignment_id}, {"_id": 0})
+    # Merge template data (image, etc.)
+    tpl_id = updated.get("exercise_template_id") if updated else None
+    if tpl_id and tpl_id != '__custom__' and updated:
+        tpl = await db.pro_exercise_templates.find_one({"id": tpl_id}, {"_id": 0})
+        if tpl:
+            for k in ["image", "video_url", "steps", "description", "icon", "equipment", "muscle_group", "difficulty", "category"]:
+                if tpl.get(k) and not updated.get(k):
+                    updated[k] = tpl[k]
     return updated
 
 

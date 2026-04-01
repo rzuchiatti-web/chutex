@@ -349,32 +349,13 @@ export default function ProExerciseDetailPage() {
                 </div>
               )}
 
-              {/* Validation — only after workout done */}
-              {(mode === 'session' || mode === 'assigned') && (assignmentId || (programId && sessionId)) && (completed || workoutDone || mode === 'session') && (
-                <div style={{ borderRadius: 16, background: completed ? 'rgba(16,185,129,0.06)' : CARD2, border: completed ? '1px solid rgba(16,185,129,0.2)' : '1px solid transparent', padding: 16, marginBottom: 14 } as any}>
-                  {completed ? (
+              {/* Validation — only show green checkmark if already completed */}
+              {(mode === 'session' || mode === 'assigned') && (assignmentId || (programId && sessionId)) && completed && (
+                <div style={{ borderRadius: 16, background: 'rgba(16,185,129,0.06)', border: '1px solid rgba(16,185,129,0.2)', padding: 16, marginBottom: 14 } as any}>
                     <div data-testid="exercise-completed" style={{ textAlign: 'center', padding: '12px 0' } as any}>
                       <i className="ri-checkbox-circle-fill" style={{ fontSize: 36, color: '#10B981', display: 'block', marginBottom: 8 }} />
                       <div style={{ fontSize: 16, fontWeight: 800, color: '#10B981' }}>Exercice valide !</div>
                     </div>
-                  ) : (
-                    <>
-                      <div style={{ fontSize: 11, fontWeight: 700, color: T3, textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 12 }}>Validation</div>
-                      <div style={{ marginBottom: 12 }}>
-                        <div style={{ fontSize: 11, color: T2, marginBottom: 6, fontWeight: 600 }}>Niveau de douleur</div>
-                        <div style={{ display: 'flex', gap: 3 } as any}>
-                          {[1,2,3,4,5,6,7,8,9,10].map(n => (
-                            <div key={n} onClick={() => setPainLevel(n)} style={{ flex: 1, height: 28, borderRadius: 6, background: n <= painLevel ? (n <= 3 ? '#10B981' : n <= 6 ? '#F59E0B' : '#EF4444') : '#E5E7EB', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 9, fontWeight: 700, color: n <= painLevel ? '#FFF' : '#9CA3AF', transition: 'all 0.15s' } as any}>{n}</div>
-                          ))}
-                        </div>
-                      </div>
-                      <div style={{ marginBottom: 14 }}>
-                        <div style={{ fontSize: 11, color: T2, marginBottom: 6, fontWeight: 600 }}>Notes</div>
-                        <input data-testid="exercise-notes-input" value={notes} onChange={(e: any) => setNotes(e.target.value)} placeholder="Comment ca s'est passe ?" style={{ ...INP, background: INP_BG, border: `1px solid ${INP_BORDER}`, color: T }} />
-                      </div>
-                      <div data-testid="validate-exercise-btn" onClick={() => handleComplete('done')} style={{ padding: '14px', borderRadius: 999, background: BTN_BG, textAlign: 'center', cursor: 'pointer', fontSize: 14, fontWeight: 800, color: BTN_TEXT, opacity: completing ? 0.5 : 1 } as any}>{completing ? 'Validation...' : 'Valider'}</div>
-                    </>
-                  )}
                 </div>
               )}
             </>
@@ -397,6 +378,12 @@ export default function ProExerciseDetailPage() {
           restRef={restRef}
           accent={accent}
           isDark={isDark}
+          painLevel={painLevel}
+          setPainLevel={setPainLevel}
+          notes={notes}
+          setNotes={setNotes}
+          completing={completing}
+          handleComplete={handleComplete}
           onClose={() => { setWorkoutStarted(false); clearInterval(restRef.current); if (currentSet > totalSets) setWorkoutDone(true); }}
           startRest={() => {
             const restSec = ex?.rest_seconds || editRest || 60;
@@ -483,7 +470,7 @@ function WeightChart({ data, accent }: { data: any[]; accent: string }) {
 
 
 /* ── WorkoutPopup: Full-screen workout flow — adapts to light/dark ── */
-function WorkoutPopup({ ex, totalSets, currentSet, setCurrentSet, resting, setResting, restTime, setRestTime, restRef, accent, isDark, onClose, startRest }: any) {
+function WorkoutPopup({ ex, totalSets, currentSet, setCurrentSet, resting, setResting, restTime, setRestTime, restRef, accent, isDark, painLevel, setPainLevel, notes, setNotes, completing, handleComplete, onClose, startRest }: any) {
   const steps = (ex?.steps || []).filter((s: string) => s?.trim());
   const reps = ex?.repetitions || ex?.reps || 12;
   const restSec = ex?.rest_seconds || 60;
@@ -583,17 +570,32 @@ function WorkoutPopup({ ex, totalSets, currentSet, setCurrentSet, resting, setRe
           </div>
         )}
 
-        {/* FINISHED SCREEN */}
+        {/* FINISHED SCREEN — with validation */}
         {finished && (
-          <div data-testid="workout-finished-screen" style={{ textAlign: 'center', animation: 'wp-fade-in 0.5s ease' } as any}>
+          <div data-testid="workout-finished-screen" style={{ textAlign: 'center', animation: 'wp-fade-in 0.5s ease', width: '100%', maxWidth: 380 } as any}>
             <div style={{ width: 80, height: 80, borderRadius: 999, background: 'rgba(16,185,129,0.12)', border: '2px solid rgba(16,185,129,0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 20px' } as any}>
               <i className="ri-check-line" style={{ fontSize: 40, color: '#10B981' }} />
             </div>
             <div style={{ fontSize: 28, fontWeight: 900, color: WT, marginBottom: 8 }}>Bravo !</div>
-            <div style={{ fontSize: 15, color: WT2, marginBottom: 8 }}>{ex.title} termine</div>
-            <div style={{ fontSize: 13, color: WT3, marginBottom: 40 }}>{totalSets} series x {reps} reps</div>
-            <div data-testid="workout-finish-btn" onClick={onClose} style={{ padding: '16px 48px', borderRadius: 999, background: '#10B981', textAlign: 'center', cursor: 'pointer', fontSize: 15, fontWeight: 800, color: '#FFF', display: 'inline-block' } as any}>
-              Fermer
+            <div style={{ fontSize: 15, color: WT2, marginBottom: 4 }}>{ex.title} termine</div>
+            <div style={{ fontSize: 13, color: WT3, marginBottom: 28 }}>{totalSets} series x {reps} reps</div>
+
+            {/* Pain level */}
+            <div style={{ textAlign: 'left', marginBottom: 14 } as any}>
+              <div style={{ fontSize: 11, color: WT2, marginBottom: 6, fontWeight: 600 }}>Niveau de douleur</div>
+              <div style={{ display: 'flex', gap: 3 } as any}>
+                {[1,2,3,4,5,6,7,8,9,10].map((n: number) => (
+                  <div key={n} onClick={() => setPainLevel(n)} style={{ flex: 1, height: 32, borderRadius: 8, background: n <= painLevel ? (n <= 3 ? '#10B981' : n <= 6 ? '#F59E0B' : '#EF4444') : WCARD, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 10, fontWeight: 700, color: n <= painLevel ? '#FFF' : WT3, transition: 'all 0.15s' } as any}>{n}</div>
+                ))}
+              </div>
+            </div>
+            {/* Notes */}
+            <div style={{ textAlign: 'left', marginBottom: 20 } as any}>
+              <div style={{ fontSize: 11, color: WT2, marginBottom: 6, fontWeight: 600 }}>Notes</div>
+              <input value={notes} onChange={(e: any) => setNotes(e.target.value)} placeholder="Comment ca s'est passe ?" style={{ width: '100%', padding: '12px 14px', borderRadius: 12, background: WCARD, border: `1px solid ${WBORDER}`, color: WT, fontSize: 14, outline: 'none', fontFamily: 'inherit', boxSizing: 'border-box' } as any} />
+            </div>
+            <div data-testid="workout-validate-btn" onClick={async () => { await handleComplete('done'); onClose(); }} style={{ padding: '16px', borderRadius: 999, background: '#10B981', textAlign: 'center', cursor: 'pointer', fontSize: 15, fontWeight: 800, color: '#FFF', opacity: completing ? 0.5 : 1 } as any}>
+              {completing ? 'Validation...' : 'Valider l\'exercice'}
             </div>
           </div>
         )}
