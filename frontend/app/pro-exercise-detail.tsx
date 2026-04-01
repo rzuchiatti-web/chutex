@@ -63,6 +63,7 @@ export default function ProExerciseDetailPage() {
 
   // Workout timer
   const [workoutStarted, setWorkoutStarted] = useState(false);
+  const [workoutDone, setWorkoutDone] = useState(false);
   const [currentSet, setCurrentSet] = useState(1);
   const [resting, setResting] = useState(false);
   const [restTime, setRestTime] = useState(0);
@@ -339,8 +340,8 @@ export default function ProExerciseDetailPage() {
                 </div>
               )}
 
-              {/* WORKOUT BUTTON — direct, not in a card */}
-              {isAssigned && !completed && !workoutStarted && (
+              {/* WORKOUT BUTTON — only if workout not done */}
+              {isAssigned && !completed && !workoutStarted && !workoutDone && (
                 <div data-testid="start-workout-btn" onClick={() => { setWorkoutStarted(true); setCurrentSet(1); setResting(false); }} style={{ padding: '16px', borderRadius: 999, background: BTN_BG, textAlign: 'center', cursor: 'pointer', fontSize: 15, fontWeight: 800, color: BTN_TEXT, marginBottom: 14, transition: 'transform 0.12s' } as any}
                   onMouseEnter={(e: any) => { e.currentTarget.style.transform = 'translateY(-1px)'; }}
                   onMouseLeave={(e: any) => { e.currentTarget.style.transform = ''; }}>
@@ -348,8 +349,8 @@ export default function ProExerciseDetailPage() {
                 </div>
               )}
 
-              {/* Validation */}
-              {(mode === 'session' || mode === 'assigned') && (assignmentId || (programId && sessionId)) && (
+              {/* Validation — only after workout done */}
+              {(mode === 'session' || mode === 'assigned') && (assignmentId || (programId && sessionId)) && (completed || workoutDone || mode === 'session') && (
                 <div style={{ borderRadius: 16, background: completed ? 'rgba(16,185,129,0.06)' : CARD2, border: completed ? '1px solid rgba(16,185,129,0.2)' : '1px solid transparent', padding: 16, marginBottom: 14 } as any}>
                   {completed ? (
                     <div data-testid="exercise-completed" style={{ textAlign: 'center', padding: '12px 0' } as any}>
@@ -396,7 +397,7 @@ export default function ProExerciseDetailPage() {
           restRef={restRef}
           accent={accent}
           isDark={isDark}
-          onClose={() => { setWorkoutStarted(false); clearInterval(restRef.current); }}
+          onClose={() => { setWorkoutStarted(false); clearInterval(restRef.current); if (currentSet > totalSets) setWorkoutDone(true); }}
           startRest={() => {
             const restSec = ex?.rest_seconds || editRest || 60;
             setResting(true); setRestTime(restSec);
