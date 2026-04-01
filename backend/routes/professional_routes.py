@@ -2063,35 +2063,61 @@ async def get_exercise_library(user=Depends(get_current_user)):
 
 @router.post("/pro/self-assign-exercise")
 async def self_assign_exercise(request: Request, user=Depends(get_current_user)):
-    """Beneficiary self-assigns an exercise from the library"""
+    """Beneficiary self-assigns an exercise from the library or creates a custom one"""
     body = await request.json()
     tpl_id = body.get("exercise_template_id", "")
     days = body.get("days", ["lundi", "mardi", "mercredi", "jeudi", "vendredi", "samedi", "dimanche"])
-    if not tpl_id:
-        raise HTTPException(400, "exercise_template_id requis")
-    tpl = await db.pro_exercise_templates.find_one({"id": tpl_id}, {"_id": 0})
-    if not tpl:
-        raise HTTPException(404, "Template non trouve")
     now = datetime.now(timezone.utc).isoformat()
-    assignment = {
-        "id": str(uuid.uuid4()),
-        "professional_id": user['id'],
-        "professional_name": user.get('name', 'Moi-meme'),
-        "beneficiary_id": user['id'],
-        "exercise_template_id": tpl_id,
-        "title": tpl.get("title", ""),
-        "category": tpl.get("category", ""),
-        "image": tpl.get("image", ""),
-        "icon": tpl.get("icon", "ri-run-line"),
-        "sets": tpl.get("sets", 3),
-        "repetitions": tpl.get("repetitions", 12),
-        "rest_seconds": tpl.get("rest_seconds", 60),
-        "days": days,
-        "completions": [],
-        "status": "active",
-        "self_assigned": True,
-        "created_at": now,
-    }
+
+    if tpl_id == '__custom__':
+        # Custom exercise created by beneficiary
+        assignment = {
+            "id": str(uuid.uuid4()),
+            "professional_id": user['id'],
+            "professional_name": user.get('name', 'Moi-meme'),
+            "beneficiary_id": user['id'],
+            "exercise_template_id": "",
+            "title": body.get("title", "Mon exercice"),
+            "category": body.get("category", "general"),
+            "image": "",
+            "icon": "ri-run-line",
+            "sets": body.get("sets", 3),
+            "repetitions": body.get("repetitions", 12),
+            "rest_seconds": body.get("rest_seconds", 60),
+            "equipment": body.get("equipment", ""),
+            "muscle_group": body.get("muscle_group", ""),
+            "description": body.get("description", ""),
+            "days": days,
+            "completions": [],
+            "status": "active",
+            "self_assigned": True,
+            "created_at": now,
+        }
+    else:
+        if not tpl_id:
+            raise HTTPException(400, "exercise_template_id requis")
+        tpl = await db.pro_exercise_templates.find_one({"id": tpl_id}, {"_id": 0})
+        if not tpl:
+            raise HTTPException(404, "Template non trouve")
+        assignment = {
+            "id": str(uuid.uuid4()),
+            "professional_id": user['id'],
+            "professional_name": user.get('name', 'Moi-meme'),
+            "beneficiary_id": user['id'],
+            "exercise_template_id": tpl_id,
+            "title": tpl.get("title", ""),
+            "category": tpl.get("category", ""),
+            "image": tpl.get("image", ""),
+            "icon": tpl.get("icon", "ri-run-line"),
+            "sets": tpl.get("sets", 3),
+            "repetitions": tpl.get("repetitions", 12),
+            "rest_seconds": tpl.get("rest_seconds", 60),
+            "days": days,
+            "completions": [],
+            "status": "active",
+            "self_assigned": True,
+            "created_at": now,
+        }
     await db.pro_assigned_exercises.insert_one(assignment)
     assignment.pop('_id', None)
     return assignment

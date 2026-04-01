@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Platform } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useAuth } from '../src/context/AuthContext';
@@ -7,7 +7,7 @@ import { apiFetch } from '../src/services/api';
 const BG = 'https://customer-assets.emergentagent.com/job_443c9c6e-0feb-4920-a358-fe7cc1a6289b/artifacts/mhh7xwy3_ChatGPT%20Image%2017%20f%C3%A9vr.%202026%2C%2014_08_43.png';
 const DIFF_COLORS: Record<string, string> = { facile: '#10B981', moyen: '#F59E0B', difficile: '#EF4444' };
 const DIFF_LABELS: Record<string, string> = { facile: 'Facile', moyen: 'Moyen', difficile: 'Difficile' };
-const INP: any = { width: '100%', padding: '12px 14px', borderRadius: 12, background: '#F4F4F5', border: '1px solid #E5E7EB', color: '#111', fontSize: 13, outline: 'none', fontFamily: 'inherit', boxSizing: 'border-box' };
+const INP: any = { width: '100%', padding: '12px 14px', borderRadius: 12, background: '#F4F4F5', border: '1px solid #E5E7EB', color: '#111', fontSize: 14, outline: 'none', fontFamily: 'inherit', boxSizing: 'border-box' };
 
 export default function ProExerciseDetailPage() {
   const { token } = useAuth();
@@ -17,6 +17,7 @@ export default function ProExerciseDetailPage() {
   const mode = (Array.isArray(params.mode) ? params.mode[0] : params.mode) || 'template';
   const programId = Array.isArray(params.programId) ? params.programId[0] : params.programId;
   const sessionId = Array.isArray(params.sessionId) ? params.sessionId[0] : params.sessionId;
+  const assignmentId = (Array.isArray(params.assignmentId) ? params.assignmentId[0] : params.assignmentId) || exerciseId;
 
   const [ex, setEx] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -24,64 +25,55 @@ export default function ProExerciseDetailPage() {
   const [completed, setCompleted] = useState(false);
   const [painLevel, setPainLevel] = useState(0);
   const [notes, setNotes] = useState('');
-  const API = process.env.EXPO_PUBLIC_BACKEND_URL || '';
 
-  // Editable params for beneficiary
-  const [editSets, setEditSets] = useState<number>(0);
-  const [editReps, setEditReps] = useState<number>(0);
-  const [editRest, setEditRest] = useState<number>(0);
-  const [paramsChanged, setParamsChanged] = useState(false);
+  // Editable params
+  const [editing, setEditing] = useState(false);
+  const [editSets, setEditSets] = useState(0);
+  const [editReps, setEditReps] = useState(0);
+  const [editRest, setEditRest] = useState(0);
   const [savingParams, setSavingParams] = useState(false);
 
-  // Weight tracking
-  const [weightKg, setWeightKg] = useState<string>('');
+  // Weight
+  const [editingWeight, setEditingWeight] = useState(false);
+  const [weightKg, setWeightKg] = useState('');
   const [lastWeightKg, setLastWeightKg] = useState<number | null>(null);
   const [savingWeight, setSavingWeight] = useState(false);
   const [weightSaved, setWeightSaved] = useState(false);
 
-  const assignmentId = (Array.isArray(params.assignmentId) ? params.assignmentId[0] : params.assignmentId) || exerciseId;
+  // Workout timer
+  const [workoutStarted, setWorkoutStarted] = useState(false);
+  const [currentSet, setCurrentSet] = useState(1);
+  const [resting, setResting] = useState(false);
+  const [restTime, setRestTime] = useState(0);
+  const restRef = useRef<any>(null);
+
+  // Create-self form
+  const [createForm, setCreateForm] = useState({ title: '', description: '', category: 'force', sets: 3, repetitions: 12, rest_seconds: 60, equipment: '', muscle_group: '' });
+  const [creating, setCreating] = useState(false);
 
   useEffect(() => {
     if (!token) return;
     setLoading(true);
     if (mode === 'template' && exerciseId) {
-      apiFetch(`/api/pro/exercise-templates`, {}, token)
-        .then(tpls => {
-          const found = (tpls || []).find((t: any) => t.id === exerciseId) || null;
-          setEx(found);
-          if (found) initEditableParams(found);
-        })
+      apiFetch('/api/pro/exercise-templates', {}, token)
+        .then(tpls => { const f = (tpls || []).find((t: any) => t.id === exerciseId); setEx(f || null); if (f) initParams(f); })
         .catch(() => {}).finally(() => setLoading(false));
     } else if (mode === 'assigned' && assignmentId) {
       apiFetch(`/api/pro/assigned-exercise-detail/${assignmentId}`, {}, token)
-        .then((found: any) => {
-          if (found) {
-            setEx(found);
-            initEditableParams(found);
-            const today = new Date().toISOString().split('T')[0];
-            if (found.completions?.some((c: any) => c.date?.startsWith(today) && c.status === 'done')) setCompleted(true);
-            if (found.last_weight_kg != null) {
-              setLastWeightKg(found.last_weight_kg);
-              setWeightKg(String(found.last_weight_kg));
-            }
-          }
-        })
-        .catch(() => {}).finally(() => setLoading(false));
+        .then((f: any) => {
+          if (f) { setEx(f); initParams(f); const today = new Date().toISOString().split('T')[0]; if (f.completions?.some((c: any) => c.date?.startsWith(today) && c.status === 'done')) setCompleted(true); if (f.last_weight_kg != null) { setLastWeightKg(f.last_weight_kg); setWeightKg(String(f.last_weight_kg)); } }
+        }).catch(() => {}).finally(() => setLoading(false));
     } else if (mode === 'session' && programId && sessionId) {
       apiFetch(`/api/pro/programs/detail/${programId}`, {}, token)
-        .then(prog => { const sess = (prog?.sessions || []).find((s: any) => s.id === sessionId); setEx(sess || null); if (sess) initEditableParams(sess); if (sess?.completions?.length > 0 && sess.completions[sess.completions.length - 1].status === 'done') setCompleted(true); })
-        .catch(() => apiFetch(`/api/pro/my-programs`, {}, token).then(progs => { const prog = (progs || []).find((p: any) => p.id === programId); if (prog) { const sess = (prog.sessions || []).find((s: any) => s.id === sessionId); setEx(sess || null); if (sess) initEditableParams(sess); } }).catch(() => {}))
+        .then(prog => { const s = (prog?.sessions || []).find((s: any) => s.id === sessionId); setEx(s || null); if (s) initParams(s); if (s?.completions?.length > 0 && s.completions[s.completions.length - 1].status === 'done') setCompleted(true); })
+        .catch(() => apiFetch('/api/pro/my-programs', {}, token).then(progs => { const p = (progs || []).find((p: any) => p.id === programId); if (p) { const s = (p.sessions || []).find((s: any) => s.id === sessionId); setEx(s || null); if (s) initParams(s); } }).catch(() => {}))
         .finally(() => setLoading(false));
     } else if (mode === 'create-self') {
       setLoading(false);
     }
   }, [exerciseId, programId, sessionId, mode, token]);
 
-  const initEditableParams = (data: any) => {
-    setEditSets(data.sets || 0);
-    setEditReps(data.repetitions || data.reps || 0);
-    setEditRest(data.rest_seconds || 0);
-  };
+  const initParams = (d: any) => { setEditSets(d.sets || 0); setEditReps(d.repetitions || d.reps || 0); setEditRest(d.rest_seconds || 0); };
 
   const handleComplete = async (status: string) => {
     if (completing) return; setCompleting(true);
@@ -93,178 +85,167 @@ export default function ProExerciseDetailPage() {
   };
 
   const saveParams = async () => {
-    if (!assignmentId || savingParams) return;
-    setSavingParams(true);
+    if (!assignmentId || savingParams) return; setSavingParams(true);
     try {
-      const updated = await apiFetch(`/api/pro/assigned-exercises/${assignmentId}/update-params`, { method: 'PUT', body: JSON.stringify({ sets: editSets, repetitions: editReps, rest_seconds: editRest }) }, token);
-      if (updated) { setEx(updated); setParamsChanged(false); }
+      const u = await apiFetch(`/api/pro/assigned-exercises/${assignmentId}/update-params`, { method: 'PUT', body: JSON.stringify({ sets: editSets, repetitions: editReps, rest_seconds: editRest }) }, token);
+      if (u) { setEx(u); setEditing(false); }
     } catch {} finally { setSavingParams(false); }
   };
 
   const saveWeight = async () => {
-    if (!assignmentId || savingWeight || !weightKg) return;
-    setSavingWeight(true);
+    if (!assignmentId || savingWeight || !weightKg) return; setSavingWeight(true);
     try {
-      const res = await apiFetch(`/api/pro/assigned-exercises/${assignmentId}/save-weight`, { method: 'PUT', body: JSON.stringify({ weight_kg: parseFloat(weightKg) }) }, token);
-      if (res?.last_weight_kg != null) {
-        setLastWeightKg(res.last_weight_kg);
-        setWeightSaved(true);
-        setTimeout(() => setWeightSaved(false), 2000);
-      }
+      const r = await apiFetch(`/api/pro/assigned-exercises/${assignmentId}/save-weight`, { method: 'PUT', body: JSON.stringify({ weight_kg: parseFloat(weightKg) }) }, token);
+      if (r?.last_weight_kg != null) { setLastWeightKg(r.last_weight_kg); setWeightSaved(true); setEditingWeight(false); setTimeout(() => setWeightSaved(false), 2000); }
     } catch {} finally { setSavingWeight(false); }
   };
 
-  const handleParamChange = (field: string, value: number) => {
-    if (field === 'sets') setEditSets(value);
-    else if (field === 'reps') setEditReps(value);
-    else if (field === 'rest') setEditRest(value);
-    setParamsChanged(true);
+  const handleCreateExercise = async () => {
+    if (creating || !createForm.title.trim()) return; setCreating(true);
+    try {
+      const lib = await apiFetch('/api/pro/exercise-library', {}, token);
+      const tpls = Array.isArray(lib) ? lib : [];
+      // Create a self-assigned exercise directly
+      const res = await apiFetch('/api/pro/self-assign-exercise', { method: 'POST', body: JSON.stringify({ exercise_template_id: '__custom__', title: createForm.title, sets: createForm.sets, repetitions: createForm.repetitions, rest_seconds: createForm.rest_seconds, days: ['lundi','mardi','mercredi','jeudi','vendredi','samedi','dimanche'] }) }, token);
+      if (res) router.back();
+    } catch {} finally { setCreating(false); }
   };
+
+  // Timer logic
+  const startRest = () => {
+    const restSec = ex?.rest_seconds || editRest || 60;
+    setResting(true); setRestTime(restSec);
+    restRef.current = setInterval(() => {
+      setRestTime(prev => { if (prev <= 1) { clearInterval(restRef.current); setResting(false); setCurrentSet(s => s + 1); return 0; } return prev - 1; });
+    }, 1000);
+  };
+
+  useEffect(() => { return () => { if (restRef.current) clearInterval(restRef.current); }; }, []);
 
   if (Platform.OS !== 'web') return null;
 
   const accent = DIFF_COLORS[ex?.difficulty] || '#3B82F6';
-  const icon = ex?.icon || 'ri-run-line';
   const steps = ex?.steps || [];
   const videoSrc = ex?.video_url || ex?.media_url || '';
-  const isEditable = mode === 'assigned';
+  const isAssigned = mode === 'assigned';
   const hasWeight = ex?.equipment && ex.equipment !== 'Aucun';
+  const totalSets = ex?.sets || editSets || 3;
+
+  // ── CREATE-SELF MODE ──
+  if (mode === 'create-self') {
+    return (
+      <div data-testid="create-exercise-page" style={{ position: 'absolute', inset: 0, background: '#FFF', fontFamily: "'Inter', system-ui, sans-serif", overflow: 'hidden', display: 'flex', flexDirection: 'column' } as any}>
+        <div style={{ flex: 1, overflowY: 'auto', WebkitOverflowScrolling: 'touch', padding: '0 16px 120px' } as any}>
+          <div style={{ padding: '20px 0 12px', display: 'flex', alignItems: 'center', gap: 12 } as any}>
+            <div data-testid="create-back-btn" onClick={() => router.back()} style={{ width: 40, height: 40, borderRadius: 12, background: '#F4F4F5', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}><i className="ri-arrow-left-line" style={{ fontSize: 18, color: '#111' }} /></div>
+            <div style={{ fontSize: 20, fontWeight: 900, color: '#111' }}>Creer un exercice</div>
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 14, marginTop: 8 } as any}>
+            <div><div style={{ fontSize: 12, fontWeight: 700, color: '#6B7280', marginBottom: 6 }}>Nom de l'exercice *</div><input data-testid="create-title" value={createForm.title} onChange={(e: any) => setCreateForm(p => ({ ...p, title: e.target.value }))} placeholder="Ex: Developpe couche" style={INP} /></div>
+            <div><div style={{ fontSize: 12, fontWeight: 700, color: '#6B7280', marginBottom: 6 }}>Description</div><input value={createForm.description} onChange={(e: any) => setCreateForm(p => ({ ...p, description: e.target.value }))} placeholder="Description de l'exercice" style={INP} /></div>
+            <div><div style={{ fontSize: 12, fontWeight: 700, color: '#6B7280', marginBottom: 6 }}>Groupe musculaire</div><input value={createForm.muscle_group} onChange={(e: any) => setCreateForm(p => ({ ...p, muscle_group: e.target.value }))} placeholder="Ex: Pectoraux, Triceps" style={INP} /></div>
+            <div><div style={{ fontSize: 12, fontWeight: 700, color: '#6B7280', marginBottom: 6 }}>Equipement</div><input value={createForm.equipment} onChange={(e: any) => setCreateForm(p => ({ ...p, equipment: e.target.value }))} placeholder="Ex: Barre, Halteres" style={INP} /></div>
+            <div style={{ display: 'flex', gap: 10 } as any}>
+              <div style={{ flex: 1 }}><div style={{ fontSize: 12, fontWeight: 700, color: '#6B7280', marginBottom: 6 }}>Series</div><input type="number" value={createForm.sets} onChange={(e: any) => setCreateForm(p => ({ ...p, sets: parseInt(e.target.value) || 0 }))} style={INP} /></div>
+              <div style={{ flex: 1 }}><div style={{ fontSize: 12, fontWeight: 700, color: '#6B7280', marginBottom: 6 }}>Reps</div><input type="number" value={createForm.repetitions} onChange={(e: any) => setCreateForm(p => ({ ...p, repetitions: parseInt(e.target.value) || 0 }))} style={INP} /></div>
+              <div style={{ flex: 1 }}><div style={{ fontSize: 12, fontWeight: 700, color: '#6B7280', marginBottom: 6 }}>Repos (s)</div><input type="number" value={createForm.rest_seconds} onChange={(e: any) => setCreateForm(p => ({ ...p, rest_seconds: parseInt(e.target.value) || 0 }))} style={INP} /></div>
+            </div>
+          </div>
+          <div data-testid="create-submit-btn" onClick={handleCreateExercise} style={{ marginTop: 24, padding: '16px', borderRadius: 16, background: '#111', textAlign: 'center', cursor: 'pointer', fontSize: 15, fontWeight: 800, color: '#FFF', opacity: creating ? 0.5 : 1 } as any}>{creating ? 'Creation...' : 'Creer et ajouter'}</div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div data-testid="pro-exercise-detail-page" style={{ position: 'absolute', inset: 0, background: '#F5F5F5', fontFamily: "'Inter', system-ui, sans-serif", overflow: 'hidden', display: 'flex', flexDirection: 'column' } as any}>
+      <style dangerouslySetInnerHTML={{ __html: `@keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}@keyframes pulse-ring{0%,100%{box-shadow:0 0 0 0 rgba(16,185,129,0.3)}50%{box-shadow:0 0 0 8px rgba(16,185,129,0)}}` }} />
       <div style={{ flex: 1, overflowY: 'auto', WebkitOverflowScrolling: 'touch' } as any}>
 
-        {/* HEADER */}
-        <div style={{ position: 'relative', zIndex: 1, minHeight: 200 } as any}>
+        {/* HEADER — title only, no icon */}
+        <div style={{ position: 'relative', zIndex: 1, minHeight: 160 } as any}>
           {(() => {
-            const imgSrc = ex?.image ? (ex.image.startsWith('/') ? `${API}${ex.image}` : ex.image) : '';
+            const imgSrc = ex?.image ? (ex.image.startsWith('/') ? ex.image : ex.image) : '';
             return <img key={imgSrc || 'bg'} src={imgSrc || BG} alt="" style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', objectFit: 'cover' } as any} />;
           })()}
-          {ex?.image && <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', background: 'linear-gradient(180deg, rgba(0,0,0,0.2) 0%, rgba(0,0,0,0.65) 100%)' } as any} />}
-          <div style={{ position: 'relative', zIndex: 2, padding: '28px 20px 32px' } as any}>
-            <div data-testid="pro-exercise-back-btn" onClick={() => router.back()} style={{ width: 40, height: 40, borderRadius: 12, background: 'rgba(255,255,255,0.12)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', border: '1px solid rgba(255,255,255,0.15)', marginBottom: 16 } as any}>
-              <i className="ri-arrow-left-line" style={{ fontSize: 18, color: '#FFF' }} />
+          <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', background: 'linear-gradient(180deg, rgba(0,0,0,0.3) 0%, rgba(0,0,0,0.65) 100%)' } as any} />
+          <div style={{ position: 'relative', zIndex: 2, padding: '24px 16px 28px', maxWidth: 480, margin: '0 auto', width: '100%', boxSizing: 'border-box' } as any}>
+            <div data-testid="pro-exercise-back-btn" onClick={() => router.back()} style={{ width: 38, height: 38, borderRadius: 12, background: 'rgba(255,255,255,0.15)', backdropFilter: 'blur(12px)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', border: '1px solid rgba(255,255,255,0.15)', marginBottom: 12 } as any}>
+              <i className="ri-arrow-left-line" style={{ fontSize: 16, color: '#FFF' }} />
             </div>
             {!loading && ex && (
-              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' } as any}>
-                <div style={{ width: 56, height: 56, borderRadius: 18, background: `${accent}30`, display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 12, border: `2px solid ${accent}50` } as any}>
-                  <i className={icon} style={{ fontSize: 26, color: '#FFF' }} />
-                </div>
-                <div style={{ fontSize: 22, fontWeight: 900, color: '#FFF', marginBottom: 6, textAlign: 'center', textTransform: 'capitalize' }}>{ex.title}</div>
-              </div>
+              <div style={{ fontSize: 24, fontWeight: 900, color: '#FFF', textTransform: 'capitalize', textShadow: '0 2px 8px rgba(0,0,0,0.3)' }}>{ex.title}</div>
             )}
           </div>
         </div>
 
         {/* CONTENT */}
-        <div style={{ padding: '20px 16px 120px', marginTop: -16, borderRadius: '24px 24px 0 0', background: '#FFF', position: 'relative', zIndex: 10, minHeight: 'calc(100vh - 240px)' } as any}>
+        <div style={{ padding: '20px 16px 120px', marginTop: -16, borderRadius: '24px 24px 0 0', background: '#FFF', position: 'relative', zIndex: 10, maxWidth: 480, margin: '-16px auto 0', width: '100%', boxSizing: 'border-box' } as any}>
           {loading && <div style={{ textAlign: 'center', padding: '60px 0', color: '#9CA3AF' }}><i className="ri-loader-4-line" style={{ fontSize: 28, animation: 'spin 0.8s linear infinite', display: 'block', marginBottom: 8 }} />Chargement...</div>}
 
           {!loading && ex && (
             <>
-              {/* Exercise info tags */}
+              {/* Info tags */}
               {(ex.difficulty || ex.muscle_group || ex.equipment) && (
-                <div data-testid="exercise-info" style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginBottom: 14 } as any}>
-                  {ex.difficulty && (
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 14px', borderRadius: 12, background: `${accent}08`, border: `1px solid ${accent}15` } as any}>
-                      <i className="ri-speed-line" style={{ fontSize: 14, color: accent }} />
-                      <div><div style={{ fontSize: 9, fontWeight: 700, color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: 0.5 }}>Difficulte</div><div style={{ fontSize: 13, fontWeight: 800, color: '#111' }}>{DIFF_LABELS[ex.difficulty] || ex.difficulty}</div></div>
-                    </div>
-                  )}
-                  {ex.muscle_group && (
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 14px', borderRadius: 12, background: '#F4F4F5' } as any}>
-                      <i className="ri-body-scan-line" style={{ fontSize: 14, color: '#6B7280' }} />
-                      <div><div style={{ fontSize: 9, fontWeight: 700, color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: 0.5 }}>Zone</div><div style={{ fontSize: 13, fontWeight: 800, color: '#111' }}>{ex.muscle_group}</div></div>
-                    </div>
-                  )}
-                  {ex.equipment && ex.equipment !== 'Aucun' && (
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 14px', borderRadius: 12, background: '#F4F4F5' } as any}>
-                      <i className="ri-tools-line" style={{ fontSize: 14, color: '#6B7280' }} />
-                      <div><div style={{ fontSize: 9, fontWeight: 700, color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: 0.5 }}>Equipement</div><div style={{ fontSize: 13, fontWeight: 800, color: '#111' }}>{ex.equipment}</div></div>
-                    </div>
-                  )}
+                <div data-testid="exercise-info" style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginBottom: 14 } as any}>
+                  {ex.difficulty && <span style={{ padding: '5px 10px', borderRadius: 8, background: `${accent}10`, fontSize: 11, fontWeight: 700, color: accent }}>{DIFF_LABELS[ex.difficulty] || ex.difficulty}</span>}
+                  {ex.muscle_group && <span style={{ padding: '5px 10px', borderRadius: 8, background: '#F4F4F5', fontSize: 11, fontWeight: 700, color: '#6B7280' }}>{ex.muscle_group}</span>}
+                  {ex.equipment && ex.equipment !== 'Aucun' && <span style={{ padding: '5px 10px', borderRadius: 8, background: '#F4F4F5', fontSize: 11, fontWeight: 700, color: '#6B7280' }}>{ex.equipment}</span>}
                 </div>
               )}
 
-              {/* EDITABLE STATS — beneficiary can modify sets/reps/repos */}
-              <div data-testid="exercise-stats" style={{ borderRadius: 16, background: '#F4F4F5', padding: 0, marginBottom: 14, overflow: 'hidden' } as any}>
-                {isEditable ? (
+              {/* STATS with edit button */}
+              <div data-testid="exercise-stats" style={{ borderRadius: 16, background: '#F4F4F5', marginBottom: 14, overflow: 'hidden' } as any}>
+                {editing ? (
                   <>
                     <div style={{ display: 'flex' } as any}>
-                      <StatEditor label="Series" value={editSets} onChange={(v: number) => handleParamChange('sets', v)} min={1} max={20} accent={accent} />
-                      <StatEditor label="Reps" value={editReps} onChange={(v: number) => handleParamChange('reps', v)} min={1} max={100} accent={accent} />
-                      <StatEditor label="Repos" value={editRest} onChange={(v: number) => handleParamChange('rest', v)} min={0} max={300} step={5} suffix="s" accent={accent} />
+                      <StatEditor label="Series" value={editSets} onChange={setEditSets} min={1} max={20} accent={accent} />
+                      <StatEditor label="Reps" value={editReps} onChange={setEditReps} min={1} max={100} accent={accent} />
+                      <StatEditor label="Repos" value={editRest} onChange={setEditRest} min={0} max={300} step={5} suffix="s" accent={accent} />
                     </div>
-                    {paramsChanged && (
-                      <div data-testid="save-params-btn" onClick={saveParams} style={{ padding: '10px 16px', textAlign: 'center', cursor: 'pointer', borderTop: '1px solid #E5E7EB', fontSize: 12, fontWeight: 800, color: '#FFF', background: accent, transition: 'opacity 0.15s', opacity: savingParams ? 0.5 : 1 } as any}>
-                        {savingParams ? 'Enregistrement...' : 'Enregistrer les modifications'}
-                      </div>
-                    )}
+                    <div style={{ display: 'flex', gap: 8, padding: '10px 12px', borderTop: '1px solid #E5E7EB' } as any}>
+                      <div onClick={() => { setEditing(false); initParams(ex); }} style={{ flex: 1, padding: '10px', borderRadius: 10, background: '#E5E7EB', textAlign: 'center', cursor: 'pointer', fontSize: 12, fontWeight: 700, color: '#6B7280' } as any}>Annuler</div>
+                      <div data-testid="save-params-btn" onClick={saveParams} style={{ flex: 1, padding: '10px', borderRadius: 10, background: accent, textAlign: 'center', cursor: 'pointer', fontSize: 12, fontWeight: 800, color: '#FFF', opacity: savingParams ? 0.5 : 1 } as any}>{savingParams ? '...' : 'Enregistrer'}</div>
+                    </div>
                   </>
                 ) : (
-                  <div style={{ display: 'flex' } as any}>
-                    {ex.sets > 0 && <div style={{ flex: 1, padding: '14px 8px', textAlign: 'center', borderRight: '1px solid #E5E7EB' } as any}><div style={{ fontSize: 22, fontWeight: 900, color: '#111' }}>{ex.sets}</div><div style={{ fontSize: 9, fontWeight: 700, color: '#9CA3AF', textTransform: 'uppercase', marginTop: 2 }}>Series</div></div>}
-                    {(ex.repetitions > 0 || ex.reps > 0) && <div style={{ flex: 1, padding: '14px 8px', textAlign: 'center', borderRight: '1px solid #E5E7EB' } as any}><div style={{ fontSize: 22, fontWeight: 900, color: '#111' }}>{ex.repetitions || ex.reps}</div><div style={{ fontSize: 9, fontWeight: 700, color: '#9CA3AF', textTransform: 'uppercase', marginTop: 2 }}>Reps</div></div>}
-                    {ex.duration_min > 0 && <div style={{ flex: 1, padding: '14px 8px', textAlign: 'center', borderRight: '1px solid #E5E7EB' } as any}><div style={{ fontSize: 22, fontWeight: 900, color: '#111' }}>{ex.duration_min}<span style={{ fontSize: 10, color: '#9CA3AF' }}>min</span></div><div style={{ fontSize: 9, fontWeight: 700, color: '#9CA3AF', textTransform: 'uppercase', marginTop: 2 }}>Duree</div></div>}
-                    {(ex.rest_seconds > 0) && <div style={{ flex: 1, padding: '14px 8px', textAlign: 'center' } as any}><div style={{ fontSize: 22, fontWeight: 900, color: '#111' }}>{ex.rest_seconds}<span style={{ fontSize: 10, color: '#9CA3AF' }}>s</span></div><div style={{ fontSize: 9, fontWeight: 700, color: '#9CA3AF', textTransform: 'uppercase', marginTop: 2 }}>Repos</div></div>}
+                  <div style={{ display: 'flex', alignItems: 'center' } as any}>
+                    <div style={{ flex: 1, display: 'flex' } as any}>
+                      {ex.sets > 0 && <div style={{ flex: 1, padding: '14px 6px', textAlign: 'center', borderRight: '1px solid #E5E7EB' } as any}><div style={{ fontSize: 22, fontWeight: 900, color: '#111' }}>{ex.sets}</div><div style={{ fontSize: 9, fontWeight: 700, color: '#9CA3AF', textTransform: 'uppercase', marginTop: 2 }}>Series</div></div>}
+                      {(ex.repetitions > 0 || ex.reps > 0) && <div style={{ flex: 1, padding: '14px 6px', textAlign: 'center', borderRight: '1px solid #E5E7EB' } as any}><div style={{ fontSize: 22, fontWeight: 900, color: '#111' }}>{ex.repetitions || ex.reps}</div><div style={{ fontSize: 9, fontWeight: 700, color: '#9CA3AF', textTransform: 'uppercase', marginTop: 2 }}>Reps</div></div>}
+                      {(ex.rest_seconds > 0) && <div style={{ flex: 1, padding: '14px 6px', textAlign: 'center' } as any}><div style={{ fontSize: 22, fontWeight: 900, color: '#111' }}>{ex.rest_seconds}<span style={{ fontSize: 10, color: '#9CA3AF' }}>s</span></div><div style={{ fontSize: 9, fontWeight: 700, color: '#9CA3AF', textTransform: 'uppercase', marginTop: 2 }}>Repos</div></div>}
+                    </div>
+                    {isAssigned && <div data-testid="edit-params-btn" onClick={() => { setEditing(true); initParams(ex); }} style={{ padding: '10px 14px', cursor: 'pointer', borderLeft: '1px solid #E5E7EB', display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}><i className="ri-edit-line" style={{ fontSize: 16, color: '#9CA3AF' }} /></div>}
                   </div>
                 )}
               </div>
 
-              {/* WEIGHT TRACKER — for exercises with equipment */}
-              {isEditable && hasWeight && (
+              {/* WEIGHT — behind edit button */}
+              {isAssigned && hasWeight && (
                 <div data-testid="weight-tracker" style={{ borderRadius: 16, background: '#F4F4F5', padding: '14px 16px', marginBottom: 14 } as any}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 } as any}>
-                    <div style={{ width: 32, height: 32, borderRadius: 10, background: '#111', display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}>
-                      <i className="ri-scales-3-line" style={{ fontSize: 16, color: '#FFF' }} />
-                    </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: editingWeight ? 10 : 0 } as any}>
+                    <i className="ri-scales-3-line" style={{ fontSize: 18, color: '#111' }} />
                     <div style={{ flex: 1 } as any}>
                       <div style={{ fontSize: 13, fontWeight: 800, color: '#111' }}>Poids utilise</div>
-                      {lastWeightKg != null && (
-                        <div style={{ fontSize: 10, color: '#6B7280', marginTop: 1 }}>Derniere seance : <strong style={{ color: accent }}>{lastWeightKg} kg</strong></div>
-                      )}
+                      {lastWeightKg != null && <div style={{ fontSize: 11, color: '#6B7280' }}>Dernier : <strong style={{ color: accent }}>{lastWeightKg} kg</strong></div>}
+                    </div>
+                    {weightSaved && <span style={{ fontSize: 11, fontWeight: 700, color: '#10B981' }}>Enregistre !</span>}
+                    <div data-testid="edit-weight-btn" onClick={() => setEditingWeight(!editingWeight)} style={{ width: 32, height: 32, borderRadius: 10, background: editingWeight ? accent : '#E5E7EB', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}>
+                      <i className={editingWeight ? 'ri-close-line' : 'ri-edit-line'} style={{ fontSize: 14, color: editingWeight ? '#FFF' : '#9CA3AF' }} />
                     </div>
                   </div>
-                  <div style={{ display: 'flex', gap: 8, alignItems: 'center' } as any}>
-                    <div style={{ position: 'relative', flex: 1 } as any}>
-                      <input
-                        data-testid="weight-input"
-                        type="number"
-                        value={weightKg}
-                        onChange={(e: any) => { setWeightKg(e.target.value); setWeightSaved(false); }}
-                        placeholder={lastWeightKg ? `${lastWeightKg}` : 'Ex: 40'}
-                        style={{ ...INP, paddingRight: 36 } as any}
-                        min="0"
-                        step="0.5"
-                      />
-                      <span style={{ position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)', fontSize: 12, fontWeight: 700, color: '#9CA3AF' }}>kg</span>
-                    </div>
-                    <div
-                      data-testid="save-weight-btn"
-                      onClick={saveWeight}
-                      style={{
-                        padding: '12px 18px', borderRadius: 12, cursor: 'pointer', fontSize: 12, fontWeight: 800,
-                        background: weightSaved ? '#10B981' : '#111', color: '#FFF',
-                        transition: 'all 0.2s', opacity: savingWeight ? 0.5 : 1,
-                        display: 'flex', alignItems: 'center', gap: 6, whiteSpace: 'nowrap',
-                      } as any}
-                    >
-                      {weightSaved ? <><i className="ri-check-line" style={{ fontSize: 14 }} /> OK</> : savingWeight ? 'Enregistrement...' : 'Enregistrer'}
-                    </div>
-                  </div>
-                  {/* Weight history */}
-                  {ex.weight_history && ex.weight_history.length > 1 && (
-                    <div style={{ marginTop: 10, padding: '8px 10px', borderRadius: 10, background: '#FFF' } as any}>
-                      <div style={{ fontSize: 9, fontWeight: 700, color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 6 }}>Historique poids</div>
-                      <div style={{ display: 'flex', gap: 6, overflowX: 'auto', paddingBottom: 2 } as any}>
-                        {ex.weight_history.slice(-8).reverse().map((w: any, i: number) => (
-                          <div key={i} style={{ flexShrink: 0, padding: '4px 10px', borderRadius: 8, background: i === 0 ? `${accent}12` : '#F4F4F5', border: i === 0 ? `1px solid ${accent}25` : '1px solid transparent', textAlign: 'center' } as any}>
-                            <div style={{ fontSize: 13, fontWeight: 900, color: i === 0 ? accent : '#111' }}>{w.weight_kg}<span style={{ fontSize: 8, color: '#9CA3AF' }}>kg</span></div>
-                            <div style={{ fontSize: 8, color: '#9CA3AF', marginTop: 1 }}>{w.date ? new Date(w.date).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short' }) : ''}</div>
-                          </div>
-                        ))}
+                  {editingWeight && (
+                    <div style={{ display: 'flex', gap: 8, alignItems: 'center' } as any}>
+                      <div style={{ position: 'relative', flex: 1 } as any}>
+                        <input data-testid="weight-input" type="number" value={weightKg} onChange={(e: any) => setWeightKg(e.target.value)} placeholder={lastWeightKg ? `${lastWeightKg}` : 'Ex: 40'} style={{ ...INP, paddingRight: 36 } as any} min="0" step="0.5" />
+                        <span style={{ position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)', fontSize: 12, fontWeight: 700, color: '#9CA3AF' }}>kg</span>
                       </div>
+                      <div data-testid="save-weight-btn" onClick={saveWeight} style={{ padding: '12px 18px', borderRadius: 12, cursor: 'pointer', fontSize: 12, fontWeight: 800, background: '#111', color: '#FFF', opacity: savingWeight ? 0.5 : 1 } as any}>{savingWeight ? '...' : 'OK'}</div>
                     </div>
+                  )}
+                  {/* Weight chart */}
+                  {ex.weight_history && ex.weight_history.length > 1 && (
+                    <WeightChart data={ex.weight_history} accent={accent} />
                   )}
                 </div>
               )}
@@ -272,92 +253,94 @@ export default function ProExerciseDetailPage() {
               {/* Description */}
               {ex.description && (
                 <div style={{ borderRadius: 16, background: '#F4F4F5', padding: '14px 16px', marginBottom: 14 } as any}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 8 } as any}>
-                    <i className="ri-file-text-line" style={{ fontSize: 14, color: accent }} />
-                    <span style={{ fontSize: 11, fontWeight: 700, color: '#6B7280', textTransform: 'uppercase', letterSpacing: 0.5 }}>Description</span>
-                  </div>
+                  <div style={{ fontSize: 11, fontWeight: 700, color: '#6B7280', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 6 }}>Description</div>
                   <div style={{ fontSize: 13, color: '#6B7280', lineHeight: 1.7 }}>{ex.description}</div>
                 </div>
               )}
 
               {/* Video */}
               {videoSrc && (
-                <div style={{ borderRadius: 16, background: '#F4F4F5', padding: '14px 16px', marginBottom: 14 } as any}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 8 } as any}>
-                    <i className="ri-video-line" style={{ fontSize: 14, color: '#EF4444' }} />
-                    <span style={{ fontSize: 11, fontWeight: 700, color: '#6B7280', textTransform: 'uppercase', letterSpacing: 0.5 }}>Video</span>
-                  </div>
+                <div style={{ borderRadius: 16, background: '#F4F4F5', padding: '14px 16px', marginBottom: 14, overflow: 'hidden' } as any}>
+                  <div style={{ fontSize: 11, fontWeight: 700, color: '#6B7280', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 8 }}>Video</div>
                   {videoSrc.includes('youtube') || videoSrc.includes('youtu.be') ? (
-                    <div style={{ borderRadius: 12, overflow: 'hidden', aspectRatio: '16/9' } as any}>
-                      <iframe src={videoSrc.replace('watch?v=', 'embed/').replace('youtu.be/', 'www.youtube.com/embed/')} style={{ width: '100%', height: '100%', border: 'none' } as any} allowFullScreen />
-                    </div>
+                    <div style={{ borderRadius: 12, overflow: 'hidden', aspectRatio: '16/9' } as any}><iframe src={videoSrc.replace('watch?v=', 'embed/').replace('youtu.be/', 'www.youtube.com/embed/')} style={{ width: '100%', height: '100%', border: 'none' } as any} allowFullScreen /></div>
                   ) : (
-                    <video src={videoSrc.startsWith('/') ? `${API}${videoSrc}` : videoSrc} controls style={{ width: '100%', borderRadius: 12 } as any} />
+                    <video src={videoSrc} controls style={{ width: '100%', borderRadius: 12, maxHeight: 240 } as any} />
                   )}
                 </div>
               )}
 
               {/* Steps */}
               {steps.length > 0 && steps.some((s: string) => s.trim()) && (
-                <>
-                  <div style={{ height: 1, background: '#E5E7EB', margin: '4px 0 14px' } as any} />
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 } as any}>
-                    <i className="ri-list-ordered" style={{ fontSize: 16, color: accent }} />
-                    <span style={{ fontSize: 14, fontWeight: 800, color: '#111' }}>Etapes</span>
-                    <span style={{ fontSize: 11, fontWeight: 600, color: '#9CA3AF', background: '#E5E7EB', padding: '2px 8px', borderRadius: 999 }}>{steps.filter((s: string) => s.trim()).length}</span>
-                  </div>
+                <div style={{ marginBottom: 14 }}>
+                  <div style={{ fontSize: 14, fontWeight: 800, color: '#111', marginBottom: 10 }}>Etapes <span style={{ fontSize: 11, fontWeight: 600, color: '#9CA3AF', background: '#E5E7EB', padding: '2px 8px', borderRadius: 999, marginLeft: 6 }}>{steps.filter((s: string) => s.trim()).length}</span></div>
                   {steps.filter((s: string) => s.trim()).map((step: string, i: number) => (
-                    <div key={i} style={{ display: 'flex', gap: 12, padding: '12px 14px', borderRadius: 14, background: '#F4F4F5', marginBottom: 6 } as any}>
-                      <span style={{ fontSize: 18, fontWeight: 900, color: '#111', flexShrink: 0, minWidth: 24 }}>{i + 1}.</span>
-                      <div style={{ fontSize: 12, color: '#6B7280', lineHeight: 1.6, flex: 1, paddingTop: 3 }}>{step}</div>
+                    <div key={i} style={{ display: 'flex', gap: 10, padding: '10px 12px', borderRadius: 12, background: '#F4F4F5', marginBottom: 4 } as any}>
+                      <span style={{ fontSize: 15, fontWeight: 900, color: accent, flexShrink: 0, minWidth: 20 }}>{i + 1}.</span>
+                      <div style={{ fontSize: 12, color: '#6B7280', lineHeight: 1.6, flex: 1 }}>{step}</div>
                     </div>
                   ))}
-                </>
+                </div>
               )}
 
-              {/* Completion (assigned/session) */}
-              {(mode === 'session' || mode === 'assigned') && (assignmentId || (programId && sessionId)) && (
-                <div style={{ borderRadius: 16, background: completed ? 'rgba(16,185,129,0.06)' : '#F4F4F5', border: completed ? '1px solid rgba(16,185,129,0.2)' : '1px solid transparent', padding: 16, marginTop: 14, marginBottom: 14 } as any}>
-                  {completed ? (
-                    (() => {
-                      const today = new Date().toISOString().split('T')[0];
-                      const lastComp = (ex.completions || []).filter((c: any) => c.date?.startsWith(today) && c.status === 'done').slice(-1)[0];
-                      return (
-                        <div data-testid="exercise-completed" style={{ padding: '12px 0' } as any}>
-                          <div style={{ textAlign: 'center', marginBottom: lastComp?.pain_level || lastComp?.patient_notes ? 14 : 0 } as any}>
-                            <i className="ri-checkbox-circle-fill" style={{ fontSize: 36, color: '#10B981', display: 'block', marginBottom: 8 }} />
-                            <div style={{ fontSize: 16, fontWeight: 800, color: '#10B981' }}>Exercice valide !</div>
-                          </div>
-                          {lastComp?.pain_level > 0 && (
-                            <div style={{ marginBottom: 10 } as any}>
-                              <div style={{ fontSize: 11, color: '#6B7280', marginBottom: 6, fontWeight: 600 }}>Niveau de douleur</div>
-                              <div style={{ display: 'flex', gap: 4 } as any}>
-                                {[1,2,3,4,5,6,7,8,9,10].map(n => (
-                                  <div key={n} style={{ flex: 1, height: 28, borderRadius: 6, background: n <= lastComp.pain_level ? (n <= 3 ? '#10B981' : n <= 6 ? '#F59E0B' : '#EF4444') : '#E5E7EB', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 10, fontWeight: 700, color: n <= lastComp.pain_level ? '#FFF' : '#9CA3AF' } as any}>{n}</div>
-                                ))}
-                              </div>
-                            </div>
-                          )}
-                          {lastComp?.patient_notes && (
-                            <div style={{ padding: '10px 14px', borderRadius: 12, background: '#F4F4F5', marginTop: 8 } as any}>
-                              <div style={{ fontSize: 11, color: '#6B7280', marginBottom: 4, fontWeight: 600 }}>Note du patient</div>
-                              <div style={{ fontSize: 13, color: '#111', lineHeight: 1.6 }}>"{lastComp.patient_notes}"</div>
-                            </div>
-                          )}
-                        </div>
-                      );
-                    })()
+              {/* WORKOUT TIMER */}
+              {isAssigned && !completed && (
+                <div data-testid="workout-section" style={{ borderRadius: 16, background: workoutStarted ? 'rgba(16,185,129,0.04)' : '#F4F4F5', border: workoutStarted ? '1px solid rgba(16,185,129,0.15)' : '1px solid transparent', padding: 16, marginBottom: 14 } as any}>
+                  {!workoutStarted ? (
+                    <div data-testid="start-workout-btn" onClick={() => { setWorkoutStarted(true); setCurrentSet(1); }} style={{ padding: '16px', borderRadius: 14, background: '#111', textAlign: 'center', cursor: 'pointer', fontSize: 15, fontWeight: 800, color: '#FFF' } as any}>
+                      <i className="ri-play-fill" style={{ marginRight: 8 }} />Commencer l'exercice
+                    </div>
                   ) : (
                     <>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 14 } as any}>
-                        <i className="ri-checkbox-circle-line" style={{ fontSize: 14, color: '#10B981' }} />
-                        <span style={{ fontSize: 11, fontWeight: 700, color: '#6B7280', textTransform: 'uppercase', letterSpacing: 0.5 }}>Validation</span>
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 } as any}>
+                        <div style={{ fontSize: 14, fontWeight: 800, color: '#111' }}>Serie {currentSet}/{totalSets}</div>
+                        <div style={{ display: 'flex', gap: 3 } as any}>
+                          {Array.from({ length: totalSets }).map((_, i) => (
+                            <div key={i} style={{ width: 8, height: 8, borderRadius: 4, background: i < currentSet ? '#10B981' : '#E5E7EB', transition: 'background 0.3s' } as any} />
+                          ))}
+                        </div>
                       </div>
+                      {resting ? (
+                        <div data-testid="rest-timer" style={{ textAlign: 'center', padding: '20px 0' } as any}>
+                          <div style={{ fontSize: 11, fontWeight: 700, color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 8 }}>Temps de repos</div>
+                          <div style={{ fontSize: 48, fontWeight: 900, color: accent, fontVariantNumeric: 'tabular-nums' } as any}>{Math.floor(restTime / 60)}:{String(restTime % 60).padStart(2, '0')}</div>
+                          <div style={{ height: 6, borderRadius: 3, background: '#E5E7EB', marginTop: 12, overflow: 'hidden' } as any}><div style={{ height: '100%', borderRadius: 3, background: accent, width: `${(1 - restTime / (ex?.rest_seconds || editRest || 60)) * 100}%`, transition: 'width 1s linear' } as any} /></div>
+                          <div onClick={() => { clearInterval(restRef.current); setResting(false); setCurrentSet(s => s + 1); }} style={{ marginTop: 12, fontSize: 12, fontWeight: 700, color: accent, cursor: 'pointer' }}>Passer le repos</div>
+                        </div>
+                      ) : currentSet <= totalSets ? (
+                        <div style={{ textAlign: 'center' } as any}>
+                          <div style={{ fontSize: 13, color: '#6B7280', marginBottom: 12 }}>{ex.repetitions || editReps} reps</div>
+                          <div data-testid="set-done-btn" onClick={() => { if (currentSet >= totalSets) { setWorkoutStarted(false); } else { startRest(); } }} style={{ padding: '14px', borderRadius: 12, background: currentSet >= totalSets ? '#10B981' : accent, textAlign: 'center', cursor: 'pointer', fontSize: 14, fontWeight: 800, color: '#FFF' } as any}>
+                            {currentSet >= totalSets ? 'Terminer' : 'Serie terminee'}
+                          </div>
+                        </div>
+                      ) : (
+                        <div style={{ textAlign: 'center', padding: '12px 0' } as any}>
+                          <i className="ri-checkbox-circle-fill" style={{ fontSize: 32, color: '#10B981', display: 'block', marginBottom: 8 }} />
+                          <div style={{ fontSize: 14, fontWeight: 800, color: '#10B981' }}>Exercice termine !</div>
+                        </div>
+                      )}
+                    </>
+                  )}
+                </div>
+              )}
+
+              {/* Validation */}
+              {(mode === 'session' || mode === 'assigned') && (assignmentId || (programId && sessionId)) && (
+                <div style={{ borderRadius: 16, background: completed ? 'rgba(16,185,129,0.06)' : '#F4F4F5', border: completed ? '1px solid rgba(16,185,129,0.2)' : '1px solid transparent', padding: 16, marginBottom: 14 } as any}>
+                  {completed ? (
+                    <div data-testid="exercise-completed" style={{ textAlign: 'center', padding: '12px 0' } as any}>
+                      <i className="ri-checkbox-circle-fill" style={{ fontSize: 36, color: '#10B981', display: 'block', marginBottom: 8 }} />
+                      <div style={{ fontSize: 16, fontWeight: 800, color: '#10B981' }}>Exercice valide !</div>
+                    </div>
+                  ) : (
+                    <>
+                      <div style={{ fontSize: 11, fontWeight: 700, color: '#6B7280', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 12 }}>Validation</div>
                       <div style={{ marginBottom: 12 }}>
                         <div style={{ fontSize: 11, color: '#6B7280', marginBottom: 6, fontWeight: 600 }}>Niveau de douleur</div>
-                        <div style={{ display: 'flex', gap: 4 } as any}>
+                        <div style={{ display: 'flex', gap: 3 } as any}>
                           {[1,2,3,4,5,6,7,8,9,10].map(n => (
-                            <div key={n} onClick={() => setPainLevel(n)} style={{ flex: 1, height: 28, borderRadius: 6, background: n <= painLevel ? (n <= 3 ? '#10B981' : n <= 6 ? '#F59E0B' : '#EF4444') : '#E5E7EB', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 10, fontWeight: 700, color: n <= painLevel ? '#FFF' : '#9CA3AF', transition: 'all 0.15s' } as any}>{n}</div>
+                            <div key={n} onClick={() => setPainLevel(n)} style={{ flex: 1, height: 28, borderRadius: 6, background: n <= painLevel ? (n <= 3 ? '#10B981' : n <= 6 ? '#F59E0B' : '#EF4444') : '#E5E7EB', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 9, fontWeight: 700, color: n <= painLevel ? '#FFF' : '#9CA3AF', transition: 'all 0.15s' } as any}>{n}</div>
                           ))}
                         </div>
                       </div>
@@ -365,41 +348,82 @@ export default function ProExerciseDetailPage() {
                         <div style={{ fontSize: 11, color: '#6B7280', marginBottom: 6, fontWeight: 600 }}>Notes</div>
                         <input data-testid="exercise-notes-input" value={notes} onChange={(e: any) => setNotes(e.target.value)} placeholder="Comment ca s'est passe ?" style={INP} />
                       </div>
-                      <div style={{ display: 'flex', gap: 8 } as any}>
-                        <div data-testid="validate-exercise-btn" onClick={() => handleComplete('done')} style={{ flex: 1, padding: '14px', borderRadius: 999, background: '#111', textAlign: 'center', cursor: 'pointer', fontSize: 14, fontWeight: 800, color: '#FFF', opacity: completing ? 0.5 : 1 } as any}>{completing ? 'Validation...' : 'Valider'}</div>
-                      </div>
+                      <div data-testid="validate-exercise-btn" onClick={() => handleComplete('done')} style={{ padding: '14px', borderRadius: 14, background: '#111', textAlign: 'center', cursor: 'pointer', fontSize: 14, fontWeight: 800, color: '#FFF', opacity: completing ? 0.5 : 1 } as any}>{completing ? 'Validation...' : 'Valider'}</div>
                     </>
                   )}
                 </div>
               )}
             </>
           )}
-
           {!loading && !ex && mode !== 'create-self' && <div style={{ textAlign: 'center', padding: '80px 0', color: '#9CA3AF' } as any}><i className="ri-error-warning-line" style={{ fontSize: 32, display: 'block', marginBottom: 8 }} /><div style={{ fontSize: 14, fontWeight: 600 }}>Exercice non trouve</div></div>}
         </div>
       </div>
-      <style dangerouslySetInnerHTML={{ __html: `@keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}` }} />
     </div>
   );
 }
 
-
-/* ── StatEditor: increment/decrement control for sets/reps/rest ── */
+/* ── StatEditor ── */
 function StatEditor({ label, value, onChange, min = 0, max = 999, step = 1, suffix = '', accent = '#3B82F6' }: { label: string; value: number; onChange: (v: number) => void; min?: number; max?: number; step?: number; suffix?: string; accent?: string }) {
-  const dec = () => onChange(Math.max(min, value - step));
-  const inc = () => onChange(Math.min(max, value + step));
   return (
-    <div data-testid={`stat-editor-${label.toLowerCase()}`} style={{ flex: 1, padding: '10px 6px', textAlign: 'center', borderRight: '1px solid #E5E7EB' } as any}>
+    <div data-testid={`stat-editor-${label.toLowerCase()}`} style={{ flex: 1, padding: '10px 4px', textAlign: 'center', borderRight: '1px solid #E5E7EB' } as any}>
       <div style={{ fontSize: 9, fontWeight: 700, color: '#9CA3AF', textTransform: 'uppercase', marginBottom: 6, letterSpacing: 0.5 }}>{label}</div>
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 } as any}>
-        <div onClick={dec} style={{ width: 28, height: 28, borderRadius: 8, background: '#E5E7EB', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', fontSize: 16, fontWeight: 900, color: '#6B7280', userSelect: 'none', transition: 'background 0.12s' } as any}
-          onMouseEnter={(e: any) => { e.currentTarget.style.background = '#D1D5DB'; }}
-          onMouseLeave={(e: any) => { e.currentTarget.style.background = '#E5E7EB'; }}>-</div>
-        <div style={{ fontSize: 20, fontWeight: 900, color: '#111', minWidth: 36, textAlign: 'center' }}>{value}{suffix && <span style={{ fontSize: 9, color: '#9CA3AF' }}>{suffix}</span>}</div>
-        <div onClick={inc} style={{ width: 28, height: 28, borderRadius: 8, background: accent, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', fontSize: 16, fontWeight: 900, color: '#FFF', userSelect: 'none', transition: 'opacity 0.12s' } as any}
-          onMouseEnter={(e: any) => { e.currentTarget.style.opacity = '0.85'; }}
-          onMouseLeave={(e: any) => { e.currentTarget.style.opacity = '1'; }}>+</div>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4 } as any}>
+        <div onClick={() => onChange(Math.max(min, value - step))} style={{ width: 26, height: 26, borderRadius: 8, background: '#E5E7EB', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', fontSize: 14, fontWeight: 900, color: '#6B7280', userSelect: 'none' } as any}>-</div>
+        <div style={{ fontSize: 18, fontWeight: 900, color: '#111', minWidth: 30, textAlign: 'center' }}>{value}{suffix && <span style={{ fontSize: 9, color: '#9CA3AF' }}>{suffix}</span>}</div>
+        <div onClick={() => onChange(Math.min(max, value + step))} style={{ width: 26, height: 26, borderRadius: 8, background: accent, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', fontSize: 14, fontWeight: 900, color: '#FFF', userSelect: 'none' } as any}>+</div>
       </div>
+    </div>
+  );
+}
+
+/* ── WeightChart: SVG line chart with clickable points ── */
+function WeightChart({ data, accent }: { data: any[]; accent: string }) {
+  const [selected, setSelected] = useState<number | null>(null);
+  const entries = data.slice(-10);
+  if (entries.length < 2) return null;
+  const weights = entries.map((w: any) => w.weight_kg);
+  const minW = Math.min(...weights) - 2;
+  const maxW = Math.max(...weights) + 2;
+  const range = maxW - minW || 1;
+  const W = 280, H = 100, padX = 20, padY = 10;
+  const chartW = W - padX * 2, chartH = H - padY * 2;
+  const points = entries.map((w: any, i: number) => ({
+    x: padX + (i / (entries.length - 1)) * chartW,
+    y: padY + chartH - ((w.weight_kg - minW) / range) * chartH,
+    weight: w.weight_kg,
+    date: w.date ? new Date(w.date).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short' }) : '',
+  }));
+  const linePath = points.map((p, i) => `${i === 0 ? 'M' : 'L'}${p.x},${p.y}`).join(' ');
+
+  return (
+    <div data-testid="weight-chart" style={{ marginTop: 10, padding: '8px 0' } as any}>
+      <div style={{ fontSize: 9, fontWeight: 700, color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 6, paddingLeft: 4 }}>Evolution du poids</div>
+      <svg width="100%" viewBox={`0 0 ${W} ${H + 20}`} style={{ display: 'block' }}>
+        {/* Grid lines */}
+        {[0, 0.25, 0.5, 0.75, 1].map((p, i) => (
+          <line key={i} x1={padX} y1={padY + chartH * (1 - p)} x2={W - padX} y2={padY + chartH * (1 - p)} stroke="#E5E7EB" strokeWidth="0.5" />
+        ))}
+        {/* Line */}
+        <path d={linePath} fill="none" stroke={accent} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+        {/* Area */}
+        <path d={`${linePath} L${points[points.length - 1].x},${padY + chartH} L${points[0].x},${padY + chartH} Z`} fill={`${accent}12`} />
+        {/* Points */}
+        {points.map((p, i) => (
+          <g key={i} onClick={() => setSelected(selected === i ? null : i)} style={{ cursor: 'pointer' }}>
+            <circle cx={p.x} cy={p.y} r={selected === i ? 6 : 4} fill={selected === i ? accent : '#FFF'} stroke={accent} strokeWidth="2" />
+            {selected === i && (
+              <>
+                <rect x={p.x - 28} y={p.y - 28} width="56" height="20" rx="6" fill="#111" />
+                <text x={p.x} y={p.y - 15} textAnchor="middle" fill="#FFF" fontSize="10" fontWeight="700">{p.weight} kg</text>
+              </>
+            )}
+          </g>
+        ))}
+        {/* X axis labels */}
+        {points.filter((_, i) => i === 0 || i === points.length - 1 || entries.length <= 5).map((p, i) => (
+          <text key={`label-${i}`} x={p.x} y={H + 14} textAnchor="middle" fill="#9CA3AF" fontSize="8" fontWeight="600">{p.date}</text>
+        ))}
+      </svg>
     </div>
   );
 }

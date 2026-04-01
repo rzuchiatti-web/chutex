@@ -18,12 +18,17 @@ export default function TeamActivityToast({ token }: Props) {
   const [queue, setQueue] = useState<Activity[]>([]);
   const [current, setCurrent] = useState<Activity | null>(null);
   const [visible, setVisible] = useState(false);
+  const [hasFeed, setHasFeed] = useState(false);
   const seenRef = useRef(new Set<string>());
   const intervalRef = useRef<any>(null);
 
   const fetchFeed = useCallback(async () => {
     if (!token) return;
     try {
+      // First check if user has an active team program (skip for solo)
+      const activeRes = await apiFetch('/api/programs/active', {}, token);
+      if (!activeRes?.team || !activeRes.active) { setHasFeed(false); return; }
+      setHasFeed(true);
       const res = await apiFetch('/api/programs/team/feed', {}, token);
       const feed: Activity[] = res?.feed || [];
       const newOnes = feed.filter(a => !seenRef.current.has(a.id));
