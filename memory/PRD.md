@@ -42,7 +42,16 @@
 - [x] LIST_EXERCISES : Lister les exercices disponibles dans la bibliotheque
 - [x] Regles metier strictes : jamais supprimer les prescriptions gardien/coach
 - [x] Cartes de confirmation visuelles (vert succes, rouge echec) dans le chat
-- [x] Action markers <<<ACTION:NAME:json>>> parses par le backend
+
+### Refactoring (COMPLETE)
+- [x] pro-exercise-detail.tsx : 606 -> 403 lignes (-33%)
+  - Extraction: WeightChart, StatEditor -> src/components/exercises/WeightChart.tsx
+  - Extraction: WorkoutPopup -> src/components/exercises/WorkoutPopup.tsx
+- [x] BeneficiaryHome.tsx : 885 -> 707 lignes (-20%)
+  - Extraction: SleepAlarmSection -> src/components/dashboard/sections/SleepAlarmSection.tsx
+  - Extraction: TodayExercisesSection -> src/components/dashboard/sections/TodayExercisesSection.tsx
+  - Extraction: RemindersSection -> src/components/dashboard/sections/RemindersSection.tsx
+  - Extraction: GuardiansSection -> src/components/dashboard/sections/GuardiansSection.tsx
 
 ### Bug Fixes
 - [x] Programme Solo sans equipe ni notifications
@@ -64,7 +73,3 @@
 ## Backlog
 - P1 : Deploiement TCP J2358
 - P2 : Balance/gilet connectes, Signature electronique, Parrainage, Essai 7j, Vivoo
-
-## Refactoring
-- pro-exercise-detail.tsx : extraction WeightChart + WorkoutPopup (>600 lignes)
-- BeneficiaryHome.tsx : decoupage en sous-composants

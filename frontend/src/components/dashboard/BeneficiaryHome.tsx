@@ -21,6 +21,7 @@ import { SubscriptionBanner, SubscriptionGate } from '../SubscriptionGate';
 import WeightGoalDashCard from './WeightGoalDashCard';
 import NoraHealthOverlay from './NoraHealthOverlay';
 import { useNotifications, NotificationBanner, NotificationCenter } from './NotificationCenter';
+import { SleepAlarmSection, TodayExercisesSection, RemindersSection, GuardiansSection } from './sections';
 
 const portalMount = (node: React.ReactNode) => {
   if (Platform.OS === 'web' && typeof document !== 'undefined') {
@@ -29,8 +30,6 @@ const portalMount = (node: React.ReactNode) => {
   }
   return node;
 };
-
-const IMG_GUARDIANS = 'https://customer-assets.emergentagent.com/job_ba3a5789-c8f1-4b12-b5d8-478a7f99aaea/artifacts/ashlkedd_img_gardians.png';
 
 export function BeneficiaryHome({ token, user }: { token: string; user: any }) {
   const router = useRouter();
@@ -503,43 +502,7 @@ export function BeneficiaryHome({ token, user }: { token: string; user: any }) {
           {showWeighing && <WeighingFlow onClose={() => setShowWeighing(false)} d={dashData?.scale || {}} weighings={weighings} />}
 
           {/* ── Sommeil de ce soir (above programme) ── */}
-          <div data-testid="sleep-alarm-card" className="dash-slide-up" onClick={() => router.push({ pathname: '/health-detail' as any, params: { tab: 'sleep' } })} style={{ borderRadius: 18, background: C.card, padding: '16px 20px', marginBottom: 20, cursor: 'pointer', ...glass } as any}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 } as any}>
-              <div style={{ fontSize: 15, fontWeight: 800, color: C.text }}>Sommeil de ce soir</div>
-              <i className="ri-arrow-right-s-line" style={{ fontSize: 18, color: C.arrow }} />
-            </div>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-around' } as any}>
-              <div style={{ textAlign: 'center' } as any}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 6, justifyContent: 'center' } as any}>
-                  <i className="ri-moon-clear-fill" style={{ fontSize: 16, color: '#A78BFA' }} />
-                  <span style={{ fontSize: 26, fontWeight: 900, color: C.text, fontVariantNumeric: 'tabular-nums' } as any}>{sleepAlarm?.bedtime || '22:00'}</span>
-                </div>
-                <div style={{ fontSize: 9, fontWeight: 700, color: C.sub, textTransform: 'uppercase', letterSpacing: 0.8, marginTop: 3 }}>Coucher recommande</div>
-              </div>
-              <div style={{ width: 36, height: 0, borderTop: `2px dashed ${isDark ? 'rgba(255,255,255,0.15)' : 'rgba(0,0,0,0.1)'}` } as any} />
-              <div style={{ textAlign: 'center' } as any}>
-                <span style={{ fontSize: 26, fontWeight: 900, color: C.text, fontVariantNumeric: 'tabular-nums' } as any}>{sleepAlarm?.wake_time || alarmTime}</span>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 4, justifyContent: 'center', marginTop: 3 } as any}>
-                  <span style={{ width: 5, height: 5, borderRadius: 3, background: '#10B981' } as any} />
-                  <span style={{ fontSize: 9, fontWeight: 800, color: '#10B981', textTransform: 'uppercase', letterSpacing: 0.5 }}>Alarme activee</span>
-                </div>
-              </div>
-            </div>
-            <div data-testid="modify-alarm-btn" onClick={(e: any) => { e.stopPropagation(); setEditingAlarm(true); }} style={{ marginTop: 12, padding: '10px', borderRadius: 999, background: isDark ? 'rgba(255,255,255,0.06)' : '#F4F4F5', textAlign: 'center', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 } as any}>
-              <i className="ri-edit-line" style={{ fontSize: 14, color: C.sub }} />
-              <span style={{ fontSize: 13, fontWeight: 700, color: C.text }}>Modifier l'alarme</span>
-            </div>
-          </div>
-          {editingAlarm && (
-            <div onClick={() => setEditingAlarm(false)} style={{ position: 'fixed', inset: 0, zIndex: 9999, background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(16px)', display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}>
-              <div onClick={(e: any) => e.stopPropagation()} style={{ background: isDark ? '#1A1A22' : '#FFF', borderRadius: 24, padding: '28px 24px', width: '90%', maxWidth: 340 } as any}>
-                <div style={{ fontSize: 18, fontWeight: 900, color: isDark ? '#FFF' : '#111', textAlign: 'center', marginBottom: 20 }}>Heure de reveil</div>
-                <input type="time" value={alarmTime} onChange={(e: any) => setAlarmTime(e.target.value)} style={{ width: '100%', padding: '16px', borderRadius: 16, background: isDark ? 'rgba(255,255,255,0.06)' : '#F4F4F5', border: `1px solid ${isDark ? 'rgba(255,255,255,0.1)' : '#E5E7EB'}`, color: isDark ? '#FFF' : '#111', fontSize: 24, fontWeight: 900, textAlign: 'center', outline: 'none', fontFamily: 'inherit', boxSizing: 'border-box' } as any} />
-                <div onClick={async () => { const res = await apiFetch('/api/health/sleep-alarm', { method: 'PUT', body: JSON.stringify({ wake_time: alarmTime, enabled: true }) }, token); if (res) setSleepAlarm(res); setEditingAlarm(false); }} style={{ marginTop: 16, padding: '14px', borderRadius: 999, background: isDark ? '#FFF' : '#111', textAlign: 'center', cursor: 'pointer', fontSize: 14, fontWeight: 800, color: isDark ? '#111' : '#FFF' } as any}>Enregistrer</div>
-                <div onClick={() => setEditingAlarm(false)} style={{ marginTop: 10, padding: '12px', textAlign: 'center', cursor: 'pointer', fontSize: 13, fontWeight: 600, color: isDark ? 'rgba(255,255,255,0.4)' : '#9CA3AF' } as any}>Annuler</div>
-              </div>
-            </div>
-          )}
+          <SleepAlarmSection sleepAlarm={sleepAlarm} alarmTime={alarmTime} setAlarmTime={setAlarmTime} editingAlarm={editingAlarm} setEditingAlarm={setEditingAlarm} setSleepAlarm={setSleepAlarm} token={token} C={C} glass={glass} isDark={isDark} />
 
           {/* ── PROGRAMME EN COURS (after weight goal) ── */}
           {activeProgram?.active && (() => {
@@ -609,73 +572,7 @@ export function BeneficiaryHome({ token, user }: { token: string; user: any }) {
 
           {/* ── Abonnement Pro en attente ── */}
           {/* ── Exercices du jour ── */}
-          {todayExercises.length > 0 && (() => {
-            const exDoneCount = todayExercises.filter((e: any) => e.completed_today).length;
-            const exAllDone = exDoneCount >= todayExercises.length;
-            const API = process.env.EXPO_PUBLIC_BACKEND_URL || '';
-            return (
-            <div data-testid="today-exercises-dashboard" className="dash-slide-up" style={{ marginBottom: 28 } as any}>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 } as any}>
-                <div style={{ fontSize: 20, fontWeight: 900, color: C.text, letterSpacing: '-0.3px' } as any}>Mes exercices</div>
-                <span style={{ fontSize: 13, fontWeight: 800, color: exAllDone ? '#10B981' : C.text, background: exAllDone ? 'rgba(16,185,129,0.12)' : C.card, padding: '4px 12px', borderRadius: 999 }}>{exDoneCount}/{todayExercises.length}</span>
-              </div>
-              <div style={{ fontSize: 13, color: C.sub, marginBottom: 16, lineHeight: '1.45' } as any}>Vos exercices a realiser aujourd'hui.</div>
-              {todayExercises.map((ex: any, i: number) => {
-                const done = ex.completed_today;
-                const todayStr = new Date().toISOString().split('T')[0];
-                const lastCompletion = (ex.completions || []).filter((c: any) => c.date?.startsWith(todayStr) && c.status === 'done').slice(-1)[0];
-                const exImg = ex.image ? (ex.image.startsWith('/') ? `${API}${ex.image}` : ex.image) : null;
-                const painLvl = lastCompletion?.pain_level || 0;
-                const painColor = painLvl <= 3 ? '#10B981' : painLvl <= 6 ? '#F59E0B' : '#EF4444';
-                return (
-                  <div key={ex.id || i} data-testid={`dash-exercise-${i}`}
-                    onClick={() => router.push({ pathname: '/pro-exercise-detail' as any, params: { id: ex.exercise_template_id || ex.id, mode: 'assigned', assignmentId: ex.id } })}
-                    style={{ borderRadius: 14, background: done ? 'rgba(16,185,129,0.08)' : C.card, overflow: 'hidden', cursor: 'pointer', marginBottom: 8, opacity: done ? 0.85 : 1 } as any}>
-                    <div style={{ display: 'flex', minHeight: 72 } as any}>
-                      <div style={{ width: 80, flexShrink: 0, position: 'relative', overflow: 'hidden' } as any}>
-                        {exImg ? <img src={exImg} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' } as any} /> :
-                        <div style={{ position: 'absolute', inset: 0, background: done ? 'rgba(16,185,129,0.15)' : '#E5E7EB', display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}><i className={ex.icon || 'ri-run-line'} style={{ fontSize: 24, color: done ? '#10B981' : '#EF4444' }} /></div>}
-                      </div>
-                      <div style={{ flex: 1, minWidth: 0, padding: '10px 12px', display: 'flex', flexDirection: 'column', justifyContent: 'center' } as any}>
-                        <span style={{ fontSize: 8, fontWeight: 700, color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: 0.6 }}>{ex.category || 'Exercice'}</span>
-                        <div style={{ fontSize: 14, fontWeight: 700, color: done ? '#10B981' : C.text, marginTop: 2 }}>{ex.title}</div>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 2 } as any}>
-                          <span style={{ fontSize: 11, color: done ? 'rgba(16,185,129,0.6)' : '#6B7280' }}>{ex.sets}x{ex.repetitions} reps</span>
-                          {ex.rest_seconds > 0 && <span style={{ fontSize: 10, color: '#9CA3AF' }}>{ex.rest_seconds}s repos</span>}
-                        </div>
-                      </div>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 4, flexShrink: 0, paddingRight: 10 } as any}>
-                        {done && <i className="ri-checkbox-circle-fill" style={{ fontSize: 18, color: '#10B981' }} />}
-                        {!done && <i className="ri-arrow-right-s-line" style={{ fontSize: 18, color: '#9CA3AF' }} />}
-                      </div>
-                    </div>
-                    {done && lastCompletion && (painLvl > 0 || lastCompletion.patient_notes) && (
-                      <div style={{ padding: '8px 12px 10px', borderTop: '1px solid rgba(16,185,129,0.12)' } as any}>
-                        {painLvl > 0 && (
-                          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: lastCompletion.patient_notes ? 6 : 0 } as any}>
-                            <span style={{ fontSize: 10, fontWeight: 700, color: '#9CA3AF', flexShrink: 0 }}>Douleur</span>
-                            <div style={{ flex: 1, height: 6, borderRadius: 3, background: '#E5E7EB', overflow: 'hidden' } as any}>
-                              <div style={{ height: '100%', borderRadius: 3, width: `${painLvl * 10}%`, background: painColor } as any} />
-                            </div>
-                            <span style={{ fontSize: 10, fontWeight: 800, color: painColor, flexShrink: 0 }}>{painLvl}/10</span>
-                          </div>
-                        )}
-                        {lastCompletion.patient_notes && (
-                          <div style={{ fontSize: 11, color: '#6B7280', fontStyle: 'italic', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' } as any}>"{lastCompletion.patient_notes}"</div>
-                        )}
-                      </div>
-                    )}
-                  </div>
-                );
-              })}
-              <div onClick={() => router.push('/activity-detail' as any)} data-testid="view-activity-btn" style={{ marginTop: 12, padding: '14px', borderRadius: 999, background: '#111', textAlign: 'center', cursor: 'pointer', fontSize: 14, fontWeight: 800, color: '#FFF', transition: 'opacity 0.15s' } as any}
-                onMouseEnter={(e: any) => { e.currentTarget.style.opacity = '0.85'; }}
-                onMouseLeave={(e: any) => { e.currentTarget.style.opacity = '1'; }}>
-                Voir mon activite
-              </div>
-            </div>
-            );
-          })()}
+          {todayExercises.length > 0 && <TodayExercisesSection todayExercises={todayExercises} C={C} glass={glass} />}
 
           {/* ── Abonnement Pro en attente ── */}
           {proSub && proSub.status === 'pending' && (
@@ -773,86 +670,12 @@ export function BeneficiaryHome({ token, user }: { token: string; user: any }) {
           )}
 
           {/* ── Rappels ── */}
-          <div data-testid="reminders-section" className="dash-slide-up" style={{ marginBottom: 28 } as any}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 } as any}>
-              <div style={{ fontSize: 20, fontWeight: 900, color: C.text, letterSpacing: '-0.3px' } as any}>Mes rappels</div>
-              <div style={{ display: 'flex', gap: 0 } as any}>
-                {[
-                  { bg: '#38BDF8', icon: 'ri-drop-fill' },
-                  { bg: '#F59E0B', icon: 'ri-capsule-fill' },
-                  { bg: '#EF4444', icon: 'ri-alarm-fill' },
-                ].map((a, ai) => (
-                  <div key={ai} style={{ width: 32, height: 32, borderRadius: 999, background: a.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', marginLeft: ai > 0 ? -8 : 0, border: `2.5px solid ${isDark ? '#1a1a24' : '#FFF'}`, zIndex: 3 - ai } as any}>
-                    <i className={a.icon} style={{ fontSize: 14, color: '#FFF' }} />
-                  </div>
-                ))}
-              </div>
-            </div>
-            <div style={{ fontSize: 13, color: C.sub, marginBottom: 16, lineHeight: '1.45' } as any}>Gerez vos rappels quotidiens pour rester en bonne sante et ne rien oublier.</div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 10 } as any}>
-              {[
-                { type: 'hydration', label: 'Hydratation', img: REMINDER_IMAGES.hydration, color: '#38BDF8', desc: 'Pensez a boire regulierement' },
-                { type: 'medication', label: 'Traitement', img: REMINDER_IMAGES.medication, color: '#F59E0B', desc: 'Suivi de votre traitement' },
-                { type: 'alarm', label: 'Alarmes', img: REMINDER_IMAGES.alarm, color: '#EF4444', desc: 'Vos alarmes personnalisees' },
-              ].map((cat) => {
-                const catRems = reminders.filter((r: any) => r.reminder_type === cat.type);
-                const activeCount = catRems.filter((r: any) => r.active).length;
-                const nextTime = activeCount > 0 ? getNextReminderTime(catRems.find((r: any) => r.active)) : '';
-                return (
-                  <div key={cat.type} data-testid={`reminder-cat-${cat.type}`} onClick={() => { setEditReminder({ _type: cat.type }); setShowReminderCRUD(true); }}
-                    style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '14px 16px', borderRadius: 18, background: C.card, cursor: 'pointer', transition: 'transform 0.15s', ...glass } as any}
-                    onMouseEnter={(e: any) => { e.currentTarget.style.transform = 'translateY(-2px)'; }}
-                    onMouseLeave={(e: any) => { e.currentTarget.style.transform = ''; }}>
-                    <img src={cat.img} alt={cat.label} style={{ width: 46, height: 46, objectFit: 'contain', flexShrink: 0 } as any} />
-                    <div style={{ flex: 1 } as any}>
-                      <div style={{ fontSize: 15, fontWeight: 700, color: C.text }}>{cat.label}</div>
-                      <div style={{ fontSize: 12, color: activeCount > 0 ? cat.color : C.sub, fontWeight: 500, marginTop: 2 }}>
-                        {activeCount > 0 ? `${activeCount} rappel${activeCount > 1 ? 's' : ''} actif${activeCount > 1 ? 's' : ''}${nextTime ? ` · dans ${nextTime}` : ''}` : cat.desc}
-                      </div>
-                    </div>
-                    <i className="ri-arrow-right-s-line" style={{ fontSize: 20, color: C.arrow }} />
-                  </div>
-                );
-              })}
-            </div>
-          </div>
+          <RemindersSection reminders={reminders} C={C} glass={glass} isDark={isDark} setEditReminder={setEditReminder} setShowReminderCRUD={setShowReminderCRUD} />
 
           <div style={{ height: 1, background: C.sep, margin: "10px 0 24px" } as any} />
 
           {/* ── Gardiens ── */}
-          <div data-testid="guardians-section" className="dash-slide-up" style={{ marginBottom: 28 } as any}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 } as any}>
-              <div style={{ fontSize: 20, fontWeight: 900, color: C.text, letterSpacing: '-0.3px' } as any}>Mes gardiens</div>
-              <img src={IMG_GUARDIANS} alt="" style={{ width: 90, height: 45, objectFit: 'contain' } as any} />
-            </div>
-            <div style={{ fontSize: 13, color: C.sub, marginBottom: 16, lineHeight: '1.45' } as any}>Retrouvez l'ensemble de vos gardiens qui veillent sur vous au quotidien.</div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 10 } as any}>
-              {guardians.map((g: any, i: number) => {
-                return (
-                  <div key={g.id || i} onClick={() => router.push({ pathname: '/guardian-detail', params: { guardianId: g.id } })}
-                    style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '14px 16px', borderRadius: 18, background: C.card, cursor: 'pointer', transition: 'transform 0.15s', ...glass } as any}
-                    onMouseEnter={(e: any) => { e.currentTarget.style.transform = 'translateY(-2px)'; }}
-                    onMouseLeave={(e: any) => { e.currentTarget.style.transform = ''; }}>
-                    <div style={{ width: 50, height: 50, borderRadius: 999, background: g.avatar_url ? 'transparent' : '#3A3A42', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', flexShrink: 0 } as any}>
-                      {g.avatar_url ? <img src={g.avatar_url} style={{ width: 50, height: 50, borderRadius: 999, objectFit: 'cover' } as any} /> : <span style={{ fontSize: 20, fontWeight: 800, color: '#FFF' }}>{g.name?.charAt(0)}</span>}
-                    </div>
-                    <div style={{ flex: 1 } as any}>
-                      <div style={{ fontSize: 15, fontWeight: 700, color: C.text }}>{g.name}</div>
-                      <div style={{ fontSize: 12, color: C.sub, marginTop: 2 }}>{g.relationship || t('guardian')}</div>
-                    </div>
-                    <i className="ri-arrow-right-s-line" style={{ fontSize: 20, color: C.arrow }} />
-                  </div>
-                );
-              })}
-              {guardians.length === 0 && <div style={{ padding: '20px', borderRadius: 18, background: C.card, textAlign: 'center', ...glass } as any}><div style={{ fontSize: 13, color: C.sub }}>Aucun gardien pour le moment</div></div>}
-            </div>
-            <div data-testid="add-guardian-btn" onClick={() => setShowAddGuardianPopup(true)} style={{ marginTop: 14, padding: '15px', borderRadius: 999, background: isDark ? '#FFF' : '#111', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10, transition: 'opacity 0.15s' } as any}
-              onMouseEnter={(e: any) => { e.currentTarget.style.opacity = '0.85'; }}
-              onMouseLeave={(e: any) => { e.currentTarget.style.opacity = '1'; }}>
-              <i className="ri-heart-add-line" style={{ fontSize: 18, color: isDark ? '#111' : '#FFF' }} />
-              <span style={{ fontSize: 14, fontWeight: 700, color: isDark ? '#111' : '#FFF' }}>Ajouter un gardien</span>
-            </div>
-          </div>
+          <GuardiansSection guardians={guardians} C={C} glass={glass} isDark={isDark} setShowAddGuardianPopup={setShowAddGuardianPopup} />
 
           <div style={{ height: 1, background: C.sep, margin: "10px 0 24px" } as any} />
 
