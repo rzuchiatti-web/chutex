@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Platform } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useAuth } from '../src/context/AuthContext';
@@ -24,44 +24,101 @@ export default function ProExerciseDetailPage() {
   const [completed, setCompleted] = useState(false);
   const [painLevel, setPainLevel] = useState(0);
   const [notes, setNotes] = useState('');
-  const [editing, setEditing] = useState(false);
-  const [editForm, setEditForm] = useState<any>(null);
-  const [saving, setSaving] = useState(false);
   const API = process.env.EXPO_PUBLIC_BACKEND_URL || '';
+
+  // Editable params for beneficiary
+  const [editSets, setEditSets] = useState<number>(0);
+  const [editReps, setEditReps] = useState<number>(0);
+  const [editRest, setEditRest] = useState<number>(0);
+  const [paramsChanged, setParamsChanged] = useState(false);
+  const [savingParams, setSavingParams] = useState(false);
+
+  // Weight tracking
+  const [weightKg, setWeightKg] = useState<string>('');
+  const [lastWeightKg, setLastWeightKg] = useState<number | null>(null);
+  const [savingWeight, setSavingWeight] = useState(false);
+  const [weightSaved, setWeightSaved] = useState(false);
+
+  const assignmentId = (Array.isArray(params.assignmentId) ? params.assignmentId[0] : params.assignmentId) || exerciseId;
 
   useEffect(() => {
     if (!token) return;
     setLoading(true);
     if (mode === 'template' && exerciseId) {
       apiFetch(`/api/pro/exercise-templates`, {}, token)
-        .then(tpls => setEx((tpls || []).find((t: any) => t.id === exerciseId) || null))
+        .then(tpls => {
+          const found = (tpls || []).find((t: any) => t.id === exerciseId) || null;
+          setEx(found);
+          if (found) initEditableParams(found);
+        })
         .catch(() => {}).finally(() => setLoading(false));
-    } else if (mode === 'assigned' && (params.assignmentId || exerciseId)) {
-      const aid = (Array.isArray(params.assignmentId) ? params.assignmentId[0] : params.assignmentId) || exerciseId;
-      apiFetch(`/api/pro/assigned-exercise-detail/${aid}`, {}, token)
-        .then((found: any) => { if (found) { setEx(found); const today = new Date().toISOString().split('T')[0]; if (found.completions?.some((c: any) => c.date?.startsWith(today) && c.status === 'done')) setCompleted(true); } })
+    } else if (mode === 'assigned' && assignmentId) {
+      apiFetch(`/api/pro/assigned-exercise-detail/${assignmentId}`, {}, token)
+        .then((found: any) => {
+          if (found) {
+            setEx(found);
+            initEditableParams(found);
+            const today = new Date().toISOString().split('T')[0];
+            if (found.completions?.some((c: any) => c.date?.startsWith(today) && c.status === 'done')) setCompleted(true);
+            if (found.last_weight_kg != null) {
+              setLastWeightKg(found.last_weight_kg);
+              setWeightKg(String(found.last_weight_kg));
+            }
+          }
+        })
         .catch(() => {}).finally(() => setLoading(false));
     } else if (mode === 'session' && programId && sessionId) {
       apiFetch(`/api/pro/programs/detail/${programId}`, {}, token)
-        .then(prog => { const sess = (prog?.sessions || []).find((s: any) => s.id === sessionId); setEx(sess || null); if (sess?.completions?.length > 0 && sess.completions[sess.completions.length - 1].status === 'done') setCompleted(true); })
-        .catch(() => apiFetch(`/api/pro/my-programs`, {}, token).then(progs => { const prog = (progs || []).find((p: any) => p.id === programId); if (prog) { const sess = (prog.sessions || []).find((s: any) => s.id === sessionId); setEx(sess || null); } }).catch(() => {}))
+        .then(prog => { const sess = (prog?.sessions || []).find((s: any) => s.id === sessionId); setEx(sess || null); if (sess) initEditableParams(sess); if (sess?.completions?.length > 0 && sess.completions[sess.completions.length - 1].status === 'done') setCompleted(true); })
+        .catch(() => apiFetch(`/api/pro/my-programs`, {}, token).then(progs => { const prog = (progs || []).find((p: any) => p.id === programId); if (prog) { const sess = (prog.sessions || []).find((s: any) => s.id === sessionId); setEx(sess || null); if (sess) initEditableParams(sess); } }).catch(() => {}))
         .finally(() => setLoading(false));
+    } else if (mode === 'create-self') {
+      setLoading(false);
     }
   }, [exerciseId, programId, sessionId, mode, token]);
+
+  const initEditableParams = (data: any) => {
+    setEditSets(data.sets || 0);
+    setEditReps(data.repetitions || data.reps || 0);
+    setEditRest(data.rest_seconds || 0);
+  };
 
   const handleComplete = async (status: string) => {
     if (completing) return; setCompleting(true);
     try {
-      const aid = Array.isArray(params.assignmentId) ? params.assignmentId[0] : params.assignmentId;
-      if (mode === 'assigned' && aid) await apiFetch(`/api/pro/exercises/${aid}/complete`, { method: 'POST', body: JSON.stringify({ status, pain_level: painLevel || null, patient_notes: notes }) }, token);
+      if (mode === 'assigned' && assignmentId) await apiFetch(`/api/pro/exercises/${assignmentId}/complete`, { method: 'POST', body: JSON.stringify({ status, pain_level: painLevel || null, patient_notes: notes }) }, token);
       else if (programId && sessionId) await apiFetch(`/api/pro/sessions/${programId}/${sessionId}/complete`, { method: 'POST', body: JSON.stringify({ status, pain_level: painLevel || null, patient_notes: notes }) }, token);
       if (status === 'done') setCompleted(true);
     } catch {} finally { setCompleting(false); }
   };
 
-  const saveTemplate = async () => {
-    if (!editForm || saving) return; setSaving(true);
-    try { const updated = await apiFetch(`/api/pro/exercise-templates/${exerciseId}`, { method: 'PUT', body: JSON.stringify(editForm) }, token); if (updated) setEx(updated); setEditing(false); setEditForm(null); } catch {} finally { setSaving(false); }
+  const saveParams = async () => {
+    if (!assignmentId || savingParams) return;
+    setSavingParams(true);
+    try {
+      const updated = await apiFetch(`/api/pro/assigned-exercises/${assignmentId}/update-params`, { method: 'PUT', body: JSON.stringify({ sets: editSets, repetitions: editReps, rest_seconds: editRest }) }, token);
+      if (updated) { setEx(updated); setParamsChanged(false); }
+    } catch {} finally { setSavingParams(false); }
+  };
+
+  const saveWeight = async () => {
+    if (!assignmentId || savingWeight || !weightKg) return;
+    setSavingWeight(true);
+    try {
+      const res = await apiFetch(`/api/pro/assigned-exercises/${assignmentId}/save-weight`, { method: 'PUT', body: JSON.stringify({ weight_kg: parseFloat(weightKg) }) }, token);
+      if (res?.last_weight_kg != null) {
+        setLastWeightKg(res.last_weight_kg);
+        setWeightSaved(true);
+        setTimeout(() => setWeightSaved(false), 2000);
+      }
+    } catch {} finally { setSavingWeight(false); }
+  };
+
+  const handleParamChange = (field: string, value: number) => {
+    if (field === 'sets') setEditSets(value);
+    else if (field === 'reps') setEditReps(value);
+    else if (field === 'rest') setEditRest(value);
+    setParamsChanged(true);
   };
 
   if (Platform.OS !== 'web') return null;
@@ -70,6 +127,8 @@ export default function ProExerciseDetailPage() {
   const icon = ex?.icon || 'ri-run-line';
   const steps = ex?.steps || [];
   const videoSrc = ex?.video_url || ex?.media_url || '';
+  const isEditable = mode === 'assigned';
+  const hasWeight = ex?.equipment && ex.equipment !== 'Aucun';
 
   return (
     <div data-testid="pro-exercise-detail-page" style={{ position: 'absolute', inset: 0, background: '#F5F5F5', fontFamily: "'Inter', system-ui, sans-serif", overflow: 'hidden', display: 'flex', flexDirection: 'column' } as any}>
@@ -127,15 +186,88 @@ export default function ProExerciseDetailPage() {
                 </div>
               )}
 
-              {/* Stats */}
+              {/* EDITABLE STATS — beneficiary can modify sets/reps/repos */}
               <div data-testid="exercise-stats" style={{ borderRadius: 16, background: '#F4F4F5', padding: 0, marginBottom: 14, overflow: 'hidden' } as any}>
-                <div style={{ display: 'flex' } as any}>
-                  {ex.sets > 0 && <div style={{ flex: 1, padding: '14px 8px', textAlign: 'center', borderRight: '1px solid #E5E7EB' } as any}><div style={{ fontSize: 22, fontWeight: 900, color: '#111' }}>{ex.sets}</div><div style={{ fontSize: 9, fontWeight: 700, color: '#9CA3AF', textTransform: 'uppercase', marginTop: 2 }}>Series</div></div>}
-                  {(ex.repetitions > 0 || ex.reps > 0) && <div style={{ flex: 1, padding: '14px 8px', textAlign: 'center', borderRight: '1px solid #E5E7EB' } as any}><div style={{ fontSize: 22, fontWeight: 900, color: '#111' }}>{ex.repetitions || ex.reps}</div><div style={{ fontSize: 9, fontWeight: 700, color: '#9CA3AF', textTransform: 'uppercase', marginTop: 2 }}>Reps</div></div>}
-                  {ex.duration_min > 0 && <div style={{ flex: 1, padding: '14px 8px', textAlign: 'center', borderRight: '1px solid #E5E7EB' } as any}><div style={{ fontSize: 22, fontWeight: 900, color: '#111' }}>{ex.duration_min}<span style={{ fontSize: 10, color: '#9CA3AF' }}>min</span></div><div style={{ fontSize: 9, fontWeight: 700, color: '#9CA3AF', textTransform: 'uppercase', marginTop: 2 }}>Duree</div></div>}
-                  {(ex.rest_seconds > 0) && <div style={{ flex: 1, padding: '14px 8px', textAlign: 'center' } as any}><div style={{ fontSize: 22, fontWeight: 900, color: '#111' }}>{ex.rest_seconds}<span style={{ fontSize: 10, color: '#9CA3AF' }}>s</span></div><div style={{ fontSize: 9, fontWeight: 700, color: '#9CA3AF', textTransform: 'uppercase', marginTop: 2 }}>Repos</div></div>}
-                </div>
+                {isEditable ? (
+                  <>
+                    <div style={{ display: 'flex' } as any}>
+                      <StatEditor label="Series" value={editSets} onChange={(v: number) => handleParamChange('sets', v)} min={1} max={20} accent={accent} />
+                      <StatEditor label="Reps" value={editReps} onChange={(v: number) => handleParamChange('reps', v)} min={1} max={100} accent={accent} />
+                      <StatEditor label="Repos" value={editRest} onChange={(v: number) => handleParamChange('rest', v)} min={0} max={300} step={5} suffix="s" accent={accent} />
+                    </div>
+                    {paramsChanged && (
+                      <div data-testid="save-params-btn" onClick={saveParams} style={{ padding: '10px 16px', textAlign: 'center', cursor: 'pointer', borderTop: '1px solid #E5E7EB', fontSize: 12, fontWeight: 800, color: '#FFF', background: accent, transition: 'opacity 0.15s', opacity: savingParams ? 0.5 : 1 } as any}>
+                        {savingParams ? 'Enregistrement...' : 'Enregistrer les modifications'}
+                      </div>
+                    )}
+                  </>
+                ) : (
+                  <div style={{ display: 'flex' } as any}>
+                    {ex.sets > 0 && <div style={{ flex: 1, padding: '14px 8px', textAlign: 'center', borderRight: '1px solid #E5E7EB' } as any}><div style={{ fontSize: 22, fontWeight: 900, color: '#111' }}>{ex.sets}</div><div style={{ fontSize: 9, fontWeight: 700, color: '#9CA3AF', textTransform: 'uppercase', marginTop: 2 }}>Series</div></div>}
+                    {(ex.repetitions > 0 || ex.reps > 0) && <div style={{ flex: 1, padding: '14px 8px', textAlign: 'center', borderRight: '1px solid #E5E7EB' } as any}><div style={{ fontSize: 22, fontWeight: 900, color: '#111' }}>{ex.repetitions || ex.reps}</div><div style={{ fontSize: 9, fontWeight: 700, color: '#9CA3AF', textTransform: 'uppercase', marginTop: 2 }}>Reps</div></div>}
+                    {ex.duration_min > 0 && <div style={{ flex: 1, padding: '14px 8px', textAlign: 'center', borderRight: '1px solid #E5E7EB' } as any}><div style={{ fontSize: 22, fontWeight: 900, color: '#111' }}>{ex.duration_min}<span style={{ fontSize: 10, color: '#9CA3AF' }}>min</span></div><div style={{ fontSize: 9, fontWeight: 700, color: '#9CA3AF', textTransform: 'uppercase', marginTop: 2 }}>Duree</div></div>}
+                    {(ex.rest_seconds > 0) && <div style={{ flex: 1, padding: '14px 8px', textAlign: 'center' } as any}><div style={{ fontSize: 22, fontWeight: 900, color: '#111' }}>{ex.rest_seconds}<span style={{ fontSize: 10, color: '#9CA3AF' }}>s</span></div><div style={{ fontSize: 9, fontWeight: 700, color: '#9CA3AF', textTransform: 'uppercase', marginTop: 2 }}>Repos</div></div>}
+                  </div>
+                )}
               </div>
+
+              {/* WEIGHT TRACKER — for exercises with equipment */}
+              {isEditable && hasWeight && (
+                <div data-testid="weight-tracker" style={{ borderRadius: 16, background: '#F4F4F5', padding: '14px 16px', marginBottom: 14 } as any}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 } as any}>
+                    <div style={{ width: 32, height: 32, borderRadius: 10, background: '#111', display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}>
+                      <i className="ri-scales-3-line" style={{ fontSize: 16, color: '#FFF' }} />
+                    </div>
+                    <div style={{ flex: 1 } as any}>
+                      <div style={{ fontSize: 13, fontWeight: 800, color: '#111' }}>Poids utilise</div>
+                      {lastWeightKg != null && (
+                        <div style={{ fontSize: 10, color: '#6B7280', marginTop: 1 }}>Derniere seance : <strong style={{ color: accent }}>{lastWeightKg} kg</strong></div>
+                      )}
+                    </div>
+                  </div>
+                  <div style={{ display: 'flex', gap: 8, alignItems: 'center' } as any}>
+                    <div style={{ position: 'relative', flex: 1 } as any}>
+                      <input
+                        data-testid="weight-input"
+                        type="number"
+                        value={weightKg}
+                        onChange={(e: any) => { setWeightKg(e.target.value); setWeightSaved(false); }}
+                        placeholder={lastWeightKg ? `${lastWeightKg}` : 'Ex: 40'}
+                        style={{ ...INP, paddingRight: 36 } as any}
+                        min="0"
+                        step="0.5"
+                      />
+                      <span style={{ position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)', fontSize: 12, fontWeight: 700, color: '#9CA3AF' }}>kg</span>
+                    </div>
+                    <div
+                      data-testid="save-weight-btn"
+                      onClick={saveWeight}
+                      style={{
+                        padding: '12px 18px', borderRadius: 12, cursor: 'pointer', fontSize: 12, fontWeight: 800,
+                        background: weightSaved ? '#10B981' : '#111', color: '#FFF',
+                        transition: 'all 0.2s', opacity: savingWeight ? 0.5 : 1,
+                        display: 'flex', alignItems: 'center', gap: 6, whiteSpace: 'nowrap',
+                      } as any}
+                    >
+                      {weightSaved ? <><i className="ri-check-line" style={{ fontSize: 14 }} /> OK</> : savingWeight ? 'Enregistrement...' : 'Enregistrer'}
+                    </div>
+                  </div>
+                  {/* Weight history */}
+                  {ex.weight_history && ex.weight_history.length > 1 && (
+                    <div style={{ marginTop: 10, padding: '8px 10px', borderRadius: 10, background: '#FFF' } as any}>
+                      <div style={{ fontSize: 9, fontWeight: 700, color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 6 }}>Historique poids</div>
+                      <div style={{ display: 'flex', gap: 6, overflowX: 'auto', paddingBottom: 2 } as any}>
+                        {ex.weight_history.slice(-8).reverse().map((w: any, i: number) => (
+                          <div key={i} style={{ flexShrink: 0, padding: '4px 10px', borderRadius: 8, background: i === 0 ? `${accent}12` : '#F4F4F5', border: i === 0 ? `1px solid ${accent}25` : '1px solid transparent', textAlign: 'center' } as any}>
+                            <div style={{ fontSize: 13, fontWeight: 900, color: i === 0 ? accent : '#111' }}>{w.weight_kg}<span style={{ fontSize: 8, color: '#9CA3AF' }}>kg</span></div>
+                            <div style={{ fontSize: 8, color: '#9CA3AF', marginTop: 1 }}>{w.date ? new Date(w.date).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short' }) : ''}</div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
 
               {/* Description */}
               {ex.description && (
@@ -184,7 +316,7 @@ export default function ProExerciseDetailPage() {
               )}
 
               {/* Completion (assigned/session) */}
-              {(mode === 'session' || mode === 'assigned') && (params.assignmentId || (programId && sessionId)) && (
+              {(mode === 'session' || mode === 'assigned') && (assignmentId || (programId && sessionId)) && (
                 <div style={{ borderRadius: 16, background: completed ? 'rgba(16,185,129,0.06)' : '#F4F4F5', border: completed ? '1px solid rgba(16,185,129,0.2)' : '1px solid transparent', padding: 16, marginTop: 14, marginBottom: 14 } as any}>
                   {completed ? (
                     (() => {
@@ -231,7 +363,7 @@ export default function ProExerciseDetailPage() {
                       </div>
                       <div style={{ marginBottom: 14 }}>
                         <div style={{ fontSize: 11, color: '#6B7280', marginBottom: 6, fontWeight: 600 }}>Notes</div>
-                        <input value={notes} onChange={(e: any) => setNotes(e.target.value)} placeholder="Comment ca s'est passe ?" style={INP} />
+                        <input data-testid="exercise-notes-input" value={notes} onChange={(e: any) => setNotes(e.target.value)} placeholder="Comment ca s'est passe ?" style={INP} />
                       </div>
                       <div style={{ display: 'flex', gap: 8 } as any}>
                         <div data-testid="validate-exercise-btn" onClick={() => handleComplete('done')} style={{ flex: 1, padding: '14px', borderRadius: 999, background: '#111', textAlign: 'center', cursor: 'pointer', fontSize: 14, fontWeight: 800, color: '#FFF', opacity: completing ? 0.5 : 1 } as any}>{completing ? 'Validation...' : 'Valider'}</div>
@@ -243,10 +375,31 @@ export default function ProExerciseDetailPage() {
             </>
           )}
 
-          {!loading && !ex && <div style={{ textAlign: 'center', padding: '80px 0', color: '#9CA3AF' } as any}><i className="ri-error-warning-line" style={{ fontSize: 32, display: 'block', marginBottom: 8 }} /><div style={{ fontSize: 14, fontWeight: 600 }}>Exercice non trouve</div></div>}
+          {!loading && !ex && mode !== 'create-self' && <div style={{ textAlign: 'center', padding: '80px 0', color: '#9CA3AF' } as any}><i className="ri-error-warning-line" style={{ fontSize: 32, display: 'block', marginBottom: 8 }} /><div style={{ fontSize: 14, fontWeight: 600 }}>Exercice non trouve</div></div>}
         </div>
       </div>
       <style dangerouslySetInnerHTML={{ __html: `@keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}` }} />
+    </div>
+  );
+}
+
+
+/* ── StatEditor: increment/decrement control for sets/reps/rest ── */
+function StatEditor({ label, value, onChange, min = 0, max = 999, step = 1, suffix = '', accent = '#3B82F6' }: { label: string; value: number; onChange: (v: number) => void; min?: number; max?: number; step?: number; suffix?: string; accent?: string }) {
+  const dec = () => onChange(Math.max(min, value - step));
+  const inc = () => onChange(Math.min(max, value + step));
+  return (
+    <div data-testid={`stat-editor-${label.toLowerCase()}`} style={{ flex: 1, padding: '10px 6px', textAlign: 'center', borderRight: '1px solid #E5E7EB' } as any}>
+      <div style={{ fontSize: 9, fontWeight: 700, color: '#9CA3AF', textTransform: 'uppercase', marginBottom: 6, letterSpacing: 0.5 }}>{label}</div>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 } as any}>
+        <div onClick={dec} style={{ width: 28, height: 28, borderRadius: 8, background: '#E5E7EB', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', fontSize: 16, fontWeight: 900, color: '#6B7280', userSelect: 'none', transition: 'background 0.12s' } as any}
+          onMouseEnter={(e: any) => { e.currentTarget.style.background = '#D1D5DB'; }}
+          onMouseLeave={(e: any) => { e.currentTarget.style.background = '#E5E7EB'; }}>-</div>
+        <div style={{ fontSize: 20, fontWeight: 900, color: '#111', minWidth: 36, textAlign: 'center' }}>{value}{suffix && <span style={{ fontSize: 9, color: '#9CA3AF' }}>{suffix}</span>}</div>
+        <div onClick={inc} style={{ width: 28, height: 28, borderRadius: 8, background: accent, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', fontSize: 16, fontWeight: 900, color: '#FFF', userSelect: 'none', transition: 'opacity 0.12s' } as any}
+          onMouseEnter={(e: any) => { e.currentTarget.style.opacity = '0.85'; }}
+          onMouseLeave={(e: any) => { e.currentTarget.style.opacity = '1'; }}>+</div>
+      </div>
     </div>
   );
 }

@@ -15,7 +15,7 @@ import requests
 import os
 from datetime import datetime
 
-BASE_URL = os.environ.get('EXPO_PUBLIC_BACKEND_URL', 'https://pro-commission-tiers.preview.emergentagent.com')
+BASE_URL = os.environ.get('EXPO_PUBLIC_BACKEND_URL', 'https://light-mode-dashboard.preview.emergentagent.com')
 
 # Test credentials
 BENEFICIARY_PHONE = "+33651245918"

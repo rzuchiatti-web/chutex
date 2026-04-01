@@ -319,11 +319,13 @@ JSON: {{"focus": "...", "mission": "1-2 phrases contexte medical", "tasks": ["ta
             current_phase = phase
             break
 
-    # Team info if in a team
-    team = await db.team_programs.find_one(
-        {"members.user_id": user['id'], "program_id": program["id"], "status": {"$in": ["waiting", "active"]}}, {"_id": 0}
-    )
+    # Team info if in a team (skip for solo mode)
     team_info = None
+    team = None
+    if enrollment.get("mode") != "solo":
+        team = await db.team_programs.find_one(
+            {"members.user_id": user['id'], "program_id": program["id"], "status": {"$in": ["waiting", "active"]}}, {"_id": 0}
+        )
     if team:
         today_str_team = datetime.now(timezone.utc).strftime("%Y-%m-%d")
         team_members = []
@@ -431,9 +433,10 @@ async def save_task_progress(data: dict, user=Depends(get_current_user)):
             "created_at": datetime.now(timezone.utc).isoformat(),
         })
 
-    # Emit team activity
-    task_detail = f"Action {task_index + 1} validee"
-    await _emit_team_activity(user['id'], user.get('name', 'Membre'), enrollment["program_id"], "task_done", task_detail, "ri-check-line", "#10B981")
+    # Emit team activity (skip for solo mode)
+    if enrollment.get("mode") != "solo":
+        task_detail = f"Action {task_index + 1} validee"
+        await _emit_team_activity(user['id'], user.get('name', 'Membre'), enrollment["program_id"], "task_done", task_detail, "ri-check-line", "#10B981")
 
     return {"status": "saved"}
 
@@ -583,7 +586,8 @@ Genere UNE phrase factuelle et medicalement pertinente (max 20 mots). Vouvoyez l
     mood_icons = {1: "ri-emotion-sad-line", 2: "ri-emotion-unhappy-line", 3: "ri-emotion-normal-line", 4: "ri-emotion-line", 5: "ri-emotion-happy-line"}
     mood_colors = {1: "#EF4444", 2: "#F59E0B", 3: "#FCD34D", 4: "#34D399", 5: "#10B981"}
     m = data.get("mood", 3)
-    await _emit_team_activity(user['id'], user.get('name', 'Membre'), enrollment["program_id"], "checkin", f"Bilan du jour — Humeur : {mood_labels.get(m, 'OK')}", mood_icons.get(m, "ri-emotion-normal-line"), mood_colors.get(m, "#FCD34D"))
+    if enrollment.get("mode") != "solo":
+        await _emit_team_activity(user['id'], user.get('name', 'Membre'), enrollment["program_id"], "checkin", f"Bilan du jour — Humeur : {mood_labels.get(m, 'OK')}", mood_icons.get(m, "ri-emotion-normal-line"), mood_colors.get(m, "#FCD34D"))
 
     return {"status": "created", "feedback": feedback}
 

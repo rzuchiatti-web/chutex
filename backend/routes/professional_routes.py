@@ -2129,6 +2129,51 @@ async def complete_exercise(assignment_id: str, data: SessionCompletion, user=De
     })
     return {"status": "ok", "completion": completion}
 
+
+@router.put("/pro/assigned-exercises/{assignment_id}/update-params")
+async def update_exercise_params(assignment_id: str, request: Request, user=Depends(get_current_user)):
+    """Beneficiary updates sets, repetitions, rest_seconds on their assigned exercise"""
+    body = await request.json()
+    ex = await db.pro_assigned_exercises.find_one({"id": assignment_id, "beneficiary_id": user['id']}, {"_id": 0})
+    if not ex:
+        raise HTTPException(status_code=404, detail="Exercice non trouve")
+    update = {}
+    for k in ["sets", "repetitions", "rest_seconds"]:
+        if k in body and isinstance(body[k], (int, float)):
+            update[k] = int(body[k])
+    if update:
+        update["updated_at"] = datetime.now(timezone.utc).isoformat()
+        await db.pro_assigned_exercises.update_one({"id": assignment_id}, {"$set": update})
+    updated = await db.pro_assigned_exercises.find_one({"id": assignment_id}, {"_id": 0})
+    return updated
+
+
+@router.put("/pro/assigned-exercises/{assignment_id}/save-weight")
+async def save_exercise_weight(assignment_id: str, request: Request, user=Depends(get_current_user)):
+    """Beneficiary saves the weight (kg) used for this exercise. Persists for next sessions."""
+    body = await request.json()
+    weight = body.get("weight_kg")
+    if weight is None:
+        raise HTTPException(status_code=400, detail="weight_kg requis")
+    ex = await db.pro_assigned_exercises.find_one({"id": assignment_id, "beneficiary_id": user['id']}, {"_id": 0})
+    if not ex:
+        raise HTTPException(status_code=404, detail="Exercice non trouve")
+    weight_val = float(weight)
+    # Store current weight and add to weight history
+    weight_entry = {
+        "weight_kg": weight_val,
+        "date": datetime.now(timezone.utc).isoformat(),
+    }
+    await db.pro_assigned_exercises.update_one(
+        {"id": assignment_id},
+        {
+            "$set": {"last_weight_kg": weight_val, "updated_at": datetime.now(timezone.utc).isoformat()},
+            "$push": {"weight_history": weight_entry}
+        }
+    )
+    return {"status": "ok", "last_weight_kg": weight_val}
+
+
 @router.get("/pro/notifications")
 async def get_pro_notifications(user=Depends(get_current_user)):
     """Get notifications for the professional"""
