@@ -46,8 +46,9 @@ function NativeFullApp() {
   const handleMessage = async (event: any) => {
     try {
       const msg = JSON.parse(event.nativeEvent.data);
-      if (msg.action === 'ble_scan_bracelet' || msg.action === 'ble_scan_vest') {
+      if (msg.action === 'ble_scan_bracelet' || msg.action === 'ble_scan_vest' || msg.action === 'ble_scan_scale') {
         const isBracelet = msg.action === 'ble_scan_bracelet';
+        const isScale = msg.action === 'ble_scan_scale';
         // Request permissions on Android
         if (Platform.OS === 'android') {
           try {
@@ -66,7 +67,12 @@ function NativeFullApp() {
         }
         const manager = new BleManager();
         let found = false;
-        const nameFilter = isBracelet ? ['2208', 'J22', 'JStyle', 'Elio'] : ['Elder', 'AIRBAG', 'Gilet', 'Airbag'];
+        // Name filters: bracelet includes V8 names, scale includes QN/Lefu/CF586
+        const nameFilter = isBracelet
+          ? ['2208', 'J22', 'JStyle', 'Elio', 'V8', 'JCV8', 'HB8', '2301']
+          : isScale
+          ? ['QN-Scale', 'Lefu', 'CF586', 'Health Scale', 'SWAN', 'BF600']
+          : ['Elder', 'AIRBAG', 'Gilet', 'Airbag'];
         manager.startDeviceScan(null, null, async (error: any, device: any) => {
           if (error) {
             webViewRef.current?.injectJavaScript(`window.dispatchEvent(new CustomEvent('ble_result',{detail:{error:'${error.message?.replace(/'/g, '')}'}}));true;`);

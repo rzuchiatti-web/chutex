@@ -501,9 +501,34 @@ export function useBleConnection(token: string, fetchDevices: () => Promise<void
     setPairingDevice('scale');
 
     const hasWebBle = Platform.OS === 'web' && 'bluetooth' in navigator;
-    if (!hasWebBle) {
+    const hasNativeBridge = typeof (window as any).ReactNativeWebView?.postMessage === 'function';
+
+    if (!hasWebBle && !hasNativeBridge) {
       setBleStatus('error');
       setBleError('Bluetooth non disponible pour la balance.');
+      return;
+    }
+
+    // Native bridge (iOS WebView)
+    if (hasNativeBridge && !hasWebBle) {
+      setBleError('Recherche de votre balance...');
+      const handler = async (e: any) => {
+        window.removeEventListener('ble_result', handler);
+        const detail = e.detail || {};
+        if (detail.error) {
+          setBleStatus('error');
+          setBleError(detail.error);
+        } else if (detail.success) {
+          await apiFetch('/api/devices/associate', { method: 'POST', body: JSON.stringify({ device_type: 'scale', mac_address: detail.id || '' }) }, token).catch(() => {});
+          setBleStatus('connected');
+          setBleError('');
+          setBleVitals({ name: detail.name || 'Balance Vita', id: detail.id || '', battery: 0 });
+          fetchDevices();
+        }
+      };
+      window.addEventListener('ble_result', handler);
+      (window as any).ReactNativeWebView.postMessage(JSON.stringify({ action: 'ble_scan_scale' }));
+      setTimeout(() => { window.removeEventListener('ble_result', handler); }, 25000);
       return;
     }
     try {
