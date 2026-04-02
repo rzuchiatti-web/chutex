@@ -84,7 +84,7 @@ const V6_CUSTOM_ECG_DATA = '0000fff1-0000-1000-8000-00805f9b34fb';
 const V6_CUSTOM_ECG_CTRL = '0000fff2-0000-1000-8000-00805f9b34fb';
 
 // Known V6 bracelet name patterns
-const V6_NAME_PATTERNS = ['v6', 'hb6', 'elio', 'chutex', '2358'];
+const V6_NAME_PATTERNS = ['v6', 'hb6', 'elio', 'chutex', '2358', 'v8', 'jcv8', 'hb8', '2301'];
 
 export interface BraceletVitals {
   heart_rate?: number;
