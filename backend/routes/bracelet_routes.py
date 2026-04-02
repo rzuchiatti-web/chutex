@@ -783,6 +783,38 @@ async def push_v8_data(request_body: dict, user=Depends(get_current_user)):
     elif data_type == "blood_glucose":
         if raw_data.get("blood_glucose_mgdl", 0) > 0:
             update_fields["last_blood_glucose"] = raw_data["blood_glucose_mgdl"]
+            # Auto-feed BLE glucose to ML glycemia model as auto-calibration
+            glucose_gl = raw_data.get("blood_glucose_mmol", raw_data["blood_glucose_mgdl"] / 18.0) / 10.0  # convert to g/L
+            if 0.5 < glucose_gl < 3.0:
+                await db.glycemia_calibrations.insert_one({
+                    "user_id": uid, "glycemia_value": round(glucose_gl, 2),
+                    "unit": "g/L", "context": "ble_v8_ppg", "source": "bracelet_v8",
+                    "date": now,
+                })
+                # Also trigger ML re-estimation
+                try:
+                    from services.glycemia_ml import estimate_glycemia_ml
+                    br_reading = await db.device_readings.find_one({"user_id": uid, "device_type": "bracelet"}, {"_id": 0}, sort=[("timestamp", -1)])
+                    sc_reading = await db.device_readings.find_one({"user_id": uid, "device_type": "scale"}, {"_id": 0}, sort=[("timestamp", -1)])
+                    cals = await db.glycemia_calibrations.find({"user_id": uid}, {"_id": 0}).sort("date", -1).to_list(12)
+                    hist = await db.glycemia_history.find({"user_id": uid}, {"_id": 0}).sort("date", -1).to_list(14)
+                    u = await db.users.find_one({"id": uid}, {"_id": 0})
+                    age = 70
+                    if u and u.get("date_of_birth"):
+                        try:
+                            from datetime import datetime as dt2
+                            dob = dt2.fromisoformat(u["date_of_birth"].replace("Z", "+00:00"))
+                            age = (datetime.now(timezone.utc) - dob).days // 365
+                        except: pass
+                    profile = {"age": age, "is_male": (u or {}).get("gender", "").lower() in ("m", "male"), "has_diabetes_risk": False}
+                    result = await estimate_glycemia_ml(uid, profile, (br_reading or {}).get("data", {}), (sc_reading or {}).get("data", {}), cals, hist, db)
+                    if result.get("status") == "estimated":
+                        await db.glycemia_history.update_one(
+                            {"user_id": uid, "date": now[:10]},
+                            {"$set": {"user_id": uid, "date": now[:10], "risk_score": result.get("risk_score"), "estimated_glycemia": result.get("estimated_glycemia"), "zone": result["zone"], "timestamp": now}},
+                            upsert=True
+                        )
+                except: pass
     elif data_type == "ppg":
         update_fields["last_ppg_timestamp"] = now
 
@@ -979,3 +1011,49 @@ async def get_v8_dashboard(user=Depends(get_current_user)):
         "last_ecg": device.get("last_ecg_result"),
         "last_ppg": device.get("last_ppg_timestamp"),
     }
+
+
+@router.post("/bracelet/v8/vibrate")
+async def vibrate_bracelet(request_body: dict, user=Depends(get_current_user)):
+    """Send vibration command to V8 bracelet.
+    The frontend will send this BLE command (0x08) to the bracelet.
+    This endpoint stores the vibration request for the frontend to pick up."""
+    vibration_type = request_body.get("type", "reminder")  # reminder, alarm, alert
+    message = request_body.get("message", "")
+    duration = request_body.get("duration", 3)  # seconds
+
+    # V8 vibration command: 0x08, payload[0] = type (1=short, 2=long, 3=pattern)
+    vib_mode = 1
+    if vibration_type == "alarm": vib_mode = 3
+    elif vibration_type == "alert": vib_mode = 2
+
+    now = datetime.now(timezone.utc).isoformat()
+    uid = user["id"]
+
+    cmd = {
+        "id": str(uuid.uuid4()),
+        "user_id": uid,
+        "command": "vibrate",
+        "ble_cmd": 0x08,
+        "ble_payload": [vib_mode, min(duration, 10)],
+        "type": vibration_type,
+        "message": message,
+        "status": "pending",
+        "created_at": now,
+    }
+    await db.bracelet_commands.insert_one(cmd)
+    return {k: v for k, v in cmd.items() if k != "_id"}
+
+
+@router.get("/bracelet/v8/pending-commands")
+async def get_pending_commands(user=Depends(get_current_user)):
+    """Get pending BLE commands to send to bracelet (vibration, etc.)."""
+    uid = user["id"]
+    commands = await db.bracelet_commands.find(
+        {"user_id": uid, "status": "pending"},
+        {"_id": 0}
+    ).sort("created_at", -1).to_list(10)
+    # Mark as sent
+    for cmd in commands:
+        await db.bracelet_commands.update_one({"id": cmd["id"]}, {"$set": {"status": "sent"}})
+    return {"commands": commands}

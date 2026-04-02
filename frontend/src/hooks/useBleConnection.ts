@@ -370,13 +370,26 @@ export function useBleConnection(token: string, fetchDevices: () => Promise<void
               }
             }, 30000);
 
-            // Every 60s: sync to backend
+            // Every 60s: sync to backend + check pending commands (vibration)
             const syncInterval = setInterval(async () => {
               if (!bd.gatt?.connected) { clearInterval(syncInterval); return; }
               if (Object.keys(collectedData).length > 1) {
                 await apiFetch('/api/devices/sync', { method: 'POST', body: JSON.stringify({ device_type: 'bracelet', data: collectedData }) }, token).catch(() => {});
                 fetchDevices();
               }
+              // Check for pending bracelet commands (vibration for reminders/alarms)
+              try {
+                const cmds = await apiFetch('/api/bracelet/v8/pending-commands', {}, token);
+                if (cmds?.commands && writeChar) {
+                  for (const cmd of cmds.commands) {
+                    if (cmd.ble_cmd === 0x08) {
+                      // Vibrate command: 0x08 [mode, duration]
+                      const payload = cmd.ble_payload || [1, 3];
+                      await writeChar.writeValue(buildBraceletCmd(0x08, payload)).catch(() => {});
+                    }
+                  }
+                }
+              } catch {}
             }, 60000);
 
             // Cleanup on disconnect

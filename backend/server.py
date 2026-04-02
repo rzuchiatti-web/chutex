@@ -477,6 +477,19 @@ async def _check_bedtime_reminders():
                 data={"bedtime": bedtime, "wake_time": wake_time},
             )
 
+            # Vibrate bracelet for bedtime reminder
+            await db.bracelet_commands.insert_one({
+                "id": str(__import__('uuid').uuid4()),
+                "user_id": uid,
+                "command": "vibrate",
+                "ble_cmd": 0x08,
+                "ble_payload": [2, 5],  # mode 2 (long), 5 seconds
+                "type": "alarm",
+                "message": f"Coucher recommande a {bedtime}",
+                "status": "pending",
+                "created_at": now.isoformat(),
+            })
+
             # Mark as sent
             await db.bedtime_notifications.insert_one({
                 "user_id": uid, "date": today_str,

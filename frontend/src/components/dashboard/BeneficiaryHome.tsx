@@ -208,7 +208,7 @@ export function BeneficiaryHome({ token, user }: { token: string; user: any }) {
       if (lastSeen !== today) { router.push('/morning-briefing' as any); }
     }
   }, []);
-  useEffect(() => { if (reminders.length > 0) { const cleanup = startReminderChecker(reminders); return cleanup; } }, [reminders]);
+  useEffect(() => { if (reminders.length > 0) { const cleanup = startReminderChecker(reminders, token); return cleanup; } }, [reminders, token]);
 
   useEffect(() => {
     if (reminders.length === 0 || Platform.OS !== 'web') return;

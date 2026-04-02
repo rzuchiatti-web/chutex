@@ -160,7 +160,7 @@ export async function scheduleReminderNotification(title: string, body: string, 
 }
 
 // ─── Reminder Checker (Web fallback) ───
-export function startReminderChecker(reminders: any[]) {
+export function startReminderChecker(reminders: any[], token?: string) {
   if (Platform.OS !== 'web') return () => {};
   const checkInterval = setInterval(() => {
     const now = new Date();
@@ -172,6 +172,14 @@ export function startReminderChecker(reminders: any[]) {
       if (r.time === currentTime && (r.days?.includes(today) || r.days?.length === 0)) {
         const typeLabels: Record<string, string> = { hydration: 'Hydratation', medication: 'Traitement', alarm: 'Rappel' };
         sendLocalNotification(`${typeLabels[r.reminder_type] || 'Rappel'} - CHUTEX`, r.title + (r.dosage ? ` (${r.dosage})` : ''));
+        // Vibrate bracelet V8 for reminder
+        if (token) {
+          fetch('/api/bracelet/v8/vibrate', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+            body: JSON.stringify({ type: 'reminder', message: r.title, duration: 3 }),
+          }).catch(() => {});
+        }
       }
     }
   }, 60000);
