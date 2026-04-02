@@ -22,6 +22,7 @@ import WeightGoalDashCard from './WeightGoalDashCard';
 import NoraHealthOverlay from './NoraHealthOverlay';
 import { useNotifications, NotificationBanner, NotificationCenter } from './NotificationCenter';
 import { SleepAlarmSection, TodayExercisesSection, RemindersSection, GuardiansSection } from './sections';
+import { useAutoReconnect } from '../../hooks/useAutoReconnect';
 
 const portalMount = (node: React.ReactNode) => {
   if (Platform.OS === 'web' && typeof document !== 'undefined') {
@@ -33,6 +34,7 @@ const portalMount = (node: React.ReactNode) => {
 
 export function BeneficiaryHome({ token, user }: { token: string; user: any }) {
   const router = useRouter();
+  useAutoReconnect(token);
   const { t, lang, setLang, flags: langFlags } = useI18n();
   const [isDark, setIsDark] = useState(() => {
     if (typeof localStorage !== 'undefined') {

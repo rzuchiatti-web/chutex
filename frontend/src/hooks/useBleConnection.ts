@@ -17,12 +17,14 @@ const readBatteryLevel = async (server: any): Promise<number> => {
 
 const parseBraceletResponse = (dv: DataView) => {
   const cmd = dv.getUint8(0);
+  const len = dv.byteLength;
   const result: Record<string, any> = { cmd };
   if (cmd === 0x09) {
     result.steps = dv.getUint8(1) | (dv.getUint8(2) << 8) | (dv.getUint8(3) << 16) | (dv.getUint8(4) << 24);
     result.calories = ((dv.getUint8(5) | (dv.getUint8(6) << 8) | (dv.getUint8(7) << 16) | (dv.getUint8(8) << 24)) / 100);
     result.heart_rate = dv.getUint8(13);
   } else if (cmd === 0x28) {
+    result.measurement_type = dv.getUint8(1);
     result.heart_rate = dv.getUint8(2);
     result.spo2 = dv.getUint8(3);
     result.hrv = dv.getUint8(4);
@@ -32,6 +34,49 @@ const parseBraceletResponse = (dv: DataView) => {
     result.temperature = (dv.getUint8(8) | (dv.getUint8(9) << 8)) / 10;
   } else if (cmd === 0x0D) {
     result.battery = dv.getUint8(1);
+  } else if (cmd === 0x50 && len >= 4) {
+    // Blood glucose: progress byte + value (mmol/L * 10)
+    result.glucose_progress = dv.getUint8(1);
+    if (result.glucose_progress >= 100) {
+      const raw = dv.getUint8(2) | (dv.getUint8(3) << 8);
+      result.blood_glucose_mmol = raw / 10.0;
+      result.blood_glucose_mgdl = Math.round(result.blood_glucose_mmol * 18.0);
+    }
+  } else if (cmd === 0x26 && len >= 5) {
+    // Temperature: 3-NTC
+    const tRaw = dv.getUint8(1) | (dv.getUint8(2) << 8);
+    result.temperature = tRaw / 10.0;
+    if (len >= 5) {
+      const axRaw = dv.getUint8(3) | (dv.getUint8(4) << 8);
+      if (axRaw > 300) result.axillary_temperature = axRaw / 10.0;
+    }
+  } else if (cmd === 0x53) {
+    // Sleep data: minute-by-minute stages
+    const stages: number[] = [];
+    for (let i = 1; i < Math.min(len, 15); i++) {
+      if (dv.getUint8(i) !== 0xFF && dv.getUint8(i) !== 0x00) stages.push(dv.getUint8(i));
+    }
+    result.sleep_stages = stages;
+  } else if (cmd === 0x51 || cmd === 0x52) {
+    // Step data (historical/today)
+    result.steps = dv.getUint8(1) | (dv.getUint8(2) << 8) | (dv.getUint8(3) << 16);
+    result.calories = dv.getUint8(4) | (dv.getUint8(5) << 8);
+    result.distance = dv.getUint8(6) | (dv.getUint8(7) << 8);
+  } else if (cmd === 0x54 || cmd === 0x55) {
+    // Heart rate data (historical/today)
+    result.heart_rate = dv.getUint8(1);
+    if (len > 2 && dv.getUint8(2) > 0) result.heart_rate_min = dv.getUint8(2);
+    if (len > 3 && dv.getUint8(3) > 0) result.heart_rate_max = dv.getUint8(3);
+  } else if (cmd === 0x33 && len >= 10) {
+    // ECG result
+    result.ecg_hr = dv.getUint8(1);
+    result.ecg_hrv = dv.getUint8(2);
+    result.ecg_breath_rate = dv.getUint8(3);
+    result.ecg_stress = dv.getUint8(4);
+    result.ecg_mood = dv.getUint8(5);
+    result.ecg_systolic = dv.getUint8(6);
+    result.ecg_diastolic = dv.getUint8(7);
+    result.ecg_vascular_aging = dv.getUint8(8);
   }
   return result;
 };
@@ -248,14 +293,31 @@ export function useBleConnection(token: string, fetchDevices: () => Promise<void
               setBleVitals((prev: any) => ({ ...prev, hrv: parsed.hrv }));
             }
             if (parsed.calories && parsed.calories > 0) collectedData.calories = parsed.calories;
+            // V8-specific: blood glucose
+            if (parsed.blood_glucose_mgdl && parsed.blood_glucose_mgdl > 0) {
+              collectedData.blood_glucose = parsed.blood_glucose_mgdl;
+              setBleVitals((prev: any) => ({ ...prev, blood_glucose: parsed.blood_glucose_mgdl }));
+            }
+            // V8-specific: sleep
+            if (parsed.sleep_stages && parsed.sleep_stages.length > 0) {
+              collectedData.sleep_stages = parsed.sleep_stages;
+            }
+            // V8-specific: ECG result
+            if (parsed.ecg_hr && parsed.ecg_hr > 0) {
+              setBleVitals((prev: any) => ({ ...prev, ecg_hr: parsed.ecg_hr, ecg_hrv: parsed.ecg_hrv }));
+            }
 
             // Push to correct backend endpoint
             if (isV8) {
               const cmd = parsed.cmd;
               let dataType = 'realtime';
               if (cmd === 0x0D) dataType = 'battery';
-              else if (cmd === 0x09) dataType = 'steps';
+              else if (cmd === 0x09 || cmd === 0x51 || cmd === 0x52) dataType = 'steps';
               else if (cmd === 0x28) dataType = 'heart_rate';
+              else if (cmd === 0x50) dataType = 'blood_glucose';
+              else if (cmd === 0x26) dataType = 'temperature';
+              else if (cmd === 0x53) dataType = 'sleep';
+              else if (cmd === 0x33) dataType = 'ecg_result';
               apiFetch(pushEndpoint, { method: 'POST', body: JSON.stringify({
                 data_type: dataType,
                 data: parsed,
@@ -282,6 +344,11 @@ export function useBleConnection(token: string, fetchDevices: () => Promise<void
             setTimeout(() => send(0x28, [3, 1]), 2500);   // start SpO2
             setTimeout(() => send(0x28, [1, 1]), 3000);   // start HRV + BP
             setTimeout(() => send(0x09, [1, 1]), 3500);   // realtime mode (steps + HR)
+            if (isV8) {
+              setTimeout(() => send(0x50), 4000);          // blood glucose
+              setTimeout(() => send(0x26), 4500);          // temperature (3-NTC)
+              setTimeout(() => send(0x53, [0]), 5000);     // sleep data
+            }
 
             // ── Periodic polling every 10s ──
             const pollInterval = setInterval(() => {
@@ -297,6 +364,10 @@ export function useBleConnection(token: string, fetchDevices: () => Promise<void
               setTimeout(() => send(0x28, [2, 1]), 200);  // HR
               setTimeout(() => send(0x28, [3, 1]), 400);  // SpO2
               setTimeout(() => send(0x28, [1, 1]), 600);  // HRV + BP
+              if (isV8) {
+                setTimeout(() => send(0x50), 800);        // blood glucose
+                setTimeout(() => send(0x26), 1000);       // temperature
+              }
             }, 30000);
 
             // Every 60s: sync to backend
