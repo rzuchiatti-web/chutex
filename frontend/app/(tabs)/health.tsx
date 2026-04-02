@@ -138,32 +138,33 @@ export default function HealthScreen() {
       const noDataAi = report?.ai;
       const BRACELET_IMG = 'https://customer-assets.emergentagent.com/job_8afdc991-0ab2-4687-a2a5-438b9a5f0711/artifacts/2fto1qw7_bracelet_sante_connecte_elio_chutex_care_teleassistance_telealarme%281%29.svg';
       const SCALE_IMG = 'https://customer-assets.emergentagent.com/job_8afdc991-0ab2-4687-a2a5-438b9a5f0711/artifacts/dwmw2i8r_Balance_connecte_Vita_chutex.svg';
+      const ndBg = isDark ? '#0A0A1A' : '#F8F8FA';
+      const ndText = isDark ? '#FFF' : '#111';
+      const ndSub = isDark ? 'rgba(255,255,255,0.5)' : 'rgba(0,0,0,0.45)';
+      const ndCardBg = isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.03)';
+      const ndCardBorder = isDark ? 'rgba(255,255,255,0.12)' : 'rgba(0,0,0,0.08)';
       return (
-        <div data-testid="health-no-data" style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, display: 'flex', flexDirection: 'column', fontFamily: "'Inter', system-ui, sans-serif", overflow: 'auto' } as any}>
-          <AnimatedDarkBg />
+        <div data-testid="health-no-data" style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, display: 'flex', flexDirection: 'column', fontFamily: "'Inter', system-ui, sans-serif", overflow: 'auto', background: ndBg } as any}>
+          {isDark && <AnimatedDarkBg />}
           <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', position: 'relative', zIndex: 5, padding: '0 28px', textAlign: 'center', overflowY: 'auto', WebkitOverflowScrolling: 'touch', paddingTop: 'env(safe-area-inset-top, 60px)', paddingBottom: 100 } as any}>
-            <div style={{ fontSize: 24, fontWeight: 900, color: '#FFF', marginBottom: 10 }}>{noDataAi?.hero_line || 'Aucune donnee de sante'}</div>
-            <div style={{ fontSize: 14, color: 'rgba(255,255,255,0.5)', lineHeight: 1.6, maxWidth: 320, marginBottom: 28 }}>{noDataAi?.priority || 'Connectez vos dispositifs pour commencer a suivre votre sante et recevoir des analyses personnalisees de Nora.'}</div>
+            <div style={{ fontSize: 24, fontWeight: 900, color: ndText, marginBottom: 10 }}>{noDataAi?.hero_line || 'Aucune donnee de sante'}</div>
+            <div style={{ fontSize: 14, color: ndSub, lineHeight: 1.6, maxWidth: 320, marginBottom: 28 }}>{noDataAi?.priority || 'Connectez vos dispositifs pour commencer a suivre votre sante et recevoir des analyses personnalisees de Nora.'}</div>
 
             {/* Device promo cards */}
             <div style={{ display: 'flex', gap: 12, width: '100%', maxWidth: 380, marginBottom: 28 } as any}>
-              <div data-testid="promo-bracelet" onClick={() => router.push('/(tabs)/devices' as any)} style={{ flex: 1, padding: '20px 14px', borderRadius: 18, background: 'rgba(255,255,255,0.05)', border: '1.5px solid rgba(255,255,255,0.12)', cursor: 'pointer', textAlign: 'center', transition: 'transform 0.15s, border-color 0.15s', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)' } as any}
-                onMouseEnter={(e: any) => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.borderColor = 'rgba(34,211,238,0.35)'; }}
-                onMouseLeave={(e: any) => { e.currentTarget.style.transform = ''; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.12)'; }}>
-                <img src={BRACELET_IMG} alt="Bracelet Elio" style={{ width: 64, height: 64, objectFit: 'contain', margin: '0 auto 12px', display: 'block', filter: 'drop-shadow(0 4px 12px rgba(0,0,0,0.3))' } as any} />
-                <div style={{ fontSize: 14, fontWeight: 800, color: '#FFF', marginBottom: 4 }}>Bracelet Elio</div>
-                <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.4)', lineHeight: 1.4 }}>Suivi cardiaque, sommeil, activite</div>
+              <div data-testid="promo-bracelet" onClick={() => { try { router.push('/(tabs)/devices' as any); } catch { if (typeof window !== 'undefined') window.location.hash = '#/devices'; } }} style={{ flex: 1, padding: '20px 14px', borderRadius: 18, background: ndCardBg, border: `1.5px solid ${ndCardBorder}`, cursor: 'pointer', textAlign: 'center' } as any}>
+                <img src={BRACELET_IMG} alt="Bracelet Elio" style={{ width: 64, height: 64, objectFit: 'contain', margin: '0 auto 12px', display: 'block' } as any} />
+                <div style={{ fontSize: 14, fontWeight: 800, color: ndText, marginBottom: 4 }}>Bracelet Elio</div>
+                <div style={{ fontSize: 10, color: ndSub, lineHeight: 1.4 }}>Suivi cardiaque, sommeil, activite</div>
               </div>
-              <div data-testid="promo-scale" onClick={() => router.push('/(tabs)/devices' as any)} style={{ flex: 1, padding: '20px 14px', borderRadius: 18, background: 'rgba(255,255,255,0.05)', border: '1.5px solid rgba(255,255,255,0.12)', cursor: 'pointer', textAlign: 'center', transition: 'transform 0.15s, border-color 0.15s', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)' } as any}
-                onMouseEnter={(e: any) => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.borderColor = 'rgba(167,139,250,0.35)'; }}
-                onMouseLeave={(e: any) => { e.currentTarget.style.transform = ''; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.12)'; }}>
-                <img src={SCALE_IMG} alt="Balance Vita" style={{ width: 64, height: 64, objectFit: 'contain', margin: '0 auto 12px', display: 'block', filter: 'drop-shadow(0 4px 12px rgba(0,0,0,0.3))' } as any} />
-                <div style={{ fontSize: 14, fontWeight: 800, color: '#FFF', marginBottom: 4 }}>Balance Vita</div>
-                <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.4)', lineHeight: 1.4 }}>Poids, IMC, masse grasse</div>
+              <div data-testid="promo-scale" onClick={() => { try { router.push('/(tabs)/devices' as any); } catch { if (typeof window !== 'undefined') window.location.hash = '#/devices'; } }} style={{ flex: 1, padding: '20px 14px', borderRadius: 18, background: ndCardBg, border: `1.5px solid ${ndCardBorder}`, cursor: 'pointer', textAlign: 'center' } as any}>
+                <img src={SCALE_IMG} alt="Balance Vita" style={{ width: 64, height: 64, objectFit: 'contain', margin: '0 auto 12px', display: 'block' } as any} />
+                <div style={{ fontSize: 14, fontWeight: 800, color: ndText, marginBottom: 4 }}>Balance Vita</div>
+                <div style={{ fontSize: 10, color: ndSub, lineHeight: 1.4 }}>Poids, IMC, masse grasse</div>
               </div>
             </div>
 
-            <div data-testid="connect-device-btn" onClick={() => router.push('/(tabs)/devices' as any)} style={{ padding: '16px 36px', borderRadius: 999, background: '#FFF', color: '#111', cursor: 'pointer', fontSize: 15, fontWeight: 700, flexShrink: 0 } as any}>Connecter un dispositif</div>
+            <div data-testid="connect-device-btn" onClick={() => { try { router.push('/(tabs)/devices' as any); } catch { if (typeof window !== 'undefined') window.location.hash = '#/devices'; } }} style={{ padding: '16px 36px', borderRadius: 999, background: isDark ? '#FFF' : '#111', color: isDark ? '#111' : '#FFF', cursor: 'pointer', fontSize: 15, fontWeight: 700, flexShrink: 0 } as any}>Connecter un dispositif</div>
           </div>
         </div>
       );

@@ -104,11 +104,11 @@ function NativeFullApp() {
         <WebView
           ref={webViewRef}
           source={{ uri: backendUrl }}
-          style={{ flex: 1, backgroundColor: 'transparent' }}
+          style={{ flex: 1, backgroundColor: '#0A0A1A' }}
           startInLoadingState={true}
           onMessage={handleMessage}
           renderLoading={() => (
-            <View style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, justifyContent: 'center', alignItems: 'center', backgroundColor: '#000' }}>
+            <View style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, justifyContent: 'center', alignItems: 'center', backgroundColor: '#0A0A1A' }}>
               <Image
                 source={{ uri: 'https://cdn.shopify.com/s/files/1/0886/1918/8558/files/Logo_chutex_1.png?v=1737551429' }}
                 style={{ width: 120, height: 40, resizeMode: 'contain', marginBottom: 20 }}
@@ -116,13 +116,13 @@ function NativeFullApp() {
               <ActivityIndicator size="large" color="#A78BFA" />
             </View>
           )}
-          allowsBackForwardNavigationGestures={true}
+          allowsBackForwardNavigationGestures={false}
           javaScriptEnabled={true}
           domStorageEnabled={true}
           sharedCookiesEnabled={true}
           mediaPlaybackRequiresUserAction={false}
           allowsInlineMediaPlayback={true}
-          scrollEnabled={true}
+          scrollEnabled={false}
           bounces={false}
           overScrollMode="never"
           decelerationRate="normal"

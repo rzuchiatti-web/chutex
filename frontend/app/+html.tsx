@@ -14,9 +14,9 @@ export default function Root({ children }: PropsWithChildren) {
         <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
         <ScrollViewStyleReset />
         <style dangerouslySetInnerHTML={{ __html: `
-          html, body { margin: 0; padding: 0; background: #0A0A1A; overflow: hidden; height: 100%; }
-          #root { height: 100%; padding-top: env(safe-area-inset-top, 0px); box-sizing: border-box; }
-          * { -webkit-overflow-scrolling: touch; }
+          html, body { margin: 0; padding: 0; background: #0A0A1A; overflow: hidden; height: 100%; overscroll-behavior: none; -webkit-overflow-scrolling: touch; }
+          #root { height: 100%; padding-top: env(safe-area-inset-top, 0px); box-sizing: border-box; overscroll-behavior: none; }
+          * { -webkit-overflow-scrolling: touch; overscroll-behavior: none; }
 
           /* ═══ Premium Clinical Motion System ═══ */
 

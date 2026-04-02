@@ -615,7 +615,12 @@ export function BeneficiaryHome({ token, user }: { token: string; user: any }) {
 
           {/* ── Abonnement Pro en attente ── */}
           {/* ── Exercices du jour ── */}
-          {todayExercises.length > 0 && <TodayExercisesSection todayExercises={todayExercises} C={C} glass={glass} />}
+          {todayExercises.length > 0 && (
+            <>
+              <div style={{ height: 1, background: C.sep, margin: '10px 0 24px' } as any} />
+              <TodayExercisesSection todayExercises={todayExercises} C={C} glass={glass} />
+            </>
+          )}
 
           {/* ── Abonnement Pro en attente ── */}
           {proSub && proSub.status === 'pending' && (
