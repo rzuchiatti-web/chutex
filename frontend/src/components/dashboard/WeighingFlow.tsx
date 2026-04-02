@@ -151,10 +151,10 @@ export default function WeighingFlow({ onClose, d = {}, weighings = [] }: Props)
       const elapsed = Math.floor((Date.now() - startTime) / 1000);
       const silenceMs = Date.now() - lastPacketTimeRef.current;
       setCountdown(elapsed);
-      // After 30s minimum, if 20s without any BLE packet = balance done
-      if (elapsed > 30 && silenceMs > 20000) { finish(); return; }
-      // Hard timeout 180s
-      if (elapsed >= 180) finish();
+      // After 3s minimum, if 5s without any BLE packet = balance done
+      if (elapsed > 3 && silenceMs > 5000) { finish(); return; }
+      // Hard timeout 60s
+      if (elapsed >= 60) finish();
     }, 500);
 
     return () => {
@@ -398,21 +398,24 @@ export default function WeighingFlow({ onClose, d = {}, weighings = [] }: Props)
                 {[
                   { label: 'IMC', value: r.bmi || result?.bmi, unit: '', color: '#6366F1', icon: 'ri-scales-2-line' },
                   { label: 'Graisse', value: r.body_fat_pct || result?.body_fat_pct, unit: '%', color: '#F59E0B', icon: 'ri-drop-line' },
-                  { label: 'Muscle', value: r.muscle_pct || (result?.muscle_mass ? Math.round(result.muscle_mass / w * 100 * 10) / 10 : 0), unit: '%', color: '#10B981', icon: 'ri-heart-pulse-line' },
+                  { label: 'Muscle', value: r.muscle_pct || result?.muscle_rate || (result?.muscle_mass ? Math.round(result.muscle_mass / w * 100 * 10) / 10 : 0), unit: '%', color: '#10B981', icon: 'ri-heart-pulse-line' },
                   { label: 'Hydratation', value: r.water_pct || result?.hydration_pct, unit: '%', color: '#38BDF8', icon: 'ri-drop-fill' },
                   { label: 'Masse osseuse', value: r.bone_mass_kg || result?.bone_mass, unit: 'kg', color: '#A78BFA', icon: 'ri-shield-line' },
                   { label: 'Graisse visc.', value: r.visceral_fat || result?.visceral_fat, unit: '', color: '#EF4444', icon: 'ri-fire-line' },
                   { label: 'Metabolisme', value: r.basal_metabolism || result?.basal_metabolism, unit: 'kcal', color: '#F97316', icon: 'ri-flashlight-line' },
                   { label: 'Proteines', value: r.protein_pct || result?.protein_pct, unit: '%', color: '#14B8A6', icon: 'ri-leaf-line' },
-                  { label: 'Age corporel', value: r.body_age || result?.body_age, unit: 'ans', color: '#8B5CF6', icon: 'ri-time-line', nora: true },
-                ].map((m, i) => (
+                  { label: 'Age corporel', value: r.body_age || result?.body_age, unit: 'ans', color: '#8B5CF6', icon: 'ri-time-line' },
+                  { label: 'Score sante', value: result?.health_score || r.health_score_balance, unit: '/100', color: '#FFB300', icon: 'ri-star-line' },
+                  { label: 'Masse grasse', value: result?.fat_kg || result?.fat_mass, unit: 'kg', color: '#F59E0B', icon: 'ri-contrast-drop-line' },
+                  { label: 'Masse maigre', value: result?.lean_body_mass || result?.fat_free_weight, unit: 'kg', color: '#059669', icon: 'ri-body-scan-line' },
+                  { label: 'Muscle (kg)', value: result?.muscle_mass, unit: 'kg', color: '#10B981', icon: 'ri-heart-pulse-line' },
+                  { label: 'Impedance', value: result?.impedance, unit: 'ohm', color: '#6366F1', icon: 'ri-flashlight-fill' },
+                  { label: 'Musc. squelettique', value: result?.skeletal_muscle_kg || result?.skeletal_muscle_pct, unit: result?.skeletal_muscle_pct ? '%' : 'kg', color: '#8BC34A', icon: 'ri-body-scan-line' },
+                ].filter(m => m.value && m.value !== 0).map((m, i) => (
                   <div key={i} style={{ padding: '10px 8px', borderRadius: 14, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', position: 'relative' } as any}>
                     <i className={m.icon} style={{ fontSize: 14, color: m.color, display: 'block', marginBottom: 4 }} />
                     <div style={{ fontSize: 16, fontWeight: 900, color: m.value ? m.color : 'rgba(255,255,255,0.15)' }}>{m.value || '--'}{m.value ? <span style={{ fontSize: 9, color: 'rgba(255,255,255,0.3)' }}>{m.unit}</span> : ''}</div>
                     <div style={{ fontSize: 8, color: 'rgba(255,255,255,0.3)', marginTop: 2 }}>{m.label}</div>
-                    {(m as any).nora && !m.value && (
-                      <div style={{ position: 'absolute', top: 4, right: 4, padding: '1px 5px', borderRadius: 4, background: 'rgba(167,139,250,0.15)', fontSize: 7, fontWeight: 700, color: '#A78BFA' }}>Nora</div>
-                    )}
                   </div>
                 ))}
               </div>
