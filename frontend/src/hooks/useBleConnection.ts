@@ -185,6 +185,10 @@ export function useBleConnection(token: string, fetchDevices: () => Promise<void
       const collectedData: Record<string, any> = { battery };
 
       if (deviceType === 'bracelet') {
+        // Store device globally for ECG page reuse
+        if (typeof window !== 'undefined') (window as any).__bleBraceletDevice = bd;
+
+        // Find notify + write characteristics on FFF0 service
         let notifyChar: any = null, writeChar: any = null;
         for (const uuid of [BLE_SVC, '0000ffe0-0000-1000-8000-00805f9b34fb', '0000ffc0-0000-1000-8000-00805f9b34fb']) {
           try {
@@ -197,30 +201,121 @@ export function useBleConnection(token: string, fetchDevices: () => Promise<void
             if (notifyChar) break;
           } catch {}
         }
+
+        // Detect V8 by device name
+        const devName = (bd.name || '').toUpperCase();
+        const isV8 = devName.includes('V8') || devName.includes('JCV8') || devName.includes('2301') || devName.includes('HB8') || devName.includes('ELIO');
+        const pushEndpoint = isV8 ? '/api/bracelet/v8/push' : '/api/bracelet/push';
+
         if (notifyChar) {
           await notifyChar.startNotifications();
           notifyChar.addEventListener('characteristicvaluechanged', (event: any) => {
-            const parsed = parseBraceletResponse(event.target.value);
-            if (parsed.battery && parsed.battery > 0) { collectedData.battery = parsed.battery; setBleVitals((prev: any) => ({ ...prev, battery: parsed.battery })); }
-            if (parsed.heart_rate && parsed.heart_rate > 0 && parsed.heart_rate < 255) collectedData.heart_rate = parsed.heart_rate;
-            if (parsed.spo2 && parsed.spo2 > 0) collectedData.spo2 = parsed.spo2;
-            if (parsed.temperature && parsed.temperature > 30) collectedData.temperature = parsed.temperature;
-            if (parsed.steps) collectedData.steps = parsed.steps;
-            if (parsed.systolic) { collectedData.blood_pressure = { systolic: parsed.systolic, diastolic: parsed.diastolic || 0 }; }
-            if (parsed.stress) collectedData.stress_level = parsed.stress;
-            if (parsed.hrv) collectedData.hrv = parsed.hrv;
-            if (parsed.calories) collectedData.calories = parsed.calories;
-            apiFetch('/api/bracelet/push', { method: 'POST', body: JSON.stringify({ parsed, raw_hex: '', device_id: bd.id || '' }) }, token).catch(() => {});
+            const dv = event.target.value as DataView;
+            const bytes = new Uint8Array(dv.buffer);
+            const parsed = parseBraceletResponse(dv);
+
+            // Update collected data AND vitals state for UI
+            if (parsed.battery && parsed.battery > 0 && parsed.battery <= 100) {
+              collectedData.battery = parsed.battery;
+              setBleVitals((prev: any) => ({ ...prev, battery: parsed.battery }));
+            }
+            if (parsed.heart_rate && parsed.heart_rate > 0 && parsed.heart_rate < 255) {
+              collectedData.heart_rate = parsed.heart_rate;
+              setBleVitals((prev: any) => ({ ...prev, heart_rate: parsed.heart_rate }));
+            }
+            if (parsed.spo2 && parsed.spo2 > 0 && parsed.spo2 <= 100) {
+              collectedData.spo2 = parsed.spo2;
+              setBleVitals((prev: any) => ({ ...prev, spo2: parsed.spo2 }));
+            }
+            if (parsed.temperature && parsed.temperature > 30) {
+              collectedData.temperature = parsed.temperature;
+              setBleVitals((prev: any) => ({ ...prev, temperature: parsed.temperature }));
+            }
+            if (parsed.steps && parsed.steps > 0) {
+              collectedData.steps = parsed.steps;
+              setBleVitals((prev: any) => ({ ...prev, steps: parsed.steps }));
+            }
+            if (parsed.systolic && parsed.systolic > 0) {
+              collectedData.blood_pressure = { systolic: parsed.systolic, diastolic: parsed.diastolic || 0 };
+              setBleVitals((prev: any) => ({ ...prev, systolic: parsed.systolic, diastolic: parsed.diastolic || 0 }));
+            }
+            if (parsed.stress && parsed.stress > 0) {
+              collectedData.stress = parsed.stress;
+              setBleVitals((prev: any) => ({ ...prev, stress: parsed.stress }));
+            }
+            if (parsed.hrv && parsed.hrv > 0) {
+              collectedData.hrv = parsed.hrv;
+              setBleVitals((prev: any) => ({ ...prev, hrv: parsed.hrv }));
+            }
+            if (parsed.calories && parsed.calories > 0) collectedData.calories = parsed.calories;
+
+            // Push to correct backend endpoint
+            if (isV8) {
+              const cmd = parsed.cmd;
+              let dataType = 'realtime';
+              if (cmd === 0x0D) dataType = 'battery';
+              else if (cmd === 0x09) dataType = 'steps';
+              else if (cmd === 0x28) dataType = 'heart_rate';
+              apiFetch(pushEndpoint, { method: 'POST', body: JSON.stringify({
+                data_type: dataType,
+                data: parsed,
+                device_id: bd.id || '',
+                source: 'ble',
+              }) }, token).catch(() => {});
+            } else {
+              apiFetch('/api/bracelet/push', { method: 'POST', body: JSON.stringify({ parsed, raw_hex: '', device_id: bd.id || '' }) }, token).catch(() => {});
+            }
           });
+
           if (writeChar) {
-            const send = async (cmd: number, payload: number[] = []) => { try { await writeChar.writeValue(buildBraceletCmd(cmd, payload)); } catch {} };
+            const send = async (cmd: number, payload: number[] = []) => {
+              try { await writeChar.writeValue(buildBraceletCmd(cmd, payload)); } catch {}
+            };
+
+            // Initial handshake: time sync (required — bracelet ignores commands without this)
             const now = new Date();
             await send(0x01, [now.getFullYear() & 0xFF, (now.getFullYear() >> 8) & 0xFF, now.getMonth() + 1, now.getDate(), now.getHours(), now.getMinutes(), now.getSeconds()]);
-            setTimeout(() => send(0x0D), 500);
-            setTimeout(() => send(0x52, [0]), 1000);
-            setTimeout(() => send(0x28, [1, 1]), 1500);
-            setTimeout(() => send(0x28, [3, 1]), 2000);
-            setTimeout(() => send(0x09, [1, 1]), 2500);
+            setTimeout(() => send(0x0D), 500);           // battery
+            setTimeout(() => send(0x52, [0]), 1000);      // today's steps
+            setTimeout(() => send(0x55, [0]), 1500);      // today's HR
+            setTimeout(() => send(0x28, [2, 1]), 2000);   // start continuous HR
+            setTimeout(() => send(0x28, [3, 1]), 2500);   // start SpO2
+            setTimeout(() => send(0x28, [1, 1]), 3000);   // start HRV + BP
+            setTimeout(() => send(0x09, [1, 1]), 3500);   // realtime mode (steps + HR)
+
+            // ── Periodic polling every 10s ──
+            const pollInterval = setInterval(() => {
+              if (!bd.gatt?.connected) { clearInterval(pollInterval); return; }
+              send(0x09, [1, 1]); // realtime steps + HR
+            }, 10000);
+
+            // Every 30s: request all measurements
+            const fullPollInterval = setInterval(() => {
+              if (!bd.gatt?.connected) { clearInterval(fullPollInterval); return; }
+              send(0x0D);           // battery
+              send(0x52, [0]);      // steps
+              setTimeout(() => send(0x28, [2, 1]), 200);  // HR
+              setTimeout(() => send(0x28, [3, 1]), 400);  // SpO2
+              setTimeout(() => send(0x28, [1, 1]), 600);  // HRV + BP
+            }, 30000);
+
+            // Every 60s: sync to backend
+            const syncInterval = setInterval(async () => {
+              if (!bd.gatt?.connected) { clearInterval(syncInterval); return; }
+              if (Object.keys(collectedData).length > 1) {
+                await apiFetch('/api/devices/sync', { method: 'POST', body: JSON.stringify({ device_type: 'bracelet', data: collectedData }) }, token).catch(() => {});
+                fetchDevices();
+              }
+            }, 60000);
+
+            // Cleanup on disconnect
+            bd.addEventListener('gattserverdisconnected', () => {
+              clearInterval(pollInterval);
+              clearInterval(fullPollInterval);
+              clearInterval(syncInterval);
+              setBleStatus('idle');
+              if (typeof window !== 'undefined') (window as any).__bleBraceletDevice = null;
+            });
           }
         }
       } else {

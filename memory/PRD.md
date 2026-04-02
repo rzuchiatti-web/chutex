@@ -9,52 +9,40 @@
 
 ## Fonctionnalites Implementees
 
-### Nora IA — Actions via Chat
-- [x] UPDATE_CALORIES, ADJUST_MACROS, ADD_EXERCISE, DELETE_EXERCISE, UPDATE_MEAL_PLAN, LIST_EXERCISES
-
-### Balance Connectee (Lefu CF586BLE+WIFI)
-- [x] Bug sex=2 corrige, filtre <20kg, alias backend
-- [x] Formules BIA locales : 18 metriques sans impedance
-- [x] Endpoints WiFi complets
-- [ ] WiFi non configure : necessite PPBTKitDemo
-- [ ] Impedance BLE chiffree par hardware
-
-### Bracelet V8 (JStyle BLE)
+### Bracelet V8 — Flux BLE Complet
 - [x] UUIDs corrigees (FFF6=WRITE, FFF7=NOTIFY)
-- [x] Backend V8 complet : config, push, ECG parser, glucose, VO2max
-- [x] Commandes ECG: 0x28+0x04
-- [x] Parsing ECG 24-bit
-- [ ] Donnees vitales (FC, SpO2, pas) remontent a 0
+- [x] Detection V8 par nom device (V8, JCV8, 2301, HB8, ELIO)
+- [x] **Polling periodique** : commandes realtime toutes les 10s
+- [x] **Sync complete** toutes les 30s (batterie, steps, HR, SpO2, HRV, BP)
+- [x] **Sync backend** toutes les 60s via /api/devices/sync
+- [x] **Envoi vers /api/bracelet/v8/push** (pas l'ancien /api/bracelet/push)
+- [x] **Stockage device** sur window.__bleBraceletDevice pour ECG
+- [x] **Nettoyage** auto a la deconnexion BLE
+- [x] **setBleVitals** mis a jour en temps reel (HR, SpO2, battery, steps, etc.)
+- [x] Commandes ECG: 0x28+0x04, parsing 24-bit
 
 ### ECG
-- [x] Page ecg.tsx verifie /api/bracelet/status avant de lancer
+- [x] Verifie /api/bracelet/status avant de lancer
 - [x] Si pas connecte → redirection vers Dispositifs
 - [x] Animation respiration Whoop 30s
-- [x] Sauvegarde vraies donnees ECG via /api/ecg/start
-- [x] Page ecg-detail : trace ECG reel + BPM + rythme + verification auto + analyse Nora
+- [x] Page ecg-detail : trace ECG reel + BPM + rythme
 
 ### Dashboard - Section Dispositifs
-- [x] **Section TOUJOURS visible** (meme sans device)
-- [x] **Etat vide** : 'Aucun dispositif connecte' + bouton 'Ajouter un dispositif'
-- [x] **Batterie masquee** si = 0% (plus de 0% affiche)
-- [x] **Backend batch** : connected/paired calcule via last_sync (plus de champ raw)
-- [x] Bouton + redirige vers /(tabs)/devices
+- [x] Section TOUJOURS visible (meme sans device)
+- [x] Etat vide : 'Aucun dispositif connecte' + bouton ajouter
+- [x] Batterie masquee si = 0%
+- [x] Backend batch : connected/paired calcule via last_sync
+
+### Balance Connectee (Lefu)
+- [x] Bug sex=2 corrige, formules BIA, endpoints WiFi
+- [ ] WiFi non configure
+
+### Nettoyage
 - [x] bracelet-connect.tsx SUPPRIME
 - [x] BraceletBLEContext.tsx SUPPRIME
 
-### Page Dispositifs
-- [x] Gere connexion bracelet, balance, gilet
-- [x] Bouton ECG visible quand bracelet appaire
-
-### Morning Briefing, Popup Sommeil, Rappels, Dashboard
-- [x] Tous les features precedents conserves
-
 ## Backlog
-- P1 : Fix donnees vitales bracelet V8 (FC, SpO2 = 0)
 - P1 : Configurer WiFi balance via PPBTKitDemo
 - P1 : Rebuild EAS pour TestFlight
 - P2 : Gilet connecte, Parrainage, Essai 7j, Vivoo
 - P2 : Refactoring program_routes.py, teleassistance_routes.py
-- P2 : Deploiement production serveur TCP J2358
-- P2 : Signature electronique documents Admin
-- Minor : Creer page /sleep (route declaree mais fichier manquant)
