@@ -340,7 +340,7 @@ export function BeneficiaryHome({ token, user }: { token: string; user: any }) {
           {/* ═══ HEADER with red BG — scrolls, NO rounded corners, BEHIND content card ═══ */}
           <div style={{ position: 'relative', zIndex: 1 } as any}>
             <img src={BG_RED} alt="" style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 } as any} />
-            <div style={{ position: 'relative', zIndex: 2, padding: '54px 20px 28px' } as any}>
+            <div style={{ position: 'relative', zIndex: 2, padding: '70px 20px 28px' } as any}>
               {/* Header row */}
               <div data-testid="dashboard-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 18 } as any}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 12 } as any}>
