@@ -444,5 +444,3 @@ export default function ECGScreen() {
     </div>
   );
 }
-;
-}
