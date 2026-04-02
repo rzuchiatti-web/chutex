@@ -73,33 +73,58 @@ function NativeFullApp() {
           : isScale
           ? ['QN-Scale', 'Lefu', 'CF586', 'Health Scale', 'SWAN', 'BF600']
           : ['Elder', 'AIRBAG', 'Gilet', 'Airbag'];
-        manager.startDeviceScan(null, null, async (error: any, device: any) => {
-          if (error) {
-            webViewRef.current?.injectJavaScript(`window.dispatchEvent(new CustomEvent('ble_result',{detail:{error:'${error.message?.replace(/'/g, '')}'}}));true;`);
-            return;
-          }
-          if (!device) return;
-          const name = device.name || device.localName || '';
-          if (nameFilter.some((f: string) => name.includes(f))) {
-            if (found) return;
-            found = true;
-            manager.stopDeviceScan();
-            try {
-              const connected = await device.connect();
-              await connected.discoverAllServicesAndCharacteristics();
-              webViewRef.current?.injectJavaScript(`window.dispatchEvent(new CustomEvent('ble_result',{detail:{success:true,name:'${(name || '').replace(/'/g, '')}',id:'${(device.id || '').replace(/'/g, '')}'}}));true;`);
-            } catch (e: any) {
-              webViewRef.current?.injectJavaScript(`window.dispatchEvent(new CustomEvent('ble_result',{detail:{error:'Connexion echouee: ${(e.message || '').replace(/'/g, '')}'}}));true;`);
+
+        // Wait for BLE to be powered on before scanning
+        const startScan = () => {
+          manager.startDeviceScan(null, null, async (error: any, device: any) => {
+            if (error) {
+              webViewRef.current?.injectJavaScript(`window.dispatchEvent(new CustomEvent('ble_result',{detail:{error:'${error.message?.replace(/'/g, '')}'}}));true;`);
+              return;
             }
+            if (!device) return;
+            const name = device.name || device.localName || '';
+            if (nameFilter.some((f: string) => name.includes(f))) {
+              if (found) return;
+              found = true;
+              manager.stopDeviceScan();
+              try {
+                const connected = await device.connect();
+                await connected.discoverAllServicesAndCharacteristics();
+                webViewRef.current?.injectJavaScript(`window.dispatchEvent(new CustomEvent('ble_result',{detail:{success:true,name:'${(name || '').replace(/'/g, '')}',id:'${(device.id || '').replace(/'/g, '')}'}}));true;`);
+              } catch (e: any) {
+                webViewRef.current?.injectJavaScript(`window.dispatchEvent(new CustomEvent('ble_result',{detail:{error:'Connexion echouee: ${(e.message || '').replace(/'/g, '')}'}}));true;`);
+              }
+            }
+          });
+          // Timeout 20s
+          setTimeout(() => {
+            if (!found) {
+              manager.stopDeviceScan();
+              webViewRef.current?.injectJavaScript(`window.dispatchEvent(new CustomEvent('ble_result',{detail:{error:'Appareil non trouve. Verifiez qu\\'il est allume et a proximite.'}}));true;`);
+            }
+          }, 20000);
+        };
+
+        // Check BLE state - wait if not ready
+        const sub = manager.onStateChange((state: string) => {
+          if (state === 'PoweredOn') {
+            sub.remove();
+            startScan();
           }
-        });
-        // Timeout 20s
+        }, true);
+        // Fallback: if already powered on, the callback fires immediately with `true` param
+        // But also timeout if BLE never becomes ready
         setTimeout(() => {
+          sub.remove();
           if (!found) {
-            manager.stopDeviceScan();
-            webViewRef.current?.injectJavaScript(`window.dispatchEvent(new CustomEvent('ble_result',{detail:{error:'Appareil non trouve. Verifiez qu\\'il est allume et a proximite.'}}));true;`);
+            manager.state().then((s: string) => {
+              if (s === 'PoweredOn') startScan();
+              else webViewRef.current?.injectJavaScript(`window.dispatchEvent(new CustomEvent('ble_result',{detail:{error:'Bluetooth desactive. Activez-le dans les Reglages.'}}));true;`);
+            }).catch(() => {
+              webViewRef.current?.injectJavaScript(`window.dispatchEvent(new CustomEvent('ble_result',{detail:{error:'Bluetooth non disponible.'}}));true;`);
+            });
           }
-        }, 20000);
+        }, 3000);
       }
     } catch {}
   };
