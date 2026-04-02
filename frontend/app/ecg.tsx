@@ -284,48 +284,41 @@ export default function ECGScreen() {
       created_at: new Date().toISOString(),
     };
 
-    // Save to backend
+    // Save to backend and redirect directly to detail page
+    let ecgId = 'ecg-' + Date.now();
     try {
-      if (totalSamples.length > 0) {
-        await apiFetch('/api/bracelet/v8/push', {
-          method: 'POST',
-          body: JSON.stringify({
-            data_type: 'ecg_waveform',
-            data: { ecg_raw: totalSamples.slice(-7500), sample_rate: 250, duration_sec: ECG_DURATION },
-            device_id: deviceRef.current?.id || '',
-            source: 'ble',
-          }),
-        }, token);
-      }
-      if (ecgResult && Object.keys(ecgResult).length > 0) {
-        await apiFetch('/api/bracelet/v8/push', {
-          method: 'POST',
-          body: JSON.stringify({
-            data_type: 'ecg_result',
-            data: ecgResult,
-            device_id: deviceRef.current?.id || '',
-            source: 'ble',
-          }),
-        }, token);
-      }
-      // Also save the full ECG via the existing ecg/start endpoint for the report page
-      await apiFetch('/api/ecg/start', {
+      const res = await apiFetch('/api/ecg/start', {
         method: 'POST',
         body: JSON.stringify({
-          ...finalResult,
           ecg_raw: totalSamples.slice(-7500),
           sample_rate: 250,
+          bpm: ecgResult.ecg_hr || liveHR || 0,
+          hrv: ecgResult.ecg_hrv || 0,
+          breath_rate: ecgResult.ecg_breath_rate || 0,
+          stress: ecgResult.ecg_stress || 0,
+          mood: ecgResult.ecg_mood || 0,
+          systolic: ecgResult.ecg_systolic || 0,
+          diastolic: ecgResult.ecg_diastolic || 0,
+          vascular_aging: ecgResult.ecg_vascular_aging || 0,
+          status: 'normal',
+          rhythm: 'sinusal',
+          interpretation: 'Rythme sinusal normal',
+          duration_sec: ECG_DURATION,
         }),
-      }, token).catch(() => {});
+      }, token);
+      if (res?.id) ecgId = res.id;
     } catch {}
 
-    // Don't disconnect — keep the BLE connection alive
-    setResult(finalResult);
-    setStep(5);
-    // Auto-redirect to report after 2s
-    setTimeout(() => {
-      router.push({ pathname: '/ecg-detail' as any, params: { id: finalResult.id } });
-    }, 2000);
+    // Also save waveform to v8 push
+    if (totalSamples.length > 0) {
+      apiFetch('/api/bracelet/v8/push', {
+        method: 'POST',
+        body: JSON.stringify({ data_type: 'ecg_waveform', data: { ecg_raw: totalSamples.slice(-7500), sample_rate: 250 }, device_id: deviceRef.current?.id || '', source: 'ble' }),
+      }, token).catch(() => {});
+    }
+
+    // Redirect directly to ECG detail page (no intermediate result screen)
+    router.push({ pathname: '/ecg-detail' as any, params: { id: ecgId } });
   }, [token, liveHR]);
 
   if (Platform.OS !== 'web') return <NativePageView path="/ecg" />;
@@ -491,48 +484,6 @@ export default function ECGScreen() {
 
             <div style={{ fontSize: 14, fontWeight: 700, color: '#FFFFFF', marginTop: 8, marginBottom: 4 }}>Gardez votre doigt sur le capteur</div>
             <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.3)' }}>Ne bougez pas pendant l'enregistrement</div>
-          </div>
-        )}
-
-        {/* Step 5: Results */}
-        {step === 5 && result && (
-          <div style={{ width: '100%', maxWidth: 380, textAlign: 'center' } as any}>
-            <div style={{ width: 80, height: 80, borderRadius: 40, background: result.status === 'normal' ? 'rgba(255,255,255,0.15)' : 'rgba(239,68,68,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 20px', border: `2px solid ${result.status === 'normal' ? 'rgba(255,255,255,0.3)' : 'rgba(239,68,68,0.3)'}` } as any}>
-              <i className={result.status === 'normal' ? 'ri-checkbox-circle-line' : 'ri-error-warning-line'} style={{ fontSize: 36, color: result.status === 'normal' ? '#FFFFFF' : '#EF4444' }} />
-            </div>
-            <div style={{ fontSize: 24, fontWeight: 900, color: '#FFF', marginBottom: 4 }}>{result.status === 'normal' ? 'Resultat normal' : 'Attention requise'}</div>
-            <div style={{ fontSize: 14, color: 'rgba(255,255,255,0.45)', marginBottom: 20 }}>{result.interpretation}</div>
-
-            {/* ECG waveform preview */}
-            {ecgSamples.length > 50 && (
-              <div style={{ ...glassCard, padding: '12px 8px', marginBottom: 16, height: 80, overflow: 'hidden' } as any}>
-                {renderWaveform(ecgSamples.slice(0, 2000), 360, 65)}
-              </div>
-            )}
-
-            {/* Metrics grid */}
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 8, marginBottom: 20 } as any}>
-              {[
-                { val: result.bpm, unit: 'bpm', label: 'FC ECG', color: '#EF4444', icon: 'ri-heart-pulse-line' },
-                { val: result.hrv, unit: 'ms', label: 'HRV', color: '#FFFFFF', icon: 'ri-pulse-line' },
-                { val: result.breath_rate, unit: '/min', label: 'Respiration', color: '#38BDF8', icon: 'ri-windy-line' },
-                { val: result.stress, unit: '', label: 'Stress', color: '#F59E0B', icon: 'ri-mental-health-line' },
-                { val: result.systolic ? `${result.systolic}/${result.diastolic}` : null, unit: '', label: 'Tension', color: '#EF4444', icon: 'ri-heart-line' },
-                { val: result.vascular_aging, unit: 'ans', label: 'Age vasculaire', color: '#8B5CF6', icon: 'ri-time-line' },
-                { val: result.mood, unit: '', label: 'Humeur', color: '#FFFFFF', icon: 'ri-emotion-line' },
-                { val: result.samples_count, unit: '', label: 'Echantillons', color: '#6366F1', icon: 'ri-bar-chart-line' },
-                { val: `${result.duration_sec}s`, unit: '', label: 'Duree', color: '#64748B', icon: 'ri-timer-line' },
-              ].filter(m => m.val && m.val !== 0).map((m, i) => (
-                <div key={i} style={{ padding: '10px 8px', borderRadius: 14, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)' } as any}>
-                  <i className={m.icon} style={{ fontSize: 14, color: m.color, display: 'block', marginBottom: 4 }} />
-                  <div style={{ fontSize: 16, fontWeight: 900, color: m.color }}>{m.val}<span style={{ fontSize: 9, color: 'rgba(255,255,255,0.3)' }}>{m.unit}</span></div>
-                  <div style={{ fontSize: 8, color: 'rgba(255,255,255,0.3)', marginTop: 2 }}>{m.label}</div>
-                </div>
-              ))}
-            </div>
-
-            <div onClick={() => { setStep(0); setResult(null); setEcgSamples([]); samplesRef.current = []; }} style={{ padding: '16px', borderRadius: 999, background: 'rgba(255,255,255,0.12)', border: '1px solid rgba(255,255,255,0.25)', cursor: 'pointer', fontSize: 15, fontWeight: 800, color: '#FFFFFF', textAlign: 'center', marginBottom: 10 } as any}>Nouvel ECG</div>
-            <div onClick={() => router.back()} style={{ padding: '12px', borderRadius: 999, cursor: 'pointer', fontSize: 13, fontWeight: 700, color: 'rgba(255,255,255,0.4)', textAlign: 'center' } as any}>Retour</div>
           </div>
         )}
 

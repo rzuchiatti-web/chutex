@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Request
 from datetime import datetime, timezone
 import uuid, random, logging, math, asyncio
 
@@ -795,23 +795,56 @@ def _haversine(lat1, lon1, lat2, lon2):
 
 # ==================== ECG ====================
 @router.post("/ecg/start")
-async def start_ecg(user=Depends(get_current_user)):
-    ecg_data = [round(random.uniform(-0.5, 1.5), 3) for _ in range(500)]
-    peaks = sorted(random.sample(range(50, 450), 6))
-    for p in peaks:
-        ecg_data[p] = round(random.uniform(1.0, 2.5), 3)
-        if p + 1 < 500:
-            ecg_data[p + 1] = round(random.uniform(-0.8, -0.2), 3)
-    intervals = [peaks[i + 1] - peaks[i] for i in range(len(peaks) - 1)]
-    avg_interval = sum(intervals) / len(intervals) if intervals else 100
-    bpm = round(60 / (avg_interval * 0.02))
-    irregularity = max(intervals) - min(intervals) if intervals else 0
-    interpretation = "Rythme sinusal normal" if 60 <= bpm <= 100 and irregularity < 15 else "Anomalie detectee - consulter un medecin" if bpm > 100 or bpm < 50 else "Irregularite legere - surveillance recommandee"
-    ecg_record = {
-        "id": str(uuid.uuid4()), "user_id": user['id'], "data": ecg_data,
-        "bpm": bpm, "interpretation": interpretation, "irregularity": irregularity,
-        "peaks": peaks, "timestamp": datetime.now(timezone.utc).isoformat(), "duration_seconds": 10,
-    }
+async def start_ecg(request: Request, user=Depends(get_current_user)):
+    body = await request.json() if request.headers.get('content-type', '').startswith('application/json') else {}
+    ecg_raw = body.get('ecg_raw', [])
+    sample_rate = body.get('sample_rate', 250)
+    bpm = body.get('bpm', 0)
+    hrv = body.get('hrv', 0)
+    
+    # Use real data if provided, otherwise generate simulated
+    if ecg_raw and len(ecg_raw) > 50:
+        # Real ECG data from bracelet
+        duration = len(ecg_raw) / sample_rate if sample_rate > 0 else 30
+        ecg_record = {
+            "id": str(uuid.uuid4()), "user_id": user['id'],
+            "data": ecg_raw[-7500:],  # Keep last 30s at 250Hz
+            "bpm": bpm, "hrv": hrv,
+            "breath_rate": body.get('breath_rate', 0),
+            "stress": body.get('stress', 0),
+            "mood": body.get('mood', 0),
+            "systolic": body.get('systolic', 0),
+            "diastolic": body.get('diastolic', 0),
+            "vascular_aging": body.get('vascular_aging', 0),
+            "interpretation": body.get('interpretation', 'Rythme sinusal normal'),
+            "rhythm": body.get('rhythm', 'sinusal'),
+            "status": body.get('status', 'normal'),
+            "duration_sec": body.get('duration_sec', round(duration)),
+            "samples_count": len(ecg_raw),
+            "sample_rate": sample_rate,
+            "source": "ble_v8",
+            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "created_at": datetime.now(timezone.utc).isoformat(),
+        }
+    else:
+        # Simulated fallback
+        import random
+        ecg_data = [round(random.uniform(-0.5, 1.5), 3) for _ in range(500)]
+        peaks = sorted(random.sample(range(50, 450), 6))
+        for p in peaks:
+            ecg_data[p] = round(random.uniform(1.0, 2.5), 3)
+            if p + 1 < 500: ecg_data[p + 1] = round(random.uniform(-0.8, -0.2), 3)
+        intervals = [peaks[i + 1] - peaks[i] for i in range(len(peaks) - 1)]
+        avg_interval = sum(intervals) / len(intervals) if intervals else 100
+        sim_bpm = round(60 / (avg_interval * 0.02))
+        ecg_record = {
+            "id": str(uuid.uuid4()), "user_id": user['id'], "data": ecg_data,
+            "bpm": sim_bpm, "interpretation": "Rythme sinusal normal",
+            "status": "normal", "rhythm": "sinusal",
+            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "created_at": datetime.now(timezone.utc).isoformat(),
+            "duration_sec": 30, "source": "simulated",
+        }
     await db.ecg_records.insert_one(ecg_record)
     return {k: v for k, v in ecg_record.items() if k != '_id'}
 
