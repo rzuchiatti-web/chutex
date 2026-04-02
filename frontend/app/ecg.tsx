@@ -280,31 +280,46 @@ export default function ECGScreen() {
 
     // Save to backend
     try {
-      await apiFetch('/api/bracelet/v8/push', {
+      if (totalSamples.length > 0) {
+        await apiFetch('/api/bracelet/v8/push', {
+          method: 'POST',
+          body: JSON.stringify({
+            data_type: 'ecg_waveform',
+            data: { ecg_raw: totalSamples.slice(-7500), sample_rate: 250, duration_sec: ECG_DURATION },
+            device_id: deviceRef.current?.id || '',
+            source: 'ble',
+          }),
+        }, token);
+      }
+      if (ecgResult && Object.keys(ecgResult).length > 0) {
+        await apiFetch('/api/bracelet/v8/push', {
+          method: 'POST',
+          body: JSON.stringify({
+            data_type: 'ecg_result',
+            data: ecgResult,
+            device_id: deviceRef.current?.id || '',
+            source: 'ble',
+          }),
+        }, token);
+      }
+      // Also save the full ECG via the existing ecg/start endpoint for the report page
+      await apiFetch('/api/ecg/start', {
         method: 'POST',
         body: JSON.stringify({
-          data_type: 'ecg_waveform',
-          data: { ecg_raw: totalSamples.slice(-7500), sample_rate: 250 },
-          device_id: deviceRef.current?.id || '',
-          source: 'ble',
+          ...finalResult,
+          ecg_raw: totalSamples.slice(-7500),
+          sample_rate: 250,
         }),
-      }, token);
-      await apiFetch('/api/bracelet/v8/push', {
-        method: 'POST',
-        body: JSON.stringify({
-          data_type: 'ecg_result',
-          data: ecgResult,
-          device_id: deviceRef.current?.id || '',
-          source: 'ble',
-        }),
-      }, token);
+      }, token).catch(() => {});
     } catch {}
 
-    // Disconnect
-    try { deviceRef.current?.gatt?.disconnect(); } catch {}
-
+    // Don't disconnect — keep the BLE connection alive
     setResult(finalResult);
     setStep(5);
+    // Auto-redirect to report after 2s
+    setTimeout(() => {
+      router.push({ pathname: '/ecg-detail' as any, params: { id: finalResult.id } });
+    }, 2000);
   }, [token, liveHR]);
 
   if (Platform.OS !== 'web') return <NativePageView path="/ecg" />;
