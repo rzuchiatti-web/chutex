@@ -15,7 +15,7 @@ export default function Root({ children }: PropsWithChildren) {
         <ScrollViewStyleReset />
         <style dangerouslySetInnerHTML={{ __html: `
           html, body { margin: 0; padding: 0; background: #0A0A1A; overflow: hidden; height: 100%; overscroll-behavior: none; -webkit-overflow-scrolling: touch; }
-          #root { height: 100%; padding-top: env(safe-area-inset-top, 0px); box-sizing: border-box; overscroll-behavior: none; }
+          #root { height: 100%; box-sizing: border-box; overscroll-behavior: none; }
           * { -webkit-overflow-scrolling: touch; overscroll-behavior: none; }
 
           /* ═══ Premium Clinical Motion System ═══ */
