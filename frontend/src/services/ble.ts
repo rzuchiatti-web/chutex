@@ -344,6 +344,11 @@ type ScaleCallback = (measurement: ScaleMeasurement) => void;
 let scanSubscription: any = null;
 let deviceConnection: any = null;
 
+// Accumulator for BLE data across multiple packets
+let _accWeight = 0;
+let _accImpedance = 0;
+let _accStable = false;
+
 export async function scanForScales(onFound: (device: { id: string; name: string; rssi: number }) => void, timeoutMs = 15000): Promise<void> {
   if (Platform.OS === 'web' || !bleManagerInstance) return;
   
@@ -386,27 +391,51 @@ export function stopScaleScan() {
 export async function connectToScale(deviceId: string, onMeasurement: ScaleCallback): Promise<boolean> {
   if (!bleManagerInstance) return false;
   
+  // Reset accumulator
+  _accWeight = 0;
+  _accImpedance = 0;
+  _accStable = false;
+  
   try {
     const device = await bleManagerInstance.connectToDevice(deviceId, { timeout: 10000 });
     deviceConnection = device;
     await device.discoverAllServicesAndCharacteristics();
     
-    // Discover all services and find the right one for weight data
     const services = await device.services();
     let monitorStarted = false;
+    const devName = device.name || device.localName || 'Scale';
     
     for (const svc of services) {
       const chars = await svc.characteristics();
       for (const char of chars) {
-        // Monitor any characteristic that supports notifications/indications
         if (char.isNotifiable || char.isIndicatable) {
           try {
             device.monitorCharacteristicForService(svc.uuid, char.uuid, (error: any, characteristic: any) => {
               if (error || !characteristic?.value) return;
               const bytes = base64ToBytes(characteristic.value);
+              if (bytes.length < 2) return;
+              
+              // Try to extract impedance from any packet
+              const imp = extractImpedanceFromPacket(bytes);
+              if (imp > 0) _accImpedance = imp;
+              
+              // Try to extract weight
               if (bytes.length >= 4) {
-                const measurement = parseScaleData(bytes, deviceId, device.name || device.localName || 'Scale', deviceId);
-                if (measurement) onMeasurement(measurement);
+                const measurement = parseScaleData(bytes, deviceId, devName, deviceId);
+                if (measurement) {
+                  // Update accumulated weight
+                  if (measurement.weight >= 20) _accWeight = measurement.weight;
+                  if (measurement.impedance > 0) _accImpedance = measurement.impedance;
+                  if (measurement.stable) _accStable = true;
+                  
+                  // Always emit with best known data
+                  onMeasurement({
+                    ...measurement,
+                    weight: _accWeight || measurement.weight,
+                    impedance: _accImpedance,
+                    stable: _accStable && _accWeight >= 20,
+                  });
+                }
               }
             });
             monitorStarted = true;
@@ -427,6 +456,41 @@ export async function disconnectScale() {
     try { await deviceConnection.cancelConnection(); } catch {}
     deviceConnection = null;
   }
+}
+
+// Extract impedance value from BLE packet (Lefu sends impedance in separate notifications)
+function extractImpedanceFromPacket(bytes: Uint8Array): number {
+  if (bytes.length < 2) return 0;
+  
+  // Pattern 1: Impedance-only packet (short, 2-6 bytes, value 100-2000 ohms)
+  if (bytes.length >= 2 && bytes.length <= 6) {
+    const val = (bytes[0] << 8) | bytes[1];
+    if (val >= 100 && val <= 2000) return val;
+    // Little-endian try
+    const valLE = (bytes[1] << 8) | bytes[0];
+    if (valLE >= 100 && valLE <= 2000) return valLE;
+  }
+  
+  // Pattern 2: Impedance in bytes 17-18 of a longer packet (after weight data)
+  if (bytes.length >= 19) {
+    const val = (bytes[17] << 8) | bytes[18];
+    if (val >= 100 && val <= 2000) return val;
+  }
+  
+  // Pattern 3: Lefu body composition packet - scan for impedance-range values
+  // after the weight bytes (typically position 6+ in extended packets)
+  if (bytes.length >= 8) {
+    for (let i = 4; i <= bytes.length - 2; i++) {
+      const val = (bytes[i] << 8) | bytes[i + 1];
+      if (val >= 150 && val <= 1500) {
+        // Validate it's likely impedance (not a weight value)
+        const asWeight = val / 100;
+        if (asWeight < 10 || asWeight > 200) return val; // Not a plausible weight
+      }
+    }
+  }
+  
+  return 0;
 }
 
 // Parse Lefu/QN-Scale BLE data packets

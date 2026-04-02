@@ -660,6 +660,10 @@ async def ble_scale_measurement(body: dict, user=Depends(get_current_user)):
     weight = body.get('weight', 0)
     impedance = body.get('impedance', 0)
     
+    # Reject false readings (e.g. just touching the scale)
+    if weight < 20:
+        raise HTTPException(status_code=400, detail="Poids trop faible - mesure ignoree")
+    
     # Try Lefu API for body composition
     body_data = {}
     if impedance:
@@ -671,14 +675,14 @@ async def ble_scale_measurement(body: dict, user=Depends(get_current_user)):
                 dob = datetime.fromisoformat(user['date_of_birth'].replace('Z', '+00:00'))
                 age = (datetime.now(timezone.utc) - dob).days // 365
             except: pass
-        sex = 1 if user.get('gender', '').lower() in ('m', 'male', 'homme', 'masculin') else 2
+        sex = 1 if user.get('gender', '').lower() in ('m', 'male', 'homme', 'masculin') else 0
         body_data = await calculate_body_data(weight, impedance, height, age, sex)
     
     # Use local BIA formulas as fallback
     if not body_data and weight > 0:
         height = user.get('height_cm', 170) / 100
         age = 50
-        sex = 1 if user.get('gender', '').lower() in ('m', 'male', 'homme', 'masculin') else 2
+        sex = 1 if user.get('gender', '').lower() in ('m', 'male', 'homme', 'masculin') else 0
         # Standard BIA formulas
         bmi = round(weight / (height ** 2), 1)
         fat_pct = round((1.20 * bmi) + (0.23 * age) - (10.8 * sex) - 5.4, 1) if sex == 1 else round((1.20 * bmi) + (0.23 * age) - 5.4, 1)

@@ -43,11 +43,13 @@ export default function ScaleDetailScreen() {
   const [period, setPeriod] = useState<'7' | '30' | '90'>('30');
 
   // BLE states
-  const [bleState, setBleState] = useState<'idle' | 'scanning' | 'found' | 'connecting' | 'connected' | 'weighing' | 'done'>('idle');
+  const [bleState, setBleState] = useState<'idle' | 'scanning' | 'found' | 'connecting' | 'connected' | 'weighing' | 'measuring' | 'done'>('idle');
   const [foundDevices, setFoundDevices] = useState<{id: string; name: string; rssi: number}[]>([]);
   const [connectedDevice, setConnectedDevice] = useState<string>('');
+  const [connectedDeviceId, setConnectedDeviceId] = useState<string>('');
   const [liveMeasurement, setLiveMeasurement] = useState<any>(null);
   const [showBleModal, setShowBleModal] = useState(false);
+  const [impedanceCountdown, setImpedanceCountdown] = useState(0);
 
   // WiFi config states
   const [showWifiSetup, setShowWifiSetup] = useState(false);
@@ -96,22 +98,60 @@ export default function ScaleDetailScreen() {
   // BLE: Connect to a scale
   const connectDevice = async (deviceId: string, deviceName: string) => {
     setBleState('connecting');
+    let stableWeight = 0;
+    let bestImpedance = 0;
+    let saveTimeout: any = null;
+    let saved = false;
+
+    const doSave = (w: number, imp: number) => {
+      if (saved) return;
+      saved = true;
+      if (saveTimeout) clearTimeout(saveTimeout);
+      const finalMeasurement = { weight: w, impedance: imp, unit: 'kg', stable: true, deviceId, deviceName, mac: deviceId };
+      setLiveMeasurement(finalMeasurement);
+      setBleState('done');
+      saveMeasurement(finalMeasurement);
+    };
+
     const ok = await connectToScale(deviceId, (measurement) => {
-      if (measurement.stable && measurement.weight > 2) {
-        setBleState('done');
-        setLiveMeasurement(measurement);
-        // Auto-save measurement
-        saveMeasurement(measurement);
-      } else {
-        setLiveMeasurement(measurement);
+      setLiveMeasurement(measurement);
+
+      // Track best impedance seen across all packets
+      if (measurement.impedance > 0) bestImpedance = measurement.impedance;
+
+      if (measurement.stable && measurement.weight >= 20) {
+        stableWeight = measurement.weight;
+        
+        // If we already have impedance, save immediately
+        if (bestImpedance > 0) {
+          doSave(stableWeight, bestImpedance);
+          return;
+        }
+
+        // Otherwise enter 'measuring' state and wait for impedance
+        setBleState('measuring');
+        setImpedanceCountdown(15);
+
+        // Start countdown and save after 15s even without impedance
+        if (!saveTimeout) {
+          saveTimeout = setTimeout(() => {
+            doSave(stableWeight, bestImpedance);
+          }, 15000);
+        }
+      } else if (stableWeight > 0 && measurement.impedance > 0) {
+        // Impedance arrived after stable weight!
+        bestImpedance = measurement.impedance;
+        doSave(stableWeight, bestImpedance);
+      } else if (!measurement.stable && measurement.weight >= 20) {
         setBleState('weighing');
       }
     });
+
     if (ok) {
       setConnectedDevice(deviceName);
+      setConnectedDeviceId(deviceId);
       setBleState('connected');
       setShowBleModal(false);
-      // Link scale to user
       apiFetch('/api/devices/scale/link', { method: 'POST', body: JSON.stringify({ mac: deviceId, name: deviceName }) }, token).catch(() => {});
     } else {
       setBleState('idle');
@@ -194,7 +234,7 @@ export default function ScaleDetailScreen() {
     </GC>
   );
 
-  const isConnected = ['connected', 'weighing', 'done'].includes(bleState);
+  const isConnected = ['connected', 'weighing', 'measuring', 'done'].includes(bleState);
   const isNative = Platform.OS !== 'web';
 
   return (
@@ -237,19 +277,39 @@ export default function ScaleDetailScreen() {
               <View style={{ flex: 1 }}>
                 <Text style={{ fontSize: 15, fontWeight: '800', color: '#111827' }}>{connectedDevice || 'Balance Lefu'}</Text>
                 <Text style={{ fontSize: 11, color: '#10B981', fontWeight: '600' }}>
-                  {bleState === 'weighing' ? 'Pesee en cours...' : bleState === 'done' ? 'Pesee terminee !' : 'Connectee - Prete'}
+                  {bleState === 'weighing' ? 'Pesee en cours...' : bleState === 'measuring' ? 'Mesure composition corporelle...' : bleState === 'done' ? 'Pesee terminee !' : 'Connectee - Prete'}
                 </Text>
               </View>
               <TouchableOpacity onPress={disconnect} style={{ padding: 6 }}>
                 <Icon name="close-circle" size={24} color="#888" />
               </TouchableOpacity>
             </View>
-            {/* Live weight display during weighing */}
-            {bleState === 'weighing' && liveMeasurement && (
+            {/* Live weight display during weighing or measuring impedance */}
+            {(bleState === 'weighing' || bleState === 'measuring') && liveMeasurement && (
               <View style={{ alignItems: 'center', marginTop: 16 }}>
-                <Text style={{ fontSize: 42, fontWeight: '900', color: '#2196F3' }}>{liveMeasurement.weight}<Text style={{ fontSize: 16 }}> kg</Text></Text>
-                <Text style={{ fontSize: 11, color: '#6B7280' }}>Stabilisation en cours...</Text>
-                <ActivityIndicator color="#2196F3" style={{ marginTop: 8 }} />
+                <Text style={{ fontSize: 42, fontWeight: '900', color: bleState === 'measuring' ? '#10B981' : '#2196F3' }}>{liveMeasurement.weight}<Text style={{ fontSize: 16 }}> kg</Text></Text>
+                {bleState === 'weighing' && (
+                  <>
+                    <Text style={{ fontSize: 11, color: '#6B7280' }}>Stabilisation en cours...</Text>
+                    <ActivityIndicator color="#2196F3" style={{ marginTop: 8 }} />
+                  </>
+                )}
+                {bleState === 'measuring' && (
+                  <>
+                    <Text style={{ fontSize: 13, fontWeight: '700', color: '#10B981', marginTop: 6 }}>Poids stable !</Text>
+                    <Text style={{ fontSize: 12, color: '#6B7280', marginTop: 4, textAlign: 'center' }}>
+                      Restez pieds nus sur la balance...{'\n'}Mesure de la composition corporelle
+                    </Text>
+                    {liveMeasurement.impedance > 0 ? (
+                      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 8 }}>
+                        <Icon name="checkmark-circle" size={18} color="#10B981" />
+                        <Text style={{ fontSize: 12, fontWeight: '700', color: '#10B981' }}>Impedance captee !</Text>
+                      </View>
+                    ) : (
+                      <ActivityIndicator color="#10B981" style={{ marginTop: 8 }} />
+                    )}
+                  </>
+                )}
               </View>
             )}
             {/* Weighing button */}
