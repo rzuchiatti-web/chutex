@@ -17,7 +17,18 @@ interface Props { onClose: () => void; d?: any; weighings?: any[]; }
 
 const BG_VIOLET = 'https://customer-assets.emergentagent.com/job_8afdc991-0ab2-4687-a2a5-438b9a5f0711/artifacts/v6obzpez_ChatGPT%20Image%2018%20f%C3%A9vr.%202026%2C%2012_28_20.png';
 const VIDEO_BG = 'https://customer-assets.emergentagent.com/job_9950a869-9328-4a4b-abf4-a6fb213a3b47/artifacts/8h3820je_dna%281%29.webm';
-const SCALE_SVCS = ['0000fff0-0000-1000-8000-00805f9b34fb', '0000ffe0-0000-1000-8000-00805f9b34fb'];
+const SCALE_SVC = '0000fff0-0000-1000-8000-00805f9b34fb';
+const SCALE_NOTIFY = '0000fff1-0000-1000-8000-00805f9b34fb';
+const SCALE_WRITE = '0000fff2-0000-1000-8000-00805f9b34fb';
+const SCALE_SVCS = [SCALE_SVC, '0000ffe0-0000-1000-8000-00805f9b34fb'];
+// Timestamp offset: seconds since 2000-01-01
+const SCALE_TS_OFFSET = 946702800;
+
+function sumChecksum(bytes: Uint8Array, start: number, end: number): number {
+  let s = 0;
+  for (let i = start; i < end; i++) s += bytes[i];
+  return s & 0xFF;
+}
 
 function parseWeight(bytes: Uint8Array): { weight: number; impedance: number; stable: boolean; hasImpedance: boolean; rawHex: string } | null {
   if (bytes.length < 3) return null;
@@ -27,8 +38,22 @@ function parseWeight(bytes: Uint8Array): { weight: number; impedance: number; st
   let stable = false;
   let hasImpedance = false;
 
-  // CF597/Lefu 8-electrode protocol: weight at bytes[3-4] LITTLE-ENDIAN / 100
-  if (bytes.length >= 10 && bytes[0] === 0xCF) {
+  // QN-Scale / CF586 protocol: byte[0]=0x10, byte[5]=0x01
+  // Weight at bytes[3-4] big-endian / 100, Impedance at bytes[6-7] big-endian
+  if (bytes.length >= 8 && bytes[0] === 0x10 && bytes[5] === 0x01) {
+    const w = ((bytes[3] & 0xFF) << 8 | (bytes[4] & 0xFF)) / 100.0;
+    if (w >= 3 && w <= 250) {
+      weight = Math.round(w * 10) / 10;
+      stable = true; // byte[5]=0x01 means stable measurement
+    }
+    const imp = (bytes[6] << 8) | bytes[7];
+    if (imp > 50 && imp < 2000) {
+      impedance = imp;
+      hasImpedance = true;
+    }
+  }
+  // CF597/Lefu 8-electrode protocol: byte[0]=0xCF
+  else if (bytes.length >= 10 && bytes[0] === 0xCF) {
     const raw = bytes[3] | (bytes[4] << 8); // little-endian
     const w = raw / 100;
     if (w >= 3 && w <= 250) {
@@ -187,10 +212,35 @@ export default function WeighingFlow({ onClose, d = {}, weighings = [] }: Props)
       deviceRef.current = bd;
       let notifyStarted = false;
 
+      // Try to get the scale service and write init commands to FFF2
       for (const svcUuid of SCALE_SVCS) {
         try {
           const svc = await server.getPrimaryService(svcUuid);
           const chars = await svc.getCharacteristics();
+          
+          // Step 1: Write init magic bytes to FFF2 (enables impedance measurement)
+          for (const c of chars) {
+            if (c.uuid === SCALE_WRITE || c.uuid === '0000ffe2-0000-1000-8000-00805f9b34fb') {
+              try {
+                // Magic init command: 0x13 0x09 0x15 [unit] 0x10 0x00 0x00 0x00 [checksum]
+                const initCmd = new Uint8Array([0x13, 0x09, 0x15, 0x01, 0x10, 0x00, 0x00, 0x00, 0x00]);
+                initCmd[8] = sumChecksum(initCmd, 0, 8);
+                await c.writeValueWithResponse(initCmd);
+                
+                // Write timestamp (seconds since 2000-01-01)
+                const ts = Math.floor(Date.now() / 1000) - SCALE_TS_OFFSET;
+                const tsBytes = new Uint8Array(5);
+                tsBytes[0] = ts & 0xFF; tsBytes[1] = (ts >> 8) & 0xFF;
+                tsBytes[2] = (ts >> 16) & 0xFF; tsBytes[3] = (ts >> 24) & 0xFF;
+                tsBytes[4] = 0x02;
+                await c.writeValueWithResponse(tsBytes).catch(() => c.writeValueWithoutResponse(tsBytes).catch(() => {}));
+              } catch (writeErr) {
+                console.warn('Init write failed:', writeErr);
+              }
+            }
+          }
+          
+          // Step 2: Subscribe to notifications on FFF1
           for (const c of chars) {
             if (c.properties.notify || c.properties.indicate) {
               await c.startNotifications();
