@@ -39,11 +39,35 @@ async def dashboard_batch(user=Depends(get_current_user)):
                 sc_data = sc_reading["data"]
         result = {"devices": devices, "connected_count": len(connected), "total_count": len(devices)}
         if bracelet:
-            result["bracelet"] = {**br_data, "connected": bracelet.get("connected", False), "paired": bracelet.get("paired", False), "battery": bracelet.get("battery", 0), "name": bracelet.get("name", "")}
+            is_br_connected = False
+            if bracelet.get("last_sync"):
+                try:
+                    last = datetime.fromisoformat(bracelet["last_sync"].replace("Z", "+00:00"))
+                    is_br_connected = (datetime.now(timezone.utc) - last).total_seconds() < 60
+                except:
+                    pass
+            is_br_paired = bool(bracelet.get("last_sync"))
+            result["bracelet"] = {**br_data, "connected": is_br_connected, "paired": is_br_paired, "battery": bracelet.get("battery", 0) if is_br_paired else 0, "name": bracelet.get("name", "")}
         if scale:
-            result["scale"] = {**sc_data, "connected": scale.get("connected", False), "paired": scale.get("paired", False), "battery": scale.get("battery", 0), "name": scale.get("name", "")}
+            is_sc_connected = False
+            if scale.get("last_sync"):
+                try:
+                    last = datetime.fromisoformat(scale["last_sync"].replace("Z", "+00:00"))
+                    is_sc_connected = (datetime.now(timezone.utc) - last).total_seconds() < 120
+                except:
+                    pass
+            is_sc_paired = bool(scale.get("last_sync"))
+            result["scale"] = {**sc_data, "connected": is_sc_connected, "paired": is_sc_paired, "battery": scale.get("battery", 0), "name": scale.get("name", "")}
         if vest:
-            result["vest"] = {"connected": vest.get("connected", False), "paired": vest.get("paired", False), "battery": vest.get("battery", 0), "name": vest.get("name", "")}
+            is_vs_connected = False
+            if vest.get("last_sync"):
+                try:
+                    last = datetime.fromisoformat(vest["last_sync"].replace("Z", "+00:00"))
+                    is_vs_connected = (datetime.now(timezone.utc) - last).total_seconds() < 60
+                except:
+                    pass
+            is_vs_paired = bool(vest.get("last_sync"))
+            result["vest"] = {"connected": is_vs_connected, "paired": is_vs_paired, "battery": vest.get("battery", 0), "name": vest.get("name", "")}
         return result
 
     async def get_rem():

@@ -666,7 +666,14 @@ export function BeneficiaryHome({ token, user }: { token: string; user: any }) {
           {/* ── Messages Pro removed from dashboard — now accessible via navbar Messages tab ── */}
 
           {/* ── Dispositifs connectes ── */}
-          {(br.connected || br.paired || ((sc.connected || sc.paired) && weighings.length > 0) || vs.connected || vs.paired) && (
+          {(() => {
+            const deviceList = [
+              { show: br.connected || br.paired, name: 'Bracelet Elio', img: 'https://customer-assets.emergentagent.com/job_8afdc991-0ab2-4687-a2a5-438b9a5f0711/artifacts/2fto1qw7_bracelet_sante_connecte_elio_chutex_care_teleassistance_telealarme%281%29.svg', battery: br.battery, connected: br.connected, color: '#22D3EE' },
+              { show: (sc.connected || sc.paired) && weighings.length > 0, name: 'Balance Vita', img: 'https://customer-assets.emergentagent.com/job_8afdc991-0ab2-4687-a2a5-438b9a5f0711/artifacts/dwmw2i8r_Balance_connecte_Vita_chutex.svg', battery: sc.battery, connected: sc.connected, color: '#A78BFA' },
+              { show: vs.connected || vs.paired, name: 'Elder', img: 'https://customer-assets.emergentagent.com/job_8afdc991-0ab2-4687-a2a5-438b9a5f0711/artifacts/ljh1zzu3_Gilet_Elder_airbag_Chutex.svg', battery: vs.battery, connected: vs.connected, color: '#F59E0B' },
+            ];
+            const visibleDevices = deviceList.filter(d => d.show);
+            return (
             <>
               <div style={{ height: 1, background: C.sep, margin: "10px 0 24px" } as any} />
               <div data-testid="devices-section" className="dash-slide-up" style={{ marginBottom: 28 } as any}>
@@ -679,36 +686,46 @@ export function BeneficiaryHome({ token, user }: { token: string; user: any }) {
                   </div>
                 </div>
                 <div style={{ fontSize: 13, color: C.sub, marginBottom: 16, lineHeight: '1.45' } as any}>Vos appareils connectes pour le suivi de votre sante au quotidien.</div>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 10 } as any}>
-                  {[
-                    { show: br.connected || br.paired, name: 'Bracelet Elio', img: 'https://customer-assets.emergentagent.com/job_8afdc991-0ab2-4687-a2a5-438b9a5f0711/artifacts/2fto1qw7_bracelet_sante_connecte_elio_chutex_care_teleassistance_telealarme%281%29.svg', battery: br.battery, connected: br.connected, color: '#22D3EE' },
-                    { show: (sc.connected || sc.paired) && weighings.length > 0, name: 'Balance Vita', img: 'https://customer-assets.emergentagent.com/job_8afdc991-0ab2-4687-a2a5-438b9a5f0711/artifacts/dwmw2i8r_Balance_connecte_Vita_chutex.svg', battery: sc.battery, connected: sc.connected, color: '#A78BFA' },
-                    { show: vs.connected || vs.paired, name: 'Elder', img: 'https://customer-assets.emergentagent.com/job_8afdc991-0ab2-4687-a2a5-438b9a5f0711/artifacts/ljh1zzu3_Gilet_Elder_airbag_Chutex.svg', battery: vs.battery, connected: vs.connected, color: '#F59E0B' },
-                  ].filter(d => d.show).map((d, i) => (
-                    <div key={i} data-testid={`device-card-${i}`} onClick={() => router.push('/(tabs)/devices' as any)}
-                      style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '14px 16px', borderRadius: 18, background: C.card, cursor: 'pointer', transition: 'transform 0.15s', ...glass } as any}
-                      onMouseEnter={(e: any) => { e.currentTarget.style.transform = 'translateY(-2px)'; }}
-                      onMouseLeave={(e: any) => { e.currentTarget.style.transform = ''; }}>
-                      <img src={d.img} alt="" style={{ width: 48, height: 48, objectFit: 'contain', flexShrink: 0 } as any} />
-                      <div style={{ flex: 1, minWidth: 0 } as any}>
-                        <div style={{ fontSize: 15, fontWeight: 700, color: C.text, marginBottom: 3 }}>{d.name}</div>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 5 } as any}>
-                          <span style={{ width: 6, height: 6, borderRadius: 3, background: d.connected ? '#10B981' : '#F59E0B' } as any} />
-                          <span style={{ fontSize: 10, fontWeight: 600, color: d.connected ? '#10B981' : '#F59E0B' }}>{d.connected ? 'Connecte' : 'En veille'}</span>
+                {visibleDevices.length > 0 ? (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 10 } as any}>
+                    {visibleDevices.map((d, i) => (
+                      <div key={i} data-testid={`device-card-${i}`} onClick={() => router.push('/(tabs)/devices' as any)}
+                        style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '14px 16px', borderRadius: 18, background: C.card, cursor: 'pointer', transition: 'transform 0.15s', ...glass } as any}
+                        onMouseEnter={(e: any) => { e.currentTarget.style.transform = 'translateY(-2px)'; }}
+                        onMouseLeave={(e: any) => { e.currentTarget.style.transform = ''; }}>
+                        <img src={d.img} alt="" style={{ width: 48, height: 48, objectFit: 'contain', flexShrink: 0 } as any} />
+                        <div style={{ flex: 1, minWidth: 0 } as any}>
+                          <div style={{ fontSize: 15, fontWeight: 700, color: C.text, marginBottom: 3 }}>{d.name}</div>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 5 } as any}>
+                            <span style={{ width: 6, height: 6, borderRadius: 3, background: d.connected ? '#10B981' : '#F59E0B' } as any} />
+                            <span style={{ fontSize: 10, fontWeight: 600, color: d.connected ? '#10B981' : '#F59E0B' }}>{d.connected ? 'Connecte' : 'En veille'}</span>
+                          </div>
+                          {d.battery > 0 && (
+                            <div style={{ height: 4, borderRadius: 2, background: C.sep, overflow: 'hidden', marginTop: 6 } as any}>
+                              <div style={{ height: 4, borderRadius: 2, width: `${d.battery}%`, background: d.battery > 50 ? 'linear-gradient(90deg, #059669, #10B981)' : d.battery > 25 ? 'linear-gradient(90deg, #D97706, #F59E0B)' : 'linear-gradient(90deg, #DC2626, #EF4444)' } as any} />
+                            </div>
+                          )}
                         </div>
-                        <div style={{ height: 4, borderRadius: 2, background: C.sep, overflow: 'hidden', marginTop: 6 } as any}>
-                          <div style={{ height: 4, borderRadius: 2, width: `${d.battery}%`, background: d.battery > 50 ? 'linear-gradient(90deg, #059669, #10B981)' : d.battery > 25 ? 'linear-gradient(90deg, #D97706, #F59E0B)' : 'linear-gradient(90deg, #DC2626, #EF4444)' } as any} />
-                        </div>
+                        {d.battery > 0 && <div style={{ fontSize: 14, fontWeight: 900, color: d.battery > 50 ? '#10B981' : d.battery > 25 ? '#F59E0B' : '#EF4444', flexShrink: 0 }}>{d.battery}%</div>}
+                        <i className="ri-arrow-right-s-line" style={{ fontSize: 20, color: C.arrow }} />
                       </div>
-                      <div style={{ fontSize: 14, fontWeight: 900, color: d.battery > 50 ? '#10B981' : d.battery > 25 ? '#F59E0B' : '#EF4444', flexShrink: 0 }}>{d.battery}%</div>
-                      <i className="ri-arrow-right-s-line" style={{ fontSize: 20, color: C.arrow }} />
+                    ))}
+                  </div>
+                ) : (
+                  <div data-testid="no-devices-card" onClick={() => router.push('/(tabs)/devices' as any)}
+                    style={{ padding: '24px 16px', borderRadius: 18, background: C.card, cursor: 'pointer', textAlign: 'center', ...glass } as any}>
+                    <i className="ri-bluetooth-line" style={{ fontSize: 28, color: C.sub, marginBottom: 8, display: 'block' }} />
+                    <div style={{ fontSize: 14, fontWeight: 700, color: C.text, marginBottom: 4 }}>Aucun dispositif connecte</div>
+                    <div style={{ fontSize: 12, color: C.sub, marginBottom: 12 }}>Ajoutez votre bracelet, balance ou gilet</div>
+                    <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '8px 16px', borderRadius: 999, background: isDark ? '#FFF' : '#111', fontSize: 13, fontWeight: 700, color: isDark ? '#111' : '#FFF' } as any}>
+                      <i className="ri-add-line" style={{ fontSize: 14 }} /> Ajouter un dispositif
                     </div>
-                  ))}
-                </div>
+                  </div>
+                )}
               </div>
               <div style={{ height: 1, background: C.sep, margin: "10px 0 24px" } as any} />
             </>
-          )}
+          );})()}
 
           {/* ── Rappels ── */}
           <RemindersSection reminders={reminders} C={C} glass={glass} isDark={isDark} setEditReminder={setEditReminder} setShowReminderCRUD={setShowReminderCRUD} />
