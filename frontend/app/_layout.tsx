@@ -101,7 +101,6 @@ function NativeFullApp() {
   return (
     <View style={{ flex: 1, backgroundColor: '#0A0A1A' }}>
       <StatusBar style="light" translucent={true} />
-      <SafeAreaView style={{ flex: 1, backgroundColor: '#0A0A1A' }} edges={['top']}>
         <WebView
           ref={webViewRef}
           source={{ uri: backendUrl }}
@@ -149,7 +148,6 @@ function NativeFullApp() {
             </View>
           </View>
         )}
-      </SafeAreaView>
     </View>
   );
 }
