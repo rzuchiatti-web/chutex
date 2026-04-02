@@ -699,6 +699,11 @@ async def ble_scale_measurement(body: dict, user=Depends(get_current_user)):
             "health_score": round(max(40, min(100, 100 - abs(bmi - 22) * 3 - max(0, fat_pct - 25) * 1.5))),
         }
     
+    _fat_kg = body_data.get('fat_kg', round(weight * body_data.get('body_fat_pct', 0) / 100, 1) if body_data.get('body_fat_pct') else 0)
+    _muscle_rate = body_data.get('muscle_rate', round(body_data.get('muscle_mass', 0) / max(weight, 1) * 100, 1) if weight > 0 else 0)
+    _lean = body_data.get('lean_body_mass', round(weight * (1 - body_data.get('body_fat_pct', 0) / 100), 1) if body_data.get('body_fat_pct') else 0)
+    _skel_pct = body_data.get('skeletal_muscle_pct', 0)
+    _skel_kg = body_data.get('skeletal_muscle_kg', 0)
     measurement = {
         "id": str(uuid.uuid4()), "user_id": user['id'], "device_type": "scale", "timestamp": now,
         "weight": body_data.get('weight', weight),
@@ -707,19 +712,28 @@ async def ble_scale_measurement(body: dict, user=Depends(get_current_user)):
         "hydration_pct": body_data.get('hydration_pct', 0), "visceral_fat": body_data.get('visceral_fat', 0),
         "basal_metabolism": body_data.get('basal_metabolism', 0), "body_age": body_data.get('body_age', 0),
         "protein_pct": body_data.get('protein_pct', 0), "health_score": body_data.get('health_score', 0),
-        "muscle_rate": body_data.get('muscle_rate', round(body_data.get('muscle_mass', 0) / max(weight, 1) * 100, 1) if weight > 0 else 0),
-        "skeletal_muscle_kg": body_data.get('skeletal_muscle_kg', 0),
-        "skeletal_muscle_pct": body_data.get('skeletal_muscle_pct', 0),
-        "fat_kg": body_data.get('fat_kg', round(weight * body_data.get('body_fat_pct', 0) / 100, 1) if body_data.get('body_fat_pct') else 0),
+        "muscle_rate": _muscle_rate,
+        "skeletal_muscle_kg": _skel_kg,
+        "skeletal_muscle_pct": _skel_pct,
+        "fat_kg": _fat_kg,
         "fat_control_kg": body_data.get('fat_control_kg', 0),
         "muscle_control_kg": body_data.get('muscle_control_kg', 0),
         "ideal_weight": body_data.get('ideal_weight', 0),
         "obesity_level": body_data.get('obesity_level', 0),
         "subcutaneous_fat": body_data.get('subcutaneous_fat', 0),
-        "lean_body_mass": body_data.get('lean_body_mass', round(weight * (1 - body_data.get('body_fat_pct', 0) / 100), 1) if body_data.get('body_fat_pct') else 0),
+        "lean_body_mass": _lean,
         "body_type": body_data.get('body_type', 0),
         "heart_rate": body_data.get('heart_rate', 0),
         "impedance": impedance, "source": "ble",
+        # Aliases for mobile app compatibility (old field names)
+        "fat_mass": _fat_kg,
+        "skeletal_muscle_rate": _skel_pct or _skel_kg,
+        "fat_free_weight": _lean,
+        "fat_control": body_data.get('fat_control_kg', 0),
+        "muscle_control": body_data.get('muscle_control_kg', 0),
+        "weight_control": body_data.get('weight_control_kg', 0),
+        "standard_weight": body_data.get('standard_weight', 0),
+        "body_shape": body_data.get('body_shape', 0),
         "data": {
             "weight": body_data.get('weight', weight),
             "bmi": body_data.get('bmi', 0), "body_fat_pct": body_data.get('body_fat_pct', 0),

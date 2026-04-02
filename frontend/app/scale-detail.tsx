@@ -330,8 +330,8 @@ export default function ScaleDetailScreen() {
           </GC>
         )}
 
-        {/* WiFi Configuration Button */}
-        {isConnected && (
+        {/* WiFi Configuration Button - always show if scale was ever linked */}
+        {(isConnected || history.length > 0) && (
           <GC style={{ padding: 16, borderWidth: 1, borderColor: '#60A5FA' + '30' }} data-testid="wifi-config-section">
             <TouchableOpacity onPress={() => setShowWifiSetup(true)} style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
               <View style={{ width: 44, height: 44, borderRadius: 14, backgroundColor: '#60A5FA' + '15', justifyContent: 'center', alignItems: 'center' }}>
@@ -339,7 +339,9 @@ export default function ScaleDetailScreen() {
               </View>
               <View style={{ flex: 1 }}>
                 <Text style={{ fontSize: 14, fontWeight: '800', color: '#111827' }}>Configurer le WiFi</Text>
-                <Text style={{ fontSize: 11, color: '#6B7280', marginTop: 2 }}>Pesees automatiques sans telephone</Text>
+                <Text style={{ fontSize: 11, color: '#6B7280', marginTop: 2 }}>
+                  {isConnected ? 'Pesees automatiques sans telephone' : 'Connectez d\'abord la balance en Bluetooth'}
+                </Text>
               </View>
               <Icon name="chevron-forward" size={18} color="#9CA3AF" />
             </TouchableOpacity>
