@@ -84,70 +84,91 @@ export default function ECGScreen() {
       deviceRef.current = bd;
       const server = await bd.gatt.connect();
 
-      // Find write + notify characteristics
-      const svc = await server.getPrimaryService(SVC);
-      const chars = await svc.getCharacteristics();
-      let notifyChar: any = null;
-      for (const c of chars) {
-        if (c.uuid === WRITE || c.properties.write || c.properties.writeWithoutResponse) writeCharRef.current = c;
-        if (c.uuid === NOTIFY || c.properties.notify) notifyChar = c;
+      // Find ALL services and subscribe to ALL notifiable characteristics
+      const allServices = await server.getPrimaryServices();
+      let notifyCount = 0;
+      
+      for (const svc of allServices) {
+        try {
+          const chars = await svc.getCharacteristics();
+          for (const c of chars) {
+            // Find write characteristic
+            if (c.properties.write || c.properties.writeWithoutResponse) {
+              if (!writeCharRef.current) writeCharRef.current = c;
+            }
+            // Subscribe to ALL notify characteristics
+            if (c.properties.notify || c.properties.indicate) {
+              try {
+                await c.startNotifications();
+                c.addEventListener('characteristicvaluechanged', (event: any) => {
+                  const dv = event.target.value as DataView;
+                  const bytes = new Uint8Array(dv.buffer);
+                  if (bytes.length < 1) return;
+                  const cmd = bytes[0];
+                  const hex = Array.from(bytes).map(b => b.toString(16).padStart(2, '0')).join(' ');
+                  
+                  // Log everything for debug
+                  setBleError(`BLE: cmd=0x${cmd.toString(16)} ${bytes.length}B: ${hex.substring(0, 60)}`);
+
+                  // ECG waveform data (cmd 0x32 or any packet with many samples during recording)
+                  if (cmd === 0x32 || (step === 4 && bytes.length >= 6)) {
+                    const newSamples: number[] = [];
+                    const startByte = (cmd === 0x32 || cmd === 0x33) ? 1 : 0;
+                    for (let i = startByte; i + 1 < bytes.length; i += 2) {
+                      const sample = (bytes[i] | (bytes[i + 1] << 8));
+                      const signed = sample > 32767 ? sample - 65536 : sample;
+                      newSamples.push(signed);
+                    }
+                    if (newSamples.length > 0) {
+                      samplesRef.current = [...samplesRef.current, ...newSamples];
+                      setEcgSamples([...samplesRef.current]);
+                    }
+                  }
+                  
+                  // ECG result packet
+                  if (cmd === 0x33 && bytes.length >= 10) {
+                    resultRef.current = {
+                      ecg_hr: bytes[1], ecg_hrv: bytes[2], ecg_breath_rate: bytes[3],
+                      ecg_stress: bytes[4], ecg_mood: bytes[5], ecg_systolic: bytes[6],
+                      ecg_diastolic: bytes[7], ecg_vascular_aging: bytes[8],
+                      ecg_av_block: bytes.length > 9 ? bytes[9] : 0,
+                    };
+                    if (resultRef.current.ecg_hr > 0) setLiveHR(resultRef.current.ecg_hr);
+                  }
+                  
+                  // Live HR
+                  if (cmd === 0x28 && bytes.length >= 4 && bytes[2] > 0 && bytes[2] < 255) {
+                    setLiveHR(bytes[2]);
+                  }
+                });
+                notifyCount++;
+              } catch {}
+            }
+          }
+        } catch {}
       }
 
-      if (!notifyChar || !writeCharRef.current) {
-        setBleError('Service ECG non trouve sur le bracelet');
+      if (notifyCount === 0 || !writeCharRef.current) {
+        setBleError(`Services: ${allServices.length}, Notify: ${notifyCount}, Write: ${!!writeCharRef.current}`);
         setStep(2);
         return;
       }
-
-      // Subscribe to notifications — receive ECG waveform + result
-      await notifyChar.startNotifications();
-      notifyChar.addEventListener('characteristicvaluechanged', (event: any) => {
-        const dv = event.target.value as DataView;
-        const bytes = new Uint8Array(dv.buffer);
-        if (bytes.length < 2) return;
-        const cmd = bytes[0];
-
-        if (cmd === 0x32 && bytes.length >= 4) {
-          // ECG waveform data: 2-byte signed samples starting at byte 1
-          const newSamples: number[] = [];
-          for (let i = 1; i + 1 < bytes.length; i += 2) {
-            const sample = (bytes[i] | (bytes[i + 1] << 8));
-            const signed = sample > 32767 ? sample - 65536 : sample;
-            newSamples.push(signed);
-          }
-          samplesRef.current = [...samplesRef.current, ...newSamples];
-          setEcgSamples([...samplesRef.current]);
-        } else if (cmd === 0x33 && bytes.length >= 10) {
-          // ECG result packet
-          resultRef.current = {
-            ecg_hr: bytes[1],
-            ecg_hrv: bytes[2],
-            ecg_breath_rate: bytes[3],
-            ecg_stress: bytes[4],
-            ecg_mood: bytes[5],
-            ecg_systolic: bytes[6],
-            ecg_diastolic: bytes[7],
-            ecg_vascular_aging: bytes[8],
-            ecg_av_block: bytes.length > 9 ? bytes[9] : 0,
-            ecg_quality: bytes.length > 10 ? bytes[10] : 0,
-          };
-          if (resultRef.current.ecg_hr > 0) setLiveHR(resultRef.current.ecg_hr);
-        } else if (cmd === 0x28 && bytes.length >= 4) {
-          // Live HR from measurement
-          if (bytes[2] > 0 && bytes[2] < 255) setLiveHR(bytes[2]);
-        }
-      });
 
       // Time sync first
       const now = new Date();
       const timeCmd = buildCmd(0x01, [now.getFullYear() & 0xFF, (now.getFullYear() >> 8) & 0xFF, now.getMonth() + 1, now.getDate(), now.getHours(), now.getMinutes(), now.getSeconds()]);
       await writeCharRef.current.writeValue(timeCmd).catch(() => {});
 
-      // Start ECG command
+      // Start ECG command — try multiple write methods
       await new Promise(r => setTimeout(r, 300));
-      await writeCharRef.current.writeValue(buildCmd(0x32, [1])).catch(() =>
-        writeCharRef.current.writeValueWithResponse?.(buildCmd(0x32, [1])).catch(() => {})
-      );
+      const ecgCmd = buildCmd(0x32, [1]);
+      try {
+        if (writeCharRef.current.writeValue) await writeCharRef.current.writeValue(ecgCmd);
+        else if (writeCharRef.current.writeValueWithResponse) await writeCharRef.current.writeValueWithResponse(ecgCmd);
+        else if (writeCharRef.current.writeValueWithoutResponse) await writeCharRef.current.writeValueWithoutResponse(ecgCmd);
+      } catch (e: any) {
+        setBleError(`Write ECG cmd failed: ${e.message}`);
+      }
 
       samplesRef.current = [];
       resultRef.current = null;
@@ -257,9 +278,9 @@ export default function ECGScreen() {
   };
 
   return (
-    <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, display: 'flex', flexDirection: 'column', fontFamily: "'Inter', system-ui, sans-serif", overflow: 'hidden' } as any}>
+    <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, display: 'flex', flexDirection: 'column', fontFamily: "'Inter', system-ui, sans-serif", overflow: 'hidden', background: '#0A0A1A' } as any}>
       <img src={BG} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 } as any} />
-      <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.15)', zIndex: 1 } as any} />
+      <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.4)', zIndex: 1 } as any} />
 
       <div style={{ flex: 1, overflowY: 'auto', position: 'relative', zIndex: 5, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '20px', minHeight: '100%' } as any}>
 
