@@ -189,7 +189,7 @@ async def dashboard_batch(user=Depends(get_current_user)):
             "distance_km": d.get("distance_km", 0),
             "sleep_quality": d.get("sleep_quality", 0),
             "date": latest.get("timestamp", ""),
-            "source": "simulated",
+            "source": "device",
         }
 
     results = await asyncio.gather(

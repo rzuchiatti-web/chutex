@@ -802,7 +802,7 @@ async def start_ecg(request: Request, user=Depends(get_current_user)):
     bpm = body.get('bpm', 0)
     hrv = body.get('hrv', 0)
     
-    # Use real data if provided, otherwise generate simulated
+    # Use real data if provided
     if ecg_raw and len(ecg_raw) > 50:
         # Real ECG data from bracelet
         duration = len(ecg_raw) / sample_rate if sample_rate > 0 else 30
@@ -827,23 +827,17 @@ async def start_ecg(request: Request, user=Depends(get_current_user)):
             "created_at": datetime.now(timezone.utc).isoformat(),
         }
     else:
-        # Simulated fallback
-        import random
-        ecg_data = [round(random.uniform(-0.5, 1.5), 3) for _ in range(500)]
-        peaks = sorted(random.sample(range(50, 450), 6))
-        for p in peaks:
-            ecg_data[p] = round(random.uniform(1.0, 2.5), 3)
-            if p + 1 < 500: ecg_data[p + 1] = round(random.uniform(-0.8, -0.2), 3)
-        intervals = [peaks[i + 1] - peaks[i] for i in range(len(peaks) - 1)]
-        avg_interval = sum(intervals) / len(intervals) if intervals else 100
-        sim_bpm = round(60 / (avg_interval * 0.02))
+        # No real data — store empty record
         ecg_record = {
-            "id": str(uuid.uuid4()), "user_id": user['id'], "data": ecg_data,
-            "bpm": sim_bpm, "interpretation": "Rythme sinusal normal",
-            "status": "normal", "rhythm": "sinusal",
+            "id": str(uuid.uuid4()), "user_id": user['id'], "data": ecg_raw or [],
+            "bpm": bpm, "hrv": hrv,
+            "interpretation": body.get('interpretation', 'En attente de donnees'),
+            "status": body.get('status', 'pending'),
+            "rhythm": body.get('rhythm', 'sinusal'),
             "timestamp": datetime.now(timezone.utc).isoformat(),
             "created_at": datetime.now(timezone.utc).isoformat(),
-            "duration_sec": 30, "source": "simulated",
+            "duration_sec": body.get('duration_sec', 30),
+            "source": "ble_v8",
         }
     await db.ecg_records.insert_one(ecg_record)
     return {k: v for k, v in ecg_record.items() if k != '_id'}

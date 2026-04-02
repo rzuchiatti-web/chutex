@@ -367,7 +367,7 @@ export default function HealthScreen() {
   }
 
   /* ─── NATIVE FALLBACK ─── */
-  const nativeVitals = vitals || { heart_rate: 72, spo2: 97, systolic: 125, diastolic: 78, temperature: 36.6, steps: 3842 };
+  const nativeVitals = vitals || { heart_rate: 0, spo2: 0, systolic: 0, diastolic: 0, temperature: 0, steps: 0 };
   const metrics = [
     { id: 'heart_rate', label: 'Frequence cardiaque', value: nativeVitals.heart_rate, unit: 'bpm', icon: 'pulse-outline' as any, color: '#EF4444', range: '60-100' },
     { id: 'spo2', label: 'Saturation O2', value: nativeVitals.spo2, unit: '%', icon: 'water-outline' as any, color: '#38BDF8', range: '95-100' },

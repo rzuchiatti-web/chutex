@@ -46,7 +46,7 @@ async def get_sleep_data(user=Depends(get_current_user)):
             for _ in range(max(1, deep // cycles)): stages.append(1)
             for _ in range(max(1, rem // cycles)): stages.append(3)
             if c < cycles - 1 and inter > 0: stages.append(0)
-        return {"stages": stages, "total_minutes": total, "deep_minutes": deep, "light_minutes": light, "rem_minutes": rem, "awake_minutes": inter, "sleep_quality": quality, "cycles": cycles, "sleep_duration": round(total / 60, 1), "date": latest.get("timestamp", ""), "source": "simulated"}
+        return {"stages": stages, "total_minutes": total, "deep_minutes": deep, "light_minutes": light, "rem_minutes": rem, "awake_minutes": inter, "sleep_quality": quality, "cycles": cycles, "sleep_duration": round(total / 60, 1), "date": latest.get("timestamp", ""), "source": "device"}
     return {"stages": [], "total_minutes": 0, "deep_minutes": 0, "light_minutes": 0, "rem_minutes": 0, "awake_minutes": 0, "sleep_quality": 0, "cycles": 0, "sleep_duration": 0, "date": datetime.now(timezone.utc).isoformat(), "source": "none"}
 
 

@@ -15,8 +15,8 @@ export default function SleepRegularityCard({ sleepData, onExplain }: Props) {
       const dt = new Date(d.date + 'T12:00:00');
       return {
         day: `${String(dt.getDate()).padStart(2, '0')}/${String(dt.getMonth() + 1).padStart(2, '0')}`,
-        bed: 22 + (d.bedtime_offset || Math.random() * 2 - 0.5),
-        wake: 6 + (d.waketime_offset || (d.duration ? d.duration / 60 - 8 + 6.5 : Math.random() * 1.5)),
+        bed: 22 + (d.bedtime_offset || 0),
+        wake: 6 + (d.waketime_offset || (d.duration ? d.duration / 60 - 8 + 6.5 : 0)),
       };
     } catch { return null; }
   };
