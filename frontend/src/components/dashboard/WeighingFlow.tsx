@@ -39,17 +39,26 @@ function parseWeight(bytes: Uint8Array): { weight: number; impedance: number; st
   let hasImpedance = false;
 
   // QN-Scale / CF586 protocol: byte[0]=0x10, byte[5]=0x01
-  // Weight at bytes[3-4] big-endian / 100, Impedance at bytes[6-7] big-endian
+  // Weight at bytes[3-4] big-endian / 100, Impedance at bytes[6-7] big-endian (ENCRYPTED)
   if (bytes.length >= 8 && bytes[0] === 0x10 && bytes[5] === 0x01) {
     const w = ((bytes[3] & 0xFF) << 8 | (bytes[4] & 0xFF)) / 100.0;
     if (w >= 3 && w <= 250) {
       weight = Math.round(w * 10) / 10;
       stable = true; // byte[5]=0x01 means stable measurement
     }
+    // Impedance is ENCRYPTED by Lefu hardware - can be any value > 0
     const imp = (bytes[6] << 8) | bytes[7];
-    if (imp > 50 && imp < 2000) {
+    if (imp > 0) {
       impedance = imp;
       hasImpedance = true;
+    }
+    // Check for larger impedance in remaining bytes (4-byte encrypted value)
+    if (bytes.length >= 11 && impedance === 0) {
+      const imp32 = (bytes[6] << 24) | (bytes[7] << 16) | (bytes[8] << 8) | bytes[9];
+      if (imp32 > 0) {
+        impedance = imp32;
+        hasImpedance = true;
+      }
     }
   }
   // CF597/Lefu 8-electrode protocol: byte[0]=0xCF
@@ -264,12 +273,21 @@ export default function WeighingFlow({ onClose, d = {}, weighings = [] }: Props)
                 lastPacketTimeRef.current = Date.now();
                 
                 // Try to extract impedance from ANY packet (even without weight)
+                // Lefu impedance is ENCRYPTED - can be any value > 0
                 if (bytes.length >= 8 && bytes[0] === 0x10) {
-                  const imp = (bytes[6] << 8) | bytes[7];
-                  if (imp > 50 && imp < 2000) {
-                    setImpedance(imp);
+                  // Try 2-byte impedance
+                  const imp16 = (bytes[6] << 8) | bytes[7];
+                  if (imp16 > 0) {
+                    setImpedance(imp16);
                     setHasImpedance(true);
-                    setRawDebug(`${bytes.length}B: ${hex} → IMP=${imp}`);
+                  }
+                  // Try 4-byte encrypted impedance
+                  if (bytes.length >= 11) {
+                    const imp32 = (bytes[6] << 24) | (bytes[7] << 16) | (bytes[8] << 8) | bytes[9];
+                    if (imp32 > 0) {
+                      setImpedance(imp32);
+                      setHasImpedance(true);
+                    }
                   }
                 }
                 
