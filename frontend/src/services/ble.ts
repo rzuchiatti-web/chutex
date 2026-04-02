@@ -350,7 +350,30 @@ let _accImpedance = 0;
 let _accStable = false;
 
 export async function scanForScales(onFound: (device: { id: string; name: string; rssi: number }) => void, timeoutMs = 15000): Promise<void> {
-  if (Platform.OS === 'web' || !bleManagerInstance) return;
+  // Web Bluetooth support
+  if (Platform.OS === 'web') {
+    if (!navigator.bluetooth) return;
+    try {
+      const device = await navigator.bluetooth.requestDevice({
+        filters: [
+          { namePrefix: 'Lefu' }, { namePrefix: 'LF_' }, { namePrefix: 'LF-' },
+          { namePrefix: 'CF5' }, { namePrefix: 'CF6' }, { namePrefix: 'CF8' },
+          { namePrefix: 'QN-' }, { namePrefix: 'Scale' }, { namePrefix: 'Adore' },
+          { namePrefix: 'Health' }, { namePrefix: 'Pura' }, { namePrefix: 'Body' },
+        ],
+        optionalServices: [SCALE_SERVICE_UUID, ALT_SERVICE_UUID, '0000181d-0000-1000-8000-00805f9b34fb'],
+      });
+      if (device) {
+        (window as any).__bleScaleDevice = device;
+        onFound({ id: device.id, name: device.name || 'Balance', rssi: -50 });
+      }
+    } catch (e) {
+      console.warn('Web BLE scan cancelled or failed:', e);
+    }
+    return;
+  }
+  
+  if (!bleManagerInstance) return;
   
   stopScaleScan();
   
@@ -389,6 +412,52 @@ export function stopScaleScan() {
 }
 
 export async function connectToScale(deviceId: string, onMeasurement: ScaleCallback): Promise<boolean> {
+  // Web Bluetooth support
+  if (Platform.OS === 'web') {
+    try {
+      // On web, deviceId is actually the device object stored from scan
+      const webDevice = (window as any).__bleScaleDevice;
+      if (!webDevice) return false;
+      const server = await webDevice.gatt.connect();
+      deviceConnection = webDevice;
+      
+      // Try known scale services
+      const serviceUuids = [SCALE_SERVICE_UUID, ALT_SERVICE_UUID, '0000181d-0000-1000-8000-00805f9b34fb'];
+      for (const svcUuid of serviceUuids) {
+        try {
+          const service = await server.getPrimaryService(svcUuid);
+          const chars = await service.getCharacteristics();
+          for (const char of chars) {
+            if (char.properties.notify || char.properties.indicate) {
+              await char.startNotifications();
+              char.addEventListener('characteristicvaluechanged', (event: any) => {
+                const value = event.target.value;
+                const bytes = new Uint8Array(value.buffer);
+                if (bytes.length < 2) return;
+                const imp = extractImpedanceFromPacket(bytes);
+                if (imp > 0) _accImpedance = imp;
+                if (bytes.length >= 4) {
+                  const m = parseScaleData(bytes, deviceId, webDevice.name || 'Scale', deviceId);
+                  if (m) {
+                    if (m.weight >= 20) _accWeight = m.weight;
+                    if (m.impedance > 0) _accImpedance = m.impedance;
+                    if (m.stable) _accStable = true;
+                    onMeasurement({ ...m, weight: _accWeight || m.weight, impedance: _accImpedance, stable: _accStable && _accWeight >= 20 });
+                  }
+                }
+              });
+              return true;
+            }
+          }
+        } catch { /* try next service */ }
+      }
+      return false;
+    } catch (e) {
+      console.error('Web BLE connect error:', e);
+      return false;
+    }
+  }
+
   if (!bleManagerInstance) return false;
   
   // Reset accumulator

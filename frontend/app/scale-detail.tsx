@@ -260,9 +260,9 @@ export default function ScaleDetailScreen() {
             </View>
             <Text style={{ fontSize: 16, fontWeight: '800', color: '#111827', marginBottom: 4 }}>Connecter votre balance</Text>
             <Text style={{ fontSize: 12, color: '#6B7280', textAlign: 'center', marginBottom: 16, lineHeight: 18 }}>
-              {isNative ? 'Allumez votre balance Lefu et placez-la a proximite de votre telephone.' : 'La connexion Bluetooth est disponible uniquement sur l\'app mobile (TestFlight).'}
+              Allumez votre balance Lefu et placez-la a proximite.
             </Text>
-            <TouchableOpacity testID="scan-scale-btn" onPress={isNative ? startScan : () => Alert.alert('Bluetooth', 'Utilisez l\'app mobile pour connecter la balance.')}
+            <TouchableOpacity testID="scan-scale-btn" onPress={startScan}
               style={{ backgroundColor: '#2196F3', borderRadius: 9999, paddingVertical: 14, paddingHorizontal: 32, flexDirection: 'row', alignItems: 'center', gap: 8 }}>
               {bleState === 'scanning' ? <ActivityIndicator color="#111827" size="small" /> : <Icon name="bluetooth" size={18} color="#111827" />}
               <Text style={{ color: '#FFF', fontSize: 15, fontWeight: '800' }}>{bleState === 'scanning' ? 'Recherche...' : 'Connecter ma balance'}</Text>
