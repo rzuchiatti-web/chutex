@@ -746,10 +746,20 @@ async def push_v8_data(request_body: dict, user=Depends(get_current_user)):
     update_fields: dict = {"connected": True, "last_sync": now, "ble_device_id": device_id, "model": "v8"}
 
     if data_type == "heart_rate":
+        # 0x28 returns ALL vitals in one packet: HR, SpO2, HRV, stress, BP, temp
         if raw_data.get("heart_rate", 0) > 0:
             update_fields["last_heart_rate"] = raw_data["heart_rate"]
         if raw_data.get("hrv", 0) > 0:
             update_fields["last_hrv"] = raw_data["hrv"]
+        if raw_data.get("spo2", 0) > 0:
+            update_fields["last_spo2"] = raw_data["spo2"]
+        if raw_data.get("stress", 0) > 0:
+            update_fields["last_stress"] = raw_data["stress"]
+        if raw_data.get("systolic", 0) > 0:
+            update_fields["last_systolic"] = raw_data["systolic"]
+            update_fields["last_diastolic"] = raw_data.get("diastolic", 0)
+        if raw_data.get("temperature", 0) > 30:
+            update_fields["last_temperature"] = raw_data["temperature"]
     elif data_type == "blood_pressure":
         if raw_data.get("systolic", 0) > 0:
             update_fields["last_systolic"] = raw_data["systolic"]
@@ -768,6 +778,10 @@ async def push_v8_data(request_body: dict, user=Depends(get_current_user)):
     elif data_type == "battery":
         if raw_data.get("battery", 0) > 0:
             update_fields["battery"] = raw_data["battery"]
+    elif data_type == "sleep":
+        update_fields["last_sleep_timestamp"] = now
+        if raw_data.get("sleep_stages"):
+            update_fields["last_sleep_stages"] = raw_data["sleep_stages"]
     elif data_type == "ecg":
         update_fields["last_ecg_timestamp"] = now
         if raw_data.get("ecg_hr", 0) > 0:
@@ -828,8 +842,14 @@ async def push_v8_data(request_body: dict, user=Depends(get_current_user)):
     # Consolidated reading for health report compatibility
     consolidated = {}
     if data_type == "heart_rate":
-        consolidated["heart_rate"] = raw_data.get("heart_rate", 0)
-        consolidated["hrv"] = raw_data.get("hrv", 0)
+        # 0x28 returns ALL vitals — store everything in consolidated
+        if raw_data.get("heart_rate", 0) > 0: consolidated["heart_rate"] = raw_data["heart_rate"]
+        if raw_data.get("hrv", 0) > 0: consolidated["hrv"] = raw_data["hrv"]
+        if raw_data.get("spo2", 0) > 0: consolidated["spo2"] = raw_data["spo2"]
+        if raw_data.get("stress", 0) > 0: consolidated["stress_level"] = raw_data["stress"]
+        if raw_data.get("systolic", 0) > 0:
+            consolidated["blood_pressure"] = {"systolic": raw_data["systolic"], "diastolic": raw_data.get("diastolic", 0)}
+        if raw_data.get("temperature", 0) > 30: consolidated["temperature"] = raw_data["temperature"]
     elif data_type == "blood_pressure":
         consolidated["blood_pressure"] = {"systolic": raw_data.get("systolic", 0), "diastolic": raw_data.get("diastolic", 0)}
     elif data_type == "spo2":
@@ -841,11 +861,25 @@ async def push_v8_data(request_body: dict, user=Depends(get_current_user)):
         consolidated["calories"] = raw_data.get("calories", 0)
     elif data_type == "blood_glucose":
         consolidated["blood_glucose"] = raw_data.get("blood_glucose_mgdl", 0)
+    elif data_type == "sleep":
+        if raw_data.get("sleep_stages"):
+            consolidated["sleep_stages"] = raw_data["sleep_stages"]
+            stages = raw_data["sleep_stages"]
+            total = len(stages)
+            if total > 0:
+                deep = sum(1 for s in stages if s == 1)
+                light = sum(1 for s in stages if s == 2)
+                rem = sum(1 for s in stages if s == 3)
+                consolidated["sleep_duration_min"] = total
+                consolidated["deep_sleep_min"] = deep
+                consolidated["light_sleep_min"] = light
+                consolidated["rem_sleep_min"] = rem
+                consolidated["sleep_quality"] = min(100, round((deep * 2 + rem * 1.5 + light) / total * 50))
     elif data_type == "ecg_result":
         consolidated["heart_rate"] = raw_data.get("ecg_hr", 0)
         consolidated["hrv"] = raw_data.get("ecg_hrv", 0)
         consolidated["blood_pressure"] = {"systolic": raw_data.get("ecg_systolic", 0), "diastolic": raw_data.get("ecg_diastolic", 0)}
-        consolidated["stress"] = raw_data.get("ecg_stress", 0)
+        consolidated["stress_level"] = raw_data.get("ecg_stress", 0)
 
     if consolidated:
         existing = await db.device_readings.find_one(
