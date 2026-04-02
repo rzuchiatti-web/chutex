@@ -10,6 +10,7 @@ import { apiFetch } from '../src/services/api';
 import { Colors } from '../src/constants/colors';
 import { useTheme } from '../src/context/ThemeContext';
 import { isBleAvailable, getBleManager, bytesToBase64, base64ToBytes } from '../src/services/ble';
+import { useBraceletBLE } from '../src/context/BraceletBLEContext';
 
 // BLE UUIDs extracted from J-Style 2208A SDK APK
 const BLE_SERVICE_UUID = '0000fff0-0000-1000-8000-00805f9b34fb';
@@ -66,6 +67,7 @@ export default function BraceletConnectScreen() {
   const { colors: themeColors } = useTheme();
   const { token } = useAuth();
   const router = useRouter();
+  const braceletBLE = useBraceletBLE();
   const [bleStatus, setBleStatus] = useState<'idle'|'scanning'|'connecting'|'connected'>('idle');
   const [device, setDevice] = useState<any>(null);
   const [braceletData, setBraceletData] = useState<any>(null);
@@ -247,6 +249,8 @@ export default function BraceletConnectScreen() {
         setBleStatus('connecting');
         // Store device globally for ECG page
         if (typeof window !== 'undefined') (window as any).__bleBraceletDevice = bd;
+        // Store in global BLE context for cross-page sharing
+        braceletBLE.setConnection(bd, null, null);
 
         // Auto-detect device type by trying standard GATT health services first
         bd.addEventListener('gattserverdisconnected', () => { setBleStatus('idle'); if (pollRef.current) clearInterval(pollRef.current); });
@@ -314,6 +318,8 @@ export default function BraceletConnectScreen() {
         if (hrOk) {
           hasStandardServices = true;
           setBraceletModel('v6');
+          // Store in global BLE context
+          braceletBLE.setConnection(bd, null, 'v6');
           // Subscribe to other standard services
           await subscribeToService(V6_SERVICES.spo2.uuid, V6_SERVICES.spo2.char, 'spo2');
           await subscribeToService(V6_SERVICES.temperature.uuid, V6_SERVICES.temperature.char, 'temperature');
@@ -348,7 +354,7 @@ export default function BraceletConnectScreen() {
           for (const uuid of [BLE_SERVICE_UUID, '0000ffe0-0000-1000-8000-00805f9b34fb', '0000ffc0-0000-1000-8000-00805f9b34fb', '6e400001-b5a3-f393-e0a9-e50e24dcca9e', '0000180d-0000-1000-8000-00805f9b34fb']) {
             try { const svc = await server.getPrimaryService(uuid); const chars = await svc.getCharacteristics(); for (const c of chars) { if ((c.properties.notify || c.properties.indicate) && !notifyChar) notifyChar = c; if ((c.properties.write || c.properties.writeWithoutResponse) && !wChar) wChar = c; } if (notifyChar) break; } catch {}
           }
-          if (notifyChar) { await notifyChar.startNotifications(); notifyChar.addEventListener('characteristicvaluechanged', handleBleData); writeCharRef.current = wChar; setBleStatus('connected'); setErrorMsg(''); startPolling(); }
+          if (notifyChar) { await notifyChar.startNotifications(); notifyChar.addEventListener('characteristicvaluechanged', handleBleData); writeCharRef.current = wChar; setBleStatus('connected'); setErrorMsg(''); braceletBLE.setConnection(bd, wChar, '2208a'); startPolling(); }
           else { setErrorMsg('Aucun service BLE compatible'); setBleStatus('idle'); }
         }
       } catch (e: any) { setErrorMsg(`Erreur: ${e?.message || String(e)}`); setBleStatus('idle'); }
@@ -413,6 +419,8 @@ export default function BraceletConnectScreen() {
     setBraceletModel(model);
     setBleStatus('connected');
     setErrorMsg('');
+    // Store simulated connection in context
+    braceletBLE.setConnection({ gatt: { connected: true }, id: `sim-${model}` }, null, model);
     const push = async () => {
       const hr = 62 + Math.round(Math.random() * 20);
       const hrv = 30 + Math.round(Math.random() * 25);
@@ -456,12 +464,14 @@ export default function BraceletConnectScreen() {
     setBleStatus('idle');
     setBraceletModel(null);
     setVitals({ battery: 0, heart_rate: 0, spo2: 0, temperature: 0, steps: 0, systolic: 0, diastolic: 0, stress: 0, hrv: 0 });
+    braceletBLE.disconnect();
   };
 
   const unpairBracelet = async () => {
     try {
       if (device?.gatt?.connected) device.gatt.disconnect();
       if (pollRef.current) clearInterval(pollRef.current);
+      braceletBLE.disconnect();
       await apiFetch('/api/bracelet/unpair', { method: 'POST' }, token);
       setBraceletData(null);
       setVitals({ battery: 0, heart_rate: 0, spo2: 0, temperature: 0, steps: 0, systolic: 0, diastolic: 0, stress: 0, hrv: 0 });

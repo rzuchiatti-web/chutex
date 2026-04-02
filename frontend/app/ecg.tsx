@@ -3,6 +3,7 @@ import { View, Text, Platform } from 'react-native';
 import { useAuth } from '../src/context/AuthContext';
 import { apiFetch } from '../src/services/api';
 import { useRouter } from 'expo-router';
+import { useBraceletBLE } from '../src/context/BraceletBLEContext';
 import FullScreenLoader from '../src/components/FullScreenLoader';
 import NativePageView from '../src/components/NativePageView';
 
@@ -11,31 +12,22 @@ const BRACELET_IMG = 'https://customer-assets.emergentagent.com/job_8afdc991-0ab
 
 // V8 BLE UUIDs — FROM SDK: FFF6=WRITE, FFF7=NOTIFY
 const SVC = '0000fff0-0000-1000-8000-00805f9b34fb';
-const NOTIFY = '0000fff7-0000-1000-8000-00805f9b34fb';
-const WRITE = '0000fff6-0000-1000-8000-00805f9b34fb';
 const ECG_DURATION = 30;
 
 function buildCmd(cmd: number, payload: number[] = []) {
   const pkt = new Uint8Array(16);
   pkt[0] = cmd;
   for (let i = 0; i < payload.length && i < 14; i++) pkt[i + 1] = payload[i];
-  // CRC: sum of all bytes except last
   let crc = 0;
   for (let i = 0; i < 15; i++) crc += pkt[i];
   pkt[15] = crc & 0xFF;
   return pkt;
 }
 
-// ECG-specific commands from SDK
 function buildECGStart() {
-  // 0x28 = MeasurementWithType, 0x04 = ECG, 0x01 = start, duration 50000ms, 0x01 = ECG flag
   const pkt = new Uint8Array(16);
-  pkt[0] = 0x28; // MeasurementWithType
-  pkt[1] = 0x04; // ECG mode
-  pkt[2] = 0x01; // start
-  pkt[4] = 0x50; // 50000 & 0xFF
-  pkt[5] = 0xC3; // 50000 >> 8
-  pkt[6] = 0x01; // ECG flag
+  pkt[0] = 0x28; pkt[1] = 0x04; pkt[2] = 0x01;
+  pkt[4] = 0x50; pkt[5] = 0xC3; pkt[6] = 0x01;
   let crc = 0; for (let i = 0; i < 15; i++) crc += pkt[i]; pkt[15] = crc & 0xFF;
   return pkt;
 }
@@ -46,7 +38,6 @@ function buildECGStop() {
   return pkt;
 }
 function buildPPGEnable(on: boolean) {
-  // 0x07 = PPG, enables ECG realtime waveform
   const pkt = new Uint8Array(16);
   pkt[0] = 0x07; pkt[1] = on ? 0x01 : 0x00;
   let crc = 0; for (let i = 0; i < 15; i++) crc += pkt[i]; pkt[15] = crc & 0xFF;
@@ -56,12 +47,12 @@ function buildPPGEnable(on: boolean) {
 export default function ECGScreen() {
   const { token } = useAuth();
   const router = useRouter();
-  const [step, setStep] = useState(0); // 0=prep, 1=breathing, 2=finger, 3=connecting, 4=recording, 5=result
+  const braceletBLE = useBraceletBLE();
+  const [step, setStep] = useState(0); // 0=prep, 1=breathing, 2=finger, 3=connecting, 4=recording
   const [breathSec, setBreathSec] = useState(0);
   const [breathPhase, setBreathPhase] = useState<'inhale'|'exhale'>('inhale');
   const [recordSec, setRecordSec] = useState(0);
   const [ecgSamples, setEcgSamples] = useState<number[]>([]);
-  const [result, setResult] = useState<any>(null);
   const [bleError, setBleError] = useState('');
   const [liveHR, setLiveHR] = useState(0);
   const deviceRef = useRef<any>(null);
@@ -70,7 +61,10 @@ export default function ECGScreen() {
   const resultRef = useRef<any>(null);
   const timerRef = useRef<any>(null);
 
-  // Breathing animation (30s) — Whoop style: 4s inhale + 6s exhale = 10s cycle × 3
+  // Check BLE connection on mount
+  const bleConnected = braceletBLE.isConnected && braceletBLE.device?.gatt?.connected;
+
+  // Breathing animation (30s) — Whoop style: 4s inhale + 6s exhale = 10s cycle x 3
   useEffect(() => {
     if (step !== 1) return;
     setBreathSec(0);
@@ -79,7 +73,6 @@ export default function ECGScreen() {
       setBreathSec(p => {
         const next = p + 0.05;
         if (next >= 30) { clearInterval(iv); setStep(2); return 30; }
-        // 4s inhale + 6s exhale = 10s cycle
         const inCycle = next % 10;
         setBreathPhase(inCycle < 4 ? 'inhale' : 'exhale');
         return next;
@@ -112,24 +105,32 @@ export default function ECGScreen() {
     if (Platform.OS !== 'web') return;
 
     try {
-      let bd = typeof window !== 'undefined' ? (window as any).__bleBraceletDevice : null;
+      let bd = braceletBLE.device;
       let server: any = null;
 
-      // Try to reuse existing connection
+      // Reuse existing connection from context
       if (bd?.gatt?.connected) {
         server = bd.gatt;
         deviceRef.current = bd;
       } else {
-        // Need new connection
-        if (!('bluetooth' in navigator)) { setBleError('Web Bluetooth requis'); setStep(2); return; }
-        const nav = navigator as any;
-        bd = await nav.bluetooth.requestDevice({
-          acceptAllDevices: true,
-          optionalServices: [SVC, '0000ffe0-0000-1000-8000-00805f9b34fb', 'heart_rate', 'battery_service'],
-        });
-        deviceRef.current = bd;
-        server = await bd.gatt.connect();
-        if (typeof window !== 'undefined') (window as any).__bleBraceletDevice = bd;
+        // Fallback: try window global (legacy)
+        bd = typeof window !== 'undefined' ? (window as any).__bleBraceletDevice : null;
+        if (bd?.gatt?.connected) {
+          server = bd.gatt;
+          deviceRef.current = bd;
+        } else {
+          // No existing connection — request new one
+          if (!('bluetooth' in navigator)) { setBleError('Web Bluetooth requis'); setStep(2); return; }
+          const nav = navigator as any;
+          bd = await nav.bluetooth.requestDevice({
+            acceptAllDevices: true,
+            optionalServices: [SVC, '0000ffe0-0000-1000-8000-00805f9b34fb', 'heart_rate', 'battery_service'],
+          });
+          deviceRef.current = bd;
+          server = await bd.gatt.connect();
+          // Store in context for future reuse
+          braceletBLE.setConnection(bd, null, 'v8');
+        }
       }
 
       // Find ALL services and subscribe to ALL notifiable characteristics
@@ -141,11 +142,9 @@ export default function ECGScreen() {
         try {
           const chars = await svc.getCharacteristics();
           for (const c of chars) {
-            // Find write characteristic
             if (c.properties.write || c.properties.writeWithoutResponse) {
               if (!writeCharRef.current) writeCharRef.current = c;
             }
-            // Subscribe to ALL notify characteristics
             if (c.properties.notify || c.properties.indicate) {
               try {
                 await c.startNotifications();
@@ -154,14 +153,9 @@ export default function ECGScreen() {
                   const bytes = new Uint8Array(dv.buffer);
                   if (bytes.length < 1) return;
                   const cmd = bytes[0];
-                  const hex = Array.from(bytes).map(b => b.toString(16).padStart(2, '0')).join(' ');
-                  
-                  // Log everything for debug
-                  setBleError(`BLE: cmd=0x${cmd.toString(16)} ${bytes.length}B: ${hex.substring(0, 60)}`);
 
                   // ECG waveform: packets > 16 bytes contain 24-bit samples (SDK: getECG)
                   if (bytes.length > 16) {
-                    const packetId = bytes[1] & 0xFF;
                     const newSamples: number[] = [];
                     const count = Math.floor((bytes.length - 2) / 3);
                     for (let i = 0; i < count; i++) {
@@ -175,7 +169,7 @@ export default function ECGScreen() {
                     }
                   }
 
-                  // ECG waveform data (cmd 0x32 or any packet with many samples during recording)
+                  // ECG waveform data (cmd 0x32 or small packets during recording)
                   if (cmd === 0x32 || (bytes.length >= 6 && bytes.length <= 16)) {
                     const newSamples: number[] = [];
                     const startByte = (cmd === 0x32 || cmd === 0x33) ? 1 : 0;
@@ -201,7 +195,7 @@ export default function ECGScreen() {
                     if (resultRef.current.ecg_hr > 0) setLiveHR(resultRef.current.ecg_hr);
                   }
                   
-                  // Live HR
+                  // Live HR from measurement response
                   if (cmd === 0x28 && bytes.length >= 4 && bytes[2] > 0 && bytes[2] < 255) {
                     setLiveHR(bytes[2]);
                   }
@@ -224,11 +218,11 @@ export default function ECGScreen() {
       const timeCmd = buildCmd(0x01, [now.getFullYear() & 0xFF, (now.getFullYear() >> 8) & 0xFF, now.getMonth() + 1, now.getDate(), now.getHours(), now.getMinutes(), now.getSeconds()]);
       await writeCharRef.current.writeValue(timeCmd).catch(() => {});
 
-      // Enable PPG/ECG realtime waveform FIRST
+      // Enable PPG/ECG realtime waveform
       await new Promise(r => setTimeout(r, 300));
       await writeCharRef.current.writeValue(buildPPGEnable(true)).catch(() => {});
 
-      // Start ECG measurement (0x28, mode ECG=0x04, start=0x01)
+      // Start ECG measurement
       await new Promise(r => setTimeout(r, 300));
       await writeCharRef.current.writeValue(buildECGStart()).catch((e: any) => {
         setBleError(`Write ECG start failed: ${e.message}`);
@@ -237,19 +231,18 @@ export default function ECGScreen() {
       samplesRef.current = [];
       resultRef.current = null;
       setEcgSamples([]);
-      setStep(4); // Start recording
+      setStep(4);
     } catch (e: any) {
       if (e.name === 'NotFoundError') {
-        setStep(2); // User cancelled BLE popup
+        setStep(2);
       } else {
         setBleError(e.message || 'Erreur BLE');
         setStep(2);
       }
     }
-  }, []);
+  }, [braceletBLE]);
 
   const stopECG = useCallback(async () => {
-    // Send stop ECG + disable PPG
     if (writeCharRef.current) {
       try {
         await writeCharRef.current.writeValue(buildECGStop()).catch(() => {});
@@ -257,34 +250,11 @@ export default function ECGScreen() {
         await writeCharRef.current.writeValue(buildPPGEnable(false)).catch(() => {});
       } catch {}
     }
-    // Wait for result packet
     await new Promise(r => setTimeout(r, 2000));
 
     const ecgResult = resultRef.current || {};
     const totalSamples = samplesRef.current;
 
-    // Build final result
-    const finalResult = {
-      id: 'ecg-' + Date.now(),
-      bpm: ecgResult.ecg_hr || liveHR || 0,
-      hrv: ecgResult.ecg_hrv || 0,
-      breath_rate: ecgResult.ecg_breath_rate || 0,
-      stress: ecgResult.ecg_stress || 0,
-      mood: ecgResult.ecg_mood || 0,
-      systolic: ecgResult.ecg_systolic || 0,
-      diastolic: ecgResult.ecg_diastolic || 0,
-      vascular_aging: ecgResult.ecg_vascular_aging || 0,
-      av_block: ecgResult.ecg_av_block || 0,
-      quality: ecgResult.ecg_quality || 0,
-      status: (ecgResult.ecg_hr > 50 && ecgResult.ecg_hr < 100) ? 'normal' : ecgResult.ecg_hr > 0 ? 'attention' : 'normal',
-      rhythm: 'sinusal',
-      interpretation: ecgResult.ecg_hr > 0 ? 'Rythme sinusal normal' : 'Analyse en cours...',
-      duration_sec: ECG_DURATION,
-      samples_count: totalSamples.length,
-      created_at: new Date().toISOString(),
-    };
-
-    // Save to backend and redirect directly to detail page
     let ecgId = 'ecg-' + Date.now();
     try {
       const res = await apiFetch('/api/ecg/start', {
@@ -317,7 +287,6 @@ export default function ECGScreen() {
       }, token).catch(() => {});
     }
 
-    // Redirect directly to ECG detail page (no intermediate result screen)
     router.push({ pathname: '/ecg-detail' as any, params: { id: ecgId } });
   }, [token, liveHR]);
 
@@ -325,7 +294,6 @@ export default function ECGScreen() {
 
   const glassCard: any = { borderRadius: 22, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', padding: '24px 20px' };
 
-  // Build SVG waveform from real samples
   const renderWaveform = (samples: number[], width: number, height: number) => {
     if (samples.length < 10) return null;
     const displaySamples = samples.slice(-width);
@@ -345,7 +313,6 @@ export default function ECGScreen() {
             <stop offset="100%" stopColor="#FFFFFF" stopOpacity="0" />
           </linearGradient>
         </defs>
-        {/* Grid lines */}
         {[0.25, 0.5, 0.75].map(p => <line key={p} x1="0" y1={height * p} x2={width} y2={height * p} stroke="rgba(255,255,255,0.05)" strokeWidth="0.5" />)}
         <polygon points={`0,${height} ${points} ${width},${height}`} fill="url(#ecgGrad)" />
         <polyline points={points} fill="none" stroke="#FFFFFF" strokeWidth="1.5" strokeLinejoin="round" strokeLinecap="round" />
@@ -360,7 +327,7 @@ export default function ECGScreen() {
 
       <div style={{ flex: 1, overflowY: 'auto', position: 'relative', zIndex: 5, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '20px', minHeight: '100%' } as any}>
 
-        {/* Step 0: Preparation */}
+        {/* Step 0: Preparation — check BLE connection first */}
         {step === 0 && (
           <div style={{ width: '100%', maxWidth: 380, textAlign: 'center' } as any}>
             <img src={BRACELET_IMG} alt="" style={{ width: 140, height: 140, objectFit: 'contain', margin: '0 auto 24px', display: 'block', filter: 'drop-shadow(0 12px 32px rgba(0,0,0,0.4))' } as any} />
@@ -368,6 +335,27 @@ export default function ECGScreen() {
             <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.45)', lineHeight: 1.7, marginBottom: 28 }}>
               Mesure reelle via le capteur ECG de votre bracelet V8.
             </div>
+
+            {/* BLE connection status indicator */}
+            <div data-testid="ecg-ble-status" style={{ ...glassCard, marginBottom: 16, display: 'flex', alignItems: 'center', gap: 14 } as any}>
+              <div style={{ width: 12, height: 12, borderRadius: 6, background: bleConnected ? '#10B981' : '#EF4444', boxShadow: bleConnected ? '0 0 12px rgba(16,185,129,0.5)' : '0 0 12px rgba(239,68,68,0.5)', flexShrink: 0 } as any} />
+              <div style={{ flex: 1, textAlign: 'left' } as any}>
+                <div style={{ fontSize: 14, fontWeight: 700, color: '#FFF' }}>
+                  {bleConnected ? 'Bracelet connecte' : 'Bracelet non connecte'}
+                </div>
+                <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)', marginTop: 2 }}>
+                  {bleConnected ? 'Pret pour l\'ECG' : 'Connectez le bracelet depuis le dashboard'}
+                </div>
+              </div>
+              {bleConnected && <i className="ri-bluetooth-connect-line" style={{ fontSize: 20, color: '#10B981' }} />}
+            </div>
+
+            {!bleConnected && (
+              <div data-testid="ecg-go-connect" onClick={() => router.push('/bracelet-connect' as any)} style={{ padding: '14px', borderRadius: 14, background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.2)', cursor: 'pointer', fontSize: 14, fontWeight: 700, color: '#EF4444', textAlign: 'center', marginBottom: 12, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 } as any}>
+                <i className="ri-bluetooth-line" style={{ fontSize: 18 }} /> Connecter le bracelet
+              </div>
+            )}
+
             <div style={{ ...glassCard, textAlign: 'left', marginBottom: 16 } as any}>
               {[
                 { icon: 'ri-armchair-line', text: 'Asseyez-vous confortablement' },
@@ -382,8 +370,8 @@ export default function ECGScreen() {
                 </div>
               ))}
             </div>
-            <div data-testid="ecg-start-prep" onClick={() => setStep(1)} style={{ padding: '16px', borderRadius: 16, background: 'rgba(255,255,255,0.15)', border: '1px solid rgba(255,255,255,0.3)', cursor: 'pointer', fontSize: 16, fontWeight: 800, color: '#FFFFFF', textAlign: 'center' } as any}>
-              Je suis pret
+            <div data-testid="ecg-start-prep" onClick={() => { if (bleConnected) setStep(1); else router.push('/bracelet-connect' as any); }} style={{ padding: '16px', borderRadius: 16, background: bleConnected ? 'rgba(255,255,255,0.15)' : 'rgba(255,255,255,0.06)', border: `1px solid ${bleConnected ? 'rgba(255,255,255,0.3)' : 'rgba(255,255,255,0.1)'}`, cursor: 'pointer', fontSize: 16, fontWeight: 800, color: bleConnected ? '#FFFFFF' : 'rgba(255,255,255,0.4)', textAlign: 'center', opacity: bleConnected ? 1 : 0.7 } as any}>
+              {bleConnected ? 'Je suis pret' : 'Connecter le bracelet d\'abord'}
             </div>
             <div onClick={() => router.back()} style={{ marginTop: 12, padding: '10px', cursor: 'pointer', fontSize: 12, color: 'rgba(255,255,255,0.3)', textAlign: 'center' } as any}>Annuler</div>
           </div>
@@ -440,8 +428,12 @@ export default function ECGScreen() {
         {step === 3 && (
           <div style={{ width: '100%', maxWidth: 380, textAlign: 'center' } as any}>
             <div style={{ width: 60, height: 60, borderRadius: 999, border: '3px solid rgba(255,255,255,0.3)', borderTopColor: '#FFFFFF', margin: '0 auto 20px', animation: 'spin 1s linear infinite' } as any} />
-            <div style={{ fontSize: 18, fontWeight: 800, color: '#FFF', marginBottom: 8 }}>Connexion au bracelet...</div>
-            <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.4)' }}>Selectionnez votre bracelet dans la popup</div>
+            <div style={{ fontSize: 18, fontWeight: 800, color: '#FFF', marginBottom: 8 }}>
+              {bleConnected ? 'Demarrage de l\'ECG...' : 'Connexion au bracelet...'}
+            </div>
+            <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.4)' }}>
+              {bleConnected ? 'Preparation des capteurs' : 'Selectionnez votre bracelet dans la popup'}
+            </div>
           </div>
         )}
 
@@ -449,8 +441,6 @@ export default function ECGScreen() {
         {step === 4 && (
           <div style={{ width: '100%', maxWidth: 420, textAlign: 'center' } as any}>
             <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 12 }}>Enregistrement ECG</div>
-
-            {/* Timer + HR */}
             <div style={{ display: 'flex', justifyContent: 'center', gap: 24, marginBottom: 16 } as any}>
               <div>
                 <div style={{ fontSize: 36, fontWeight: 900, color: '#FFF', lineHeight: 1 }}>{ECG_DURATION - recordSec}s</div>
@@ -463,13 +453,9 @@ export default function ECGScreen() {
                 </div>
               )}
             </div>
-
-            {/* Progress bar */}
             <div style={{ height: 4, borderRadius: 2, background: 'rgba(255,255,255,0.08)', marginBottom: 16, overflow: 'hidden' } as any}>
               <div style={{ height: '100%', borderRadius: 2, background: '#FFFFFF', width: `${(recordSec / ECG_DURATION) * 100}%`, transition: 'width 1s linear' } as any} />
             </div>
-
-            {/* Live ECG waveform */}
             <div style={{ ...glassCard, padding: '12px 8px', marginBottom: 16, height: 120, overflow: 'hidden' } as any}>
               {ecgSamples.length > 10 ? (
                 renderWaveform(ecgSamples, 400, 100)
@@ -479,9 +465,7 @@ export default function ECGScreen() {
                 </div>
               )}
             </div>
-
             <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)' }}>{ecgSamples.length} echantillons</div>
-
             <div style={{ fontSize: 14, fontWeight: 700, color: '#FFFFFF', marginTop: 8, marginBottom: 4 }}>Gardez votre doigt sur le capteur</div>
             <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.3)' }}>Ne bougez pas pendant l'enregistrement</div>
           </div>
