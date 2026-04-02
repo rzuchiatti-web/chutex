@@ -233,7 +233,7 @@ async def create_contract(data: ContractCreate):
         mollie_customer_id = ""
 
     # Create Mollie first payment (creates mandate for recurring)
-    base_url = os.environ.get("EXPO_PUBLIC_BACKEND_URL", "https://exercise-params.preview.emergentagent.com")
+    base_url = os.environ.get("EXPO_PUBLIC_BACKEND_URL", "https://lefu-metrics.preview.emergentagent.com")
     try:
         payment = mollie_client.payments.create({
             "amount": {"currency": "EUR", "value": plan["price"]},

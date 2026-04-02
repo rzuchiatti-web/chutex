@@ -390,6 +390,7 @@ async def lefu_weighing(data: dict):
         # ── RESOLVE USER: memberid → weight proximity → MAC fallback ──
         user_id = None
         user_profile = None
+        device = None
 
         # 1. Try memberid mapping
         if lefu_member_id:
@@ -416,6 +417,10 @@ async def lefu_weighing(data: dict):
             device = await db.devices.find_one({"mac_address": {"$in": [mac, sn]}, "device_type": "scale"}, {"_id": 0})
             if device:
                 user_id = device.get('user_id')
+
+        # Always fetch device record for last_sync update
+        if user_id and not device:
+            device = await db.devices.find_one({"user_id": user_id, "device_type": "scale"}, {"_id": 0})
 
         if user_id:
             user_profile = await db.users.find_one({"id": user_id}, {"_id": 0})

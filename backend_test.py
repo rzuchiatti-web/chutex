@@ -10,7 +10,7 @@ import sys
 from datetime import datetime
 
 # Backend URL configuration
-BASE_URL = "https://exercise-params.preview.emergentagent.com/api"
+BASE_URL = "https://lefu-metrics.preview.emergentagent.com/api"
 
 # Test credentials (all passwords work)
 TEST_USERS = {
