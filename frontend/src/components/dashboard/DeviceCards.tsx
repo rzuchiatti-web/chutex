@@ -69,7 +69,7 @@ export default function DeviceCards({ br, sc, vs, onStartWeighing, weighings = [
     // Close the pairing popup and navigate to the real BLE connection page
     closePairing();
     setScanning(false);
-    if (pairingDevice === 'bracelet') router.push('/bracelet-connect' as any);
+    if (pairingDevice === 'bracelet') router.push('/(tabs)/devices' as any);
     else if (pairingDevice === 'vest') router.push('/vest-connect' as any);
     else if (pairingDevice === 'scale') { onStartWeighing?.(); }
   };

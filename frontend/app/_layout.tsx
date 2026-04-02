@@ -5,7 +5,6 @@ import { AuthProvider, useAuth } from '../src/context/AuthContext';
 import { ThemeProvider } from '../src/context/ThemeContext';
 import { I18nProvider } from '../src/context/I18nContext';
 import { DorsiBLEProvider } from '../src/context/DorsiBLEContext';
-import { BraceletBLEProvider } from '../src/context/BraceletBLEContext';
 import { View, ActivityIndicator, StyleSheet, Platform, Image, Text, TouchableOpacity } from 'react-native';
 import { PastelMistBackground } from '../src/components/PastelMistBackground';
 import { ensureFirstLaunchLocationPermission, openSystemLocationSettings, requestLocationPermission } from '../src/services/locationPermissions';
@@ -250,7 +249,6 @@ function RootNav() {
         <Stack.Screen name="geofencing" options={{ presentation: 'card' }} />
         <Stack.Screen name="vest-connect" options={{ presentation: 'card' }} />
         <Stack.Screen name="sleep" options={{ presentation: 'card' }} />
-        <Stack.Screen name="bracelet-connect" options={{ presentation: 'card' }} />
         <Stack.Screen name="subscription" options={{ presentation: 'card' }} />
         <Stack.Screen name="link-code" options={{ presentation: 'modal' }} />
         <Stack.Screen name="guardian-detail" options={{ presentation: 'card' }} />
@@ -283,12 +281,10 @@ export default function RootLayout() {
     <ThemeProvider>
       <I18nProvider>
         <DorsiBLEProvider>
-          <BraceletBLEProvider>
-            <AuthProvider>
-              <PastelMistBackground />
-              <RootNav />
-            </AuthProvider>
-          </BraceletBLEProvider>
+          <AuthProvider>
+            <PastelMistBackground />
+            <RootNav />
+          </AuthProvider>
         </DorsiBLEProvider>
       </I18nProvider>
     </ThemeProvider>

@@ -3,14 +3,12 @@ import { View, Text, Platform } from 'react-native';
 import { useAuth } from '../src/context/AuthContext';
 import { apiFetch } from '../src/services/api';
 import { useRouter } from 'expo-router';
-import { useBraceletBLE } from '../src/context/BraceletBLEContext';
 import FullScreenLoader from '../src/components/FullScreenLoader';
 import NativePageView from '../src/components/NativePageView';
 
 const BG = 'https://customer-assets.emergentagent.com/job_443c9c6e-0feb-4920-a358-fe7cc1a6289b/artifacts/1lq6xl58_ChatGPT%20Image%2017%20f%C3%A9vr.%202026%2C%2008_54_55.png';
 const BRACELET_IMG = 'https://customer-assets.emergentagent.com/job_8afdc991-0ab2-4687-a2a5-438b9a5f0711/artifacts/2fto1qw7_bracelet_sante_connecte_elio_chutex_care_teleassistance_telealarme%281%29.svg';
 
-// V8 BLE UUIDs — FROM SDK: FFF6=WRITE, FFF7=NOTIFY
 const SVC = '0000fff0-0000-1000-8000-00805f9b34fb';
 const ECG_DURATION = 30;
 
@@ -47,7 +45,6 @@ function buildPPGEnable(on: boolean) {
 export default function ECGScreen() {
   const { token } = useAuth();
   const router = useRouter();
-  const braceletBLE = useBraceletBLE();
   const [step, setStep] = useState(0); // 0=prep, 1=breathing, 2=finger, 3=connecting, 4=recording
   const [breathSec, setBreathSec] = useState(0);
   const [breathPhase, setBreathPhase] = useState<'inhale'|'exhale'>('inhale');
@@ -55,16 +52,23 @@ export default function ECGScreen() {
   const [ecgSamples, setEcgSamples] = useState<number[]>([]);
   const [bleError, setBleError] = useState('');
   const [liveHR, setLiveHR] = useState(0);
+  const [braceletConnected, setBraceletConnected] = useState<boolean | null>(null);
   const deviceRef = useRef<any>(null);
   const writeCharRef = useRef<any>(null);
   const samplesRef = useRef<number[]>([]);
   const resultRef = useRef<any>(null);
   const timerRef = useRef<any>(null);
 
-  // Check BLE connection on mount
-  const bleConnected = braceletBLE.isConnected && braceletBLE.device?.gatt?.connected;
+  // Check bracelet connection status via API on mount
+  useEffect(() => {
+    if (!token) return;
+    apiFetch('/api/bracelet/status', {}, token).then(data => {
+      const connected = data?.connected || data?.paired || false;
+      setBraceletConnected(connected);
+    }).catch(() => setBraceletConnected(false));
+  }, [token]);
 
-  // Breathing animation (30s) — Whoop style: 4s inhale + 6s exhale = 10s cycle x 3
+  // Breathing animation (30s)
   useEffect(() => {
     if (step !== 1) return;
     setBreathSec(0);
@@ -105,39 +109,30 @@ export default function ECGScreen() {
     if (Platform.OS !== 'web') return;
 
     try {
-      let bd = braceletBLE.device;
+      // Try to reuse existing BLE device from window (set by useBleConnection in devices page)
+      let bd = typeof window !== 'undefined' ? (window as any).__bleBraceletDevice : null;
       let server: any = null;
 
-      // Reuse existing connection from context
       if (bd?.gatt?.connected) {
         server = bd.gatt;
         deviceRef.current = bd;
       } else {
-        // Fallback: try window global (legacy)
-        bd = typeof window !== 'undefined' ? (window as any).__bleBraceletDevice : null;
-        if (bd?.gatt?.connected) {
-          server = bd.gatt;
-          deviceRef.current = bd;
-        } else {
-          // No existing connection — request new one
-          if (!('bluetooth' in navigator)) { setBleError('Web Bluetooth requis'); setStep(2); return; }
-          const nav = navigator as any;
-          bd = await nav.bluetooth.requestDevice({
-            acceptAllDevices: true,
-            optionalServices: [SVC, '0000ffe0-0000-1000-8000-00805f9b34fb', 'heart_rate', 'battery_service'],
-          });
-          deviceRef.current = bd;
-          server = await bd.gatt.connect();
-          // Store in context for future reuse
-          braceletBLE.setConnection(bd, null, 'v8');
-        }
+        // Request new BLE connection
+        if (!('bluetooth' in navigator)) { setBleError('Web Bluetooth requis'); setStep(2); return; }
+        const nav = navigator as any;
+        bd = await nav.bluetooth.requestDevice({
+          acceptAllDevices: true,
+          optionalServices: [SVC, '0000ffe0-0000-1000-8000-00805f9b34fb', 'heart_rate', 'battery_service'],
+        });
+        deviceRef.current = bd;
+        server = await bd.gatt.connect();
+        if (typeof window !== 'undefined') (window as any).__bleBraceletDevice = bd;
       }
 
-      // Find ALL services and subscribe to ALL notifiable characteristics
       const gattServer = server.getPrimaryServices ? server : await server;
       const allServices = await gattServer.getPrimaryServices();
       let notifyCount = 0;
-      
+
       for (const svc of allServices) {
         try {
           const chars = await svc.getCharacteristics();
@@ -154,7 +149,7 @@ export default function ECGScreen() {
                   if (bytes.length < 1) return;
                   const cmd = bytes[0];
 
-                  // ECG waveform: packets > 16 bytes contain 24-bit samples (SDK: getECG)
+                  // ECG waveform: packets > 16 bytes = 24-bit samples
                   if (bytes.length > 16) {
                     const newSamples: number[] = [];
                     const count = Math.floor((bytes.length - 2) / 3);
@@ -169,7 +164,6 @@ export default function ECGScreen() {
                     }
                   }
 
-                  // ECG waveform data (cmd 0x32 or small packets during recording)
                   if (cmd === 0x32 || (bytes.length >= 6 && bytes.length <= 16)) {
                     const newSamples: number[] = [];
                     const startByte = (cmd === 0x32 || cmd === 0x33) ? 1 : 0;
@@ -183,8 +177,7 @@ export default function ECGScreen() {
                       setEcgSamples([...samplesRef.current]);
                     }
                   }
-                  
-                  // ECG result packet
+
                   if (cmd === 0x33 && bytes.length >= 10) {
                     resultRef.current = {
                       ecg_hr: bytes[1], ecg_hrv: bytes[2], ecg_breath_rate: bytes[3],
@@ -194,8 +187,7 @@ export default function ECGScreen() {
                     };
                     if (resultRef.current.ecg_hr > 0) setLiveHR(resultRef.current.ecg_hr);
                   }
-                  
-                  // Live HR from measurement response
+
                   if (cmd === 0x28 && bytes.length >= 4 && bytes[2] > 0 && bytes[2] < 255) {
                     setLiveHR(bytes[2]);
                   }
@@ -213,16 +205,13 @@ export default function ECGScreen() {
         return;
       }
 
-      // Time sync first
       const now = new Date();
       const timeCmd = buildCmd(0x01, [now.getFullYear() & 0xFF, (now.getFullYear() >> 8) & 0xFF, now.getMonth() + 1, now.getDate(), now.getHours(), now.getMinutes(), now.getSeconds()]);
       await writeCharRef.current.writeValue(timeCmd).catch(() => {});
 
-      // Enable PPG/ECG realtime waveform
       await new Promise(r => setTimeout(r, 300));
       await writeCharRef.current.writeValue(buildPPGEnable(true)).catch(() => {});
 
-      // Start ECG measurement
       await new Promise(r => setTimeout(r, 300));
       await writeCharRef.current.writeValue(buildECGStart()).catch((e: any) => {
         setBleError(`Write ECG start failed: ${e.message}`);
@@ -240,7 +229,7 @@ export default function ECGScreen() {
         setStep(2);
       }
     }
-  }, [braceletBLE]);
+  }, []);
 
   const stopECG = useCallback(async () => {
     if (writeCharRef.current) {
@@ -279,7 +268,6 @@ export default function ECGScreen() {
       if (res?.id) ecgId = res.id;
     } catch {}
 
-    // Also save waveform to v8 push
     if (totalSamples.length > 0) {
       apiFetch('/api/bracelet/v8/push', {
         method: 'POST',
@@ -320,14 +308,37 @@ export default function ECGScreen() {
     );
   };
 
+  // Not connected → redirect to devices page
+  if (braceletConnected === false) {
+    return (
+      <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, display: 'flex', flexDirection: 'column', fontFamily: "'Inter', system-ui, sans-serif", overflow: 'hidden', background: '#0A0A1A' } as any}>
+        <img src={BG} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 } as any} />
+        <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.4)', zIndex: 1 } as any} />
+        <div style={{ flex: 1, position: 'relative', zIndex: 5, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '20px' } as any}>
+          <img src={BRACELET_IMG} alt="" style={{ width: 120, height: 120, objectFit: 'contain', marginBottom: 24, filter: 'drop-shadow(0 12px 32px rgba(0,0,0,0.4))' } as any} />
+          <div style={{ fontSize: 22, fontWeight: 900, color: '#FFF', marginBottom: 8, textAlign: 'center' }}>Bracelet non connecte</div>
+          <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.45)', lineHeight: 1.7, textAlign: 'center', maxWidth: 300, marginBottom: 28 }}>
+            Connectez votre bracelet depuis l'onglet Dispositifs pour lancer un ECG.
+          </div>
+          <div data-testid="ecg-go-devices" onClick={() => router.push('/(tabs)/devices' as any)} style={{ padding: '14px 32px', borderRadius: 16, background: 'rgba(255,255,255,0.15)', border: '1px solid rgba(255,255,255,0.3)', cursor: 'pointer', fontSize: 15, fontWeight: 800, color: '#FFFFFF', textAlign: 'center' } as any}>
+            Aller aux Dispositifs
+          </div>
+          <div onClick={() => router.back()} style={{ marginTop: 12, padding: '10px', cursor: 'pointer', fontSize: 12, color: 'rgba(255,255,255,0.3)', textAlign: 'center' } as any}>Annuler</div>
+        </div>
+      </div>
+    );
+  }
+
+  // Loading state
+  if (braceletConnected === null) return <FullScreenLoader />;
+
   return (
     <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, display: 'flex', flexDirection: 'column', fontFamily: "'Inter', system-ui, sans-serif", overflow: 'hidden', background: '#0A0A1A' } as any}>
       <img src={BG} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 } as any} />
       <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.4)', zIndex: 1 } as any} />
-
       <div style={{ flex: 1, overflowY: 'auto', position: 'relative', zIndex: 5, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '20px', minHeight: '100%' } as any}>
 
-        {/* Step 0: Preparation — check BLE connection first */}
+        {/* Step 0: Preparation */}
         {step === 0 && (
           <div style={{ width: '100%', maxWidth: 380, textAlign: 'center' } as any}>
             <img src={BRACELET_IMG} alt="" style={{ width: 140, height: 140, objectFit: 'contain', margin: '0 auto 24px', display: 'block', filter: 'drop-shadow(0 12px 32px rgba(0,0,0,0.4))' } as any} />
@@ -335,27 +346,6 @@ export default function ECGScreen() {
             <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.45)', lineHeight: 1.7, marginBottom: 28 }}>
               Mesure reelle via le capteur ECG de votre bracelet V8.
             </div>
-
-            {/* BLE connection status indicator */}
-            <div data-testid="ecg-ble-status" style={{ ...glassCard, marginBottom: 16, display: 'flex', alignItems: 'center', gap: 14 } as any}>
-              <div style={{ width: 12, height: 12, borderRadius: 6, background: bleConnected ? '#10B981' : '#EF4444', boxShadow: bleConnected ? '0 0 12px rgba(16,185,129,0.5)' : '0 0 12px rgba(239,68,68,0.5)', flexShrink: 0 } as any} />
-              <div style={{ flex: 1, textAlign: 'left' } as any}>
-                <div style={{ fontSize: 14, fontWeight: 700, color: '#FFF' }}>
-                  {bleConnected ? 'Bracelet connecte' : 'Bracelet non connecte'}
-                </div>
-                <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)', marginTop: 2 }}>
-                  {bleConnected ? 'Pret pour l\'ECG' : 'Connectez le bracelet depuis le dashboard'}
-                </div>
-              </div>
-              {bleConnected && <i className="ri-bluetooth-connect-line" style={{ fontSize: 20, color: '#10B981' }} />}
-            </div>
-
-            {!bleConnected && (
-              <div data-testid="ecg-go-connect" onClick={() => router.push('/bracelet-connect' as any)} style={{ padding: '14px', borderRadius: 14, background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.2)', cursor: 'pointer', fontSize: 14, fontWeight: 700, color: '#EF4444', textAlign: 'center', marginBottom: 12, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 } as any}>
-                <i className="ri-bluetooth-line" style={{ fontSize: 18 }} /> Connecter le bracelet
-              </div>
-            )}
-
             <div style={{ ...glassCard, textAlign: 'left', marginBottom: 16 } as any}>
               {[
                 { icon: 'ri-armchair-line', text: 'Asseyez-vous confortablement' },
@@ -370,14 +360,14 @@ export default function ECGScreen() {
                 </div>
               ))}
             </div>
-            <div data-testid="ecg-start-prep" onClick={() => { if (bleConnected) setStep(1); else router.push('/bracelet-connect' as any); }} style={{ padding: '16px', borderRadius: 16, background: bleConnected ? 'rgba(255,255,255,0.15)' : 'rgba(255,255,255,0.06)', border: `1px solid ${bleConnected ? 'rgba(255,255,255,0.3)' : 'rgba(255,255,255,0.1)'}`, cursor: 'pointer', fontSize: 16, fontWeight: 800, color: bleConnected ? '#FFFFFF' : 'rgba(255,255,255,0.4)', textAlign: 'center', opacity: bleConnected ? 1 : 0.7 } as any}>
-              {bleConnected ? 'Je suis pret' : 'Connecter le bracelet d\'abord'}
+            <div data-testid="ecg-start-prep" onClick={() => setStep(1)} style={{ padding: '16px', borderRadius: 16, background: 'rgba(255,255,255,0.15)', border: '1px solid rgba(255,255,255,0.3)', cursor: 'pointer', fontSize: 16, fontWeight: 800, color: '#FFFFFF', textAlign: 'center' } as any}>
+              Je suis pret
             </div>
             <div onClick={() => router.back()} style={{ marginTop: 12, padding: '10px', cursor: 'pointer', fontSize: 12, color: 'rgba(255,255,255,0.3)', textAlign: 'center' } as any}>Annuler</div>
           </div>
         )}
 
-        {/* Step 1: Whoop-style breathing animation (30s) */}
+        {/* Step 1: Breathing animation (30s) */}
         {step === 1 && (() => {
           const inCycle = breathSec % 10;
           const isInhale = inCycle < 4;
@@ -406,7 +396,7 @@ export default function ECGScreen() {
           );
         })()}
 
-        {/* Step 2: Position finger + connect */}
+        {/* Step 2: Position finger */}
         {step === 2 && (
           <div style={{ width: '100%', maxWidth: 380, textAlign: 'center' } as any}>
             <img src={BRACELET_IMG} alt="" style={{ width: 160, height: 160, objectFit: 'contain', margin: '0 auto 20px', display: 'block', filter: 'drop-shadow(0 12px 32px rgba(0,0,0,0.4))' } as any} />
@@ -424,20 +414,16 @@ export default function ECGScreen() {
           </div>
         )}
 
-        {/* Step 3: Connecting BLE */}
+        {/* Step 3: Connecting */}
         {step === 3 && (
           <div style={{ width: '100%', maxWidth: 380, textAlign: 'center' } as any}>
             <div style={{ width: 60, height: 60, borderRadius: 999, border: '3px solid rgba(255,255,255,0.3)', borderTopColor: '#FFFFFF', margin: '0 auto 20px', animation: 'spin 1s linear infinite' } as any} />
-            <div style={{ fontSize: 18, fontWeight: 800, color: '#FFF', marginBottom: 8 }}>
-              {bleConnected ? 'Demarrage de l\'ECG...' : 'Connexion au bracelet...'}
-            </div>
-            <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.4)' }}>
-              {bleConnected ? 'Preparation des capteurs' : 'Selectionnez votre bracelet dans la popup'}
-            </div>
+            <div style={{ fontSize: 18, fontWeight: 800, color: '#FFF', marginBottom: 8 }}>Demarrage de l'ECG...</div>
+            <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.4)' }}>Preparation des capteurs</div>
           </div>
         )}
 
-        {/* Step 4: REAL ECG Recording with live waveform */}
+        {/* Step 4: Recording */}
         {step === 4 && (
           <div style={{ width: '100%', maxWidth: 420, textAlign: 'center' } as any}>
             <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 12 }}>Enregistrement ECG</div>

@@ -11,7 +11,6 @@ const BG = 'https://customer-assets.emergentagent.com/job_443c9c6e-0feb-4920-a35
 
 function ECGWaveform({ data, color = '#FFFFFF', w = 360, h = 120 }: { data?: number[]; color?: string; w?: number; h?: number }) {
   const pts: number[] = data && data.length > 10 ? data : [];
-  // Generate realistic ECG only if no real data
   if (pts.length === 0) {
     for (let i = 0; i < 300; i++) {
       const t = (i % 60) / 60;
@@ -25,7 +24,6 @@ function ECGWaveform({ data, color = '#FFFFFF', w = 360, h = 120 }: { data?: num
       pts.push(v);
     }
   }
-  // Downsample if too many points
   const display = pts.length > 600 ? pts.filter((_, i) => i % Math.ceil(pts.length / 600) === 0) : pts;
   const min = Math.min(...display) - 5;
   const max = Math.max(...display) + 5;
@@ -55,28 +53,19 @@ export default function ECGDetailScreen() {
   useEffect(() => {
     (async () => {
       try {
-        // Fetch the specific ECG record by ID first
         if (id && id !== 'undefined') {
           const record = await apiFetch(`/api/ecg/${id}`, {}, token);
-          if (record && record.id) {
-            setEcg(record);
-            setLoading(false);
-            return;
-          }
+          if (record && record.id) { setEcg(record); setLoading(false); return; }
         }
-        // Fallback: get latest from history
         const history = await apiFetch('/api/ecg/history', {}, token);
         if (history && history.length > 0) {
-          // Fetch full record with waveform data
-          const latest = history[0];
-          const full = await apiFetch(`/api/ecg/${latest.id}`, {}, token);
-          setEcg(full || latest);
+          const full = await apiFetch(`/api/ecg/${history[0].id}`, {}, token);
+          setEcg(full || history[0]);
         } else {
           setEcg(null);
         }
-      } catch {
-        setEcg(null);
-      } finally { setLoading(false); }
+      } catch { setEcg(null); }
+      finally { setLoading(false); }
     })();
   }, [id, token]);
 
@@ -94,20 +83,14 @@ export default function ECGDetailScreen() {
   }
 
   const bpm = ecg.bpm || 0;
-  const hrv = ecg.hrv || 0;
-  const breathRate = ecg.breath_rate || 0;
-  const stress = ecg.stress || 0;
-  const mood = ecg.mood || 0;
-  const systolic = ecg.systolic || 0;
-  const diastolic = ecg.diastolic || 0;
-  const vascularAging = ecg.vascular_aging || 0;
   const waveformData = ecg.data || [];
   const dt = ecg.created_at ? new Date(ecg.created_at) : ecg.timestamp ? new Date(ecg.timestamp) : new Date();
-  const isRealData = ecg.source === 'ble_v8' && waveformData.length > 100;
+  const isRealData = ecg.source === 'ble_v8' && waveformData.length > 50;
   const isNormal = bpm >= 50 && bpm <= 100;
+  const statusText = ecg.interpretation || ecg.status || (isNormal ? 'Rythme sinusal normal' : bpm > 100 ? 'Tachycardie' : bpm > 0 && bpm < 50 ? 'Bradycardie' : 'Rythme sinusal normal');
 
   const checks = [
-    { label: 'Rythme sinusal', ok: isNormal, desc: bpm > 0 ? `Frequence: ${bpm} bpm` : 'Pas de donnees' },
+    { label: 'Rythme sinusal', ok: isNormal || bpm === 0, desc: bpm > 0 ? `Frequence: ${bpm} bpm` : 'En attente de donnees' },
     { label: 'Fibrillation auriculaire', ok: true, desc: 'Aucune fibrillation detectee' },
     { label: 'Bradycardie', ok: bpm === 0 || bpm >= 50, desc: bpm > 0 && bpm < 50 ? 'Frequence basse detectee' : 'Frequence normale' },
     { label: 'Tachycardie', ok: bpm === 0 || bpm <= 100, desc: bpm > 100 ? 'Frequence elevee detectee' : 'Frequence normale' },
@@ -121,27 +104,21 @@ export default function ECGDetailScreen() {
 
       <div style={{ flex: 1, overflowY: 'auto', position: 'relative', zIndex: 5, padding: '20px 20px 100px', WebkitOverflowScrolling: 'touch' } as any}>
 
-        {/* Back */}
         <div data-testid="ecg-detail-back" onClick={() => router.back()} style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '8px 14px', borderRadius: 999, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', cursor: 'pointer', marginBottom: 16 } as any}>
           <i className="ri-arrow-left-line" style={{ fontSize: 16, color: 'rgba(255,255,255,0.6)' }} /><span style={{ fontSize: 12, fontWeight: 600, color: 'rgba(255,255,255,0.6)' }}>Retour</span>
         </div>
 
-        {/* Hero */}
+        {/* Header */}
         <div style={{ textAlign: 'center', marginBottom: 20 } as any}>
           <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.35)', marginBottom: 6 }}>{dt.toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' })} a {dt.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}</div>
           <div style={{ fontSize: 26, fontWeight: 900, color: '#FFF', marginBottom: 4 }}>Electrocardiogramme</div>
           <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '5px 14px', borderRadius: 999, background: allNormal ? 'rgba(16,185,129,0.12)' : 'rgba(239,68,68,0.12)', border: `1px solid ${allNormal ? 'rgba(16,185,129,0.25)' : 'rgba(239,68,68,0.25)'}` } as any}>
             <span style={{ width: 6, height: 6, borderRadius: 3, background: allNormal ? '#10B981' : '#EF4444' } as any} />
-            <span style={{ fontSize: 12, fontWeight: 700, color: allNormal ? '#10B981' : '#EF4444' }}>{ecg.interpretation || (allNormal ? 'Rythme sinusal normal' : 'Attention requise')}</span>
+            <span style={{ fontSize: 12, fontWeight: 700, color: allNormal ? '#10B981' : '#EF4444' }}>{statusText}</span>
           </div>
-          {isRealData && (
-            <div style={{ marginTop: 6, fontSize: 10, color: 'rgba(255,255,255,0.25)' }}>
-              {waveformData.length} echantillons — Donnees reelles V8
-            </div>
-          )}
         </div>
 
-        {/* ECG Waveform card — real data */}
+        {/* ECG Waveform — real data */}
         <div data-testid="ecg-detail-waveform" style={{ borderRadius: 18, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', padding: '16px', marginBottom: 14, overflow: 'hidden' } as any}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 } as any}>
             <span style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.35)', textTransform: 'uppercase', letterSpacing: 0.5 }}>Trace ECG</span>
@@ -150,31 +127,10 @@ export default function ECGDetailScreen() {
           <ECGWaveform data={waveformData.length > 10 ? waveformData : undefined} color="#FFFFFF" />
           <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 8 } as any}>
             <span style={{ fontSize: 9, color: 'rgba(255,255,255,0.2)' }}>25mm/s</span>
-            <span style={{ fontSize: 9, color: 'rgba(255,255,255,0.2)' }}>Duree: {ecg.duration_sec || 30}s</span>
+            <span style={{ fontSize: 9, color: 'rgba(255,255,255,0.2)' }}>Duree: {ecg.duration_sec || 30}s {isRealData ? `— ${waveformData.length} pts` : ''}</span>
             <span style={{ fontSize: 9, color: 'rgba(255,255,255,0.2)' }}>10mm/mV</span>
           </div>
         </div>
-
-        {/* V8 Vitals Grid — real data from bracelet */}
-        {(bpm > 0 || hrv > 0 || breathRate > 0 || stress > 0 || systolic > 0) && (
-          <div data-testid="ecg-detail-vitals" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 8, marginBottom: 14 } as any}>
-            {[
-              bpm > 0 && { label: 'FC', value: bpm, unit: 'bpm', color: '#EF4444' },
-              hrv > 0 && { label: 'HRV', value: hrv, unit: 'ms', color: '#A78BFA' },
-              breathRate > 0 && { label: 'Respiration', value: breathRate, unit: '/min', color: '#38BDF8' },
-              stress > 0 && { label: 'Stress', value: stress, unit: '%', color: '#F59E0B' },
-              mood > 0 && { label: 'Humeur', value: mood, unit: '%', color: '#10B981' },
-              systolic > 0 && { label: 'Tension', value: `${systolic}/${diastolic}`, unit: 'mmHg', color: '#8B5CF6' },
-              vascularAging > 0 && { label: 'Age vasc.', value: vascularAging, unit: 'ans', color: '#F97316' },
-            ].filter(Boolean).map((m: any, i) => (
-              <div key={i} style={{ padding: '14px 10px', borderRadius: 16, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', textAlign: 'center' } as any}>
-                <div style={{ fontSize: 9, fontWeight: 700, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 6 }}>{m.label}</div>
-                <div style={{ fontSize: 20, fontWeight: 900, color: m.color }}>{m.value}</div>
-                <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.25)', marginTop: 2 }}>{m.unit}</div>
-              </div>
-            ))}
-          </div>
-        )}
 
         {/* Comprendre les donnees */}
         <div onClick={() => setShowExplain(true)} style={{ padding: '14px', borderRadius: 14, background: 'rgba(255,255,255,0.08)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', border: '1px solid rgba(255,255,255,0.12)', cursor: 'pointer', textAlign: 'center', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, marginBottom: 14 } as any}>
@@ -182,7 +138,6 @@ export default function ECGDetailScreen() {
           <span style={{ fontSize: 14, fontWeight: 700, color: '#FFF' }}>Comprendre les donnees</span>
         </div>
 
-        {/* Explain popup */}
         {showExplain && (
           <div onClick={() => setShowExplain(false)} style={{ position: 'fixed', inset: 0, zIndex: 9999, backdropFilter: 'blur(32px)', WebkitBackdropFilter: 'blur(32px)', background: 'rgba(0,0,0,0.4)', overflowY: 'auto' } as any}>
             <div onClick={(e: any) => e.stopPropagation()} style={{ width: '100%', maxWidth: 420, margin: '0 auto', padding: '40px 24px 120px', boxSizing: 'border-box' } as any}>
@@ -192,15 +147,12 @@ export default function ECGDetailScreen() {
               <div style={{ textAlign: 'center', marginBottom: 24 } as any}>
                 <div style={{ width: 56, height: 56, borderRadius: 16, background: 'rgba(249,115,22,0.12)', border: '1px solid rgba(249,115,22,0.2)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', marginBottom: 14 } as any}><i className="ri-book-open-line" style={{ fontSize: 26, color: '#F97316' }} /></div>
                 <div style={{ fontSize: 22, fontWeight: 900, color: '#FFF' }}>Comprendre votre ECG</div>
-                <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', marginTop: 6 }}>Chaque mesure a une signification medicale precise</div>
               </div>
               {[
-                { title: 'Frequence cardiaque (BPM)', icon: 'ri-heart-pulse-line', color: '#EF4444', text: 'Le nombre de battements par minute au repos. Entre 60 et 100 bpm est considere normal pour un adulte.' },
-                { title: 'HRV (Variabilite)', icon: 'ri-pulse-line', color: '#A78BFA', text: 'La variabilite de la frequence cardiaque mesure les variations entre chaque battement. Un HRV eleve indique un bon equilibre du systeme nerveux autonome.' },
-                { title: 'Frequence respiratoire', icon: 'ri-windy-line', color: '#38BDF8', text: 'Le nombre de respirations par minute. Normal entre 12 et 20/min au repos.' },
-                { title: 'Stress', icon: 'ri-mental-health-line', color: '#F59E0B', text: 'Indice de stress derive de la variabilite cardiaque. Un stress eleve peut indiquer une surcharge physique ou emotionnelle.' },
-                { title: 'Tension arterielle ECG', icon: 'ri-heart-2-line', color: '#8B5CF6', text: 'Estimation de la pression arterielle derivee du signal ECG. Ces valeurs sont indicatives et ne remplacent pas un tensiometre medical.' },
-                { title: 'Age vasculaire', icon: 'ri-body-scan-line', color: '#F97316', text: 'Estimation de l\'age de vos arteres basee sur les caracteristiques du signal ECG et de la rigidite arterielle.' },
+                { title: 'Frequence cardiaque (BPM)', icon: 'ri-heart-pulse-line', color: '#EF4444', text: 'Le nombre de battements par minute au repos. Entre 60 et 100 bpm est considere normal.' },
+                { title: 'Rythme sinusal', icon: 'ri-checkbox-circle-line', color: '#10B981', text: "Un rythme sinusal signifie que l'impulsion electrique part du noeud sinusal. C'est le rythme normal." },
+                { title: 'Fibrillation auriculaire', icon: 'ri-error-warning-line', color: '#EF4444', text: "Trouble du rythme ou les oreillettes battent de facon irreguliere. L'ECG permet de la detecter." },
+                { title: 'Bradycardie / Tachycardie', icon: 'ri-pulse-line', color: '#F59E0B', text: 'En dessous de 60 bpm on parle de bradycardie, au dessus de 100 bpm de tachycardie.' },
               ].map((item, i) => (
                 <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: 14, padding: '14px 0', borderTop: i > 0 ? '1px solid rgba(255,255,255,0.06)' : 'none' } as any}>
                   <div style={{ width: 36, height: 36, borderRadius: 10, background: `${item.color}15`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, marginTop: 2 } as any}><i className={item.icon} style={{ fontSize: 18, color: item.color }} /></div>
@@ -214,7 +166,7 @@ export default function ECGDetailScreen() {
           </div>
         )}
 
-        {/* Checklist card */}
+        {/* Checklist */}
         <div data-testid="ecg-detail-checks" style={{ borderRadius: 18, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', padding: '16px', marginBottom: 14 } as any}>
           <div style={{ fontSize: 13, fontWeight: 800, color: '#FFF', marginBottom: 12 }}>Verification automatique</div>
           {checks.map((c, i) => (
@@ -230,18 +182,12 @@ export default function ECGDetailScreen() {
           ))}
         </div>
 
-        {/* Nora analysis card */}
+        {/* Nora */}
         <NoraCard title="Analyse ECG" text={
           bpm > 0
-            ? `Votre electrocardiogramme montre ${allNormal ? 'un rythme sinusal regulier' : 'des elements a surveiller'} a ${bpm} bpm.${hrv > 0 ? ` HRV: ${hrv}ms.` : ''}${breathRate > 0 ? ` Respiration: ${breathRate}/min.` : ''}${stress > 0 ? ` Stress: ${stress}%.` : ''}${systolic > 0 ? ` Tension estimee: ${systolic}/${diastolic} mmHg.` : ''} ${allNormal ? 'Ce resultat est rassurant.' : 'Je recommande de partager ce trace avec votre medecin traitant.'}`
-            : 'ECG enregistre. Les donnees de frequence cardiaque seront disponibles lors du prochain enregistrement avec le bracelet V8.'
+            ? `Votre electrocardiogramme montre ${allNormal ? 'un rythme sinusal regulier' : 'des elements a surveiller'} a ${bpm} bpm. ${allNormal ? 'Ce resultat est rassurant et ne necessite pas d\'action immediate.' : 'Je recommande de partager ce trace avec votre medecin traitant.'}`
+            : 'ECG enregistre. Les donnees seront disponibles lors du prochain enregistrement avec le bracelet V8.'
         } />
-
-        {/* Redo ECG button */}
-        <div data-testid="ecg-detail-redo" onClick={() => router.push('/ecg' as any)} style={{ padding: '14px', borderRadius: 14, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)', cursor: 'pointer', textAlign: 'center', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, marginTop: 10 } as any}>
-          <i className="ri-restart-line" style={{ fontSize: 16, color: 'rgba(255,255,255,0.5)' }} />
-          <span style={{ fontSize: 13, fontWeight: 700, color: 'rgba(255,255,255,0.5)' }}>Refaire un ECG</span>
-        </div>
 
       </div>
     </div>
