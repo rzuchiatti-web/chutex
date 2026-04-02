@@ -265,14 +265,14 @@ export default function ECGScreen() {
       <svg width="100%" viewBox={`0 0 ${width} ${height}`} style={{ display: 'block' }}>
         <defs>
           <linearGradient id="ecgGrad" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="#10B981" stopOpacity="0.2" />
-            <stop offset="100%" stopColor="#10B981" stopOpacity="0" />
+            <stop offset="0%" stopColor="#A78BFA" stopOpacity="0.2" />
+            <stop offset="100%" stopColor="#A78BFA" stopOpacity="0" />
           </linearGradient>
         </defs>
         {/* Grid lines */}
         {[0.25, 0.5, 0.75].map(p => <line key={p} x1="0" y1={height * p} x2={width} y2={height * p} stroke="rgba(255,255,255,0.05)" strokeWidth="0.5" />)}
         <polygon points={`0,${height} ${points} ${width},${height}`} fill="url(#ecgGrad)" />
-        <polyline points={points} fill="none" stroke="#10B981" strokeWidth="1.5" strokeLinejoin="round" strokeLinecap="round" />
+        <polyline points={points} fill="none" stroke="#A78BFA" strokeWidth="1.5" strokeLinejoin="round" strokeLinecap="round" />
       </svg>
     );
   };
@@ -299,14 +299,14 @@ export default function ECGScreen() {
                 { icon: 'ri-bluetooth-connect-line', text: 'Bracelet V8 allume et a proximite' },
               ].map((s, i) => (
                 <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '10px 0', borderTop: i > 0 ? '1px solid rgba(255,255,255,0.04)' : 'none' } as any}>
-                  <div style={{ width: 36, height: 36, borderRadius: 10, background: 'rgba(16,185,129,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}>
-                    <i className={s.icon} style={{ fontSize: 18, color: '#10B981' }} />
+                  <div style={{ width: 36, height: 36, borderRadius: 10, background: 'rgba(167,139,250,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}>
+                    <i className={s.icon} style={{ fontSize: 18, color: '#A78BFA' }} />
                   </div>
                   <span style={{ fontSize: 14, fontWeight: 600, color: '#FFF' }}>{s.text}</span>
                 </div>
               ))}
             </div>
-            <div data-testid="ecg-start-prep" onClick={() => setStep(1)} style={{ padding: '16px', borderRadius: 16, background: 'rgba(16,185,129,0.15)', border: '1px solid rgba(16,185,129,0.3)', cursor: 'pointer', fontSize: 16, fontWeight: 800, color: '#10B981', textAlign: 'center' } as any}>
+            <div data-testid="ecg-start-prep" onClick={() => setStep(1)} style={{ padding: '16px', borderRadius: 16, background: 'rgba(167,139,250,0.15)', border: '1px solid rgba(167,139,250,0.3)', cursor: 'pointer', fontSize: 16, fontWeight: 800, color: '#A78BFA', textAlign: 'center' } as any}>
               Je suis pret
             </div>
             <div onClick={() => router.back()} style={{ marginTop: 12, padding: '10px', cursor: 'pointer', fontSize: 12, color: 'rgba(255,255,255,0.3)', textAlign: 'center' } as any}>Annuler</div>
@@ -317,9 +317,9 @@ export default function ECGScreen() {
         {step === 1 && (
           <div style={{ width: '100%', maxWidth: 380, textAlign: 'center' } as any}>
             <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 20 }}>Preparation</div>
-            <div style={{ width: 160, height: 160, borderRadius: 80, border: '3px solid rgba(16,185,129,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 24px', position: 'relative' } as any}>
+            <div style={{ width: 160, height: 160, borderRadius: 80, border: '3px solid rgba(167,139,250,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 24px', position: 'relative' } as any}>
               <svg width="160" height="160" style={{ position: 'absolute', top: -1.5, left: -1.5, transform: 'rotate(-90deg)' }}>
-                <circle cx="80" cy="80" r="78" fill="none" stroke="#10B981" strokeWidth="3" strokeDasharray={`${(1 - breathCount / 15) * 490} 490`} strokeLinecap="round" />
+                <circle cx="80" cy="80" r="78" fill="none" stroke="#A78BFA" strokeWidth="3" strokeDasharray={`${(1 - breathCount / 15) * 490} 490`} strokeLinecap="round" />
               </svg>
               <div style={{ fontSize: 56, fontWeight: 900, color: '#FFF', lineHeight: 1 }}>{breathCount}</div>
             </div>
@@ -339,7 +339,7 @@ export default function ECGScreen() {
             {bleError && (
               <div style={{ padding: '10px 16px', borderRadius: 12, background: 'rgba(239,68,68,0.12)', border: '1px solid rgba(239,68,68,0.2)', marginBottom: 16, fontSize: 12, color: '#EF4444' } as any}>{bleError}</div>
             )}
-            <div data-testid="ecg-launch" onClick={connectAndStartECG} style={{ padding: '16px', borderRadius: 16, background: 'rgba(16,185,129,0.15)', border: '1px solid rgba(16,185,129,0.3)', cursor: 'pointer', fontSize: 16, fontWeight: 800, color: '#10B981', textAlign: 'center', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 } as any}>
+            <div data-testid="ecg-launch" onClick={connectAndStartECG} style={{ padding: '16px', borderRadius: 16, background: 'rgba(167,139,250,0.15)', border: '1px solid rgba(167,139,250,0.3)', cursor: 'pointer', fontSize: 16, fontWeight: 800, color: '#A78BFA', textAlign: 'center', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 } as any}>
               <i className="ri-pulse-line" style={{ fontSize: 20 }} /> Lancer l'ECG
             </div>
             <div onClick={() => router.back()} style={{ marginTop: 12, padding: '10px', cursor: 'pointer', fontSize: 12, color: 'rgba(255,255,255,0.3)', textAlign: 'center' } as any}>Annuler</div>
@@ -349,7 +349,7 @@ export default function ECGScreen() {
         {/* Step 3: Connecting BLE */}
         {step === 3 && (
           <div style={{ width: '100%', maxWidth: 380, textAlign: 'center' } as any}>
-            <div style={{ width: 60, height: 60, borderRadius: 999, border: '3px solid rgba(16,185,129,0.3)', borderTopColor: '#10B981', margin: '0 auto 20px', animation: 'spin 1s linear infinite' } as any} />
+            <div style={{ width: 60, height: 60, borderRadius: 999, border: '3px solid rgba(167,139,250,0.3)', borderTopColor: '#A78BFA', margin: '0 auto 20px', animation: 'spin 1s linear infinite' } as any} />
             <div style={{ fontSize: 18, fontWeight: 800, color: '#FFF', marginBottom: 8 }}>Connexion au bracelet...</div>
             <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.4)' }}>Selectionnez votre bracelet dans la popup</div>
           </div>
@@ -376,7 +376,7 @@ export default function ECGScreen() {
 
             {/* Progress bar */}
             <div style={{ height: 4, borderRadius: 2, background: 'rgba(255,255,255,0.08)', marginBottom: 16, overflow: 'hidden' } as any}>
-              <div style={{ height: '100%', borderRadius: 2, background: '#10B981', width: `${(recordSec / ECG_DURATION) * 100}%`, transition: 'width 1s linear' } as any} />
+              <div style={{ height: '100%', borderRadius: 2, background: '#A78BFA', width: `${(recordSec / ECG_DURATION) * 100}%`, transition: 'width 1s linear' } as any} />
             </div>
 
             {/* Live ECG waveform */}
@@ -392,7 +392,7 @@ export default function ECGScreen() {
 
             <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)' }}>{ecgSamples.length} echantillons</div>
 
-            <div style={{ fontSize: 14, fontWeight: 700, color: '#10B981', marginTop: 8, marginBottom: 4 }}>Gardez votre doigt sur le capteur</div>
+            <div style={{ fontSize: 14, fontWeight: 700, color: '#A78BFA', marginTop: 8, marginBottom: 4 }}>Gardez votre doigt sur le capteur</div>
             <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.3)' }}>Ne bougez pas pendant l'enregistrement</div>
           </div>
         )}
@@ -400,8 +400,8 @@ export default function ECGScreen() {
         {/* Step 5: Results */}
         {step === 5 && result && (
           <div style={{ width: '100%', maxWidth: 380, textAlign: 'center' } as any}>
-            <div style={{ width: 80, height: 80, borderRadius: 40, background: result.status === 'normal' ? 'rgba(16,185,129,0.15)' : 'rgba(239,68,68,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 20px', border: `2px solid ${result.status === 'normal' ? 'rgba(16,185,129,0.3)' : 'rgba(239,68,68,0.3)'}` } as any}>
-              <i className={result.status === 'normal' ? 'ri-checkbox-circle-line' : 'ri-error-warning-line'} style={{ fontSize: 36, color: result.status === 'normal' ? '#10B981' : '#EF4444' }} />
+            <div style={{ width: 80, height: 80, borderRadius: 40, background: result.status === 'normal' ? 'rgba(167,139,250,0.15)' : 'rgba(239,68,68,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 20px', border: `2px solid ${result.status === 'normal' ? 'rgba(167,139,250,0.3)' : 'rgba(239,68,68,0.3)'}` } as any}>
+              <i className={result.status === 'normal' ? 'ri-checkbox-circle-line' : 'ri-error-warning-line'} style={{ fontSize: 36, color: result.status === 'normal' ? '#A78BFA' : '#EF4444' }} />
             </div>
             <div style={{ fontSize: 24, fontWeight: 900, color: '#FFF', marginBottom: 4 }}>{result.status === 'normal' ? 'Resultat normal' : 'Attention requise'}</div>
             <div style={{ fontSize: 14, color: 'rgba(255,255,255,0.45)', marginBottom: 20 }}>{result.interpretation}</div>
@@ -422,7 +422,7 @@ export default function ECGScreen() {
                 { val: result.stress, unit: '', label: 'Stress', color: '#F59E0B', icon: 'ri-mental-health-line' },
                 { val: result.systolic ? `${result.systolic}/${result.diastolic}` : null, unit: '', label: 'Tension', color: '#EF4444', icon: 'ri-heart-line' },
                 { val: result.vascular_aging, unit: 'ans', label: 'Age vasculaire', color: '#8B5CF6', icon: 'ri-time-line' },
-                { val: result.mood, unit: '', label: 'Humeur', color: '#10B981', icon: 'ri-emotion-line' },
+                { val: result.mood, unit: '', label: 'Humeur', color: '#A78BFA', icon: 'ri-emotion-line' },
                 { val: result.samples_count, unit: '', label: 'Echantillons', color: '#6366F1', icon: 'ri-bar-chart-line' },
                 { val: `${result.duration_sec}s`, unit: '', label: 'Duree', color: '#64748B', icon: 'ri-timer-line' },
               ].filter(m => m.val && m.val !== 0).map((m, i) => (
@@ -434,7 +434,7 @@ export default function ECGScreen() {
               ))}
             </div>
 
-            <div onClick={() => { setStep(0); setResult(null); setEcgSamples([]); samplesRef.current = []; }} style={{ padding: '16px', borderRadius: 999, background: 'rgba(16,185,129,0.12)', border: '1px solid rgba(16,185,129,0.25)', cursor: 'pointer', fontSize: 15, fontWeight: 800, color: '#10B981', textAlign: 'center', marginBottom: 10 } as any}>Nouvel ECG</div>
+            <div onClick={() => { setStep(0); setResult(null); setEcgSamples([]); samplesRef.current = []; }} style={{ padding: '16px', borderRadius: 999, background: 'rgba(167,139,250,0.12)', border: '1px solid rgba(167,139,250,0.25)', cursor: 'pointer', fontSize: 15, fontWeight: 800, color: '#A78BFA', textAlign: 'center', marginBottom: 10 } as any}>Nouvel ECG</div>
             <div onClick={() => router.back()} style={{ padding: '12px', borderRadius: 999, cursor: 'pointer', fontSize: 13, fontWeight: 700, color: 'rgba(255,255,255,0.4)', textAlign: 'center' } as any}>Retour</div>
           </div>
         )}
@@ -443,4 +443,6 @@ export default function ECGScreen() {
       <style dangerouslySetInnerHTML={{ __html: '@keyframes spin{to{transform:rotate(360deg)}}' }} />
     </div>
   );
+}
+;
 }
