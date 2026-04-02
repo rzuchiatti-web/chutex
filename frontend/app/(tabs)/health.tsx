@@ -146,7 +146,7 @@ export default function HealthScreen() {
       return (
         <div data-testid="health-no-data" style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, display: 'flex', flexDirection: 'column', fontFamily: "'Inter', system-ui, sans-serif", overflow: 'auto', background: ndBg } as any}>
           {isDark && <AnimatedDarkBg />}
-          <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', position: 'relative', zIndex: 5, padding: '0 28px', textAlign: 'center', overflowY: 'auto', WebkitOverflowScrolling: 'touch', paddingTop: 'env(safe-area-inset-top, 60px)', paddingBottom: 100 } as any}>
+          <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', position: 'relative', zIndex: 5, padding: '0 28px', textAlign: 'center', overflowY: 'auto', WebkitOverflowScrolling: 'touch', paddingTop: '70px', paddingBottom: 100 } as any}>
             <div style={{ fontSize: 24, fontWeight: 900, color: ndText, marginBottom: 10 }}>{noDataAi?.hero_line || 'Aucune donnee de sante'}</div>
             <div style={{ fontSize: 14, color: ndSub, lineHeight: 1.6, maxWidth: 320, marginBottom: 28 }}>{noDataAi?.priority || 'Connectez vos dispositifs pour commencer a suivre votre sante et recevoir des analyses personnalisees de Nora.'}</div>
 
@@ -178,7 +178,7 @@ export default function HealthScreen() {
           {/* ═══ RED BG HEADER — Bio Age + Aging Rate + Comprendre mon corps ═══ */}
           <div style={{ position: 'relative', zIndex: 1 } as any}>
             <img src={BG_RED_HEADER} alt="" style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 } as any} />
-            <div style={{ position: 'relative', zIndex: 2, padding: '10px 20px 28px' } as any}>
+            <div style={{ position: 'relative', zIndex: 2, padding: '70px 20px 28px' } as any}>
               {/* Analysis Phase */}
               <AnalysisPhase analysisPhase={analysisPhase} showInfo={showAnalysisInfo} setShowInfo={setShowAnalysisInfo} progressBg={PROGRESS_BG} />
 

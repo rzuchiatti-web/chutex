@@ -101,7 +101,7 @@ function NoraIntroSlide({ onContinue }: { onContinue: () => void }) {
     <div style={{ height: '100dvh', display: 'flex', flexDirection: 'column', fontFamily: 'Inter, system-ui, sans-serif', background: '#000', position: 'relative', overflow: 'hidden' } as any}>
 
       {/* Nora video — stays big at top */}
-      <div style={{ flexShrink: 0, display: 'flex', justifyContent: 'center', paddingTop: 'calc(env(safe-area-inset-top, 20px) + 24px)', paddingBottom: 16 } as any}>
+      <div style={{ flexShrink: 0, display: 'flex', justifyContent: 'center', paddingTop: '70px', paddingBottom: 16 } as any}>
         <video autoPlay loop muted playsInline style={{
           width: 160, height: 160,
           objectFit: 'contain', borderRadius: 50,

@@ -80,7 +80,7 @@ export default function ProRevenuePage() {
         {/* HEADER */}
         <div style={{ position: 'relative', zIndex: 1, minHeight: 180 } as any}>
           <img src={GREEN_BG_IMG} alt="" style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 } as any} />
-          <div style={{ position: 'relative', zIndex: 2, padding: '28px 20px 32px' } as any}>
+          <div style={{ position: 'relative', zIndex: 2, padding: '70px 20px 32px' } as any}>
             <div data-testid="back-btn" onClick={() => router.back()} style={{ width: 40, height: 40, borderRadius: 12, background: 'rgba(255,255,255,0.12)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', border: '1px solid rgba(255,255,255,0.15)', marginBottom: 16 } as any}>
               <i className="ri-arrow-left-line" style={{ fontSize: 18, color: '#FFF' }} />
             </div>

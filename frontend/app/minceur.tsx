@@ -313,7 +313,7 @@ export default function MinceurPage() {
         <div style={{ position: 'relative', zIndex: 1, minHeight: 300 } as any}>
           <img src={BLUE_BG} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 } as any} />
           <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.4)', zIndex: 1 } as any} />
-          <div style={{ position: 'relative', zIndex: 2, padding: 'calc(env(safe-area-inset-top, 20px) + 12px) 20px 60px', maxWidth: 480, margin: '0 auto' } as any}>
+          <div style={{ position: 'relative', zIndex: 2, padding: '70px 20px 60px', maxWidth: 480, margin: '0 auto' } as any}>
 
             {/* Title row */}
             <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16 } as any}>

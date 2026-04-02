@@ -24,7 +24,7 @@ export const ProgramOnboarding = ({
   const optBorder = isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.06)';
 
   return (
-  <div style={{ maxWidth: 480, margin: '0 auto', padding: 'calc(env(safe-area-inset-top, 44px) + 10px) 20px 120px', animation: 'pd-fade-up 400ms ease both', boxSizing: 'border-box', width: '100%', overflow: 'hidden' } as any}>
+  <div style={{ maxWidth: 480, margin: '0 auto', padding: '70px 20px 120px', animation: 'pd-fade-up 400ms ease both', boxSizing: 'border-box', width: '100%', overflow: 'hidden' } as any}>
     <div data-testid="program-detail-back-button" onClick={onBack} style={{
       width: 42, height: 42, borderRadius: 999, background: cardBg,
       border: `1px solid ${cardBorder}`, display: 'flex', alignItems: 'center', justifyContent: 'center',

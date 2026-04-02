@@ -141,7 +141,7 @@ export default function HealthReadonlyScreen() {
         {/* ═══ RED BG HEADER — CENTERED ═══ */}
         <div style={{ position: 'relative', zIndex: 1 } as any}>
           <img src={BG_RED_HEADER} alt="" style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 } as any} />
-          <div style={{ position: 'relative', zIndex: 2, padding: '10px 20px 28px' } as any}>
+          <div style={{ position: 'relative', zIndex: 2, padding: '70px 20px 28px' } as any}>
 
             {/* Top bar: back + badge */}
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 } as any}>

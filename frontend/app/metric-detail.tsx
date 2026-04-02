@@ -366,7 +366,7 @@ export default function MetricDetailScreen() {
         <div style={{ position: 'relative', zIndex: 1, minHeight: 220 } as any}>
           <img src={BG} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 } as any} />
           <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.35)', zIndex: 1 } as any} />
-          <div style={{ position: 'relative', zIndex: 2, padding: 'calc(env(safe-area-inset-top, 20px) + 12px) 20px 20px', maxWidth: 480, margin: '0 auto' } as any}>
+          <div style={{ position: 'relative', zIndex: 2, padding: '70px 20px 20px', maxWidth: 480, margin: '0 auto' } as any}>
             <div data-testid="back-btn" onClick={() => {
               if (isReadonly && beneficiaryId) router.push({ pathname: '/health-readonly' as any, params: { beneficiaryId } });
               else router.push('/(tabs)/health' as any);

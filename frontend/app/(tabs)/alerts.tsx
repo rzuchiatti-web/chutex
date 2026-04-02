@@ -835,7 +835,7 @@ function ProMessaging({ token, user }: { token: string; user: any }) {
           {/* Header - centré vertical */}
           <div style={{ position: 'relative', zIndex: 1, flexShrink: 0 } as any}>
             <img src={BG_IMAGE} alt="" style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 } as any} />
-            <div style={{ position: 'relative', zIndex: 2, padding: '28px 20px 36px', display: 'flex', flexDirection: 'column', alignItems: 'center' } as any}>
+            <div style={{ position: 'relative', zIndex: 2, padding: '70px 20px 36px', display: 'flex', flexDirection: 'column', alignItems: 'center' } as any}>
               <div style={{ width: 48, height: 48, borderRadius: 16, background: 'rgba(255,255,255,0.15)', backdropFilter: 'blur(8px)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 12, border: '1px solid rgba(255,255,255,0.2)' } as any}>
                 <i className="ri-chat-3-fill" style={{ fontSize: 22, color: '#FFF' }} />
               </div>

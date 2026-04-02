@@ -67,7 +67,7 @@ export default function NoraHistoryPage() {
 
         {/* HEADER */}
         <div style={{ position: 'relative', zIndex: 1, minHeight: 160, background: '#000' } as any}>
-          <div style={{ position: 'relative', zIndex: 2, padding: 'calc(env(safe-area-inset-top, 20px) + 12px) 20px 50px', maxWidth: 480, margin: '0 auto' } as any}>
+          <div style={{ position: 'relative', zIndex: 2, padding: '70px 20px 50px', maxWidth: 480, margin: '0 auto' } as any}>
             <div data-testid="back-button" onClick={() => router.back()} style={{ width: 44, height: 44, borderRadius: 14, background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}><i className="ri-arrow-left-line" style={{ fontSize: 18, color: '#FFF' }} /></div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginTop: 14 } as any}>
               <video autoPlay loop muted playsInline style={{ width: 52, height: 52, borderRadius: 18, objectFit: 'contain', flexShrink: 0 } as any} src={NORA_VIDEO} />

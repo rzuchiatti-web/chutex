@@ -183,7 +183,7 @@ export default function GuardianDetailScreen() {
         {/* ══ HEADER with BG image ══ */}
         <div style={{ position: 'relative', zIndex: 1 } as any}>
           <img src={BG_RED} alt="" style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 } as any} />
-          <div style={{ position: 'relative', zIndex: 2, padding: '18px 20px 44px' } as any}>
+          <div style={{ position: 'relative', zIndex: 2, padding: '70px 20px 44px' } as any}>
             {/* Back button */}
             <div data-testid="guardian-back-btn" onClick={() => {
               try { router.back(); } catch { router.push('/(tabs)' as any); }

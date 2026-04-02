@@ -132,7 +132,7 @@ export default function SubscriptionManagePopup({ show, onClose, subData, onRefr
       <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.35)', zIndex: 1 } as any} />
 
       {/* Scrollable content */}
-      <div style={{ flex: 1, overflowY: 'auto', position: 'relative', zIndex: 5, WebkitOverflowScrolling: 'touch', paddingTop: 'env(safe-area-inset-top, 44px)' } as any}>
+      <div style={{ flex: 1, overflowY: 'auto', position: 'relative', zIndex: 5, WebkitOverflowScrolling: 'touch', paddingTop: '70px' } as any}>
         <div style={{ width: '100%', maxWidth: 420, margin: '0 auto', padding: '24px 22px 120px', boxSizing: 'border-box' } as any}>
 
         {/* Back button */}

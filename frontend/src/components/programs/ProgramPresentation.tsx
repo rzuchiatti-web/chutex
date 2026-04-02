@@ -66,7 +66,7 @@ export const ProgramPresentation = ({
 
         {/* Back button */}
         <div data-testid="program-detail-back-button" onClick={onBack} style={{
-          position: 'absolute', top: 'calc(env(safe-area-inset-top, 44px) + 10px)', left: 20, zIndex: 10,
+          position: 'absolute', top: '70px', left: 20, zIndex: 10,
           width: 42, height: 42, borderRadius: 999, background: 'rgba(0,0,0,0.4)',
           border: '1px solid rgba(255,255,255,0.15)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)',
           display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer',

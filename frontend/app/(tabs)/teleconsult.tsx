@@ -107,7 +107,7 @@ export default function TeleconsultScreen() {
             {/* RED HEADER */}
             <div style={{ position: 'relative', zIndex: 1, minHeight: 140 } as any}>
               <img src={BG_RED_MSG} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 } as any} />
-              <div style={{ position: 'relative', zIndex: 2, padding: '28px 20px 40px' } as any}>
+              <div style={{ position: 'relative', zIndex: 2, padding: '70px 20px 40px' } as any}>
                 <div style={{ fontSize: 24, fontWeight: 900, color: '#FFF', letterSpacing: -0.5, textShadow: '0 2px 8px rgba(0,0,0,0.3)' }}>Messages</div>
                 <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.6)', marginTop: 4, textShadow: '0 1px 4px rgba(0,0,0,0.3)' }}>Echangez avec votre professionnel de sante</div>
               </div>

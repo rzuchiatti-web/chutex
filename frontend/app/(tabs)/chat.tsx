@@ -102,7 +102,7 @@ export default function ProgramsTab() {
         {/* ═══ RED BG HEADER ═══ */}
         <div style={{ position: 'relative', zIndex: 1 } as any}>
           <img src={BG_RED} alt="" style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 } as any} />
-          <div style={{ position: 'relative', zIndex: 2, padding: '24px 20px 32px' } as any}>
+          <div style={{ position: 'relative', zIndex: 2, padding: '70px 20px 32px' } as any}>
             <div style={{ display: 'flex', alignItems: 'center', marginBottom: 10 } as any}>
               <div style={{ flex: 1 } as any}>
                 <div style={{ fontSize: 24, fontWeight: 900, color: '#FFF', letterSpacing: -0.5, textShadow: '0 2px 8px rgba(0,0,0,0.3)' }}>Programmes</div>

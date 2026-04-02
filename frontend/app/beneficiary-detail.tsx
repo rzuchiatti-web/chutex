@@ -178,7 +178,7 @@ export default function BeneficiaryDetailScreen() {
         {/* ══ HEADER ══ */}
         <div style={{ position: 'relative', zIndex: 1 } as any}>
           <img src={BG_RED} alt="" style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 } as any} />
-          <div style={{ position: 'relative', zIndex: 2, padding: '18px 20px 44px' } as any}>
+          <div style={{ position: 'relative', zIndex: 2, padding: '70px 20px 44px' } as any}>
             <div data-testid="beneficiary-detail-back-button" onClick={() => router.back()} style={{ width: 36, height: 36, borderRadius: 10, background: 'rgba(255,255,255,0.15)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', marginBottom: 18 } as any}>
               <i className="ri-arrow-left-s-line" style={{ fontSize: 20, color: '#FFF' }} />
             </div>

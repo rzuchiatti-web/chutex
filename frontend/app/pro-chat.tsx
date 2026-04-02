@@ -71,7 +71,7 @@ export default function ProChatPage() {
       {/* Header with red BG matching ProMessaging */}
       <div style={{ position: 'relative', zIndex: 1, flexShrink: 0 } as any}>
         <img src={BG_IMAGE} alt="" style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 } as any} />
-        <div style={{ position: 'relative', zIndex: 2, padding: '20px 16px 24px', display: 'flex', alignItems: 'center', gap: 12 } as any}>
+        <div style={{ position: 'relative', zIndex: 2, padding: '70px 16px 24px', display: 'flex', alignItems: 'center', gap: 12 } as any}>
           <div data-testid="back-btn" onClick={() => router.back()}
             style={{ width: 36, height: 36, borderRadius: 12, background: 'rgba(255,255,255,0.15)', backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', border: '1px solid rgba(255,255,255,0.2)' } as any}>
             <i className="ri-arrow-left-s-line" style={{ fontSize: 20, color: '#FFF' }} />

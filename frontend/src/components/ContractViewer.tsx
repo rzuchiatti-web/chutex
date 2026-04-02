@@ -66,7 +66,7 @@ export default function ContractViewer({ show, onClose, subData, isCare }: Contr
       <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 200, background: 'linear-gradient(180deg, rgba(59,130,246,0.08) 0%, transparent 100%)', zIndex: 0 } as any} />
 
       {/* Header */}
-      <div style={{ position: 'relative', zIndex: 10, padding: 'calc(env(safe-area-inset-top, 44px) + 12px) 20px 12px', display: 'flex', alignItems: 'center', gap: 12, borderBottom: '1px solid rgba(255,255,255,0.06)' } as any}>
+      <div style={{ position: 'relative', zIndex: 10, padding: '70px 20px 12px', display: 'flex', alignItems: 'center', gap: 12, borderBottom: '1px solid rgba(255,255,255,0.06)' } as any}>
         <div onClick={onClose} data-testid="contract-close-btn" style={{ width: 38, height: 38, borderRadius: 999, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', flexShrink: 0 } as any}>
           <i className="ri-arrow-left-s-line" style={{ fontSize: 18, color: '#FFF' }} />
         </div>
