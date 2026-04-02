@@ -245,6 +245,8 @@ export default function BraceletConnectScreen() {
         });
         setDevice(bd);
         setBleStatus('connecting');
+        // Store device globally for ECG page
+        if (typeof window !== 'undefined') (window as any).__bleBraceletDevice = bd;
 
         // Auto-detect device type by trying standard GATT health services first
         bd.addEventListener('gattserverdisconnected', () => { setBleStatus('idle'); if (pollRef.current) clearInterval(pollRef.current); });

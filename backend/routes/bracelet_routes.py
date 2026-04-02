@@ -464,7 +464,7 @@ async def push_bracelet_data(request_body: dict, user=Depends(get_current_user))
 
     # Update device status
     update_fields = {"connected": True, "last_sync": now, "ble_device_id": device_id}
-    if 'battery' in parsed:
+    if 'battery' in parsed and 0 < parsed['battery'] <= 100:
         update_fields['battery'] = parsed['battery']
     if 'heart_rate' in parsed and parsed['heart_rate'] > 0:
         update_fields['last_heart_rate'] = parsed['heart_rate']
