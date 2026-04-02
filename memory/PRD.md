@@ -13,8 +13,7 @@
 - [x] UPDATE_CALORIES, ADJUST_MACROS, ADD_EXERCISE, DELETE_EXERCISE, UPDATE_MEAL_PLAN, LIST_EXERCISES
 
 ### Balance Connectee (Lefu CF586BLE+WIFI)
-- [x] Bug sex=2 corrige, bug device non initialise corrige, filtre <20kg
-- [x] Timing WeighingFlow reduit (50s->20s), alias backend
+- [x] Bug sex=2 corrige, filtre <20kg, alias backend
 - [x] Formules BIA locales : 18 metriques sans impedance
 - [x] Endpoints WiFi complets
 - [ ] WiFi non configure : necessite PPBTKitDemo
@@ -32,19 +31,20 @@
 - [x] Si pas connecte → redirection vers Dispositifs
 - [x] Animation respiration Whoop 30s
 - [x] Sauvegarde vraies donnees ECG via /api/ecg/start
-- [x] Redirection directe vers ecg-detail
 - [x] Page ecg-detail : trace ECG reel + BPM + rythme + verification auto + analyse Nora
-- [x] Pas de donnees bracelet dans ecg-detail (seulement ECG)
+
+### Dashboard - Section Dispositifs
+- [x] **Section TOUJOURS visible** (meme sans device)
+- [x] **Etat vide** : 'Aucun dispositif connecte' + bouton 'Ajouter un dispositif'
+- [x] **Batterie masquee** si = 0% (plus de 0% affiche)
+- [x] **Backend batch** : connected/paired calcule via last_sync (plus de champ raw)
+- [x] Bouton + redirige vers /(tabs)/devices
+- [x] bracelet-connect.tsx SUPPRIME
+- [x] BraceletBLEContext.tsx SUPPRIME
 
 ### Page Dispositifs
 - [x] Gere connexion bracelet, balance, gilet
 - [x] Bouton ECG visible quand bracelet appaire
-- [x] DeviceCards redirige vers /(tabs)/devices (plus vers bracelet-connect)
-
-### Nettoyage
-- [x] bracelet-connect.tsx SUPPRIME
-- [x] BraceletBLEContext.tsx SUPPRIME
-- [x] Aucune reference residuelle
 
 ### Morning Briefing, Popup Sommeil, Rappels, Dashboard
 - [x] Tous les features precedents conserves
