@@ -588,8 +588,8 @@ V8_BLE_CONFIG = {
     "device_name_prefixes": ["V8", "JCV8", "Elio-V8", "HB8", "2301"],
     "services": {
         "main": {"uuid": "0000fff0-0000-1000-8000-00805f9b34fb",
-                 "char_notify": "0000fff6-0000-1000-8000-00805f9b34fb",
-                 "char_write": "0000fff7-0000-1000-8000-00805f9b34fb"},
+                 "char_notify": "0000fff7-0000-1000-8000-00805f9b34fb",
+                 "char_write": "0000fff6-0000-1000-8000-00805f9b34fb"},
         "heart_rate": {"uuid": "0000180d-0000-1000-8000-00805f9b34fb",
                        "char_measurement": "00002a37-0000-1000-8000-00805f9b34fb"},
         "battery": {"uuid": "0000180f-0000-1000-8000-00805f9b34fb",

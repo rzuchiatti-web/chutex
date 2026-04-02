@@ -13,8 +13,8 @@ import { isBleAvailable, getBleManager, bytesToBase64, base64ToBytes } from '../
 
 // BLE UUIDs extracted from J-Style 2208A SDK APK
 const BLE_SERVICE_UUID = '0000fff0-0000-1000-8000-00805f9b34fb';
-const BLE_NOTIFY_UUID = '0000fff6-0000-1000-8000-00805f9b34fb';
-const BLE_WRITE_UUID = '0000fff7-0000-1000-8000-00805f9b34fb';
+const BLE_NOTIFY_UUID = '0000fff7-0000-1000-8000-00805f9b34fb';
+const BLE_WRITE_UUID = '0000fff6-0000-1000-8000-00805f9b34fb';
 
 // V6 BLE Standard GATT Services
 const V6_SERVICES = {

@@ -9,10 +9,10 @@ import NativePageView from '../src/components/NativePageView';
 const BG = 'https://customer-assets.emergentagent.com/job_443c9c6e-0feb-4920-a358-fe7cc1a6289b/artifacts/1lq6xl58_ChatGPT%20Image%2017%20f%C3%A9vr.%202026%2C%2008_54_55.png';
 const BRACELET_IMG = 'https://customer-assets.emergentagent.com/job_8afdc991-0ab2-4687-a2a5-438b9a5f0711/artifacts/2fto1qw7_bracelet_sante_connecte_elio_chutex_care_teleassistance_telealarme%281%29.svg';
 
-// V8 BLE UUIDs
+// V8 BLE UUIDs — FROM SDK: FFF6=WRITE, FFF7=NOTIFY
 const SVC = '0000fff0-0000-1000-8000-00805f9b34fb';
-const NOTIFY = '0000fff6-0000-1000-8000-00805f9b34fb';
-const WRITE = '0000fff7-0000-1000-8000-00805f9b34fb';
+const NOTIFY = '0000fff7-0000-1000-8000-00805f9b34fb';
+const WRITE = '0000fff6-0000-1000-8000-00805f9b34fb';
 const ECG_DURATION = 30;
 
 function buildCmd(cmd: number, payload: number[] = []) {
