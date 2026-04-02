@@ -57,7 +57,8 @@ export default function ECGScreen() {
   const { token } = useAuth();
   const router = useRouter();
   const [step, setStep] = useState(0); // 0=prep, 1=breathing, 2=finger, 3=connecting, 4=recording, 5=result
-  const [breathCount, setBreathCount] = useState(15);
+  const [breathSec, setBreathSec] = useState(0);
+  const [breathPhase, setBreathPhase] = useState<'inhale'|'exhale'>('inhale');
   const [recordSec, setRecordSec] = useState(0);
   const [ecgSamples, setEcgSamples] = useState<number[]>([]);
   const [result, setResult] = useState<any>(null);
@@ -69,17 +70,22 @@ export default function ECGScreen() {
   const resultRef = useRef<any>(null);
   const timerRef = useRef<any>(null);
 
-  // Breathing countdown
+  // Breathing animation (30s) — Whoop style: 4s inhale + 6s exhale = 10s cycle × 3
   useEffect(() => {
     if (step !== 1) return;
-    setBreathCount(15);
-    timerRef.current = setInterval(() => {
-      setBreathCount(p => {
-        if (p <= 1) { clearInterval(timerRef.current); setStep(2); return 0; }
-        return p - 1;
+    setBreathSec(0);
+    setBreathPhase('inhale');
+    const iv = setInterval(() => {
+      setBreathSec(p => {
+        const next = p + 0.05;
+        if (next >= 30) { clearInterval(iv); setStep(2); return 30; }
+        // 4s inhale + 6s exhale = 10s cycle
+        const inCycle = next % 10;
+        setBreathPhase(inCycle < 4 ? 'inhale' : 'exhale');
+        return next;
       });
-    }, 1000);
-    return () => clearInterval(timerRef.current);
+    }, 50);
+    return () => clearInterval(iv);
   }, [step]);
 
   // Recording timer
@@ -390,20 +396,34 @@ export default function ECGScreen() {
           </div>
         )}
 
-        {/* Step 1: Breathing countdown */}
-        {step === 1 && (
-          <div style={{ width: '100%', maxWidth: 380, textAlign: 'center' } as any}>
-            <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 20 }}>Preparation</div>
-            <div style={{ width: 160, height: 160, borderRadius: 80, border: '3px solid rgba(255,255,255,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 24px', position: 'relative' } as any}>
-              <svg width="160" height="160" style={{ position: 'absolute', top: -1.5, left: -1.5, transform: 'rotate(-90deg)' }}>
-                <circle cx="80" cy="80" r="78" fill="none" stroke="#FFFFFF" strokeWidth="3" strokeDasharray={`${(1 - breathCount / 15) * 490} 490`} strokeLinecap="round" />
-              </svg>
-              <div style={{ fontSize: 56, fontWeight: 900, color: '#FFF', lineHeight: 1 }}>{breathCount}</div>
+        {/* Step 1: Whoop-style breathing animation (30s) */}
+        {step === 1 && (() => {
+          const inCycle = breathSec % 10;
+          const isInhale = inCycle < 4;
+          const progress = isInhale ? (inCycle / 4) : (1 - (inCycle - 4) / 6);
+          const scale = 0.5 + progress * 0.5;
+          const remaining = Math.ceil(30 - breathSec);
+          const circleColor = isInhale ? 'rgba(255,160,100,0.6)' : 'rgba(120,200,255,0.5)';
+          const glowColor = isInhale ? 'rgba(255,140,80,0.3)' : 'rgba(100,180,255,0.25)';
+          return (
+            <div style={{ width: '100%', maxWidth: 380, textAlign: 'center' } as any}>
+              <div style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.5)', textTransform: 'uppercase', letterSpacing: 2, marginBottom: 4 }}>Preparation ECG</div>
+              <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.3)', marginBottom: 40 }}>00:{remaining < 10 ? '0' : ''}{remaining}</div>
+              <div style={{ position: 'relative', width: 280, height: 280, margin: '0 auto 40px', display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}>
+                {[140, 120, 95].map((r, i) => (
+                  <div key={i} style={{ position: 'absolute', width: r * 2, height: r * 2, borderRadius: '50%', border: `1px dashed rgba(255,255,255,${0.08 + i * 0.03})`, top: '50%', left: '50%', transform: 'translate(-50%, -50%)' } as any} />
+                ))}
+                <div style={{ width: 180, height: 180, borderRadius: '50%', transform: `scale(${scale})`, transition: 'transform 0.15s ease-out', background: `radial-gradient(circle at 50% 50%, rgba(0,0,0,0.4) 0%, ${circleColor} 70%, transparent 100%)`, border: `2px solid ${circleColor}`, boxShadow: `0 0 60px ${glowColor}, 0 0 120px ${glowColor}` } as any} />
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10 } as any}>
+                <div style={{ width: 8, height: 8, borderRadius: 4, background: isInhale ? '#FFA064' : '#78C8FF' } as any} />
+                <div style={{ fontSize: 18, fontWeight: 700, color: '#FFF', lineHeight: 1.5 }}>
+                  {isInhale ? 'Inspirez par le nez.' : 'Expirez lentement par la bouche.'}
+                </div>
+              </div>
             </div>
-            <div style={{ fontSize: 20, fontWeight: 800, color: '#FFF', marginBottom: 8 }}>Respirez doucement</div>
-            <div style={{ fontSize: 14, color: 'rgba(255,255,255,0.4)', lineHeight: 1.6 }}>Inspirez... Expirez...</div>
-          </div>
-        )}
+          );
+        })()}
 
         {/* Step 2: Position finger + connect */}
         {step === 2 && (
