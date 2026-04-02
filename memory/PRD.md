@@ -8,19 +8,22 @@
 - LLM: OpenAI GPT-5.2 via Emergent LLM Key
 
 ## Bracelet V8 — Integration Complete
-- [x] UUIDs: FFF6=WRITE, FFF7=NOTIFY
-- [x] Detection V8 automatique par nom BLE
-- [x] Parsing complet: 0x09 (steps), 0x28 (HR/SpO2/HRV/BP/stress/temp), 0x0D (battery), 0x50 (glucose), 0x26 (temperature 3-NTC), 0x53 (sleep), 0x33 (ECG result), 0x51/52 (steps hist), 0x54/55 (HR hist)
-- [x] Polling periodique: realtime 10s, mesures completes 30s (incl glucose + temp V8), sync backend 60s
+- [x] Detection V8 auto, parsing complet (0x09, 0x28, 0x0D, 0x50, 0x26, 0x53, 0x33, 0x51/52/54/55)
+- [x] Polling periodique: realtime 10s, mesures 30s (glucose+temp), sync 60s
+- [x] Auto-reconnexion via getDevices()
 - [x] Envoi vers /api/bracelet/v8/push avec data_type correct
-- [x] Auto-reconnexion au lancement via navigator.bluetooth.getDevices()
-- [x] Stockage device sur window pour ECG
-- [x] Nettoyage auto a la deconnexion
+
+## Page Sante
+- [x] Daily-report lit les donnees V8 depuis devices.last_* (fallback du consolidated)
+- [x] ECG historique integre dans le daily-report (ecg_history)
+- [x] Carte ECG en bas de la page sante avec historique cliquable
+- [x] Carte Pesee avec historique des pesees
+- [x] Vitaux: FC, SpO2, Tension, Temperature affiches depuis donnees reelles
+- [x] Glycemie estimee (PPG) via GlycemiaCard
 
 ## ECG
-- [x] Verifie /api/bracelet/status, redirige si pas connecte
-- [x] Animation Whoop 30s, trace reel, save /api/ecg/start
-- [x] Detail: trace + BPM + rythme uniquement
+- [x] Verifie connexion, animation Whoop, trace reel
+- [x] Detail: trace + BPM + rythme
 
 ## Dashboard
 - [x] Section Dispositifs toujours visible, batterie masquee si 0%
@@ -28,7 +31,6 @@
 
 ## Balance Lefu
 - [x] Corrigee (sex, BIA, WiFi endpoints)
-- [ ] WiFi non configure
 
 ## Backlog
 - P1 : Rebuild EAS TestFlight

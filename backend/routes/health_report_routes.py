@@ -1025,6 +1025,8 @@ async def get_daily_report(user=Depends(get_current_user)):
 
     bracelet_reading = await db.device_readings.find_one({"user_id": uid, "device_type": "bracelet"}, {"_id": 0}, sort=[("timestamp", -1)])
     scale_reading = await db.device_readings.find_one({"user_id": uid, "device_type": "scale"}, {"_id": 0}, sort=[("timestamp", -1)])
+    # Also get device document for latest values (V8 stores per-metric, not consolidated)
+    bracelet_dev = await db.devices.find_one({"user_id": uid, "device_type": "bracelet"}, {"_id": 0})
     # Start with empty data — only real readings populate it
     d = {
         "heart_rate": 0, "heart_rate_prev": 0, "hrv": 0, "spo2": 0,
@@ -1041,6 +1043,24 @@ async def get_daily_report(user=Depends(get_current_user)):
         for k in ["heart_rate", "spo2", "temperature", "steps", "calories", "distance_km", "hrv", "stress_level", "recovery_score", "sleep_quality", "sleep_duration", "sleep_duration_min", "sleep_deep_pct", "sleep_rem_pct", "deep_sleep_min", "light_sleep_min", "rem_sleep_min", "sleep_interruptions"]:
             if rd.get(k): d[k] = rd[k]
         if rd.get("blood_pressure"): d["blood_pressure"] = rd["blood_pressure"]
+    # Fallback: use device document fields (V8 stores per-metric in last_* fields)
+    if bracelet_dev:
+        if d["heart_rate"] == 0 and bracelet_dev.get("last_heart_rate", 0) > 0:
+            d["heart_rate"] = bracelet_dev["last_heart_rate"]
+        if d["spo2"] == 0 and bracelet_dev.get("last_spo2", 0) > 0:
+            d["spo2"] = bracelet_dev["last_spo2"]
+        if d["temperature"] == 0 and bracelet_dev.get("last_temperature", 0) > 30:
+            d["temperature"] = bracelet_dev["last_temperature"]
+        if d["steps"] == 0 and bracelet_dev.get("last_steps", 0) > 0:
+            d["steps"] = bracelet_dev["last_steps"]
+        if d["calories"] == 0 and bracelet_dev.get("last_calories", 0) > 0:
+            d["calories"] = bracelet_dev["last_calories"]
+        if d["blood_pressure"]["systolic"] == 0 and bracelet_dev.get("last_systolic", 0) > 0:
+            d["blood_pressure"] = {"systolic": bracelet_dev["last_systolic"], "diastolic": bracelet_dev.get("last_diastolic", 0)}
+        if d["hrv"] == 0 and bracelet_dev.get("last_hrv", 0) > 0:
+            d["hrv"] = bracelet_dev["last_hrv"]
+        if bracelet_dev.get("last_stress", 0) > 0 and d.get("stress_level", 0) == 0:
+            d["stress_level"] = bracelet_dev["last_stress"]
 
     # ── VO2 Max estimation (Uth-Sorensen + HRV correction, like WHOOP) ──
     if d.get("heart_rate") and d["heart_rate"] > 0:
@@ -1223,11 +1243,26 @@ async def get_daily_report(user=Depends(get_current_user)):
             if not activity_streak:
                 activity_streak = {"current_streak": 0, "max_streak": 0, "objectives_today": [], "badge": None}
 
+    # ECG history for the health page
+    ecg_history = []
+    ecg_records = await db.ecg_records.find(
+        {"user_id": uid}, {"_id": 0, "data": 0}
+    ).sort("timestamp", -1).to_list(10)
+    for e in ecg_records:
+        bpm_val = e.get("bpm", 0)
+        ecg_history.append({
+            "id": e.get("id", ""),
+            "date": e.get("created_at", e.get("timestamp", "")),
+            "bpm": bpm_val,
+            "result": e.get("interpretation", "Rythme sinusal"),
+            "normal": bpm_val == 0 or (50 <= bpm_val <= 100),
+        })
+
     return {
         "score": si["score"], "status": si["status"], "status_color": si["status_color"],
         "subscores": si["subscores"], "lifts": si["lifts"], "limits": si["limits"],
         "data": d, "ai": ai, "daily_plan": plan, "sparklines": sparks,
-        "weighings": weighings, "human_map_img": HUMAN_MAP_IMG,
+        "weighings": weighings, "ecg_history": ecg_history, "human_map_img": HUMAN_MAP_IMG,
         "analysis_phase": analysis_phase,
         "body_age_nora": body_age_data,
         "activity_streak": activity_streak,
