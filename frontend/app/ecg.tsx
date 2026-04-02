@@ -16,9 +16,41 @@ const WRITE = '0000fff6-0000-1000-8000-00805f9b34fb';
 const ECG_DURATION = 30;
 
 function buildCmd(cmd: number, payload: number[] = []) {
-  const pkt = [cmd, ...payload, ...new Array(14 - payload.length).fill(0)];
-  pkt.push(pkt.reduce((s, b) => s + b, 0) & 0xFF);
-  return new Uint8Array(pkt);
+  const pkt = new Uint8Array(16);
+  pkt[0] = cmd;
+  for (let i = 0; i < payload.length && i < 14; i++) pkt[i + 1] = payload[i];
+  // CRC: sum of all bytes except last
+  let crc = 0;
+  for (let i = 0; i < 15; i++) crc += pkt[i];
+  pkt[15] = crc & 0xFF;
+  return pkt;
+}
+
+// ECG-specific commands from SDK
+function buildECGStart() {
+  // 0x28 = MeasurementWithType, 0x04 = ECG, 0x01 = start, duration 50000ms, 0x01 = ECG flag
+  const pkt = new Uint8Array(16);
+  pkt[0] = 0x28; // MeasurementWithType
+  pkt[1] = 0x04; // ECG mode
+  pkt[2] = 0x01; // start
+  pkt[4] = 0x50; // 50000 & 0xFF
+  pkt[5] = 0xC3; // 50000 >> 8
+  pkt[6] = 0x01; // ECG flag
+  let crc = 0; for (let i = 0; i < 15; i++) crc += pkt[i]; pkt[15] = crc & 0xFF;
+  return pkt;
+}
+function buildECGStop() {
+  const pkt = new Uint8Array(16);
+  pkt[0] = 0x28; pkt[1] = 0x04; pkt[2] = 0x00; pkt[6] = 0x01;
+  let crc = 0; for (let i = 0; i < 15; i++) crc += pkt[i]; pkt[15] = crc & 0xFF;
+  return pkt;
+}
+function buildPPGEnable(on: boolean) {
+  // 0x07 = PPG, enables ECG realtime waveform
+  const pkt = new Uint8Array(16);
+  pkt[0] = 0x07; pkt[1] = on ? 0x01 : 0x00;
+  let crc = 0; for (let i = 0; i < 15; i++) crc += pkt[i]; pkt[15] = crc & 0xFF;
+  return pkt;
 }
 
 export default function ECGScreen() {
@@ -121,8 +153,24 @@ export default function ECGScreen() {
                   // Log everything for debug
                   setBleError(`BLE: cmd=0x${cmd.toString(16)} ${bytes.length}B: ${hex.substring(0, 60)}`);
 
+                  // ECG waveform: packets > 16 bytes contain 24-bit samples (SDK: getECG)
+                  if (bytes.length > 16) {
+                    const packetId = bytes[1] & 0xFF;
+                    const newSamples: number[] = [];
+                    const count = Math.floor((bytes.length - 2) / 3);
+                    for (let i = 0; i < count; i++) {
+                      const idx = 2 + 3 * i;
+                      const sample = (bytes[idx] & 0xFF) | ((bytes[idx + 1] & 0xFF) << 8) | ((bytes[idx + 2] & 0xFF) << 16);
+                      newSamples.push(sample);
+                    }
+                    if (newSamples.length > 0) {
+                      samplesRef.current = [...samplesRef.current, ...newSamples];
+                      setEcgSamples([...samplesRef.current]);
+                    }
+                  }
+
                   // ECG waveform data (cmd 0x32 or any packet with many samples during recording)
-                  if (cmd === 0x32 || (step === 4 && bytes.length >= 6)) {
+                  if (cmd === 0x32 || (bytes.length >= 6 && bytes.length <= 16)) {
                     const newSamples: number[] = [];
                     const startByte = (cmd === 0x32 || cmd === 0x33) ? 1 : 0;
                     for (let i = startByte; i + 1 < bytes.length; i += 2) {
@@ -170,16 +218,15 @@ export default function ECGScreen() {
       const timeCmd = buildCmd(0x01, [now.getFullYear() & 0xFF, (now.getFullYear() >> 8) & 0xFF, now.getMonth() + 1, now.getDate(), now.getHours(), now.getMinutes(), now.getSeconds()]);
       await writeCharRef.current.writeValue(timeCmd).catch(() => {});
 
-      // Start ECG command — try multiple write methods
+      // Enable PPG/ECG realtime waveform FIRST
       await new Promise(r => setTimeout(r, 300));
-      const ecgCmd = buildCmd(0x32, [1]);
-      try {
-        if (writeCharRef.current.writeValue) await writeCharRef.current.writeValue(ecgCmd);
-        else if (writeCharRef.current.writeValueWithResponse) await writeCharRef.current.writeValueWithResponse(ecgCmd);
-        else if (writeCharRef.current.writeValueWithoutResponse) await writeCharRef.current.writeValueWithoutResponse(ecgCmd);
-      } catch (e: any) {
-        setBleError(`Write ECG cmd failed: ${e.message}`);
-      }
+      await writeCharRef.current.writeValue(buildPPGEnable(true)).catch(() => {});
+
+      // Start ECG measurement (0x28, mode ECG=0x04, start=0x01)
+      await new Promise(r => setTimeout(r, 300));
+      await writeCharRef.current.writeValue(buildECGStart()).catch((e: any) => {
+        setBleError(`Write ECG start failed: ${e.message}`);
+      });
 
       samplesRef.current = [];
       resultRef.current = null;
@@ -196,9 +243,13 @@ export default function ECGScreen() {
   }, []);
 
   const stopECG = useCallback(async () => {
-    // Send stop command
+    // Send stop ECG + disable PPG
     if (writeCharRef.current) {
-      try { await writeCharRef.current.writeValue(buildCmd(0x33)).catch(() => {}); } catch {}
+      try {
+        await writeCharRef.current.writeValue(buildECGStop()).catch(() => {});
+        await new Promise(r => setTimeout(r, 200));
+        await writeCharRef.current.writeValue(buildPPGEnable(false)).catch(() => {});
+      } catch {}
     }
     // Wait for result packet
     await new Promise(r => setTimeout(r, 2000));
