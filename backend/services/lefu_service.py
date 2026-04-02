@@ -92,7 +92,8 @@ async def calculate_body_data(weight_kg: float, impedance: int, height_cm: float
                 if not parsed:
                     parsed = body
                 logger.info(f"Lefu body data parsed: {list(parsed.keys())}")
-                return {
+                # Capture ALL metrics dynamically (Lefu returns up to 58 metrics)
+                result = {
                     "weight": weight_kg,
                     "bmi": parsed.get("ppBMI", 0),
                     "body_fat_pct": parsed.get("ppFat", parsed.get("ppBodyfatPercentage", 0)),
@@ -111,8 +112,38 @@ async def calculate_body_data(weight_kg: float, impedance: int, height_cm: float
                     "body_type": parsed.get("ppBodyType", 0),
                     "ideal_weight": parsed.get("ppIdealWeightKg", 0),
                     "obesity_level": parsed.get("ppObesityLevel", 0),
+                    # Extended metrics (segmental, skeletal, etc.)
+                    "skeletal_muscle_kg": parsed.get("ppBodySkeletal", parsed.get("ppSkeletalMuscleMassKg", 0)),
+                    "skeletal_muscle_pct": parsed.get("ppBodySkeletalPercentage", parsed.get("ppSkeletalMusclePercentage", 0)),
+                    "fat_control_kg": parsed.get("ppFatControlKg", 0),
+                    "muscle_control_kg": parsed.get("ppMuscleControlKg", 0),
+                    "fat_kg": parsed.get("ppFatKg", parsed.get("ppBodyFatKg", 0)),
+                    "standard_weight": parsed.get("ppStandardWeight", 0),
+                    "weight_control_kg": parsed.get("ppWeightControlKg", parsed.get("ppControlWeightKg", 0)),
+                    "body_shape": parsed.get("ppBodyShape", 0),
+                    "heart_rate": parsed.get("ppHeartRate", 0),
+                    # Segmental analysis (8-electrode)
+                    "right_arm_fat_pct": parsed.get("ppRightArmFatPercentage", 0),
+                    "left_arm_fat_pct": parsed.get("ppLeftArmFatPercentage", 0),
+                    "trunk_fat_pct": parsed.get("ppTrunkFatPercentage", 0),
+                    "right_leg_fat_pct": parsed.get("ppRightLegFatPercentage", 0),
+                    "left_leg_fat_pct": parsed.get("ppLeftLegFatPercentage", 0),
+                    "right_arm_muscle_kg": parsed.get("ppRightArmMuscleKg", 0),
+                    "left_arm_muscle_kg": parsed.get("ppLeftArmMuscleKg", 0),
+                    "trunk_muscle_kg": parsed.get("ppTrunkMuscleKg", 0),
+                    "right_leg_muscle_kg": parsed.get("ppRightLegMuscleKg", 0),
+                    "left_leg_muscle_kg": parsed.get("ppLeftLegMuscleKg", 0),
+                    "right_arm_fat_kg": parsed.get("ppRightArmFatKg", 0),
+                    "left_arm_fat_kg": parsed.get("ppLeftArmFatKg", 0),
+                    "trunk_fat_kg": parsed.get("ppTrunkFatKg", 0),
+                    "right_leg_fat_kg": parsed.get("ppRightLegFatKg", 0),
+                    "left_leg_fat_kg": parsed.get("ppLeftLegFatKg", 0),
+                    # Store ALL raw keys for future use
+                    "all_lefu_metrics": parsed,
                     "raw_lefu_response": body,
                 }
+                # Remove zero values from segmental to keep clean
+                return {k: v for k, v in result.items() if v or k in ("weight", "all_lefu_metrics", "raw_lefu_response")}
             else:
                 logger.error(f"Lefu body data error: {data}")
                 return {}

@@ -10,30 +10,24 @@
 ## Fonctionnalites Implementees
 
 ### Nora IA — Actions via Chat
-- [x] UPDATE_CALORIES, ADJUST_MACROS (bloques si objectif poids actif)
-- [x] ADD_EXERCISE, DELETE_EXERCISE (Nora-assigned only)
-- [x] UPDATE_MEAL_PLAN (4 repas personnalises)
-- [x] Contexte enrichi : exercices du jour + nutrition dans le prompt
+- [x] UPDATE_CALORIES, ADJUST_MACROS, ADD_EXERCISE, DELETE_EXERCISE, UPDATE_MEAL_PLAN, LIST_EXERCISES
+- [x] Contexte enrichi : exercices du jour + nutrition
 
-### Morning Briefing Enrichi
-- [x] Redesign complet : fond noir, video Nora, animations
-- [x] 4 cartes : Sommeil, Exercices (X/Y), Nutrition (kcal), Rappels
-- [x] Barre vitales + programme actif + streak
+### Balance Connectee (Lefu)
+- [x] Parsing dynamique de TOUTES les metriques Lefu (58+ metriques)
+  - Base: poids, IMC, graisse, muscle, os, eau, metabolisme, age corporel, proteines, score sante
+  - Etendu: muscle squelettique, graisse sous-cutanee, masse maigre, poids ideal, obesite, controle graisseux/musculaire
+  - Segmentaire: graisse et muscle par bras/jambe/tronc (8 electrodes)
+  - all_lefu_metrics stocke en brut pour futurs usages
+- [x] Flow WiFi Configuration BLE
+  - Bouton "Configurer WiFi" dans scale-detail quand balance connectee en BLE
+  - Modal: SSID + mot de passe + avertissement 2.4GHz
+  - Envoi credentials via BLE characteristic FFF2 → balance se connecte au WiFi
+  - Pesees automatiques sans telephone apres configuration
 
-### Carte Sommeil — Popup Glass
-- [x] Carte cliquable -> popup glass avec facteurs scientifiques
-- [x] Input reveil + coucher calcule + explication VFC/stress/recuperation
-
-### Notification Push Coucher
-- [x] Background task (60s loop) verifie les alarmes actives
-- [x] Notification 15 min avant le coucher recommande
-- [x] Message fixe : "Coucher recommande a XX:XX pour Xh de sommeil reparateur"
-- [x] Seulement si alarme activee, 1 notif/jour max (collection bedtime_notifications)
-- [x] Calcul local (pas de LLM) avec ajustements sante
-
-### Exercices, Dashboard, Refactoring
-- [x] Tous les features precedents conserves et fonctionnels
+### Morning Briefing, Popup Sommeil, Rappels, Dashboard
+- [x] Tous les features precedents conserves
 
 ## Backlog
 - P1 : Deploiement TCP J2358
-- P2 : Balance/gilet, Signature electronique, Parrainage, Essai 7j, Vivoo
+- P2 : Gilet connecte, Signature electronique, Parrainage, Essai 7j, Vivoo

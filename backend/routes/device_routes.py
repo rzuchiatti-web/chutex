@@ -698,6 +698,16 @@ async def ble_scale_measurement(body: dict, user=Depends(get_current_user)):
         "hydration_pct": body_data.get('hydration_pct', 0), "visceral_fat": body_data.get('visceral_fat', 0),
         "basal_metabolism": body_data.get('basal_metabolism', 0), "body_age": body_data.get('body_age', 0),
         "protein_pct": body_data.get('protein_pct', 0), "health_score": body_data.get('health_score', 0),
+        "skeletal_muscle_kg": body_data.get('skeletal_muscle_kg', 0),
+        "skeletal_muscle_pct": body_data.get('skeletal_muscle_pct', 0),
+        "fat_kg": body_data.get('fat_kg', 0),
+        "fat_control_kg": body_data.get('fat_control_kg', 0),
+        "muscle_control_kg": body_data.get('muscle_control_kg', 0),
+        "ideal_weight": body_data.get('ideal_weight', 0),
+        "obesity_level": body_data.get('obesity_level', 0),
+        "subcutaneous_fat": body_data.get('subcutaneous_fat', 0),
+        "lean_body_mass": body_data.get('lean_body_mass', 0),
+        "body_type": body_data.get('body_type', 0),
         "impedance": impedance, "source": "ble",
         "data": {
             "weight": body_data.get('weight', weight),
@@ -708,7 +718,16 @@ async def ble_scale_measurement(body: dict, user=Depends(get_current_user)):
             "basal_metabolism": body_data.get('basal_metabolism', 0),
             "protein_pct": body_data.get('protein_pct', 0),
             "health_score_balance": body_data.get('health_score', 0),
+            "skeletal_muscle_kg": body_data.get('skeletal_muscle_kg', 0),
+            "fat_kg": body_data.get('fat_kg', 0),
+            "ideal_weight": body_data.get('ideal_weight', 0),
+            "subcutaneous_fat": body_data.get('subcutaneous_fat', 0),
+            "lean_body_mass": body_data.get('lean_body_mass', 0),
         },
+        # Segmental data (8-electrode)
+        "segmental": {k: body_data[k] for k in body_data if k.startswith(('right_', 'left_', 'trunk_')) and body_data[k]},
+        # All raw Lefu metrics for future use
+        "all_lefu_metrics": body_data.get('all_lefu_metrics', {}),
     }
     await db.device_readings.insert_one(measurement)
     # Update device last_sync

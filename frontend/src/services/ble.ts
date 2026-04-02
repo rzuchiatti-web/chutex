@@ -478,3 +478,119 @@ function parseScaleData(bytes: Uint8Array, deviceId: string, deviceName: string,
   return { weight: Math.round(weight * 100) / 100, impedance, unit, stable, deviceId, deviceName, mac };
 }
 
+
+
+// ─── LEFU SCALE WiFi CONFIGURATION ───
+
+/**
+ * Configure WiFi on a Lefu scale via BLE.
+ * Protocol: connect → discover services → write WiFi config command to FFF2
+ * Command format (Lefu proprietary): 
+ *   [0xA5] [LEN] [0x20] [SSID_LEN] [SSID_BYTES] [PASS_LEN] [PASS_BYTES] [SERVER_URL_BYTES] [CHECKSUM]
+ */
+export async function configureScaleWifi(
+  deviceId: string,
+  ssid: string,
+  password: string,
+  serverUrl: string,
+  onProgress: (step: string) => void
+): Promise<{ success: boolean; error?: string }> {
+  if (Platform.OS === 'web' || !bleManagerInstance) {
+    return { success: false, error: 'La configuration WiFi nécessite l\'app mobile avec Bluetooth.' };
+  }
+
+  try {
+    onProgress('Connexion à la balance...');
+    const device = await bleManagerInstance.connectToDevice(deviceId, { timeout: 10000 });
+    await device.discoverAllServicesAndCharacteristics();
+
+    onProgress('Envoi de la configuration WiFi...');
+
+    // Build WiFi config packet
+    const encoder = new TextEncoder();
+    const ssidBytes = encoder.encode(ssid);
+    const passBytes = encoder.encode(password);
+    const urlBytes = encoder.encode(serverUrl);
+
+    // Lefu WiFi config command: header(0xA5) + cmd(0x20) + ssid + password + server url
+    const packet = new Uint8Array(4 + ssidBytes.length + 1 + passBytes.length + 1 + urlBytes.length + 1);
+    let offset = 0;
+    packet[offset++] = 0xA5; // header
+    packet[offset++] = packet.length - 2; // length
+    packet[offset++] = 0x20; // WiFi config command
+    packet[offset++] = ssidBytes.length;
+    packet.set(ssidBytes, offset); offset += ssidBytes.length;
+    packet[offset++] = passBytes.length;
+    packet.set(passBytes, offset); offset += passBytes.length;
+    packet[offset++] = urlBytes.length;
+    packet.set(urlBytes, offset); offset += urlBytes.length;
+
+    // Calculate checksum (XOR of all bytes)
+    let checksum = 0;
+    for (let i = 0; i < offset; i++) checksum ^= packet[i];
+    packet[offset] = checksum;
+
+    // Convert to base64 for BLE write
+    const base64Data = btoa(String.fromCharCode(...packet));
+
+    // Try primary service first, then alternative
+    const serviceUuids = [SCALE_SERVICE_UUID, ALT_SERVICE_UUID];
+    const writeUuids = [SCALE_WRITE_UUID, '0000ffe2-0000-1000-8000-00805f9b34fb'];
+
+    let written = false;
+    for (let si = 0; si < serviceUuids.length && !written; si++) {
+      try {
+        await device.writeCharacteristicWithResponseForService(
+          serviceUuids[si], writeUuids[si], base64Data
+        );
+        written = true;
+      } catch {
+        // Try without response
+        try {
+          await device.writeCharacteristicWithoutResponseForService(
+            serviceUuids[si], writeUuids[si], base64Data
+          );
+          written = true;
+        } catch { /* try next */ }
+      }
+    }
+
+    if (!written) {
+      // Fallback: try all writable characteristics
+      const services = await device.services();
+      for (const svc of services) {
+        const chars = await svc.characteristics();
+        for (const char of chars) {
+          if (char.isWritableWithResponse || char.isWritableWithoutResponse) {
+            try {
+              if (char.isWritableWithResponse) {
+                await device.writeCharacteristicWithResponseForService(svc.uuid, char.uuid, base64Data);
+              } else {
+                await device.writeCharacteristicWithoutResponseForService(svc.uuid, char.uuid, base64Data);
+              }
+              written = true;
+              break;
+            } catch { /* continue */ }
+          }
+        }
+        if (written) break;
+      }
+    }
+
+    // Wait for scale to process
+    onProgress('La balance se connecte au WiFi...');
+    await new Promise(resolve => setTimeout(resolve, 5000));
+
+    // Disconnect
+    try { await device.cancelConnection(); } catch {}
+
+    if (written) {
+      onProgress('Configuration terminée !');
+      return { success: true };
+    } else {
+      return { success: false, error: 'Impossible d\'écrire la configuration WiFi sur la balance.' };
+    }
+  } catch (error: any) {
+    return { success: false, error: error?.message || 'Erreur de connexion Bluetooth' };
+  }
+}

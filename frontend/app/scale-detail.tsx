@@ -2,12 +2,12 @@ import { Icon, MCIcon } from '../src/components/WebIcon';
 import FullScreenLoader from '../src/components/FullScreenLoader';
 import { useTheme } from '../src/context/ThemeContext';
 import React, { useState, useEffect, useCallback } from 'react';
-import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator, Platform, RefreshControl, Dimensions, Alert, Modal } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator, Platform, RefreshControl, Dimensions, Alert, Modal, TextInput } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { useAuth } from '../src/context/AuthContext';
 import { apiFetch } from '../src/services/api';
-import { scanForScales, connectToScale, disconnectScale, stopScaleScan } from '../src/services/ble';
+import { scanForScales, connectToScale, disconnectScale, stopScaleScan, configureScaleWifi } from '../src/services/ble';
 import type { ScaleMeasurement } from '../src/services/ble';
 
 const { width: SW } = Dimensions.get('window');
@@ -48,6 +48,29 @@ export default function ScaleDetailScreen() {
   const [connectedDevice, setConnectedDevice] = useState<string>('');
   const [liveMeasurement, setLiveMeasurement] = useState<any>(null);
   const [showBleModal, setShowBleModal] = useState(false);
+
+  // WiFi config states
+  const [showWifiSetup, setShowWifiSetup] = useState(false);
+  const [wifiSsid, setWifiSsid] = useState('');
+  const [wifiPass, setWifiPass] = useState('');
+  const [wifiProgress, setWifiProgress] = useState('');
+  const [wifiConfiguring, setWifiConfiguring] = useState(false);
+
+  const API_BASE = process.env.EXPO_PUBLIC_BACKEND_URL || '';
+  const serverUrl = API_BASE ? `${API_BASE}/api/lefu/wifi/torre/record` : '';
+
+  const handleWifiConfig = async () => {
+    if (!wifiSsid || !connectedDevice) return;
+    setWifiConfiguring(true);
+    const res = await configureScaleWifi(connectedDevice, wifiSsid, wifiPass, serverUrl, setWifiProgress);
+    setWifiConfiguring(false);
+    if (res.success) {
+      setWifiProgress('WiFi configure avec succes !');
+      setTimeout(() => setShowWifiSetup(false), 2000);
+    } else {
+      setWifiProgress(res.error || 'Erreur');
+    }
+  };
 
   const fetchData = useCallback(async () => {
     try { setHistory(await apiFetch('/api/devices/scale/history', {}, token)); }
@@ -246,6 +269,78 @@ export default function ScaleDetailScreen() {
             )}
           </GC>
         )}
+
+        {/* WiFi Configuration Button */}
+        {isConnected && (
+          <GC style={{ padding: 16, borderWidth: 1, borderColor: '#60A5FA' + '30' }} data-testid="wifi-config-section">
+            <TouchableOpacity onPress={() => setShowWifiSetup(true)} style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+              <View style={{ width: 44, height: 44, borderRadius: 14, backgroundColor: '#60A5FA' + '15', justifyContent: 'center', alignItems: 'center' }}>
+                <Icon name="wifi" size={22} color="#60A5FA" />
+              </View>
+              <View style={{ flex: 1 }}>
+                <Text style={{ fontSize: 14, fontWeight: '800', color: '#111827' }}>Configurer le WiFi</Text>
+                <Text style={{ fontSize: 11, color: '#6B7280', marginTop: 2 }}>Pesees automatiques sans telephone</Text>
+              </View>
+              <Icon name="chevron-forward" size={18} color="#9CA3AF" />
+            </TouchableOpacity>
+          </GC>
+        )}
+
+        {/* WiFi Setup Modal */}
+        <Modal visible={showWifiSetup} transparent animationType="fade">
+          <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.6)', justifyContent: 'center', alignItems: 'center', padding: 20 }}>
+            <View style={{ width: '100%', maxWidth: 380, backgroundColor: '#FFF', borderRadius: 24, padding: 24 }}>
+              <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
+                <Text style={{ fontSize: 18, fontWeight: '900', color: '#111' }}>Configuration WiFi</Text>
+                <TouchableOpacity onPress={() => setShowWifiSetup(false)} style={{ width: 32, height: 32, borderRadius: 999, backgroundColor: '#F4F4F5', justifyContent: 'center', alignItems: 'center' }}>
+                  <Icon name="close" size={18} color="#6B7280" />
+                </TouchableOpacity>
+              </View>
+
+              <Text style={{ fontSize: 12, color: '#6B7280', marginBottom: 16, lineHeight: 18 }}>
+                Connectez votre balance au WiFi de votre maison. Elle enverra automatiquement vos pesees au serveur, sans avoir besoin de votre telephone.
+              </Text>
+
+              <Text style={{ fontSize: 10, fontWeight: '700', color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 6 }}>Nom du reseau (SSID)</Text>
+              <View style={{ backgroundColor: '#F4F4F5', borderRadius: 12, borderWidth: 1, borderColor: '#E5E7EB', paddingHorizontal: 14, paddingVertical: 12, marginBottom: 14 }}>
+                <TextInput
+                  value={wifiSsid} onChangeText={setWifiSsid}
+                  placeholder="Ex: Livebox-A1B2" placeholderTextColor="#9CA3AF"
+                  style={{ fontSize: 15, fontWeight: '700', color: '#111' }}
+                />
+              </View>
+
+              <Text style={{ fontSize: 10, fontWeight: '700', color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 6 }}>Mot de passe WiFi</Text>
+              <View style={{ backgroundColor: '#F4F4F5', borderRadius: 12, borderWidth: 1, borderColor: '#E5E7EB', paddingHorizontal: 14, paddingVertical: 12, marginBottom: 20 }}>
+                <TextInput
+                  value={wifiPass} onChangeText={setWifiPass}
+                  placeholder="Mot de passe" placeholderTextColor="#9CA3AF"
+                  secureTextEntry
+                  style={{ fontSize: 15, fontWeight: '600', color: '#111' }}
+                />
+              </View>
+
+              {wifiProgress ? (
+                <View style={{ padding: 12, borderRadius: 12, backgroundColor: '#F0F9FF', marginBottom: 14, flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+                  {wifiConfiguring && <ActivityIndicator size="small" color="#60A5FA" />}
+                  <Text style={{ fontSize: 13, color: '#60A5FA', fontWeight: '600', flex: 1 }}>{wifiProgress}</Text>
+                </View>
+              ) : null}
+
+              <View style={{ backgroundColor: '#FEF3C7', borderRadius: 12, padding: 12, marginBottom: 16, flexDirection: 'row', gap: 8 }}>
+                <Icon name="information-circle" size={18} color="#F59E0B" />
+                <Text style={{ fontSize: 11, color: '#92400E', flex: 1, lineHeight: 16 }}>
+                  Utilisez uniquement un reseau WiFi 2.4 GHz. Les reseaux 5 GHz ne sont pas compatibles avec la balance.
+                </Text>
+              </View>
+
+              <TouchableOpacity testID="wifi-config-submit" onPress={handleWifiConfig} disabled={wifiConfiguring || !wifiSsid}
+                style={{ backgroundColor: wifiSsid ? '#111' : '#D1D5DB', borderRadius: 9999, paddingVertical: 16, alignItems: 'center' }}>
+                <Text style={{ color: '#FFF', fontSize: 15, fontWeight: '800' }}>{wifiConfiguring ? 'Configuration en cours...' : 'Configurer le WiFi'}</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </Modal>
 
         {/* Main weight display */}
         {latest && (
