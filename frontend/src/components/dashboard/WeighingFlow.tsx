@@ -176,8 +176,8 @@ export default function WeighingFlow({ onClose, d = {}, weighings = [] }: Props)
       const elapsed = Math.floor((Date.now() - startTime) / 1000);
       const silenceMs = Date.now() - lastPacketTimeRef.current;
       setCountdown(elapsed);
-      // After 3s minimum, if 5s without any BLE packet = balance done
-      if (elapsed > 3 && silenceMs > 5000) { finish(); return; }
+      // After 10s minimum, if 10s without any BLE packet = balance done
+      if (elapsed > 10 && silenceMs > 10000) { finish(); return; }
       // Hard timeout 60s
       if (elapsed >= 60) finish();
     }, 500);
@@ -225,7 +225,13 @@ export default function WeighingFlow({ onClose, d = {}, weighings = [] }: Props)
                 // Magic init command: 0x13 0x09 0x15 [unit] 0x10 0x00 0x00 0x00 [checksum]
                 const initCmd = new Uint8Array([0x13, 0x09, 0x15, 0x01, 0x10, 0x00, 0x00, 0x00, 0x00]);
                 initCmd[8] = sumChecksum(initCmd, 0, 8);
-                await c.writeValueWithResponse(initCmd);
+                // Try different write methods (browser compat)
+                if (c.writeValueWithResponse) {
+                  await c.writeValueWithResponse(initCmd).catch(() => c.writeValue?.(initCmd));
+                } else if (c.writeValue) {
+                  await c.writeValue(initCmd);
+                }
+                console.log('[BLE] Init command written to FFF2');
                 
                 // Write timestamp (seconds since 2000-01-01)
                 const ts = Math.floor(Date.now() / 1000) - SCALE_TS_OFFSET;
@@ -233,7 +239,12 @@ export default function WeighingFlow({ onClose, d = {}, weighings = [] }: Props)
                 tsBytes[0] = ts & 0xFF; tsBytes[1] = (ts >> 8) & 0xFF;
                 tsBytes[2] = (ts >> 16) & 0xFF; tsBytes[3] = (ts >> 24) & 0xFF;
                 tsBytes[4] = 0x02;
-                await c.writeValueWithResponse(tsBytes).catch(() => c.writeValueWithoutResponse(tsBytes).catch(() => {}));
+                if (c.writeValueWithResponse) {
+                  await c.writeValueWithResponse(tsBytes).catch(() => c.writeValue?.(tsBytes).catch(() => {}));
+                } else if (c.writeValue) {
+                  await c.writeValue(tsBytes).catch(() => {});
+                }
+                console.log('[BLE] Timestamp written to FFF2');
               } catch (writeErr) {
                 console.warn('Init write failed:', writeErr);
               }
@@ -247,16 +258,37 @@ export default function WeighingFlow({ onClose, d = {}, weighings = [] }: Props)
               c.addEventListener('characteristicvaluechanged', (event: any) => {
                 const dv = event.target.value as DataView;
                 const bytes = new Uint8Array(dv.buffer);
+                const hex = Array.from(bytes).map(b => b.toString(16).padStart(2, '0')).join(' ');
+                
+                // Always log raw packets for debugging
+                lastPacketTimeRef.current = Date.now();
+                
+                // Try to extract impedance from ANY packet (even without weight)
+                if (bytes.length >= 8 && bytes[0] === 0x10) {
+                  const imp = (bytes[6] << 8) | bytes[7];
+                  if (imp > 50 && imp < 2000) {
+                    setImpedance(imp);
+                    setHasImpedance(true);
+                    setRawDebug(`${bytes.length}B: ${hex} → IMP=${imp}`);
+                  }
+                }
+                
                 const parsed = parseWeight(bytes);
-                if (parsed && parsed.weight >= 2) {
-                  setLiveWeight(parsed.weight);
-                  lastWeightRef.current = parsed.weight;
-                  weightsRef.current.push(parsed.weight);
-                  if (parsed.impedance > 0) setImpedance(parsed.impedance);
-                  if (parsed.hasImpedance) setHasImpedance(true);
-                  if (parsed.stable) setStableWeight(parsed.weight);
-                  setRawDebug(`${bytes.length}B: ${parsed.rawHex} → ${parsed.weight}kg${parsed.hasImpedance ? ' +IMP' : ''}`);
-                  lastPacketTimeRef.current = Date.now();
+                if (parsed) {
+                  if (parsed.weight >= 2) {
+                    setLiveWeight(parsed.weight);
+                    lastWeightRef.current = parsed.weight;
+                    weightsRef.current.push(parsed.weight);
+                    if (parsed.stable) setStableWeight(parsed.weight);
+                  }
+                  if (parsed.impedance > 0) {
+                    setImpedance(parsed.impedance);
+                    setHasImpedance(true);
+                  }
+                  setRawDebug(`${bytes.length}B: ${hex} → ${parsed.weight}kg${parsed.impedance > 0 ? ' IMP=' + parsed.impedance : ''}`);
+                } else {
+                  // Log unrecognized packets for debug
+                  setRawDebug(`${bytes.length}B: ${hex}`);
                 }
               });
               notifyStarted = true;
