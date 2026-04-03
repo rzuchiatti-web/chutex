@@ -19,16 +19,20 @@ export const BLE_NAME_FILTERS = {
   vest: ['Elder', 'AIRBAG', 'Gilet', 'Airbag'],
 };
 
-// ── V8 Command codes ──
+// ── V8 Command codes (per J-Style 2208A BLE API) ──
 export const V8_CMD = {
   TIME_SYNC: 0x01,
-  VIBRATE: 0x08,
   STEPS: 0x09,
-  BATTERY: 0x0D,
+  BATTERY: 0x13,
   VITALS: 0x28,
+  VIBRATE: 0x36,
   GLUCOSE: 0x50,
-  SLEEP: 0x52,
-  ECG: 0x53,
+  STEP_DETAIL: 0x52,
+  SLEEP: 0x53,
+  HR_HISTORY: 0x54,
+  HR_SINGLE: 0x55,
+  HRV_DATA: 0x56,
+  SPO2_AUTO: 0x66,
 } as const;
 
 
@@ -53,20 +57,27 @@ export async function writeToDevice(device: any, cmd: number, payload: number[] 
 }
 
 
-/** Parse a V8 binary response from the bracelet */
+/** Parse a V8 binary response from the bracelet (per 2208A BLE API) */
 export function parseV8Response(bytes: number[]): { cmd: number; [key: string]: any } | null {
-  if (bytes.length < 1) return null;
+  if (bytes.length < 2) return null;
   const cmd = bytes[0];
   const parsed: any = { cmd };
 
+  // 0x13: Battery level (AA = 0-100%)
   if (cmd === V8_CMD.BATTERY && bytes.length >= 2) {
     parsed.battery = bytes[1];
   }
+
+  // 0x09: Real-time step data (little-endian 4-byte fields)
   if (cmd === V8_CMD.STEPS && bytes.length >= 14) {
     parsed.steps = bytes[1] | (bytes[2] << 8) | (bytes[3] << 16) | (bytes[4] << 24);
     parsed.calories = ((bytes[5] | (bytes[6] << 8) | (bytes[7] << 16) | (bytes[8] << 24)) / 100);
+    parsed.distance_m = bytes[9] | (bytes[10] << 8) | (bytes[11] << 16) | (bytes[12] << 24);
     parsed.heart_rate = bytes[13];
   }
+
+  // 0x28: Health measurement response (all vitals in one packet)
+  // AA=type, BB=HR, CC=SpO2, DD=HRV, EE=stress, FF=systolic, GG=diastolic, HH-II=temp (big-endian)
   if (cmd === V8_CMD.VITALS && bytes.length >= 10) {
     parsed.heart_rate = bytes[2];
     parsed.spo2 = bytes[3];
@@ -74,25 +85,28 @@ export function parseV8Response(bytes: number[]): { cmd: number; [key: string]: 
     parsed.stress = bytes[5];
     parsed.systolic = bytes[6];
     parsed.diastolic = bytes[7];
-    parsed.temperature = (bytes[8] | (bytes[9] << 8)) / 10;
+    parsed.temperature = ((bytes[8] << 8) | bytes[9]) / 10;
   }
+
+  // 0x50: Blood glucose estimation from PPG
   if (cmd === V8_CMD.GLUCOSE && bytes.length >= 4 && bytes[1] >= 100) {
     const gRaw = bytes[2] | (bytes[3] << 8);
     parsed.blood_glucose_mgdl = Math.round((gRaw / 10.0) * 18.0);
   }
+
+  // 0x53: Detailed sleep data
+  // Per-minute stages: 01=Deep, 02=Light, 03=REM, other=Awake
   if (cmd === V8_CMD.SLEEP && bytes.length >= 3) {
-    // 0x52 sleep response: bytes after cmd are per-minute sleep stages
-    // 0=awake, 1=deep, 2=light, 3=REM
     const stages: number[] = [];
     for (let i = 1; i < bytes.length - 1; i++) {
-      if (bytes[i] <= 3) stages.push(bytes[i]);
+      if (bytes[i] !== 0xFF && bytes[i] !== 0x00) stages.push(bytes[i]);
     }
     if (stages.length > 0) {
       const total = stages.length;
       const deep = stages.filter(s => s === 1).length;
       const light = stages.filter(s => s === 2).length;
       const rem = stages.filter(s => s === 3).length;
-      const awake = stages.filter(s => s === 0).length;
+      const awake = total - deep - light - rem;
       parsed.sleep_stages = stages;
       parsed.sleep_duration_min = total;
       parsed.deep_sleep_min = deep;
@@ -102,17 +116,38 @@ export function parseV8Response(bytes: number[]): { cmd: number; [key: string]: 
       parsed.sleep_quality = total > 0 ? Math.min(100, Math.round((deep * 2 + rem * 1.5 + light) / total * 50)) : 0;
     }
   }
-  if (cmd === V8_CMD.ECG && bytes.length >= 6) {
-    // 0x53 ECG result: HR, HRV, breath rate, stress, mood, BP
-    parsed.ecg_hr = bytes[1];
-    parsed.ecg_hrv = bytes[2];
-    parsed.ecg_breath_rate = bytes[3];
-    parsed.ecg_stress = bytes[4];
-    parsed.ecg_mood = bytes[5];
-    if (bytes.length >= 8) {
-      parsed.ecg_systolic = bytes[6];
-      parsed.ecg_diastolic = bytes[7];
+
+  // 0x54: Heart rate history data
+  if (cmd === V8_CMD.HR_HISTORY && bytes.length >= 4) {
+    parsed.heart_rate = bytes[3]; // HR value after ID+timestamp bytes
+  }
+
+  // 0x55: Single heart rate data
+  if (cmd === V8_CMD.HR_SINGLE && bytes.length >= 2) {
+    parsed.heart_rate = bytes[1];
+    if (bytes.length >= 3 && bytes[2] > 0) parsed.heart_rate_min = bytes[2];
+    if (bytes.length >= 4 && bytes[3] > 0) parsed.heart_rate_max = bytes[3];
+  }
+
+  // 0x56: HRV data (includes fatigue/stress, BP)
+  if (cmd === V8_CMD.HRV_DATA && bytes.length >= 4) {
+    parsed.hrv = bytes[1];
+    if (bytes.length >= 5) parsed.stress = bytes[4]; // fatigue level
+    if (bytes.length >= 7) {
+      parsed.systolic = bytes[5];
+      parsed.diastolic = bytes[6];
     }
+  }
+
+  // 0x66: Automatic SpO2 data
+  if (cmd === V8_CMD.SPO2_AUTO && bytes.length >= 2) {
+    parsed.spo2 = bytes[1];
+  }
+
+  // 0x52: Detailed step data (historical)
+  if (cmd === V8_CMD.STEP_DETAIL && bytes.length >= 6) {
+    parsed.steps = bytes[1] | (bytes[2] << 8) | (bytes[3] << 16);
+    parsed.calories = bytes[4] | (bytes[5] << 8);
   }
 
   return parsed;
@@ -137,10 +172,14 @@ export function cmdToDataType(cmd: number): string {
   switch (cmd) {
     case V8_CMD.BATTERY: return 'battery';
     case V8_CMD.STEPS: return 'steps';
+    case V8_CMD.STEP_DETAIL: return 'steps';
     case V8_CMD.VITALS: return 'heart_rate';
     case V8_CMD.GLUCOSE: return 'blood_glucose';
     case V8_CMD.SLEEP: return 'sleep';
-    case V8_CMD.ECG: return 'ecg_result';
+    case V8_CMD.HR_HISTORY: return 'heart_rate';
+    case V8_CMD.HR_SINGLE: return 'heart_rate';
+    case V8_CMD.HRV_DATA: return 'heart_rate';
+    case V8_CMD.SPO2_AUTO: return 'spo2';
     default: return 'realtime';
   }
 }
@@ -173,18 +212,32 @@ export function injectBleDataEvent(webViewRef: any, dataJson: string) {
 /** Send initial commands after connection (time sync + metric requests) */
 export async function sendInitialCommands(device: any) {
   const now = new Date();
+  // Time sync
   await writeToDevice(device, V8_CMD.TIME_SYNC, [
     now.getFullYear() & 0xFF, (now.getFullYear() >> 8) & 0xFF,
     now.getMonth() + 1, now.getDate(),
     now.getHours(), now.getMinutes(), now.getSeconds()
   ]);
+  // Battery (0x13 per 2208A API)
   setTimeout(() => writeToDevice(device, V8_CMD.BATTERY), 500);
+  // Request sleep history (0x53, mode 0 = recent)
   setTimeout(() => writeToDevice(device, V8_CMD.SLEEP, [0]), 1000);
-  setTimeout(() => writeToDevice(device, V8_CMD.VITALS, [2, 1]), 1500);
-  setTimeout(() => writeToDevice(device, V8_CMD.VITALS, [3, 1]), 2000);
-  setTimeout(() => writeToDevice(device, V8_CMD.VITALS, [1, 1]), 2500);
+  // Start HRV measurement (AA=1, BB=1)
+  setTimeout(() => writeToDevice(device, V8_CMD.VITALS, [1, 1]), 1500);
+  // Start HR measurement (AA=2, BB=1)
+  setTimeout(() => writeToDevice(device, V8_CMD.VITALS, [2, 1]), 2000);
+  // Start SpO2 measurement (AA=3, BB=1)
+  setTimeout(() => writeToDevice(device, V8_CMD.VITALS, [3, 1]), 2500);
+  // Real-time steps (0x09, start=1)
   setTimeout(() => writeToDevice(device, V8_CMD.STEPS, [1, 1]), 3000);
+  // Blood glucose
   setTimeout(() => writeToDevice(device, V8_CMD.GLUCOSE), 3500);
+  // HR history (0x54, mode 0 = recent)
+  setTimeout(() => writeToDevice(device, V8_CMD.HR_HISTORY, [0]), 4000);
+  // HRV history (0x56, mode 0 = recent)
+  setTimeout(() => writeToDevice(device, V8_CMD.HRV_DATA, [0]), 4500);
+  // SpO2 history (0x66, mode 0 = recent)
+  setTimeout(() => writeToDevice(device, V8_CMD.SPO2_AUTO, [0]), 5000);
 }
 
 
@@ -208,7 +261,7 @@ export function injectPendingCommandsCheck(webViewRef: any) {
     (function(){
       var t = localStorage.getItem('vl_token') || localStorage.getItem('@AsyncStorage:vl_token') || '';
       if(t) fetch('/api/bracelet/v8/pending-commands',{headers:{'Authorization':'Bearer '+t}}).then(function(r){return r.json()}).then(function(d){
-        if(d&&d.commands) d.commands.forEach(function(c){ if(c.ble_cmd===8) window.ReactNativeWebView.postMessage(JSON.stringify({action:'ble_vibrate',payload:c.ble_payload||[1,3]})); });
+        if(d&&d.commands) d.commands.forEach(function(c){ if(c.ble_cmd===54) window.ReactNativeWebView.postMessage(JSON.stringify({action:'ble_vibrate',payload:c.ble_payload||[3]})); });
       }).catch(function(){});
     })(); true;
   `);
@@ -259,10 +312,11 @@ export function startBleMonitoring(
       const isConn = await device.isConnected();
       if (!isConn) { clearInterval(fullPollId); return; }
       writeToDevice(device, V8_CMD.BATTERY);
-      setTimeout(() => writeToDevice(device, V8_CMD.VITALS, [2, 1]), 200);
-      setTimeout(() => writeToDevice(device, V8_CMD.VITALS, [3, 1]), 400);
-      setTimeout(() => writeToDevice(device, V8_CMD.VITALS, [1, 1]), 600);
+      setTimeout(() => writeToDevice(device, V8_CMD.VITALS, [1, 1]), 200);
+      setTimeout(() => writeToDevice(device, V8_CMD.VITALS, [2, 1]), 400);
+      setTimeout(() => writeToDevice(device, V8_CMD.VITALS, [3, 1]), 600);
       setTimeout(() => writeToDevice(device, V8_CMD.GLUCOSE), 800);
+      setTimeout(() => writeToDevice(device, V8_CMD.SLEEP, [0]), 1000);
       injectPendingCommandsCheck(webViewRef);
     } catch { clearInterval(fullPollId); }
   }, 30000);

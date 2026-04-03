@@ -399,11 +399,11 @@ def parse_bracelet_response(data: bytes) -> dict:
             "stress": data[5],
             "systolic": data[6],
             "diastolic": data[7],
-            "temperature": (data[8] | (data[9] << 8)) / 10,
+            "temperature": ((data[8] << 8) | data[9]) / 10,
         })
 
-    # 0x0D: Battery
-    elif cmd == 0x0D:
+    # 0x13: Battery (per 2208A BLE API)
+    elif cmd == 0x13:
         result["battery"] = data[1]
 
     # 0x51/0x52: Step data (historical / today)
@@ -420,6 +420,19 @@ def parse_bracelet_response(data: bytes) -> dict:
             result["heart_rate_min"] = data[2]
         if data[3] > 0:
             result["heart_rate_max"] = data[3]
+
+    # 0x56: HRV data (includes fatigue/stress and BP)
+    elif cmd == 0x56:
+        result["hrv"] = data[1]
+        if len(data) > 4 and data[4] > 0:
+            result["stress"] = data[4]
+        if len(data) > 6:
+            result["systolic"] = data[5]
+            result["diastolic"] = data[6]
+
+    # 0x66: Automatic SpO2 data
+    elif cmd == 0x66:
+        result["spo2"] = data[1]
 
     # 0x53: Sleep data response
     elif cmd == 0x53:
@@ -564,7 +577,7 @@ async def get_bracelet_ble_config():
     """BLE configuration for bracelet 2208A"""
     return {
         "commands": {
-            "get_battery": "0D00000000000000000000000000000D",
+            "get_battery": "1300000000000000000000000000000013",
             "get_time": "0100000000000000000000000000 01",
             "start_realtime": "09010100000000000000000000000B",
             "stop_realtime": "09000000000000000000000000000009",
@@ -601,7 +614,7 @@ V8_BLE_CONFIG = {
     },
     "commands": {
         "set_time": 0x01,
-        "get_battery": 0x0D,
+        "get_battery": 0x13,
         "realtime_step": 0x09,
         "get_total_data": 0x51,
         "get_today_steps": 0x52,
@@ -676,12 +689,12 @@ def parse_v8_blood_glucose(data: bytes) -> dict:
 
 
 def parse_v8_temperature(data: bytes) -> dict:
-    """Parse V8 3-NTC temperature."""
+    """Parse V8 3-NTC temperature (big-endian per 2208A API)."""
     if len(data) < 4:
         return {}
-    temp_raw = data[1] | (data[2] << 8)
+    temp_raw = (data[1] << 8) | data[2]
     temp = temp_raw / 10.0
-    axillary_raw = data[3] | (data[4] << 8) if len(data) > 4 else 0
+    axillary_raw = (data[3] << 8) | data[4] if len(data) > 4 else 0
     axillary = axillary_raw / 10.0 if axillary_raw > 0 else None
     result = {"temperature": round(temp, 1)}
     if axillary and axillary > 30:
@@ -1052,17 +1065,19 @@ async def get_v8_dashboard(user=Depends(get_current_user)):
 
 @router.post("/bracelet/v8/vibrate")
 async def vibrate_bracelet(request_body: dict, user=Depends(get_current_user)):
-    """Send vibration command to V8 bracelet.
-    The frontend will send this BLE command (0x08) to the bracelet.
-    This endpoint stores the vibration request for the frontend to pick up."""
+    """Send vibration command (0x36) to V8 bracelet.
+    Per 2208A API: 0x36 with AA = number of vibrations (1-5).
+    The frontend picks up this pending command and sends it via BLE."""
     vibration_type = request_body.get("type", "reminder")  # reminder, alarm, alert
     message = request_body.get("message", "")
-    duration = request_body.get("duration", 3)  # seconds
 
-    # V8 vibration command: 0x08, payload[0] = type (1=short, 2=long, 3=pattern)
-    vib_mode = 1
-    if vibration_type == "alarm": vib_mode = 3
-    elif vibration_type == "alert": vib_mode = 2
+    # 2208A API: 0x36, payload = [number_of_vibrations] (1-5)
+    if vibration_type == "alarm":
+        vib_count = 5  # strong: 5 vibrations
+    elif vibration_type == "alert":
+        vib_count = 3  # medium: 3 vibrations
+    else:
+        vib_count = 2  # gentle: 2 vibrations
 
     now = datetime.now(timezone.utc).isoformat()
     uid = user["id"]
@@ -1071,8 +1086,8 @@ async def vibrate_bracelet(request_body: dict, user=Depends(get_current_user)):
         "id": str(uuid.uuid4()),
         "user_id": uid,
         "command": "vibrate",
-        "ble_cmd": 0x08,
-        "ble_payload": [vib_mode, min(duration, 10)],
+        "ble_cmd": 0x36,
+        "ble_payload": [vib_count],
         "type": vibration_type,
         "message": message,
         "status": "pending",

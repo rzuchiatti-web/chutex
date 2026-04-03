@@ -537,13 +537,13 @@ async def _check_bedtime_reminders():
                 data={"bedtime": bedtime, "wake_time": wake_time},
             )
 
-            # Vibrate bracelet for bedtime reminder
+            # Vibrate bracelet for bedtime reminder (0x36 per 2208A API)
             await db.bracelet_commands.insert_one({
                 "id": str(__import__('uuid').uuid4()),
                 "user_id": uid,
                 "command": "vibrate",
-                "ble_cmd": 0x08,
-                "ble_payload": [2, 5],  # mode 2 (long), 5 seconds
+                "ble_cmd": 0x36,
+                "ble_payload": [3],  # 3 vibrations for bedtime
                 "type": "alarm",
                 "message": f"Coucher recommande a {bedtime}",
                 "status": "pending",
@@ -594,13 +594,13 @@ async def _check_morning_alarms():
             if not device:
                 continue
 
-            # Send vibration command (mode 3 = strong pulse, 8 seconds)
+            # Send vibration command (0x36, 5 vibrations for wake alarm)
             await db.bracelet_commands.insert_one({
                 "id": str(__import__('uuid').uuid4()),
                 "user_id": uid,
                 "command": "vibrate",
-                "ble_cmd": 0x08,
-                "ble_payload": [3, 8],  # mode 3 (strong), 8 seconds
+                "ble_cmd": 0x36,
+                "ble_payload": [5],  # 5 vibrations for wake alarm
                 "type": "alarm",
                 "message": f"Reveil {wake_time}",
                 "status": "pending",
@@ -673,21 +673,21 @@ async def _check_reminder_vibrations():
             if not device:
                 continue
 
-            # Determine vibration intensity based on reminder type
+            # Determine vibration count based on reminder type (0x36: 1-5 vibrations)
             rem_type = rem.get("reminder_type", "")
             if rem_type == "medication":
-                payload = [2, 5]  # mode 2 (long), 5 sec — important
+                payload = [4]  # 4 vibrations for medication (important)
             elif rem_type == "hydration":
-                payload = [1, 3]  # mode 1 (gentle), 3 sec
+                payload = [2]  # 2 vibrations for hydration (gentle)
             else:
-                payload = [1, 4]  # mode 1 (gentle), 4 sec
+                payload = [3]  # 3 vibrations default
 
-            # Send vibration command
+            # Send vibration command (0x36 per 2208A API)
             await db.bracelet_commands.insert_one({
                 "id": str(__import__('uuid').uuid4()),
                 "user_id": uid,
                 "command": "vibrate",
-                "ble_cmd": 0x08,
+                "ble_cmd": 0x36,
                 "ble_payload": payload,
                 "type": "reminder",
                 "message": rem.get("title", "Rappel"),
