@@ -9,6 +9,7 @@ const NORA_VIDEO = 'https://customer-assets.emergentagent.com/job_ba3a5789-c8f1-
 
 export default function MorningBriefingScreen() {
   const { user, token } = useAuth();
+  const router = useRouter();
   const [briefing, setBriefing] = useState<any>(null);
   const [displayText, setDisplayText] = useState('');
   const [phase, setPhase] = useState<'loading' | 'typing' | 'cards' | 'done'>('loading');
