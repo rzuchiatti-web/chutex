@@ -9,7 +9,7 @@ import GlassTabBar from '../../src/components/GlassTabBar';
 export default function TabLayout() {
   const { user, loading } = useAuth();
 
-  if (loading) return <FullScreenLoader />;
+  if (loading) return null;
   if (!user) return null;
 
   const role = user.active_role || user.role;

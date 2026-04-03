@@ -47,7 +47,9 @@ async def dashboard_batch(user=Depends(get_current_user)):
                 except:
                     pass
             is_br_paired = bool(bracelet.get("last_sync"))
-            result["bracelet"] = {**br_data, "connected": is_br_connected, "paired": is_br_paired, "battery": bracelet.get("battery", 0) if is_br_paired else 0, "name": bracelet.get("name", "")}
+            br_bat = bracelet.get("battery", 0) if is_br_paired else 0
+            if br_bat > 100 or br_bat < 0: br_bat = 0
+            result["bracelet"] = {**br_data, "connected": is_br_connected, "paired": is_br_paired, "battery": br_bat, "name": bracelet.get("name", "")}
         if scale:
             is_sc_connected = False
             if scale.get("last_sync"):

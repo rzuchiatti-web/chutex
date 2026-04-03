@@ -776,8 +776,9 @@ async def push_v8_data(request_body: dict, user=Depends(get_current_user)):
         if raw_data.get("calories", 0) > 0:
             update_fields["last_calories"] = raw_data["calories"]
     elif data_type == "battery":
-        if raw_data.get("battery", 0) > 0:
-            update_fields["battery"] = raw_data["battery"]
+        bat = raw_data.get("battery", 0)
+        if 0 < bat <= 100:
+            update_fields["battery"] = bat
     elif data_type == "sleep":
         update_fields["last_sleep_timestamp"] = now
         if raw_data.get("sleep_stages"):
