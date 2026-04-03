@@ -378,19 +378,21 @@ async def start_j2358_tcp():
 # ── Bedtime Reminder — background checker ──
 @app.on_event("startup")
 async def start_bedtime_reminder():
-    """Check every minute if any user needs a bedtime reminder (15min before recommended bedtime)."""
+    """Check every minute if any user needs a bedtime reminder, morning alarm, or reminder vibration."""
     import asyncio
 
     async def _bedtime_loop():
         while True:
             try:
                 await _check_bedtime_reminders()
+                await _check_morning_alarms()
+                await _check_reminder_vibrations()
             except Exception as e:
-                logger.error(f"Bedtime reminder error: {e}")
+                logger.error(f"Bedtime/alarm/reminder error: {e}")
             await asyncio.sleep(60)
 
     asyncio.create_task(_bedtime_loop())
-    logger.info("Bedtime reminder task launched")
+    logger.info("Bedtime + morning alarm + reminder vibration tasks launched")
 
 
 # ── Daily Report Pre-computation (background, every 4 hours) ──
@@ -447,7 +449,7 @@ async def _precompute_daily_reports():
 
 
 async def _check_bedtime_reminders():
-    """Find users whose bedtime is in ~15 minutes and send notification."""
+    """Find users whose bedtime is in ~15 minutes and send notification + vibrate bracelet."""
     from datetime import datetime, timezone, timedelta
     from routes.notification_routes import create_notification
 
@@ -556,3 +558,150 @@ async def _check_bedtime_reminders():
 
         except Exception as e:
             logger.error(f"Bedtime check for {uid}: {e}")
+
+
+
+async def _check_morning_alarms():
+    """Check if any user's wake_time is NOW and trigger bracelet vibration."""
+    from datetime import datetime, timezone, timedelta
+    now = datetime.now(timezone.utc)
+    month = now.month
+    offset_hours = 2 if 3 <= month <= 10 else 1
+    local_now = now + timedelta(hours=offset_hours)
+    current_hhmm = local_now.strftime("%H:%M")
+    today_str = now.strftime("%Y-%m-%d")
+
+    alarms = await db.sleep_alarms.find({"enabled": True}, {"_id": 0}).to_list(500)
+
+    for alarm in alarms:
+        uid = alarm.get("user_id", "")
+        wake_time = alarm.get("wake_time", "")
+        if not uid or not wake_time or wake_time != current_hhmm:
+            continue
+
+        try:
+            # Check if already sent today
+            already = await db.wake_vibrations.find_one(
+                {"user_id": uid, "date": today_str}, {"_id": 0}
+            )
+            if already:
+                continue
+
+            # Check if user has a connected bracelet
+            device = await db.devices.find_one(
+                {"user_id": uid, "device_type": "bracelet", "connected": True}, {"_id": 0}
+            )
+            if not device:
+                continue
+
+            # Send vibration command (mode 3 = strong pulse, 8 seconds)
+            await db.bracelet_commands.insert_one({
+                "id": str(__import__('uuid').uuid4()),
+                "user_id": uid,
+                "command": "vibrate",
+                "ble_cmd": 0x08,
+                "ble_payload": [3, 8],  # mode 3 (strong), 8 seconds
+                "type": "alarm",
+                "message": f"Reveil {wake_time}",
+                "status": "pending",
+                "created_at": now.isoformat(),
+            })
+
+            # Send notification
+            from routes.notification_routes import create_notification
+            await create_notification(
+                user_id=uid,
+                notif_type="wake_alarm",
+                title="Bon matin !",
+                body=f"Il est {wake_time}, l'heure de se lever. Bonne journee !",
+                icon="ri-sun-line",
+                color="#F59E0B",
+            )
+
+            # Mark as sent
+            await db.wake_vibrations.insert_one({
+                "user_id": uid, "date": today_str,
+                "wake_time": wake_time, "sent_at": now.isoformat(),
+            })
+
+            logger.info(f"Morning alarm vibration sent to {uid} at {wake_time}")
+
+        except Exception as e:
+            logger.error(f"Morning alarm check for {uid}: {e}")
+
+
+async def _check_reminder_vibrations():
+    """Check if any active reminder's time matches NOW and trigger bracelet vibration."""
+    from datetime import datetime, timezone, timedelta
+    now = datetime.now(timezone.utc)
+    month = now.month
+    offset_hours = 2 if 3 <= month <= 10 else 1
+    local_now = now + timedelta(hours=offset_hours)
+    current_hhmm = local_now.strftime("%H:%M")
+    today_str = now.strftime("%Y-%m-%d")
+    today_day_idx = local_now.weekday()
+    DAYS_FR = ["lundi", "mardi", "mercredi", "jeudi", "vendredi", "samedi", "dimanche"]
+    today_fr = DAYS_FR[today_day_idx]
+
+    # Find all active reminders matching current time
+    reminders = await db.reminders.find({"active": True}, {"_id": 0}).to_list(1000)
+
+    for rem in reminders:
+        uid = rem.get("user_id", "")
+        rem_time = rem.get("time", "")
+        rem_id = rem.get("id", "")
+        if not uid or not rem_time or rem_time != current_hhmm:
+            continue
+
+        # Check days filter (if specified)
+        rem_days = rem.get("days", [])
+        if rem_days and today_fr not in [d.lower() for d in rem_days]:
+            continue
+
+        try:
+            # Check if already vibrated today for this reminder
+            already = await db.reminder_vibrations.find_one(
+                {"reminder_id": rem_id, "date": today_str}, {"_id": 0}
+            )
+            if already:
+                continue
+
+            # Check if user has a connected bracelet
+            device = await db.devices.find_one(
+                {"user_id": uid, "device_type": "bracelet", "connected": True}, {"_id": 0}
+            )
+            if not device:
+                continue
+
+            # Determine vibration intensity based on reminder type
+            rem_type = rem.get("reminder_type", "")
+            if rem_type == "medication":
+                payload = [2, 5]  # mode 2 (long), 5 sec — important
+            elif rem_type == "hydration":
+                payload = [1, 3]  # mode 1 (gentle), 3 sec
+            else:
+                payload = [1, 4]  # mode 1 (gentle), 4 sec
+
+            # Send vibration command
+            await db.bracelet_commands.insert_one({
+                "id": str(__import__('uuid').uuid4()),
+                "user_id": uid,
+                "command": "vibrate",
+                "ble_cmd": 0x08,
+                "ble_payload": payload,
+                "type": "reminder",
+                "message": rem.get("title", "Rappel"),
+                "status": "pending",
+                "created_at": now.isoformat(),
+            })
+
+            # Mark as vibrated
+            await db.reminder_vibrations.insert_one({
+                "reminder_id": rem_id, "user_id": uid,
+                "date": today_str, "sent_at": now.isoformat(),
+            })
+
+            logger.info(f"Reminder vibration sent to {uid}: {rem.get('title', '?')} at {rem_time}")
+
+        except Exception as e:
+            logger.error(f"Reminder vibration check for {uid}: {e}")

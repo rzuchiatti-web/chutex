@@ -28,6 +28,7 @@ export const V8_CMD = {
   VITALS: 0x28,
   GLUCOSE: 0x50,
   SLEEP: 0x52,
+  ECG: 0x53,
 } as const;
 
 
@@ -79,6 +80,40 @@ export function parseV8Response(bytes: number[]): { cmd: number; [key: string]: 
     const gRaw = bytes[2] | (bytes[3] << 8);
     parsed.blood_glucose_mgdl = Math.round((gRaw / 10.0) * 18.0);
   }
+  if (cmd === V8_CMD.SLEEP && bytes.length >= 3) {
+    // 0x52 sleep response: bytes after cmd are per-minute sleep stages
+    // 0=awake, 1=deep, 2=light, 3=REM
+    const stages: number[] = [];
+    for (let i = 1; i < bytes.length - 1; i++) {
+      if (bytes[i] <= 3) stages.push(bytes[i]);
+    }
+    if (stages.length > 0) {
+      const total = stages.length;
+      const deep = stages.filter(s => s === 1).length;
+      const light = stages.filter(s => s === 2).length;
+      const rem = stages.filter(s => s === 3).length;
+      const awake = stages.filter(s => s === 0).length;
+      parsed.sleep_stages = stages;
+      parsed.sleep_duration_min = total;
+      parsed.deep_sleep_min = deep;
+      parsed.light_sleep_min = light;
+      parsed.rem_sleep_min = rem;
+      parsed.awake_minutes = awake;
+      parsed.sleep_quality = total > 0 ? Math.min(100, Math.round((deep * 2 + rem * 1.5 + light) / total * 50)) : 0;
+    }
+  }
+  if (cmd === V8_CMD.ECG && bytes.length >= 6) {
+    // 0x53 ECG result: HR, HRV, breath rate, stress, mood, BP
+    parsed.ecg_hr = bytes[1];
+    parsed.ecg_hrv = bytes[2];
+    parsed.ecg_breath_rate = bytes[3];
+    parsed.ecg_stress = bytes[4];
+    parsed.ecg_mood = bytes[5];
+    if (bytes.length >= 8) {
+      parsed.ecg_systolic = bytes[6];
+      parsed.ecg_diastolic = bytes[7];
+    }
+  }
 
   return parsed;
 }
@@ -104,6 +139,8 @@ export function cmdToDataType(cmd: number): string {
     case V8_CMD.STEPS: return 'steps';
     case V8_CMD.VITALS: return 'heart_rate';
     case V8_CMD.GLUCOSE: return 'blood_glucose';
+    case V8_CMD.SLEEP: return 'sleep';
+    case V8_CMD.ECG: return 'ecg_result';
     default: return 'realtime';
   }
 }

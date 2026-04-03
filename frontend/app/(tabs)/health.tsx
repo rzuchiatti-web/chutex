@@ -310,8 +310,6 @@ export default function HealthScreen() {
 
           <div style={{ height: 1, background: sepColor, margin: '12px 0 16px' } as any} />
 
-          <div style={{ height: 1, background: sepColor, margin: '12px 0 16px' } as any} />
-
           {/* Pesee card */}
           <div style={{ borderRadius: 18, background: cardBg, marginBottom: 14, overflow: 'hidden' } as any}>
             <div data-testid="action-weighing" onClick={() => setWeighingStep(1)} style={{ padding: '12px 16px', display: 'flex', alignItems: 'center', gap: 14, cursor: 'pointer', borderBottom: `1px solid ${sepColor}` } as any}>
