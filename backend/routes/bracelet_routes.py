@@ -748,16 +748,16 @@ async def push_v8_data(request_body: dict, user=Depends(get_current_user)):
         raise HTTPException(400, "data_type et data requis")
 
     # Debug: Log raw V8 data to diagnose byte mapping issues
-    if data_type in ("heart_rate", "sleep", "spo2"):
-        import logging as _log
-        _log.getLogger("bracelet").info(f"[V8-DIAG] type={data_type} raw={raw_data}")
+    import logging as _log
+    _v8log = _log.getLogger("bracelet")
+    _v8log.info(f"[V8-RAW] type={data_type} device={device_id} raw={raw_data}")
 
     now = datetime.now(timezone.utc).isoformat()
     uid = user["id"]
-    def valid_hr(v): return 30 <= v <= 220
-    def valid_spo2(v): return 50 <= v <= 100
-    def valid_bp_sys(v): return 60 <= v <= 250
-    def valid_bp_dia(v): return 30 <= v <= 150
+    def valid_hr(v): return 30 <= v <= 200
+    def valid_spo2(v): return 60 <= v <= 100
+    def valid_bp_sys(v): return 70 <= v <= 200
+    def valid_bp_dia(v): return 40 <= v <= 130
     def valid_temp(v): return 34.0 <= v <= 42.0
     def valid_hrv(v): return 1 <= v <= 200
     def valid_stress(v): return 1 <= v <= 100
@@ -827,19 +827,26 @@ async def push_v8_data(request_body: dict, user=Depends(get_current_user)):
 
     if data_type == "heart_rate":
         # 0x28 returns ALL vitals — only store validated values
-        if raw_data.get("heart_rate", 0) > 0:
-            update_fields["last_heart_rate"] = raw_data["heart_rate"]
-        if raw_data.get("hrv", 0) > 0:
-            update_fields["last_hrv"] = raw_data["hrv"]
-        if raw_data.get("spo2", 0) > 0:
-            update_fields["last_spo2"] = raw_data["spo2"]
-        if raw_data.get("stress", 0) > 0:
-            update_fields["last_stress"] = raw_data["stress"]
-        if raw_data.get("systolic", 0) > 0:
-            update_fields["last_systolic"] = raw_data["systolic"]
-            update_fields["last_diastolic"] = raw_data.get("diastolic", 0)
-        if raw_data.get("temperature", 0) > 30:
-            update_fields["last_temperature"] = raw_data["temperature"]
+        hr_val = raw_data.get("heart_rate", 0)
+        if hr_val > 0 and valid_hr(hr_val):
+            update_fields["last_heart_rate"] = hr_val
+        hrv_val = raw_data.get("hrv", 0)
+        if hrv_val > 0 and valid_hrv(hrv_val):
+            update_fields["last_hrv"] = hrv_val
+        spo2_val = raw_data.get("spo2", 0)
+        if spo2_val > 0 and valid_spo2(spo2_val):
+            update_fields["last_spo2"] = spo2_val
+        stress_val = raw_data.get("stress", 0)
+        if stress_val > 0 and valid_stress(stress_val):
+            update_fields["last_stress"] = stress_val
+        sys_val = raw_data.get("systolic", 0)
+        dia_val = raw_data.get("diastolic", 0)
+        if sys_val > 0 and valid_bp_sys(sys_val) and dia_val > 0 and valid_bp_dia(dia_val):
+            update_fields["last_systolic"] = sys_val
+            update_fields["last_diastolic"] = dia_val
+        temp_val = raw_data.get("temperature", 0)
+        if temp_val > 0 and valid_temp(temp_val):
+            update_fields["last_temperature"] = temp_val
     elif data_type == "blood_pressure":
         if raw_data.get("systolic", 0) > 0:
             update_fields["last_systolic"] = raw_data["systolic"]
@@ -1208,3 +1215,18 @@ async def get_pending_commands(user=Depends(get_current_user)):
     for cmd in commands:
         await db.bracelet_commands.update_one({"id": cmd["id"]}, {"$set": {"status": "sent"}})
     return {"commands": commands}
+
+
+@router.get("/bracelet/v8/debug")
+async def v8_debug(user=Depends(get_current_user)):
+    """Return last 20 raw V8 readings for debugging byte parsing."""
+    uid = user["id"]
+    readings = await db.device_readings.find(
+        {"user_id": uid, "device_model": "v8"},
+        {"_id": 0, "data_type": 1, "data": 1, "timestamp": 1}
+    ).sort("timestamp", -1).to_list(20)
+    device = await db.devices.find_one(
+        {"user_id": uid, "device_type": "bracelet"},
+        {"_id": 0, "last_heart_rate": 1, "last_spo2": 1, "last_hrv": 1, "last_stress": 1, "last_systolic": 1, "last_diastolic": 1, "last_temperature": 1, "last_sync": 1}
+    )
+    return {"current_device_vitals": device or {}, "last_readings": readings}

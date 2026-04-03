@@ -58,10 +58,12 @@ export async function writeToDevice(device: any, cmd: number, payload: number[] 
 
 
 /** Parse a V8 binary response from the bracelet (per 2208A BLE API) */
-export function parseV8Response(bytes: number[]): { cmd: number; [key: string]: any } | null {
+export function parseV8Response(bytes: number[]): { cmd: number; raw_hex?: string; [key: string]: any } | null {
   if (bytes.length < 2) return null;
   const cmd = bytes[0];
-  const parsed: any = { cmd };
+  // Store raw hex for backend diagnostics
+  const raw_hex = bytes.map(b => ('0' + b.toString(16)).slice(-2)).join(':');
+  const parsed: any = { cmd, raw_hex };
 
   // 0x13: Battery level (AA = 0-100%)
   if (cmd === V8_CMD.BATTERY && bytes.length >= 2) {

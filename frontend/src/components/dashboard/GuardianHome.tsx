@@ -131,7 +131,7 @@ export default function GuardianHome({ token, user }: { token: string; user: any
           {/* ═══ RED BG HEADER ═══ */}
           <div style={{ position: 'relative', zIndex: 1 } as any}>
             <img src={BG_RED} alt="" style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 } as any} />
-            <div style={{ position: 'relative', zIndex: 2, padding: '22px 20px 28px' } as any}>
+            <div style={{ position: 'relative', zIndex: 2, padding: '70px 20px 28px' } as any}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 18 } as any}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 12 } as any}>
                   <div onClick={() => router.push('/(tabs)/profile' as any)} style={{ width: 44, height: 44, borderRadius: 22, background: 'rgba(255,255,255,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, cursor: 'pointer', overflow: 'hidden' } as any}>
@@ -277,7 +277,7 @@ export default function GuardianHome({ token, user }: { token: string; user: any
         {/* POPUP AJOUTER BENEFICIAIRE */}
         {showAddBenPopup && portalMount(
           <div onClick={() => { setShowAddBenPopup(false); setLinkMessage(''); setLinkPhone(''); setLinkRelationship(''); }} style={POP as any}>
-            <div onClick={(e: any) => e.stopPropagation()} style={{ width: '100%', maxWidth: 420, margin: '0 auto', padding: '40px 28px 120px', boxSizing: 'border-box' } as any}>
+            <div onClick={(e: any) => e.stopPropagation()} style={{ width: '100%', maxWidth: 420, margin: '0 auto', padding: '70px 28px 120px', boxSizing: 'border-box' } as any}>
               <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 20 } as any}>
                 <div onClick={() => { setShowAddBenPopup(false); setLinkMessage(''); setLinkPhone(''); setLinkRelationship(''); }} style={{ width: 38, height: 38, borderRadius: 999, background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}>
                   <i className="ri-close-line" style={{ fontSize: 18, color: 'rgba(255,255,255,0.8)' }} />
@@ -381,7 +381,7 @@ export default function GuardianHome({ token, user }: { token: string; user: any
         {/* POPUP NOTIFICATIONS */}
         {showNotifsG && portalMount(
           <div onClick={() => setShowNotifsG(false)} style={POP as any}>
-            <div onClick={(e: any) => e.stopPropagation()} style={{ width: '100%', maxWidth: 420, margin: '0 auto', padding: '40px 24px 120px', boxSizing: 'border-box' } as any}>
+            <div onClick={(e: any) => e.stopPropagation()} style={{ width: '100%', maxWidth: 420, margin: '0 auto', padding: '70px 24px 120px', boxSizing: 'border-box' } as any}>
               <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 20 } as any}><div onClick={() => setShowNotifsG(false)} style={{ width: 36, height: 36, borderRadius: 999, background: 'rgba(255,255,255,0.12)', border: '1px solid rgba(255,255,255,0.18)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}><i className="ri-close-line" style={{ fontSize: 18, color: '#FFF' }} /></div></div>
               <div style={{ textAlign: 'center', marginBottom: 24 } as any}><div style={{ fontSize: 22, fontWeight: 900, color: '#FFF' }}>Notifications</div></div>
               {activeAlertsG.length === 0 && invitations.length === 0 && pendingInterventions.length === 0 && <div style={{ textAlign: 'center', padding: '32px 20px', borderRadius: 20, background: 'rgba(255,255,255,0.04)' } as any}><div style={{ fontSize: 14, fontWeight: 700, color: 'rgba(255,255,255,0.4)' }}>Aucune notification</div></div>}
@@ -408,7 +408,7 @@ export default function GuardianHome({ token, user }: { token: string; user: any
         {/* POPUP LANGUE */}
         {langOpenG && portalMount(
           <div onClick={() => setLangOpenG(false)} style={POP as any}>
-            <div onClick={(e: any) => e.stopPropagation()} style={{ width: '100%', maxWidth: 420, margin: '0 auto', padding: '40px 24px 120px', boxSizing: 'border-box' } as any}>
+            <div onClick={(e: any) => e.stopPropagation()} style={{ width: '100%', maxWidth: 420, margin: '0 auto', padding: '70px 24px 120px', boxSizing: 'border-box' } as any}>
               <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 20 } as any}><div onClick={() => setLangOpenG(false)} style={{ width: 36, height: 36, borderRadius: 999, background: 'rgba(255,255,255,0.12)', border: '1px solid rgba(255,255,255,0.18)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}><i className="ri-close-line" style={{ fontSize: 18, color: '#FFF' }} /></div></div>
               <div style={{ textAlign: 'center', marginBottom: 28 } as any}><div style={{ fontSize: 22, fontWeight: 900, color: '#FFF' }}>Langue</div></div>
               {[{ code: 'FR', flag: '\u{1F1EB}\u{1F1F7}', name: 'Francais' }, { code: 'EN', flag: '\u{1F1EC}\u{1F1E7}', name: 'English' }, { code: 'DE', flag: '\u{1F1E9}\u{1F1EA}', name: 'Deutsch' }, { code: 'ES', flag: '\u{1F1EA}\u{1F1F8}', name: 'Espanol' }, { code: 'IT', flag: '\u{1F1EE}\u{1F1F9}', name: 'Italiano' }, { code: 'PT', flag: '\u{1F1F5}\u{1F1F9}', name: 'Portugues' }, { code: 'NL', flag: '\u{1F1F3}\u{1F1F1}', name: 'Nederlands' }].map(l => (
@@ -425,7 +425,7 @@ export default function GuardianHome({ token, user }: { token: string; user: any
         {/* POPUP CONFIG IBAN */}
         {showIbanModal && portalMount(
           <div data-testid="iban-modal-overlay" onClick={() => setShowIbanModal(false)} style={POP as any}>
-            <div onClick={(e: any) => e.stopPropagation()} style={{ width: '100%', maxWidth: 420, margin: '0 auto', padding: '40px 24px 120px', boxSizing: 'border-box' } as any}>
+            <div onClick={(e: any) => e.stopPropagation()} style={{ width: '100%', maxWidth: 420, margin: '0 auto', padding: '70px 24px 120px', boxSizing: 'border-box' } as any}>
               <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 20 } as any}>
                 <div onClick={() => setShowIbanModal(false)} style={{ width: 36, height: 36, borderRadius: 999, background: 'rgba(255,255,255,0.12)', border: '1px solid rgba(255,255,255,0.18)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}>
                   <i className="ri-close-line" style={{ fontSize: 18, color: '#FFF' }} />

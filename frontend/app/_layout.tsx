@@ -5,7 +5,7 @@ import { AuthProvider, useAuth } from '../src/context/AuthContext';
 import { ThemeProvider } from '../src/context/ThemeContext';
 import { I18nProvider } from '../src/context/I18nContext';
 import { DorsiBLEProvider } from '../src/context/DorsiBLEContext';
-import { View, ActivityIndicator, StyleSheet, Platform, Text, TouchableOpacity } from 'react-native';
+import { View, ActivityIndicator, StyleSheet, Platform, Text, TouchableOpacity, Animated } from 'react-native';
 import { PastelMistBackground } from '../src/components/PastelMistBackground';
 import { ensureFirstLaunchLocationPermission, openSystemLocationSettings, requestLocationPermission } from '../src/services/locationPermissions';
 import TeamActivityToast from '../src/components/programs/TeamActivityToast';
@@ -22,6 +22,9 @@ function NativeFullApp() {
   const [showLocationGuide, setShowLocationGuide] = useState(false);
   const [locationGuideMsg, setLocationGuideMsg] = useState('');
   const [locationRetrying, setLocationRetrying] = useState(false);
+  const [webViewReady, setWebViewReady] = useState(false);
+  const splashOpacity = useRef(new Animated.Value(1)).current;
+  const autoReconnectAttempted = useRef(false);
 
   useEffect(() => {
     const bootstrapLocationPermission = async () => {
@@ -57,6 +60,40 @@ function NativeFullApp() {
     return bleManagerRef.current;
   };
 
+  // ── Auto-reconnect BLE on app start ──
+  const attemptAutoReconnect = () => {
+    if (autoReconnectAttempted.current || bleDeviceRef.current) return;
+    autoReconnectAttempted.current = true;
+
+    // Inject JS into WebView to check if user has a paired bracelet
+    webViewRef.current?.injectJavaScript(`
+      (function(){
+        var t = localStorage.getItem('vl_token') || localStorage.getItem('@AsyncStorage:vl_token') || '';
+        if(!t) return;
+        fetch('/api/bracelet/status',{headers:{'Authorization':'Bearer '+t}})
+          .then(function(r){return r.json()})
+          .then(function(d){
+            if(d && d.paired && d.connected !== false){
+              window.ReactNativeWebView.postMessage(JSON.stringify({action:'ble_auto_reconnect'}));
+            }
+          }).catch(function(){});
+      })(); true;
+    `);
+  };
+
+  // ── Handle WebView loaded: fade out native splash + trigger auto-reconnect ──
+  const onWebViewLoaded = () => {
+    // Fade out the native splash overlay
+    Animated.timing(splashOpacity, {
+      toValue: 0,
+      duration: 400,
+      useNativeDriver: true,
+    }).start(() => setWebViewReady(true));
+
+    // Attempt BLE auto-reconnect after a short delay
+    setTimeout(attemptAutoReconnect, 3000);
+  };
+
   // ── WebView message handler ──
   const handleMessage = async (event: any) => {
     try {
@@ -70,6 +107,16 @@ function NativeFullApp() {
       }
 
       if (msg.action === 'get_token') return;
+
+      // Handle BLE auto-reconnect request
+      if (msg.action === 'ble_auto_reconnect') {
+        const manager = getBleManager();
+        if (manager && !bleDeviceRef.current) {
+          const { scanAndConnect } = require('../src/services/bleV8Bridge');
+          scanAndConnect(manager, 'bracelet', webViewRef, bleDeviceRef, blePollRef);
+        }
+        return;
+      }
 
       // Handle BLE scan requests
       if (msg.action === 'ble_scan_bracelet' || msg.action === 'ble_scan_vest' || msg.action === 'ble_scan_scale') {
@@ -109,6 +156,7 @@ function NativeFullApp() {
           source={{ uri: backendUrl }}
           style={{ flex: 1, backgroundColor: '#0A0A1A' }}
           onMessage={handleMessage}
+          onLoadEnd={onWebViewLoaded}
           allowsBackForwardNavigationGestures={false}
           javaScriptEnabled={true}
           domStorageEnabled={true}
@@ -123,6 +171,13 @@ function NativeFullApp() {
           allowsFullscreenVideo={true}
           cacheEnabled={true}
         />
+
+        {/* Native splash overlay — dark screen until WebView is ready (eliminates white/black loader flash) */}
+        {!webViewReady && (
+          <Animated.View style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: '#0A0A1A', justifyContent: 'center', alignItems: 'center', opacity: splashOpacity }} pointerEvents="none">
+            <Text style={{ fontSize: 15, fontWeight: '600', color: 'rgba(255,255,255,0.6)' }}>Chargement...</Text>
+          </Animated.View>
+        )}
 
         {showLocationGuide && (
           <View style={st.locationGuideOverlay}>
@@ -273,6 +328,10 @@ export default function RootLayout() {
       <I18nProvider>
         <DorsiBLEProvider>
           <AuthProvider>
+            {/* Global iOS Safe Area CSS injection — ensures 70px top padding on all full-screen overlays */}
+            {Platform.OS === 'web' && typeof document !== 'undefined' && (
+              <SafeAreaCSSInjector />
+            )}
             <PastelMistBackground />
             <RootNav />
           </AuthProvider>
@@ -280,6 +339,21 @@ export default function RootLayout() {
       </I18nProvider>
     </ThemeProvider>
   );
+}
+
+function SafeAreaCSSInjector() {
+  useEffect(() => {
+    if (typeof document === 'undefined') return;
+    const id = 'chutex-safe-area-css';
+    if (document.getElementById(id)) return;
+    const style = document.createElement('style');
+    style.id = id;
+    style.textContent = `
+      :root { --safe-top: 70px; }
+    `;
+    document.head.appendChild(style);
+  }, []);
+  return null;
 }
 
 function TeamActivityOverlay() {

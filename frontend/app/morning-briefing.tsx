@@ -107,7 +107,7 @@ export default function MorningBriefingScreen() {
         borderRadius: videoUp ? 36 : 60,
       } as any} src={NORA_VIDEO} />
 
-      <div ref={scrollRef as any} style={{ flex: 1, position: 'relative', zIndex: 5, overflowY: 'auto', padding: '0 20px', WebkitOverflowScrolling: 'touch', scrollBehavior: 'smooth' } as any}>
+      <div ref={scrollRef as any} style={{ flex: 1, position: 'relative', zIndex: 5, overflowY: 'auto', padding: '70px 20px 0', WebkitOverflowScrolling: 'touch', scrollBehavior: 'smooth' } as any}>
         <div style={{ height: videoUp ? '22vh' : '48vh', flexShrink: 0, transition: 'height 1s ease' } as any} />
 
         {/* Nora message */}

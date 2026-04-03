@@ -94,7 +94,7 @@ export default function RemindersScreen() {
   if (!activeCat) {
     return (
       <SafeAreaView style={{ flex: 1, backgroundColor: '#FFFFFF' }}>
-        <View style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 16, paddingVertical: 14 }}>
+        <View style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 16, paddingVertical: 14, paddingTop: 70 }}>
           <TouchableOpacity onPress={() => router.back()} style={{ padding: 4, marginRight: 12 }}><Icon name="chevron-back" size={24} color="#111827" /></TouchableOpacity>
           <Text style={{ flex: 1, fontSize: 22, fontWeight: '900', color: '#111827' }}>Mes rappels</Text>
         </View>

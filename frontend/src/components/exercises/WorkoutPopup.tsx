@@ -32,7 +32,7 @@ export function WorkoutPopup({ ex, totalSets, currentSet, setCurrentSet, resting
         @keyframes wp-ring-glow { 0%,100% { filter: drop-shadow(0 0 8px ${accent}40); } 50% { filter: drop-shadow(0 0 20px ${accent}60); } }
       `}} />
 
-      <div style={{ padding: '16px 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexShrink: 0 } as any}>
+      <div style={{ padding: '70px 20px 16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexShrink: 0 } as any}>
         <div data-testid="workout-close-btn" onClick={onClose} style={{ width: 40, height: 40, borderRadius: 999, background: CLOSE_BG, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}>
           <i className="ri-close-line" style={{ fontSize: 18, color: WT }} />
         </div>

@@ -51,7 +51,7 @@ export function ProfileBenActivation({ show, onClose, user, apiFetch, token, ref
 
   return portalMount(
     <div style={POP as any}>
-      <div onClick={(e: any) => e.stopPropagation()} style={{ width: '100%', maxWidth: 420, margin: '0 auto', padding: '40px 28px 120px', boxSizing: 'border-box' } as any}>
+      <div onClick={(e: any) => e.stopPropagation()} style={{ width: '100%', maxWidth: 420, margin: '0 auto', padding: '70px 28px 120px', boxSizing: 'border-box' } as any}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 } as any}>
           {benStep > 1 ? <div onClick={() => { setBenStep(benStep - 1); setBenError(''); }} style={{ width: 38, height: 38, borderRadius: 999, background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}><i className="ri-arrow-left-s-line" style={{ fontSize: 18, color: '#FFF' }} /></div> : <div />}
           <div style={{ display: 'flex', gap: 6 } as any}>{[1,2,3].map(s => <div key={s} style={{ width: 8, height: 8, borderRadius: 4, background: benStep >= s ? '#3B82F6' : 'rgba(255,255,255,0.15)' } as any} />)}</div>

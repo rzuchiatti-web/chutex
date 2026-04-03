@@ -7,6 +7,7 @@
     "icon": "./assets/images/icon.png",
     "scheme": "chutex",
     "userInterfaceStyle": "automatic",
+    "backgroundColor": "#0A0A1A",
     "newArchEnabled": true,
     "owner": "chutex",
     "ios": {
@@ -26,7 +27,7 @@
         ],
         "ITSAppUsesNonExemptEncryption": false
       },
-      "buildNumber": "99"
+      "buildNumber": "100"
     },
     "android": {
       "package": "com.chutex.app",

@@ -213,7 +213,7 @@ export default function ProgramsTab() {
       {/* ═══ GUIDE POPUP ═══ */}
       {showGuide && portalMount(
         <div data-testid="programs-guide-popup" style={POP as any}>
-          <div onClick={(e: any) => e.stopPropagation()} style={{ width: '100%', maxWidth: 400, margin: '0 auto', padding: '40px 28px 120px', boxSizing: 'border-box' } as any}>
+          <div onClick={(e: any) => e.stopPropagation()} style={{ width: '100%', maxWidth: 400, margin: '0 auto', padding: '70px 28px 120px', boxSizing: 'border-box' } as any}>
             <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 20 } as any}>
               <div data-testid="programs-guide-close" onClick={() => setShowGuide(false)} style={{ width: 38, height: 38, borderRadius: 999, background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}>
                 <i className="ri-close-line" style={{ fontSize: 18, color: 'rgba(255,255,255,0.8)' }} />
@@ -251,7 +251,7 @@ export default function ProgramsTab() {
       {/* ═══ JOIN TEAM POPUP ═══ */}
       {showJoinPopup && portalMount(
         <div data-testid="join-team-popup" style={POP as any}>
-          <div onClick={(e: any) => e.stopPropagation()} style={{ width: '100%', maxWidth: 400, margin: '0 auto', padding: '40px 28px 120px', boxSizing: 'border-box' } as any}>
+          <div onClick={(e: any) => e.stopPropagation()} style={{ width: '100%', maxWidth: 400, margin: '0 auto', padding: '70px 28px 120px', boxSizing: 'border-box' } as any}>
             <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 20 } as any}>
               <div data-testid="join-team-close" onClick={() => setShowJoinPopup(false)} style={{ width: 38, height: 38, borderRadius: 999, background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}>
                 <i className="ri-close-line" style={{ fontSize: 18, color: 'rgba(255,255,255,0.8)' }} />

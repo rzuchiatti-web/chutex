@@ -563,13 +563,12 @@ async def _check_bedtime_reminders():
 
 async def _check_morning_alarms():
     """Check if any user's wake_time is NOW and trigger bracelet vibration."""
-    from datetime import datetime, timezone, timedelta
+    from datetime import datetime, timezone
+    from zoneinfo import ZoneInfo
     now = datetime.now(timezone.utc)
-    month = now.month
-    offset_hours = 2 if 3 <= month <= 10 else 1
-    local_now = now + timedelta(hours=offset_hours)
+    local_now = now.astimezone(ZoneInfo("Europe/Paris"))
     current_hhmm = local_now.strftime("%H:%M")
-    today_str = now.strftime("%Y-%m-%d")
+    today_str = local_now.strftime("%Y-%m-%d")
 
     alarms = await db.sleep_alarms.find({"enabled": True}, {"_id": 0}).to_list(500)
 
@@ -632,13 +631,12 @@ async def _check_morning_alarms():
 
 async def _check_reminder_vibrations():
     """Check if any active reminder's time matches NOW and trigger bracelet vibration."""
-    from datetime import datetime, timezone, timedelta
+    from datetime import datetime, timezone
+    from zoneinfo import ZoneInfo
     now = datetime.now(timezone.utc)
-    month = now.month
-    offset_hours = 2 if 3 <= month <= 10 else 1
-    local_now = now + timedelta(hours=offset_hours)
+    local_now = now.astimezone(ZoneInfo("Europe/Paris"))
     current_hhmm = local_now.strftime("%H:%M")
-    today_str = now.strftime("%Y-%m-%d")
+    today_str = local_now.strftime("%Y-%m-%d")
     today_day_idx = local_now.weekday()
     DAYS_FR = ["lundi", "mardi", "mercredi", "jeudi", "vendredi", "samedi", "dimanche"]
     today_fr = DAYS_FR[today_day_idx]

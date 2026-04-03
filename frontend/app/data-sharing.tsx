@@ -67,7 +67,7 @@ export default function DataSharingScreen() {
   return (
     <div data-testid="data-sharing-screen" style={{ position: 'fixed', inset: 0, display: 'flex', flexDirection: 'column', fontFamily: 'Inter, system-ui, sans-serif', background: '#0A0A12', overflow: 'hidden' } as any}>
       {/* Header */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '16px 20px', flexShrink: 0 } as any}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '70px 20px 16px', flexShrink: 0 } as any}>
         <div data-testid="data-sharing-back-btn" onClick={() => router.back()} style={{ width: 40, height: 40, borderRadius: 14, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}>
           <i className="ri-arrow-left-s-line" style={{ fontSize: 20, color: '#FFF' }} />
         </div>

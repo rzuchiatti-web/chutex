@@ -125,7 +125,7 @@ export function NotificationBanner({ notification, onDismiss }: { notification: 
         @keyframes notif-shake { 0%,100%{transform:translateX(0)} 15%{transform:translateX(-3px)} 30%{transform:translateX(3px)} 45%{transform:translateX(-2px)} 60%{transform:translateX(0)} }
       ` }} />
       <div onClick={onDismiss} style={{
-        display: 'flex', alignItems: 'center', gap: 12, padding: '14px 16px',
+        display: 'flex', alignItems: 'center', gap: 12, padding: '70px 16px 14px',
         borderRadius: 18, background: 'rgba(10,10,20,0.88)',
         backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)',
         border: `1px solid ${notification.color}30`,

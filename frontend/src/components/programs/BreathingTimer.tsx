@@ -67,7 +67,7 @@ export default function BreathingTimer({ pattern, durationSec, color, onComplete
       `}} />
 
       {/* Close */}
-      <div onClick={onClose} style={{ position: 'absolute', top: 50, right: 24, width: 42, height: 42, borderRadius: 14, background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', zIndex: 10 } as any}>
+      <div onClick={onClose} style={{ position: 'absolute', top: 80, right: 24, width: 42, height: 42, borderRadius: 14, background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', zIndex: 10 } as any}>
         <i className="ri-close-line" style={{ fontSize: 20, color: 'rgba(255,255,255,0.6)' }} />
       </div>
 

@@ -39,6 +39,7 @@ export default function HealthScreen() {
   const [dashData, setDashData] = useState<any>(null);
   const [report, setReport] = useState<any>(null);
   const [reportLoading, setReportLoading] = useState(true);
+  const [loaderMinDone, setLoaderMinDone] = useState(false);
   const [showScoreDetail, setShowScoreDetail] = useState(false);
   const [showAnalysisInfo, setShowAnalysisInfo] = useState(false);
   const [showDayPlanPopup, setShowDayPlanPopup] = useState(false);
@@ -75,7 +76,7 @@ export default function HealthScreen() {
   const fetchDashData = useCallback(async () => { try { setDashData(await apiFetch('/api/devices/dashboard-summary', {}, token)); } catch {} }, [token]);
   const fetchReport = useCallback(async () => { try { setReport(await apiFetch('/api/health/daily-report', {}, token)); } catch {} finally { setReportLoading(false); } }, [token]);
 
-  useEffect(() => { fetchData(); fetchDashData(); fetchReport(); apiFetch('/api/health/aging-rate', {}, token).then(setAgingRate).catch(() => {}); apiFetch('/api/pro/beneficiary-today-exercises', {}, token).then(e => setTodayExercises(Array.isArray(e) ? e : [])).catch(() => {}); }, [fetchData, fetchDashData, fetchReport]);
+  useEffect(() => { fetchData(); fetchDashData(); fetchReport(); apiFetch('/api/health/aging-rate', {}, token).then(setAgingRate).catch(() => {}); apiFetch('/api/pro/beneficiary-today-exercises', {}, token).then(e => setTodayExercises(Array.isArray(e) ? e : [])).catch(() => {}); const t = setTimeout(() => setLoaderMinDone(true), 2000); return () => clearTimeout(t); }, [fetchData, fetchDashData, fetchReport]);
   useEffect(() => {
     Promise.all([
       apiFetch('/api/programs/active', {}, token).catch(() => null),
@@ -123,7 +124,7 @@ export default function HealthScreen() {
 
   /* ─── WEB BENEFICIARY VIEW ─── */
   if (Platform.OS === 'web' && effectiveRole === 'beneficiary') {
-    if (reportLoading) return <FullScreenLoader />;
+    if (reportLoading || !loaderMinDone) return <FullScreenLoader />;
 
     // isDark comes from the state hook at the top of the component
     const BG_RED_HEADER = 'https://customer-assets.emergentagent.com/job_443c9c6e-0feb-4920-a358-fe7cc1a6289b/artifacts/mhh7xwy3_ChatGPT%20Image%2017%20f%C3%A9vr.%202026%2C%2014_08_43.png';

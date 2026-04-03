@@ -27,7 +27,7 @@ export default function GlassPopupPortal({ visible, onClose, children }: Props) 
     } as any}>
       <div onClick={(e: any) => e.stopPropagation()} style={{
         width: '100%', maxWidth: 420, margin: '0 auto',
-        padding: '40px 24px 120px', boxSizing: 'border-box',
+        padding: '70px 24px 120px', boxSizing: 'border-box',
       } as any}>
         <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 16 } as any}>
           <div onClick={onClose} style={{
