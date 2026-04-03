@@ -106,10 +106,37 @@ export default function ECGScreen() {
   const connectAndStartECG = useCallback(async () => {
     setStep(3);
     setBleError('');
+
+    // Use native BLE bridge via postMessage (Web Bluetooth is NOT available in WKWebView)
+    if (typeof window !== 'undefined' && (window as any).ReactNativeWebView) {
+      // Native iOS: send ECG start command via native BLE bridge
+      (window as any).ReactNativeWebView.postMessage(JSON.stringify({ action: 'ble_ecg_start' }));
+      
+      // Listen for ECG data from native layer
+      const ecgHandler = (event: any) => {
+        const detail = event.detail;
+        if (!detail) return;
+        
+        if (detail.ecg_samples && Array.isArray(detail.ecg_samples)) {
+          samplesRef.current = [...samplesRef.current, ...detail.ecg_samples];
+          setEcgSamples([...samplesRef.current]);
+        }
+        if (detail.ecg_hr) setLiveHR(detail.ecg_hr);
+        if (detail.ecg_result) {
+          resultRef.current = detail.ecg_result;
+        }
+      };
+      window.addEventListener('ble_ecg_data', ecgHandler);
+      
+      // Start recording after brief connection delay
+      setTimeout(() => setStep(4), 1500);
+      return;
+    }
+
+    // Web fallback: try Web Bluetooth (only works on Chrome desktop, not WKWebView)
     if (Platform.OS !== 'web') return;
 
     try {
-      // Try to reuse existing BLE device from window (set by useBleConnection in devices page)
       let bd = typeof window !== 'undefined' ? (window as any).__bleBraceletDevice : null;
       let server: any = null;
 
@@ -117,8 +144,7 @@ export default function ECGScreen() {
         server = bd.gatt;
         deviceRef.current = bd;
       } else {
-        // Request new BLE connection
-        if (!('bluetooth' in navigator)) { setBleError('Web Bluetooth requis'); setStep(2); return; }
+        if (!('bluetooth' in navigator)) { setBleError('Connectez le bracelet depuis la page Dispositifs d\'abord'); setStep(2); return; }
         const nav = navigator as any;
         bd = await nav.bluetooth.requestDevice({
           acceptAllDevices: true,

@@ -1118,6 +1118,18 @@ async def get_daily_report(user=Depends(get_current_user), force: bool = False):
             d["hrv"] = bracelet_dev["last_hrv"]
         if bracelet_dev.get("last_stress", 0) > 0 and d.get("stress_level", 0) == 0:
             d["stress_level"] = bracelet_dev["last_stress"]
+        # Sleep: use aggregated device data (V8 stores multi-segment totals)
+        if d.get("sleep_duration_min", 0) < 30 and bracelet_dev.get("last_sleep_total", 0) > 0:
+            d["sleep_duration_min"] = bracelet_dev["last_sleep_total"]
+            d["sleep_duration"] = bracelet_dev["last_sleep_total"]
+            d["sleep_quality"] = bracelet_dev.get("last_sleep_quality", 0)
+            d["deep_sleep_min"] = bracelet_dev.get("last_sleep_deep", 0)
+            d["light_sleep_min"] = bracelet_dev.get("last_sleep_light", 0)
+            d["rem_sleep_min"] = bracelet_dev.get("last_sleep_rem", 0)
+            total = d["sleep_duration_min"]
+            if total > 0:
+                d["sleep_deep_pct"] = round(d["deep_sleep_min"] / total * 100)
+                d["sleep_rem_pct"] = round(d["rem_sleep_min"] / total * 100)
 
     # ── VO2 Max estimation (Uth-Sorensen + HRV correction, like WHOOP) ──
     if d.get("heart_rate") and d["heart_rate"] > 0:

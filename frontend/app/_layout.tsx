@@ -63,30 +63,23 @@ function NativeFullApp() {
   // ── Auto-reconnect BLE on app start ──
   const attemptAutoReconnect = () => {
     if (bleDeviceRef.current) return;
-
-    // Inject JS into WebView to check if user has a paired bracelet
-    webViewRef.current?.injectJavaScript(`
-      (function(){
-        var t = localStorage.getItem('vl_token') || localStorage.getItem('@AsyncStorage:vl_token') || '';
-        if(!t) return;
-        fetch('/api/bracelet/status',{headers:{'Authorization':'Bearer '+t}})
-          .then(function(r){return r.json()})
-          .then(function(d){
-            if(d && d.paired){
-              window.ReactNativeWebView.postMessage(JSON.stringify({action:'ble_auto_reconnect'}));
-            }
-          }).catch(function(){});
-      })(); true;
-    `);
+    
+    // Directly attempt to scan and connect without checking API first
+    // This is more reliable than depending on the WebView's fetch to the API
+    const manager = getBleManager();
+    if (manager) {
+      const { scanAndConnect } = require('../src/services/bleV8Bridge');
+      scanAndConnect(manager, 'bracelet', webViewRef, bleDeviceRef, blePollRef);
+    }
   };
 
-  // Retry auto-reconnect periodically (every 60s if not connected)
+  // Retry auto-reconnect periodically (every 30s if not connected)
   useEffect(() => {
     const interval = setInterval(() => {
       if (!bleDeviceRef.current && webViewReady) {
         attemptAutoReconnect();
       }
-    }, 60000);
+    }, 30000);
     return () => clearInterval(interval);
   }, [webViewReady]);
 
@@ -124,6 +117,21 @@ function NativeFullApp() {
           const { scanAndConnect } = require('../src/services/bleV8Bridge');
           scanAndConnect(manager, 'bracelet', webViewRef, bleDeviceRef, blePollRef);
         }
+        return;
+      }
+
+      // Handle ECG start command from WebView
+      if (msg.action === 'ble_ecg_start' && bleDeviceRef.current) {
+        const { writeToDevice, V8_CMD } = require('../src/services/bleV8Bridge');
+        // Send ECG start: 0x28, sub=4 (ECG mode), start=1
+        writeToDevice(bleDeviceRef.current, 0x28, [4, 1, 0, 0, 0x50, 0xC3, 0x01]);
+        return;
+      }
+
+      // Handle ECG stop command from WebView
+      if (msg.action === 'ble_ecg_stop' && bleDeviceRef.current) {
+        const { writeToDevice } = require('../src/services/bleV8Bridge');
+        writeToDevice(bleDeviceRef.current, 0x28, [4, 0, 0, 0, 0, 0, 1]);
         return;
       }
 
@@ -166,12 +174,6 @@ function NativeFullApp() {
           style={{ flex: 1, backgroundColor: '#0A0A1A' }}
           onMessage={handleMessage}
           onLoadEnd={onWebViewLoaded}
-          injectedJavaScriptBeforeContentLoaded={`
-            document.documentElement.classList.add('native-webview');
-            document.documentElement.style.setProperty('--safe-top', '70px');
-            window.__NATIVE_SAFE_AREA = true;
-            true;
-          `}
           allowsBackForwardNavigationGestures={false}
           javaScriptEnabled={true}
           domStorageEnabled={true}
@@ -362,54 +364,6 @@ function SafeAreaCSSInjector() {
       :root { --safe-top: 70px; }
     `;
     document.head.appendChild(style);
-
-    // Dynamic safe area: MutationObserver that ensures all full-screen containers
-    // have proper top padding when running inside native iOS WebView
-    const isNative = document.documentElement.classList.contains('native-webview') || (window as any).__NATIVE_SAFE_AREA;
-    if (!isNative) return;
-
-    const SAFE_TOP = 70;
-    const applied = new WeakSet<Element>();
-
-    function applyPadding(el: HTMLElement) {
-      if (applied.has(el)) return;
-      const cs = window.getComputedStyle(el);
-      const pos = cs.position;
-      if (pos !== 'fixed' && pos !== 'absolute') return;
-      // Check if this is a full-screen container (covers most of viewport)
-      const w = el.offsetWidth;
-      const h = el.offsetHeight;
-      if (w < window.innerWidth * 0.8 || h < window.innerHeight * 0.4) return;
-      // Skip elements that already have >= 50px top padding
-      const currentPt = parseInt(cs.paddingTop) || 0;
-      if (currentPt >= 50) { applied.add(el); return; }
-      // Check if first scrollable child or the element itself should get padding
-      const scrollChild = el.querySelector('[style*="overflow"]') as HTMLElement;
-      const target = scrollChild || el;
-      const targetPt = parseInt(window.getComputedStyle(target).paddingTop) || 0;
-      if (targetPt < 50) {
-        target.style.paddingTop = SAFE_TOP + 'px';
-      }
-      applied.add(el);
-    }
-
-    function scan() {
-      document.querySelectorAll('div').forEach((el) => {
-        applyPadding(el as HTMLElement);
-      });
-    }
-
-    // Initial scan after a short delay (React needs time to mount)
-    setTimeout(scan, 500);
-    setTimeout(scan, 1500);
-
-    // Watch for new nodes
-    const obs = new MutationObserver(() => {
-      requestAnimationFrame(scan);
-    });
-    obs.observe(document.body, { childList: true, subtree: true });
-
-    return () => obs.disconnect();
   }, []);
   return null;
 }

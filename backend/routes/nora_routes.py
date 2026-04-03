@@ -46,6 +46,12 @@ def _build_prompt(context: str, u: dict, br: dict, sc: dict, goal, age: int) -> 
     gender = u.get("gender", "")
     height = u.get("height_cm", 170)
     weight = sc.get("weight") or u.get("weight_kg", 0)
+    try:
+        height = float(height) if height else 170
+        weight = float(weight) if weight else 0
+    except (ValueError, TypeError):
+        height = 170
+        weight = 0
     bmi = round(weight / ((height / 100) ** 2), 1) if weight and height else 0
     conditions = u.get("medical_conditions", "Aucune")
     allergies = u.get("allergies", "Aucune")

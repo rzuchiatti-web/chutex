@@ -19,9 +19,7 @@ export default function Root({ children }: PropsWithChildren) {
           * { -webkit-overflow-scrolling: touch; overscroll-behavior: none; }
 
           /* ═══ iOS WebView Global Safe Area ═══ */
-          /* Applied dynamically ONLY when running inside native WebView */
-          :root { --safe-top: 0px; }
-          html.native-webview { --safe-top: 70px; }
+          :root { --safe-top: 70px; }
 
           /* ═══ Premium Clinical Motion System ═══ */
 
