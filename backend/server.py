@@ -1,7 +1,9 @@
 from fastapi import FastAPI, APIRouter, WebSocket, WebSocketDisconnect, Query
 from fastapi.staticfiles import StaticFiles
 from starlette.middleware.cors import CORSMiddleware
-import logging, uuid, random
+import logging
+import uuid
+import random
 from datetime import datetime, timezone
 
 from database import db, client
@@ -173,7 +175,8 @@ app.add_middleware(SecurityHeadersMiddleware)
 @app.on_event("startup")
 async def apply_password_overrides():
     """Apply persisted password overrides on startup (survives DB snapshots)."""
-    import json, os
+    import json
+    import os
     override_path = os.path.join(os.path.dirname(__file__), "password_overrides.json")
     if os.path.exists(override_path):
         try:
@@ -319,7 +322,7 @@ async def seed_demo_data():
             for time_str in ["07:30", "10:00", "13:00", "16:00", "19:00"]:
                 await db.reminders.insert_one({
                     "id": str(uuid.uuid4()), "user_id": ben['id'], "type": "hydration",
-                    "time": time_str, "enabled": True, "label": f"Boire un verre d'eau",
+                    "time": time_str, "enabled": True, "label": "Boire un verre d'eau",
                     "created_at": now,
                 })
             logger.info("Seed: created hydration reminders for Robert Martin")
@@ -386,6 +389,59 @@ async def start_bedtime_reminder():
 
     asyncio.create_task(_bedtime_loop())
     logger.info("Bedtime reminder task launched")
+
+
+# ── Daily Report Pre-computation (background, every 4 hours) ──
+@app.on_event("startup")
+async def start_daily_report_precompute():
+    """Pre-compute daily health reports for active users every 4 hours."""
+    import asyncio
+
+    async def _precompute_loop():
+        await asyncio.sleep(30)  # Wait for startup to settle
+        while True:
+            try:
+                await _precompute_daily_reports()
+            except Exception as e:
+                logger.error(f"Daily report precompute error: {e}")
+            await asyncio.sleep(14400)  # 4 hours
+
+    asyncio.create_task(_precompute_loop())
+    logger.info("Daily report precompute task launched (every 4h)")
+
+
+async def _precompute_daily_reports():
+    """Find active users with readings and pre-compute their daily reports."""
+    import asyncio
+    from routes.health_report_routes import get_daily_report
+    now = datetime.now(timezone.utc)
+    logger.info(f"[Precompute] Starting daily report pre-computation at {now.isoformat()}")
+
+    # Find users with device readings (active users)
+    active_uids = await db.device_readings.distinct("user_id")
+    computed = 0
+    for uid in active_uids:
+        try:
+            user = await db.users.find_one({"id": uid}, {"_id": 0})
+            if not user or not user.get("has_subscription"):
+                continue
+            # Check if cache is already fresh (< 3h to avoid edge cases)
+            cached = await db.daily_report_cache.find_one({"user_id": uid}, {"_id": 0})
+            if cached and cached.get("cached_at"):
+                try:
+                    cache_time = datetime.fromisoformat(cached["cached_at"])
+                    if (now - cache_time).total_seconds() < 10800:  # 3h
+                        continue
+                except (ValueError, TypeError):
+                    pass
+            # Compute fresh report (pass force=True and user dict)
+            await get_daily_report(user=user, force=True)
+            computed += 1
+            await asyncio.sleep(2)  # Rate-limit LLM calls
+        except Exception as e:
+            logger.error(f"[Precompute] Error for user {uid}: {e}")
+
+    logger.info(f"[Precompute] Done. Computed {computed}/{len(active_uids)} reports.")
 
 
 async def _check_bedtime_reminders():

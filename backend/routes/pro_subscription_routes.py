@@ -413,33 +413,6 @@ async def update_payment_config(data: PaymentConfigUpdate, user=Depends(get_curr
     return {"status": "ok", "iban_configured": True, "sms_sent": bool(phone)}
 
 # Simulate payment for testing (since Mollie test mode needs browser redirect)
-@router.post("/pro/subscriptions/{subscription_id}/simulate-payment")
-async def simulate_payment(subscription_id: str, user=Depends(get_current_user)):
-    """DEV ONLY: Simulate successful payment for testing"""
-    sub = await db.pro_subscriptions.find_one({"id": subscription_id})
-    if not sub:
-        raise HTTPException(status_code=404, detail="Abonnement non trouve")
-    if sub['beneficiary_id'] != user['id'] and sub['professional_id'] != user['id']:
-        raise HTTPException(status_code=403, detail="Non autorise")
-    await db.pro_subscriptions.update_one(
-        {"id": subscription_id},
-        {"$set": {"status": "active", "start_date": datetime.now(timezone.utc).isoformat()}}
-    )
-    await db.payment_history.insert_one({
-        "id": str(uuid.uuid4()),
-        "subscription_id": subscription_id,
-        "mollie_payment_id": "simulated",
-        "amount_ttc": SUBSCRIPTION_PRICE_TTC,
-        "amount_ht": SUBSCRIPTION_PRICE_HT,
-        "commission": PLATFORM_COMMISSION,
-        "professional_id": sub['professional_id'],
-        "beneficiary_id": sub['beneficiary_id'],
-        "status": "paid",
-        "date": datetime.now(timezone.utc).isoformat(),
-    })
-    return {"status": "active"}
-
-
 # ══════════════════════════════════════
 # PHASE 6 — Messagerie Pro <-> Beneficiaire
 # ══════════════════════════════════════

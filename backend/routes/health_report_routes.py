@@ -1006,8 +1006,27 @@ Reponds UNIQUEMENT en JSON: {{"summary": "phrase medicale factuelle courte", "re
 
 
 @router.get("/health/daily-report")
-async def get_daily_report(user=Depends(get_current_user)):
+async def get_daily_report(user=Depends(get_current_user), force: bool = False):
     uid = user['id']
+
+    # ── Cache layer: serve cached report if < 4h old and no force refresh ──
+    if not force:
+        cached = await db.daily_report_cache.find_one({"user_id": uid}, {"_id": 0})
+        if cached:
+            cached_at = cached.get("cached_at", "")
+            if cached_at:
+                try:
+                    cache_time = datetime.fromisoformat(cached_at)
+                    age_seconds = (datetime.now(timezone.utc) - cache_time).total_seconds()
+                    if age_seconds < 14400:  # 4 hours
+                        report = cached.get("report", {})
+                        report["from_cache"] = True
+                        report["cache_age_min"] = round(age_seconds / 60)
+                        return report
+                except (ValueError, TypeError):
+                    pass
+
+    # ── Fresh computation ──
 
     # Build Nora context first
     nora_ctx = await build_nora_context(user)
@@ -1258,7 +1277,7 @@ async def get_daily_report(user=Depends(get_current_user)):
             "normal": bpm_val == 0 or (50 <= bpm_val <= 100),
         })
 
-    return {
+    result = {
         "score": si["score"], "status": si["status"], "status_color": si["status_color"],
         "subscores": si["subscores"], "lifts": si["lifts"], "limits": si["limits"],
         "data": d, "ai": ai, "daily_plan": plan, "sparklines": sparks,
@@ -1268,6 +1287,16 @@ async def get_daily_report(user=Depends(get_current_user)):
         "activity_streak": activity_streak,
         "generated_at": datetime.now(timezone.utc).isoformat(),
     }
+
+    # ── Store in cache ──
+    await db.daily_report_cache.update_one(
+        {"user_id": uid},
+        {"$set": {"user_id": uid, "report": result, "cached_at": datetime.now(timezone.utc).isoformat()}},
+        upsert=True
+    )
+
+    result["from_cache"] = False
+    return result
 
 
 
@@ -1284,6 +1313,7 @@ async def generate_health_report_pdf(period: str = "30j", user=Depends(get_curre
     import io
 
     # Gather data from real readings only
+    uid = user['id']
     d = gen_data()
     br = await db.device_readings.find_one({"user_id": uid, "device_type": "bracelet"}, {"_id": 0}, sort=[("timestamp", -1)])
     sc = await db.device_readings.find_one({"user_id": uid, "device_type": "scale"}, {"_id": 0}, sort=[("timestamp", -1)])

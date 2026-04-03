@@ -1,6 +1,8 @@
 from fastapi import APIRouter, Depends, HTTPException
 from datetime import datetime, timezone, timedelta
-import uuid, logging, struct
+import uuid
+import logging
+import struct
 
 from database import db
 from auth import get_current_user
@@ -935,10 +937,10 @@ async def push_v8_data(request_body: dict, user=Depends(get_current_user)):
             "created_at": now, "resolved_at": None, "resolved_by": None, "teleassistance_status": "pending",
         })
 
+    # Invalidate daily report cache (new data = stale report)
+    await db.daily_report_cache.delete_one({"user_id": uid})
+
     return {k: v for k, v in reading.items() if k != "_id"}
-
-
-@router.get("/bracelet/v8/vo2max")
 async def get_vo2max(user=Depends(get_current_user)):
     """Calculate VO2max from V8 bracelet HR + HRV data."""
     uid = user["id"]
