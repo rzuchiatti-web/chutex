@@ -17,7 +17,7 @@ import os
 import uuid
 import time
 
-BASE_URL = os.environ.get("EXPO_PUBLIC_BACKEND_URL", "https://ble-state-manager.preview.emergentagent.com").rstrip("/")
+BASE_URL = os.environ.get("EXPO_PUBLIC_BACKEND_URL", "https://ios-health-native.preview.emergentagent.com").rstrip("/")
 
 
 class TestNoraFunctionCalling:

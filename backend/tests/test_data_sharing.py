@@ -6,7 +6,7 @@ import pytest
 import requests
 import os
 
-BASE_URL = os.environ.get('EXPO_PUBLIC_BACKEND_URL', 'https://ble-state-manager.preview.emergentagent.com')
+BASE_URL = os.environ.get('EXPO_PUBLIC_BACKEND_URL', 'https://ios-health-native.preview.emergentagent.com')
 
 # Test credentials - beneficiary
 BENEFICIARY_PHONE = "0651245918"

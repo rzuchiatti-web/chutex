@@ -15,7 +15,7 @@ import requests
 import os
 from datetime import datetime
 
-BASE_URL = os.environ.get('EXPO_PUBLIC_BACKEND_URL', 'https://ble-state-manager.preview.emergentagent.com')
+BASE_URL = os.environ.get('EXPO_PUBLIC_BACKEND_URL', 'https://ios-health-native.preview.emergentagent.com')
 
 # Test credentials
 BENEFICIARY_PHONE = "+33651245918"

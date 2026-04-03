@@ -13,7 +13,7 @@ import pytest
 import requests
 import os
 
-BASE_URL = os.environ.get('REACT_APP_BACKEND_URL', 'https://ble-state-manager.preview.emergentagent.com')
+BASE_URL = os.environ.get('REACT_APP_BACKEND_URL', 'https://ios-health-native.preview.emergentagent.com')
 
 # Test credentials
 SAAD_EMAIL = "saad@chutex.fr"
