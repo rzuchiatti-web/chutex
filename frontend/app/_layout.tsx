@@ -43,13 +43,215 @@ function NativeFullApp() {
     setLocationRetrying(false);
   };
 
+  // ── Persistent BLE manager + connected device ──
+  const bleManagerRef = useRef<any>(null);
+  const bleDeviceRef = useRef<any>(null);
+  const blePollRef = useRef<any>(null);
+
+  const getBleManager = () => {
+    if (!bleManagerRef.current) {
+      try {
+        const { BleManager } = require('react-native-ble-plx');
+        bleManagerRef.current = new BleManager();
+      } catch {}
+    }
+    return bleManagerRef.current;
+  };
+
+  // Build 16-byte command packet for V8/2208A bracelet
+  const buildCmd = (cmd: number, payload: number[] = []): string => {
+    const pkt = [cmd, ...payload, ...new Array(14 - payload.length).fill(0)];
+    pkt.push(pkt.reduce((s: number, b: number) => s + b, 0) & 0xFF);
+    // Convert to base64 for react-native-ble-plx
+    const bytes = new Uint8Array(pkt);
+    let binary = '';
+    for (let i = 0; i < bytes.length; i++) binary += String.fromCharCode(bytes[i]);
+    return typeof btoa !== 'undefined' ? btoa(binary) : require('react-native').Buffer?.from(pkt)?.toString('base64') || '';
+  };
+
+  // Write a command to the bracelet
+  const writeToDevice = async (device: any, cmd: number, payload: number[] = []) => {
+    try {
+      const b64 = buildCmd(cmd, payload);
+      await device.writeCharacteristicWithResponseForService(
+        '0000fff0-0000-1000-8000-00805f9b34fb',
+        '0000fff6-0000-1000-8000-00805f9b34fb',
+        b64
+      ).catch(() =>
+        device.writeCharacteristicWithoutResponseForService(
+          '0000fff0-0000-1000-8000-00805f9b34fb',
+          '0000fff6-0000-1000-8000-00805f9b34fb',
+          b64
+        )
+      );
+    } catch {}
+  };
+
+  // Start full V8 protocol after connection
+  const startBraceletProtocol = async (device: any) => {
+    bleDeviceRef.current = device;
+    const apiUrl = backendUrl;
+
+    // Get auth token from WebView
+    let authToken = '';
+    try {
+      const tokenResult = await new Promise<string>((resolve) => {
+        webViewRef.current?.injectJavaScript(`
+          (function(){
+            try { window.ReactNativeWebView.postMessage(JSON.stringify({action:'get_token',token:localStorage.getItem('vl_token')||localStorage.getItem('@AsyncStorage:vl_token')||''})); }
+            catch(e){}
+          })(); true;
+        `);
+        // We'll get it via onMessage - for now use a stored ref
+        setTimeout(() => resolve(''), 500);
+      });
+    } catch {}
+
+    // Monitor notifications on FFF7 (V8 notify characteristic)
+    try {
+      device.monitorCharacteristicForService(
+        '0000fff0-0000-1000-8000-00805f9b34fb',
+        '0000fff7-0000-1000-8000-00805f9b34fb',
+        (err: any, char: any) => {
+          if (err || !char?.value) return;
+          // Decode base64 to bytes
+          const raw = char.value;
+          let bytes: number[] = [];
+          try {
+            const bin = typeof atob !== 'undefined' ? atob(raw) : '';
+            for (let i = 0; i < bin.length; i++) bytes.push(bin.charCodeAt(i));
+          } catch { return; }
+          if (bytes.length < 1) return;
+          const cmd = bytes[0];
+          const parsed: any = { cmd };
+
+          // Parse response
+          if (cmd === 0x0D && bytes.length >= 2) parsed.battery = bytes[1];
+          if (cmd === 0x09 && bytes.length >= 14) {
+            parsed.steps = bytes[1] | (bytes[2] << 8) | (bytes[3] << 16) | (bytes[4] << 24);
+            parsed.calories = ((bytes[5] | (bytes[6] << 8) | (bytes[7] << 16) | (bytes[8] << 24)) / 100);
+            parsed.heart_rate = bytes[13];
+          }
+          if (cmd === 0x28 && bytes.length >= 10) {
+            parsed.heart_rate = bytes[2]; parsed.spo2 = bytes[3]; parsed.hrv = bytes[4];
+            parsed.stress = bytes[5]; parsed.systolic = bytes[6]; parsed.diastolic = bytes[7];
+            parsed.temperature = (bytes[8] | (bytes[9] << 8)) / 10;
+          }
+          if (cmd === 0x50 && bytes.length >= 4 && bytes[1] >= 100) {
+            const gRaw = bytes[2] | (bytes[3] << 8);
+            parsed.blood_glucose_mgdl = Math.round((gRaw / 10.0) * 18.0);
+          }
+
+          // Send parsed data to WebView for display
+          const dataJson = JSON.stringify(parsed).replace(/'/g, '');
+          webViewRef.current?.injectJavaScript(`
+            window.dispatchEvent(new CustomEvent('ble_data',{detail:${dataJson}})); true;
+          `);
+
+          // Push to backend via fetch from native side
+          const pushData = async () => {
+            try {
+              let dataType = 'realtime';
+              if (cmd === 0x0D) dataType = 'battery';
+              else if (cmd === 0x09) dataType = 'steps';
+              else if (cmd === 0x28) dataType = 'heart_rate';
+              else if (cmd === 0x50) dataType = 'blood_glucose';
+              await fetch(`${apiUrl}/api/bracelet/v8/push`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ data_type: dataType, data: parsed, device_id: device.id || '', source: 'ble' }),
+              });
+            } catch {}
+          };
+          // We need the token - inject it from webview
+          webViewRef.current?.injectJavaScript(`
+            (function(){
+              var t = localStorage.getItem('vl_token') || localStorage.getItem('@AsyncStorage:vl_token') || '';
+              if(t) fetch('/api/bracelet/v8/push',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+t},body:JSON.stringify({data_type:'${cmd===0x0D?'battery':cmd===0x09?'steps':cmd===0x28?'heart_rate':cmd===0x50?'blood_glucose':'realtime'}',data:${dataJson},device_id:'${(device.id||'').replace(/'/g,'')}',source:'ble'})}).catch(function(){});
+            })(); true;
+          `);
+        }
+      );
+    } catch {}
+
+    // Time sync
+    const now = new Date();
+    await writeToDevice(device, 0x01, [now.getFullYear() & 0xFF, (now.getFullYear() >> 8) & 0xFF, now.getMonth() + 1, now.getDate(), now.getHours(), now.getMinutes(), now.getSeconds()]);
+
+    // Initial commands
+    setTimeout(() => writeToDevice(device, 0x0D), 500);
+    setTimeout(() => writeToDevice(device, 0x52, [0]), 1000);
+    setTimeout(() => writeToDevice(device, 0x28, [2, 1]), 1500);
+    setTimeout(() => writeToDevice(device, 0x28, [3, 1]), 2000);
+    setTimeout(() => writeToDevice(device, 0x28, [1, 1]), 2500);
+    setTimeout(() => writeToDevice(device, 0x09, [1, 1]), 3000);
+    setTimeout(() => writeToDevice(device, 0x50), 3500);
+
+    // Sync to backend (associate + sync)
+    setTimeout(() => {
+      webViewRef.current?.injectJavaScript(`
+        (function(){
+          var t = localStorage.getItem('vl_token') || localStorage.getItem('@AsyncStorage:vl_token') || '';
+          if(t){
+            fetch('/api/devices/associate',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+t},body:JSON.stringify({device_type:'bracelet',mac_address:'${(device.id||'').replace(/'/g,'')}'})}).catch(function(){});
+            fetch('/api/devices/sync',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+t},body:JSON.stringify({device_type:'bracelet',data:{connected:true}})}).catch(function(){});
+          }
+        })(); true;
+      `);
+    }, 4000);
+
+    // Periodic polling every 10s
+    if (blePollRef.current) clearInterval(blePollRef.current);
+    blePollRef.current = setInterval(async () => {
+      if (!bleDeviceRef.current) { clearInterval(blePollRef.current); return; }
+      try {
+        const isConn = await device.isConnected();
+        if (!isConn) { clearInterval(blePollRef.current); bleDeviceRef.current = null; return; }
+        writeToDevice(device, 0x09, [1, 1]);
+      } catch { clearInterval(blePollRef.current); bleDeviceRef.current = null; }
+    }, 10000);
+
+    // Full poll every 30s
+    const fullPoll = setInterval(async () => {
+      if (!bleDeviceRef.current) { clearInterval(fullPoll); return; }
+      try {
+        const isConn = await device.isConnected();
+        if (!isConn) { clearInterval(fullPoll); return; }
+        writeToDevice(device, 0x0D);
+        setTimeout(() => writeToDevice(device, 0x28, [2, 1]), 200);
+        setTimeout(() => writeToDevice(device, 0x28, [3, 1]), 400);
+        setTimeout(() => writeToDevice(device, 0x28, [1, 1]), 600);
+        setTimeout(() => writeToDevice(device, 0x50), 800);
+        // Check pending vibration commands
+        webViewRef.current?.injectJavaScript(`
+          (function(){
+            var t = localStorage.getItem('vl_token') || localStorage.getItem('@AsyncStorage:vl_token') || '';
+            if(t) fetch('/api/bracelet/v8/pending-commands',{headers:{'Authorization':'Bearer '+t}}).then(function(r){return r.json()}).then(function(d){
+              if(d&&d.commands) d.commands.forEach(function(c){ if(c.ble_cmd===8) window.ReactNativeWebView.postMessage(JSON.stringify({action:'ble_vibrate',payload:c.ble_payload||[1,3]})); });
+            }).catch(function(){});
+          })(); true;
+        `);
+      } catch { clearInterval(fullPoll); }
+    }, 30000);
+  };
+
   const handleMessage = async (event: any) => {
     try {
       const msg = JSON.parse(event.nativeEvent.data);
+
+      // Handle vibration command from webview
+      if (msg.action === 'ble_vibrate' && bleDeviceRef.current) {
+        const payload = msg.payload || [1, 3];
+        writeToDevice(bleDeviceRef.current, 0x08, payload);
+        return;
+      }
+
+      // Handle token retrieval (ignore)
+      if (msg.action === 'get_token') return;
+
       if (msg.action === 'ble_scan_bracelet' || msg.action === 'ble_scan_vest' || msg.action === 'ble_scan_scale') {
         const isBracelet = msg.action === 'ble_scan_bracelet';
         const isScale = msg.action === 'ble_scan_scale';
-        // Request permissions on Android
         if (Platform.OS === 'android') {
           try {
             await PermissionsAndroid.requestMultiple([
@@ -59,22 +261,18 @@ function NativeFullApp() {
             ]);
           } catch {}
         }
-        // Import BLE
-        let BleManager: any;
-        try { BleManager = require('react-native-ble-plx').BleManager; } catch { 
-          webViewRef.current?.injectJavaScript(`window.dispatchEvent(new CustomEvent('ble_result',{detail:{error:'BLE non disponible sur cet appareil'}}));true;`);
+        const manager = getBleManager();
+        if (!manager) {
+          webViewRef.current?.injectJavaScript(`window.dispatchEvent(new CustomEvent('ble_result',{detail:{error:'BLE non disponible'}}));true;`);
           return;
         }
-        const manager = new BleManager();
         let found = false;
-        // Name filters: bracelet includes V8 names, scale includes QN/Lefu/CF586
         const nameFilter = isBracelet
           ? ['2208', 'J22', 'JStyle', 'Elio', 'V8', 'JCV8', 'HB8', '2301']
           : isScale
           ? ['QN-Scale', 'Lefu', 'CF586', 'Health Scale', 'SWAN', 'BF600']
           : ['Elder', 'AIRBAG', 'Gilet', 'Airbag'];
 
-        // Wait for BLE to be powered on before scanning
         const startScan = () => {
           manager.startDeviceScan(null, null, async (error: any, device: any) => {
             if (error) {
@@ -91,12 +289,15 @@ function NativeFullApp() {
                 const connected = await device.connect();
                 await connected.discoverAllServicesAndCharacteristics();
                 webViewRef.current?.injectJavaScript(`window.dispatchEvent(new CustomEvent('ble_result',{detail:{success:true,name:'${(name || '').replace(/'/g, '')}',id:'${(device.id || '').replace(/'/g, '')}'}}));true;`);
+                // Start full V8 protocol for bracelet
+                if (isBracelet) {
+                  await startBraceletProtocol(connected);
+                }
               } catch (e: any) {
                 webViewRef.current?.injectJavaScript(`window.dispatchEvent(new CustomEvent('ble_result',{detail:{error:'Connexion echouee: ${(e.message || '').replace(/'/g, '')}'}}));true;`);
               }
             }
           });
-          // Timeout 20s
           setTimeout(() => {
             if (!found) {
               manager.stopDeviceScan();
@@ -105,24 +306,16 @@ function NativeFullApp() {
           }, 20000);
         };
 
-        // Check BLE state - wait if not ready
         const sub = manager.onStateChange((state: string) => {
-          if (state === 'PoweredOn') {
-            sub.remove();
-            startScan();
-          }
+          if (state === 'PoweredOn') { sub.remove(); startScan(); }
         }, true);
-        // Fallback: if already powered on, the callback fires immediately with `true` param
-        // But also timeout if BLE never becomes ready
         setTimeout(() => {
           sub.remove();
           if (!found) {
             manager.state().then((s: string) => {
               if (s === 'PoweredOn') startScan();
               else webViewRef.current?.injectJavaScript(`window.dispatchEvent(new CustomEvent('ble_result',{detail:{error:'Bluetooth desactive. Activez-le dans les Reglages.'}}));true;`);
-            }).catch(() => {
-              webViewRef.current?.injectJavaScript(`window.dispatchEvent(new CustomEvent('ble_result',{detail:{error:'Bluetooth non disponible.'}}));true;`);
-            });
+            }).catch(() => {});
           }
         }, 3000);
       }

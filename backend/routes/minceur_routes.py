@@ -16,6 +16,11 @@ def mifflin_st_jeor(weight_kg: float, height_cm: float, age: int, is_male: bool)
 
 
 def calc_bmi(weight_kg: float, height_cm: float) -> float:
+    try:
+        height_cm = float(height_cm or 0)
+        weight_kg = float(weight_kg or 0)
+    except (ValueError, TypeError):
+        return 0
     if height_cm <= 0:
         return 0
     h_m = height_cm / 100
