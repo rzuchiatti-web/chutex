@@ -148,7 +148,7 @@ async def send_weekly_report(user=Depends(get_current_user)):
             print(f"Weekly report AI err: {e}")
 
     # Compute score
-    from routes.health_report_routes import gen_data, compute_subscores
+    from routes.health_core import gen_data, compute_subscores
     d = gen_data()
     if hd.get("has_bracelet_data"):
         for k in ["heart_rate", "spo2", "temperature", "steps", "calories", "hrv"]:
@@ -193,7 +193,8 @@ async def get_morning_briefing(user=Depends(get_current_user)):
     hd = nora_ctx["health_data"]
 
     # Get the daily_plan from health_report (same as health page)
-    from routes.health_report_routes import compute_daily_plan_async, compute_subscores, _sanitize_data, _has_meaningful_data, gen_data, evaluate_objectives_met
+    from routes.health_core import gen_data, compute_subscores, sanitize_data, has_meaningful_data, evaluate_objectives_met
+    from routes.health_report_routes import compute_daily_plan_async
     d = gen_data()
     br_reading = await db.device_readings.find_one({"user_id": uid, "device_type": "bracelet"}, {"_id": 0}, sort=[("timestamp", -1)])
     sc_reading = await db.device_readings.find_one({"user_id": uid, "device_type": "scale"}, {"_id": 0}, sort=[("timestamp", -1)])
@@ -204,7 +205,7 @@ async def get_morning_briefing(user=Depends(get_current_user)):
     if sc_reading and sc_reading.get("data"):
         for k in ["weight", "bmi", "body_fat_pct", "muscle_pct", "water_pct", "visceral_fat", "body_age", "bone_mass_kg", "basal_metabolism"]:
             if sc_reading["data"].get(k): d[k] = sc_reading["data"][k]
-    d = _sanitize_data(d)
+    d = sanitize_data(d)
     si = compute_subscores(d)
     daily_plan = await compute_daily_plan_async(d, si, uid)
 

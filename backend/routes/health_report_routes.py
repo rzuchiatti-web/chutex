@@ -8,11 +8,18 @@ from dotenv import load_dotenv
 from database import db
 from auth import get_current_user
 from services.nora_context import build_nora_context, format_nora_context_for_prompt, APP_SERVICES_KNOWLEDGE
+from routes.health_core import (
+    gen_data, compute_subscores, has_meaningful_data, sanitize_data,
+    estimate_vo2_max, evaluate_objectives_met, HUMAN_MAP_IMG,
+)
 
 load_dotenv()
 router = APIRouter()
 
-HUMAN_MAP_IMG = 'https://static.prod-images.emergentagent.com/jobs/92308143-f99e-4bad-8264-e3775a214313/images/507b1652c3de902f1f09c90079dc145841dafc79343fd12f407cb3208b5df085.png'
+
+# Legacy aliases for internal references
+_has_meaningful_data = has_meaningful_data
+_sanitize_data = sanitize_data
 
 
 def estimate_vo2_max(age: int, resting_hr: float, hrv: float, steps_daily: float = 0, gender: str = "F", weight_kg: float = 0) -> float:

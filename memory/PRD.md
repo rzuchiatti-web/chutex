@@ -54,15 +54,16 @@ Frontend React Native Expo WebView + Backend FastAPI + MongoDB.
 ### P0 (Avant production) - DONE
 - [x] Purge donnees simulees
 - [x] Routes dupliquees
-- [x] Cache daily-report
+- [x] Cache daily-report (83x plus rapide)
 - [x] Suppression simulate-payment
 
-### P1
+### P1 - DONE
+- [x] Extraction health_core.py (logique scoring partagee, 297L)
+- [x] Extraction pro_exercise_routes.py (exercices, 502L)
+- [x] professional_routes.py reduit de 2497L a 1943L
+- [x] Suite pytest: 28 tests de regression (auth, V8, sante, batch, securite, etc.)
 - [ ] Refactoriser _layout.tsx (extraire BLE dans module separe)
-- [ ] Refactoriser health_report_routes.py (2064L)
-- [ ] Refactoriser professional_routes.py (2496L)
 - [ ] Valider BLE sur iPhone physique (Build 91)
-- [ ] Tests unitaires backend (pytest)
 
 ### P2
 - [ ] Configuration WiFi balance Lefu

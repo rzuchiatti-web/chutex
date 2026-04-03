@@ -42,6 +42,7 @@ from routes.live_status_routes import router as live_status_router
 from routes.j2358_routes import router as j2358_router
 from routes.program_team_routes import router as program_team_router
 from routes.professional_routes import router as professional_router
+from routes.pro_exercise_routes import router as pro_exercise_router
 from routes.pro_subscription_routes import router as pro_sub_router
 from routes.pro_application_routes import router as pro_app_router
 from routes.escalation_routes import router as escalation_router
@@ -89,6 +90,7 @@ api_router.include_router(j2358_router)
 api_router.include_router(program_team_router)
 api_router.include_router(escalation_router)
 api_router.include_router(professional_router)
+api_router.include_router(pro_exercise_router)
 api_router.include_router(pro_sub_router)
 api_router.include_router(pro_app_router)
 api_router.include_router(notification_router)

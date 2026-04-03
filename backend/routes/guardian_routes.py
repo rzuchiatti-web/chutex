@@ -725,10 +725,11 @@ async def guardian_metric_history(bid: str, key: str, period: str = "7j", user=D
 async def guardian_beneficiary_daily_report(bid: str, user=Depends(get_current_user)):
     """Return the same data structure as /health/daily-report but for a specific beneficiary (guardian access)."""
     ben = await _ensure_guardian_access_to_beneficiary(bid, user)
-    from routes.health_report_routes import (
-        compute_subscores, _sanitize_data, gen_ai, compute_daily_plan_async,
+    from routes.health_core import (
+        compute_subscores, sanitize_data, gen_data,
         estimate_vo2_max, evaluate_objectives_met, HUMAN_MAP_IMG,
     )
+    from routes.health_report_routes import gen_ai, compute_daily_plan_async
     from services.nora_context import build_nora_context
 
     uid = bid
@@ -787,7 +788,7 @@ async def guardian_beneficiary_daily_report(bid: str, user=Depends(get_current_u
         for k in ["weight", "bmi", "body_fat_pct", "muscle_pct", "water_pct", "visceral_fat", "body_age", "bone_mass_kg", "basal_metabolism", "protein_pct"]:
             if sd.get(k): d[k] = sd[k]
 
-    d = _sanitize_data(d)
+    d = sanitize_data(d)
     si = compute_subscores(d)
 
     if si.get("no_data"):
