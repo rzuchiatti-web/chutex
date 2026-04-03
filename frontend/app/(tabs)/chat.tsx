@@ -80,7 +80,7 @@ export default function ProgramsTab() {
 
   if (Platform.OS !== 'web') return <NativePageView path="/(tabs)/chat" />;
 
-  if (loading) return <FullScreenLoader />;
+  if (loading) return null;
 
   const remainingPrograms = catalog.filter((p: any) => !activeProgram?.active || p.id !== activeProgram?.program?.id);
   const singleProgramLock = !!activeProgram?.active;

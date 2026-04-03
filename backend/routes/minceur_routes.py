@@ -10,6 +10,14 @@ router = APIRouter()
 
 
 def mifflin_st_jeor(weight_kg: float, height_cm: float, age: int, is_male: bool) -> float:
+    try:
+        weight_kg = float(weight_kg or 0)
+        height_cm = float(height_cm or 0)
+        age = int(age or 0)
+    except (ValueError, TypeError):
+        return 0
+    if weight_kg <= 0 or height_cm <= 0 or age <= 0:
+        return 0
     if is_male:
         return 10 * weight_kg + 6.25 * height_cm - 5 * age + 5
     return 10 * weight_kg + 6.25 * height_cm - 5 * age - 161
@@ -102,10 +110,17 @@ async def generate_daily_recommendations(user_id: str, user_data: dict, latest_r
 
     age = parse_age(user_data.get("date_of_birth", ""))
     is_male = user_data.get("gender", "").lower() in ("m", "male", "homme", "masculin")
-    weight = latest_reading.get("weight", user_data.get("weight_kg", 75))
-    height = user_data.get("height_cm", 170)
+    try:
+        weight = float(latest_reading.get("weight", user_data.get("weight_kg", 0)) or 0)
+        height = float(user_data.get("height_cm", 0) or 0)
+    except (ValueError, TypeError):
+        weight, height = 0, 0
+    if weight <= 0 or height <= 0:
+        return None
     bmi = calc_bmi(weight, height)
     bmr = mifflin_st_jeor(weight, height, age, is_male)
+    if bmr <= 0:
+        return None
     tdee = bmr * 1.3
     body_fat = latest_reading.get("body_fat_pct", 0)
     muscle = latest_reading.get("muscle_pct", 0)

@@ -115,7 +115,7 @@ export default function HeroScore({ bioAge, realAge, status, statusColor, ai, su
       {/* ═══ POPUP "Comprendre mon corps" — refonte ═══ */}
       {showDetail && portalMount(
         <div onClick={() => setShowDetail(false)} style={{ position: 'fixed', inset: 0, zIndex: 99990, backdropFilter: 'blur(32px)', WebkitBackdropFilter: 'blur(32px)', background: 'rgba(0,0,0,0.55)', overflowY: 'auto' } as any}>
-          <div onClick={(e: any) => e.stopPropagation()} style={{ width: '100%', maxWidth: 420, margin: '0 auto', padding: '40px 24px 120px', boxSizing: 'border-box' } as any}>
+          <div onClick={(e: any) => e.stopPropagation()} style={{ width: '100%', maxWidth: 420, margin: '0 auto', padding: '70px 24px 120px', boxSizing: 'border-box' } as any}>
             {/* Close */}
             <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 16 } as any}>
               <div onClick={() => setShowDetail(false)} style={{ width: 36, height: 36, borderRadius: 999, background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}><i className="ri-close-line" style={{ fontSize: 18, color: 'rgba(255,255,255,0.8)' }} /></div>

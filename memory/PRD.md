@@ -1,41 +1,43 @@
 # CHUTEX - PRD
 
 ## Architecture
-- Frontend: Expo Web (React) port 3000
+- Frontend: Expo Web (React) port 3000 / iOS WebView
 - Backend: FastAPI port 8001
 - Database: MongoDB (vitallink_db)
-- Auth: JWT (cle `vl_token`)
-- LLM: OpenAI GPT-5.2 via Emergent LLM Key
 
-## Bracelet V8 — Integration Complete
-- [x] Detection V8 auto, parsing complet (tous les cmd 0x09-0x55)
-- [x] Polling periodique: realtime 10s, mesures 30s, sync 60s
-- [x] Auto-reconnexion via getDevices()
-- [x] Vibration bracelet (0x08) pour rappels et reveil
-- [x] Pending commands: backend stocke, frontend poll et envoie via BLE
-- [x] Glycemie BLE → auto-calibration ML (V3 population model)
+## Build 87 - Corrections Majeures
 
-## Vibration Bracelet
-- [x] Endpoint /api/bracelet/v8/vibrate
-- [x] Endpoint /api/bracelet/v8/pending-commands
-- [x] Rappels medicaments → vibration bracelet
-- [x] Rappel coucher (bedtime) → vibration bracelet
-- [x] Frontend poll pending-commands toutes les 60s et envoie 0x08
+### BLE V8 Natif iOS (complet)
+- [x] BleManager persistent (plus de "unknown state")
+- [x] onStateChange attend PoweredOn avant scan
+- [x] Noms V8: V8, JCV8, HB8, 2301 + anciens 2208, J22, JStyle, Elio
+- [x] Apres connexion: startBraceletProtocol() complet
+- [x] Notifications FFF7 avec parsing natif (0x0D, 0x09, 0x28, 0x50)
+- [x] Commandes initiales: time sync, battery, steps, HR, SpO2, HRV+BP, glucose
+- [x] Polling 10s (realtime) + 30s (full mesures + check vibration)
+- [x] Push backend via WebView inject (token auth)
+- [x] Associate + sync apres connexion
+- [x] Vibration (0x08) pour rappels et reveil
+- [x] Support balance scan natif iOS
 
-## Glycemie ML
-- [x] Glucose BLE V8 → auto-calibration dans glycemia_calibrations
-- [x] Re-estimation ML automatique a chaque push glucose
-- [x] Modele V3 population (Gradient Boosting) + calibrations V8
+### Loaders
+- [x] WebView renderLoading supprime (plus de loader natif)
+- [x] Tabs _layout garde FullScreenLoader DNA uniquement pour auth
+- [x] Pages tab (health, chat, alerts) utilisent des inline loaders legers
 
-## ECG
-- [x] Flow complet, detail avec trace reel
-- [x] Historique ECG dans page sante
+### iOS Layout
+- [x] Header 70px padding-top sur toutes les pages
+- [x] Popups 70px padding-top
+- [x] Plein ecran (pas de SafeAreaView)
+- [x] overscroll-behavior: none
+- [x] scrollEnabled=false + bounces=false
 
-## Dashboard + Page Sante
-- [x] Section Dispositifs toujours visible
-- [x] Daily-report lit donnees V8 via last_* fallback
+### Bug Fixes
+- [x] Minceur 500 (types string → float dans mifflin_st_jeor + calc_bmi)
+- [x] Abonnement: uniquement Standard Elio
+- [x] Pro subscriptions/rappels/coach supprimes
 - [x] Donnees simulees supprimees partout
 
 ## Backlog
-- P1 : Rebuild EAS TestFlight
+- P1 : Tester BLE V8 sur TestFlight avec bracelet physique
 - P2 : Gilet, Parrainage, Essai 7j, Vivoo

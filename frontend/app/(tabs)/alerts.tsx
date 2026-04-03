@@ -824,7 +824,7 @@ function ProMessaging({ token, user }: { token: string; user: any }) {
 
   const BG_IMAGE = 'https://customer-assets.emergentagent.com/job_443c9c6e-0feb-4920-a358-fe7cc1a6289b/artifacts/mhh7xwy3_ChatGPT%20Image%2017%20f%C3%A9vr.%202026%2C%2014_08_43.png';
 
-  if (loading) return <FullScreenLoader />;
+  if (loading) return null;
 
   return (
     <div data-testid="pro-messaging" style={{ position: 'absolute', inset: 0, background: '#F5F5F5', display: 'flex', flexDirection: 'column', fontFamily: 'Inter, system-ui, sans-serif', overflow: 'hidden' } as any}>
@@ -1056,7 +1056,7 @@ export default function AlertsScreen() {
     );
   }
 
-  if (loading) return <FullScreenLoader />;
+  if (loading) return null;
 
   /* - Web list page - */
   if (Platform.OS === 'web' && (r === 'guardian' || r === 'beneficiary' || r === 'prescriber_company' || r === 'admin' || r === 'teleassistance')) {
