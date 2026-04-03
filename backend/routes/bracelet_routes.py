@@ -399,7 +399,7 @@ def parse_bracelet_response(data: bytes) -> dict:
             "stress": data[5],
             "systolic": data[6],
             "diastolic": data[7],
-            "temperature": ((data[8] << 8) | data[9]) / 10,
+            "temperature": (data[8] | (data[9] << 8)) / 10,
         })
 
     # 0x13: Battery (per 2208A BLE API)
@@ -689,12 +689,12 @@ def parse_v8_blood_glucose(data: bytes) -> dict:
 
 
 def parse_v8_temperature(data: bytes) -> dict:
-    """Parse V8 3-NTC temperature (big-endian per 2208A API)."""
+    """Parse V8 3-NTC temperature (little-endian — confirmed by real V8 device)."""
     if len(data) < 4:
         return {}
-    temp_raw = (data[1] << 8) | data[2]
+    temp_raw = data[1] | (data[2] << 8)
     temp = temp_raw / 10.0
-    axillary_raw = (data[3] << 8) | data[4] if len(data) > 4 else 0
+    axillary_raw = (data[3] | (data[4] << 8)) if len(data) > 4 else 0
     axillary = axillary_raw / 10.0 if axillary_raw > 0 else None
     result = {"temperature": round(temp, 1)}
     if axillary and axillary > 30:
@@ -747,8 +747,73 @@ async def push_v8_data(request_body: dict, user=Depends(get_current_user)):
     if not data_type or not raw_data:
         raise HTTPException(400, "data_type et data requis")
 
+    # Debug: Log raw V8 data to diagnose byte mapping issues
+    if data_type in ("heart_rate", "sleep", "spo2"):
+        import logging as _log
+        _log.getLogger("bracelet").info(f"[V8-DIAG] type={data_type} raw={raw_data}")
+
     now = datetime.now(timezone.utc).isoformat()
     uid = user["id"]
+    def valid_hr(v): return 30 <= v <= 220
+    def valid_spo2(v): return 50 <= v <= 100
+    def valid_bp_sys(v): return 60 <= v <= 250
+    def valid_bp_dia(v): return 30 <= v <= 150
+    def valid_temp(v): return 34.0 <= v <= 42.0
+    def valid_hrv(v): return 1 <= v <= 200
+    def valid_stress(v): return 1 <= v <= 100
+
+    # Sanitize vitals data before storing
+    if data_type == "heart_rate":
+        if not valid_hr(raw_data.get("heart_rate", 0)):
+            raw_data.pop("heart_rate", None)
+        if not valid_spo2(raw_data.get("spo2", 0)):
+            raw_data.pop("spo2", None)
+        if not valid_hrv(raw_data.get("hrv", 0)):
+            raw_data.pop("hrv", None)
+        if not valid_stress(raw_data.get("stress", 0)):
+            raw_data.pop("stress", None)
+        if not valid_bp_sys(raw_data.get("systolic", 0)):
+            raw_data.pop("systolic", None)
+            raw_data.pop("diastolic", None)
+        elif raw_data.get("diastolic") and not valid_bp_dia(raw_data["diastolic"]):
+            raw_data.pop("systolic", None)
+            raw_data.pop("diastolic", None)
+        if raw_data.get("temperature") and not valid_temp(raw_data["temperature"]):
+            raw_data.pop("temperature", None)
+
+    # Filter sleep stages: strip 8-byte metadata header, keep valid stages (1-4)
+    # Per V8 protocol: each segment starts with [segment_id, year, month, day, hour, min, type, count]
+    # Valid stages: 1=Deep, 2=Light, 3=REM, 4=Awake
+    if data_type == "sleep" and raw_data.get("sleep_stages"):
+        stages = raw_data["sleep_stages"]
+        raw_data["_segment_id"] = "0"
+        # Strip metadata header (first 8 bytes contain timestamp/segment info)
+        # Identify by: the first few bytes often have values > 10 (like 23=year, 16=month, 52=minute)
+        if len(stages) > 8:
+            # Check if first bytes look like metadata (values > 4 or equal to known header patterns)
+            has_metadata = any(s > 10 for s in stages[:8])
+            if has_metadata:
+                raw_data["_segment_id"] = str(stages[0])
+                stages = stages[8:]  # Strip the 8-byte header
+
+        valid_stages = [s for s in stages if 1 <= s <= 4]
+        if valid_stages:
+            total = len(valid_stages)
+            deep = sum(1 for s in valid_stages if s == 1)
+            light = sum(1 for s in valid_stages if s == 2)
+            rem = sum(1 for s in valid_stages if s == 3)
+            awake = sum(1 for s in valid_stages if s == 4)
+            sleep_min = deep + light + rem  # Awake doesn't count as sleep
+            raw_data["sleep_stages"] = valid_stages
+            raw_data["sleep_duration_min"] = sleep_min
+            raw_data["deep_sleep_min"] = deep
+            raw_data["light_sleep_min"] = light
+            raw_data["rem_sleep_min"] = rem
+            raw_data["awake_minutes"] = awake
+            raw_data["sleep_quality"] = min(100, round((deep * 2 + rem * 1.5 + light) / max(1, sleep_min) * 50)) if sleep_min > 0 else 0
+        else:
+            raw_data["sleep_stages"] = []
+            raw_data["sleep_duration_min"] = 0
 
     reading = {
         "id": str(uuid.uuid4()), "user_id": uid,
@@ -761,7 +826,7 @@ async def push_v8_data(request_body: dict, user=Depends(get_current_user)):
     update_fields: dict = {"connected": True, "last_sync": now, "ble_device_id": device_id, "model": "v8"}
 
     if data_type == "heart_rate":
-        # 0x28 returns ALL vitals in one packet: HR, SpO2, HRV, stress, BP, temp
+        # 0x28 returns ALL vitals — only store validated values
         if raw_data.get("heart_rate", 0) > 0:
             update_fields["last_heart_rate"] = raw_data["heart_rate"]
         if raw_data.get("hrv", 0) > 0:
@@ -796,7 +861,39 @@ async def push_v8_data(request_body: dict, user=Depends(get_current_user)):
             update_fields["battery"] = bat
     elif data_type == "sleep":
         update_fields["last_sleep_timestamp"] = now
-        if raw_data.get("sleep_stages"):
+        if raw_data.get("sleep_stages") and raw_data.get("sleep_duration_min", 0) > 0:
+            # Each push is one segment. Store by segment_id.
+            seg_id = raw_data.get("_segment_id", "0")
+            # Store this segment's data keyed by segment ID
+            seg_data = {
+                "deep": raw_data.get("deep_sleep_min", 0),
+                "light": raw_data.get("light_sleep_min", 0),
+                "rem": raw_data.get("rem_sleep_min", 0),
+                "awake": raw_data.get("awake_minutes", 0),
+            }
+            today = now[:10]
+            existing = await db.devices.find_one(
+                {"user_id": uid, "device_type": "bracelet"},
+                {"_id": 0, "sleep_segments": 1, "last_sleep_reset_day": 1}
+            )
+            prev_day = (existing or {}).get("last_sleep_reset_day", "")
+            segments = (existing or {}).get("sleep_segments", {}) if prev_day == today else {}
+            segments[seg_id] = seg_data
+            # Aggregate across all unique segments
+            total_deep = sum(s["deep"] for s in segments.values())
+            total_light = sum(s["light"] for s in segments.values())
+            total_rem = sum(s["rem"] for s in segments.values())
+            total_awake = sum(s["awake"] for s in segments.values())
+            total_sleep = total_deep + total_light + total_rem
+            quality = min(100, round((total_deep * 2 + total_rem * 1.5 + total_light) / max(1, total_sleep) * 50)) if total_sleep > 0 else 0
+            update_fields["sleep_segments"] = segments
+            update_fields["last_sleep_deep"] = total_deep
+            update_fields["last_sleep_light"] = total_light
+            update_fields["last_sleep_rem"] = total_rem
+            update_fields["last_sleep_awake"] = total_awake
+            update_fields["last_sleep_total"] = total_sleep
+            update_fields["last_sleep_quality"] = quality
+            update_fields["last_sleep_reset_day"] = today
             update_fields["last_sleep_stages"] = raw_data["sleep_stages"]
     elif data_type == "ecg":
         update_fields["last_ecg_timestamp"] = now
@@ -912,20 +1009,22 @@ async def push_v8_data(request_body: dict, user=Depends(get_current_user)):
                 "data_type": "consolidated", "data": consolidated, "timestamp": now,
             })
 
-    # Anomaly detection
-    hr = raw_data.get("heart_rate", raw_data.get("ecg_hr", 0))
+    # Anomaly detection — ONLY on validated (physiologically plausible) data
+    hr = raw_data.get("heart_rate", 0)
     spo2 = raw_data.get("spo2", 0)
     glucose = raw_data.get("blood_glucose_mgdl", 0)
 
-    if hr > 120 or (hr > 0 and hr < 50):
-        await db.alerts.insert_one({
-            "id": str(uuid.uuid4()), "beneficiary_id": uid, "beneficiary_name": user.get("name", ""),
-            "alert_type": "anomaly", "severity": "high",
-            "message": f"Frequence cardiaque anormale: {hr} bpm (V8)",
-            "device_type": "bracelet", "device_model": "v8", "status": "active",
-            "created_at": now, "resolved_at": None, "resolved_by": None, "teleassistance_status": "pending",
-        })
-    if spo2 > 0 and spo2 < 92:
+    # Only alert if the value passed validation (is within possible human range)
+    if hr > 0 and valid_hr(hr):
+        if hr > 120 or hr < 50:
+            await db.alerts.insert_one({
+                "id": str(uuid.uuid4()), "beneficiary_id": uid, "beneficiary_name": user.get("name", ""),
+                "alert_type": "anomaly", "severity": "high",
+                "message": f"Frequence cardiaque anormale: {hr} bpm (V8)",
+                "device_type": "bracelet", "device_model": "v8", "status": "active",
+                "created_at": now, "resolved_at": None, "resolved_by": None, "teleassistance_status": "pending",
+            })
+    if spo2 > 0 and valid_spo2(spo2) and spo2 < 92:
         await db.alerts.insert_one({
             "id": str(uuid.uuid4()), "beneficiary_id": uid, "beneficiary_name": user.get("name", ""),
             "alert_type": "anomaly", "severity": "critical",

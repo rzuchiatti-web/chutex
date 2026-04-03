@@ -85,7 +85,7 @@ export function parseV8Response(bytes: number[]): { cmd: number; [key: string]: 
     parsed.stress = bytes[5];
     parsed.systolic = bytes[6];
     parsed.diastolic = bytes[7];
-    parsed.temperature = ((bytes[8] << 8) | bytes[9]) / 10;
+    parsed.temperature = (bytes[8] | (bytes[9] << 8)) / 10;
   }
 
   // 0x50: Blood glucose estimation from PPG
@@ -95,25 +95,32 @@ export function parseV8Response(bytes: number[]): { cmd: number; [key: string]: 
   }
 
   // 0x53: Detailed sleep data
-  // Per-minute stages: 01=Deep, 02=Light, 03=REM, other=Awake
+  // Per V8 protocol: first 8 bytes are metadata [segment_id, year, month, day, hour, min, type, count]
+  // Valid stages: 01=Deep, 02=Light, 03=REM, 04=Awake
   if (cmd === V8_CMD.SLEEP && bytes.length >= 3) {
+    const rawStages = bytes.slice(1, -1); // Exclude cmd byte and CRC
+    // Strip 8-byte metadata header if present (detect by values > 10 in first 8 bytes)
+    let dataStart = 0;
+    if (rawStages.length > 8 && rawStages.slice(0, 8).some(b => b > 10)) {
+      dataStart = 8;
+    }
     const stages: number[] = [];
-    for (let i = 1; i < bytes.length - 1; i++) {
-      if (bytes[i] !== 0xFF && bytes[i] !== 0x00) stages.push(bytes[i]);
+    for (let i = dataStart; i < rawStages.length; i++) {
+      if (rawStages[i] >= 1 && rawStages[i] <= 4) stages.push(rawStages[i]);
     }
     if (stages.length > 0) {
-      const total = stages.length;
       const deep = stages.filter(s => s === 1).length;
       const light = stages.filter(s => s === 2).length;
       const rem = stages.filter(s => s === 3).length;
-      const awake = total - deep - light - rem;
+      const awake = stages.filter(s => s === 4).length;
+      const sleepMin = deep + light + rem; // Awake doesn't count as sleep
       parsed.sleep_stages = stages;
-      parsed.sleep_duration_min = total;
+      parsed.sleep_duration_min = sleepMin;
       parsed.deep_sleep_min = deep;
       parsed.light_sleep_min = light;
       parsed.rem_sleep_min = rem;
       parsed.awake_minutes = awake;
-      parsed.sleep_quality = total > 0 ? Math.min(100, Math.round((deep * 2 + rem * 1.5 + light) / total * 50)) : 0;
+      parsed.sleep_quality = sleepMin > 0 ? Math.min(100, Math.round((deep * 2 + rem * 1.5 + light) / sleepMin * 50)) : 0;
     }
   }
 

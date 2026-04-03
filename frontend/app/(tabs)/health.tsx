@@ -123,7 +123,7 @@ export default function HealthScreen() {
 
   /* ─── WEB BENEFICIARY VIEW ─── */
   if (Platform.OS === 'web' && effectiveRole === 'beneficiary') {
-    if (reportLoading) return <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", background: isDark ? "#0A0A1A" : "#FFF" } as any}><div style={{ textAlign: "center" } as any}><i className="ri-loader-4-line" style={{ fontSize: 28, color: isDark ? "rgba(255,255,255,0.3)" : "rgba(0,0,0,0.2)", animation: "spin 0.8s linear infinite", display: "block", marginBottom: 8 }} /><span style={{ fontSize: 13, color: isDark ? "rgba(255,255,255,0.3)" : "rgba(0,0,0,0.3)" }}>Chargement...</span></div></div>;
+    if (reportLoading) return <FullScreenLoader />;
 
     // isDark comes from the state hook at the top of the component
     const BG_RED_HEADER = 'https://customer-assets.emergentagent.com/job_443c9c6e-0feb-4920-a358-fe7cc1a6289b/artifacts/mhh7xwy3_ChatGPT%20Image%2017%20f%C3%A9vr.%202026%2C%2014_08_43.png';
@@ -381,7 +381,7 @@ export default function HealthScreen() {
         <Text style={{ fontSize: 28, fontWeight: '800', color: '#111827', marginTop: 16, marginBottom: 8 }}>Sante</Text>
         <Text style={{ fontSize: 13, color: '#9CA3AF', marginBottom: 16 }}>Suivi de vos constantes en temps reel</Text>
         {loading ? (
-          <View style={{ paddingVertical: 60, alignItems: 'center' }}><ActivityIndicator size="large" color="#111827" /></View>
+          <FullScreenLoader />
         ) : vitals ? (
           <>
             {metrics.map(m => (

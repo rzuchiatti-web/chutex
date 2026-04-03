@@ -3,6 +3,7 @@ import { View, Text, Platform } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useAuth } from '../../src/context/AuthContext';
 import { useTheme } from '../../src/context/ThemeContext';
+import FullScreenLoader from '../../src/components/FullScreenLoader';
 import { apiFetch } from '../../src/services/api';
 import { s, BG_BLUE } from '../../src/components/teleconsult/teleconsultStyles';
 
@@ -26,7 +27,7 @@ function BeneficiaryMessagesContent({ token, user, router }: { token: string; us
     }).catch(() => {}).finally(() => setLoading(false));
   }, [token]);
 
-  if (loading) return <div style={{ textAlign: 'center', padding: '40px 0', color: '#9CA3AF' }}><i className="ri-loader-4-line" style={{ fontSize: 24, animation: 'spin 0.8s linear infinite', display: 'block', marginBottom: 8 }} />Chargement...</div>;
+  if (loading) return <FullScreenLoader />;
 
   if (convos.length === 0) return (
     <div style={{ textAlign: 'center', padding: '40px 20px' } as any}>

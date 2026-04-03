@@ -65,7 +65,7 @@ function NativeFullApp() {
       // Handle vibration command from webview
       if (msg.action === 'ble_vibrate' && bleDeviceRef.current) {
         const { writeToDevice, V8_CMD } = require('../src/services/bleV8Bridge');
-        writeToDevice(bleDeviceRef.current, V8_CMD.VIBRATE, msg.payload || [1, 3]);
+        writeToDevice(bleDeviceRef.current, V8_CMD.VIBRATE, msg.payload || [3]);
         return;
       }
 

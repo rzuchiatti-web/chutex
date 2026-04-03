@@ -637,6 +637,21 @@ async def get_section_analysis(section: str, user=Depends(get_current_user)):
             sl = rd["sleep"]
             for k in ["sleep_quality", "sleep_duration", "deep_minutes", "light_minutes", "rem_minutes"]:
                 if sl.get(k): d[k.replace("sleep_duration", "sleep_duration_min").replace("deep_minutes", "deep_sleep_min").replace("light_minutes", "light_sleep_min").replace("rem_minutes", "rem_sleep_min")] = sl[k]
+    # Use aggregated sleep from devices collection (more accurate than single reading)
+    bracelet_device = await db.devices.find_one({"user_id": uid, "device_type": "bracelet"}, {"_id": 0})
+    if bracelet_device:
+        if bracelet_device.get("last_sleep_total", 0) > d.get("sleep_duration_min", 0):
+            d["sleep_duration_min"] = bracelet_device["last_sleep_total"]
+            d["deep_sleep_min"] = bracelet_device.get("last_sleep_deep", 0)
+            d["light_sleep_min"] = bracelet_device.get("last_sleep_light", 0)
+            d["rem_sleep_min"] = bracelet_device.get("last_sleep_rem", 0)
+            d["sleep_quality"] = bracelet_device.get("last_sleep_quality", 0)
+        # Also use device-level vitals (aggregated/validated)
+        for dk, dd in [("last_heart_rate", "heart_rate"), ("last_spo2", "spo2"), ("last_hrv", "hrv"), ("last_temperature", "temperature"), ("last_stress", "stress_level"), ("last_steps", "steps")]:
+            if bracelet_device.get(dk, 0) > d.get(dd, 0):
+                d[dd] = bracelet_device[dk]
+        if bracelet_device.get("last_systolic", 0) > 0 and d.get("blood_pressure", {}).get("systolic", 0) == 0:
+            d["blood_pressure"] = {"systolic": bracelet_device["last_systolic"], "diastolic": bracelet_device.get("last_diastolic", 0)}
     if scale_reading and scale_reading.get("data"):
         sd = scale_reading["data"]
         for k in ["weight", "bmi", "body_fat_pct", "muscle_pct", "water_pct", "visceral_fat", "body_age", "bone_mass_kg", "basal_metabolism", "recommended_calories", "waist_hip_ratio", "ideal_weight", "protein_pct", "skeletal_muscle_pct"]:
