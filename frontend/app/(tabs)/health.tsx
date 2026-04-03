@@ -133,8 +133,9 @@ export default function HealthScreen() {
     const sepColor = isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.06)';
     const contentBg = isDark ? 'linear-gradient(to bottom, #000 0%, #3A3A3C 100%)' : '#FFF';
 
-    /* No data — show connect device message + device promo cards */
-    if (report?.no_data || !hasAnyHealthData) {
+    /* No data — show connect device message ONLY if no device paired */
+    const hasDevice = report?.has_device || dashData?.connected_count > 0 || (dashData?.dashboard_summary?.bracelet?.paired);
+    if ((report?.no_data && !hasDevice) || (!hasAnyHealthData && !hasDevice)) {
       const noDataAi = report?.ai;
       const BRACELET_IMG = 'https://customer-assets.emergentagent.com/job_8afdc991-0ab2-4687-a2a5-438b9a5f0711/artifacts/2fto1qw7_bracelet_sante_connecte_elio_chutex_care_teleassistance_telealarme%281%29.svg';
       const SCALE_IMG = 'https://customer-assets.emergentagent.com/job_8afdc991-0ab2-4687-a2a5-438b9a5f0711/artifacts/dwmw2i8r_Balance_connecte_Vita_chutex.svg';

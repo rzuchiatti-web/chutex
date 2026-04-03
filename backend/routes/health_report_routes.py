@@ -1015,13 +1015,15 @@ async def get_daily_report(user=Depends(get_current_user)):
     # Build Nora context first
     nora_ctx = await build_nora_context(user)
 
-    # No devices or no readings = no data
+    # Check if user has paired devices OR readings
     has_any_readings = await db.device_readings.find_one({"user_id": uid}, {"_id": 0})
-    if not has_any_readings:
+    has_paired_device = await db.devices.find_one({"user_id": uid, "last_sync": {"$ne": None}}, {"_id": 0})
+    has_weighing = await db.weighings.find_one({"user_id": uid}, {"_id": 0})
+    if not has_any_readings and not has_paired_device and not has_weighing:
         ai_no_data = await gen_ai({}, {"score": 0, "status": "Aucune donnee", "subscores": {"cardio": {"score": 0}, "sleep": {"score": 0}, "activity": {"score": 0}, "metabolism": {"score": 0}, "hydration": {"score": 0}}}, nora_ctx)
-        return {"no_data": True, "data": {}, "score_info": {"score": 0, "status": "Aucune donnee", "status_color": "#6B7280", "subscores": {}, "lifts": [], "limits": []},
+        return {"no_data": True, "has_device": False, "data": {}, "score_info": {"score": 0, "status": "Aucune donnee", "status_color": "#6B7280", "subscores": {}, "lifts": [], "limits": []},
                 "ai": ai_no_data,
-                "daily_plan": [], "sparklines": {}, "weighings": []}
+                "daily_plan": [], "sparklines": {}, "weighings": [], "ecg_history": []}
 
     bracelet_reading = await db.device_readings.find_one({"user_id": uid, "device_type": "bracelet"}, {"_id": 0}, sort=[("timestamp", -1)])
     scale_reading = await db.device_readings.find_one({"user_id": uid, "device_type": "scale"}, {"_id": 0}, sort=[("timestamp", -1)])
@@ -1099,14 +1101,15 @@ async def get_daily_report(user=Depends(get_current_user)):
     d = _sanitize_data(d)
     si = compute_subscores(d)
 
-    # If no meaningful data despite having device_readings, treat as no_data
+    # If no meaningful data despite having device_readings, treat as awaiting data (not no_data if device paired)
     if si.get("no_data"):
         ai_no_data = await gen_ai(d, si, nora_ctx)
         plan = await compute_daily_plan_async(d, si, uid)
-        return {"no_data": True, "data": d, "score_info": si,
-                "score": 0, "status": "Aucune donnee", "status_color": "#6B7280",
+        has_device = bool(await db.devices.find_one({"user_id": uid, "last_sync": {"$ne": None}}, {"_id": 0}))
+        return {"no_data": not has_device, "awaiting_data": has_device, "has_device": has_device, "data": d, "score_info": si,
+                "score": 0, "status": "En attente" if has_device else "Aucune donnee", "status_color": "#F59E0B" if has_device else "#6B7280",
                 "subscores": si.get("subscores", {}), "lifts": [], "limits": [],
-                "ai": ai_no_data, "daily_plan": plan, "sparklines": {}, "weighings": []}
+                "ai": ai_no_data, "daily_plan": plan, "sparklines": {}, "weighings": [], "ecg_history": []}
 
     ai = await gen_ai(d, si, nora_ctx)
     plan = await compute_daily_plan_async(d, si, uid)
