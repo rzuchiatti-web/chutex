@@ -234,7 +234,7 @@ async def seed_demo_data():
             await db.users.insert_one(user)
             if acct["role"] == "beneficiary":
                 for dt, nm in [("bracelet", "Bracelet Sante"), ("scale", "Balance Connectee"), ("vest", "Gilet Anti-Chute")]:
-                    await db.devices.insert_one({"id": str(uuid.uuid4()), "user_id": uid, "device_type": dt, "name": nm, "connected": False, "battery": random.randint(60, 95), "last_sync": None})
+                    await db.devices.insert_one({"id": str(uuid.uuid4()), "user_id": uid, "device_type": dt, "name": nm, "connected": False, "battery": 0, "last_sync": None})
             logger.info(f"Seed: created {acct['email']} ({acct['role']})")
     # Link guardian to beneficiary if not linked
     ben = await db.users.find_one({"email": "robert.martin@email.fr"}, {"_id": 0})

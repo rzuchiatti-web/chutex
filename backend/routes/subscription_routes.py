@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, Request
 from datetime import datetime, timezone
-import uuid, logging, httpx, hashlib, hmac, re
+import uuid, logging, httpx, hashlib, hmac, re, os
 
 from database import db, SHOPIFY_STORE_URL, SHOPIFY_ACCESS_TOKEN, SHOPIFY_SHARED_SECRET, SHOPIFY_CLIENT_ID, SHOPIFY_CLIENT_SECRET
 from auth import get_current_user

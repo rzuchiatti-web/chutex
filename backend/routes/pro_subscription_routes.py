@@ -173,7 +173,7 @@ async def accept_subscription(subscription_id: str, user=Depends(get_current_use
             "customerId": mollie_customer_id,
             "sequenceType": "first",
             "redirectUrl": f"{base_url}/subscription-status?id={subscription_id}",
-            "webhookUrl": f"{base_url}/api/mollie/webhook",
+            "webhookUrl": f"{base_url}/api/pro/mollie/webhook",
             "metadata": {"subscription_id": subscription_id, "type": "first_payment"},
         })
 
@@ -194,9 +194,9 @@ async def accept_subscription(subscription_id: str, user=Depends(get_current_use
         raise HTTPException(status_code=500, detail=f"Erreur paiement: {str(e)}")
 
 
-@router.post("/mollie/webhook")
-async def mollie_webhook(request: Request):
-    """Handle Mollie webhook notifications"""
+@router.post("/pro/mollie/webhook")
+async def pro_mollie_webhook(request: Request):
+    """Handle Mollie webhook notifications for pro subscriptions"""
     try:
         form = await request.form()
         payment_id = form.get('id')
@@ -228,7 +228,7 @@ async def mollie_webhook(request: Request):
                                 "amount": {"currency": "EUR", "value": f"{SUBSCRIPTION_PRICE_TTC:.2f}"},
                                 "interval": "1 month",
                                 "description": f"Abonnement {sub['type']} mensuel",
-                                "webhookUrl": f"{base_url}/api/mollie/webhook",
+                                "webhookUrl": f"{base_url}/api/pro/mollie/webhook",
                             })
                             await db.pro_subscriptions.update_one(
                                 {"id": subscription_id},

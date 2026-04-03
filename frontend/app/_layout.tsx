@@ -148,22 +148,7 @@ function NativeFullApp() {
             window.dispatchEvent(new CustomEvent('ble_data',{detail:${dataJson}})); true;
           `);
 
-          // Push to backend via fetch from native side
-          const pushData = async () => {
-            try {
-              let dataType = 'realtime';
-              if (cmd === 0x0D) dataType = 'battery';
-              else if (cmd === 0x09) dataType = 'steps';
-              else if (cmd === 0x28) dataType = 'heart_rate';
-              else if (cmd === 0x50) dataType = 'blood_glucose';
-              await fetch(`${apiUrl}/api/bracelet/v8/push`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ data_type: dataType, data: parsed, device_id: device.id || '', source: 'ble' }),
-              });
-            } catch {}
-          };
-          // We need the token - inject it from webview
+          // Push to backend via WebView (needs auth token from localStorage)
           webViewRef.current?.injectJavaScript(`
             (function(){
               var t = localStorage.getItem('vl_token') || localStorage.getItem('@AsyncStorage:vl_token') || '';

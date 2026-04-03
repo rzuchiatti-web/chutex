@@ -2,14 +2,11 @@ from fastapi import APIRouter, Depends, HTTPException
 from datetime import datetime, timezone, timedelta
 import os
 import uuid
-import random
 import math
 from dotenv import load_dotenv
 
 from database import db
 from auth import get_current_user
-from models import ThresholdUpdate
-from utils import BRACELET_SIM, SCALE_SIM
 from services.nora_context import build_nora_context, format_nora_context_for_prompt, APP_SERVICES_KNOWLEDGE
 
 load_dotenv()

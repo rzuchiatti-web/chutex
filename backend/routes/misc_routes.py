@@ -115,7 +115,7 @@ async def create_intervention(data: InterventionCreate, user=Depends(get_current
         "beneficiary_name": ben['name'] if ben else "Inconnu", "assigned_to": user['id'], "assigned_name": user['name'],
         "status": "en_route", "notes": data.notes,
         "beneficiary_location": {"latitude": loc['latitude'] if loc else 48.8566, "longitude": loc['longitude'] if loc else 2.3522},
-        "intervener_location": {"latitude": 48.8566 + random.uniform(-0.02, 0.02), "longitude": 2.3522 + random.uniform(-0.02, 0.02)},
+        "intervener_location": {"latitude": loc['latitude'] if loc else 0, "longitude": loc['longitude'] if loc else 0},
         "created_at": datetime.now(timezone.utc).isoformat(), "completed_at": None, "report": None,
         "timeline": [{"status": "created", "time": datetime.now(timezone.utc).isoformat(), "note": "Intervention creee"}],
     }
@@ -155,10 +155,12 @@ async def get_intervention(iid: str, user=Depends(get_current_user)):
         intervener = await db.users.find_one({"id": iv['assigned_to']}, {"_id": 0, "password_hash": 0})
         if intervener:
             iv['intervener_full'] = {k: intervener.get(k) for k in ['name','phone','email','role','guardian_type','structure_name','profession','latitude','longitude']}
-    # Simulate intervener location near beneficiary
+    # Use real intervener location if available
     ben_loc = iv.get('beneficiary_location', {})
-    if ben_loc and ben_loc.get('latitude'):
-        iv['intervener_location'] = {"latitude": ben_loc['latitude'] + random.uniform(-0.005, 0.005), "longitude": ben_loc['longitude'] + random.uniform(-0.005, 0.005)}
+    iv_loc = iv.get('intervener_location', {})
+    if not iv_loc.get('latitude') and ben_loc.get('latitude'):
+        iv_loc = {"latitude": ben_loc['latitude'], "longitude": ben_loc['longitude']}
+        iv['intervener_location'] = iv_loc
     return iv
 
 
@@ -235,16 +237,9 @@ async def get_intervention_tracking(iid: str, user=Depends(get_current_user)):
     iv = await db.interventions.find_one({"id": iid}, {"_id": 0})
     if not iv:
         raise HTTPException(status_code=404, detail="Intervention non trouvee")
-    # Simulate slight movement if no real GPS
+    # Use real GPS data — no simulated movement
     ben_loc = iv.get('beneficiary_location', {})
     iv_loc = iv.get('intervenant_location')
-    if iv_loc and iv.get('status') == 'en_route':
-        # Simulate movement towards beneficiary
-        iv_loc = {
-            "latitude": iv_loc.get('latitude', ben_loc.get('latitude', 45.47)) + random.uniform(-0.002, 0.002),
-            "longitude": iv_loc.get('longitude', ben_loc.get('longitude', 4.51)) + random.uniform(-0.002, 0.002),
-            "updated_at": datetime.now(timezone.utc).isoformat()
-        }
     return {
         "intervention_id": iid,
         "status": iv.get('status'),
@@ -385,7 +380,7 @@ async def get_location(user_id: str, user=Depends(get_current_user)):
         raise HTTPException(status_code=403, detail="Localisation non partagee")
     loc = await db.locations.find_one({"user_id": user_id}, {"_id": 0})
     if not loc:
-        loc = {"user_id": user_id, "latitude": 48.8566 + random.uniform(-0.05, 0.05), "longitude": 2.3522 + random.uniform(-0.05, 0.05), "updated_at": datetime.now(timezone.utc).isoformat()}
+        return {"user_id": user_id, "latitude": 0, "longitude": 0, "updated_at": None, "no_location": True}
     return loc
 
 

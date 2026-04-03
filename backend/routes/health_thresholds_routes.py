@@ -2,13 +2,13 @@ from fastapi import APIRouter, Depends, HTTPException
 from database import db
 from auth import get_current_user
 from models import ThresholdUpdate
-from utils import BRACELET_SIM, SCALE_SIM
+from utils import BRACELET_METRICS, SCALE_METRICS
 
 router = APIRouter()
 
 @router.get("/health/history/{metric_id}")
 async def get_health_history(metric_id: str, user=Depends(get_current_user)):
-    dt = "bracelet" if metric_id in BRACELET_SIM else "scale" if metric_id in SCALE_SIM else None
+    dt = "bracelet" if metric_id in BRACELET_METRICS else "scale" if metric_id in SCALE_METRICS else None
     if not dt:
         raise HTTPException(status_code=404, detail="Metrique non trouvee")
     readings = await db.device_readings.find({"user_id": user['id'], "device_type": dt}, {"_id": 0}).sort("timestamp", -1).to_list(30)
