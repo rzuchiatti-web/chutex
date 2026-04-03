@@ -1,33 +1,14 @@
 # Test Credentials
 
-## Beneficiaire (Robin Zuchiatti)
+## Beneficiary (Robin Zuchiatti)
 - Phone: +33651245918
 - Password: test123
 - Role: beneficiary
-- Subscription: standard (active)
-- DOB: 2002-01-01
-- Gender: M
+- Login: POST /api/auth/login with {"email": "+33651245918", "password": "test123"}
+- Note: Login uses the "email" field to accept both email and phone number
 
-## Admin
-- Email: admin@chutex.fr
-- Password: demo123
-- Role: admin
-
-## Guardian (Claire Martin)
-- Email: claire.martin@email.fr
-- Password: demo123
-- Role: guardian
-
-## Teleassistance
-- Email: plateau@chutex.fr
-- Password: demo123
-- Role: teleassistance
-
-## SAAD Company
-- Email: saad@aide-domicile.fr
-- Password: demo123
-- Role: prescriber_company
-
-## Notes
-- Robin's profile was reset on 2026-04-02 for fresh testing
-- All health data cleared. Bracelet data pushed via V8 push API during audit.
+## Test Notes
+- Bracelet device: Elio V8, MAC E3FD041B-D210-F1FE-60F6-CB30634CD5AA
+- DB: mongodb://localhost:27017, DB name: vitallink_db
+- API URL: grep EXPO_PUBLIC_BACKEND_URL /app/frontend/.env | cut -d '=' -f2
+- Build: 100 (TestFlight ready)

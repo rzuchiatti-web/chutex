@@ -450,20 +450,17 @@ async def _precompute_daily_reports():
 
 async def _check_bedtime_reminders():
     """Find users whose bedtime is in ~15 minutes and send notification + vibrate bracelet."""
-    from datetime import datetime, timezone, timedelta
+    from datetime import datetime, timezone
+    from zoneinfo import ZoneInfo
     from routes.notification_routes import create_notification
 
     now = datetime.now(timezone.utc)
-    # Adjust for French timezone (UTC+1 or UTC+2 DST)
-    # Simple heuristic: March-October = UTC+2, else UTC+1
-    month = now.month
-    offset_hours = 2 if 3 <= month <= 10 else 1
-    local_now = now + timedelta(hours=offset_hours)
+    local_now = now.astimezone(ZoneInfo("Europe/Paris"))
     current_hhmm = local_now.strftime("%H:%M")
 
     # Find all enabled sleep alarms
     alarms = await db.sleep_alarms.find({"enabled": True}, {"_id": 0}).to_list(500)
-    today_str = now.strftime("%Y-%m-%d")
+    today_str = local_now.strftime("%Y-%m-%d")
 
     for alarm in alarms:
         uid = alarm.get("user_id", "")
