@@ -11,4 +11,5 @@
 - Bracelet device: Elio V8, MAC E3FD041B-D210-F1FE-60F6-CB30634CD5AA
 - DB: mongodb://localhost:27017, DB name: vitallink_db
 - API URL: grep EXPO_PUBLIC_BACKEND_URL /app/frontend/.env | cut -d '=' -f2
-- Build: 100 (TestFlight ready)
+- Latest Build: 103 (TestFlight)
+- Current vitals in DB: HR=75, SpO2=97, BP=120/80, Temp=36.6, HRV=42, Stress=30

@@ -1,55 +1,58 @@
-# CHUTEX (Elio) - PRD
+# Chutex Care - PRD (Product Requirements Document)
 
-## Problem Statement
-Application de sante connectee iOS (React Native + WebView + FastAPI) pour le suivi biometrique via bracelet V8 (Elio), balance Lefu, et IA GPT-5.2. Zero donnees simulees.
+## Original Problem Statement
+Application iOS de sante connectee (React Native WebView + FastAPI backend) pour les personnes agees.
+L'app gere des bracelets connectes (V8/Elio), des balances, et des gilets via BLE.
+L'objectif est une plateforme complete de teleassistance avec suivi des constantes vitales en temps reel.
 
 ## Architecture
-- **Frontend**: Expo Router (React Native) avec WebView. BLE via `react-native-ble-plx` cote natif iOS.
-- **Backend**: FastAPI + MongoDB (`vitallink_db`). Background tasks pour rappels/vibrations.
-- **Bridge BLE**: `bleV8Bridge.ts` (frontend) -> `bracelet_routes.py` (backend).
+- **Frontend**: React Native (Expo) avec WebView pour iOS. Code BLE natif dans `_layout.tsx` + `bleV8Bridge.ts`
+- **Backend**: FastAPI + MongoDB (`vitallink_db`)
+- **BLE Protocol**: JStyle 2208A/V8 via service UUID `0000FFF0`, write `FFF6`, notify `FFF7`
+- **Roles**: Beneficiaire, Gardien, Professionnel, Admin, SAAD, Teleassistance
 
-## User Personas
-- Beneficiaire: Personne agee portant le bracelet
-- Gardien: Proche surveillant a distance
-- SAAD: Organisme de tele-assistance
-- Admin: Gestion des comptes et abonnements
+## Core Features (Implemented)
+- Bracelet V8: HR, SpO2, BP, Temperature, HRV, Stress, Steps, Sleep, ECG, Blood Glucose
+- Balance Lefu: Poids, IMC, Masse grasse, etc.
+- Rapports quotidiens AI (GPT-5.2 via Emergent LLM Key)
+- Alertes et teleassistance
+- Programmes de sante et exercices
+- Systeme de prescription et abonnement
+- Geofencing (safe zones)
+- Notifications push
+- Stripe/Mollie payments
 
-## Core Requirements
-- [x] Integration bracelet V8 (BLE natif iOS)
-- [x] Suppression totale des mocks
-- [x] Daily Health Report (GPT-5.2 via Emergent LLM Key)
-- [x] Systeme de rappels avec vibration bracelet (0x36)
-- [x] Dashboard multi-roles (Beneficiaire, Gardien, SAAD, Entreprise)
-- [x] Safe Area iOS (padding 70px global)
-- [x] Reconnexion BLE automatique au lancement
-- [x] Validation stricte des donnees biometriques
+## Current Session Fixes (2026-04-03)
+1. **SpO2 sanitization**: Added validation (60-100) in `_sanitize_data`, `bracelet/status`, `v8/dashboard`
+2. **has_device field**: Added to daily report response
+3. **Connected timeout**: Extended from 60s to 300s
+4. **BLE V8 parser**: Sub-type differentiation for 0x28 command (HRV+BP vs HR vs SpO2)
+5. **Padding 70px**: CSS injection via `+html.tsx` + MutationObserver in SafeAreaCSSInjector + manual fixes on 15+ pages
+6. **Loader unification**: Replaced ActivityIndicator with DNA video FullScreenLoader in auth loading state
+7. **Auto-reconnect**: Removed one-time flag, added periodic retry (every 60s)
+8. **Overlay close buttons**: Adjusted from top:20 to top:70 for safe area
+9. **DB cleanup**: Cleaned invalid SpO2 (36) from device docs and consolidated readings
 
-## Completed (Build 100)
-- [x] Timezone fix: `zoneinfo('Europe/Paris')` dans les 3 background tasks
-- [x] Padding 70px global sur 30+ composants (popups, overlays, pages)
-- [x] Auto-reconnect BLE dans _layout.tsx (scan auto au lancement)
-- [x] Splash overlay natif sombre (elimine le flash blanc)
-- [x] Loader ADN visible min 2s sur page Sante
-- [x] Validation HR max 200, SpO2 min 60-100, BP 70-200/40-130
-- [x] Double validation: raw_data + device update
-- [x] Raw hex logging dans bleV8Bridge + endpoint /api/bracelet/v8/debug
-- [x] Nettoyage des donnees invalides en base (HR=220, SpO2=36)
-- [x] Build number incremente a 100
+## Testing Status
+- Backend: 20/20 tests PASS (iteration 207)
+- SpO2 validation: 36 rejected, 59 rejected, 60 accepted, 100 accepted, 101 rejected
+- HR validation: 250 rejected, 200 accepted
+- All V8 data types verified: sleep, battery, ECG, glucose, steps
+- Vibration commands working
+- Daily report has_device field confirmed
 
-## Backlog
-- [ ] P1: Valider flux BLE complet avec vrai bracelet V8
-- [ ] P1: Config WiFi balance Lefu
-- [ ] P2: Serveur TCP J2358 production
-- [ ] P2: Gilet connecte
-- [ ] P2: Signature Electronique Admin
-- [ ] P2: Parrainage Gardiens
-- [ ] P2: Essai gratuit 7j
-- [ ] P2: Test urinaire Vivoo
-- [ ] P2: Refactoring teleassistance_routes.py
+## Pending: User TestFlight Validation
+The user needs to test on iOS via TestFlight to verify:
+- Padding 70px on all pages
+- DNA video loader only
+- Bracelet auto-reconnect and data sync
+- Correct vitals display
 
-## Key Endpoints
-- POST /api/bracelet/v8/push - Reception donnees V8
-- POST /api/bracelet/v8/vibrate - Commande vibration 0x36
-- GET /api/bracelet/v8/debug - Diagnostic raw hex
-- GET /api/bracelet/status - Etat bracelet
-- GET /api/health/daily-report - Rapport sante IA
+## Upcoming Tasks
+- P1: Configuration WiFi de la balance Lefu
+- P2: Deploiement production serveur TCP J2358
+- P2: Integration gilet connecte
+- P2: Signature electronique documents Admin
+- P2: Systeme de parrainage Gardiens
+- P2: Flux d'essai gratuit 7 jours
+- P2: Integration test urinaire Vivoo
