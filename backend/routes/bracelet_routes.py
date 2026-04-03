@@ -543,16 +543,20 @@ async def get_bracelet_status(user=Depends(get_current_user)):
     if device and device.get('last_sync'):
         try:
             last = datetime.fromisoformat(device['last_sync'].replace('Z', '+00:00'))
-            is_connected = (datetime.now(timezone.utc) - last).total_seconds() < 60
+            is_connected = (datetime.now(timezone.utc) - last).total_seconds() < 300  # Extended from 60s to 300s for V8 BLE stability
         except:
             pass
+
+    # Sanitize SpO2 (reject values outside 60-100)
+    raw_spo2 = device.get('last_spo2', 0) if device else 0
+    spo2_clean = raw_spo2 if 60 <= raw_spo2 <= 100 else 0
 
     return {
         "device": device,
         "connected": is_connected,
         "battery": device.get('battery', 0) if device else 0,
         "heart_rate": device.get('last_heart_rate', 0) if device else 0,
-        "spo2": device.get('last_spo2', 0) if device else 0,
+        "spo2": spo2_clean,  # Sanitized SpO2 (60-100 range)
         "temperature": device.get('last_temperature', 0) if device else 0,
         "steps": device.get('last_steps', 0) if device else 0,
         "systolic": device.get('last_systolic', 0) if device else 0,
@@ -1136,14 +1140,18 @@ async def get_v8_dashboard(user=Depends(get_current_user)):
     if device.get("last_sync"):
         try:
             last = datetime.fromisoformat(device["last_sync"].replace("Z", "+00:00"))
-            is_connected = (datetime.now(timezone.utc) - last).total_seconds() < 60
+            is_connected = (datetime.now(timezone.utc) - last).total_seconds() < 300
         except:
             pass
+
+    # Sanitize SpO2 (reject values outside 60-100)
+    raw_spo2 = device.get("last_spo2", 0)
+    spo2_clean = raw_spo2 if 60 <= raw_spo2 <= 100 else 0
 
     vitals = {
         "heart_rate": device.get("last_heart_rate", 0),
         "hrv": device.get("last_hrv", 0),
-        "spo2": device.get("last_spo2", 0),
+        "spo2": spo2_clean,
         "temperature": device.get("last_temperature", 0),
         "steps": device.get("last_steps", 0),
         "calories": device.get("last_calories", 0),

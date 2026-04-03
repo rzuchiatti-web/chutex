@@ -10,7 +10,7 @@ import pytest
 import requests
 import os
 
-BASE_URL = os.environ.get('REACT_APP_BACKEND_URL', 'https://ios-health-native.preview.emergentagent.com')
+BASE_URL = os.environ.get('REACT_APP_BACKEND_URL', 'https://build-103-preview.preview.emergentagent.com')
 
 # Test credentials
 COACH_PHONE = "+33655443322"

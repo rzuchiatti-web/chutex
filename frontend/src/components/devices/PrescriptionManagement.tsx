@@ -132,7 +132,7 @@ function PrescriptionManagement({ token, user }: { token: string; user: any }) {
         <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.55)', zIndex: 1 } as any} />
 
         {/* Top bar */}
-        <div style={{ position: 'relative', display: 'flex', alignItems: 'center', gap: 12, padding: '16px 16px 0', zIndex: 5 } as any}>
+        <div style={{ position: 'relative', display: 'flex', alignItems: 'center', gap: 12, padding: '70px 16px 0', zIndex: 5 } as any}>
           <div data-testid="back-from-rewards-explainer" onClick={() => setShowRewardsExplainer(false)} style={{ width: 40, height: 40, borderRadius: 999, background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}>
             <i className="ri-arrow-left-s-line" style={{ fontSize: 20, color: '#FFF' }} />
           </div>

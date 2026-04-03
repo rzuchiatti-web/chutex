@@ -63,7 +63,7 @@ export function TeleassistanceDashboard({ token }: { token: string }) {
       <div data-testid="teleassistance-page" style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, display: 'flex', flexDirection: 'column', fontFamily: 'Inter, system-ui, sans-serif', overflow: 'hidden' } as any}>
         <img src={BG_TA} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 } as any} />
         <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 1 } as any} />
-        <div style={{ position: 'relative', padding: '24px 20px 14px', zIndex: 5, textAlign: 'center' } as any}>
+        <div style={{ position: 'relative', padding: '70px 20px 14px', zIndex: 5, textAlign: 'center' } as any}>
           <div style={{ fontSize: 26, fontWeight: 800, color: '#FFF', marginBottom: 4 }}>Teleassistance IA</div>
           <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)' }}>Plateau d'ecoute — Protocole d'escalade</div>
           <div style={{ display: 'inline-flex', borderRadius: 999, padding: 4, background: 'rgba(255,255,255,0.12)', border: '1px solid rgba(255,255,255,0.15)', marginTop: 14 } as any}>

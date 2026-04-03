@@ -86,7 +86,7 @@ function AdminPrescripteurs({ token }: { token: string }) {
       <div data-testid="admin-prescripteurs" style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, display: 'flex', flexDirection: 'column', fontFamily: 'Inter, system-ui, sans-serif', overflow: 'hidden' } as any}>
         <img src={BG_ADM} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 } as any} />
         <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.45)', zIndex: 1 } as any} />
-        <div style={{ position: 'relative', padding: '24px 20px 12px', zIndex: 5, textAlign: 'center' } as any}>
+        <div style={{ position: 'relative', padding: '70px 20px 12px', zIndex: 5, textAlign: 'center' } as any}>
           <div style={{ fontSize: 26, fontWeight: 800, color: '#FFF', marginBottom: 4 }}>Prescripteurs</div>
           <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)' }}>{codes.length} codes · {prescribers.length} prescripteurs · {prescriptions.length} souscriptions</div>
           <div style={{ display: 'inline-flex', borderRadius: 999, padding: 3, background: 'rgba(255,255,255,0.12)', border: '1px solid rgba(255,255,255,0.15)', marginTop: 14 } as any}>

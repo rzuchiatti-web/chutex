@@ -9,6 +9,7 @@ import { View, ActivityIndicator, StyleSheet, Platform, Text, TouchableOpacity, 
 import { PastelMistBackground } from '../src/components/PastelMistBackground';
 import { ensureFirstLaunchLocationPermission, openSystemLocationSettings, requestLocationPermission } from '../src/services/locationPermissions';
 import TeamActivityToast from '../src/components/programs/TeamActivityToast';
+import FullScreenLoader from '../src/components/FullScreenLoader';
 
 /**
  * On iOS: render the entire app as a single full-screen WebView.
@@ -24,7 +25,6 @@ function NativeFullApp() {
   const [locationRetrying, setLocationRetrying] = useState(false);
   const [webViewReady, setWebViewReady] = useState(false);
   const splashOpacity = useRef(new Animated.Value(1)).current;
-  const autoReconnectAttempted = useRef(false);
 
   useEffect(() => {
     const bootstrapLocationPermission = async () => {
@@ -62,8 +62,7 @@ function NativeFullApp() {
 
   // ── Auto-reconnect BLE on app start ──
   const attemptAutoReconnect = () => {
-    if (autoReconnectAttempted.current || bleDeviceRef.current) return;
-    autoReconnectAttempted.current = true;
+    if (bleDeviceRef.current) return;
 
     // Inject JS into WebView to check if user has a paired bracelet
     webViewRef.current?.injectJavaScript(`
@@ -73,13 +72,23 @@ function NativeFullApp() {
         fetch('/api/bracelet/status',{headers:{'Authorization':'Bearer '+t}})
           .then(function(r){return r.json()})
           .then(function(d){
-            if(d && d.paired && d.connected !== false){
+            if(d && d.paired){
               window.ReactNativeWebView.postMessage(JSON.stringify({action:'ble_auto_reconnect'}));
             }
           }).catch(function(){});
       })(); true;
     `);
   };
+
+  // Retry auto-reconnect periodically (every 60s if not connected)
+  useEffect(() => {
+    const interval = setInterval(() => {
+      if (!bleDeviceRef.current && webViewReady) {
+        attemptAutoReconnect();
+      }
+    }, 60000);
+    return () => clearInterval(interval);
+  }, [webViewReady]);
 
   // ── Handle WebView loaded: fade out native splash + trigger auto-reconnect ──
   const onWebViewLoaded = () => {
@@ -157,6 +166,12 @@ function NativeFullApp() {
           style={{ flex: 1, backgroundColor: '#0A0A1A' }}
           onMessage={handleMessage}
           onLoadEnd={onWebViewLoaded}
+          injectedJavaScriptBeforeContentLoaded={`
+            document.documentElement.classList.add('native-webview');
+            document.documentElement.style.setProperty('--safe-top', '70px');
+            window.__NATIVE_SAFE_AREA = true;
+            true;
+          `}
           allowsBackForwardNavigationGestures={false}
           javaScriptEnabled={true}
           domStorageEnabled={true}
@@ -255,12 +270,7 @@ function RootNav() {
   const { user, loading } = useAuth();
 
   if (loading) {
-    return (
-      <View style={st.loading}>
-        <StatusBar style="dark" />
-        <ActivityIndicator size="large" color="#111827" />
-      </View>
-    );
+    return <FullScreenLoader />;
   }
 
   if (!user) {
@@ -352,6 +362,54 @@ function SafeAreaCSSInjector() {
       :root { --safe-top: 70px; }
     `;
     document.head.appendChild(style);
+
+    // Dynamic safe area: MutationObserver that ensures all full-screen containers
+    // have proper top padding when running inside native iOS WebView
+    const isNative = document.documentElement.classList.contains('native-webview') || (window as any).__NATIVE_SAFE_AREA;
+    if (!isNative) return;
+
+    const SAFE_TOP = 70;
+    const applied = new WeakSet<Element>();
+
+    function applyPadding(el: HTMLElement) {
+      if (applied.has(el)) return;
+      const cs = window.getComputedStyle(el);
+      const pos = cs.position;
+      if (pos !== 'fixed' && pos !== 'absolute') return;
+      // Check if this is a full-screen container (covers most of viewport)
+      const w = el.offsetWidth;
+      const h = el.offsetHeight;
+      if (w < window.innerWidth * 0.8 || h < window.innerHeight * 0.4) return;
+      // Skip elements that already have >= 50px top padding
+      const currentPt = parseInt(cs.paddingTop) || 0;
+      if (currentPt >= 50) { applied.add(el); return; }
+      // Check if first scrollable child or the element itself should get padding
+      const scrollChild = el.querySelector('[style*="overflow"]') as HTMLElement;
+      const target = scrollChild || el;
+      const targetPt = parseInt(window.getComputedStyle(target).paddingTop) || 0;
+      if (targetPt < 50) {
+        target.style.paddingTop = SAFE_TOP + 'px';
+      }
+      applied.add(el);
+    }
+
+    function scan() {
+      document.querySelectorAll('div').forEach((el) => {
+        applyPadding(el as HTMLElement);
+      });
+    }
+
+    // Initial scan after a short delay (React needs time to mount)
+    setTimeout(scan, 500);
+    setTimeout(scan, 1500);
+
+    // Watch for new nodes
+    const obs = new MutationObserver(() => {
+      requestAnimationFrame(scan);
+    });
+    obs.observe(document.body, { childList: true, subtree: true });
+
+    return () => obs.disconnect();
   }, []);
   return null;
 }

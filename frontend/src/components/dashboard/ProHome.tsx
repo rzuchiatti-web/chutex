@@ -82,7 +82,7 @@ export default function ProHome({ token, user }: { token: string; user: any }) {
   return (
     <div data-testid="pro-home" style={{ position: 'absolute', inset: 0, background: C.bg, display: 'flex', flexDirection: 'column', fontFamily: 'Inter, system-ui, sans-serif' } as any}>
       {/* Header */}
-      <div style={{ padding: '20px 20px 0', flexShrink: 0 } as any}>
+      <div style={{ padding: '70px 20px 0', flexShrink: 0 } as any}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 4 } as any}>
           <i className={isPhysio ? 'ri-stethoscope-line' : 'ri-run-line'} style={{ fontSize: 14, color: C.accent }} />
           <span style={{ fontSize: 11, fontWeight: 700, color: C.accent, textTransform: 'uppercase', letterSpacing: 1 }}>{proLabel}</span>

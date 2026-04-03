@@ -64,7 +64,7 @@ export function BeneficiaryTeleconsult({ token }: { token: string }) {
         <img src={BG_BLUE} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 } as any} />
         <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.3)', zIndex: 1 } as any} />
 
-        <div style={{ flex: 1, overflowY: 'auto', position: 'relative', zIndex: 5, padding: '24px 20px 100px', WebkitOverflowScrolling: 'touch' } as any}>
+        <div style={{ flex: 1, overflowY: 'auto', position: 'relative', zIndex: 5, padding: '70px 20px 100px', WebkitOverflowScrolling: 'touch' } as any}>
           {/* Header title + pill */}
           <div style={{ textAlign: 'center', marginBottom: 22 } as any}>
             <div style={{ fontSize: 22, fontWeight: 900, color: '#FFF', marginBottom: 10 }}>Teleconsultation</div>

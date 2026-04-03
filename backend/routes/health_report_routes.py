@@ -161,9 +161,26 @@ def _sanitize_data(d):
         d["visceral_fat"] = 0
         d["body_age"] = 0
         d["bone_mass_kg"] = 0
-    # Heart rate > 220 or < 25 is implausible
-    if d.get("heart_rate", 0) > 220 or (0 < d.get("heart_rate", 0) < 25):
+    # Heart rate > 200 or < 30 is implausible
+    if d.get("heart_rate", 0) > 200 or (0 < d.get("heart_rate", 0) < 30):
         d["heart_rate"] = 0
+    # SpO2 must be 60-100 (human range)
+    spo2 = d.get("spo2", 0)
+    if spo2 > 0 and (spo2 < 60 or spo2 > 100):
+        d["spo2"] = 0
+    # Blood pressure: systolic 70-200, diastolic 40-130
+    bp = d.get("blood_pressure", {})
+    if isinstance(bp, dict):
+        if bp.get("systolic", 0) > 0 and (bp["systolic"] < 70 or bp["systolic"] > 200):
+            d["blood_pressure"] = {"systolic": 0, "diastolic": 0}
+        if bp.get("diastolic", 0) > 0 and (bp["diastolic"] < 40 or bp["diastolic"] > 130):
+            d["blood_pressure"] = {"systolic": 0, "diastolic": 0}
+    # HRV: 1-200
+    if d.get("hrv", 0) > 200:
+        d["hrv"] = 0
+    # Stress: 1-100
+    if d.get("stress_level", 0) > 100:
+        d["stress_level"] = 0
     return d
 
 
@@ -1307,6 +1324,7 @@ async def get_daily_report(user=Depends(get_current_user), force: bool = False):
         "analysis_phase": analysis_phase,
         "body_age_nora": body_age_data,
         "activity_streak": activity_streak,
+        "has_device": bool(has_paired_device),
         "generated_at": datetime.now(timezone.utc).isoformat(),
     }
 

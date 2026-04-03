@@ -78,16 +78,45 @@ export function parseV8Response(bytes: number[]): { cmd: number; raw_hex?: strin
     parsed.heart_rate = bytes[13];
   }
 
-  // 0x28: Health measurement response (all vitals in one packet)
-  // AA=type, BB=HR, CC=SpO2, DD=HRV, EE=stress, FF=systolic, GG=diastolic, HH-II=temp (big-endian)
-  if (cmd === V8_CMD.VITALS && bytes.length >= 10) {
+  // 0x28: Health measurement response
+  // Sub-types: 1=HRV+BP, 2=HR, 3=SpO2
+  // Layout depends on sub-type — byte positions differ
+  if (cmd === V8_CMD.VITALS && bytes.length >= 4) {
+    const subType = bytes[1];
+    parsed.measurement_type = subType;
     parsed.heart_rate = bytes[2];
-    parsed.spo2 = bytes[3];
-    parsed.hrv = bytes[4];
-    parsed.stress = bytes[5];
-    parsed.systolic = bytes[6];
-    parsed.diastolic = bytes[7];
-    parsed.temperature = (bytes[8] | (bytes[9] << 8)) / 10;
+
+    if (subType === 1 && bytes.length >= 10) {
+      // HRV+BP: [cmd, sub, HR, HRV, stress, systolic, diastolic, tempLo, tempHi, SpO2?]
+      parsed.hrv = bytes[3];
+      parsed.stress = bytes[4];
+      parsed.systolic = bytes[5];
+      parsed.diastolic = bytes[6];
+      parsed.temperature = (bytes[7] | (bytes[8] << 8)) / 10;
+      // Some V8 firmwares put SpO2 at byte 9 for sub-type 1
+      if (bytes.length > 9 && bytes[9] >= 60 && bytes[9] <= 100) {
+        parsed.spo2 = bytes[9];
+      }
+    } else if (subType === 2 && bytes.length >= 3) {
+      // HR only: [cmd, sub, HR, ...]
+      // No SpO2 in this sub-type
+    } else if (subType === 3 && bytes.length >= 4) {
+      // SpO2: [cmd, sub, SpO2, PR]
+      const rawSpo2 = bytes[2];
+      if (rawSpo2 >= 60 && rawSpo2 <= 100) {
+        parsed.spo2 = rawSpo2;
+      }
+      parsed.heart_rate = bytes[3] > 0 ? bytes[3] : 0; // Pulse rate
+    } else if (bytes.length >= 10) {
+      // Fallback: try original layout with validation
+      if (bytes[3] >= 60 && bytes[3] <= 100) parsed.spo2 = bytes[3];
+      if (bytes[4] >= 1 && bytes[4] <= 200) parsed.hrv = bytes[4];
+      if (bytes[5] >= 1 && bytes[5] <= 100) parsed.stress = bytes[5];
+      if (bytes[6] >= 70 && bytes[6] <= 200) parsed.systolic = bytes[6];
+      if (bytes[7] >= 40 && bytes[7] <= 130) parsed.diastolic = bytes[7];
+      const t = (bytes[8] | (bytes[9] << 8)) / 10;
+      if (t >= 34 && t <= 42) parsed.temperature = t;
+    }
   }
 
   // 0x50: Blood glucose estimation from PPG
@@ -150,7 +179,10 @@ export function parseV8Response(bytes: number[]): { cmd: number; raw_hex?: strin
 
   // 0x66: Automatic SpO2 data
   if (cmd === V8_CMD.SPO2_AUTO && bytes.length >= 2) {
-    parsed.spo2 = bytes[1];
+    const rawSpo2 = bytes[1];
+    if (rawSpo2 >= 60 && rawSpo2 <= 100) {
+      parsed.spo2 = rawSpo2;
+    }
   }
 
   // 0x52: Detailed step data (historical)

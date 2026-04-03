@@ -18,6 +18,11 @@ export default function Root({ children }: PropsWithChildren) {
           #root { height: 100%; box-sizing: border-box; overscroll-behavior: none; }
           * { -webkit-overflow-scrolling: touch; overscroll-behavior: none; }
 
+          /* ═══ iOS WebView Global Safe Area ═══ */
+          /* Applied dynamically ONLY when running inside native WebView */
+          :root { --safe-top: 0px; }
+          html.native-webview { --safe-top: 70px; }
+
           /* ═══ Premium Clinical Motion System ═══ */
 
           /* Staggered reveal — calm upward fade */
