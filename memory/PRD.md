@@ -1,75 +1,57 @@
-# CHUTEX - PRD (Product Requirements Document)
+# CHUTEX (Elio) - PRD
 
-## Probleme original
-Application de sante connectee pour seniors et sportifs. Bracelet V8, balance Lefu, gilet anti-chute.
-Frontend React Native Expo WebView + Backend FastAPI + MongoDB.
+## Objectif
+Application santé connectée iOS (Expo WebView + FastAPI + MongoDB) pour le suivi de patients/bénéficiaires via bracelet V8, balance Lefu, et IA (GPT-5.2).
 
 ## Architecture
-- **Frontend** : Hybride React Native (_layout.tsx bridge BLE natif) + WebView (95% de l'app)
-- **Backend** : FastAPI, 518 routes, 40 fichiers de routes, 46K lignes Python
-- **DB** : MongoDB (86 collections)
-- **IA** : GPT-5.2 via Emergent LLM Key
-- **BLE** : Bridge natif iOS — module `bleV8Bridge.ts` (326 lignes)
-- **Paiements** : Stripe + Mollie + Shopify
+- **Frontend** : React Native Expo shell avec WebView (95% de l'app en web). Bridge BLE natif dans `_layout.tsx` → `bleV8Bridge.ts`
+- **Backend** : FastAPI. Routes modulaires. Background tasks (cache IA, vibrations, rappels).
+- **BLE** : Protocole J-Style 2208A. Service FFF0, Write FFF6, Notify FFF7. Packets 16 octets + CRC.
 
-## Ce qui a ete implemente
-- Auth complete (login, register, forgot password, roles multiples)
-- Dashboard beneficiaire avec batch endpoint
-- Bracelet V8 : bridge BLE natif iOS, push donnees (FC, SpO2, Tension, Stress, Sommeil, Glycemie)
-- Balance Lefu : integration basique
-- Modele ML glycemie (Gradient Boosting V3)
-- Rapport sante quotidien (GPT-5.2) avec CACHE intelligent (83x plus rapide)
-- Morning briefing IA
-- Systeme d'alertes et seuils personnalisables
-- Gardiens avec invitations et WebSocket temps reel
-- Programmes de reeducation
-- Module Minceur + Dorsi
-- Teleassistance + Espace Pro/SAAD
-- Geofencing / Safe zones
-- Contrats Mollie
+## Protocole BLE V8 (corrigé le 2026-04-03)
+| Commande | Hex | Description |
+|----------|-----|------------|
+| Time Sync | 0x01 | Synchronisation horloge |
+| Steps | 0x09 | Comptage pas temps réel |
+| Battery | 0x13 | Niveau batterie (0-100) |
+| Vitals | 0x28 | Mesure santé (HR/SpO2/HRV/Stress/BP/Temp) |
+| Vibrate | 0x36 | Vibration moteur (1-5 vibrations) |
+| Glucose | 0x50 | Glycémie estimée PPG |
+| Step Detail | 0x52 | Historique pas détaillé |
+| Sleep | 0x53 | Données sommeil détaillées |
+| HR History | 0x54 | Historique fréquence cardiaque |
+| HR Single | 0x55 | FC unique |
+| HRV Data | 0x56 | Données HRV |
+| SpO2 Auto | 0x66 | SpO2 automatique |
 
-## Audit pre-production (03/04/2026) - COMPLETE
-### 13 corrections + 4 refactorisations :
-1. Purge donnees simulees (utils.py)
-2. BRACELET_SIM -> BRACELET_METRICS (sets purs)
-3. Route dupliquee auth/activate-beneficiary supprimee
-4. Import duplique timedelta corrige
-5. Import os manquant ajoute (subscription_routes)
-6. Locations GPS simulees supprimees (misc_routes)
-7. Conflit webhook Mollie corrige (pro renomme)
-8. check_anomalies defaults corriges (0 au lieu de 75/97)
-9. Code mort pushData supprime (_layout.tsx)
-10. Navigation morning-briefing corrigee (router.replace + useRouter)
-11. Cache intelligent daily-report (0.13s vs 5-8s)
-12. Pre-computation background (toutes les 4h)
-13. Endpoint simulate-payment supprime
+## Fonctionnalités implémentées
+- [x] Authentification (JWT, multi-rôle: admin, pro, bénéficiaire)
+- [x] Dashboard santé avec métriques temps réel
+- [x] Bridge BLE natif iOS (bleV8Bridge.ts)
+- [x] Parsing de TOUTES les trames V8 (0x09, 0x13, 0x28, 0x50, 0x52, 0x53, 0x54, 0x55, 0x56, 0x66)
+- [x] Vibrations bracelet via 0x36 (rappels, alarmes, coucher)
+- [x] Cache intelligent Daily Report IA (pré-calcul 4h, invalidation sur push)
+- [x] Page Santé (Daily Report IA GPT-5.2)
+- [x] Gestion des rappels (médicaments, hydratation, etc.)
+- [x] Alarme réveil matinal
+- [x] Rappel coucher
+- [x] Programme minceur
+- [x] Téléassistance / Pro
+- [x] Notifications push
+- [x] Audit pré-production (12 sections, 13 corrections, 4 refactorisations)
+- [x] Suite de tests backend (28+21 tests)
 
-### Refactorisations :
-- health_core.py (297L) extrait de health_report_routes.py
-- pro_exercise_routes.py (502L) extrait de professional_routes.py (-554L)
-- bleV8Bridge.ts (326L) extrait de _layout.tsx (-208L, de 560 a 352)
-- 248 fausses alertes supprimees de la DB
+## Règles
+- ZÉRO donnée simulée (mock). Si donnée manquante → "--"
+- Température en big-endian dans les trames BLE
+- Cache Metro Bundler : toujours restart expo après modification frontend
 
-### Tests : 28/28 pytest PASS
-
-## Backlog prioritise
-### P0 - DONE
-### P1 - DONE
-- [x] Extraction health_core.py
-- [x] Extraction pro_exercise_routes.py
-- [x] Extraction bleV8Bridge.ts
-- [x] Suite pytest 28 tests
-- [x] Nettoyage DB (248 fausses alertes)
-- [ ] Valider BLE sur iPhone physique (Build 91)
-
-### P2
-- [ ] Configuration WiFi balance Lefu
-- [ ] Serveur TCP J2358 production
-- [ ] Hebergement HDS pour MongoDB
-- [ ] Documentation API
-
-### P3
-- [ ] Gilet connecte
-- [ ] Parrainage
-- [ ] Essai gratuit 7j
-- [ ] Test urinaire Vivoo
+## Backlog
+- [ ] P1: Validation physique BLE V8 (test avec bracelet réel)
+- [ ] P2: Configuration WiFi balance Lefu
+- [ ] P2: Serveur TCP J2358 production
+- [ ] P2: Gilet connecté
+- [ ] P2: Signature Électronique Admin
+- [ ] P2: Système de parrainage Gardiens
+- [ ] P2: Flux essai gratuit 7j
+- [ ] P2: Test urinaire Vivoo
