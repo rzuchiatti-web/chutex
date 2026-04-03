@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { View, Text, Platform } from 'react-native';
 import { useAuth } from '../src/context/AuthContext';
+import { useRouter } from 'expo-router';
 import { apiFetch } from '../src/services/api';
 import NativePageView from '../src/components/NativePageView';
 
@@ -62,8 +63,8 @@ export default function MorningBriefingScreen() {
     if (typeof window !== 'undefined') {
       sessionStorage.setItem('briefing_seen', '1');
       localStorage.setItem('briefing_last_date', new Date().toISOString().split('T')[0]);
-      window.location.href = '/';
     }
+    router.replace('/(tabs)' as any);
   };
 
   if (Platform.OS !== 'web') return <NativePageView path="/morning-briefing" />;

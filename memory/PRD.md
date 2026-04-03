@@ -1,43 +1,72 @@
-# CHUTEX - PRD
+# CHUTEX - PRD (Product Requirements Document)
+
+## Probleme original
+Application de sante connectee pour seniors et sportifs. Bracelet V8, balance Lefu, gilet anti-chute.
+Frontend React Native Expo WebView + Backend FastAPI + MongoDB.
 
 ## Architecture
-- Frontend: Expo Web (React) port 3000 / iOS WebView
-- Backend: FastAPI port 8001
-- Database: MongoDB (vitallink_db)
+- **Frontend** : Hybride React Native (_layout.tsx bridge BLE natif) + WebView (95% de l'app)
+- **Backend** : FastAPI, 518 routes, 40 fichiers de routes
+- **DB** : MongoDB (86 collections)
+- **IA** : GPT-5.2 via Emergent LLM Key
+- **BLE** : Bridge natif iOS dans _layout.tsx (react-native-ble-plx)
+- **Paiements** : Stripe + Mollie + Shopify
 
-## Build 87 - Corrections Majeures
+## Ce qui a ete implemente
+- Auth complete (login, register, forgot password, roles multiples)
+- Dashboard beneficiaire avec batch endpoint
+- Bracelet V8 : bridge BLE natif iOS, push donnees (FC, SpO2, Tension, Stress, Sommeil, Glycemie)
+- Balance Lefu : integration basique
+- Modele ML glycemie (Gradient Boosting V3)
+- Rapport sante quotidien (GPT-5.2)
+- Morning briefing IA
+- Systeme d'alertes et seuils personnalisables
+- Gardiens avec invitations et WebSocket temps reel
+- Programmes de reeducation
+- Module Minceur
+- Module Dorsi (bilan + exercices)
+- Teleassistance
+- Espace Pro (abonnements, exercices, repas)
+- Espace SAAD / Entreprise
+- Geofencing / Safe zones
+- Contrats Mollie avec abonnements recurrents
+- Systeme de notifications push
 
-### BLE V8 Natif iOS (complet)
-- [x] BleManager persistent (plus de "unknown state")
-- [x] onStateChange attend PoweredOn avant scan
-- [x] Noms V8: V8, JCV8, HB8, 2301 + anciens 2208, J22, JStyle, Elio
-- [x] Apres connexion: startBraceletProtocol() complet
-- [x] Notifications FFF7 avec parsing natif (0x0D, 0x09, 0x28, 0x50)
-- [x] Commandes initiales: time sync, battery, steps, HR, SpO2, HRV+BP, glucose
-- [x] Polling 10s (realtime) + 30s (full mesures + check vibration)
-- [x] Push backend via WebView inject (token auth)
-- [x] Associate + sync apres connexion
-- [x] Vibration (0x08) pour rappels et reveil
-- [x] Support balance scan natif iOS
+## Audit pre-production (03/04/2026) - COMPLETE
+### 10 corrections appliquees :
+1. Purge donnees simulees (utils.py)
+2. BRACELET_SIM/SCALE_SIM -> BRACELET_METRICS/SCALE_METRICS
+3. Route dupliquee auth/activate-beneficiary supprimee
+4. Import duplique timedelta corrige
+5. Import os manquant ajoute (subscription_routes)
+6. Locations GPS simulees supprimees
+7. Conflit webhook Mollie corrige (pro renomme)
+8. check_anomalies defaults corriges
+9. Code mort pushData supprime (_layout.tsx)
+10. Navigation morning-briefing corrigee
 
-### Loaders
-- [x] WebView renderLoading supprime (plus de loader natif)
-- [x] Tabs _layout garde FullScreenLoader DNA uniquement pour auth
-- [x] Pages tab (health, chat, alerts) utilisent des inline loaders legers
+### Resultats tests : Backend 20/20 PASS
 
-### iOS Layout
-- [x] Header 70px padding-top sur toutes les pages
-- [x] Popups 70px padding-top
-- [x] Plein ecran (pas de SafeAreaView)
-- [x] overscroll-behavior: none
-- [x] scrollEnabled=false + bounces=false
+## Backlog prioritise
+### P0 (Avant production)
+- Supprimer endpoint simulate-payment
+- Nettoyer DB (alertes/readings test)
+- Pre-calculer daily-report (perf)
 
-### Bug Fixes
-- [x] Minceur 500 (types string → float dans mifflin_st_jeor + calc_bmi)
-- [x] Abonnement: uniquement Standard Elio
-- [x] Pro subscriptions/rappels/coach supprimes
-- [x] Donnees simulees supprimees partout
+### P1
+- Refactoriser _layout.tsx (extraire BLE)
+- Refactoriser health_report_routes.py
+- Valider BLE sur iPhone physique (Build 91)
+- Tests unitaires backend
 
-## Backlog
-- P1 : Tester BLE V8 sur TestFlight avec bracelet physique
-- P2 : Gilet, Parrainage, Essai 7j, Vivoo
+### P2
+- Configuration WiFi balance Lefu
+- Serveur TCP J2358 production
+- Hebergement HDS pour MongoDB
+- Documentation API
+
+### P3
+- Gilet connecte
+- Parrainage
+- Essai gratuit 7j
+- Test urinaire Vivoo
