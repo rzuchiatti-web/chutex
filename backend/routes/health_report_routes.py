@@ -1159,6 +1159,21 @@ async def get_daily_report(user=Depends(get_current_user), force: bool = False):
                 age=age, resting_hr=d["heart_rate"], hrv=d.get("hrv", 0),
                 steps_daily=avg_steps, gender=gender, weight_kg=weight
             )
+
+        # Compute recovery score from HRV, sleep quality, stress
+        hrv_val = d.get("hrv", 0)
+        sleep_q = d.get("sleep_quality", 0)
+        stress_val = d.get("stress_level", 0)
+        deep_pct = 0
+        total_sleep = d.get("sleep_duration_min", 0)
+        if total_sleep > 0:
+            deep_pct = d.get("deep_sleep_min", 0) / total_sleep * 100
+        # Recovery = weighted combination: HRV (40%) + sleep quality (30%) + low stress (15%) + deep sleep (15%)
+        rec_hrv = min(100, (hrv_val / 80) * 100) if hrv_val > 0 else 0
+        rec_sleep = sleep_q
+        rec_stress = max(0, 100 - stress_val) if stress_val > 0 else 50
+        rec_deep = min(100, deep_pct * 5) if deep_pct > 0 else 0
+        d["recovery_score"] = round(max(0, min(100, rec_hrv * 0.4 + rec_sleep * 0.3 + rec_stress * 0.15 + rec_deep * 0.15)))
     if scale_reading and scale_reading.get("data"):
         sd = scale_reading["data"]
         for k in ["weight", "bmi", "body_fat_pct", "muscle_pct", "water_pct", "visceral_fat", "body_age", "bone_mass_kg", "basal_metabolism", "protein_pct"]:
