@@ -515,6 +515,13 @@ export function startBleMonitoring(
           window.dispatchEvent(new CustomEvent('ble_ecg_data',{detail:${ecgJson}}));true;
         `);
       }
+      // Forward ECG result (HR, HRV, BP, stress, etc.) from bracelet analysis
+      if (parsed.ecg_result) {
+        const resultJson = JSON.stringify({ ecg_result: parsed.ecg_result, ecg_hr: parsed.ecg_result.ecg_hr || parsed.ecg_result.heart_rate || 0 }).replace(/'/g, '');
+        webViewRef.current?.injectJavaScript(`
+          window.dispatchEvent(new CustomEvent('ble_ecg_data',{detail:${resultJson}}));true;
+        `);
+      }
 
       // Push to backend
       injectPushToBackend(webViewRef, cmdToDataType(parsed.cmd), dataJson, safeId);
