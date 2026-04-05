@@ -13,7 +13,7 @@ import pytest
 import requests
 import os
 
-BASE_URL = os.environ.get('EXPO_PUBLIC_BACKEND_URL', 'https://elio-v8-biometric.preview.emergentagent.com')
+BASE_URL = os.environ.get('EXPO_PUBLIC_BACKEND_URL', 'https://bracelet-biometrics.preview.emergentagent.com')
 
 class TestProSpaceCalendarFeatures:
     """Test ProSpace calendar and edit features"""

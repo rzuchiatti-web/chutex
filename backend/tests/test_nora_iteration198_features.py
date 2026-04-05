@@ -15,7 +15,7 @@ import uuid
 import time
 from datetime import datetime, timezone
 
-BASE_URL = os.environ.get("EXPO_PUBLIC_BACKEND_URL", "https://elio-v8-biometric.preview.emergentagent.com").rstrip("/")
+BASE_URL = os.environ.get("EXPO_PUBLIC_BACKEND_URL", "https://bracelet-biometrics.preview.emergentagent.com").rstrip("/")
 
 
 class TestDeleteExerciseAction:

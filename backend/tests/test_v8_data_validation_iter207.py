@@ -16,7 +16,7 @@ import os
 
 BASE_URL = os.environ.get("REACT_APP_BACKEND_URL", "").rstrip("/")
 if not BASE_URL:
-    BASE_URL = "https://elio-v8-biometric.preview.emergentagent.com"
+    BASE_URL = "https://bracelet-biometrics.preview.emergentagent.com"
 
 # Test credentials
 TEST_PHONE = "+33651245918"

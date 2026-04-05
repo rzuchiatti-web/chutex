@@ -13,7 +13,7 @@ import pytest
 import requests
 import os
 
-BASE_URL = os.environ.get('REACT_APP_BACKEND_URL', 'https://elio-v8-biometric.preview.emergentagent.com')
+BASE_URL = os.environ.get('REACT_APP_BACKEND_URL', 'https://bracelet-biometrics.preview.emergentagent.com')
 
 # Test credentials
 SAAD_EMAIL = "saad@chutex.fr"
