@@ -829,11 +829,23 @@ async def get_metric_history(key: str, period: str = "7j", date: str = None, use
     is_24h = period == "24h"
 
     # Use MongoDB aggregation for efficient data retrieval (handles large datasets)
-    # Apply physiological range filters at DB level to exclude raw byte values
+    # Apply physiological range filters AND data_type filtering to avoid cross-contamination
     VALID_RANGES = {
         "heart_rate": (30, 200), "spo2": (60, 100), "temperature": (30, 45),
         "stress_level": (1, 100), "hrv": (1, 200),
     }
+    # Only use readings from the correct data_type to avoid cross-contamination
+    # (e.g., step readings have a heart_rate field from realtime parsing that shouldn't be used for HR history)
+    DATA_TYPE_FILTERS = {
+        "heart_rate": ["heart_rate", "consolidated", "realtime", "vitals"],
+        "spo2": ["spo2", "consolidated", "vitals"],
+        "temperature": ["temperature", "consolidated"],
+        "hrv": ["hrv", "consolidated", "vitals"],
+        "stress_level": ["stress", "consolidated", "vitals"],
+        "blood_pressure": ["blood_pressure", "consolidated", "vitals"],
+        "sleep_quality": ["sleep", "consolidated"],
+    }
+
     if is_bp:
         match_filter = {"user_id": uid, "device_type": device_type, "timestamp": ts_filter,
                         "data.blood_pressure.systolic": {"$gte": 60, "$lte": 250}}
@@ -845,6 +857,17 @@ async def get_metric_history(key: str, period: str = "7j", date: str = None, use
         else:
             match_filter = {"user_id": uid, "device_type": device_type, "timestamp": ts_filter,
                             f"data.{key}": {"$gt": 0}}
+    # Apply data_type filter if defined
+    dt_filter = DATA_TYPE_FILTERS.get(key)
+    if dt_filter:
+        match_filter["data_type"] = {"$in": dt_filter}
+
+    # Special handling for distance_km: compute from steps if no direct readings
+    is_distance = key == "distance_km"
+    if is_distance:
+        # Use steps data to compute distance
+        match_filter = {"user_id": uid, "device_type": device_type, "timestamp": ts_filter,
+                        "data.steps": {"$gt": 0}, "data_type": {"$in": ["steps", "consolidated"]}}
 
     # Group key: by date for multi-day, by hour for 24h
     if is_24h:
@@ -860,6 +883,14 @@ async def get_metric_history(key: str, period: str = "7j", date: str = None, use
                 "avg_sys": {"$avg": "$data.blood_pressure.systolic"},
                 "avg_dia": {"$avg": "$data.blood_pressure.diastolic"},
             }},
+            {"$sort": {"_id": 1}},
+            {"$limit": 200},
+        ]
+    elif is_distance:
+        # Distance: compute from max steps per day
+        pipeline = [
+            {"$match": match_filter},
+            {"$group": {"_id": group_expr, "max_steps": {"$max": "$data.steps"}}},
             {"$sort": {"_id": 1}},
             {"$limit": 200},
         ]
@@ -908,6 +939,14 @@ async def get_metric_history(key: str, period: str = "7j", date: str = None, use
             avg_dia = round(doc.get("avg_dia", 0))
             if avg_sys > 0:
                 history.append({"date": date_val, "label": label, "value": avg_sys, "systolic": avg_sys, "diastolic": avg_dia})
+        elif is_distance:
+            # Convert max steps to distance km
+            max_steps = doc.get("max_steps", 0)
+            if max_steps and max_steps > 0:
+                height_cm = user.get("height_cm")
+                stride_m = float(height_cm) * 0.00415 if height_cm and float(height_cm) > 100 else 0.65
+                dist_km = round(max_steps * stride_m / 1000, 2)
+                history.append({"date": date_val, "label": label, "value": dist_km})
         else:
             val = doc.get("value", 0)
             if val and val > 0:

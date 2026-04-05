@@ -112,6 +112,13 @@ def _group_sleep_by_night(readings: list) -> dict:
 
         # Normalize stages: 1=deep, 2=light, 3=REM, 4/0=awake
         normalized = [s if s in (1, 2, 3) else 0 for s in all_stages]
+
+        # Cap at a reasonable max per night (600 min = 10h)
+        # If data exceeds this, the bracelet accumulated multiple days — take only the last portion
+        MAX_NIGHT_MIN = 600
+        if len(normalized) > MAX_NIGHT_MIN:
+            normalized = normalized[-MAX_NIGHT_MIN:]
+
         deep = normalized.count(1)
         light = normalized.count(2)
         rem = normalized.count(3)
