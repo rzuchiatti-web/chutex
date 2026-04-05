@@ -8,13 +8,15 @@ interface Props { d: any; beneficiaryId?: string; }
 
 export default function SleepCard({ d, beneficiaryId }: Props) {
   const router = useRouter();
-  const slD = d.sleep_duration_min || 0;
   const slQ = d.sleep_quality || 0;
   const deep = d.deep_sleep_min || 0;
   const light = d.light_sleep_min || 0;
   const rem = d.rem_sleep_min || 0;
   const inter = d.sleep_interruptions || 0;
   const total = deep + light + rem;
+  // Use phase sum if available and reasonable, else fall back to sleep_duration_min
+  const rawSlD = d.sleep_duration_min || 0;
+  const slD = (total > 0 && total <= 720) ? total : rawSlD;
   const hasRealData = slD > 0 || slQ > 0 || total > 0;
 
   const sleepSession = useMemo(() => {
@@ -53,7 +55,7 @@ export default function SleepCard({ d, beneficiaryId }: Props) {
     );
   }
 
-  const apneaRisk = Math.min(100, Math.max(5, inter * 12 + (slQ < 70 ? 20 : 0)));
+  const apneaRisk = Math.min(100, Math.max(5, inter * 5 + (slQ < 70 ? 15 : 0) + (slQ < 50 ? 10 : 0)));
 
   return (
     <div data-testid="sleep-card" onClick={() => router.push({ pathname: '/health-detail' as any, params: { metricId: 'sleep', ...(beneficiaryId ? { beneficiaryId } : {}) } })} style={{ borderRadius: 18, overflow: 'hidden', cursor: 'pointer', marginBottom: 14, position: 'relative', transition: 'transform 0.15s', border: '1.5px solid rgba(255,255,255,0.25)', boxShadow: '0 0 30px rgba(255,255,255,0.08), 0 0 60px rgba(167,139,250,0.06), 0 8px 40px rgba(0,0,0,0.5)' } as any}

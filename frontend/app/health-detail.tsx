@@ -164,7 +164,7 @@ export default function HealthDetailScreen() {
     const startH = startTime ? parseInt(startTime.split(':')[0]) || 22 : 22;
     const startM = startTime ? parseInt(startTime.split(':')[1]) || 30 : 30;
     const session = fromBraceletStages(stages.length > 0 ? stages : [2, 2, 1, 1, 3, 2], startH, startM);
-    const apnea = Math.min(100, Math.max(5, interruptions * 12 + (quality < 70 ? 20 : 0)));
+    const apnea = Math.min(100, Math.max(5, interruptions * 5 + (quality < 70 ? 15 : 0) + (quality < 50 ? 10 : 0)));
 
     return { session, deepMin, lightMin, remMin, awakeMin, totalSleep, duration, quality, interruptions, apnea };
   };
@@ -291,6 +291,7 @@ export default function HealthDetailScreen() {
                   {nightData && <SleepQualityCard nightQuality={nightQuality} onExplain={setExplainSleep} />}
                   {nightData && <SleepApneaCard nightApnea={nightApnea} onExplain={setExplainSleep} />}
                   {nightData && <SleepDebtCard nightDuration={nightDuration} nightAwakeMin={nightAwakeMin} sleepData={sleepData} sleepNeedMin={sleepNeedMin} onExplain={setExplainSleep} />}
+                  {sleepData && sleepData.length >= 2 && <SleepRegularityCard sleepData={sleepData} onExplain={setExplainSleep} />}
                 </>
               );
             })()}
@@ -304,7 +305,7 @@ export default function HealthDetailScreen() {
         {showSleepInfo && (
           <div data-testid="nora-sleep-info-popup" onClick={() => setShowSleepInfo(false)} style={{ position: 'fixed', inset: 0, zIndex: 9999, backdropFilter: 'blur(48px)', WebkitBackdropFilter: 'blur(48px)', background: 'rgba(0,0,0,0.82)', overflowY: 'auto', animation: 'popIn 0.3s ease' } as any}>
             <style dangerouslySetInnerHTML={{ __html: `@keyframes popIn{from{opacity:0;transform:scale(0.95) translateY(20px)}to{opacity:1;transform:scale(1) translateY(0)}}@keyframes slideUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}` }} />
-            <div onClick={(ev: any) => ev.stopPropagation()} style={{ width: '100%', maxWidth: 400, margin: '0 auto', padding: '50px 28px 120px', boxSizing: 'border-box' } as any}>
+            <div onClick={(ev: any) => ev.stopPropagation()} style={{ width: '100%', maxWidth: 400, margin: '0 auto', padding: '70px 28px 120px', boxSizing: 'border-box' } as any}>
               <div onClick={() => setShowSleepInfo(false)} style={{ position: 'absolute', top: 70, right: 20, width: 40, height: 40, borderRadius: 999, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}><i className="ri-close-line" style={{ fontSize: 22, color: '#FFF' }} /></div>
               <div style={{ textAlign: 'center', marginBottom: 32, animation: 'slideUp 0.4s ease 0.1s both' } as any}>
                 <i className="ri-moon-line" style={{ fontSize: 44, color: '#A78BFA' }} />

@@ -16,7 +16,8 @@ const GLOW: Record<SleepStage, string> = { awake: '#E87C8A40', rem: '#A8B4F040',
 const STAGE_MAP: Record<number, SleepStage> = { 0: 'awake', 1: 'deep', 2: 'light', 3: 'rem' };
 
 export function fromBraceletStages(stages: number[], startHour = 22, startMinute = 30): SleepSession {
-  const INTERVAL = 5;
+  // Determine interval: if >200 stages, they're per-minute; otherwise per-5-min
+  const INTERVAL = stages.length > 200 ? 1 : 5;
   const base = new Date();
   base.setHours(startHour, startMinute, 0, 0);
   if (startHour >= 18) base.setDate(base.getDate() - 1);

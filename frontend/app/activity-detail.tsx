@@ -473,7 +473,7 @@ export default function ActivityDetailPage() {
       {/* ── POPUP AJOUT EXERCICE ── */}
       {showAddExercise && (
         <div data-testid="add-exercise-popup" onClick={() => setShowAddExercise(false)} style={{ position: 'fixed', inset: 0, zIndex: 9999, background: 'rgba(0,0,0,0.85)', backdropFilter: 'blur(32px)', WebkitBackdropFilter: 'blur(32px)', overflowY: 'auto', animation: 'popIn 0.25s ease' } as any}>
-          <div onClick={(ev: any) => ev.stopPropagation()} style={{ width: '100%', maxWidth: 440, margin: '0 auto', padding: '40px 20px 120px', boxSizing: 'border-box' } as any}>
+          <div onClick={(ev: any) => ev.stopPropagation()} style={{ width: '100%', maxWidth: 440, margin: '0 auto', padding: '70px 20px 120px', boxSizing: 'border-box' } as any}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 } as any}>
               <div style={{ fontSize: 22, fontWeight: 900, color: '#FFF' }}>Ajouter un exercice</div>
               <div onClick={() => setShowAddExercise(false)} style={{ width: 40, height: 40, borderRadius: 999, background: 'rgba(255,255,255,0.12)', border: '1px solid rgba(255,255,255,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}>

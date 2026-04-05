@@ -660,13 +660,20 @@ async def get_section_analysis(section: str, user=Depends(get_current_user)):
             for k in ["sleep_quality", "sleep_duration", "deep_minutes", "light_minutes", "rem_minutes"]:
                 if sl.get(k): d[k.replace("sleep_duration", "sleep_duration_min").replace("deep_minutes", "deep_sleep_min").replace("light_minutes", "light_sleep_min").replace("rem_minutes", "rem_sleep_min")] = sl[k]
     # Use aggregated sleep from devices collection (more accurate than single reading)
+    # BUT cap unreasonable values (>720min = 12h is impossible for a single night)
     bracelet_device = await db.devices.find_one({"user_id": uid, "device_type": "bracelet"}, {"_id": 0})
     if bracelet_device:
-        if bracelet_device.get("last_sleep_total", 0) > d.get("sleep_duration_min", 0):
-            d["sleep_duration_min"] = bracelet_device["last_sleep_total"]
-            d["deep_sleep_min"] = bracelet_device.get("last_sleep_deep", 0)
-            d["light_sleep_min"] = bracelet_device.get("last_sleep_light", 0)
-            d["rem_sleep_min"] = bracelet_device.get("last_sleep_rem", 0)
+        last_sleep_total = bracelet_device.get("last_sleep_total", 0)
+        last_sleep_deep = bracelet_device.get("last_sleep_deep", 0)
+        last_sleep_light = bracelet_device.get("last_sleep_light", 0)
+        last_sleep_rem = bracelet_device.get("last_sleep_rem", 0)
+        # Only use device-level sleep if values are physiologically plausible (<=720min)
+        phase_sum = last_sleep_deep + last_sleep_light + last_sleep_rem
+        if last_sleep_total <= 720 and phase_sum <= 720 and last_sleep_total > d.get("sleep_duration_min", 0):
+            d["sleep_duration_min"] = last_sleep_total
+            d["deep_sleep_min"] = last_sleep_deep
+            d["light_sleep_min"] = last_sleep_light
+            d["rem_sleep_min"] = last_sleep_rem
             d["sleep_quality"] = bracelet_device.get("last_sleep_quality", 0)
         # Also use device-level vitals (aggregated/validated)
         for dk, dd in [("last_heart_rate", "heart_rate"), ("last_spo2", "spo2"), ("last_hrv", "hrv"), ("last_temperature", "temperature"), ("last_stress", "stress_level"), ("last_steps", "steps")]:
@@ -1208,20 +1215,58 @@ async def get_daily_report(user=Depends(get_current_user), force: bool = False):
         # Sleep: use aggregated device data (V8 stores multi-segment totals)
         if d.get("sleep_duration_min", 0) < 30 and bracelet_dev.get("last_sleep_total", 0) > 0:
             raw_total = bracelet_dev["last_sleep_total"]
-            capped_total = min(raw_total, 600)  # Cap at 10h per night
-            d["sleep_duration_min"] = capped_total
-            d["sleep_duration"] = capped_total
-            d["sleep_quality"] = bracelet_dev.get("last_sleep_quality", 0)
-            d["deep_sleep_min"] = bracelet_dev.get("last_sleep_deep", 0)
-            d["light_sleep_min"] = bracelet_dev.get("last_sleep_light", 0)
-            d["rem_sleep_min"] = bracelet_dev.get("last_sleep_rem", 0)
-            total = d["sleep_duration_min"]
-            if total > 0:
-                d["sleep_deep_pct"] = round(d["deep_sleep_min"] / total * 100)
-                d["sleep_rem_pct"] = round(d["rem_sleep_min"] / total * 100)
+            raw_deep = bracelet_dev.get("last_sleep_deep", 0)
+            raw_light = bracelet_dev.get("last_sleep_light", 0)
+            raw_rem = bracelet_dev.get("last_sleep_rem", 0)
+            phase_sum = raw_deep + raw_light + raw_rem
+            # If phase sum exceeds 720min (12h), values are corrupted — skip device sleep
+            if phase_sum <= 720:
+                d["sleep_duration_min"] = phase_sum
+                d["sleep_duration"] = phase_sum
+                d["sleep_quality"] = bracelet_dev.get("last_sleep_quality", 0)
+                d["deep_sleep_min"] = raw_deep
+                d["light_sleep_min"] = raw_light
+                d["rem_sleep_min"] = raw_rem
+                total = d["sleep_duration_min"]
+                if total > 0:
+                    d["sleep_deep_pct"] = round(d["deep_sleep_min"] / total * 100)
+                    d["sleep_rem_pct"] = round(d["rem_sleep_min"] / total * 100)
         # Sleep stages from device
         if bracelet_dev.get("last_sleep_stages"):
             d["sleep_stages"] = bracelet_dev["last_sleep_stages"]
+
+    # Fallback: if sleep is still 0, pull from real bracelet sleep readings (cmd=0x53)
+    if d.get("sleep_duration_min", 0) == 0:
+        today_start = datetime.now(timezone.utc).replace(hour=0, minute=0, second=0, microsecond=0)
+        yesterday_start = (today_start - timedelta(days=1)).isoformat()
+        sleep_readings = await db.device_readings.find(
+            {"user_id": uid, "device_type": "bracelet", "data.cmd": 0x53,
+             "data.sleep_stages": {"$exists": True, "$ne": []},
+             "timestamp": {"$gte": yesterday_start}},
+            {"_id": 0}
+        ).sort("timestamp", -1).to_list(50)
+        if sleep_readings:
+            from routes.health_sleep_routes import _group_sleep_by_night
+            nights = _group_sleep_by_night(sleep_readings)
+            if nights:
+                latest_night = nights[sorted(nights.keys())[-1]]
+                real_deep = latest_night.get("deep_minutes", 0)
+                real_light = latest_night.get("light_minutes", 0)
+                real_rem = latest_night.get("rem_minutes", 0)
+                real_total = real_deep + real_light + real_rem
+                if real_total > 0:
+                    d["sleep_duration_min"] = real_total
+                    d["sleep_duration"] = real_total
+                    d["deep_sleep_min"] = real_deep
+                    d["light_sleep_min"] = real_light
+                    d["rem_sleep_min"] = real_rem
+                    d["sleep_quality"] = latest_night.get("sleep_quality", 0)
+                    d["sleep_interruptions"] = latest_night.get("sleep_interruptions", 0)
+                    if latest_night.get("stages"):
+                        d["sleep_stages"] = latest_night["stages"]
+                    if real_total > 0:
+                        d["sleep_deep_pct"] = round(real_deep / real_total * 100)
+                        d["sleep_rem_pct"] = round(real_rem / real_total * 100)
 
     # Temperature: only show if measured recently (< 24h), otherwise leave at 0
     if d["temperature"] == 0:
