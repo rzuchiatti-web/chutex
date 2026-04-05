@@ -159,6 +159,13 @@ export function parseV8Response(bytes: number[]): { cmd: number; raw_hex?: strin
       return parsed; // No more data
     }
     
+    // Extract BCD date from bytes[3-8] per SDK
+    const bcd = (b: number) => `${(b >> 4) & 0xf}${b & 0xf}`;
+    const sleepDate = `20${bcd(bytes[3])}-${bcd(bytes[4])}-${bcd(bytes[5])}`;
+    const sleepTime = `${bcd(bytes[6])}:${bcd(bytes[7])}`;
+    parsed.sleep_date = sleepDate;
+    parsed.sleep_start_time = sleepTime;
+    
     const sleepLength = bytes[9]; // Number of stage entries
     const isMinuteResolution = bytes.length >= 130; // 130-byte = 1-min, 34-byte = 5-min
     const unitMinutes = isMinuteResolution ? 1 : 5;
@@ -182,6 +189,22 @@ export function parseV8Response(bytes: number[]): { cmd: number; raw_hex?: strin
       parsed.rem_sleep_min = rem;
       parsed.awake_minutes = awake;
       parsed.sleep_quality = sleepMin > 0 ? Math.min(100, Math.round((deep * 2 + rem * 1.5 + light) / sleepMin * 50)) : 0;
+      
+      // Count interruptions (transitions to awake)
+      let interruptions = 0;
+      for (let i = 1; i < stages.length; i++) {
+        if (stages[i] === 4 && stages[i - 1] !== 4) interruptions++;
+      }
+      parsed.sleep_interruptions = interruptions;
+      
+      // Count cycles (a cycle = one passage through light→deep→REM)
+      let cycles = 0;
+      let hadDeep = false;
+      for (const s of stages) {
+        if (s === 1) hadDeep = true;
+        if (s === 3 && hadDeep) { cycles++; hadDeep = false; }
+      }
+      parsed.sleep_cycles = Math.max(cycles, 1);
     }
   }
 
@@ -309,14 +332,23 @@ export function injectBleDataEvent(webViewRef: any, dataJson: string) {
 }
 
 
+/** Convert decimal to BCD byte (per V8 SDK: ResolveUtil.getTimeValue) */
+function toBCD(val: number): number {
+  const str = String(val);
+  return parseInt(str, 16);
+}
+
 /** Send initial commands after connection (time sync + metric requests) */
 export async function sendInitialCommands(device: any) {
   const now = new Date();
-  // Time sync
+  // Time sync — BCD format per V8 SDK (BleSDK.java line 477-483)
   await writeToDevice(device, V8_CMD.TIME_SYNC, [
-    now.getFullYear() & 0xFF, (now.getFullYear() >> 8) & 0xFF,
-    now.getMonth() + 1, now.getDate(),
-    now.getHours(), now.getMinutes(), now.getSeconds()
+    toBCD(now.getFullYear() % 100), // year in BCD (26 → 0x26)
+    toBCD(now.getMonth() + 1),       // month in BCD
+    toBCD(now.getDate()),             // day in BCD
+    toBCD(now.getHours()),            // hour in BCD
+    toBCD(now.getMinutes()),          // minute in BCD
+    toBCD(now.getSeconds()),          // second in BCD
   ]);
   // Battery (0x13 per 2208A API)
   setTimeout(() => writeToDevice(device, V8_CMD.BATTERY), 500);
