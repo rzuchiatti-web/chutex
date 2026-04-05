@@ -1197,7 +1197,7 @@ async def get_daily_report(user=Depends(get_current_user), force: bool = False):
         last_sync = bracelet_dev.get("last_sync", "")
         if last_sync:
             try:
-                sync_time = datetime.fromisoformat(str(last_sync).replace("Z", "+00:00"))
+                datetime.fromisoformat(str(last_sync).replace("Z", "+00:00"))
                 # If no temperature reading in today's sync, check if temp data exists in today's readings
                 today_start = datetime.now(timezone.utc).replace(hour=0, minute=0, second=0, microsecond=0).isoformat()
                 has_today_temp = await db.device_readings.find_one(

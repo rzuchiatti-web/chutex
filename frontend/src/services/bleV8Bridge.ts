@@ -626,6 +626,38 @@ export function scanAndConnect(
           if (isBracelet) {
             await startBraceletProtocol(connected, webViewRef, bleDeviceRef, blePollRef);
           }
+          // Vest: monitor UART service for vest data
+          if (deviceType === 'vest') {
+            const VEST_SVCS = [
+              { uuid: '0000ffe0-0000-1000-8000-00805f9b34fb', notify: '0000ffe4-0000-1000-8000-00805f9b34fb' },
+              { uuid: '6e400001-b5a3-f393-e0a9-e50e24dcca9e', notify: '6e400003-b5a3-f393-e0a9-e50e24dcca9e', write: '6e400002-b5a3-f393-e0a9-e50e24dcca9e' },
+            ];
+            for (const svc of VEST_SVCS) {
+              try {
+                connected.monitorCharacteristicForService(svc.uuid, svc.notify, (err: any, char: any) => {
+                  if (err || !char?.value) return;
+                  try {
+                    const bytes = require('react-native').Platform.OS === 'web' ? new Uint8Array(0) : (() => { const { base64ToBytes } = require('./ble'); return base64ToBytes(char.value); })();
+                    const raw = new TextDecoder('utf-8').decode(bytes);
+                    webViewRef.current?.injectJavaScript(
+                      `window.dispatchEvent(new CustomEvent('ble_vest_data',{detail:{vest_data:'${raw.replace(/'/g, "\\'")}'}}));true;`
+                    );
+                  } catch {}
+                });
+                // Send time sync if write char available
+                if (svc.write) {
+                  try {
+                    const now = new Date();
+                    const t = `time&${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}-${String(now.getHours()).padStart(2,'0')}-${String(now.getMinutes()).padStart(2,'0')}-${String(now.getSeconds()).padStart(2,'0')}`;
+                    const { bytesToBase64 } = require('./ble');
+                    const encoded = bytesToBase64(Array.from(new TextEncoder().encode(t)));
+                    connected.writeCharacteristicWithResponseForService(svc.uuid, svc.write, encoded).catch(() => {});
+                  } catch {}
+                }
+                break;
+              } catch { continue; }
+            }
+          }
         } catch (e: any) {
           notifyWebView(
             `window.dispatchEvent(new CustomEvent('ble_result',{detail:{error:'Connexion echouee: ${(e.message || '').replace(/'/g, '')}'}}));true;`

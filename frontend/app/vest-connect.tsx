@@ -90,6 +90,43 @@ export default function VestConnectScreen() {
   const connectVest = async () => {
     setBleStatus('scanning');
 
+    // Use native BLE bridge in WebView (Web Bluetooth not available in WKWebView)
+    if (Platform.OS === 'web' && typeof window !== 'undefined' && (window as any).ReactNativeWebView) {
+      const handler = async (e: any) => {
+        window.removeEventListener('ble_result', handler);
+        const detail = e.detail || {};
+        if (detail.error) {
+          setBleStatus('idle');
+        } else if (detail.success) {
+          await apiFetch('/api/devices/associate', { method: 'POST', body: JSON.stringify({ device_type: 'vest', mac_address: detail.id || '' }) }, token).catch(() => {});
+          await apiFetch('/api/devices/sync', { method: 'POST', body: JSON.stringify({ device_type: 'vest', data: { battery: detail.battery || 0 } }) }, token).catch(() => {});
+          setBleStatus('connected');
+          setVestData({ battery: detail.battery || 0, connected: true, device: { ble_device_id: detail.id || '' } });
+          setBattery(detail.battery || 0);
+        }
+      };
+      window.addEventListener('ble_result', handler);
+      (window as any).ReactNativeWebView.postMessage(JSON.stringify({ action: 'ble_scan_vest' }));
+      // Timeout after 20s
+      setTimeout(() => {
+        window.removeEventListener('ble_result', handler);
+        if (bleStatus === 'scanning') setBleStatus('idle');
+      }, 20000);
+
+      // Also listen for vest-specific BLE data
+      const vestDataHandler = (e: any) => {
+        const detail = e.detail || {};
+        if (detail.vest_data) {
+          const parsed = parseVestData(detail.vest_data);
+          if (parsed.bat) setBattery(parsed.bat);
+          sendToBackend(detail.vest_data, parsed);
+        }
+      };
+      window.addEventListener('ble_vest_data', vestDataHandler);
+      return;
+    }
+
+    // Web Bluetooth fallback (Chrome desktop only, not WKWebView)
     if (Platform.OS === 'web') {
       if (!('bluetooth' in navigator)) return;
       try {
