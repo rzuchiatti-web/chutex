@@ -13,10 +13,21 @@ export default function SleepRegularityCard({ sleepData, onExplain }: Props) {
   const toHour = (d: any) => {
     try {
       const dt = new Date(d.date + 'T12:00:00');
+      // Use real start_time from bracelet if available
+      let bed = 22;
+      if (d.start_time) {
+        const parts = d.start_time.split(':');
+        bed = parseInt(parts[0]) || 22;
+        if (parts[1]) bed += (parseInt(parts[1]) || 0) / 60;
+      }
+      const durationH = d.duration || 0; // duration in hours from API
+      const wake = bed + (durationH > 0 ? durationH : 7.5);
+      // Normalize wake to 24h format
+      const wakeNorm = wake >= 24 ? wake - 24 : wake;
       return {
         day: `${String(dt.getDate()).padStart(2, '0')}/${String(dt.getMonth() + 1).padStart(2, '0')}`,
-        bed: 22 + (d.bedtime_offset || 0),
-        wake: 6 + (d.waketime_offset || (d.duration ? d.duration / 60 - 8 + 6.5 : 0)),
+        bed,
+        wake: wakeNorm,
       };
     } catch { return null; }
   };
