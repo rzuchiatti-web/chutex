@@ -300,6 +300,8 @@ export async function sendInitialCommands(device: any) {
   setTimeout(() => writeToDevice(device, V8_CMD.STEPS, [1, 1]), 6000);
   // Blood glucose
   setTimeout(() => writeToDevice(device, V8_CMD.GLUCOSE), 6500);
+  // Temperature (0x26 — 3-NTC sensor, may require skin contact)
+  setTimeout(() => writeToDevice(device, 0x26, []), 7000);
 
   // Historical data: request past 3 days of steps (0x51 with date)
   for (let daysAgo = 0; daysAgo < 3; daysAgo++) {
@@ -307,7 +309,7 @@ export async function sendInitialCommands(device: any) {
     setTimeout(() => writeToDevice(device, 0x51, [
       d.getFullYear() & 0xFF, (d.getFullYear() >> 8) & 0xFF,
       d.getMonth() + 1, d.getDate()
-    ]), 7000 + daysAgo * 500);
+    ]), 7500 + daysAgo * 500);
   }
 
   // HR history indices (0x54, 0-4 to cover recent days)
