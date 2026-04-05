@@ -56,14 +56,23 @@ def _group_sleep_by_night(readings: list) -> dict:
     for r in readings:
         dd = r.get("data", {})
         raw_hex = dd.get("raw_hex", "")
+        server_ts = r.get("timestamp", "")[:10]
 
         # Get date: from parsed field, or extract from raw_hex, or server timestamp
         dt = dd.get("sleep_date", "")
         start_time = dd.get("sleep_start_time", "")
         if not dt and raw_hex:
             dt, start_time = _extract_bcd_date_from_raw(raw_hex)
+        # Validate BCD date — if year is before 2024 or after 2030, it's likely wrong
+        if dt and len(dt) >= 4:
+            try:
+                bcd_year = int(dt[:4])
+                if bcd_year < 2024 or bcd_year > 2030:
+                    dt = server_ts  # BCD date is incorrect, use server timestamp
+            except (ValueError, TypeError):
+                dt = server_ts
         if not dt:
-            dt = r.get("timestamp", "")[:10]
+            dt = server_ts
         if not dt or len(dt) < 10:
             continue
         dt = dt[:10]

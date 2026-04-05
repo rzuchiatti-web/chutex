@@ -39,42 +39,49 @@ def estimate_vo2_max(age: int, resting_hr: float, hrv: float, steps_daily: float
     # 1. Max heart rate (Tanaka formula, more accurate for elderly)
     hr_max = 208 - (0.7 * age)
 
-    # 2. Base VO2 Max (Uth-Sorensen formula)
-    vo2_base = 15.3 * (hr_max / resting_hr)
+    # 2. Base VO2 Max (Uth-Sorensen formula) — use conservative multiplier 15.0
+    vo2_base = 15.0 * (hr_max / resting_hr)
 
     # 3. HRV correction: higher HRV = better cardiorespiratory fitness
     # Use age-adjusted HRV baseline (younger people naturally have higher HRV)
+    # Conservative approach: cap the HRV bonus to avoid over-estimation
     hrv_correction = 0
     if hrv and hrv > 0:
         # Age-adjusted baseline HRV (ms)
         if age < 30:
-            hrv_baseline = 55
+            hrv_baseline = 60
         elif age < 50:
             hrv_baseline = 45
         elif age < 65:
             hrv_baseline = 35
         else:
             hrv_baseline = 30
-        hrv_correction = (hrv - hrv_baseline) * 0.08  # Conservative: +0.08 ml/kg/min per ms above baseline
+        # Very conservative: +0.04 ml/kg/min per ms above baseline, capped at +3
+        raw_correction = (hrv - hrv_baseline) * 0.04
+        hrv_correction = max(-3, min(3, raw_correction))
 
     # 4. Activity correction: daily steps indicate fitness level
     activity_correction = 0
     if steps_daily and steps_daily > 0:
-        # 4000 steps/day = baseline for seniors, each 1000 above adds ~0.4
-        activity_correction = max(0, (steps_daily - 4000) / 1000) * 0.4
+        # 5000 steps/day = baseline, each 1000 above adds ~0.3
+        activity_correction = max(0, (steps_daily - 5000) / 1000) * 0.3
 
-    # 5. Gender correction: males typically +3-5 ml/kg/min
-    gender_correction = 2.5 if gender.upper() in ("M", "HOMME", "MALE") else 0
+    # 5. Gender correction: males typically +2 ml/kg/min
+    gender_correction = 2.0 if gender.upper() in ("M", "HOMME", "MALE") else 0
 
     # 6. Weight penalty: BMI-related deduction for overweight
     weight_correction = 0
     if weight_kg and age:
-        # Rough estimate: above 80kg for women, 90kg for men → small penalty
         threshold = 90 if gender.upper() in ("M", "HOMME", "MALE") else 80
         if weight_kg > threshold:
             weight_correction = -((weight_kg - threshold) * 0.15)
 
-    vo2_max = vo2_base + hrv_correction + activity_correction + gender_correction + weight_correction
+    # 7. Age deduction: VO2 max naturally declines with age
+    age_deduction = 0
+    if age > 25:
+        age_deduction = -((age - 25) * 0.1)
+
+    vo2_max = vo2_base + hrv_correction + activity_correction + gender_correction + weight_correction + age_deduction
 
     # Clamp to physiological range (seniors: 12-60)
     vo2_max = max(12, min(60, round(vo2_max, 1)))
@@ -1139,6 +1146,24 @@ async def get_daily_report(user=Depends(get_current_user), force: bool = False):
             if total > 0:
                 d["sleep_deep_pct"] = round(d["deep_sleep_min"] / total * 100)
                 d["sleep_rem_pct"] = round(d["rem_sleep_min"] / total * 100)
+        # Sleep stages from device
+        if bracelet_dev.get("last_sleep_stages"):
+            d["sleep_stages"] = bracelet_dev["last_sleep_stages"]
+
+    # Fallback: temperature from device_readings if still 0
+    if d["temperature"] == 0:
+        temp_reading = await db.device_readings.find_one(
+            {"user_id": uid, "data_type": "temperature", "data.temperature": {"$gt": 30}},
+            {"_id": 0, "data.temperature": 1}, sort=[("timestamp", -1)]
+        )
+        if temp_reading:
+            d["temperature"] = temp_reading.get("data", {}).get("temperature", 0)
+
+    # Distance from steps if not available (stride ~0.65m for average person)
+    if d.get("steps", 0) > 0 and d.get("distance_km", 0) == 0:
+        height_cm = user.get("height_cm")
+        stride_m = float(height_cm) * 0.00415 if height_cm and float(height_cm) > 100 else 0.65
+        d["distance_km"] = round(d["steps"] * stride_m / 1000, 2)
 
     # ── VO2 Max estimation (Uth-Sorensen + HRV correction, like WHOOP) ──
     if d.get("heart_rate") and d["heart_rate"] > 0:
@@ -1252,15 +1277,27 @@ async def get_daily_report(user=Depends(get_current_user), force: bool = False):
 
     # Analysis phase (body age collection progress)
     analysis_phase = None
-    distinct_days = set()
-    all_user_readings = await db.device_readings.find(
-        {"user_id": uid}, {"_id": 0, "timestamp": 1}
-    ).to_list(500)
-    for r in all_user_readings:
-        ts = r.get("timestamp", "")
-        if ts:
-            distinct_days.add(ts[:10])
-    days_count = len(distinct_days)
+    # Use aggregation for efficient distinct day counting (handles large datasets)
+    pipeline = [
+        {"$match": {"user_id": uid}},
+        {"$project": {"day": {"$substr": ["$timestamp", 0, 10]}}},
+        {"$group": {"_id": "$day"}},
+        {"$count": "total"}
+    ]
+    agg_result = await db.device_readings.aggregate(pipeline).to_list(1)
+    days_count = agg_result[0]["total"] if agg_result else 0
+    # Also count calendar days since first reading as minimum
+    if days_count > 0:
+        first_reading = await db.device_readings.find_one(
+            {"user_id": uid}, {"_id": 0, "timestamp": 1}, sort=[("timestamp", 1)]
+        )
+        if first_reading and first_reading.get("timestamp"):
+            try:
+                first_ts = datetime.fromisoformat(first_reading["timestamp"].replace("Z", "+00:00"))
+                calendar_days = (datetime.now(timezone.utc) - first_ts).days + 1
+                days_count = max(days_count, calendar_days)
+            except (ValueError, TypeError):
+                pass
     if 0 < days_count < 7:
         messages = {
             1: "Debut de l'analyse — Nora collecte vos premieres donnees",

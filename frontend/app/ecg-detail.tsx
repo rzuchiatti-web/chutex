@@ -5,7 +5,7 @@ import { useAuth } from '../src/context/AuthContext';
 import { apiFetch } from '../src/services/api';
 import FullScreenLoader from '../src/components/FullScreenLoader';
 import NativePageView from '../src/components/NativePageView';
-import NoraCard from '../src/components/shared/NoraCard';
+import NoraOverlay, { NoraButton } from '../src/components/dashboard/NoraOverlay';
 
 const BG = 'https://customer-assets.emergentagent.com/job_443c9c6e-0feb-4920-a358-fe7cc1a6289b/artifacts/1lq6xl58_ChatGPT%20Image%2017%20f%C3%A9vr.%202026%2C%2008_54_55.png';
 
@@ -49,6 +49,7 @@ export default function ECGDetailScreen() {
   const [ecg, setEcg] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [showExplain, setShowExplain] = useState(false);
+  const [showNoraEcg, setShowNoraEcg] = useState(false);
 
   useEffect(() => {
     (async () => {
@@ -102,9 +103,9 @@ export default function ECGDetailScreen() {
       <img src={BG} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 } as any} />
       <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.15)', zIndex: 1 } as any} />
 
-      <div style={{ flex: 1, overflowY: 'auto', position: 'relative', zIndex: 5, padding: '20px 20px 100px', WebkitOverflowScrolling: 'touch' } as any}>
+      <div style={{ flex: 1, overflowY: 'auto', position: 'relative', zIndex: 5, padding: '70px 20px 100px', WebkitOverflowScrolling: 'touch' } as any}>
 
-        <div data-testid="ecg-detail-back" onClick={() => router.back()} style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '8px 14px', borderRadius: 999, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', cursor: 'pointer', marginBottom: 16 } as any}>
+        <div data-testid="ecg-detail-back" onClick={() => router.push('/(tabs)/health' as any)} style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '8px 14px', borderRadius: 999, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', cursor: 'pointer', marginBottom: 16 } as any}>
           <i className="ri-arrow-left-line" style={{ fontSize: 16, color: 'rgba(255,255,255,0.6)' }} /><span style={{ fontSize: 12, fontWeight: 600, color: 'rgba(255,255,255,0.6)' }}>Retour</span>
         </div>
 
@@ -182,14 +183,36 @@ export default function ECGDetailScreen() {
           ))}
         </div>
 
-        {/* Nora */}
-        <NoraCard title="Analyse ECG" text={
-          bpm > 0
-            ? `Votre electrocardiogramme montre ${allNormal ? 'un rythme sinusal regulier' : 'des elements a surveiller'} a ${bpm} bpm. ${allNormal ? 'Ce resultat est rassurant et ne necessite pas d\'action immediate.' : 'Je recommande de partager ce trace avec votre medecin traitant.'}`
-            : 'ECG enregistre. Les donnees seront disponibles lors du prochain enregistrement avec le bracelet V8.'
-        } />
+        {/* Nora ECG Analysis — Interactive card */}
+        <NoraButton label="Analyse ECG par Nora" sublabel="Interpretation complete de votre electrocardiogramme" onClick={() => setShowNoraEcg(true)} />
+
+        {/* What is an ECG? — Educational card */}
+        <div data-testid="ecg-education" style={{ borderRadius: 18, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', padding: '16px', marginBottom: 14 } as any}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10 } as any}>
+            <div style={{ width: 32, height: 32, borderRadius: 10, background: 'rgba(249,115,22,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}>
+              <i className="ri-question-line" style={{ fontSize: 16, color: '#F97316' }} />
+            </div>
+            <div style={{ fontSize: 14, fontWeight: 800, color: '#FFF' }}>Qu'est-ce qu'un ECG ?</div>
+          </div>
+          <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.45)', lineHeight: 1.7 }}>
+            L'electrocardiogramme (ECG) enregistre l'activite electrique de votre coeur. Chaque battement produit un signal electrique qui traverse le coeur et le fait se contracter. Le trace permet de detecter des anomalies du rythme cardiaque comme la fibrillation auriculaire, les blocs auriculo-ventriculaires ou les arythmies.
+          </div>
+          <div style={{ marginTop: 12, display: 'flex', gap: 8 } as any}>
+            {[
+              { label: 'Onde P', desc: 'Contraction des oreillettes', color: '#38BDF8' },
+              { label: 'Complexe QRS', desc: 'Contraction des ventricules', color: '#10B981' },
+              { label: 'Onde T', desc: 'Recuperation des ventricules', color: '#F59E0B' },
+            ].map((w, i) => (
+              <div key={i} style={{ flex: 1, padding: '8px 6px', borderRadius: 10, background: `${w.color}10`, textAlign: 'center' } as any}>
+                <div style={{ fontSize: 11, fontWeight: 800, color: w.color }}>{w.label}</div>
+                <div style={{ fontSize: 8, color: 'rgba(255,255,255,0.3)', marginTop: 2 }}>{w.desc}</div>
+              </div>
+            ))}
+          </div>
+        </div>
 
       </div>
+      {showNoraEcg && <NoraOverlay token={token} endpoint={`/api/nora/page-analysis?context=ecg&ecg_id=${id || ''}`} title="Analyse ECG" subtitle="Interpretation par Nora de votre electrocardiogramme" onClose={() => setShowNoraEcg(false)} />}
     </div>
   );
 }

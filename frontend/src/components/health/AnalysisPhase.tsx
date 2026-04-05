@@ -18,18 +18,18 @@ export default function AnalysisPhase({ analysisPhase, showInfo, setShowInfo, pr
         <div style={{ fontSize: 28, fontWeight: 900, color: '#FFF', marginBottom: 10, lineHeight: 1.2, letterSpacing: -0.5 }}>
           {isBodyAge ? <>Nora analyse votre<br/>age biologique.</> : <>Analyse en cours de<br/>votre profil sante.</>}
         </div>
-        <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.4)', lineHeight: 1.7, marginBottom: 20, maxWidth: 320, margin: '0 auto 20px' }}>
+        <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.75)', lineHeight: 1.7, marginBottom: 20, maxWidth: 320, margin: '0 auto 20px' }}>
           {isBodyAge
             ? `Nora collecte vos donnees de sante depuis votre inscription pour estimer votre age biologique. Encore ${total - day} jour${total - day > 1 ? 's' : ''} de donnees necessaires.`
             : `Pendant les ${total} premiers jours, nous analysons vos donnees pour comprendre votre rythme, vos habitudes et vos tendances.`
           }
         </div>
-        <div onClick={() => setShowInfo(true)} style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '8px 18px', borderRadius: 999, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', cursor: 'pointer', marginBottom: 24 } as any}>
-          <i className="ri-question-line" style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)' }} />
-          <span style={{ fontSize: 12, fontWeight: 600, color: 'rgba(255,255,255,0.5)' }}>Comprendre l'analyse</span>
+        <div onClick={() => setShowInfo(true)} style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '8px 18px', borderRadius: 999, background: 'rgba(255,255,255,0.12)', border: '1px solid rgba(255,255,255,0.25)', cursor: 'pointer', marginBottom: 24 } as any}>
+          <i className="ri-question-line" style={{ fontSize: 13, color: '#FFF' }} />
+          <span style={{ fontSize: 12, fontWeight: 600, color: '#FFF' }}>Comprendre l'analyse</span>
         </div>
         <div style={{ fontSize: 20, fontWeight: 900, color: '#FFF', marginBottom: 6 }}>Jour {day}/{total}</div>
-        <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.45)', marginBottom: 16 }}>{message}</div>
+        <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.75)', marginBottom: 16 }}>{message}</div>
         <div style={{ height: 32, borderRadius: 16, background: 'rgba(255,255,255,0.06)', overflow: 'hidden', position: 'relative', maxWidth: 340, margin: '0 auto' } as any}>
           <div style={{ position: 'absolute', top: 0, left: 0, width: `${pct}%`, height: '100%', borderRadius: 16, overflow: 'hidden', transition: 'width 1s ease' } as any}>
             <img src={progressBg} alt="" style={{ width: 340, height: 32, objectFit: 'cover', display: 'block' } as any} />
@@ -123,7 +123,7 @@ function NoraInfoPopup({ onClose }: { onClose: () => void }) {
       } as any} src={NORA_VIDEO} />
 
       {/* Close button */}
-      <div style={{ position: 'relative', zIndex: 10, padding: '16px 20px', display: 'flex', justifyContent: 'flex-end' } as any}>
+      <div style={{ position: 'relative', zIndex: 10, padding: '70px 20px 16px', display: 'flex', justifyContent: 'flex-end' } as any}>
         <div onClick={onClose} style={{ width: 38, height: 38, borderRadius: 999, background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}>
           <i className="ri-close-line" style={{ fontSize: 18, color: 'rgba(255,255,255,0.8)' }} />
         </div>

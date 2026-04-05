@@ -183,7 +183,6 @@ export default function HealthScreen() {
             <div style={{ position: 'relative', zIndex: 2, padding: '70px 20px 28px' } as any}>
               {/* Analysis Phase */}
               <AnalysisPhase analysisPhase={analysisPhase} showInfo={showAnalysisInfo} setShowInfo={setShowAnalysisInfo} progressBg={PROGRESS_BG} />
-
               {/* Hero BioAge + Aging Rate */}
               {!analysisPhase && (hasMeaningfulVitals || hasBodyAge || (agingRate && agingRate.rate > 0)) && (
                 <HeroScore bioAge={agingRate?.bio_age || noraBodyAge || d.body_age || 0} realAge={agingRate?.real_age || (user?.date_of_birth ? Math.floor((Date.now() - new Date(user.date_of_birth).getTime()) / 31557600000) : 0)} status={status} statusColor={statusColor} ai={ai} subs={subs} showDetail={showScoreDetail} setShowDetail={setShowScoreDetail} d={d} bodyAgeNora={bodyAgeNora} agingRate={agingRate} />

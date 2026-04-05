@@ -26,7 +26,7 @@ export function GlycemiaCard({ token }: { token: string | null }) {
           <div style={{ textAlign: 'center', marginBottom: 10 } as any}>
             <div style={{ fontSize: 15, fontWeight: 900, color: '#FFF', marginBottom: 4 }}>Glycemie Estimee</div>
             {data.estimated_glycemia && (
-              <div style={{ fontSize: 28, fontWeight: 900, color: '#FFF', lineHeight: 1, marginBottom: 6 }}>{data.estimated_glycemia} <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)' }}>g/L</span></div>
+              <div style={{ fontSize: 28, fontWeight: 900, color: '#FFF', lineHeight: 1, marginBottom: 6 }}>{Number(data.estimated_glycemia).toFixed(2)} <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)' }}>g/L</span></div>
             )}
             <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '4px 12px', borderRadius: 999, background: `${col}20`, border: `1px solid ${col}30` } as any}>
               <span style={{ width: 7, height: 7, borderRadius: 4, background: col, boxShadow: `0 0 6px ${col}60` } as any} />

@@ -183,7 +183,7 @@ export default function GlycemiaDetailPage() {
                     </div>
                   </div>
                   {data.estimated_glycemia && (
-                    <div style={{ fontSize: 42, fontWeight: 900, color: '#111', lineHeight: 1, marginBottom: 6 }}>{data.estimated_glycemia} <span style={{ fontSize: 16, fontWeight: 600, color: '#9CA3AF' }}>g/L</span></div>
+                    <div style={{ fontSize: 42, fontWeight: 900, color: '#111', lineHeight: 1, marginBottom: 6 }}>{Number(data.estimated_glycemia).toFixed(2)} <span style={{ fontSize: 16, fontWeight: 600, color: '#9CA3AF' }}>g/L</span></div>
                   )}
                   <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '6px 16px', borderRadius: 999, background: `${col}18`, border: `1px solid ${col}30` } as any}>
                     <span style={{ width: 8, height: 8, borderRadius: 4, background: col, boxShadow: `0 0 8px ${col}60` } as any} />

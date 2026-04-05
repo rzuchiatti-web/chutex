@@ -118,6 +118,8 @@ export default function ActivityDetailPage() {
     if (!token) { setLoading(false); return; }
     setLoading(true);
     const dateStr = `${selectedDate.getFullYear()}-${String(selectedDate.getMonth()+1).padStart(2,'0')}-${String(selectedDate.getDate()).padStart(2,'0')}`;
+    const todayStr = new Date().toISOString().split('T')[0];
+    const isToday = dateStr === todayStr;
     // Fast APIs first — show content quickly
     Promise.all([
       apiFetch('/api/health/activity-streak', {}, token).catch(() => ({})),
@@ -137,10 +139,32 @@ export default function ActivityDetailPage() {
         });
       }
     }).finally(() => setLoading(false));
-    // Slow API — load health report in background (doesn't block UI)
-    apiFetch('/api/health/daily-report', {}, token).catch(() => ({})).then((report: any) => {
-      if (report) setD(report?.data || report);
-    });
+    // Load health data: for today use daily-report, for past dates use metric-history
+    if (isToday) {
+      apiFetch('/api/health/daily-report', {}, token).catch(() => ({})).then((report: any) => {
+        if (report) setD(report?.data || report);
+      });
+    } else {
+      // Fetch multiple metrics for the selected date
+      Promise.all([
+        apiFetch(`/api/health/metric-history/steps?period=24h&date=${dateStr}`, {}, token).catch(() => ({})),
+        apiFetch(`/api/health/metric-history/calories?period=24h&date=${dateStr}`, {}, token).catch(() => ({})),
+        apiFetch(`/api/health/metric-history/heart_rate?period=24h&date=${dateStr}`, {}, token).catch(() => ({})),
+        apiFetch(`/api/health/metric-history/stress_level?period=24h&date=${dateStr}`, {}, token).catch(() => ({})),
+        apiFetch(`/api/health/metric-history/distance_km?period=24h&date=${dateStr}`, {}, token).catch(() => ({})),
+      ]).then(([stepsData, calData, hrData, stressData, distData]) => {
+        const getMax = (d: any) => d?.history?.length ? Math.max(...d.history.map((h: any) => h.value || 0)) : 0;
+        const getAvg = (d: any) => d?.stats?.avg || 0;
+        setD((prev: any) => ({
+          ...(prev || {}),
+          steps: getMax(stepsData),
+          calories: getMax(calData),
+          distance_km: getMax(distData),
+          heart_rate: getAvg(hrData),
+          stress_level: getAvg(stressData),
+        }));
+      });
+    }
     // Fetch metric averages
     apiFetch('/api/health/metric-averages?keys=steps,calories,distance_km,vo2_max', {}, token).catch(() => ({})).then((a: any) => {
       if (a && typeof a === 'object') setAvgs(a);
@@ -251,43 +275,74 @@ export default function ActivityDetailPage() {
 
               {/* ── CARTE RECUPERATION ── */}
               <div data-testid="card-recovery" style={{ borderRadius: 18, background: '#F4F4F5', padding: '16px 18px', marginBottom: 10 } as any}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 } as any}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 14 } as any}>
                   <i className="ri-battery-charge-line" style={{ fontSize: 14, color: recCol }} />
                   <span style={{ fontSize: 13, fontWeight: 800, color: '#111' }}>Recuperation</span>
-                  <span style={{ fontSize: 16, fontWeight: 900, color: recCol, marginLeft: 'auto' }}>{recPct}%</span>
-                  <div onClick={() => setExplainMetric('recovery')} style={{ width: 28, height: 28, borderRadius: 999, background: '#FFF', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', flexShrink: 0 } as any}><i className="ri-information-line" style={{ fontSize: 14, color: recCol }} /></div>
+                  <div onClick={() => setExplainMetric('recovery')} style={{ width: 28, height: 28, borderRadius: 999, background: '#FFF', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', flexShrink: 0, marginLeft: 'auto' } as any}><i className="ri-information-line" style={{ fontSize: 14, color: recCol }} /></div>
                 </div>
-                <div style={{ height: 8, borderRadius: 4, background: '#E5E7EB', overflow: 'hidden', marginBottom: 10 } as any}><div style={{ height: '100%', borderRadius: 4, width: `${recPct}%`, background: `linear-gradient(90deg, ${recCol}80, ${recCol})`, transition: 'width 0.8s' } as any} /></div>
-                <div style={{ display: 'flex', gap: 8 } as any}>
-                  <div style={{ flex: 1, padding: '8px 10px', borderRadius: 10, background: '#FFF', textAlign: 'center' } as any}><div style={{ fontSize: 14, fontWeight: 900, color: recCol }}>{recLabel}</div><div style={{ fontSize: 8, color: '#9CA3AF', fontWeight: 700 }}>NIVEAU</div></div>
-                  <div style={{ flex: 1, padding: '8px 10px', borderRadius: 10, background: '#FFF', textAlign: 'center' } as any}><div style={{ fontSize: 14, fontWeight: 900, color: '#111' }}>{recTimeStr}</div><div style={{ fontSize: 8, color: '#9CA3AF', fontWeight: 700 }}>TEMPS ESTIME</div></div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 16 } as any}>
+                  <GaugeRing pct={recPct} color={recCol} size={72}>
+                    <span style={{ fontSize: 20, fontWeight: 900, color: recCol }}>{recPct}%</span>
+                  </GaugeRing>
+                  <div style={{ flex: 1 } as any}>
+                    <div style={{ display: 'inline-flex', alignItems: 'center', gap: 4, padding: '3px 10px', borderRadius: 999, background: `${recCol}15`, marginBottom: 8 } as any}>
+                      <span style={{ fontSize: 12, fontWeight: 700, color: recCol }}>{recLabel}</span>
+                    </div>
+                    <div style={{ fontSize: 12, color: '#6B7280', lineHeight: 1.6 }}>
+                      {recPct >= 80 ? 'Votre corps est bien repose. Vous pouvez vous entrainer intensement.' : recPct >= 60 ? 'Recuperation correcte. Activite moderee conseillee.' : recPct >= 40 ? 'Recuperation en cours. Privilegiez la marche douce.' : 'Repos necessaire. Evitez les efforts intenses.'}
+                    </div>
+                  </div>
+                </div>
+                <div style={{ display: 'flex', gap: 8, marginTop: 12 } as any}>
+                  <div style={{ flex: 1, padding: '8px 10px', borderRadius: 10, background: '#FFF', textAlign: 'center' } as any}><div style={{ fontSize: 8, color: '#9CA3AF', fontWeight: 700, textTransform: 'uppercase' }}>Temps estime</div><div style={{ fontSize: 14, fontWeight: 900, color: '#111', marginTop: 2 }}>{recTimeStr}</div></div>
+                  <div style={{ flex: 1, padding: '8px 10px', borderRadius: 10, background: '#FFF', textAlign: 'center' } as any}><div style={{ fontSize: 8, color: '#9CA3AF', fontWeight: 700, textTransform: 'uppercase' }}>FC repos</div><div style={{ fontSize: 14, fontWeight: 900, color: '#111', marginTop: 2 }}>{hr > 0 ? `${hr} bpm` : '--'}</div></div>
+                  <div style={{ flex: 1, padding: '8px 10px', borderRadius: 10, background: '#FFF', textAlign: 'center' } as any}><div style={{ fontSize: 8, color: '#9CA3AF', fontWeight: 700, textTransform: 'uppercase' }}>Stress</div><div style={{ fontSize: 14, fontWeight: 900, color: stress > 60 ? '#EF4444' : stress > 40 ? A : G, marginTop: 2 }}>{stress > 0 ? `${stress}/100` : '--'}</div></div>
                 </div>
               </div>
 
               {/* ── CARTE VO2 MAX ── */}
               <div data-testid="card-vo2" style={{ borderRadius: 18, background: '#F4F4F5', padding: '16px 18px', marginBottom: 14 } as any}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 } as any}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 14 } as any}>
                   <i className="ri-lungs-line" style={{ fontSize: 14, color: vo2Col }} />
                   <span style={{ fontSize: 13, fontWeight: 800, color: '#111' }}>VO2 Max</span>
-                  <span style={{ marginLeft: 'auto' } as any} />
-                  <div onClick={() => setExplainMetric('vo2')} style={{ width: 28, height: 28, borderRadius: 999, background: '#FFF', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', flexShrink: 0 } as any}><i className="ri-information-line" style={{ fontSize: 14, color: vo2Col }} /></div>
+                  <div onClick={() => setExplainMetric('vo2')} style={{ width: 28, height: 28, borderRadius: 999, background: '#FFF', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', flexShrink: 0, marginLeft: 'auto' } as any}><i className="ri-information-line" style={{ fontSize: 14, color: vo2Col }} /></div>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 16 } as any}>
-                  <GaugeRing pct={vo2 > 0 ? Math.min(100, (vo2 / 50) * 100) : 0} color={vo2Col}>
-                    <span style={{ fontSize: 16, fontWeight: 900, color: vo2 > 0 ? vo2Col : '#D1D5DB' }}>{vo2 > 0 ? vo2 : '--'}</span>
+                  <GaugeRing pct={vo2 > 0 ? Math.min(100, (vo2 / 60) * 100) : 0} color={vo2Col} size={72}>
+                    <span style={{ fontSize: 20, fontWeight: 900, color: vo2 > 0 ? vo2Col : '#D1D5DB' }}>{vo2 > 0 ? vo2 : '--'}</span>
                   </GaugeRing>
                   <div style={{ flex: 1 } as any}>
-                    <div style={{ fontSize: 13, fontWeight: 800, color: '#111' }}>Capacite aerobique</div>
-                    <div style={{ display: 'inline-flex', alignItems: 'center', gap: 4, padding: '2px 8px', borderRadius: 999, background: `${vo2Col}15`, marginTop: 4 } as any}><span style={{ fontSize: 10, fontWeight: 700, color: vo2Col }}>{vo2Label}</span><span style={{ fontSize: 8, color: '#9CA3AF' }}>ml/kg/min</span></div>
+                    <div style={{ display: 'inline-flex', alignItems: 'center', gap: 4, padding: '3px 10px', borderRadius: 999, background: `${vo2Col}15`, marginBottom: 8 } as any}>
+                      <span style={{ fontSize: 12, fontWeight: 700, color: vo2Col }}>{vo2Label}</span>
+                      <span style={{ fontSize: 10, color: '#9CA3AF' }}>ml/kg/min</span>
+                    </div>
+                    <div style={{ fontSize: 12, color: '#6B7280', lineHeight: 1.6 }}>
+                      {vo2 >= 40 ? 'Votre capacite aerobique est excellente pour votre age.' : vo2 >= 30 ? 'Bonne capacite aerobique. Continuez vos efforts.' : vo2 >= 20 ? 'Capacite aerobique moyenne. L\'exercice regulier l\'ameliorera.' : vo2 > 0 ? 'Capacite aerobique a ameliorer. La marche quotidienne vous aidera.' : 'Mesure en attente de donnees suffisantes.'}
+                    </div>
                   </div>
                 </div>
-                {avgs.vo2_max?.['7j'] != null && (
-                  <div style={{ marginTop: 10, display: 'flex', alignItems: 'center', gap: 6, padding: '6px 10px', borderRadius: 10, background: '#FFF' } as any}>
-                    <i className="ri-line-chart-line" style={{ fontSize: 12, color: vo2Col }} />
-                    <span style={{ fontSize: 10, fontWeight: 700, color: '#6B7280' }}>Moy. {'7j'}</span>
-                    <span style={{ fontSize: 13, fontWeight: 900, color: vo2Col, marginLeft: 'auto' }}>{avgs.vo2_max['7j']} ml/kg/min</span>
+                {/* VO2 scale visualization */}
+                <div style={{ marginTop: 12, padding: '10px 12px', borderRadius: 12, background: '#FFF' } as any}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 2, marginBottom: 6 } as any}>
+                    {[
+                      { label: 'Faible', max: 20, color: R },
+                      { label: 'Moyen', max: 30, color: A },
+                      { label: 'Bon', max: 40, color: CY },
+                      { label: 'Excellent', max: 60, color: G },
+                    ].map((zone, i) => (
+                      <div key={i} style={{ flex: 1, height: 6, borderRadius: 3, background: `${zone.color}30`, position: 'relative', overflow: 'hidden' } as any}>
+                        {vo2 > 0 && vo2 >= (i === 0 ? 0 : [0, 20, 30, 40][i]) && vo2 <= zone.max && (
+                          <div style={{ position: 'absolute', left: `${((vo2 - (i === 0 ? 0 : [0, 20, 30, 40][i])) / (zone.max - (i === 0 ? 0 : [0, 20, 30, 40][i]))) * 100}%`, top: -3, width: 12, height: 12, borderRadius: 6, background: zone.color, border: '2px solid #FFF', transform: 'translateX(-50%)' } as any} />
+                        )}
+                      </div>
+                    ))}
                   </div>
-                )}
+                  <div style={{ display: 'flex', justifyContent: 'space-between' } as any}>
+                    {['Faible', 'Moyen', 'Bon', 'Excellent'].map((l, i) => (
+                      <span key={i} style={{ fontSize: 8, color: '#9CA3AF', fontWeight: 600 }}>{l}</span>
+                    ))}
+                  </div>
+                </div>
               </div>
 
               {/* ── EXERCICES DU JOUR — Section avec titre/sous-titre/bouton + ── */}
