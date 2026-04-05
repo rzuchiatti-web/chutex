@@ -75,19 +75,32 @@ export function parseV8Response(bytes: number[]): { cmd: number; raw_hex?: strin
 
   // 0x14: Real-time temperature (3-NTC sensor)
   // Format: [cmd, tempLo, tempHi, axLo, axHi, ...]
-  // temp = (tempLo + tempHi*256) / 10.0
+  // temp = (tempLo + tempHi*256) / 10.0 — this is WRIST temperature
+  // Body temperature = wrist temp + offset (~3°C for wrist sensors)
   if (cmd === V8_CMD.TEMPERATURE && bytes.length >= 3) {
     const tempRaw = bytes[1] + (bytes[2] << 8);
-    const temp = tempRaw / 10.0;
-    if (temp >= 34.0 && temp <= 42.0) {
-      parsed.temperature = Math.round(temp * 10) / 10;
+    const wristTemp = tempRaw / 10.0;
+    // V8 bracelet returns wrist/skin temperature (typically 30-35°C)
+    // Convert to estimated body temperature using standard medical offset
+    const WRIST_TO_BODY_OFFSET = 3.0;
+    if (wristTemp >= 28.0 && wristTemp <= 38.0) {
+      const bodyTemp = Math.round((wristTemp + WRIST_TO_BODY_OFFSET) * 10) / 10;
+      if (bodyTemp >= 35.0 && bodyTemp <= 42.0) {
+        parsed.temperature = bodyTemp;
+        parsed.wrist_temperature = Math.round(wristTemp * 10) / 10;
+      }
     }
-    // Axillary temperature (bytes 3-4, BCD encoded)
+    // Axillary temperature (bytes 3-4, if available and valid)
     if (bytes.length >= 5 && bytes[3] > 0) {
-      const axHex = ((bytes[3] & 0xFF) << 8) | (bytes[4] & 0xFF);
-      const axStr = axHex.toString(16);
-      const axTemp = parseInt(axStr, 10) / 10.0;
-      if (axTemp >= 34.0 && axTemp <= 42.0) {
+      const axRaw = bytes[3] + (bytes[4] << 8);
+      const axTemp = axRaw / 10.0;
+      if (axTemp >= 28.0 && axTemp <= 38.0) {
+        const axBody = Math.round((axTemp + WRIST_TO_BODY_OFFSET) * 10) / 10;
+        if (axBody >= 35.0 && axBody <= 42.0) {
+          parsed.axillary_temperature = axBody;
+        }
+      } else if (axTemp >= 35.0 && axTemp <= 42.0) {
+        // Direct body temp reading (some V8 firmwares convert internally)
         parsed.axillary_temperature = Math.round(axTemp * 10) / 10;
       }
     }
