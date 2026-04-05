@@ -73,7 +73,7 @@ export default function TeamActivityToast({ token }: Props) {
 
   const toastContent = (
     <div data-testid="team-activity-toast" style={{
-      position: 'fixed', top: 16, left: '50%', transform: `translateX(-50%) translateY(${visible ? 0 : -100}px)`,
+      position: 'fixed', top: 76, left: '50%', transform: `translateX(-50%) translateY(${visible ? 0 : -100}px)`,
       zIndex: 2147483647, opacity: visible ? 1 : 0,
       transition: 'transform 400ms cubic-bezier(0.34, 1.56, 0.64, 1), opacity 400ms ease',
       pointerEvents: visible ? 'auto' : 'none',

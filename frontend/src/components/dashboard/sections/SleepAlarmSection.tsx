@@ -86,7 +86,7 @@ export function SleepAlarmSection({ sleepAlarm, alarmTime, setAlarmTime, editing
       {/* ── GLASS POPUP ── */}
       {editingAlarm && (
         <div data-testid="sleep-popup" onClick={() => setEditingAlarm(false)} style={{ position: 'fixed', inset: 0, zIndex: 99990, backdropFilter: 'blur(32px)', WebkitBackdropFilter: 'blur(32px)', background: 'rgba(0,0,0,0.78)', overflowY: 'auto', WebkitOverflowScrolling: 'touch' } as any}>
-          <div onClick={(e: any) => e.stopPropagation()} style={{ width: '100%', maxWidth: 400, margin: '0 auto', padding: '24px 20px 40px', boxSizing: 'border-box' } as any}>
+          <div onClick={(e: any) => e.stopPropagation()} style={{ width: '100%', maxWidth: 400, margin: '0 auto', padding: '70px 20px 40px', boxSizing: 'border-box' } as any}>
 
             {/* Close */}
             <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 12 } as any}>

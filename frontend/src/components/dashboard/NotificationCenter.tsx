@@ -116,7 +116,7 @@ export function NotificationBanner({ notification, onDismiss }: { notification: 
 
   return (
     <div data-testid="notification-banner" style={{
-      position: 'fixed', top: 12, left: '50%', transform: 'translateX(-50%)', zIndex: 99999,
+      position: 'fixed', top: 76, left: '50%', transform: 'translateX(-50%)', zIndex: 99999,
       width: '90%', maxWidth: 380,
       animation: 'notif-slide-in 0.4s cubic-bezier(0.34,1.56,0.64,1)',
     } as any}>

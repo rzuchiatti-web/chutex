@@ -398,7 +398,7 @@ export default function GlycemiaDetailPage() {
         return (
           <div data-testid="glycemia-explain-popup" onClick={() => setExplainKey(null)} style={{ position: 'fixed', inset: 0, zIndex: 9999, backdropFilter: 'blur(48px)', WebkitBackdropFilter: 'blur(48px)', background: 'rgba(0,0,0,0.82)', overflowY: 'auto', animation: 'popIn 0.3s ease' } as any}>
             <div onClick={(ev: any) => ev.stopPropagation()} style={{ width: '100%', maxWidth: 400, margin: '0 auto', padding: '50px 28px 120px', boxSizing: 'border-box' } as any}>
-              <div onClick={() => setExplainKey(null)} style={{ position: 'absolute', top: 20, right: 20, width: 40, height: 40, borderRadius: 999, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}>
+              <div onClick={() => setExplainKey(null)} style={{ position: 'absolute', top: 70, right: 20, width: 40, height: 40, borderRadius: 999, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}>
                 <i className="ri-close-line" style={{ fontSize: 22, color: '#FFF' }} />
               </div>
               {/* Icon + Title */}

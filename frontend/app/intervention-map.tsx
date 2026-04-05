@@ -173,11 +173,11 @@ export default function InterventionMapScreen() {
       {/* MAP — fills entire screen */}
       <div style={{ position: 'absolute', inset: 0, zIndex: 1 } as any}>
         <div id="intervention-map-container" style={{ width: '100%', height: '100%' } as any} />
-        <div onClick={() => router.back()} data-testid="map-back-btn" style={{ position: 'absolute', top: 16, left: 16, width: 44, height: 44, borderRadius: 999, background: '#FFF', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', boxShadow: '0 4px 16px rgba(0,0,0,0.3)', zIndex: 1000 } as any}>
+        <div onClick={() => router.back()} data-testid="map-back-btn" style={{ position: 'absolute', top: 70, left: 16, width: 44, height: 44, borderRadius: 999, background: '#FFF', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', boxShadow: '0 4px 16px rgba(0,0,0,0.3)', zIndex: 1000 } as any}>
           <i className="ri-arrow-left-s-line" style={{ fontSize: 22, color: '#111' }} />
         </div>
         {/* Dark/Light toggle */}
-        <div onClick={() => setDarkMap(!darkMap)} style={{ position: 'absolute', top: 16, right: 16, width: 44, height: 44, borderRadius: 999, background: darkMap ? '#FFF' : '#111', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', boxShadow: '0 4px 16px rgba(0,0,0,0.3)', zIndex: 1000 } as any}>
+        <div onClick={() => setDarkMap(!darkMap)} style={{ position: 'absolute', top: 70, right: 16, width: 44, height: 44, borderRadius: 999, background: darkMap ? '#FFF' : '#111', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', boxShadow: '0 4px 16px rgba(0,0,0,0.3)', zIndex: 1000 } as any}>
           <i className={darkMap ? 'ri-sun-line' : 'ri-moon-line'} style={{ fontSize: 20, color: darkMap ? '#111' : '#FFF' }} />
         </div>
       </div>

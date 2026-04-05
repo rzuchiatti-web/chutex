@@ -13,7 +13,7 @@ export default function TeleconsultDoctorPage() {
   if (Platform.OS !== 'web') return null;
   return (
     <div style={{ position: 'absolute', inset: 0 } as any}>
-      <div data-testid="teleconsult-back-btn" onClick={() => router.back()} style={{ position: 'fixed', top: 16, left: 16, zIndex: 9999, width: 40, height: 40, borderRadius: 999, background: 'rgba(255,255,255,0.9)', boxShadow: '0 2px 12px rgba(0,0,0,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', backdropFilter: 'blur(12px)' } as any}>
+      <div data-testid="teleconsult-back-btn" onClick={() => router.back()} style={{ position: 'fixed', top: 70, left: 16, zIndex: 9999, width: 40, height: 40, borderRadius: 999, background: 'rgba(255,255,255,0.9)', boxShadow: '0 2px 12px rgba(0,0,0,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', backdropFilter: 'blur(12px)' } as any}>
         <i className="ri-arrow-left-line" style={{ fontSize: 18, color: '#111' }} />
       </div>
       <BeneficiaryTeleconsult token={token} />
