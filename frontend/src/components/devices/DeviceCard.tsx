@@ -24,7 +24,7 @@ export function DeviceCard({ deviceType: dt, device, subscription, weighings, on
 
   const statusLabel = dt === 'vest'
     ? (vestActive ? 'En marche' : isAssociated ? 'En veille' : '')
-    : (realConnected ? 'Connecte' : isAssociated ? 'Appaire' : '');
+    : (realConnected ? 'Connecte' : isAssociated ? 'En veille' : '');
   const statusActive = dt === 'vest' ? vestActive : realConnected;
 
   return (
@@ -59,6 +59,11 @@ export function DeviceCard({ deviceType: dt, device, subscription, weighings, on
             </>
           )}
           <div style={{ display: 'flex', gap: 8, marginTop: 12 } as any}>
+            {dt === 'bracelet' && !realConnected && isAssociated && (
+              <div data-testid="bracelet-reconnect-btn" onClick={() => onStartPairing(dt)} style={{ flex: 1, padding: '12px 14px', borderRadius: 999, cursor: 'pointer', background: 'linear-gradient(135deg, #F59E0B, #D97706)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, fontSize: 13, fontWeight: 700, color: '#FFF' } as any}>
+                <i className="ri-bluetooth-connect-line" style={{ fontSize: 14 }} />Reconnecter
+              </div>
+            )}
             {dt === 'bracelet' && (
               <div data-testid="bracelet-ecg-btn" onClick={() => router.push('/ecg' as any)} style={{ flex: 1, padding: '12px 14px', borderRadius: 999, cursor: 'pointer', background: '#111', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 13, fontWeight: 700, color: '#FFF' } as any}>
                 ECG

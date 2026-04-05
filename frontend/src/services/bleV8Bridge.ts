@@ -392,15 +392,42 @@ export function scanAndConnect(
   webViewRef: React.RefObject<any>,
   bleDeviceRef: React.MutableRefObject<any>,
   blePollRef: React.MutableRefObject<any>,
+  options?: { silent?: boolean; knownDeviceId?: string; scanTimeout?: number },
 ) {
   let found = false;
   const nameFilter = BLE_NAME_FILTERS[deviceType];
   const isBracelet = deviceType === 'bracelet';
+  const silent = options?.silent || false;
+  const scanTimeout = options?.scanTimeout || 30000;
+
+  const notifyWebView = (js: string) => {
+    if (!silent) webViewRef.current?.injectJavaScript(js);
+  };
+
+  // Try direct connection by known device ID first (faster than scanning)
+  const tryDirectConnect = async (deviceId: string): Promise<boolean> => {
+    try {
+      const device = await manager.connectToDevice(deviceId, { timeout: 10000 });
+      if (device) {
+        found = true;
+        await device.discoverAllServicesAndCharacteristics();
+        const name = device.name || device.localName || 'Bracelet';
+        notifyWebView(
+          `window.dispatchEvent(new CustomEvent('ble_result',{detail:{success:true,name:'${name.replace(/'/g, '')}',id:'${deviceId.replace(/'/g, '')}'}}));true;`
+        );
+        if (isBracelet) {
+          await startBraceletProtocol(device, webViewRef, bleDeviceRef, blePollRef);
+        }
+        return true;
+      }
+    } catch {}
+    return false;
+  };
 
   const startScan = () => {
     manager.startDeviceScan(null, null, async (error: any, device: any) => {
       if (error) {
-        webViewRef.current?.injectJavaScript(
+        notifyWebView(
           `window.dispatchEvent(new CustomEvent('ble_result',{detail:{error:'${error.message?.replace(/'/g, '')}'}}));true;`
         );
         return;
@@ -414,29 +441,43 @@ export function scanAndConnect(
         try {
           const connected = await device.connect();
           await connected.discoverAllServicesAndCharacteristics();
-          webViewRef.current?.injectJavaScript(
+          notifyWebView(
             `window.dispatchEvent(new CustomEvent('ble_result',{detail:{success:true,name:'${name.replace(/'/g, '')}',id:'${(device.id || '').replace(/'/g, '')}'}}));true;`
           );
           if (isBracelet) {
             await startBraceletProtocol(connected, webViewRef, bleDeviceRef, blePollRef);
           }
         } catch (e: any) {
-          webViewRef.current?.injectJavaScript(
+          notifyWebView(
             `window.dispatchEvent(new CustomEvent('ble_result',{detail:{error:'Connexion echouee: ${(e.message || '').replace(/'/g, '')}'}}));true;`
           );
         }
       }
     });
-    // Timeout after 20s
+    // Timeout
     setTimeout(() => {
       if (!found) {
         manager.stopDeviceScan();
-        webViewRef.current?.injectJavaScript(
+        notifyWebView(
           `window.dispatchEvent(new CustomEvent('ble_result',{detail:{error:'Appareil non trouve. Verifiez qu\\'il est allume et a proximite.'}}));true;`
         );
       }
-    }, 20000);
+    }, scanTimeout);
   };
+
+  // If we have a known device ID, try direct connection first
+  if (options?.knownDeviceId) {
+    tryDirectConnect(options.knownDeviceId).then(success => {
+      if (!success) {
+        // Fall back to scanning
+        const sub = manager.onStateChange((state: string) => {
+          if (state === 'PoweredOn') { sub.remove(); startScan(); }
+        }, true);
+        setTimeout(() => { sub.remove(); if (!found) manager.state().then((s: string) => { if (s === 'PoweredOn') startScan(); }).catch(() => {}); }, 3000);
+      }
+    });
+    return;
+  }
 
   // Wait for Bluetooth to be powered on
   const sub = manager.onStateChange((state: string) => {
@@ -449,7 +490,7 @@ export function scanAndConnect(
     if (!found) {
       manager.state().then((s: string) => {
         if (s === 'PoweredOn') startScan();
-        else webViewRef.current?.injectJavaScript(
+        else notifyWebView(
           `window.dispatchEvent(new CustomEvent('ble_result',{detail:{error:'Bluetooth desactive. Activez-le dans les Reglages.'}}));true;`
         );
       }).catch(() => {});

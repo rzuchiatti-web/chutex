@@ -64,13 +64,24 @@ function NativeFullApp() {
   const attemptAutoReconnect = () => {
     if (bleDeviceRef.current) return;
     
-    // Directly attempt to scan and connect without checking API first
-    // This is more reliable than depending on the WebView's fetch to the API
     const manager = getBleManager();
-    if (manager) {
-      const { scanAndConnect } = require('../src/services/bleV8Bridge');
-      scanAndConnect(manager, 'bracelet', webViewRef, bleDeviceRef, blePollRef);
-    }
+    if (!manager) return;
+
+    // Try to get the known device MAC from the WebView (stored in device doc)
+    webViewRef.current?.injectJavaScript(`
+      (function(){
+        var t = localStorage.getItem('vl_token') || localStorage.getItem('@AsyncStorage:vl_token') || '';
+        if(!t) return;
+        fetch('/api/bracelet/status',{headers:{'Authorization':'Bearer '+t}})
+          .then(function(r){return r.json()})
+          .then(function(d){
+            if(d && d.paired && d.device){
+              var mac = d.device.ble_device_id || d.device.mac_address || '';
+              window.ReactNativeWebView.postMessage(JSON.stringify({action:'ble_auto_reconnect', mac: mac}));
+            }
+          }).catch(function(){});
+      })(); true;
+    `);
   };
 
   // Retry auto-reconnect periodically (every 30s if not connected)
@@ -115,7 +126,12 @@ function NativeFullApp() {
         const manager = getBleManager();
         if (manager && !bleDeviceRef.current) {
           const { scanAndConnect } = require('../src/services/bleV8Bridge');
-          scanAndConnect(manager, 'bracelet', webViewRef, bleDeviceRef, blePollRef);
+          const knownMac = msg.mac || '';
+          scanAndConnect(manager, 'bracelet', webViewRef, bleDeviceRef, blePollRef, {
+            silent: true,
+            knownDeviceId: knownMac || undefined,
+            scanTimeout: 30000,
+          });
         }
         return;
       }
