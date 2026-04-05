@@ -150,7 +150,7 @@ export default function ChatIAScreen() {
       } as any} src={NORA_VIDEO} />
 
       {/* Top bar */}
-      <div style={{ position: 'relative', zIndex: 10, padding: '16px 20px', flexShrink: 0, display: 'flex', justifyContent: 'space-between', alignItems: 'center' } as any}>
+      <div style={{ position: 'relative', zIndex: 10, padding: '70px 20px 16px', flexShrink: 0, display: 'flex', justifyContent: 'space-between', alignItems: 'center' } as any}>
         <div onClick={() => router.back()} data-testid="chat-back" style={{ width: 38, height: 38, borderRadius: '50%', background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}>
           <i className="ri-arrow-left-s-line" style={{ fontSize: 22, color: '#FFF' }} />
         </div>

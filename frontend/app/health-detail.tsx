@@ -291,7 +291,6 @@ export default function HealthDetailScreen() {
                   {nightData && <SleepQualityCard nightQuality={nightQuality} onExplain={setExplainSleep} />}
                   {nightData && <SleepApneaCard nightApnea={nightApnea} onExplain={setExplainSleep} />}
                   {nightData && <SleepDebtCard nightDuration={nightDuration} nightAwakeMin={nightAwakeMin} sleepData={sleepData} sleepNeedMin={sleepNeedMin} onExplain={setExplainSleep} />}
-                  {sleepData && Array.isArray(sleepData) && sleepData.length >= 2 && <SleepRegularityCard sleepData={sleepData} onExplain={setExplainSleep} />}
                 </>
               );
             })()}

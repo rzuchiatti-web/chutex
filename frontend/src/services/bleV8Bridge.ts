@@ -82,7 +82,7 @@ export function parseV8Response(bytes: number[]): { cmd: number; raw_hex?: strin
     const wristTemp = tempRaw / 10.0;
     // V8 bracelet returns wrist/skin temperature (typically 30-35°C)
     // Convert to estimated body temperature using standard medical offset
-    const WRIST_TO_BODY_OFFSET = 3.0;
+    const WRIST_TO_BODY_OFFSET = 3.3;
     if (wristTemp >= 28.0 && wristTemp <= 38.0) {
       const bodyTemp = Math.round((wristTemp + WRIST_TO_BODY_OFFSET) * 10) / 10;
       if (bodyTemp >= 35.0 && bodyTemp <= 42.0) {

@@ -956,6 +956,9 @@ async def push_v8_data(request_body: dict, user=Depends(get_current_user)):
 
     await db.device_readings.insert_one(reading)
 
+    # Invalidate daily report cache so next page load shows fresh data
+    await db.daily_report_cache.delete_many({"user_id": uid})
+
     # Consolidated reading for health report compatibility
     consolidated = {}
     if data_type == "heart_rate":
