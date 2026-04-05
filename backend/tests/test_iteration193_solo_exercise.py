@@ -7,7 +7,7 @@ import pytest
 import requests
 import os
 
-BASE_URL = os.environ.get('EXPO_PUBLIC_BACKEND_URL', 'https://build-103-preview.preview.emergentagent.com')
+BASE_URL = os.environ.get('EXPO_PUBLIC_BACKEND_URL', 'https://elio-v8-biometric.preview.emergentagent.com')
 
 # Test credentials from test_credentials.md
 BENEFICIARY_PHONE = "+33651245918"
