@@ -29,6 +29,7 @@ export const V8_CMD = {
   VIBRATE: 0x36,
   GLUCOSE: 0x78, // V8 SDK: CMD_Get_Bloodsugar (PPG-based, triggers 5-min measurement)
   GLUCOSE_DATA: 0x3a, // V8 SDK: Bloodsugar_data (raw PPG waveform)
+  STEP_HISTORY: 0x51, // Historical steps per day
   STEP_DETAIL: 0x52,
   SLEEP: 0x53,
   HR_HISTORY: 0x54,
@@ -319,6 +320,26 @@ export function parseV8Response(bytes: number[]): { cmd: number; raw_hex?: strin
     }
   }
 
+  // 0x51: Historical daily step data — per V8 SDK
+  // Response: [cmd, yearLo, yearHi, month, day, stepsB0, stepsB1, stepsB2, stepsB3, calB0, calB1, calB2, calB3, distB0, distB1, distB2, distB3, ...]
+  if (cmd === V8_CMD.STEP_HISTORY && bytes.length >= 9) {
+    const year = bytes[1] | (bytes[2] << 8);
+    const month = bytes[3];
+    const day = bytes[4];
+    if (year >= 2024 && month >= 1 && month <= 12 && day >= 1 && day <= 31) {
+      parsed.history_date = `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+      parsed.steps = bytes[5] | (bytes[6] << 8) | (bytes[7] << 16) | ((bytes.length > 8 ? bytes[8] : 0) << 24);
+      if (bytes.length >= 13) {
+        const calRaw = bytes[9] | (bytes[10] << 8) | (bytes[11] << 16) | (bytes[12] << 24);
+        parsed.calories = Math.round(calRaw / 100 * 10) / 10;
+      }
+      if (bytes.length >= 17) {
+        parsed.distance_m = bytes[13] | (bytes[14] << 8) | (bytes[15] << 16) | (bytes[16] << 24);
+      }
+      parsed.is_history = true;
+    }
+  }
+
   // 0x52: Detailed step data (historical)
   if (cmd === V8_CMD.STEP_DETAIL && bytes.length >= 6) {
     parsed.steps = bytes[1] | (bytes[2] << 8) | (bytes[3] << 16);
@@ -348,6 +369,7 @@ export function cmdToDataType(cmd: number): string {
     case V8_CMD.BATTERY: return 'battery';
     case V8_CMD.TEMPERATURE: return 'temperature';
     case V8_CMD.STEPS: return 'steps';
+    case V8_CMD.STEP_HISTORY: return 'step_history';
     case V8_CMD.STEP_DETAIL: return 'steps';
     case V8_CMD.VITALS: return 'heart_rate';
     case V8_CMD.GLUCOSE: return 'blood_glucose';

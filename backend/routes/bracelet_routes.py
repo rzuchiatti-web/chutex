@@ -854,6 +854,12 @@ async def push_v8_data(request_body: dict, user=Depends(get_current_user)):
     elif data_type == "temperature":
         if raw_data.get("temperature", 0) > 30:
             update_fields["last_temperature"] = raw_data["temperature"]
+    elif data_type == "step_history":
+        # Historical daily steps from 0x51 — store with the original date
+        hist_date = raw_data.get("history_date", "")
+        if raw_data.get("steps", 0) > 0 and hist_date:
+            reading["timestamp"] = f"{hist_date}T23:59:00+00:00"
+            reading["data_type"] = "steps"
     elif data_type == "steps":
         if raw_data.get("steps", 0) > 0:
             update_fields["last_steps"] = raw_data["steps"]
