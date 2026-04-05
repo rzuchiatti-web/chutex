@@ -24,6 +24,7 @@ export const V8_CMD = {
   TIME_SYNC: 0x01,
   STEPS: 0x09,
   BATTERY: 0x13,
+  TEMPERATURE: 0x14,
   VITALS: 0x28,
   VIBRATE: 0x36,
   GLUCOSE: 0x50,
@@ -32,6 +33,7 @@ export const V8_CMD = {
   HR_HISTORY: 0x54,
   HR_SINGLE: 0x55,
   HRV_DATA: 0x56,
+  TEMP_HISTORY: 0x62,
   SPO2_AUTO: 0x66,
 } as const;
 
@@ -68,6 +70,26 @@ export function parseV8Response(bytes: number[]): { cmd: number; raw_hex?: strin
   // 0x13: Battery level (AA = 0-100%)
   if (cmd === V8_CMD.BATTERY && bytes.length >= 2) {
     parsed.battery = bytes[1];
+  }
+
+  // 0x14: Real-time temperature (3-NTC sensor)
+  // Format: [cmd, tempLo, tempHi, axLo, axHi, ...]
+  // temp = (tempLo + tempHi*256) / 10.0
+  if (cmd === V8_CMD.TEMPERATURE && bytes.length >= 3) {
+    const tempRaw = bytes[1] + (bytes[2] << 8);
+    const temp = tempRaw / 10.0;
+    if (temp >= 34.0 && temp <= 42.0) {
+      parsed.temperature = Math.round(temp * 10) / 10;
+    }
+    // Axillary temperature (bytes 3-4, BCD encoded)
+    if (bytes.length >= 5 && bytes[3] > 0) {
+      const axHex = ((bytes[3] & 0xFF) << 8) | (bytes[4] & 0xFF);
+      const axStr = axHex.toString(16);
+      const axTemp = parseInt(axStr, 10) / 10.0;
+      if (axTemp >= 34.0 && axTemp <= 42.0) {
+        parsed.axillary_temperature = Math.round(axTemp * 10) / 10;
+      }
+    }
   }
 
   // 0x09: Real-time step data (little-endian 4-byte fields)
@@ -237,6 +259,7 @@ export function decodeBase64ToBytes(raw: string): number[] {
 export function cmdToDataType(cmd: number): string {
   switch (cmd) {
     case V8_CMD.BATTERY: return 'battery';
+    case V8_CMD.TEMPERATURE: return 'temperature';
     case V8_CMD.STEPS: return 'steps';
     case V8_CMD.STEP_DETAIL: return 'steps';
     case V8_CMD.VITALS: return 'heart_rate';
@@ -245,6 +268,7 @@ export function cmdToDataType(cmd: number): string {
     case V8_CMD.HR_HISTORY: return 'heart_rate';
     case V8_CMD.HR_SINGLE: return 'heart_rate';
     case V8_CMD.HRV_DATA: return 'heart_rate';
+    case V8_CMD.TEMP_HISTORY: return 'temperature';
     case V8_CMD.SPO2_AUTO: return 'spo2';
     default: return 'realtime';
   }
@@ -300,8 +324,10 @@ export async function sendInitialCommands(device: any) {
   setTimeout(() => writeToDevice(device, V8_CMD.STEPS, [1, 1]), 6000);
   // Blood glucose
   setTimeout(() => writeToDevice(device, V8_CMD.GLUCOSE), 6500);
-  // Temperature (0x26 — 3-NTC sensor, may require skin contact)
-  setTimeout(() => writeToDevice(device, 0x26, []), 7000);
+  // Temperature (0x14 — 3-NTC sensor, per V8 SDK)
+  setTimeout(() => writeToDevice(device, V8_CMD.TEMPERATURE), 7000);
+  // Temperature history (0x62)
+  setTimeout(() => writeToDevice(device, V8_CMD.TEMP_HISTORY, [0]), 7200);
 
   // Historical data: request past 3 days of steps (0x51 with date)
   for (let daysAgo = 0; daysAgo < 3; daysAgo++) {
@@ -414,6 +440,7 @@ export function startBleMonitoring(
       setTimeout(() => writeToDevice(device, V8_CMD.VITALS, [3, 1]), 600);
       setTimeout(() => writeToDevice(device, V8_CMD.GLUCOSE), 800);
       setTimeout(() => writeToDevice(device, V8_CMD.SLEEP, [0]), 1000);
+      setTimeout(() => writeToDevice(device, V8_CMD.TEMPERATURE), 1200);
       injectPendingCommandsCheck(webViewRef);
     } catch { clearInterval(fullPollId); }
   }, 30000);
