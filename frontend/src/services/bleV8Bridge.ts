@@ -27,7 +27,8 @@ export const V8_CMD = {
   TEMPERATURE: 0x14,
   VITALS: 0x28,
   VIBRATE: 0x36,
-  GLUCOSE: 0x50,
+  GLUCOSE: 0x78, // V8 SDK: CMD_Get_Bloodsugar (PPG-based, triggers 5-min measurement)
+  GLUCOSE_DATA: 0x3a, // V8 SDK: Bloodsugar_data (raw PPG waveform)
   STEP_DETAIL: 0x52,
   SLEEP: 0x53,
   HR_HISTORY: 0x54,
