@@ -1,41 +1,36 @@
 # Chutex Care - PRD
 
-## Build 114+ v2 (2026-04-05) — Corrections completes Post-TestFlight
+## Build 120+ (2026-04-05) — Corrections massives post-retour utilisateur
 
-### Corrections cette session :
+### Corrections cette session (2026-04-05):
 
-**VO2 Max (calibree WHOOP):**
-- Base multiplier 13.5 (calibre contre WHOOP du user = 40)
-- HRV correction: 0.03/ms, cap +/-2. Gender: +1.5
-- Resultat: 40.4 ml/kg/min
+**Sommeil — Coherence des donnees:**
+- Daily-report utilisait des valeurs corrompues du device doc (deep=180, light=890, rem=268 = 1338min)
+- Fix: Cap a 720min max pour les phases. Fallback vers les readings reelles (cmd=0x53) si le device doc est corrompu
+- SleepCard utilise desormais la somme des phases (deep+light+rem) au lieu de sleep_duration_min brut
+- Resultat: Carte et page detail affichent tous les deux ~9h41
 
-**Temperature — logique stricte:**
-- N'affiche QUE mesures recentes (<24h) + verifie existence reading du jour
-- Si pas de mesure aujourd'hui: "--"
-- La commande 0x14 est envoyee au bracelet pendant la synchro (capteur 3-NTC)
+**Sommeil — Hypnogramme correct:**
+- Le SleepHypnogram utilisait INTERVAL=5 (5min par stage) pour des stages minute-par-minute (581 stages)
+- Fix: INTERVAL dynamique (1 si >200 stages, 5 sinon)
+- Resultat: Les heures de coucher/lever sont maintenant correctes (4h20 -> 14:02)
 
-**Metric-history — refonte MongoDB aggregation:**
-- Pipeline aggregation au lieu de .to_list(500) — gere 8000+ readings
-- Filtre physiologique au niveau DB: HR 30-200, SpO2 60-100, temp 30-45, BP 60-250
-- Resultat: historique jour/jour fonctionne (2 points au lieu de 0)
+**Sommeil — Risque d'apnee recalibre:**
+- Ancienne formule: inter * 12 + (quality < 70 ? 20 : 0) = 92% pour 6 interruptions
+- Nouvelle formule: inter * 5 + (quality < 70 ? 15 : 0) + (quality < 50 ? 10 : 0) = 45%
+- Plus realiste cliniquement
 
-**Distance:** Calculee depuis pas (stride = height_cm * 0.00415)
-**Analysis Phase:** Aggregation MongoDB + jours calendaires (3/7)
-**Sommeil dates:** Validation BCD year >= 2024, fallback server timestamp
-**Glycemie:** Calibrations test supprimees, affichage toFixed(2) = 1.00 g/L
+**Sommeil — Carte Regularite restauree:**
+- SleepRegularityCard etait importee mais jamais rendue dans health-detail.tsx
+- Fix: Ajoutee au rendu de la page sommeil (visible avec >= 2 nuits de donnees)
 
-**UI Frontend:**
-- Header sante: textes blanc pur (opacite 0.75+)
-- ECG detail: 70px padding, retour → page Sante, carte Nora interactive + educative
-- Popup analyse: 70px close button
-- Glycemie: 1.00 g/L au lieu de "1"
-- Activite: calendrier charge donnees du jour, Recovery/VO2 redesignes
-- Sleep debt: message explicatif si < 2 nuits
+**UI — Padding 70px:**
+- Popup ajout exercice (activity-detail): padding 40px -> 70px
+- Popup info sommeil (health-detail): padding 50px -> 70px
 
-**Gilet (vest-connect):**
-- Connexion BLE migrée vers bridge natif iOS (postMessage ble_scan_vest)
-- Monitoring UART service après connexion (FFE0/NUS)
-- Web Bluetooth fallback conserve pour Chrome desktop
+**Bibliotheque exercices:**
+- La popup fonctionne correctement mais est vide car aucun modele de coach n'existe
+- Ce n'est pas un bug, c'est un etat attendu
 
 ## Architecture
 - Frontend: React Native _layout.tsx + WebView. BLE bridge: bleV8Bridge.ts
@@ -44,6 +39,7 @@
 
 ## Upcoming Tasks
 - P1: Configuration WiFi balance Lefu
+- P1: Verifier retours Build 120 (push notifications, gilet BLE, pas historiques)
 - P2: Deploiement production serveur TCP J2358
 - P2: Integration gilet connecte (data monitoring complet)
 - P2: Signature Electronique, Parrainage, Essai 7j, Vivoo
