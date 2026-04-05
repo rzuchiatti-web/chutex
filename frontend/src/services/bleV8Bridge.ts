@@ -92,12 +92,22 @@ export function parseV8Response(bytes: number[]): { cmd: number; raw_hex?: strin
     }
   }
 
-  // 0x09: Real-time step data (little-endian 4-byte fields)
-  if (cmd === V8_CMD.STEPS && bytes.length >= 14) {
+  // 0x09: Real-time step/activity data — per V8 SDK (ResolveUtil.getActivityData)
+  // Format: [cmd, step(4), cal(4), dist(4), time(4), exerciseTime(4), HR, tempLo, tempHi, ...]
+  if (cmd === V8_CMD.STEPS && bytes.length >= 22) {
     parsed.steps = bytes[1] | (bytes[2] << 8) | (bytes[3] << 16) | (bytes[4] << 24);
-    parsed.calories = ((bytes[5] | (bytes[6] << 8) | (bytes[7] << 16) | (bytes[8] << 24)) / 100);
+    const calRaw = bytes[5] | (bytes[6] << 8) | (bytes[7] << 16) | (bytes[8] << 24);
+    parsed.calories = Math.round(calRaw / 100 * 10) / 10;
     parsed.distance_m = bytes[9] | (bytes[10] << 8) | (bytes[11] << 16) | (bytes[12] << 24);
-    parsed.heart_rate = bytes[13];
+    parsed.active_minutes = bytes[13] | (bytes[14] << 8) | (bytes[15] << 16) | (bytes[16] << 24);
+    parsed.exercise_minutes = bytes[17] | (bytes[18] << 8) | (bytes[19] << 16) | (bytes[20] << 24);
+    const hr09 = bytes[21];
+    if (hr09 >= 30 && hr09 <= 200) parsed.heart_rate = hr09;
+    if (bytes.length >= 24) {
+      const tempRaw = bytes[22] | (bytes[23] << 8);
+      const temp = tempRaw / 10.0;
+      if (temp >= 34.0 && temp <= 42.0) parsed.temperature = Math.round(temp * 10) / 10;
+    }
   }
 
   // 0x28: Health measurement response
