@@ -296,6 +296,17 @@ export function injectDeviceAssociation(webViewRef: any, deviceId: string) {
 }
 
 
+/** Inject BLE connection status into WebView for UI feedback */
+export function injectBleStatus(webViewRef: any, status: 'scanning' | 'connecting' | 'connected' | 'disconnected' | 'error', detail?: string) {
+  const msg = JSON.stringify({ status, detail: detail || '' }).replace(/'/g, '');
+  webViewRef.current?.injectJavaScript(`
+    window.dispatchEvent(new CustomEvent('ble_connection_status',{detail:${msg}}));
+    window.__bleStatus = '${status}';
+    true;
+  `);
+}
+
+
 /** Check for pending vibration commands via WebView injection */
 export function injectPendingCommandsCheck(webViewRef: any) {
   webViewRef.current?.injectJavaScript(`
@@ -374,6 +385,9 @@ export async function startBraceletProtocol(
   bleDeviceRef.current = device;
   const safeId = (device.id || '').replace(/'/g, '');
 
+  // Notify WebView: connected
+  injectBleStatus(webViewRef, 'connected', device.name || 'Bracelet Elio');
+
   // Start notification monitoring + polling
   startBleMonitoring(device, webViewRef, blePollRef, bleDeviceRef);
 
@@ -407,13 +421,14 @@ export function scanAndConnect(
   // Try direct connection by known device ID first (faster than scanning)
   const tryDirectConnect = async (deviceId: string): Promise<boolean> => {
     try {
+      injectBleStatus(webViewRef, 'connecting', 'Connexion directe...');
       const device = await manager.connectToDevice(deviceId, { timeout: 10000 });
       if (device) {
         found = true;
         await device.discoverAllServicesAndCharacteristics();
-        const name = device.name || device.localName || 'Bracelet';
+        injectBleStatus(webViewRef, 'connected', device.name || 'Bracelet Elio');
         notifyWebView(
-          `window.dispatchEvent(new CustomEvent('ble_result',{detail:{success:true,name:'${name.replace(/'/g, '')}',id:'${deviceId.replace(/'/g, '')}'}}));true;`
+          `window.dispatchEvent(new CustomEvent('ble_result',{detail:{success:true,name:'${(device.name || 'Bracelet').replace(/'/g, '')}',id:'${deviceId.replace(/'/g, '')}'}}));true;`
         );
         if (isBracelet) {
           await startBraceletProtocol(device, webViewRef, bleDeviceRef, blePollRef);
@@ -425,6 +440,7 @@ export function scanAndConnect(
   };
 
   const startScan = () => {
+    injectBleStatus(webViewRef, 'scanning', 'Recherche du bracelet...');
     manager.startDeviceScan(null, null, async (error: any, device: any) => {
       if (error) {
         notifyWebView(
