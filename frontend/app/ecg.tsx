@@ -270,6 +270,25 @@ export default function ECGScreen() {
     const ecgResult = resultRef.current || {};
     const totalSamples = samplesRef.current;
 
+    // Determine rhythm and interpretation from bracelet ECG analysis
+    const avBlock = ecgResult.av_block || ecgResult.ecg_av_block || 0;
+    const resultVal = ecgResult.result_value || 0;
+    let rhythm = 'sinusal';
+    let status = 'normal';
+    let interpretation = 'Rythme sinusal normal';
+    
+    if (avBlock > 0) {
+      rhythm = 'av_block';
+      status = 'anomaly';
+      interpretation = `Bloc auriculo-ventriculaire detecte (grade ${avBlock}). Consultez un medecin.`;
+    } else if (resultVal === 1) {
+      status = 'low';
+      interpretation = 'Rythme cardiaque bas detecte. Surveillance recommandee.';
+    } else if (resultVal === 3) {
+      status = 'high';
+      interpretation = 'Rythme cardiaque eleve detecte. Reposez-vous et consultez si persistant.';
+    }
+
     let ecgId = 'ecg-' + Date.now();
     try {
       const res = await apiFetch('/api/ecg/start', {
@@ -277,17 +296,18 @@ export default function ECGScreen() {
         body: JSON.stringify({
           ecg_raw: totalSamples.slice(-7500),
           sample_rate: 250,
-          bpm: ecgResult.ecg_hr || liveHR || 0,
-          hrv: ecgResult.ecg_hrv || 0,
-          breath_rate: ecgResult.ecg_breath_rate || 0,
-          stress: ecgResult.ecg_stress || 0,
-          mood: ecgResult.ecg_mood || 0,
-          systolic: ecgResult.ecg_systolic || 0,
-          diastolic: ecgResult.ecg_diastolic || 0,
-          vascular_aging: ecgResult.ecg_vascular_aging || 0,
-          status: 'normal',
-          rhythm: 'sinusal',
-          interpretation: 'Rythme sinusal normal',
+          bpm: ecgResult.heart_rate || ecgResult.ecg_hr || liveHR || 0,
+          hrv: ecgResult.hrv || ecgResult.ecg_hrv || 0,
+          breath_rate: ecgResult.breath_rate || ecgResult.ecg_breath_rate || 0,
+          stress: ecgResult.stress || ecgResult.ecg_stress || 0,
+          mood: ecgResult.mood || ecgResult.ecg_mood || 0,
+          systolic: ecgResult.systolic || ecgResult.ecg_systolic || 0,
+          diastolic: ecgResult.diastolic || ecgResult.ecg_diastolic || 0,
+          vascular_aging: ecgResult.vascular_aging || ecgResult.ecg_vascular_aging || 0,
+          av_block: avBlock,
+          status,
+          rhythm,
+          interpretation,
           duration_sec: ECG_DURATION,
         }),
       }, token);

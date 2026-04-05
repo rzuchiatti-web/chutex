@@ -111,10 +111,12 @@ export function parseV8Response(bytes: number[]): { cmd: number; raw_hex?: strin
     }
   }
 
-  // 0x07: PPG/ECG real-time data — per V8 SDK (ResolveUtil.getECG)
-  // When setECGRealtimeDuringHRVEnabled(true), cmd 0x07 packets with length > 16 contain ECG data
-  // Format: [cmd, packetID, data...] where data = groups of 3 bytes (24-bit ECG samples LE)
+  // 0x07: PPG/ECG real-time data — per V8 SDK (ResolveUtil.getECG + ECGResult)
+  // When setECGRealtimeDuringHRVEnabled(true):
+  //   - Packets with length > 16: ECG waveform data (24-bit samples)
+  //   - Packets with length == 16: ECG analysis result
   if (cmd === 0x07 && bytes.length > 16) {
+    // ECG waveform: groups of 3 bytes = 24-bit samples LE
     const packetID = bytes[1];
     const ecgSamples: number[] = [];
     const count = Math.floor((bytes.length - 2) / 3);
@@ -125,6 +127,21 @@ export function parseV8Response(bytes: number[]): { cmd: number; raw_hex?: strin
     }
     parsed.ecg_samples = ecgSamples;
     parsed.ecg_packet_id = packetID;
+  }
+  if (cmd === 0x07 && bytes.length === 16 && bytes[1] > 0) {
+    // ECG analysis result — per V8 SDK (ResolveUtil.ECGResult)
+    parsed.ecg_result = {
+      result_value: bytes[1],  // 0=normal, 1=low, 2=normal, 3=high
+      hrv: bytes[2],
+      av_block: bytes[3],      // AV block detection (anomaly!)
+      heart_rate: bytes[4],
+      stress: bytes[5],
+      systolic: bytes[6],
+      diastolic: bytes[7],
+      mood: bytes[8],
+      breath_rate: bytes[9],
+    };
+    if (bytes[4] > 0) parsed.heart_rate = bytes[4];
   }
   // Layout depends on sub-type — byte positions differ
   if (cmd === V8_CMD.VITALS && bytes.length >= 4) {
