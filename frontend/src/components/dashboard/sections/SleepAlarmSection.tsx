@@ -27,6 +27,7 @@ function WheelPicker({ value, items, onChange, accent = '#FFF' }: { value: numbe
 
 export function SleepAlarmSection({ sleepAlarm, alarmTime, setAlarmTime, editingAlarm, setEditingAlarm, setSleepAlarm, token, C, glass, isDark }: any) {
   const [saving, setSaving] = useState(false);
+  const [alarmDays, setAlarmDays] = useState<number[]>(sleepAlarm?.days || [1, 2, 3, 4, 5, 6, 7]); // 1=Lun..7=Dim
   const s = sleepAlarm || {};
   const adjustments = s.adjustments || [];
   const extraMin = s.extra_minutes || 0;
@@ -44,7 +45,7 @@ export function SleepAlarmSection({ sleepAlarm, alarmTime, setAlarmTime, editing
     if (saving) return;
     setSaving(true);
     try {
-      const res = await apiFetch('/api/health/sleep-alarm', { method: 'PUT', body: JSON.stringify({ wake_time: alarmTime, enabled: true }) }, token);
+      const res = await apiFetch('/api/health/sleep-alarm', { method: 'PUT', body: JSON.stringify({ wake_time: alarmTime, enabled: true, days: alarmDays }) }, token);
       if (res) setSleepAlarm(res);
       setEditingAlarm(false);
     } catch {} finally { setSaving(false); }
@@ -132,6 +133,29 @@ export function SleepAlarmSection({ sleepAlarm, alarmTime, setAlarmTime, editing
                   Soit {(s.sleep_need_hours || 7)}h{(s.sleep_need_minutes || 30) > 0 ? `${s.sleep_need_minutes || 30}min` : ''} de sommeil optimal
                   {extraMin > 0 && <span style={{ color: '#F59E0B' }}> (+{extraMin}min ajustement)</span>}
                 </div>
+              </div>
+            </div>
+
+            {/* === WEEKDAY SELECTOR === */}
+            <div style={{ marginBottom: 24 } as any}>
+              <div style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.4)', textAlign: 'center', marginBottom: 10 }}>Jours de reveil</div>
+              <div style={{ display: 'flex', justifyContent: 'center', gap: 6 } as any}>
+                {[
+                  { day: 1, label: 'L' },
+                  { day: 2, label: 'M' },
+                  { day: 3, label: 'Me' },
+                  { day: 4, label: 'J' },
+                  { day: 5, label: 'V' },
+                  { day: 6, label: 'S' },
+                  { day: 7, label: 'D' },
+                ].map(({ day, label }) => {
+                  const active = alarmDays.includes(day);
+                  return (
+                    <div key={day} data-testid={`alarm-day-${day}`} onClick={() => setAlarmDays((prev: number[]) => active ? prev.filter(d => d !== day) : [...prev, day])} style={{ width: 38, height: 38, borderRadius: 12, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', fontSize: 12, fontWeight: 800, color: active ? '#111' : 'rgba(255,255,255,0.3)', background: active ? '#FFF' : 'rgba(255,255,255,0.06)', border: `1.5px solid ${active ? '#FFF' : 'rgba(255,255,255,0.1)'}`, transition: 'all 0.15s' } as any}>
+                      {label}
+                    </div>
+                  );
+                })}
               </div>
             </div>
 
