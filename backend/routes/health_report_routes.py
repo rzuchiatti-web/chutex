@@ -43,10 +43,19 @@ def estimate_vo2_max(age: int, resting_hr: float, hrv: float, steps_daily: float
     vo2_base = 15.3 * (hr_max / resting_hr)
 
     # 3. HRV correction: higher HRV = better cardiorespiratory fitness
-    # Average HRV for 65+ year olds is ~30-40ms. Each ms above/below adjusts VO2
+    # Use age-adjusted HRV baseline (younger people naturally have higher HRV)
     hrv_correction = 0
     if hrv and hrv > 0:
-        hrv_correction = (hrv - 35) * 0.12  # +0.12 ml/kg/min per ms above baseline
+        # Age-adjusted baseline HRV (ms)
+        if age < 30:
+            hrv_baseline = 55
+        elif age < 50:
+            hrv_baseline = 45
+        elif age < 65:
+            hrv_baseline = 35
+        else:
+            hrv_baseline = 30
+        hrv_correction = (hrv - hrv_baseline) * 0.08  # Conservative: +0.08 ml/kg/min per ms above baseline
 
     # 4. Activity correction: daily steps indicate fitness level
     activity_correction = 0
