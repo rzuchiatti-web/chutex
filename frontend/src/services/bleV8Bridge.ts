@@ -539,7 +539,7 @@ export function startBleMonitoring(
     } catch { clearInterval(blePollRef.current); bleDeviceRef.current = null; }
   }, 10000);
 
-  // Full vitals polling every 30s
+  // Full vitals polling every 15s (also checks pending vibration commands)
   const fullPollId = setInterval(async () => {
     if (!bleDeviceRef.current) { clearInterval(fullPollId); return; }
     try {
@@ -554,7 +554,7 @@ export function startBleMonitoring(
       setTimeout(() => writeToDevice(device, V8_CMD.TEMPERATURE), 1200);
       injectPendingCommandsCheck(webViewRef);
     } catch { clearInterval(fullPollId); }
-  }, 30000);
+  }, 15000);
 }
 
 

@@ -389,7 +389,7 @@ async def start_bedtime_reminder():
                 await _check_reminder_vibrations()
             except Exception as e:
                 logger.error(f"Bedtime/alarm/reminder error: {e}")
-            await asyncio.sleep(60)
+            await asyncio.sleep(15)  # Check every 15 seconds for near-instant vibration
 
     asyncio.create_task(_bedtime_loop())
     logger.info("Bedtime + morning alarm + reminder vibration tasks launched")
