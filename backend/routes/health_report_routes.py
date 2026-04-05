@@ -1207,8 +1207,10 @@ async def get_daily_report(user=Depends(get_current_user), force: bool = False):
             d["stress_level"] = bracelet_dev["last_stress"]
         # Sleep: use aggregated device data (V8 stores multi-segment totals)
         if d.get("sleep_duration_min", 0) < 30 and bracelet_dev.get("last_sleep_total", 0) > 0:
-            d["sleep_duration_min"] = bracelet_dev["last_sleep_total"]
-            d["sleep_duration"] = bracelet_dev["last_sleep_total"]
+            raw_total = bracelet_dev["last_sleep_total"]
+            capped_total = min(raw_total, 600)  # Cap at 10h per night
+            d["sleep_duration_min"] = capped_total
+            d["sleep_duration"] = capped_total
             d["sleep_quality"] = bracelet_dev.get("last_sleep_quality", 0)
             d["deep_sleep_min"] = bracelet_dev.get("last_sleep_deep", 0)
             d["light_sleep_min"] = bracelet_dev.get("last_sleep_light", 0)
