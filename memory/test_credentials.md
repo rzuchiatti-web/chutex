@@ -8,8 +8,10 @@
 - Note: Login uses the "email" field to accept both email and phone number
 
 ## Test Notes
-- Bracelet device: Elio V8, MAC E3FD041B-D210-F1FE-60F6-CB30634CD5AA
+- Bracelet device: Elio V8, connected=true
 - DB: mongodb://localhost:27017, DB name: vitallink_db
 - API URL: grep EXPO_PUBLIC_BACKEND_URL /app/frontend/.env | cut -d '=' -f2
-- Latest Build: 103 (TestFlight)
-- Current vitals in DB: HR=75, SpO2=97, BP=120/80, Temp=36.6, HRV=42, Stress=30
+- Latest Build: 114 (TestFlight)
+- Current vitals in DB: HR=68, SpO2=94, BP=122/65, Temp=36.8, HRV=97, Stress=68, Steps=312
+- VO2 Max: 45.7, Recovery: 79
+- Onboarding bypass: localStorage.setItem('chutex_onboarding_done', 'true')
