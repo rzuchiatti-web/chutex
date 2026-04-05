@@ -690,6 +690,21 @@ async def _check_reminder_vibrations():
                 "created_at": now.isoformat(),
             })
 
+            # Send push notification to phone
+            from routes.push_routes import send_push_to_user
+            from routes.notification_routes import create_notification
+            title = rem.get("title", "Rappel")
+            body = rem.get("description", "") or f"C'est l'heure de votre rappel : {title}"
+            await send_push_to_user(uid, title, body, {"type": "reminder", "reminder_id": rem_id}, "reminder")
+            await create_notification(
+                user_id=uid,
+                notif_type="reminder",
+                title=title,
+                body=body,
+                icon="ri-notification-3-line",
+                color="#F97316",
+            )
+
             # Mark as vibrated
             await db.reminder_vibrations.insert_one({
                 "reminder_id": rem_id, "user_id": uid,

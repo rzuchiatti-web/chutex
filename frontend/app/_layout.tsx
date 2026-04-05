@@ -105,6 +105,20 @@ function NativeFullApp() {
 
     // Attempt BLE auto-reconnect after a short delay
     setTimeout(attemptAutoReconnect, 3000);
+
+    // Register for push notifications after WebView loads
+    setTimeout(() => {
+      try {
+        const { registerForPushNotifications } = require('../src/services/notifications');
+        // Get token from WebView localStorage
+        webViewRef.current?.injectJavaScript(`
+          (function(){
+            var t = localStorage.getItem('vl_token') || localStorage.getItem('@AsyncStorage:vl_token') || '';
+            if(t) window.ReactNativeWebView.postMessage(JSON.stringify({action:'register_push', token: t}));
+          })(); true;
+        `);
+      } catch {}
+    }, 5000);
   };
 
   // ── WebView message handler ──
@@ -116,6 +130,16 @@ function NativeFullApp() {
       if (msg.action === 'ble_vibrate' && bleDeviceRef.current) {
         const { writeToDevice, V8_CMD } = require('../src/services/bleV8Bridge');
         writeToDevice(bleDeviceRef.current, V8_CMD.VIBRATE, msg.payload || [3]);
+        return;
+      }
+
+      // Handle push notification registration
+      if (msg.action === 'register_push' && msg.token) {
+        try {
+          const { registerForPushNotifications } = require('../src/services/notifications');
+          const API_URL = process.env.EXPO_PUBLIC_BACKEND_URL || '';
+          registerForPushNotifications(API_URL, msg.token);
+        } catch {}
         return;
       }
 
