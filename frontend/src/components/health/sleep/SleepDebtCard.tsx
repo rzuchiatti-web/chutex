@@ -53,7 +53,7 @@ export default function SleepDebtCard({ nightDuration, nightAwakeMin, sleepData,
         </div>
       </div>
       {/* 7-day SVG chart */}
-      {bars.length > 0 && (() => {
+      {bars.length >= 2 ? (() => {
         const W = 360, H = 120, LM = 4, RM = 4, TM = 10, BM = 22;
         const gW = W - LM - RM, gH = H - TM - BM;
         const bW = Math.min(28, (gW / bars.length) - 6);
@@ -83,7 +83,11 @@ export default function SleepDebtCard({ nightDuration, nightAwakeMin, sleepData,
             </svg>
           </>
         );
-      })()}
+      })() : (
+        <div style={{ textAlign: 'center', padding: '12px 0', fontSize: 11, color: '#9CA3AF', lineHeight: 1.6 }}>
+          Pas assez de donnees pour le suivi hebdomadaire. Portez votre bracelet chaque nuit pour voir l'evolution.
+        </div>
+      )}
     </div>
   );
 }

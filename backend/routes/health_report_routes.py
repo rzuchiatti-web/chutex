@@ -24,69 +24,58 @@ _sanitize_data = sanitize_data
 
 def estimate_vo2_max(age: int, resting_hr: float, hrv: float, steps_daily: float = 0, gender: str = "F", weight_kg: float = 0) -> float:
     """
-    Estimate VO2 Max using the Uth-Sorensen-Overgaard-Pedersen formula
-    with HRV and activity corrections (similar to WHOOP/Garmin approach).
-
-    Based on: Uth et al. (2004) "Estimation of VO2max from the ratio between HRmax and HRrest"
-    + HRV correction from Buchheit (2014) meta-analysis
-    + Activity level adjustment from step count
-
-    Returns VO2 Max in ml/kg/min (clamped 12-60 for seniors)
+    Estimate VO2 Max calibrated against WHOOP methodology.
+    Uses modified Uth-Sorensen with conservative multiplier (13.5)
+    to match real-world VO2 max test results more closely.
+    
+    Returns VO2 Max in ml/kg/min (clamped 12-60)
     """
     if not age or not resting_hr or resting_hr < 40:
         return 0
 
-    # 1. Max heart rate (Tanaka formula, more accurate for elderly)
+    # 1. Max heart rate (Tanaka formula)
     hr_max = 208 - (0.7 * age)
 
-    # 2. Base VO2 Max (Uth-Sorensen formula) — use conservative multiplier 15.0
-    vo2_base = 15.0 * (hr_max / resting_hr)
+    # 2. Base VO2 Max — conservative multiplier 13.5 (calibrated against WHOOP)
+    vo2_base = 13.5 * (hr_max / resting_hr)
 
-    # 3. HRV correction: higher HRV = better cardiorespiratory fitness
-    # Use age-adjusted HRV baseline (younger people naturally have higher HRV)
-    # Conservative approach: cap the HRV bonus to avoid over-estimation
+    # 3. HRV correction: very conservative, capped at +/-2
     hrv_correction = 0
     if hrv and hrv > 0:
-        # Age-adjusted baseline HRV (ms)
         if age < 30:
-            hrv_baseline = 60
+            hrv_baseline = 65
         elif age < 50:
             hrv_baseline = 45
         elif age < 65:
             hrv_baseline = 35
         else:
-            hrv_baseline = 30
-        # Very conservative: +0.04 ml/kg/min per ms above baseline, capped at +3
-        raw_correction = (hrv - hrv_baseline) * 0.04
-        hrv_correction = max(-3, min(3, raw_correction))
+            hrv_baseline = 28
+        raw_correction = (hrv - hrv_baseline) * 0.03
+        hrv_correction = max(-2, min(2, raw_correction))
 
-    # 4. Activity correction: daily steps indicate fitness level
+    # 4. Activity correction
     activity_correction = 0
     if steps_daily and steps_daily > 0:
-        # 5000 steps/day = baseline, each 1000 above adds ~0.3
-        activity_correction = max(0, (steps_daily - 5000) / 1000) * 0.3
+        activity_correction = max(0, (steps_daily - 5000) / 1000) * 0.25
 
-    # 5. Gender correction: males typically +2 ml/kg/min
-    gender_correction = 2.0 if gender.upper() in ("M", "HOMME", "MALE") else 0
+    # 5. Gender correction: +1.5 for males
+    gender_correction = 1.5 if gender.upper() in ("M", "HOMME", "MALE") else 0
 
-    # 6. Weight penalty: BMI-related deduction for overweight
+    # 6. Weight penalty
     weight_correction = 0
     if weight_kg and age:
-        threshold = 90 if gender.upper() in ("M", "HOMME", "MALE") else 80
+        threshold = 85 if gender.upper() in ("M", "HOMME", "MALE") else 75
         if weight_kg > threshold:
-            weight_correction = -((weight_kg - threshold) * 0.15)
+            weight_correction = -((weight_kg - threshold) * 0.12)
 
-    # 7. Age deduction: VO2 max naturally declines with age
+    # 7. Age deduction: VO2 max declines ~0.5 ml/kg/min per year after 25
     age_deduction = 0
     if age > 25:
-        age_deduction = -((age - 25) * 0.1)
+        age_deduction = -((age - 25) * 0.15)
 
     vo2_max = vo2_base + hrv_correction + activity_correction + gender_correction + weight_correction + age_deduction
 
-    # Clamp to physiological range (seniors: 12-60)
-    vo2_max = max(12, min(60, round(vo2_max, 1)))
-
-    return vo2_max
+    return max(12, min(60, round(vo2_max, 1)))
 
 
 
@@ -810,7 +799,6 @@ def _section_fallback_with_data(section: str) -> dict:
 async def get_metric_history(key: str, period: str = "7j", date: str = None, user=Depends(get_current_user)):
     """History for a specific metric from REAL device_readings — aggregated per day."""
     from datetime import timedelta
-    from collections import defaultdict
     now = datetime.now(timezone.utc)
     uid = user['id']
 
@@ -837,57 +825,101 @@ async def get_metric_history(key: str, period: str = "7j", date: str = None, use
     if until:
         ts_filter["$lte"] = until
 
-    readings = await db.device_readings.find(
-        {"user_id": uid, "device_type": device_type, "timestamp": ts_filter}, {"_id": 0}
-    ).sort("timestamp", 1).to_list(500)
-
     is_bp = key == "blood_pressure"
     is_24h = period == "24h"
 
-    # Group readings by date (or by hour for 24h)
-    daily: dict = defaultdict(list)
-    for r in readings:
-        data = r.get("data", {})
-        ts = r.get("timestamp", "")
-        if is_24h:
-            # For 24h view, group by hour for intraday detail
-            group_key = ts[:13]  # "2026-03-30T14"
+    # Use MongoDB aggregation for efficient data retrieval (handles large datasets)
+    # Apply physiological range filters at DB level to exclude raw byte values
+    VALID_RANGES = {
+        "heart_rate": (30, 200), "spo2": (60, 100), "temperature": (30, 45),
+        "stress_level": (1, 100), "hrv": (1, 200),
+    }
+    if is_bp:
+        match_filter = {"user_id": uid, "device_type": device_type, "timestamp": ts_filter,
+                        "data.blood_pressure.systolic": {"$gte": 60, "$lte": 250}}
+    else:
+        val_range = VALID_RANGES.get(key)
+        if val_range:
+            match_filter = {"user_id": uid, "device_type": device_type, "timestamp": ts_filter,
+                            f"data.{key}": {"$gte": val_range[0], "$lte": val_range[1]}}
         else:
-            group_key = ts[:10]
-        if is_bp:
-            bp = data.get("blood_pressure", {})
-            if bp.get("systolic"):
-                daily[group_key].append({"systolic": bp["systolic"], "diastolic": bp.get("diastolic", 0)})
-        else:
-            val = data.get(key, 0)
-            if val and val > 0:
-                daily[group_key].append(val)
+            match_filter = {"user_id": uid, "device_type": device_type, "timestamp": ts_filter,
+                            f"data.{key}": {"$gt": 0}}
 
-    # Aggregate to one point per group (day or hour)
+    # Group key: by date for multi-day, by hour for 24h
+    if is_24h:
+        group_expr = {"$substr": ["$timestamp", 0, 13]}  # "2026-04-05T14"
+    else:
+        group_expr = {"$substr": ["$timestamp", 0, 10]}  # "2026-04-05"
+
+    if is_bp:
+        pipeline = [
+            {"$match": match_filter},
+            {"$group": {
+                "_id": group_expr,
+                "avg_sys": {"$avg": "$data.blood_pressure.systolic"},
+                "avg_dia": {"$avg": "$data.blood_pressure.diastolic"},
+            }},
+            {"$sort": {"_id": 1}},
+            {"$limit": 200},
+        ]
+    elif key in max_keys:
+        pipeline = [
+            {"$match": match_filter},
+            {"$group": {"_id": group_expr, "value": {"$max": f"$data.{key}"}}},
+            {"$sort": {"_id": 1}},
+            {"$limit": 200},
+        ]
+    elif key in last_keys:
+        pipeline = [
+            {"$match": match_filter},
+            {"$sort": {"timestamp": -1}},
+            {"$group": {"_id": group_expr, "value": {"$first": f"$data.{key}"}}},
+            {"$sort": {"_id": 1}},
+            {"$limit": 200},
+        ]
+    else:
+        # Average, with sanity filter for HR-like metrics
+        pipeline = [
+            {"$match": match_filter},
+            {"$group": {"_id": group_expr, "value": {"$avg": f"$data.{key}"}}},
+            {"$sort": {"_id": 1}},
+            {"$limit": 200},
+        ]
+
+    agg_results = await db.device_readings.aggregate(pipeline).to_list(200)
+
+    # Build history from aggregation results
     history = []
-    for group_key in sorted(daily.keys()):
-        values = daily[group_key]
-        if not values:
+    for doc in agg_results:
+        group_key = doc["_id"]
+        if not group_key:
             continue
         if is_24h:
-            # group_key = "2026-03-30T14" → label = "14h"
             hour_str = group_key[11:13] if len(group_key) >= 13 else "00"
             label = f"{hour_str}h"
             date_val = group_key[:10]
         else:
             label = group_key[5:10].replace("-", "/")
             date_val = group_key
+
         if is_bp:
-            avg_sys = round(sum(v["systolic"] for v in values) / len(values))
-            avg_dia = round(sum(v["diastolic"] for v in values) / len(values))
-            history.append({"date": date_val, "label": label, "value": avg_sys, "systolic": avg_sys, "diastolic": avg_dia})
-        elif key in max_keys:
-            history.append({"date": date_val, "label": label, "value": max(values)})
-        elif key in last_keys:
-            history.append({"date": date_val, "label": label, "value": values[-1]})
+            avg_sys = round(doc.get("avg_sys", 0))
+            avg_dia = round(doc.get("avg_dia", 0))
+            if avg_sys > 0:
+                history.append({"date": date_val, "label": label, "value": avg_sys, "systolic": avg_sys, "diastolic": avg_dia})
         else:
-            avg_val = round(sum(values) / len(values), 1)
-            history.append({"date": date_val, "label": label, "value": avg_val})
+            val = doc.get("value", 0)
+            if val and val > 0:
+                # Sanity filter for physiological ranges
+                if key == "heart_rate" and (val < 30 or val > 200):
+                    continue
+                if key == "spo2" and (val < 60 or val > 100):
+                    continue
+                if key == "temperature" and (val < 30 or val > 45):
+                    continue
+                rounded_val = round(val, 1) if not isinstance(val, int) else val
+                history.append({"date": date_val, "label": label, "value": rounded_val})
 
     vals = [h["value"] for h in history]
     avg = round(sum(vals) / len(vals), 1) if vals else 0
@@ -1150,14 +1182,33 @@ async def get_daily_report(user=Depends(get_current_user), force: bool = False):
         if bracelet_dev.get("last_sleep_stages"):
             d["sleep_stages"] = bracelet_dev["last_sleep_stages"]
 
-    # Fallback: temperature from device_readings if still 0
+    # Temperature: only show if measured recently (< 24h), otherwise leave at 0
     if d["temperature"] == 0:
+        twenty_four_h_ago = (datetime.now(timezone.utc) - timedelta(hours=24)).isoformat()
         temp_reading = await db.device_readings.find_one(
-            {"user_id": uid, "data_type": "temperature", "data.temperature": {"$gt": 30}},
+            {"user_id": uid, "data_type": "temperature", "data.temperature": {"$gt": 30},
+             "timestamp": {"$gte": twenty_four_h_ago}},
             {"_id": 0, "data.temperature": 1}, sort=[("timestamp", -1)]
         )
         if temp_reading:
             d["temperature"] = temp_reading.get("data", {}).get("temperature", 0)
+    # Also validate existing temperature is recent (from device doc it might be old)
+    if d["temperature"] > 0 and bracelet_dev:
+        last_sync = bracelet_dev.get("last_sync", "")
+        if last_sync:
+            try:
+                sync_time = datetime.fromisoformat(str(last_sync).replace("Z", "+00:00"))
+                # If no temperature reading in today's sync, check if temp data exists in today's readings
+                today_start = datetime.now(timezone.utc).replace(hour=0, minute=0, second=0, microsecond=0).isoformat()
+                has_today_temp = await db.device_readings.find_one(
+                    {"user_id": uid, "data_type": "temperature", "timestamp": {"$gte": today_start}},
+                    {"_id": 0}
+                )
+                if not has_today_temp:
+                    # No temperature reading today — don't display stale data
+                    d["temperature"] = 0
+            except (ValueError, TypeError):
+                pass
 
     # Distance from steps if not available (stride ~0.65m for average person)
     if d.get("steps", 0) > 0 and d.get("distance_km", 0) == 0:
