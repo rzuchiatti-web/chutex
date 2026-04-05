@@ -52,31 +52,50 @@ async def get_sleep_data(user=Depends(get_current_user)):
 
 @router.get("/health/sleep/history")
 async def get_sleep_history(user=Depends(get_current_user)):
+    """Return per-night sleep summaries, aggregating multi-segment V8 bracelet data."""
     uid = user['id']
     readings = await db.device_readings.find(
         {"user_id": uid, "device_type": "bracelet", "data.sleep_duration_min": {"$gt": 0}},
         {"_id": 0}
-    ).sort("timestamp", -1).to_list(14)
-    history = []
-    seen_dates = set()
+    ).sort("timestamp", -1).to_list(200)
+
+    # Group by bracelet sleep_date (if available) OR server timestamp date
+    nights: dict = {}
     for r in readings:
         dd = r.get("data", {})
-        dt = r.get("timestamp", "")[:10]
-        if dt in seen_dates:
+        # Use bracelet date if available, otherwise server timestamp
+        dt = dd.get("sleep_date", r.get("timestamp", "")[:10])
+        if not dt or len(dt) < 10:
             continue
-        seen_dates.add(dt)
-        deep = dd.get("deep_sleep_min", 0)
-        light = dd.get("light_sleep_min", 0)
-        rem = dd.get("rem_sleep_min", 0)
-        total = dd.get("sleep_duration_min", 0)
-        quality = dd.get("sleep_quality", 0)
-        inter = dd.get("sleep_interruptions", 0)
+        dt = dt[:10]
+        if dt not in nights:
+            nights[dt] = {"deep": 0, "light": 0, "rem": 0, "awake": 0, "interruptions": 0, "cycles": 0, "start_time": dd.get("sleep_start_time", ""), "segments": 0}
+        n = nights[dt]
+        n["deep"] += dd.get("deep_sleep_min", 0)
+        n["light"] += dd.get("light_sleep_min", 0)
+        n["rem"] += dd.get("rem_sleep_min", 0)
+        n["awake"] += dd.get("awake_minutes", 0)
+        n["interruptions"] += dd.get("sleep_interruptions", 0)
+        n["cycles"] += dd.get("sleep_cycles", 0)
+        n["segments"] += 1
+        if not n["start_time"] and dd.get("sleep_start_time"):
+            n["start_time"] = dd["sleep_start_time"]
+
+    history = []
+    for dt, n in sorted(nights.items()):
+        total = n["deep"] + n["light"] + n["rem"]
+        quality = min(100, round((n["deep"] * 2 + n["rem"] * 1.5 + n["light"]) / max(total, 1) * 50)) if total > 0 else 0
         history.append({
-            "date": dt, "duration": round(total / 60, 1),
-            "deep": deep, "light": light, "rem": rem, "awake": inter,
-            "quality": quality, "cycles": max(1, round(total / 90))
+            "date": dt,
+            "duration": round(total / 60, 1),
+            "deep": n["deep"], "light": n["light"], "rem": n["rem"],
+            "awake": n["awake"],
+            "quality": quality,
+            "cycles": n["cycles"] if n["cycles"] > 0 else max(1, round(total / 90)),
+            "sleep_interruptions": n["interruptions"],
+            "start_time": n["start_time"],
         })
-    return sorted(history, key=lambda h: h.get("date", ""))[-7:]
+    return history[-7:]
 
 
 @router.get("/health/sleep/analysis")

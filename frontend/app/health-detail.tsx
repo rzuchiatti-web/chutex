@@ -140,10 +140,12 @@ export default function HealthDetailScreen() {
     const duration = match.duration ? (match.duration < 24 ? Math.round(match.duration * 60) : match.duration) : (totalSleep + awakeMin);
     const quality = match.quality || (totalSleep > 0 ? Math.min(100, Math.round((deepMin * 2 + remMin * 1.5 + lightMin * 0.8) / totalSleep * 100)) : 0);
     const interruptions = match.sleep_interruptions || 0;
+    const sleepCycles = match.cycles || Math.max(1, Math.round(totalSleep / 90));
+    const startTime = match.start_time || '';
 
     // Build stages array from real data for hypnogram
     const stages: number[] = [];
-    const cycles = Math.max(1, Math.round(totalSleep / 90));
+    const cycles = Math.max(1, sleepCycles);
     for (let c = 0; c < cycles; c++) {
       for (let i = 0; i < Math.round(lightMin / cycles); i++) stages.push(2);
       for (let i = 0; i < Math.round(deepMin / cycles); i++) stages.push(1);
@@ -151,7 +153,9 @@ export default function HealthDetailScreen() {
       if (c < cycles - 1) stages.push(0); // brief wake between cycles
     }
 
-    const startH = 22, startM = 30;
+    // Use real start time from bracelet, fallback to 22:30
+    const startH = startTime ? parseInt(startTime.split(':')[0]) || 22 : 22;
+    const startM = startTime ? parseInt(startTime.split(':')[1]) || 30 : 30;
     const session = fromBraceletStages(stages.length > 0 ? stages : [2, 2, 1, 1, 3, 2], startH, startM);
     const apnea = Math.min(100, Math.max(5, interruptions * 12 + (quality < 70 ? 20 : 0)));
 
