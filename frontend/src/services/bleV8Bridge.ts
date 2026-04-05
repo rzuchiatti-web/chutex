@@ -261,24 +261,42 @@ export async function sendInitialCommands(device: any) {
   ]);
   // Battery (0x13 per 2208A API)
   setTimeout(() => writeToDevice(device, V8_CMD.BATTERY), 500);
-  // Request sleep history (0x53, mode 0 = recent)
-  setTimeout(() => writeToDevice(device, V8_CMD.SLEEP, [0]), 1000);
+  // Request ALL sleep segments (0x53, indices 0-9 to cover ~3 days)
+  for (let seg = 0; seg < 10; seg++) {
+    setTimeout(() => writeToDevice(device, V8_CMD.SLEEP, [seg]), 1000 + seg * 300);
+  }
   // Start HRV measurement (AA=1, BB=1)
-  setTimeout(() => writeToDevice(device, V8_CMD.VITALS, [1, 1]), 1500);
+  setTimeout(() => writeToDevice(device, V8_CMD.VITALS, [1, 1]), 4500);
   // Start HR measurement (AA=2, BB=1)
-  setTimeout(() => writeToDevice(device, V8_CMD.VITALS, [2, 1]), 2000);
+  setTimeout(() => writeToDevice(device, V8_CMD.VITALS, [2, 1]), 5000);
   // Start SpO2 measurement (AA=3, BB=1)
-  setTimeout(() => writeToDevice(device, V8_CMD.VITALS, [3, 1]), 2500);
+  setTimeout(() => writeToDevice(device, V8_CMD.VITALS, [3, 1]), 5500);
   // Real-time steps (0x09, start=1)
-  setTimeout(() => writeToDevice(device, V8_CMD.STEPS, [1, 1]), 3000);
+  setTimeout(() => writeToDevice(device, V8_CMD.STEPS, [1, 1]), 6000);
   // Blood glucose
-  setTimeout(() => writeToDevice(device, V8_CMD.GLUCOSE), 3500);
-  // HR history (0x54, mode 0 = recent)
-  setTimeout(() => writeToDevice(device, V8_CMD.HR_HISTORY, [0]), 4000);
-  // HRV history (0x56, mode 0 = recent)
-  setTimeout(() => writeToDevice(device, V8_CMD.HRV_DATA, [0]), 4500);
-  // SpO2 history (0x66, mode 0 = recent)
-  setTimeout(() => writeToDevice(device, V8_CMD.SPO2_AUTO, [0]), 5000);
+  setTimeout(() => writeToDevice(device, V8_CMD.GLUCOSE), 6500);
+
+  // Historical data: request past 3 days of steps (0x51 with date)
+  for (let daysAgo = 0; daysAgo < 3; daysAgo++) {
+    const d = new Date(now.getTime() - daysAgo * 86400000);
+    setTimeout(() => writeToDevice(device, 0x51, [
+      d.getFullYear() & 0xFF, (d.getFullYear() >> 8) & 0xFF,
+      d.getMonth() + 1, d.getDate()
+    ]), 7000 + daysAgo * 500);
+  }
+
+  // HR history indices (0x54, 0-4 to cover recent days)
+  for (let i = 0; i < 5; i++) {
+    setTimeout(() => writeToDevice(device, V8_CMD.HR_HISTORY, [i]), 8500 + i * 300);
+  }
+  // HRV history (0x56, indices 0-2)
+  for (let i = 0; i < 3; i++) {
+    setTimeout(() => writeToDevice(device, V8_CMD.HRV_DATA, [i]), 10000 + i * 300);
+  }
+  // SpO2 history (0x66, indices 0-2)
+  for (let i = 0; i < 3; i++) {
+    setTimeout(() => writeToDevice(device, V8_CMD.SPO2_AUTO, [i]), 11000 + i * 300);
+  }
 }
 
 
