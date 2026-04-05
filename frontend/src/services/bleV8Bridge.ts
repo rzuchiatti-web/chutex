@@ -156,8 +156,14 @@ export function parseV8Response(bytes: number[]): { cmd: number; raw_hex?: strin
   }
 
   // 0x54: Heart rate history data
-  if (cmd === V8_CMD.HR_HISTORY && bytes.length >= 4) {
-    parsed.heart_rate = bytes[3]; // HR value after ID+timestamp bytes
+  // Format: [cmd, index, padding, year, month, day, hour, minute, count?, HR1, HR2, ...]
+  if (cmd === V8_CMD.HR_HISTORY && bytes.length >= 10) {
+    // Skip header (8 bytes), extract HR values
+    const hrValues = bytes.slice(8, -1).filter(v => v > 30 && v < 200);
+    if (hrValues.length > 0) {
+      parsed.heart_rate = hrValues[0]; // Most recent HR in this block
+      if (hrValues.length > 1) parsed.heart_rate_history = hrValues;
+    }
   }
 
   // 0x55: Single heart rate data
@@ -167,18 +173,37 @@ export function parseV8Response(bytes: number[]): { cmd: number; raw_hex?: strin
     if (bytes.length >= 4 && bytes[3] > 0) parsed.heart_rate_max = bytes[3];
   }
 
-  // 0x56: HRV data (includes fatigue/stress, BP)
-  if (cmd === V8_CMD.HRV_DATA && bytes.length >= 4) {
-    parsed.hrv = bytes[1];
-    if (bytes.length >= 5) parsed.stress = bytes[4]; // fatigue level
-    if (bytes.length >= 7) {
-      parsed.systolic = bytes[5];
-      parsed.diastolic = bytes[6];
-    }
+  // 0x56: HRV history data (includes HR, HRV, stress, BP)
+  // Format: [cmd, index, pad, year, month, day, hour, min, time_block, HR, HRV, stress, HRV_dup, systolic, diastolic, CRC]
+  if (cmd === V8_CMD.HRV_DATA && bytes.length >= 15) {
+    const hr = bytes[9];
+    const hrv = bytes[10];
+    const stress = bytes[11];
+    const sys = bytes[13];
+    const dia = bytes[14];
+    if (hr >= 30 && hr <= 200) parsed.heart_rate = hr;
+    if (hrv >= 1 && hrv <= 200) parsed.hrv = hrv;
+    if (stress >= 1 && stress <= 100) parsed.stress = stress;
+    if (sys >= 70 && sys <= 200) parsed.systolic = sys;
+    if (dia >= 40 && dia <= 130) parsed.diastolic = dia;
   }
 
-  // 0x66: Automatic SpO2 data
-  if (cmd === V8_CMD.SPO2_AUTO && bytes.length >= 2) {
+  // 0x66: Automatic SpO2 history data
+  // Format: [cmd, index, pad, year, month, day, hour, min, HR, SpO2, ...]
+  // Can contain multiple 10-byte records concatenated
+  if (cmd === V8_CMD.SPO2_AUTO && bytes.length >= 10) {
+    // Extract SpO2 from the data portion (byte 9 = SpO2)
+    const spo2Val = bytes[9];
+    if (spo2Val >= 60 && spo2Val <= 100) {
+      parsed.spo2 = spo2Val;
+    }
+    // HR is at byte 8
+    const hrVal = bytes[8];
+    if (hrVal >= 30 && hrVal <= 200) {
+      parsed.heart_rate = hrVal;
+    }
+  } else if (cmd === V8_CMD.SPO2_AUTO && bytes.length >= 2 && bytes.length < 10) {
+    // Short SpO2 response (real-time, not historical)
     const rawSpo2 = bytes[1];
     if (rawSpo2 >= 60 && rawSpo2 <= 100) {
       parsed.spo2 = rawSpo2;
