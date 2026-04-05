@@ -191,7 +191,7 @@ export function ReminderCRUDPopup({ show, editReminder, setEditReminder, onClose
 
   return (
     <div style={{ ...OVERLAY, overflowY: 'scroll', WebkitOverflowScrolling: 'touch' } as any}>
-      <div style={{ width: '100%', maxWidth: 400, margin: '0 auto', padding: '24px 20px 120px', boxSizing: 'border-box' } as any}>
+      <div style={{ width: '100%', maxWidth: 400, margin: '0 auto', padding: '70px 20px 120px', boxSizing: 'border-box' } as any}>
 
         {/* Close button — round */}
         <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 8 } as any}>
