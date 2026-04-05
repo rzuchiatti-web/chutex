@@ -79,16 +79,6 @@ export function DeviceDetailPopup({ deviceType, device, weighings, removing, onC
 
       {/* Action buttons */}
       <div style={{ display: 'flex', gap: 8, marginBottom: 12 } as any}>
-        {deviceType === 'bracelet' && (
-          <>
-            <div onClick={() => { onClose(); router.push('/ecg' as any); }} style={{ flex: 1, padding: '14px', borderRadius: 999, background: 'rgba(249,115,22,0.1)', border: '1px solid rgba(249,115,22,0.2)', cursor: 'pointer', textAlign: 'center', fontSize: 13, fontWeight: 700, color: '#F97316' } as any}>
-              <i className="ri-pulse-line" style={{ marginRight: 6 }} />ECG
-            </div>
-            <div onClick={() => { onClose(); onLaunchScan('bracelet'); }} style={{ flex: 1, padding: '14px', borderRadius: 999, background: `${meta.color}18`, border: `1px solid ${meta.color}30`, cursor: 'pointer', textAlign: 'center', fontSize: 13, fontWeight: 700, color: meta.color } as any}>
-              <i className="ri-refresh-line" style={{ marginRight: 6 }} />Synchroniser
-            </div>
-          </>
-        )}
         {deviceType === 'scale' && (
           <div onClick={() => { onClose(); onScaleWeighing(); }} style={{ flex: 1, padding: '14px', borderRadius: 999, background: `${meta.color}18`, border: `1px solid ${meta.color}30`, cursor: 'pointer', textAlign: 'center', fontSize: 13, fontWeight: 700, color: meta.color } as any}>
             <i className="ri-scales-3-line" style={{ marginRight: 6 }} />Nouvelle pesee
