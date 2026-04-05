@@ -108,17 +108,16 @@ export function parseV8Response(bytes: number[]): { cmd: number; raw_hex?: strin
     parsed.measurement_type = subType;
     parsed.heart_rate = bytes[2];
 
-    if (subType === 1 && bytes.length >= 10) {
-      // HRV+BP: [cmd, sub, HR, HRV, stress, systolic, diastolic, tempLo, tempHi, SpO2?]
-      parsed.hrv = bytes[3];
-      parsed.stress = bytes[4];
-      parsed.systolic = bytes[5];
-      parsed.diastolic = bytes[6];
-      parsed.temperature = (bytes[7] | (bytes[8] << 8)) / 10;
-      // Some V8 firmwares put SpO2 at byte 9 for sub-type 1
-      if (bytes.length > 9 && bytes[9] >= 60 && bytes[9] <= 100) {
-        parsed.spo2 = bytes[9];
-      }
+    if (subType === 1 && bytes.length >= 8) {
+      // HRV+BP measurement — per V8 SDK (BleSDK.java line 208-220):
+      // value[2]=HeartRate, value[3]=Blood_oxygen, value[4]=HRV, value[5]=Stress, value[6]=HighPressure, value[7]=LowPressure
+      parsed.heart_rate = bytes[2];
+      const rawSpo2 = bytes[3];
+      if (rawSpo2 >= 60 && rawSpo2 <= 100) parsed.spo2 = rawSpo2;
+      if (bytes[4] >= 1 && bytes[4] <= 200) parsed.hrv = bytes[4];
+      if (bytes[5] >= 1 && bytes[5] <= 100) parsed.stress = bytes[5];
+      if (bytes[6] >= 70 && bytes[6] <= 200) parsed.systolic = bytes[6];
+      if (bytes[7] >= 40 && bytes[7] <= 130) parsed.diastolic = bytes[7];
     } else if (subType === 2 && bytes.length >= 3) {
       // HR only: [cmd, sub, HR, ...]
       // No SpO2 in this sub-type
@@ -195,12 +194,13 @@ export function parseV8Response(bytes: number[]): { cmd: number; raw_hex?: strin
     if (bytes.length >= 4 && bytes[3] > 0) parsed.heart_rate_max = bytes[3];
   }
 
-  // 0x56: HRV history data (includes HR, HRV, stress, BP)
-  // Format: [cmd, index, pad, year, month, day, hour, min, time_block, HR, HRV, stress, HRV_dup, systolic, diastolic, CRC]
+  // 0x56: HRV history data — per V8 SDK: records of 15 bytes
+  // [cmd, idx, pad, year, month, day, hour, min, sec, HRV, VascularAging, HeartRate, Stress, highBP, lowBP]
   if (cmd === V8_CMD.HRV_DATA && bytes.length >= 15) {
-    const hr = bytes[9];
-    const hrv = bytes[10];
-    const stress = bytes[11];
+    const hrv = bytes[9];
+    const vascularAging = bytes[10];
+    const hr = bytes[11];
+    const stress = bytes[12];
     const sys = bytes[13];
     const dia = bytes[14];
     if (hr >= 30 && hr <= 200) parsed.heart_rate = hr;
@@ -208,6 +208,7 @@ export function parseV8Response(bytes: number[]): { cmd: number; raw_hex?: strin
     if (stress >= 1 && stress <= 100) parsed.stress = stress;
     if (sys >= 70 && sys <= 200) parsed.systolic = sys;
     if (dia >= 40 && dia <= 130) parsed.diastolic = dia;
+    if (vascularAging > 0) parsed.vascular_aging = vascularAging;
   }
 
   // 0x66: Automatic SpO2 history data
