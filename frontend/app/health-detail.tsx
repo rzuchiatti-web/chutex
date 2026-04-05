@@ -143,14 +143,21 @@ export default function HealthDetailScreen() {
     const sleepCycles = match.cycles || Math.max(1, Math.round(totalSleep / 90));
     const startTime = match.start_time || '';
 
-    // Build stages array from real data for hypnogram
-    const stages: number[] = [];
-    const cycles = Math.max(1, sleepCycles);
-    for (let c = 0; c < cycles; c++) {
-      for (let i = 0; i < Math.round(lightMin / cycles); i++) stages.push(2);
-      for (let i = 0; i < Math.round(deepMin / cycles); i++) stages.push(1);
-      for (let i = 0; i < Math.round(remMin / cycles); i++) stages.push(3);
-      if (c < cycles - 1) stages.push(0); // brief wake between cycles
+    // Use REAL minute-by-minute stages from bracelet (now returned by API)
+    // Fallback to synthetic if API doesn't have raw stages
+    let stages: number[] = [];
+    if (match.stages && Array.isArray(match.stages) && match.stages.length > 0) {
+      // Real bracelet stages — normalize (4 → 0 for awake)
+      stages = match.stages.map((s: number) => s >= 1 && s <= 3 ? s : 0);
+    } else {
+      // Synthetic fallback
+      const cycles = Math.max(1, sleepCycles);
+      for (let c = 0; c < cycles; c++) {
+        for (let i = 0; i < Math.round(lightMin / cycles); i++) stages.push(2);
+        for (let i = 0; i < Math.round(deepMin / cycles); i++) stages.push(1);
+        for (let i = 0; i < Math.round(remMin / cycles); i++) stages.push(3);
+        if (c < cycles - 1) stages.push(0);
+      }
     }
 
     // Use real start time from bracelet, fallback to 22:30

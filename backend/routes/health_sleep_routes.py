@@ -9,91 +9,176 @@ router = APIRouter()
 
 @router.get("/health/sleep")
 async def get_sleep_data(user=Depends(get_current_user)):
+    """Return the latest night's sleep with REAL minute-by-minute stages from V8 bracelet."""
     uid = user['id']
-    real_sleep = await db.device_readings.find(
+    # Get all V8 sleep segments with real stages
+    all_sleep = await db.device_readings.find(
         {"user_id": uid, "device_type": "bracelet", "data.cmd": 0x53, "data.sleep_stages": {"$exists": True, "$ne": []}},
         {"_id": 0}
-    ).sort("timestamp", -1).to_list(100)
-    if real_sleep:
-        stages = []
-        for r in reversed(real_sleep):
-            stages.extend(r['data'].get('sleep_stages', []))
-        if stages:
-            normalized = [1 if s == 1 else 2 if s == 2 else 3 if s == 3 else 0 for s in stages]
-            deep = normalized.count(1)
-            light = normalized.count(2)
-            rem = normalized.count(3)
-            awake = normalized.count(0)
-            total = len(normalized)
-            quality = min(100, int((deep * 2 + rem * 1.5 + light * 0.8) / max(total, 1) * 100))
-            return {"stages": normalized, "total_minutes": total, "deep_minutes": deep, "light_minutes": light, "rem_minutes": rem, "awake_minutes": awake, "sleep_quality": quality, "cycles": max(1, deep // 15), "sleep_duration": round(total / 60, 1), "date": real_sleep[0]['timestamp'], "source": "bracelet"}
-    latest = await db.device_readings.find_one(
-        {"user_id": uid, "device_type": "bracelet", "data.sleep_duration_min": {"$gt": 0}},
-        {"_id": 0}, sort=[("timestamp", -1)]
-    )
-    if latest and latest.get("data", {}).get("sleep_duration_min", 0) > 0:
-        dd = latest["data"]
-        deep = dd.get("deep_sleep_min", 0)
-        light = dd.get("light_sleep_min", 0)
-        rem = dd.get("rem_sleep_min", 0)
-        total = dd.get("sleep_duration_min", 0)
-        quality = dd.get("sleep_quality", 0)
-        inter = dd.get("sleep_interruptions", 0)
-        stages = []
-        cycles = max(1, round(total / 90))
-        for c in range(cycles):
-            for _ in range(max(1, light // cycles)): stages.append(2)
-            for _ in range(max(1, deep // cycles)): stages.append(1)
-            for _ in range(max(1, rem // cycles)): stages.append(3)
-            if c < cycles - 1 and inter > 0: stages.append(0)
-        return {"stages": stages, "total_minutes": total, "deep_minutes": deep, "light_minutes": light, "rem_minutes": rem, "awake_minutes": inter, "sleep_quality": quality, "cycles": cycles, "sleep_duration": round(total / 60, 1), "date": latest.get("timestamp", ""), "source": "device"}
-    return {"stages": [], "total_minutes": 0, "deep_minutes": 0, "light_minutes": 0, "rem_minutes": 0, "awake_minutes": 0, "sleep_quality": 0, "cycles": 0, "sleep_duration": 0, "date": datetime.now(timezone.utc).isoformat(), "source": "none"}
+    ).sort("timestamp", -1).to_list(200)
+
+    if not all_sleep:
+        return {"stages": [], "total_minutes": 0, "deep_minutes": 0, "light_minutes": 0, "rem_minutes": 0, "awake_minutes": 0, "sleep_quality": 0, "cycles": 0, "sleep_duration": 0, "date": datetime.now(timezone.utc).isoformat(), "source": "none"}
+
+    # Group segments by bracelet date (night)
+    nights = _group_sleep_by_night(all_sleep)
+    if not nights:
+        return {"stages": [], "total_minutes": 0, "deep_minutes": 0, "light_minutes": 0, "rem_minutes": 0, "awake_minutes": 0, "sleep_quality": 0, "cycles": 0, "sleep_duration": 0, "date": datetime.now(timezone.utc).isoformat(), "source": "none"}
+
+    # Return the most recent night
+    latest_date = sorted(nights.keys())[-1]
+    return nights[latest_date]
+
+
+def _extract_bcd_date_from_raw(raw_hex: str) -> tuple:
+    """Extract BCD date and time from raw_hex of a 0x53 sleep packet."""
+    try:
+        parts = raw_hex.split(':')
+        if len(parts) < 9:
+            return "", ""
+        seg_idx = int(parts[1], 16)
+        if seg_idx == 0xFF:
+            return "", ""
+        bcd = lambda b: f"{(int(b, 16) >> 4) & 0xf}{int(b, 16) & 0xf}"
+        year = f"20{bcd(parts[3])}"
+        month = bcd(parts[4])
+        day = bcd(parts[5])
+        hour = bcd(parts[6])
+        minute = bcd(parts[7])
+        return f"{year}-{month}-{day}", f"{hour}:{minute}"
+    except:
+        return "", ""
+
+
+def _group_sleep_by_night(readings: list) -> dict:
+    """Group V8 sleep segments by night, concatenate real stages, compute metrics."""
+    nights_raw: dict = {}
+    for r in readings:
+        dd = r.get("data", {})
+        raw_hex = dd.get("raw_hex", "")
+
+        # Get date: from parsed field, or extract from raw_hex, or server timestamp
+        dt = dd.get("sleep_date", "")
+        start_time = dd.get("sleep_start_time", "")
+        if not dt and raw_hex:
+            dt, start_time = _extract_bcd_date_from_raw(raw_hex)
+        if not dt:
+            dt = r.get("timestamp", "")[:10]
+        if not dt or len(dt) < 10:
+            continue
+        dt = dt[:10]
+
+        # Get segment index from parsed field or from raw_hex
+        seg_idx = dd.get("segment_index")
+        if seg_idx is None and raw_hex:
+            try:
+                seg_idx = int(raw_hex.split(':')[1], 16)
+            except:
+                seg_idx = 0
+        if seg_idx is None:
+            seg_idx = 0
+
+        if dt not in nights_raw:
+            nights_raw[dt] = {}
+        # Deduplicate by segment_index (keep the one with most stages)
+        existing = nights_raw[dt].get(seg_idx)
+        stages_new = dd.get("sleep_stages", [])
+        if not existing or len(stages_new) > len(existing.get("sleep_stages", [])):
+            nights_raw[dt][seg_idx] = {**dd, "sleep_start_time": start_time or dd.get("sleep_start_time", "")}
+
+    nights = {}
+    for dt, segments in nights_raw.items():
+        # Concatenate stages in segment order (highest index = earliest in night)
+        all_stages = []
+        earliest_time = ""
+        for seg_idx in sorted(segments.keys(), reverse=True):
+            seg = segments[seg_idx]
+            all_stages.extend(seg.get("sleep_stages", []))
+            t = seg.get("sleep_start_time", "")
+            if t and (not earliest_time or t < earliest_time):
+                earliest_time = t
+
+        if not all_stages:
+            continue
+
+        # Normalize stages: 1=deep, 2=light, 3=REM, 4/0=awake
+        normalized = [s if s in (1, 2, 3) else 0 for s in all_stages]
+        deep = normalized.count(1)
+        light = normalized.count(2)
+        rem = normalized.count(3)
+        awake = normalized.count(0)
+        total_sleep = deep + light + rem
+        total_duration = len(normalized)
+
+        # Count interruptions (transitions to awake from sleep)
+        interruptions = 0
+        for i in range(1, len(normalized)):
+            if normalized[i] == 0 and normalized[i - 1] != 0:
+                interruptions += 1
+
+        # Count cycles (deep→REM = 1 cycle)
+        cycles = 0
+        had_deep = False
+        for s in normalized:
+            if s == 1:
+                had_deep = True
+            if s == 3 and had_deep:
+                cycles += 1
+                had_deep = False
+        cycles = max(cycles, 1) if total_sleep > 30 else 0
+
+        # Quality score
+        quality = min(100, round((deep * 2 + rem * 1.5 + light) / max(total_sleep, 1) * 50)) if total_sleep > 0 else 0
+
+        nights[dt] = {
+            "date": dt,
+            "start_time": earliest_time,
+            "stages": normalized,
+            "total_minutes": total_duration,
+            "deep_minutes": deep,
+            "light_minutes": light,
+            "rem_minutes": rem,
+            "awake_minutes": awake,
+            "sleep_quality": quality,
+            "cycles": cycles,
+            "sleep_interruptions": interruptions,
+            "sleep_duration": round(total_sleep / 60, 1),
+            "segments_count": len(segments),
+            "source": "bracelet",
+        }
+    return nights
 
 
 @router.get("/health/sleep/history")
 async def get_sleep_history(user=Depends(get_current_user)):
-    """Return per-night sleep summaries, aggregating multi-segment V8 bracelet data."""
+    """Return per-night sleep summaries with real aggregated data from V8 bracelet."""
     uid = user['id']
-    readings = await db.device_readings.find(
-        {"user_id": uid, "device_type": "bracelet", "data.sleep_duration_min": {"$gt": 0}},
+    all_sleep = await db.device_readings.find(
+        {"user_id": uid, "device_type": "bracelet", "data.cmd": 0x53, "data.sleep_stages": {"$exists": True, "$ne": []}},
         {"_id": 0}
-    ).sort("timestamp", -1).to_list(200)
+    ).sort("timestamp", -1).to_list(500)
 
-    # Group by bracelet sleep_date (if available) OR server timestamp date
-    nights: dict = {}
-    for r in readings:
-        dd = r.get("data", {})
-        # Use bracelet date if available, otherwise server timestamp
-        dt = dd.get("sleep_date", r.get("timestamp", "")[:10])
-        if not dt or len(dt) < 10:
-            continue
-        dt = dt[:10]
-        if dt not in nights:
-            nights[dt] = {"deep": 0, "light": 0, "rem": 0, "awake": 0, "interruptions": 0, "cycles": 0, "start_time": dd.get("sleep_start_time", ""), "segments": 0}
-        n = nights[dt]
-        n["deep"] += dd.get("deep_sleep_min", 0)
-        n["light"] += dd.get("light_sleep_min", 0)
-        n["rem"] += dd.get("rem_sleep_min", 0)
-        n["awake"] += dd.get("awake_minutes", 0)
-        n["interruptions"] += dd.get("sleep_interruptions", 0)
-        n["cycles"] += dd.get("sleep_cycles", 0)
-        n["segments"] += 1
-        if not n["start_time"] and dd.get("sleep_start_time"):
-            n["start_time"] = dd["sleep_start_time"]
+    if not all_sleep:
+        return []
 
+    nights = _group_sleep_by_night(all_sleep)
     history = []
-    for dt, n in sorted(nights.items()):
-        total = n["deep"] + n["light"] + n["rem"]
-        quality = min(100, round((n["deep"] * 2 + n["rem"] * 1.5 + n["light"]) / max(total, 1) * 50)) if total > 0 else 0
+    for dt in sorted(nights.keys()):
+        n = nights[dt]
+        total_sleep = n["deep_minutes"] + n["light_minutes"] + n["rem_minutes"]
         history.append({
             "date": dt,
-            "duration": round(total / 60, 1),
-            "deep": n["deep"], "light": n["light"], "rem": n["rem"],
-            "awake": n["awake"],
-            "quality": quality,
-            "cycles": n["cycles"] if n["cycles"] > 0 else max(1, round(total / 90)),
-            "sleep_interruptions": n["interruptions"],
-            "start_time": n["start_time"],
+            "duration": round(total_sleep / 60, 1),
+            "duration_min": total_sleep,
+            "deep": n["deep_minutes"],
+            "light": n["light_minutes"],
+            "rem": n["rem_minutes"],
+            "awake": n["awake_minutes"],
+            "quality": n["sleep_quality"],
+            "cycles": n["cycles"],
+            "sleep_interruptions": n["sleep_interruptions"],
+            "start_time": n.get("start_time", ""),
+            "stages": n["stages"],  # Real minute-by-minute stages for hypnogram
         })
     return history[-7:]
 
