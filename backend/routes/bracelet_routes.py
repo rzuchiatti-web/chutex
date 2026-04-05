@@ -785,20 +785,13 @@ async def push_v8_data(request_body: dict, user=Depends(get_current_user)):
         if raw_data.get("temperature") and not valid_temp(raw_data["temperature"]):
             raw_data.pop("temperature", None)
 
-    # Filter sleep stages: strip 8-byte metadata header, keep valid stages (1-4)
-    # Per V8 protocol: each segment starts with [segment_id, year, month, day, hour, min, type, count]
+    # Filter sleep stages: use segment_index from frontend V8 parser (per SDK)
     # Valid stages: 1=Deep, 2=Light, 3=REM, 4=Awake
     if data_type == "sleep" and raw_data.get("sleep_stages"):
         stages = raw_data["sleep_stages"]
-        raw_data["_segment_id"] = "0"
-        # Strip metadata header (first 8 bytes contain timestamp/segment info)
-        # Identify by: the first few bytes often have values > 10 (like 23=year, 16=month, 52=minute)
-        if len(stages) > 8:
-            # Check if first bytes look like metadata (values > 4 or equal to known header patterns)
-            has_metadata = any(s > 10 for s in stages[:8])
-            if has_metadata:
-                raw_data["_segment_id"] = str(stages[0])
-                stages = stages[8:]  # Strip the 8-byte header
+        # Use segment_index from frontend parser (bytes[1] of 0x53 packet)
+        seg_id = str(raw_data.get("segment_index", 0))
+        raw_data["_segment_id"] = seg_id
 
         valid_stages = [s for s in stages if 1 <= s <= 4]
         if valid_stages:

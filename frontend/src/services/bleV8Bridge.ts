@@ -146,26 +146,35 @@ export function parseV8Response(bytes: number[]): { cmd: number; raw_hex?: strin
     parsed.blood_glucose_mgdl = Math.round((gRaw / 10.0) * 18.0);
   }
 
-  // 0x53: Detailed sleep data
-  // Per V8 protocol: first 8 bytes are metadata [segment_id, year, month, day, hour, min, type, count]
-  // Valid stages: 01=Deep, 02=Light, 03=REM, 04=Awake
-  if (cmd === V8_CMD.SLEEP && bytes.length >= 3) {
-    const rawStages = bytes.slice(1, -1); // Exclude cmd byte and CRC
-    // Strip 8-byte metadata header if present (detect by values > 10 in first 8 bytes)
-    let dataStart = 0;
-    if (rawStages.length > 8 && rawStages.slice(0, 8).some(b => b > 10)) {
-      dataStart = 8;
+  // 0x53: Sleep data — per V8 SDK (ResolveUtil.getSleepData)
+  // 130-byte packet (1-min resolution): [cmd, idx, pad, year, month, day, hour, min, sec, sleepLength, stages...]
+  // 34-byte records (5-min resolution): same header, stages are 5-min intervals
+  // stages: 1=Deep, 2=Light, 3=REM, 4=Awake
+  if (cmd === V8_CMD.SLEEP && bytes.length >= 11) {
+    const segmentIndex = bytes[1];
+    parsed.segment_index = segmentIndex;
+    
+    // End marker: 0xFF
+    if (bytes.length <= 3 && bytes[1] === 0xFF) {
+      return parsed; // No more data
     }
+    
+    const sleepLength = bytes[9]; // Number of stage entries
+    const isMinuteResolution = bytes.length >= 130; // 130-byte = 1-min, 34-byte = 5-min
+    const unitMinutes = isMinuteResolution ? 1 : 5;
+    
     const stages: number[] = [];
-    for (let i = dataStart; i < rawStages.length; i++) {
-      if (rawStages[i] >= 1 && rawStages[i] <= 4) stages.push(rawStages[i]);
+    for (let i = 0; i < sleepLength && (10 + i) < bytes.length; i++) {
+      const val = bytes[10 + i];
+      if (val >= 1 && val <= 4) stages.push(val);
     }
+    
     if (stages.length > 0) {
-      const deep = stages.filter(s => s === 1).length;
-      const light = stages.filter(s => s === 2).length;
-      const rem = stages.filter(s => s === 3).length;
-      const awake = stages.filter(s => s === 4).length;
-      const sleepMin = deep + light + rem; // Awake doesn't count as sleep
+      const deep = stages.filter(s => s === 1).length * unitMinutes;
+      const light = stages.filter(s => s === 2).length * unitMinutes;
+      const rem = stages.filter(s => s === 3).length * unitMinutes;
+      const awake = stages.filter(s => s === 4).length * unitMinutes;
+      const sleepMin = deep + light + rem;
       parsed.sleep_stages = stages;
       parsed.sleep_duration_min = sleepMin;
       parsed.deep_sleep_min = deep;
