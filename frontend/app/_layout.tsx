@@ -138,9 +138,12 @@ function NativeFullApp() {
 
       // Handle ECG start command from WebView
       if (msg.action === 'ble_ecg_start' && bleDeviceRef.current) {
-        const { writeToDevice, V8_CMD } = require('../src/services/bleV8Bridge');
-        // Send ECG start: 0x28, sub=4 (ECG mode), start=1
+        const { writeToDevice } = require('../src/services/bleV8Bridge');
+        // Per V8 SDK (ECGActivity.kt):
+        // 1. SetDeviceMeasurementWithType(ECG, 50s, true): cmd=0x28, sub=4, enable=1, duration=50000ms
         writeToDevice(bleDeviceRef.current, 0x28, [4, 1, 0, 0, 0x50, 0xC3, 0x01]);
+        // 2. setECGRealtimeDuringHRVEnabled(true): cmd=0x07, enable=1
+        setTimeout(() => writeToDevice(bleDeviceRef.current, 0x07, [1]), 200);
         return;
       }
 
@@ -148,6 +151,7 @@ function NativeFullApp() {
       if (msg.action === 'ble_ecg_stop' && bleDeviceRef.current) {
         const { writeToDevice } = require('../src/services/bleV8Bridge');
         writeToDevice(bleDeviceRef.current, 0x28, [4, 0, 0, 0, 0, 0, 1]);
+        setTimeout(() => writeToDevice(bleDeviceRef.current, 0x07, [0]), 200);
         return;
       }
 

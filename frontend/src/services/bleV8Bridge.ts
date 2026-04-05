@@ -111,8 +111,21 @@ export function parseV8Response(bytes: number[]): { cmd: number; raw_hex?: strin
     }
   }
 
-  // 0x28: Health measurement response
-  // Sub-types: 1=HRV+BP, 2=HR, 3=SpO2
+  // 0x07: PPG/ECG real-time data — per V8 SDK (ResolveUtil.getECG)
+  // When setECGRealtimeDuringHRVEnabled(true), cmd 0x07 packets with length > 16 contain ECG data
+  // Format: [cmd, packetID, data...] where data = groups of 3 bytes (24-bit ECG samples LE)
+  if (cmd === 0x07 && bytes.length > 16) {
+    const packetID = bytes[1];
+    const ecgSamples: number[] = [];
+    const count = Math.floor((bytes.length - 2) / 3);
+    for (let i = 0; i < count; i++) {
+      const idx = 2 + 3 * i;
+      const value = (bytes[idx] & 0xFF) | ((bytes[idx + 1] & 0xFF) << 8) | ((bytes[idx + 2] & 0xFF) << 16);
+      ecgSamples.push(value);
+    }
+    parsed.ecg_samples = ecgSamples;
+    parsed.ecg_packet_id = packetID;
+  }
   // Layout depends on sub-type — byte positions differ
   if (cmd === V8_CMD.VITALS && bytes.length >= 4) {
     const subType = bytes[1];
@@ -464,6 +477,14 @@ export function startBleMonitoring(
 
       // Dispatch to WebView for UI
       injectBleDataEvent(webViewRef, dataJson);
+
+      // Forward ECG samples specifically for the ECG page
+      if (parsed.ecg_samples && parsed.ecg_samples.length > 0) {
+        const ecgJson = JSON.stringify({ ecg_samples: parsed.ecg_samples, ecg_packet_id: parsed.ecg_packet_id }).replace(/'/g, '');
+        webViewRef.current?.injectJavaScript(`
+          window.dispatchEvent(new CustomEvent('ble_ecg_data',{detail:${ecgJson}}));true;
+        `);
+      }
 
       // Push to backend
       injectPushToBackend(webViewRef, cmdToDataType(parsed.cmd), dataJson, safeId);
