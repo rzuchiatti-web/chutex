@@ -1,19 +1,23 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useRouter } from 'expo-router';
 import { DEVICE_META } from './constants';
+import { apiFetch, clearApiCache } from '../../services/api';
 
 interface DeviceCardProps {
   deviceType: string;
   device: any;
   subscription: any;
   weighings: any[];
+  token?: string;
   onStartPairing: (dt: string) => void;
   onSelectDevice: (dt: string) => void;
   onScaleWeighing: () => void;
+  onRefresh?: () => void;
 }
 
-export function DeviceCard({ deviceType: dt, device, subscription, weighings, onStartPairing, onSelectDevice, onScaleWeighing }: DeviceCardProps) {
+export function DeviceCard({ deviceType: dt, device, subscription, weighings, token, onStartPairing, onSelectDevice, onScaleWeighing, onRefresh }: DeviceCardProps) {
   const router = useRouter();
+  const [syncing, setSyncing] = useState(false);
   const meta = DEVICE_META[dt];
   const isAssociated = device && (device.connected || device.battery > 0 || device.last_sync);
   const showActions = isAssociated || dt === 'dorsi';
@@ -29,6 +33,7 @@ export function DeviceCard({ deviceType: dt, device, subscription, weighings, on
 
   return (
     <div data-testid={`device-card-${dt}`} style={{ borderRadius: 20, marginBottom: 14, overflow: 'hidden', background: '#F4F4F5', padding: '20px' } as any}>
+      <style dangerouslySetInnerHTML={{ __html: `@keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}` }} />
       {/* Device image — inside grey card */}
       <div style={{ position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '16px 0', minHeight: 130, cursor: isAssociated ? 'pointer' : 'default' } as any} onClick={() => isAssociated && onSelectDevice(dt)}>
         <img src={meta.img} alt={meta.name} style={{ height: 120, width: 'auto', maxWidth: '70%', objectFit: 'contain', filter: 'drop-shadow(0 6px 16px rgba(0,0,0,0.08))' } as any} />
@@ -62,8 +67,19 @@ export function DeviceCard({ deviceType: dt, device, subscription, weighings, on
           )}
           <div style={{ display: 'flex', gap: 8, marginTop: 12 } as any}>
             {dt === 'bracelet' && (
-              <div data-testid="bracelet-sync-btn" onClick={() => onStartPairing(dt)} style={{ flex: 1, padding: '12px 14px', borderRadius: 999, cursor: 'pointer', background: '#111', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, fontSize: 13, fontWeight: 700, color: '#FFF' } as any}>
-                <i className="ri-refresh-line" style={{ fontSize: 14 }} />Synchroniser
+              <div data-testid="bracelet-sync-btn" onClick={async (e) => {
+                e.stopPropagation();
+                setSyncing(true);
+                try {
+                  clearApiCache();
+                  if (token) await apiFetch('/api/health/daily-report?force=true', {}, token);
+                  if (onRefresh) onRefresh();
+                } catch {} finally {
+                  setTimeout(() => setSyncing(false), 1500);
+                }
+              }} style={{ flex: 1, padding: '12px 14px', borderRadius: 999, cursor: 'pointer', background: '#111', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, fontSize: 13, fontWeight: 700, color: '#FFF', opacity: syncing ? 0.6 : 1 } as any}>
+                <i className="ri-refresh-line" style={{ fontSize: 14, animation: syncing ? 'spin 0.8s linear infinite' : 'none' }} />
+                {syncing ? 'Synchronisation...' : 'Synchroniser'}
               </div>
             )}
             {dt === 'scale' && (

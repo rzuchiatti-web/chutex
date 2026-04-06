@@ -72,9 +72,11 @@ export function DeviceManagement({ token }: { token: string }) {
                 device={deviceMap[dt]}
                 subscription={subscription}
                 weighings={weighings}
+                token={token}
                 onStartPairing={handleStartPairing}
                 onSelectDevice={setSelectedDevice}
                 onScaleWeighing={openWeighingFlow}
+                onRefresh={fetchDevices}
               />
             ))}
           </div>
