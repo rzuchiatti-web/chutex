@@ -59,6 +59,11 @@ export function DeviceCard({ deviceType: dt, device, subscription, weighings, on
             </>
           )}
           <div style={{ display: 'flex', gap: 8, marginTop: 12 } as any}>
+            {dt === 'bracelet' && (
+              <div data-testid="bracelet-sync-btn" onClick={() => onStartPairing(dt)} style={{ flex: 1, padding: '12px 14px', borderRadius: 999, cursor: 'pointer', background: '#111', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, fontSize: 13, fontWeight: 700, color: '#FFF' } as any}>
+                <i className="ri-refresh-line" style={{ fontSize: 14 }} />Synchroniser
+              </div>
+            )}
             {dt === 'scale' && (
               <div data-testid="scale-weigh-btn" onClick={onScaleWeighing} style={{ flex: 1, padding: '12px 14px', borderRadius: 999, cursor: 'pointer', background: '#111', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 13, fontWeight: 700, color: '#FFF' } as any}>
                 Nouvelle pesee

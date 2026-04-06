@@ -186,7 +186,7 @@ async def get_beneficiary_all_exercises(user=Depends(get_current_user)):
 
 @router.get("/pro/exercise-library")
 async def get_exercise_library(user=Depends(get_current_user)):
-    """Get the exercise library (templates) — filters by the pro who created them"""
+    """Get the exercise library — pro templates + all available templates for beneficiary."""
     uid = user['id']
     guardians = await db.guardian_links.find(
         {"beneficiary_id": uid, "status": "accepted"}, {"_id": 0}
@@ -199,13 +199,36 @@ async def get_exercise_library(user=Depends(get_current_user)):
     pro_ids = [s['professional_id'] for s in pro_subscriptions]
 
     all_pro_ids = list(set(guardian_ids + pro_ids))
-    if not all_pro_ids:
-        all_pro_ids = [uid]
 
-    templates = await db.pro_exercise_templates.find(
-        {"professional_id": {"$in": all_pro_ids}}, {"_id": 0}
+    # Fetch pro-specific templates
+    pro_templates = []
+    if all_pro_ids:
+        pro_templates = await db.pro_exercise_templates.find(
+            {"professional_id": {"$in": all_pro_ids}}, {"_id": 0}
+        ).sort("created_at", -1).to_list(200)
+
+    # Also fetch ALL available templates as global library (like reminder suggestions)
+    all_templates = await db.pro_exercise_templates.find(
+        {}, {"_id": 0}
     ).sort("created_at", -1).to_list(200)
-    return templates
+
+    # Merge: pro templates first, then global (deduplicate by id)
+    seen_ids = set()
+    result = []
+    for t in pro_templates:
+        tid = t.get("id", "")
+        if tid and tid not in seen_ids:
+            t["source"] = "pro"
+            result.append(t)
+            seen_ids.add(tid)
+    for t in all_templates:
+        tid = t.get("id", "")
+        if tid and tid not in seen_ids:
+            t["source"] = "library"
+            result.append(t)
+            seen_ids.add(tid)
+
+    return result
 
 
 @router.post("/pro/self-assign-exercise")
