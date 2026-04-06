@@ -1065,6 +1065,26 @@ async def push_v8_data(request_body: dict, user=Depends(get_current_user)):
     # Invalidate daily report cache (new data = stale report)
     await db.daily_report_cache.delete_one({"user_id": uid})
 
+    # ── NOTIFY FRONTEND VIA WEBSOCKET — triggers immediate UI refresh ──
+    try:
+        from ws_manager import beneficiary_ws_manager
+        summary = {}
+        if raw_data.get("heart_rate", 0) > 0: summary["heart_rate"] = raw_data["heart_rate"]
+        if raw_data.get("spo2", 0) > 0: summary["spo2"] = raw_data["spo2"]
+        if raw_data.get("steps", 0) > 0: summary["steps"] = raw_data["steps"]
+        if raw_data.get("battery", 0) > 0: summary["battery"] = raw_data["battery"]
+        if raw_data.get("temperature", 0) > 30: summary["temperature"] = raw_data["temperature"]
+        if raw_data.get("hrv", 0) > 0: summary["hrv"] = raw_data["hrv"]
+        if raw_data.get("systolic", 0) > 0: summary["blood_pressure"] = {"systolic": raw_data["systolic"], "diastolic": raw_data.get("diastolic", 0)}
+        await beneficiary_ws_manager.send_to_user(uid, {
+            "type": "ble_sync",
+            "data_type": data_type,
+            "data": summary,
+            "timestamp": now,
+        })
+    except Exception:
+        pass
+
     return {k: v for k, v in reading.items() if k != "_id"}
 async def get_vo2max(user=Depends(get_current_user)):
     """Calculate VO2max from V8 bracelet HR + HRV data."""

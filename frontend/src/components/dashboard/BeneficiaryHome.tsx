@@ -109,8 +109,12 @@ export function BeneficiaryHome({ token, user }: { token: string; user: any }) {
   const sosPulse = useRef(new Animated.Value(1)).current;
   const { refreshUser } = useAuth();
 
-  // Real-time notifications via WebSocket
-  const { notifications: liveNotifs, unreadCount: liveUnread, liveBanner, markRead, markAllRead, dismissBanner } = useNotifications(token);
+  // Real-time notifications via WebSocket — with BLE sync callback
+  const bleSyncCallback = useCallback(() => {
+    clearApiCache();
+    fetchData();
+  }, [fetchData]);
+  const { notifications: liveNotifs, unreadCount: liveUnread, liveBanner, markRead, markAllRead, dismissBanner } = useNotifications(token, bleSyncCallback);
   const [notifCenterOpen, setNotifCenterOpen] = useState(false);
   const [showNoraHealth, setShowNoraHealth] = useState(false);
   const [minceurData, setMinceurData] = useState<any>(null);

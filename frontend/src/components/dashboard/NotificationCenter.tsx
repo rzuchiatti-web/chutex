@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { apiFetch } from '../../services/api';
+import { apiFetch, clearApiCache } from '../../services/api';
 import { sendLocalNotification, requestNotificationPermission } from '../../services/notifications';
 
 const API = process.env.EXPO_PUBLIC_BACKEND_URL || '';
@@ -16,12 +16,14 @@ interface Notification {
   data?: any;
 }
 
-export function useNotifications(token: string | null) {
+export function useNotifications(token: string | null, onBleSync?: () => void) {
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [liveBanner, setLiveBanner] = useState<Notification | null>(null);
   const wsRef = useRef<WebSocket | null>(null);
   const bannerTimer = useRef<any>(null);
+  const bleSyncRef = useRef(onBleSync);
+  bleSyncRef.current = onBleSync;
 
   // Fetch initial notifications
   const fetchNotifications = useCallback(async () => {
@@ -63,6 +65,11 @@ export function useNotifications(token: string | null) {
               bannerTimer.current = setTimeout(() => setLiveBanner(null), 6000);
               // Browser notification
               sendLocalNotification(notif.title, notif.body);
+            }
+            // BLE sync event — trigger immediate dashboard refresh
+            if (data.type === 'ble_sync') {
+              clearApiCache();
+              if (bleSyncRef.current) bleSyncRef.current();
             }
           } catch {}
         };
