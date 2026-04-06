@@ -34,7 +34,6 @@ const portalMount = (node: React.ReactNode) => {
 
 export function BeneficiaryHome({ token, user }: { token: string; user: any }) {
   const router = useRouter();
-  useAutoReconnect(token);
   const { t, lang, setLang, flags: langFlags } = useI18n();
   const [isDark, setIsDark] = useState(() => {
     if (typeof localStorage !== 'undefined') {
