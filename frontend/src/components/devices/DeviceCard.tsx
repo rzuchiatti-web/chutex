@@ -47,15 +47,17 @@ export function DeviceCard({ deviceType: dt, device, subscription, weighings, on
       {/* Actions */}
       {showActions ? (
         <div>
-          {isAssociated && realBattery > 0 && (
+          {isAssociated && (
             <>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 } as any}>
                 <span style={{ fontSize: 12, fontWeight: 600, color: '#9CA3AF' }}><i className="ri-battery-line" style={{ fontSize: 14, marginRight: 6 }} />Batterie</span>
-                <span style={{ fontSize: 14, fontWeight: 800, color: realBattery > 50 ? '#10B981' : realBattery > 20 ? '#F59E0B' : '#EF4444' }}>{realBattery}%</span>
+                <span style={{ fontSize: 14, fontWeight: 800, color: realBattery > 50 ? '#10B981' : realBattery > 20 ? '#F59E0B' : realBattery > 0 ? '#EF4444' : '#9CA3AF' }}>{realBattery > 0 ? `${realBattery}%` : '--'}</span>
               </div>
-              <div style={{ height: 10, borderRadius: 5, background: '#E5E7EB', overflow: 'hidden', marginBottom: 4 } as any}>
-                <div style={{ height: '100%', borderRadius: 5, width: `${Math.max(4, realBattery)}%`, background: realBattery > 50 ? 'linear-gradient(90deg, #059669, #10B981)' : realBattery > 20 ? 'linear-gradient(90deg, #D97706, #F59E0B)' : 'linear-gradient(90deg, #DC2626, #EF4444)' } as any} />
-              </div>
+              {realBattery > 0 && (
+                <div style={{ height: 10, borderRadius: 5, background: '#E5E7EB', overflow: 'hidden', marginBottom: 4 } as any}>
+                  <div style={{ height: '100%', borderRadius: 5, width: `${Math.max(4, realBattery)}%`, background: realBattery > 50 ? 'linear-gradient(90deg, #059669, #10B981)' : realBattery > 20 ? 'linear-gradient(90deg, #D97706, #F59E0B)' : 'linear-gradient(90deg, #DC2626, #EF4444)' } as any} />
+                </div>
+              )}
             </>
           )}
           <div style={{ display: 'flex', gap: 8, marginTop: 12 } as any}>
