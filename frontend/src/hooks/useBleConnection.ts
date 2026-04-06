@@ -19,11 +19,15 @@ const parseBraceletResponse = (dv: DataView) => {
   const cmd = dv.getUint8(0);
   const len = dv.byteLength;
   const result: Record<string, any> = { cmd };
-  if (cmd === 0x09) {
+  if (cmd === 0x09 && len >= 22) {
+    // V8 SDK format: [cmd, step(4), cal(4), dist(4), activeMin(4), exerciseMin(4), HR, tempLo, tempHi]
     result.steps = dv.getUint8(1) | (dv.getUint8(2) << 8) | (dv.getUint8(3) << 16) | (dv.getUint8(4) << 24);
-    result.calories = ((dv.getUint8(5) | (dv.getUint8(6) << 8) | (dv.getUint8(7) << 16) | (dv.getUint8(8) << 24)) / 100);
-    result.heart_rate = dv.getUint8(13);
-  } else if (cmd === 0x28) {
+    const calRaw = dv.getUint8(5) | (dv.getUint8(6) << 8) | (dv.getUint8(7) << 16) | (dv.getUint8(8) << 24);
+    result.calories = Math.round(calRaw / 100 * 10) / 10;
+    result.distance_m = dv.getUint8(9) | (dv.getUint8(10) << 8) | (dv.getUint8(11) << 16) | (dv.getUint8(12) << 24);
+    const hr = dv.getUint8(21);
+    if (hr >= 30 && hr <= 200) result.heart_rate = hr;
+  } else if (cmd === 0x28 && len >= 8) {
     result.measurement_type = dv.getUint8(1);
     result.heart_rate = dv.getUint8(2);
     result.spo2 = dv.getUint8(3);
