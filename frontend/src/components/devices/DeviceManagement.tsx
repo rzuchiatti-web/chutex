@@ -28,6 +28,11 @@ export function DeviceManagement({ token }: { token: string }) {
       setShowNoSubPopup(true);
       return;
     }
+    // If bracelet is already associated, skip pairing steps — go straight to BLE scan
+    if (dt === 'bracelet' && deviceMap[dt]?.last_sync) {
+      ble.launchBleScan(dt);
+      return;
+    }
     ble.startPairing(dt);
   };
 

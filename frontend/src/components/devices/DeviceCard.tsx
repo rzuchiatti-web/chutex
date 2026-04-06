@@ -67,19 +67,12 @@ export function DeviceCard({ deviceType: dt, device, subscription, weighings, to
           )}
           <div style={{ display: 'flex', gap: 8, marginTop: 12 } as any}>
             {dt === 'bracelet' && (
-              <div data-testid="bracelet-sync-btn" onClick={async (e) => {
+              <div data-testid="bracelet-sync-btn" onClick={(e) => {
                 e.stopPropagation();
-                setSyncing(true);
-                try {
-                  clearApiCache();
-                  if (token) await apiFetch('/api/health/daily-report?force=true', {}, token);
-                  if (onRefresh) onRefresh();
-                } catch {} finally {
-                  setTimeout(() => setSyncing(false), 1500);
-                }
-              }} style={{ flex: 1, padding: '12px 14px', borderRadius: 999, cursor: 'pointer', background: '#111', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, fontSize: 13, fontWeight: 700, color: '#FFF', opacity: syncing ? 0.6 : 1 } as any}>
-                <i className="ri-refresh-line" style={{ fontSize: 14, animation: syncing ? 'spin 0.8s linear infinite' : 'none' }} />
-                {syncing ? 'Synchronisation...' : 'Synchroniser'}
+                onStartPairing(dt);
+              }} style={{ flex: 1, padding: '12px 14px', borderRadius: 999, cursor: 'pointer', background: '#111', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, fontSize: 13, fontWeight: 700, color: '#FFF' } as any}>
+                <i className="ri-bluetooth-connect-line" style={{ fontSize: 14 }} />
+                {realConnected ? 'Synchroniser' : 'Connecter & Sync'}
               </div>
             )}
             {dt === 'scale' && (
