@@ -1,42 +1,38 @@
 # Chutex Care - PRD
 
-## Build 120+ (2026-04-06) — Fix critique parser BLE Chrome
+## Build 123 (2026-04-06) — Pipeline BLE → WebSocket → UI temps réel
 
-### Session 3 (2026-04-06) - Fix BLE Chrome:
+### Architecture BLE sync (Build 123):
+```
+Bracelet BLE → Frontend parse → POST /api/bracelet/v8/push
+  → Backend: stocke device doc + readings + consolidated
+  → Backend: invalide cache daily-report
+  → Backend: envoie WebSocket {type: "ble_sync"} au frontend
+  → Frontend: NotificationCenter reçoit → clearApiCache() + fetchData()
+  → Toutes les pages se rafraîchissent instantanément
+```
 
-**Parser BLE Chrome desaligne avec V8 SDK:**
-- `useBleConnection.ts` parseBraceletResponse lisait heart_rate a bytes[13] au lieu de bytes[21]
-- Format V8: [cmd, steps(4), cal(4), dist(4), activeMin(4), exerciseMin(4), HR, tempLo, tempHi]
-- Corrige: alignement complet avec bleV8Bridge.ts (parser natif)
-- Ajout check length >= 22 pour cmd 0x09
+### Corrections Build 123:
+- Pipeline WebSocket ble_sync pour refresh UI instantané après push BLE
+- Parser Chrome BLE aligné avec parser natif (HR bytes[21])
+- useAutoReconnect réécrit avec monitoring + polling complet
+- Bouton Sync skip pairing steps pour bracelet déjà associé
+- Batterie toujours visible sur carte Elio
+- Bibliothèque exercices accessible au bénéficiaire (40 templates)
+- Sommeil cohérent (581min = 9h41, apnée 45%, régularité restaurée)
+- Padding 70px sur tous les popups
 
-**Bouton Synchroniser:**
-- Ne lance plus le pairing BLE
-- Rafraichit les donnees serveur (clearApiCache + daily-report force + fetchDevices)
-- Animation de rotation pendant la sync
-
-**Batterie toujours visible:**
-- Carte Elio affiche la batterie meme si valeur = 0 (affiche "--")
-- Barre de progression uniquement si > 0%
-
-**Bibliotheque exercices pour beneficiaire:**
-- Endpoint retourne TOUS les 40 templates (force, cardio, mobilite, souplesse)
-- L'utilisateur peut s'auto-prescrire des exercices
-
-### Sessions precedentes:
-- Fix sommeil (coherence 10h vs 9h42, hypnogramme, apnee 92%->45%)
-- Carte regularite restauree
-- Padding 70px popups
+### Native iOS auto-reconnect:
+- _layout.tsx: 3s après chargement WebView + retry 30s
+- scanAndConnect silent avec knownDeviceId
+- startBraceletProtocol: monitoring FFF7 + polling 10-15s
+- sendInitialCommands: battery, sleep(10 segments), HR, SpO2, HRV+BP, steps, glucose, temperature, historiques
 
 ## Architecture
-- Frontend: React Native _layout.tsx + WebView. BLE bridge: bleV8Bridge.ts (natif) + useBleConnection.ts (Chrome Web BLE)
-- Backend: FastAPI. Routes: health_report_routes.py, bracelet_routes.py
+- Frontend: React Native _layout.tsx + WebView. BLE: bleV8Bridge.ts (natif) + useBleConnection.ts (Chrome)
+- Backend: FastAPI. WebSocket: ws_manager.py. Routes: bracelet_routes.py, health_report_routes.py
 - DB: MongoDB (vitallink_db)
-
-## Important: Expo Go ne fonctionne PAS
-L'app utilise des modules BLE natifs (react-native-ble-plx). TestFlight obligatoire pour iOS.
 
 ## Upcoming Tasks
 - P1: Configuration WiFi balance Lefu
-- P2: Deploiement production serveur TCP J2358
-- P2: Integration gilet connecte, Signature, Parrainage, Essai 7j, Vivoo
+- P2: Deploiement TCP J2358, Gilet, Signature, Parrainage, Essai 7j, Vivoo
