@@ -311,7 +311,7 @@ export default function GuardianDétailScreen() {
               <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 14 } as any}>
                 <i className="ri-map-pin-line" style={{ fontSize: 18, color: LOC_OPTIONS.find(o => o.value === perms.location_mode)?.color || C.sub }} />
                 <div style={{ flex: 1 } as any}>
-                  <div style={{ fontSize: 14, fontWeight: 700, color: C.text }}>Localisation</div>
+                  <div style={{ fontSize: 14, fontWeight: 700, color: C.text }}>{t('location')}</div>
                   <div style={{ fontSize: 11, color: C.sub, marginTop: 1 }}>Qui peut voir votre position</div>
                 </div>
               </div>

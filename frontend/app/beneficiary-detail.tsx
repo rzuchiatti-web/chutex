@@ -193,7 +193,7 @@ export default function BeneficiaryDétailScreen() {
                 }
               </div>
               <div style={{ fontSize: 24, fontWeight: 800, color: '#FFF', letterSpacing: -0.5, lineHeight: 1.15 }} data-testid="beneficiary-firstname-value">{firstName} <span data-testid="beneficiary-lastname-value">{lastName}</span></div>
-              <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.55)', fontWeight: 500, marginTop: 4 }}>Fiche bénéficiaire</div>
+              <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.55)', fontWeight: 500, marginTop: 4 }}>{t('beneficiary_card_label')}</div>
             </div>
             {/* SLIDE TO CALL */}
             {data.phone && (
@@ -228,17 +228,17 @@ export default function BeneficiaryDétailScreen() {
         <div style={{ padding: '0 20px 120px', marginTop: -16, borderRadius: '22px 22px 0 0', background: C.contentBg, position: 'relative', zIndex: 10, borderTop: `1px solid ${C.border}` } as any}>
 
           {/* ── 1. INFOS PERSONNELLES ── */}
-          <div style={SL}>Informations personnelles</div>
+          <div style={SL}>{t('personal_info')}</div>
           <div style={{ borderRadius: 16, background: C.cardGrey, border: `1px solid ${C.cardBorder}`, padding: '4px 16px', marginBottom: 4 } as any}>
-            <div style={rowS}><span style={lbS}>Prenom</span><span style={vlS}>{firstName}</span></div>
+            <div style={rowS}><span style={lbS}>{t('first_name_label')}</span><span style={vlS}>{firstName}</span></div>
             <div style={rowS}><span style={lbS}>Nom</span><span style={vlS}>{lastName}</span></div>
             {ageYears && <div style={rowS}><span style={lbS}>Age</span><span style={vlS}>{ageYears} ans</span></div>}
             <div style={rowS}><span style={lbS}>Genre</span><span style={vlS}>{genderLabel}</span></div>
-            {data.date_of_birth && <div style={rowS}><span style={lbS}>Date de naissance</span><span style={vlS}>{new Date(data.date_of_birth).toLocaleDateString('fr-FR')}</span></div>}
-            {data.phone && <div style={rowS}><span style={lbS}>Telephone</span><span style={vlS}>{data.phone}</span></div>}
-            <div style={{ ...rowS, flexDirection: 'column', alignItems: 'flex-start', gap: 2 } as any}><span style={lbS}>Adresse</span><span data-testid="beneficiary-profile-address-value" style={{ fontSize: 13, color: C.text, fontWeight: 600, marginTop: 2 }}>{data.address || '-'}</span></div>
-            {data.postal_code && <div style={rowS}><span style={lbS}>Code postal</span><span data-testid="beneficiary-profile-postal-value" style={vlS}>{data.postal_code}</span></div>}
-            {data.city && <div style={rowS}><span style={lbS}>Ville</span><span data-testid="beneficiary-profile-city-value" style={vlS}>{data.city}</span></div>}
+            {data.date_of_birth && <div style={rowS}><span style={lbS}>{t('date_of_birth')}</span><span style={vlS}>{new Date(data.date_of_birth).toLocaleDateString('fr-FR')}</span></div>}
+            {data.phone && <div style={rowS}><span style={lbS}>{t('phone_label')}</span><span style={vlS}>{data.phone}</span></div>}
+            <div style={{ ...rowS, flexDirection: 'column', alignItems: 'flex-start', gap: 2 } as any}><span style={lbS}>{t('address')}</span><span data-testid="beneficiary-profile-address-value" style={{ fontSize: 13, color: C.text, fontWeight: 600, marginTop: 2 }}>{data.address || '-'}</span></div>
+            {data.postal_code && <div style={rowS}><span style={lbS}>{t('postal_code')}</span><span data-testid="beneficiary-profile-postal-value" style={vlS}>{data.postal_code}</span></div>}
+            {data.city && <div style={rowS}><span style={lbS}>{t('city')}</span><span data-testid="beneficiary-profile-city-value" style={vlS}>{data.city}</span></div>}
             {data.country && <div style={rowS}><span style={lbS}>Pays</span><span data-testid="beneficiary-profile-country-value" style={vlS}>{data.country}</span></div>}
             {data.height_cm && <div style={rowS}><span style={lbS}>Taille</span><span data-testid="beneficiary-profile-height-value" style={vlS}>{data.height_cm} cm</span></div>}
             {profileWeight && <div style={rowS}><span style={lbS}>Poids</span><span data-testid="beneficiary-profile-weight-value" style={vlS}>{profileWeight} kg</span></div>}
@@ -502,7 +502,7 @@ export default function BeneficiaryDétailScreen() {
             {/* actions */}
             <div style={{ display: 'flex', gap: 10 } as any}>
               <div data-testid="safezone-form-cancel-btn" onClick={() => { setGeoFormOpen(false); setGeoEditingId(null); }} style={{ flex: 1, padding: '13px', borderRadius: 14, cursor: 'pointer', textAlign: 'center', border: '1px solid rgba(255,255,255,0.12)', fontSize: 14, fontWeight: 600, color: 'rgba(255,255,255,0.7)', transition: 'background 0.15s' } as any}
-                onMouseEnter={(e: any) => e.currentTarget.style.background = 'rgba(255,255,255,0.06)'} onMouseLeave={(e: any) => e.currentTarget.style.background = 'transparent'}>Annuler</div>
+                onMouseEnter={(e: any) => e.currentTarget.style.background = 'rgba(255,255,255,0.06)'} onMouseLeave={(e: any) => e.currentTarget.style.background = 'transparent'}>{t('cancel')}</div>
               <div data-testid="safezone-form-save-btn" onClick={saveGeoForm} style={{ flex: 1, padding: '13px', borderRadius: 14, cursor: geoFormSaving ? 'wait' : 'pointer', textAlign: 'center', background: '#FFF', fontSize: 14, fontWeight: 700, color: '#111', opacity: geoFormSaving ? 0.6 : 1, transition: 'opacity 0.15s' } as any}>{geoFormSaving ? '...' : (geoEditingId ? 'Enregistrér' : 'Créer la zone')}</div>
             </div>
           </div>

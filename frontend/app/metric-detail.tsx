@@ -237,7 +237,7 @@ export default function MetricDétailScreen() {
   };
 
   const renderChart = () => {
-    if (!sliced.length) return <div style={{ textAlign: 'center', padding: '40px 0', color: '#9CA3AF', fontSize: 13 }}>Aucune donnee</div>;
+    if (!sliced.length) return <div style={{ textAlign: 'center', padding: '40px 0', color: '#9CA3AF', fontSize: 13 }}>{t('no_data_available')}</div>;
 
     const bw = Math.min(32, Math.max(14, colW * 0.5));
 
@@ -572,7 +572,7 @@ export default function MetricDétailScreen() {
                       <div style={{ padding: '12px 14px', borderRadius: 14, background: 'rgba(16,185,129,0.06)', border: '1px solid rgba(16,185,129,0.12)', display: 'flex', gap: 10 } as any}>
                         <i className="ri-heart-pulse-line" style={{ fontSize: 16, color: '#10B981', flexShrink: 0, marginTop: 2 }} />
                         <div>
-                          <div style={{ fontSize: 11, fontWeight: 800, color: '#10B981', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 4 }}>Conseil</div>
+                          <div style={{ fontSize: 11, fontWeight: 800, color: '#10B981', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 4 }}>{t('advice')}</div>
                           <div style={{ fontSize: 12, color: '#6B7280', lineHeight: 1.6 }}>{info.tip}</div>
                         </div>
                       </div>
@@ -621,7 +621,7 @@ export default function MetricDétailScreen() {
                     <input type="number" step="1" value={thMax} onChange={(e: any) => setThMax(e.target.value)} placeholder={goal?.value || '0'} style={{ width: '100%', padding: '14px', borderRadius: 12, background: '#FFF', border: '1px solid #E5E7EB', color: '#111', fontSize: 20, fontWeight: 800, fontFamily: 'inherit', boxSizing: 'border-box', outline: 'none', textAlign: 'center', marginBottom: 12 } as any} />
                     <div style={{ display: 'flex', gap: 8 } as any}>
                       <div onClick={async () => { setThSaving(true); try { await apiFetch('/api/health/thresholds', { method: 'POST', body: JSON.stringify({ metric_id: key, goal: thMax ? parseFloat(thMax) : null, max_val: thMax ? parseFloat(thMax) : null }) }, token); setThreshold({ metric_id: key, goal: thMax ? parseFloat(thMax) : null, max_val: thMax ? parseFloat(thMax) : null }); setThEdit(false); } catch {} finally { setThSaving(false); } }} style={{ flex: 1, padding: '12px', borderRadius: 999, background: '#10B981', cursor: 'pointer', textAlign: 'center', fontSize: 14, fontWeight: 800, color: '#FFF' } as any}>{thSaving ? '...' : 'Sauvegarder'}</div>
-                      <div onClick={() => setThEdit(false)} style={{ padding: '12px 16px', borderRadius: 999, background: '#F4F4F5', cursor: 'pointer', fontSize: 13, fontWeight: 700, color: '#9CA3AF' } as any}>Annuler</div>
+                      <div onClick={() => setThEdit(false)} style={{ padding: '12px 16px', borderRadius: 999, background: '#F4F4F5', cursor: 'pointer', fontSize: 13, fontWeight: 700, color: '#9CA3AF' } as any}>{t('cancel')}</div>
                     </div>
                   </div>
                 )}
@@ -646,19 +646,19 @@ export default function MetricDétailScreen() {
               {!thEdit ? (
                 threshold?.min_val != null || threshold?.max_val != null ? (
                   <div style={{ display: 'flex', gap: 10 } as any}>
-                    {threshold.min_val != null && <div style={{ flex: 1, padding: '12px', borderRadius: 14, background: 'rgba(56,189,248,0.06)', textAlign: 'center' } as any}><div style={{ fontSize: 9, color: '#9CA3AF', textTransform: 'uppercase', marginBottom: 4 }}>Seuil bas</div><div style={{ fontSize: 22, fontWeight: 900, color: '#38BDF8' }}>{threshold.min_val} <span style={{ fontSize: 10, color: '#9CA3AF' }}>{m.unit}</span></div></div>}
-                    {threshold.max_val != null && <div style={{ flex: 1, padding: '12px', borderRadius: 14, background: 'rgba(239,68,68,0.06)', textAlign: 'center' } as any}><div style={{ fontSize: 9, color: '#9CA3AF', textTransform: 'uppercase', marginBottom: 4 }}>Seuil haut</div><div style={{ fontSize: 22, fontWeight: 900, color: '#EF4444' }}>{threshold.max_val} <span style={{ fontSize: 10, color: '#9CA3AF' }}>{m.unit}</span></div></div>}
+                    {threshold.min_val != null && <div style={{ flex: 1, padding: '12px', borderRadius: 14, background: 'rgba(56,189,248,0.06)', textAlign: 'center' } as any}><div style={{ fontSize: 9, color: '#9CA3AF', textTransform: 'uppercase', marginBottom: 4 }}>{t('threshold_low')}</div><div style={{ fontSize: 22, fontWeight: 900, color: '#38BDF8' }}>{threshold.min_val} <span style={{ fontSize: 10, color: '#9CA3AF' }}>{m.unit}</span></div></div>}
+                    {threshold.max_val != null && <div style={{ flex: 1, padding: '12px', borderRadius: 14, background: 'rgba(239,68,68,0.06)', textAlign: 'center' } as any}><div style={{ fontSize: 9, color: '#9CA3AF', textTransform: 'uppercase', marginBottom: 4 }}>{t('threshold_high')}</div><div style={{ fontSize: 22, fontWeight: 900, color: '#EF4444' }}>{threshold.max_val} <span style={{ fontSize: 10, color: '#9CA3AF' }}>{m.unit}</span></div></div>}
                   </div>
                 ) : <div style={{ textAlign: 'center', padding: '10px 0', fontSize: 12, color: '#9CA3AF' }}>Aucun seuil configure</div>
               ) : (
                 <div>
                   <div style={{ display: 'flex', gap: 10, marginBottom: 12 } as any}>
-                    <div style={{ flex: 1 } as any}><div style={{ fontSize: 9, fontWeight: 700, color: '#38BDF8', textTransform: 'uppercase', marginBottom: 4 }}>Seuil bas</div><input type="number" step="0.1" value={thMin} onChange={(e: any) => setThMin(e.target.value)} placeholder="Min" style={{ width: '100%', padding: '12px', borderRadius: 12, background: '#FFF', border: '1px solid #E5E7EB', color: '#111', fontSize: 16, fontWeight: 700, fontFamily: 'inherit', boxSizing: 'border-box', outline: 'none' } as any} /></div>
-                    <div style={{ flex: 1 } as any}><div style={{ fontSize: 9, fontWeight: 700, color: '#EF4444', textTransform: 'uppercase', marginBottom: 4 }}>Seuil haut</div><input type="number" step="0.1" value={thMax} onChange={(e: any) => setThMax(e.target.value)} placeholder="Max" style={{ width: '100%', padding: '12px', borderRadius: 12, background: '#FFF', border: '1px solid #E5E7EB', color: '#111', fontSize: 16, fontWeight: 700, fontFamily: 'inherit', boxSizing: 'border-box', outline: 'none' } as any} /></div>
+                    <div style={{ flex: 1 } as any}><div style={{ fontSize: 9, fontWeight: 700, color: '#38BDF8', textTransform: 'uppercase', marginBottom: 4 }}>{t('threshold_low')}</div><input type="number" step="0.1" value={thMin} onChange={(e: any) => setThMin(e.target.value)} placeholder="Min" style={{ width: '100%', padding: '12px', borderRadius: 12, background: '#FFF', border: '1px solid #E5E7EB', color: '#111', fontSize: 16, fontWeight: 700, fontFamily: 'inherit', boxSizing: 'border-box', outline: 'none' } as any} /></div>
+                    <div style={{ flex: 1 } as any}><div style={{ fontSize: 9, fontWeight: 700, color: '#EF4444', textTransform: 'uppercase', marginBottom: 4 }}>{t('threshold_high')}</div><input type="number" step="0.1" value={thMax} onChange={(e: any) => setThMax(e.target.value)} placeholder="Max" style={{ width: '100%', padding: '12px', borderRadius: 12, background: '#FFF', border: '1px solid #E5E7EB', color: '#111', fontSize: 16, fontWeight: 700, fontFamily: 'inherit', boxSizing: 'border-box', outline: 'none' } as any} /></div>
                   </div>
                   <div style={{ display: 'flex', gap: 8 } as any}>
                     <div data-testid="save-threshold-btn" onClick={async () => { setThSaving(true); try { await apiFetch('/api/health/thresholds', { method: 'POST', body: JSON.stringify({ metric_id: key, min_val: thMin ? parseFloat(thMin) : null, max_val: thMax ? parseFloat(thMax) : null }) }, token); setThreshold({ metric_id: key, min_val: thMin ? parseFloat(thMin) : null, max_val: thMax ? parseFloat(thMax) : null }); setThEdit(false); } catch {} finally { setThSaving(false); } }} style={{ flex: 1, padding: '12px', borderRadius: 999, background: color, cursor: 'pointer', textAlign: 'center', fontSize: 14, fontWeight: 800, color: '#FFF' } as any}>{thSaving ? '...' : 'Sauvegarder'}</div>
-                    <div onClick={() => setThEdit(false)} style={{ padding: '12px 16px', borderRadius: 999, background: '#F4F4F5', cursor: 'pointer', fontSize: 13, fontWeight: 700, color: '#9CA3AF' } as any}>Annuler</div>
+                    <div onClick={() => setThEdit(false)} style={{ padding: '12px 16px', borderRadius: 999, background: '#F4F4F5', cursor: 'pointer', fontSize: 13, fontWeight: 700, color: '#9CA3AF' } as any}>{t('cancel')}</div>
                   </div>
                 </div>
               )}

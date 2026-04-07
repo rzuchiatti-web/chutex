@@ -251,7 +251,7 @@ export default function ChatIAScreen() {
                           detail = success && r.macros ? `P:${r.macros.proteines_g}g G:${r.macros.glucides_g}g L:${r.macros.lipides_g}g` : (r.message || '');
                         } else if (act.action === 'ADD_EXERCISE') {
                           icon = success ? 'ri-run-line' : 'ri-error-warning-line';
-                          label = success ? 'Exercice ajoute' : 'Erreur';
+                          label = success ? 'Exercice ajoute' : t('error');
                           detail = success ? `${r.title} (${r.sets}x${r.repetitions})` : (r.message || '');
                         } else if (act.action === 'DELETE_EXERCISE') {
                           icon = success ? 'ri-delete-bin-line' : 'ri-error-warning-line';
@@ -259,7 +259,7 @@ export default function ChatIAScreen() {
                           detail = success ? r.title : (r.message || '');
                         } else if (act.action === 'UPDATE_MEAL_PLAN') {
                           icon = success ? 'ri-bowl-line' : 'ri-error-warning-line';
-                          label = success ? 'Plan repas sauvegarde' : 'Erreur';
+                          label = success ? 'Plan repas sauvegarde' : t('error');
                           detail = success ? `${r.meal_count} repas · ${r.total_calories} kcal` : (r.message || '');
                         } else if (act.action === 'CHECK_WEIGHT_GOAL') {
                           icon = r.has_goal ? 'ri-scales-line' : 'ri-checkbox-circle-line';

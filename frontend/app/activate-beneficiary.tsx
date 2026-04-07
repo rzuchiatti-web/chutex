@@ -47,7 +47,7 @@ export default function ActivateBeneficiaryScreen() {
       await refreshUser();
       Alert.alert('Espace bénéficiaire activé', 'Votre espace bénéficiaire est maintenant accessible.');
       router.back();
-    } catch (e: any) { Alert.alert('Erreur', e.message); } finally { setSaving(false); }
+    } catch (e: any) { Alert.alert(t('error'), e.message); } finally { setSaving(false); }
   };
 
   return (
@@ -59,7 +59,7 @@ export default function ActivateBeneficiaryScreen() {
       } as any}>
         <TouchableOpacity testID="back-btn" onPress={() => { if (step > 0) setStep(step - 1); else router.back(); }} style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 16 }}>
           <Icon name="chevron-back" size={20} color="#FFF" />
-          <Text style={{ fontSize: 14, color: 'rgba(255,255,255,0.8)', fontWeight: '500' }}>Retour</Text>
+          <Text style={{ fontSize: 14, color: 'rgba(255,255,255,0.8)', fontWeight: '500' }}>{t('return_label')}</Text>
         </TouchableOpacity>
         <Text className="enter-up" style={{ fontSize: 24, fontWeight: '800', color: '#FFFFFF', marginBottom: 4 }}>Inscription</Text>
         <Text className="enter-up d1" style={{ fontSize: 14, color: 'rgba(255,255,255,0.7)' }}>Creez votre espace beneficiaire</Text>
@@ -81,7 +81,7 @@ export default function ActivateBeneficiaryScreen() {
 
         {step === 0 && (
           <View>
-            <Text style={{ fontSize: 18, fontWeight: '700', color: '#111827', marginBottom: 20 }}>Informations personnelles</Text>
+            <Text style={{ fontSize: 18, fontWeight: '700', color: '#111827', marginBottom: 20 }}>{t('personal_info')}</Text>
             <WebInput label="Date de naissance" val={dob} onChange={setDob} placeholder="JJ/MM/AAAA" />
             <Text style={{ fontSize: 12, fontWeight: '600', color: '#6B7280', marginBottom: 8 }}>Genre</Text>
             <View style={{ flexDirection: 'row', gap: 8, marginBottom: 18 }}>
@@ -122,7 +122,7 @@ export default function ActivateBeneficiaryScreen() {
         <View style={{ flexDirection: 'row', gap: 10, marginTop: 12 }}>
           {step > 0 && (
             <TouchableOpacity style={{ flex: 1, paddingVertical: 14, borderRadius: 9999, backgroundColor: '#F3F4F6', alignItems: 'center' }} onPress={() => setStep(0)}>
-              <Text style={{ fontSize: 14, fontWeight: '600', color: '#6B7280' }}>Retour</Text>
+              <Text style={{ fontSize: 14, fontWeight: '600', color: '#6B7280' }}>{t('return_label')}</Text>
             </TouchableOpacity>
           )}
           {step === 0 ? (

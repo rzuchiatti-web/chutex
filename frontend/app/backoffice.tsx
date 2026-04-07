@@ -80,7 +80,7 @@ export default function BackofficeScreen() {
 
   // ===== Subscription CRUD =====
   const saveSub = async () => {
-    if (!subForm.beneficiary_phone) return Alert.alert('Erreur', 'Téléphone du bénéficiaire requis');
+    if (!subForm.beneficiary_phone) return Alert.alert(t('error'), 'Téléphone du bénéficiaire requis');
     setCreating(true);
     try {
       const r = await apiFetch('/api/admin/subscriptions', {
@@ -89,7 +89,7 @@ export default function BackofficeScreen() {
       setSubscriptions([r, ...subscriptions]);
       setShowSubModal(false);
       Alert.alert('Abonnement cree', `Type: ${r.subscription_type}\nTel: ${r.beneficiary_phone}`);
-    } catch (e: any) { Alert.alert('Erreur', e.message); } finally { setCreating(false); }
+    } catch (e: any) { Alert.alert(t('error'), e.message); } finally { setCreating(false); }
   };
 
   const deleteSub = (id: string) => {
@@ -97,7 +97,7 @@ export default function BackofficeScreen() {
       try {
         await apiFetch(`/api/admin/subscriptions/${id}`, { method: 'DELETE' }, token);
         setSubscriptions(subscriptions.filter(s => s.id !== id));
-      } catch (e: any) { Alert.alert('Erreur', e.message); }
+      } catch (e: any) { Alert.alert(t('error'), e.message); }
     });
   };
 
@@ -127,7 +127,7 @@ export default function BackofficeScreen() {
       } else {
         Alert.alert('Shopify', `Ouvrez ce lien dans votre navigateur:\n${r?.auth_url}`);
       }
-    } catch (e: any) { Alert.alert('Erreur', e.message); }
+    } catch (e: any) { Alert.alert(t('error'), e.message); }
   };
 
   // ===== Activation Codes CRUD =====
@@ -143,7 +143,7 @@ export default function BackofficeScreen() {
   };
 
   const saveCode = async () => {
-    if (!codeForm.structure_name) return Alert.alert('Erreur', 'Nom de structure requis');
+    if (!codeForm.structure_name) return Alert.alert(t('error'), 'Nom de structure requis');
     setCreating(true);
     try {
       if (editingCode) {
@@ -160,14 +160,14 @@ export default function BackofficeScreen() {
         Alert.alert('Code cree', `Code: ${r.code}\nStructure: ${r.structure_name}`);
       }
       setShowCodeModal(false);
-    } catch (e: any) { Alert.alert('Erreur', e.message); } finally { setCreating(false); }
+    } catch (e: any) { Alert.alert(t('error'), e.message); } finally { setCreating(false); }
   };
 
   const toggleCode = async (id: string) => {
     try {
       const r = await apiFetch(`/api/admin/activation-codes/${id}/toggle`, { method: 'PUT' }, token);
       setCodes(codes.map(c => (c.id === id || c.code === id) ? { ...c, active: r.active } : c));
-    } catch (e: any) { Alert.alert('Erreur', e.message); }
+    } catch (e: any) { Alert.alert(t('error'), e.message); }
   };
 
   const deleteCode = (id: string) => {
@@ -175,7 +175,7 @@ export default function BackofficeScreen() {
       try {
         await apiFetch(`/api/admin/activation-codes/${id}`, { method: 'DELETE' }, token);
         setCodes(codes.filter(c => c.id !== id && c.code !== id));
-      } catch (e: any) { Alert.alert('Erreur', e.message); }
+      } catch (e: any) { Alert.alert(t('error'), e.message); }
     });
   };
 
@@ -193,7 +193,7 @@ export default function BackofficeScreen() {
   };
 
   const saveIvCode = async () => {
-    if (!ivForm.structure_name) return Alert.alert('Erreur', 'Nom de structure requis');
+    if (!ivForm.structure_name) return Alert.alert(t('error'), 'Nom de structure requis');
     setCreating(true);
     try {
       if (editingIvCode) {
@@ -212,14 +212,14 @@ export default function BackofficeScreen() {
         Alert.alert('Code cree', `Code intervenant: ${r.code}`);
       }
       setShowIvCodeModal(false);
-    } catch (e: any) { Alert.alert('Erreur', e.message); } finally { setCreating(false); }
+    } catch (e: any) { Alert.alert(t('error'), e.message); } finally { setCreating(false); }
   };
 
   const toggleIvCode = async (id: string) => {
     try {
       const r = await apiFetch(`/api/admin/intervention-codes/${id}/toggle`, { method: 'PUT' }, token);
       setInterventionCodes(interventionCodes.map(c => (c.id === id || c.code === id) ? { ...c, active: r.active } : c));
-    } catch (e: any) { Alert.alert('Erreur', e.message); }
+    } catch (e: any) { Alert.alert(t('error'), e.message); }
   };
 
   const deleteIvCode = (id: string) => {
@@ -227,7 +227,7 @@ export default function BackofficeScreen() {
       try {
         await apiFetch(`/api/admin/intervention-codes/${id}`, { method: 'DELETE' }, token);
         setInterventionCodes(interventionCodes.filter(c => c.id !== id && c.code !== id));
-      } catch (e: any) { Alert.alert('Erreur', e.message); }
+      } catch (e: any) { Alert.alert(t('error'), e.message); }
     });
   };
 
@@ -333,7 +333,7 @@ export default function BackofficeScreen() {
                   {s.notes ? <Text style={[bs.codeMeta, { fontStyle: 'italic' }]}>{s.notes}</Text> : null}
                   <View style={bs.codeActions}>
                     <TouchableOpacity testID={`delete-sub-${s.id}`} style={bs.actionBtn} onPress={() => deleteSub(s.id)}>
-                      <Icon name="trash-outline" size={14} color={Colors.destructive} /><Text style={[bs.actionBtnT, { color: Colors.destructive }]}>Supprimer</Text>
+                      <Icon name="trash-outline" size={14} color={Colors.destructive} /><Text style={[bs.actionBtnT, { color: Colors.destructive }]}>{t('delete')}</Text>
                     </TouchableOpacity>
                   </View>
                 </View>
@@ -374,14 +374,14 @@ export default function BackofficeScreen() {
                   <Text style={bs.codeMeta}>Utilisations: {c.uses_count}/{c.max_uses} - {new Date(c.created_at).toLocaleDateString('fr-FR')}</Text>
                   <View style={bs.codeActions}>
                     <TouchableOpacity testID={`edit-code-${c.id || c.code}`} style={bs.actionBtn} onPress={() => openEditCode(c)}>
-                      <Icon name="create-outline" size={14} color={Colors.primary} /><Text style={[bs.actionBtnT, { color: Colors.primary }]}>Modifier</Text>
+                      <Icon name="create-outline" size={14} color={Colors.primary} /><Text style={[bs.actionBtnT, { color: Colors.primary }]}>{t('modify')}</Text>
                     </TouchableOpacity>
                     <TouchableOpacity testID={`toggle-code-${c.id || c.code}`} style={bs.actionBtn} onPress={() => toggleCode(c.id || c.code)}>
                       <Icon name={c.active ? 'pause-circle-outline' : 'play-circle-outline'} size={14} color={c.active ? '#FF9800' : Colors.success} />
                       <Text style={[bs.actionBtnT, { color: c.active ? '#FF9800' : Colors.success }]}>{c.active ? 'Désactivér' : 'Activer'}</Text>
                     </TouchableOpacity>
                     <TouchableOpacity testID={`delete-code-${c.id || c.code}`} style={bs.actionBtn} onPress={() => deleteCode(c.id || c.code)}>
-                      <Icon name="trash-outline" size={14} color={Colors.destructive} /><Text style={[bs.actionBtnT, { color: Colors.destructive }]}>Supprimer</Text>
+                      <Icon name="trash-outline" size={14} color={Colors.destructive} /><Text style={[bs.actionBtnT, { color: Colors.destructive }]}>{t('delete')}</Text>
                     </TouchableOpacity>
                   </View>
                 </View>
@@ -433,14 +433,14 @@ export default function BackofficeScreen() {
                   <Text style={bs.codeMeta}>Rayon: {c.default_radius_km || 30} km - Utilisations: {c.uses_count}/{c.max_uses}</Text>
                   <View style={bs.codeActions}>
                     <TouchableOpacity testID={`edit-iv-code-${c.id || c.code}`} style={bs.actionBtn} onPress={() => openEditIvCode(c)}>
-                      <Icon name="create-outline" size={14} color={Colors.primary} /><Text style={[bs.actionBtnT, { color: Colors.primary }]}>Modifier</Text>
+                      <Icon name="create-outline" size={14} color={Colors.primary} /><Text style={[bs.actionBtnT, { color: Colors.primary }]}>{t('modify')}</Text>
                     </TouchableOpacity>
                     <TouchableOpacity testID={`toggle-iv-code-${c.id || c.code}`} style={bs.actionBtn} onPress={() => toggleIvCode(c.id || c.code)}>
                       <Icon name={c.active ? 'pause-circle-outline' : 'play-circle-outline'} size={14} color={c.active ? '#FF9800' : Colors.success} />
                       <Text style={[bs.actionBtnT, { color: c.active ? '#FF9800' : Colors.success }]}>{c.active ? 'Désactivér' : 'Activer'}</Text>
                     </TouchableOpacity>
                     <TouchableOpacity testID={`delete-iv-code-${c.id || c.code}`} style={bs.actionBtn} onPress={() => deleteIvCode(c.id || c.code)}>
-                      <Icon name="trash-outline" size={14} color={Colors.destructive} /><Text style={[bs.actionBtnT, { color: Colors.destructive }]}>Supprimer</Text>
+                      <Icon name="trash-outline" size={14} color={Colors.destructive} /><Text style={[bs.actionBtnT, { color: Colors.destructive }]}>{t('delete')}</Text>
                     </TouchableOpacity>
                   </View>
                 </View>
@@ -544,7 +544,7 @@ export default function BackofficeScreen() {
                     <FormField label="Telephone" value={codeForm.telephone} onChange={(v) => setCodeForm({ ...codeForm, telephone: v })} placeholder="+33..." testId="code-phone" />
                     <FormField label="Email contact" value={codeForm.email_contact} onChange={(v) => setCodeForm({ ...codeForm, email_contact: v })} placeholder="contact@..." testId="code-email" />
                     <View style={bs.modalBtns}>
-                      <TouchableOpacity style={bs.cancelBtn} onPress={() => setShowCodeModal(false)}><Text style={bs.cancelBtnT}>Annuler</Text></TouchableOpacity>
+                      <TouchableOpacity style={bs.cancelBtn} onPress={() => setShowCodeModal(false)}><Text style={bs.cancelBtnT}>{t('cancel')}</Text></TouchableOpacity>
                       <TouchableOpacity testID="confirm-code-btn" style={bs.confirmBtn} onPress={saveCode} disabled={creating}>
                         {creating ? <ActivityIndicator color="#111827" /> : <Text style={bs.confirmBtnT}>{editingCode ? 'Enregistrér' : 'Créer'}</Text>}
                       </TouchableOpacity>
@@ -575,7 +575,7 @@ export default function BackofficeScreen() {
                     <FormField label="Telephone" value={ivForm.telephone} onChange={(v) => setIvForm({ ...ivForm, telephone: v })} placeholder="+33..." testId="iv-phone" />
                     <FormField label="Email contact" value={ivForm.email_contact} onChange={(v) => setIvForm({ ...ivForm, email_contact: v })} placeholder="contact@..." testId="iv-email" />
                     <View style={bs.modalBtns}>
-                      <TouchableOpacity style={bs.cancelBtn} onPress={() => setShowIvCodeModal(false)}><Text style={bs.cancelBtnT}>Annuler</Text></TouchableOpacity>
+                      <TouchableOpacity style={bs.cancelBtn} onPress={() => setShowIvCodeModal(false)}><Text style={bs.cancelBtnT}>{t('cancel')}</Text></TouchableOpacity>
                       <TouchableOpacity testID="confirm-iv-code-btn" style={bs.confirmBtn} onPress={saveIvCode} disabled={creating}>
                         {creating ? <ActivityIndicator color="#111827" /> : <Text style={bs.confirmBtnT}>{editingIvCode ? 'Enregistrér' : 'Créer'}</Text>}
                       </TouchableOpacity>
@@ -611,7 +611,7 @@ export default function BackofficeScreen() {
                     </View>
                     <FormField label="Notes" value={subForm.notes} onChange={(v) => setSubForm({ ...subForm, notes: v })} placeholder="Notes optionnelles" testId="sub-notes" />
                     <View style={bs.modalBtns}>
-                      <TouchableOpacity style={bs.cancelBtn} onPress={() => setShowSubModal(false)}><Text style={bs.cancelBtnT}>Annuler</Text></TouchableOpacity>
+                      <TouchableOpacity style={bs.cancelBtn} onPress={() => setShowSubModal(false)}><Text style={bs.cancelBtnT}>{t('cancel')}</Text></TouchableOpacity>
                       <TouchableOpacity testID="confirm-sub-btn" style={bs.confirmBtn} onPress={saveSub} disabled={creating}>
                         {creating ? <ActivityIndicator color="#111827" /> : <Text style={bs.confirmBtnT}>Créer</Text>}
                       </TouchableOpacity>

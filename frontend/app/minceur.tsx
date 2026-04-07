@@ -103,7 +103,7 @@ function NoraAnalysisOverlay({ text: initialText, onClose, history, current, bod
           })()}
         </div>)}
       </div>
-      {phase === 'done' && (<div style={{ position: 'fixed', bottom: 0, left: 0, right: 0, padding: '16px 24px 36px', background: 'linear-gradient(0deg, #000 60%, transparent)', zIndex: 100000 } as any}><div data-testid="nora-back-btn" onClick={onClose} style={{ width: '100%', maxWidth: 380, margin: '0 auto', padding: '16px', borderRadius: 999, background: '#FFF', textAlign: 'center', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 } as any}><i className="ri-arrow-left-line" style={{ fontSize: 16, color: '#111' }} /><span style={{ fontSize: 15, fontWeight: 800, color: '#111' }}>Retour</span></div></div>)}
+      {phase === 'done' && (<div style={{ position: 'fixed', bottom: 0, left: 0, right: 0, padding: '16px 24px 36px', background: 'linear-gradient(0deg, #000 60%, transparent)', zIndex: 100000 } as any}><div data-testid="nora-back-btn" onClick={onClose} style={{ width: '100%', maxWidth: 380, margin: '0 auto', padding: '16px', borderRadius: 999, background: '#FFF', textAlign: 'center', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 } as any}><i className="ri-arrow-left-line" style={{ fontSize: 16, color: '#111' }} /><span style={{ fontSize: 15, fontWeight: 800, color: '#111' }}>{t('return_label')}</span></div></div>)}
     </div>
   );
 }
@@ -271,7 +271,7 @@ export default function MinceurPage() {
       if (d.tracking?.streak) setStreak(d.tracking.streak);
       if (d.current?.weight > 0 && !d.goal) setTargetKg(Math.round(d.current.weight - 3));
       if (d.goal?.target_kg) { setTargetKg(d.goal.target_kg); if (d.goal.weeks) setGoalWeeks(d.goal.weeks); }
-    } catch (e: any) { setError(e.message || 'Erreur'); } finally { setLoading(false); setRefreshing(false); }
+    } catch (e: any) { setError(e.message || t('error')); } finally { setLoading(false); setRefreshing(false); }
   };
   useEffect(() => { fetchData(); }, [token]);
   useEffect(() => {
@@ -321,7 +321,7 @@ export default function MinceurPage() {
             <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 16 } as any}>
               <div data-testid="back-button" onClick={() => router.back()} style={{ width: 44, height: 44, borderRadius: 999, background: 'rgba(255,255,255,0.12)', border: '1px solid rgba(255,255,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', flexShrink: 0 } as any}><i className="ri-arrow-left-line" style={{ fontSize: 18, color: '#FFF' }} /></div>
               <div style={{ flex: 1, textAlign: 'center' } as any}>
-                <div style={{ fontSize: 22, fontWeight: 900, color: '#FFF', letterSpacing: -0.3 }}>Poids & Nutrition</div>
+                <div style={{ fontSize: 22, fontWeight: 900, color: '#FFF', letterSpacing: -0.3 }}>{t('weight_nutrition')}</div>
                 <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)', marginTop: 4 }}>{isReadonly ? 'Vue gardien (lecture seule)' : 'Suivi personnalise'}</div>
               </div>
               <div style={{ width: 44 } as any} />
@@ -385,7 +385,7 @@ export default function MinceurPage() {
                     <div>
                       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 } as any}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: 8 } as any}><img src="https://customer-assets.emergentagent.com/job_e5e873d0-c3a6-4073-8807-5b369c712c84/artifacts/d7demq52_img_objectif_poids.png" alt="" style={{ width: 28, height: 28, objectFit: 'contain' } as any} /><span style={{ fontSize: 9, fontWeight: 800, color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: 1 }}>Votre objectif</span></div>
-                        <span data-testid="edit-goal" onClick={() => setShowGoalForm(true)} style={{ fontSize: 10, color: A, cursor: 'pointer', fontWeight: 700, padding: '3px 10px', borderRadius: 999, background: `${A}10` } as any}>Modifier</span>
+                        <span data-testid="edit-goal" onClick={() => setShowGoalForm(true)} style={{ fontSize: 10, color: A, cursor: 'pointer', fontWeight: 700, padding: '3px 10px', borderRadius: 999, background: `${A}10` } as any}>{t('modify')}</span>
                       </div>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 10 } as any}>
                         <div style={{ flex: 1 } as any}><div style={{ display: 'flex', alignItems: 'baseline', gap: 3 } as any}><span style={{ fontSize: 24, fontWeight: 900, color: '#111' }}>{cr.weight > 0 ? cr.weight : '--'}</span><span style={{ fontSize: 10, color: '#9CA3AF' }}>kg</span><i className="ri-arrow-right-line" style={{ fontSize: 12, color: '#D1D5DB', margin: '0 2px' }} /><span style={{ fontSize: 24, fontWeight: 900, color: A }}>{goal.target_kg}</span><span style={{ fontSize: 10, color: `${A}50` }}>kg</span></div></div>
@@ -429,7 +429,7 @@ export default function MinceurPage() {
                   {history.some((h: any) => h.weight > 0) && (
                     <div data-testid="chart-weight" onClick={() => router.push({ pathname: '/metric-detail' as any, params: { key: 'weight' } })} style={{ borderRadius: 18, background: '#F4F4F5', padding: '16px 20px', marginBottom: 12, cursor: 'pointer' } as any}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 } as any}>
-                        <i className="ri-scales-3-line" style={{ fontSize: 14, color: A }} /><span style={{ fontSize: 13, fontWeight: 800, color: '#111' }}>Evolution du poids</span>
+                        <i className="ri-scales-3-line" style={{ fontSize: 14, color: A }} /><span style={{ fontSize: 13, fontWeight: 800, color: '#111' }}>{t('weight_evolution')}</span>
                         {cr.weight > 0 && <span style={{ fontSize: 11, fontWeight: 900, color: A, marginLeft: 'auto' }}>{cr.weight}kg</span>}
                         <i className="ri-arrow-right-s-line" style={{ fontSize: 16, color: '#9CA3AF' }} />
                       </div>
@@ -437,7 +437,7 @@ export default function MinceurPage() {
                       {mAvgs.weight?.['7j'] != null && (
                         <div style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '6px 10px', borderRadius: 10, background: '#FFF', marginTop: 4 } as any}>
                           <i className="ri-line-chart-line" style={{ fontSize: 12, color: A }} />
-                          <span style={{ fontSize: 10, fontWeight: 700, color: '#6B7280' }}>Moy. 7j</span>
+                          <span style={{ fontSize: 10, fontWeight: 700, color: '#6B7280' }}>{t('avg_7d')}</span>
                           <span style={{ fontSize: 13, fontWeight: 900, color: A, marginLeft: 'auto' }}>{mAvgs.weight['7j']} kg</span>
                         </div>
                       )}
@@ -455,7 +455,7 @@ export default function MinceurPage() {
                       {mAvgs.body_fat_pct?.['7j'] != null && (
                         <div style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '6px 10px', borderRadius: 10, background: '#FFF', marginTop: 4 } as any}>
                           <i className="ri-line-chart-line" style={{ fontSize: 12, color: '#F97316' }} />
-                          <span style={{ fontSize: 10, fontWeight: 700, color: '#6B7280' }}>Moy. 7j</span>
+                          <span style={{ fontSize: 10, fontWeight: 700, color: '#6B7280' }}>{t('avg_7d')}</span>
                           <span style={{ fontSize: 13, fontWeight: 900, color: '#F97316', marginLeft: 'auto' }}>{mAvgs.body_fat_pct['7j']}%</span>
                         </div>
                       )}
@@ -464,7 +464,7 @@ export default function MinceurPage() {
                   {history.some((h: any) => h.muscle_pct > 0) && (
                     <div data-testid="chart-muscle" onClick={() => router.push({ pathname: '/metric-detail' as any, params: { key: 'muscle_pct' } })} style={{ borderRadius: 18, background: '#F4F4F5', padding: '16px 20px', marginBottom: 12, cursor: 'pointer' } as any}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 } as any}>
-                        <i className="ri-body-scan-line" style={{ fontSize: 14, color: G }} /><span style={{ fontSize: 13, fontWeight: 800, color: '#111' }}>Masse musculaire</span>
+                        <i className="ri-body-scan-line" style={{ fontSize: 14, color: G }} /><span style={{ fontSize: 13, fontWeight: 800, color: '#111' }}>{t('muscle_mass')}</span>
                         {bc.muscle_pct > 0 && <span style={{ fontSize: 11, fontWeight: 900, color: G, marginLeft: 'auto' }}>{bc.muscle_pct}%</span>}
                         <i className="ri-arrow-right-s-line" style={{ fontSize: 16, color: '#9CA3AF' }} />
                       </div>
@@ -473,7 +473,7 @@ export default function MinceurPage() {
                       {mAvgs.muscle_pct?.['7j'] != null && (
                         <div style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '6px 10px', borderRadius: 10, background: '#FFF', marginTop: 4 } as any}>
                           <i className="ri-line-chart-line" style={{ fontSize: 12, color: G }} />
-                          <span style={{ fontSize: 10, fontWeight: 700, color: '#6B7280' }}>Moy. 7j</span>
+                          <span style={{ fontSize: 10, fontWeight: 700, color: '#6B7280' }}>{t('avg_7d')}</span>
                           <span style={{ fontSize: 13, fontWeight: 900, color: G, marginLeft: 'auto' }}>{mAvgs.muscle_pct['7j']}%</span>
                         </div>
                       )}
@@ -588,7 +588,7 @@ export default function MinceurPage() {
               </div>
               <div style={{ height: 1, background: 'rgba(255,255,255,0.06)', margin: '24px 0' } as any} />
               <div style={{ animation: 'slideUp 0.4s ease 0.3s both' } as any}>
-                <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.25)', textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 12, textAlign: 'center' }}>Durée</div>
+                <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.25)', textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 12, textAlign: 'center' }}>{t('duration')}</div>
                 <SwipePicker values={dOpts} selected={goalWeeks} onChange={setGoalWeeks} unit="sem" color={G} />
               </div>
               {diff > 0 && (
@@ -599,7 +599,7 @@ export default function MinceurPage() {
               )}
               <div style={{ marginTop: 28, display: 'flex', gap: 10, animation: 'slideUp 0.4s ease 0.4s both' } as any}>
                 <div data-testid="save-goal" onClick={() => setShowGoalConfirm(true)} style={{ flex: 1, padding: 16, borderRadius: 999, background: tooFast ? 'rgba(255,255,255,0.08)' : `linear-gradient(135deg, ${A}, #D97706)`, cursor: saving ? 'wait' : 'pointer', textAlign: 'center', fontSize: 15, fontWeight: 800, color: '#FFF', opacity: saving ? 0.6 : 1 } as any}>{saving ? '...' : "Valider"}</div>
-                <div onClick={() => setShowGoalForm(false)} style={{ padding: '16px 20px', borderRadius: 999, cursor: 'pointer', fontSize: 14, fontWeight: 700, color: 'rgba(255,255,255,0.3)' } as any}>Annuler</div>
+                <div onClick={() => setShowGoalForm(false)} style={{ padding: '16px 20px', borderRadius: 999, cursor: 'pointer', fontSize: 14, fontWeight: 700, color: 'rgba(255,255,255,0.3)' } as any}>{t('cancel')}</div>
               </div>
               {goal && <div data-testid="remove-goal" onClick={removeGoal} style={{ textAlign: 'center', padding: 12, marginTop: 8, fontSize: 12, color: 'rgba(239,68,68,0.5)', cursor: 'pointer' } as any}>Supprimer l'objectif</div>}
             </div>
@@ -661,7 +661,7 @@ export default function MinceurPage() {
               </div>
               <div style={{ fontSize: 15, color: 'rgba(255,255,255,0.6)', lineHeight: 1.9, marginBottom: 32, animation: 'slideUp 0.4s ease 0.2s both' } as any}>{e.desc}</div>
               <div style={{ marginBottom: 32, animation: 'slideUp 0.4s ease 0.3s both' } as any}>
-                <div style={{ fontSize: 10, fontWeight: 700, color: e.color, textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 14 }}>Valeurs de reference</div>
+                <div style={{ fontSize: 10, fontWeight: 700, color: e.color, textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 14 }}>{t('reference_values')}</div>
                 {e.ranges.map((r, i) => (
                   <div key={i} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 0', borderBottom: i < e.ranges.length - 1 ? '1px solid rgba(255,255,255,0.06)' : 'none' } as any}>
                     <span style={{ fontSize: 14, color: '#FFF', fontWeight: 600 }}>{r.label}</span>

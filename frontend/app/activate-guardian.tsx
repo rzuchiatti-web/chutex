@@ -43,7 +43,7 @@ export default function ActivateGuardianScreen() {
       await refreshUser();
       Alert.alert('Espace gardien active', 'Votre espace gardien est maintenant accessible.');
       router.back();
-    } catch (e: any) { Alert.alert('Erreur', e.message); } finally { setSaving(false); }
+    } catch (e: any) { Alert.alert(t('error'), e.message); } finally { setSaving(false); }
   };
 
   return (

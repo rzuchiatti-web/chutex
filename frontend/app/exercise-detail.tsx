@@ -73,7 +73,7 @@ export default function ExerciseDétailPage() {
                     <div style={{ flex: 1, padding: '14px 12px', textAlign: 'center', borderRight: '1px solid rgba(255,255,255,0.04)' } as any}>
                       <i className="ri-timer-line" style={{ fontSize: 18, color: G, display: 'block', marginBottom: 4 }} />
                       <div style={{ fontSize: 18, fontWeight: 900, color: '#FFF' }}>{ex.duration}</div>
-                      <div style={{ fontSize: 8, color: 'rgba(255,255,255,0.25)', fontWeight: 700, textTransform: 'uppercase' }}>Durée</div>
+                      <div style={{ fontSize: 8, color: 'rgba(255,255,255,0.25)', fontWeight: 700, textTransform: 'uppercase' }}>{t('duration')}</div>
                     </div>
                     {ex.calories_burned > 0 && (
                       <div style={{ flex: 1, padding: '14px 12px', textAlign: 'center', borderRight: '1px solid rgba(255,255,255,0.04)' } as any}>

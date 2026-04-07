@@ -52,7 +52,7 @@ export default function CompanyInterventionDétail() {
       Alert.alert('Intervention terminee', 'Le rapport a été enregistré et l\'alerte est resolue.');
       fetchData();
       setShowReport(false);
-    } catch (e: any) { Alert.alert('Erreur', e.message); } finally { setSubmitting(false); }
+    } catch (e: any) { Alert.alert(t('error'), e.message); } finally { setSubmitting(false); }
   };
 
   if (loading) return <FullScreenLoader />;
@@ -102,7 +102,7 @@ export default function CompanyInterventionDétail() {
             <GC style={{ borderLeftWidth: 4, borderLeftColor: '#4CAF50' }}>
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 14 }}>
                 <View style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: '#E8F5E9', justifyContent: 'center', alignItems: 'center' }}><Icon name="document-text" size={18} color="#4CAF50" /></View>
-                <Text style={{ fontSize: 16, fontWeight: '800', color: '#111827' }}>Rapport d'intervention</Text>
+                <Text style={{ fontSize: 16, fontWeight: '800', color: '#111827' }}>{t('intervention_report_label')}</Text>
               </View>
               {rpt.patient_condition && (
                 <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 10, backgroundColor: '#E8F5E9', borderRadius: 10, padding: 10 }}>
@@ -110,7 +110,7 @@ export default function CompanyInterventionDétail() {
                   <Text style={{ fontSize: 14, fontWeight: '800', color: '#2E7D32' }}>Etat du patient: {rpt.patient_condition === 'stable' ? 'Stable' : rpt.patient_condition === 'improved' ? 'Ameliore' : 'Soins necessaires'}</Text>
                 </View>
               )}
-              {rpt.description && <View style={{ marginBottom: 8 }}><Text style={{ fontSize: 11, fontWeight: '700', color: '#6B7280', marginBottom: 4 }}>Description</Text><Text style={{ fontSize: 13, color: '#111827', lineHeight: 20 }}>{rpt.description}</Text></View>}
+              {rpt.description && <View style={{ marginBottom: 8 }}><Text style={{ fontSize: 11, fontWeight: '700', color: '#6B7280', marginBottom: 4 }}>{t('description')}</Text><Text style={{ fontSize: 13, color: '#111827', lineHeight: 20 }}>{rpt.description}</Text></View>}
               {rpt.actions_taken && <View style={{ marginBottom: 8 }}><Text style={{ fontSize: 11, fontWeight: '700', color: '#6B7280', marginBottom: 4 }}>Actions effectuees</Text><Text style={{ fontSize: 13, color: '#111827', lineHeight: 20 }}>{rpt.actions_taken}</Text></View>}
               {rpt.follow_up_needed && (
                 <View style={{ flexDirection: 'row', alignItems: 'flex-start', gap: 6, backgroundColor: '#FFF3E0', borderRadius: 10, padding: 10 }}>
@@ -124,7 +124,7 @@ export default function CompanyInterventionDétail() {
           <GC>
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 14 }}>
               <View style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: '#E1F5FE', justifyContent: 'center', alignItems: 'center' }}><Icon name="person" size={18} color="#0288D1" /></View>
-              <Text style={{ fontSize: 16, fontWeight: '800', color: '#111827' }}>Bénéficiaire</Text>
+              <Text style={{ fontSize: 16, fontWeight: '800', color: '#111827' }}>{t('beneficiary')}</Text>
             </View>
             <IR icon="person-outline" label="Nom" value={ben.name || iv.beneficiary_name} color="#0288D1" />
             <IR icon="call-outline" label="Telephone" value={ben.phone} />
@@ -153,7 +153,7 @@ export default function CompanyInterventionDétail() {
             <GC>
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 14 }}>
                 <View style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: '#FFEBEE', justifyContent: 'center', alignItems: 'center' }}><Icon name="warning" size={18} color="#E53935" /></View>
-                <Text style={{ fontSize: 16, fontWeight: '800', color: '#111827' }}>Alerte</Text>
+                <Text style={{ fontSize: 16, fontWeight: '800', color: '#111827' }}>{t('alert_type')}</Text>
               </View>
               <IR icon="alert-circle-outline" label="Type" value={alert_data.alert_type?.toUpperCase()} color="#E53935" />
               <IR icon="text-outline" label="Message" value={alert_data.message} />
@@ -316,7 +316,7 @@ export default function CompanyInterventionDétail() {
         <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'flex-end' }}>
           <View style={{ backgroundColor: '#FFFFFF', borderTopLeftRadius: 28, borderTopRightRadius: 28, padding: 24, maxHeight: '85%' }}>
             <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-              <Text style={{ fontSize: 20, fontWeight: '900', color: '#111827' }}>Rapport d'intervention</Text>
+              <Text style={{ fontSize: 20, fontWeight: '900', color: '#111827' }}>{t('intervention_report_label')}</Text>
               <TouchableOpacity onPress={() => setShowReport(false)}><Icon name="close" size={24} color="#888" /></TouchableOpacity>
             </View>
             <ScrollView showsVerticalScrollIndicator={false}>
@@ -329,7 +329,7 @@ export default function CompanyInterventionDétail() {
                   </TouchableOpacity>
                 ))}
               </View>
-              <Text style={{ fontSize: 12, color: '#6B7280', marginBottom: 4 }}>Description</Text>
+              <Text style={{ fontSize: 12, color: '#6B7280', marginBottom: 4 }}>{t('description')}</Text>
               <TextInput style={{ borderWidth: 1, borderColor: '#E0E0E0', borderRadius: 12, padding: 12, fontSize: 14, minHeight: 80, textAlignVertical: 'top', marginBottom: 12 }}
                 placeholder="Decrivez la situation a votre arrivee..." multiline value={report.description} onChangeText={v => setReport({...report, description: v})} />
               <Text style={{ fontSize: 12, color: '#6B7280', marginBottom: 4 }}>Actions effectuees</Text>

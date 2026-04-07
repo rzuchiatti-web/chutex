@@ -231,7 +231,7 @@ export default function InterventionMapScreen() {
 
           {/* FICHE BENEFICIAIRE */}
           <div style={{ padding: '12px 14px', borderRadius: 16, background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)', marginBottom: 8, backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)' } as any}>
-            <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.3)', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 6 }}>Fiche bénéficiaire</div>
+            <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.3)', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 6 }}>{t('beneficiary_card_label')}</div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 6 } as any}>
               <div style={{ width: 38, height: 38, borderRadius: 999, background: 'linear-gradient(135deg, #D4845A, #E8A87C)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}><span style={{ fontSize: 16, fontWeight: 800, color: '#FFF' }}>{(ben.name || iv.beneficiary_name || '?').charAt(0)}</span></div>
               <div style={{ flex: 1 } as any}><div style={{ fontSize: 14, fontWeight: 800, color: '#FFF' }}>{ben.name || iv.beneficiary_name}</div>{ben.date_of_birth && <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.4)' }}>Ne(e) le {ben.date_of_birth}</div>}</div>
@@ -245,7 +245,7 @@ export default function InterventionMapScreen() {
           {iv.assigned_name && (
             <div style={{ padding: '12px 14px', borderRadius: 16, background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)', marginBottom: 8, backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)' } as any}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 } as any}>
-                <span style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.3)', letterSpacing: 1, textTransform: 'uppercase' }}>Fiche intervenant</span>
+                <span style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.3)', letterSpacing: 1, textTransform: 'uppercase' }}>{t('intervenant_card')}</span>
                 {isCare && <div style={{ padding: '2px 8px', borderRadius: 999, background: 'rgba(124,92,255,0.2)', border: '1px solid rgba(124,92,255,0.3)' } as any}><span style={{ fontSize: 9, fontWeight: 700, color: '#A78BFA' }}>Care</span></div>}
               </div>
               <div style={{ display: 'flex', alignItems: 'center', gap: 12 } as any}>

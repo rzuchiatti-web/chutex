@@ -199,7 +199,7 @@ export default function ProfileScreen() {
       await refreshUser();
       setShowGuardianActivation(false);
       Alert.alert(t('guardian_activated'), t('guardian_activated_msg'));
-    } catch (e: any) { Alert.alert('Erreur', e.message); } finally { setActivatingGuardian(false); }
+    } catch (e: any) { Alert.alert(t('error'), e.message); } finally { setActivatingGuardian(false); }
   };
 
   // Fetch subscription data on mount for beneficiary users
@@ -222,7 +222,7 @@ export default function ProfileScreen() {
   };
 
   const testPush = async () => {
-    try { await apiFetch('/api/push/test', { method: 'POST' }, token); Alert.alert('Notification envoyee', 'Vérifiéz votre appareil !'); } catch (e: any) { Alert.alert('Erreur', e.message); }
+    try { await apiFetch('/api/push/test', { method: 'POST' }, token); Alert.alert('Notification envoyee', 'Vérifiéz votre appareil !'); } catch (e: any) { Alert.alert(t('error'), e.message); }
   };
 
   const [isDark, setIsDark] = React.useState(() => typeof localStorage !== 'undefined' ? localStorage.getItem('chutex_dark') === '1' : false);
@@ -255,26 +255,26 @@ export default function ProfileScreen() {
       if (result.user) await refreshUser();
       Alert.alert(t('profile_updated'));
       setEditMode(false);
-    } catch (e: any) { Alert.alert('Erreur', e.message); } finally { setSaving(false); }
+    } catch (e: any) { Alert.alert(t('error'), e.message); } finally { setSaving(false); }
   };
 
   const changePassword = async () => {
-    if (!newPw || newPw.length < 6) { if (Platform.OS === 'web') window.alert(t('min_chars')); else Alert.alert('Erreur', t('min_chars')); return; }
+    if (!newPw || newPw.length < 6) { if (Platform.OS === 'web') window.alert(t('min_chars')); else Alert.alert(t('error'), t('min_chars')); return; }
     try {
       await apiFetch('/api/auth/change-password', { method: 'PUT', body: JSON.stringify({ old_password: oldPw, new_password: newPw }) }, token);
       if (Platform.OS === 'web') window.alert(t('password_changed'));
       else Alert.alert(t('password_changed'));
       setShowPwChange(false); setOldPw(''); setNewPw('');
     } catch (e: any) {
-      if (Platform.OS === 'web') window.alert(e.message || 'Erreur');
-      else Alert.alert('Erreur', e.message);
+      if (Platform.OS === 'web') window.alert(e.message || t('error'));
+      else Alert.alert(t('error'), e.message);
     }
   };
 
   const sendContactForm = async () => {
     if (!contactMsg.trim() || !contactObj.trim()) { if (Platform.OS === 'web') window.alert(t('subject_required')); return; }
     setSendingContact(true);
-    try { await apiFetch('/api/contact', { method: 'POST', body: JSON.stringify({ subject: contactObj, message: contactMsg, name: contactName, email: contactEmail, phone: contactPhone }) }, token); Alert.alert('Message envoye', 'Nous vous repondrons rapidement.'); setShowContact(false); setContactMsg(''); setContactObj(''); } catch (e: any) { Alert.alert('Erreur', e.message); } finally { setSendingContact(false); }
+    try { await apiFetch('/api/contact', { method: 'POST', body: JSON.stringify({ subject: contactObj, message: contactMsg, name: contactName, email: contactEmail, phone: contactPhone }) }, token); Alert.alert('Message envoye', 'Nous vous repondrons rapidement.'); setShowContact(false); setContactMsg(''); setContactObj(''); } catch (e: any) { Alert.alert(t('error'), e.message); } finally { setSendingContact(false); }
   };
 
   const handleAvatarUpload = async () => {
@@ -298,7 +298,7 @@ export default function ProfileScreen() {
           Alert.alert('Photo mise a jour');
         };
         reader.readAsDataURL(file);
-      } catch (e: any) { Alert.alert('Erreur', e.message); } finally { setUploading(false); }
+      } catch (e: any) { Alert.alert(t('error'), e.message); } finally { setUploading(false); }
     };
     input.click();
   };
@@ -356,12 +356,12 @@ const BG_PROFILE = 'https://customer-assets.emergentagent.com/job_9950a869-9328-
                     }
                   }
                 }} style={{ padding: '7px 16px', borderRadius: 999, cursor: 'pointer', transition: 'all 0.25s ease', background: effectiveRole === 'beneficiary' ? '#FFF' : 'transparent', boxShadow: effectiveRole === 'beneficiary' ? '0 2px 8px rgba(0,0,0,0.15)' : 'none' } as any}>
-                  <span style={{ fontSize: 11, fontWeight: 700, color: effectiveRole === 'beneficiary' ? '#111' : 'rgba(255,255,255,0.5)' }}>Bénéficiaire</span>
+                  <span style={{ fontSize: 11, fontWeight: 700, color: effectiveRole === 'beneficiary' ? '#111' : 'rgba(255,255,255,0.5)' }}>{t('beneficiary')}</span>
                 </div>
                 <div onClick={async () => {
                   if (effectiveRole !== 'guardian' && effectiveRole !== 'professional') {
                     if (user.has_guardian_space) {
-                      try { await apiFetch('/api/auth/switch-role', { method: 'POST', body: JSON.stringify({ role: 'guardian' }) }, token); await refreshUser(); } catch (e: any) { Alert.alert('Erreur', e.message); }
+                      try { await apiFetch('/api/auth/switch-role', { method: 'POST', body: JSON.stringify({ role: 'guardian' }) }, token); await refreshUser(); } catch (e: any) { Alert.alert(t('error'), e.message); }
                     } else {
                       setShowGuardianActivation(true);
                       setGuardianActivationStep(0);
@@ -678,7 +678,7 @@ const BG_PROFILE = 'https://customer-assets.emergentagent.com/job_9950a869-9328-
             ))}
             <div style={{ display: 'flex', gap: 10, marginTop: 16 } as any}>
               <div onClick={() => setShowPwChange(false)} style={{ flex: 1, padding: '14px', borderRadius: 999, textAlign: 'center', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', color: 'rgba(255,255,255,0.6)', fontWeight: 700, cursor: 'pointer' } as any}>{t('cancel')}</div>
-              <div onClick={changePassword} style={{ flex: 1, padding: '14px', borderRadius: 999, textAlign: 'center', background: 'rgba(255,255,255,0.15)', border: '1px solid rgba(255,255,255,0.2)', color: '#FFF', fontWeight: 700, cursor: 'pointer' } as any}>Confirmer</div>
+              <div onClick={changePassword} style={{ flex: 1, padding: '14px', borderRadius: 999, textAlign: 'center', background: 'rgba(255,255,255,0.15)', border: '1px solid rgba(255,255,255,0.2)', color: '#FFF', fontWeight: 700, cursor: 'pointer' } as any}>{t('confirm')}</div>
             </div>
           </ProfileGlassPopup>
 
@@ -1027,7 +1027,7 @@ const BG_PROFILE = 'https://customer-assets.emergentagent.com/job_9950a869-9328-
       <Modal visible={showNotifPrefs} transparent animationType="slide">
         <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'flex-end' }}>
           <View style={{ backgroundColor: '#FFF', borderTopLeftRadius: 28, borderTopRightRadius: 28, padding: 24, maxHeight: '85%' }}>
-            <TouchableOpacity onPress={() => setShowNotifPrefs(false)}><Text style={{ textAlign: 'right', color: '#888', fontSize: 16 }}>Fermer</Text></TouchableOpacity>
+            <TouchableOpacity onPress={() => setShowNotifPrefs(false)}><Text style={{ textAlign: 'right', color: '#888', fontSize: 16 }}>{t('close')}</Text></TouchableOpacity>
             <Text style={{ fontSize: 18, fontWeight: '900', color: '#111', marginBottom: 16 }}>Notifications</Text>
             {notifPrefs ? (
               <ScrollView>{['sos_alerts','fall_detection','health_thresholds','low_battery'].map(key => (

@@ -163,7 +163,7 @@ export default function AuthScreen() {
                           await apiFetch('/api/auth/forgot-password', { method: 'POST', body: JSON.stringify({ phone: forgotPhone.trim() }) });
                           setForgotMsg(t('code_sent'));
                           setForgotStep(1);
-                        } catch (e: any) { setForgotMsg(e.message || 'Erreur'); }
+                        } catch (e: any) { setForgotMsg(e.message || t('error')); }
                         finally { setForgotLoading(false); }
                       }} style={{ padding: '16px', borderRadius: 999, background: forgotPhone.trim() ? 'rgba(255,255,255,0.1)' : 'rgba(255,255,255,0.03)', border: `1px solid ${forgotPhone.trim() ? 'rgba(255,255,255,0.2)' : 'rgba(255,255,255,0.06)'}`, cursor: forgotPhone.trim() ? 'pointer' : 'not-allowed', textAlign: 'center', fontSize: 14, fontWeight: 700, color: forgotPhone.trim() ? '#FFF' : 'rgba(255,255,255,0.2)' } as any}>{forgotLoading ? t('sending') : t('receive_code')}</div>
                     </div>

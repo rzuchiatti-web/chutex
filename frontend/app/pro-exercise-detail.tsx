@@ -201,7 +201,7 @@ export default function ProExerciseDétailPage() {
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 14, marginTop: 8 } as any}>
             <div><div style={{ fontSize: 12, fontWeight: 700, color: T2, marginBottom: 6 }}>Nom de l'exercice *</div><input data-testid="create-title" value={createForm.title} onChange={(e: any) => setCreateForm(p => ({ ...p, title: e.target.value }))} placeholder="Ex: Developpe couche" style={cInp} /></div>
-            <div><div style={{ fontSize: 12, fontWeight: 700, color: T2, marginBottom: 6 }}>Description</div><input value={createForm.description} onChange={(e: any) => setCreateForm(p => ({ ...p, description: e.target.value }))} placeholder="Description de l'exercice" style={cInp} /></div>
+            <div><div style={{ fontSize: 12, fontWeight: 700, color: T2, marginBottom: 6 }}>{t('description')}</div><input value={createForm.description} onChange={(e: any) => setCreateForm(p => ({ ...p, description: e.target.value }))} placeholder="Description de l'exercice" style={cInp} /></div>
             <div><div style={{ fontSize: 12, fontWeight: 700, color: T2, marginBottom: 6 }}>Groupe musculaire</div><input value={createForm.muscle_group} onChange={(e: any) => setCreateForm(p => ({ ...p, muscle_group: e.target.value }))} placeholder="Ex: Pectoraux, Triceps" style={cInp} /></div>
             <div><div style={{ fontSize: 12, fontWeight: 700, color: T2, marginBottom: 6 }}>Equipement</div><input value={createForm.equipment} onChange={(e: any) => setCreateForm(p => ({ ...p, equipment: e.target.value }))} placeholder="Ex: Barre, Halteres" style={cInp} /></div>
             <div style={{ display: 'flex', gap: 10 } as any}>
@@ -267,7 +267,7 @@ export default function ProExerciseDétailPage() {
                       <StatEditor label="Repos" value={editRest} onChange={setEditRest} min={0} max={300} step={5} suffix="s" accent={accent} />
                     </div>
                     <div style={{ display: 'flex', gap: 8, padding: '10px 12px', borderTop: '1px solid #E5E7EB' } as any}>
-                      <div onClick={() => { setEditing(false); initParams(ex); }} style={{ flex: 1, padding: '10px', borderRadius: 10, background: '#E5E7EB', textAlign: 'center', cursor: 'pointer', fontSize: 12, fontWeight: 700, color: '#6B7280' } as any}>Annuler</div>
+                      <div onClick={() => { setEditing(false); initParams(ex); }} style={{ flex: 1, padding: '10px', borderRadius: 10, background: '#E5E7EB', textAlign: 'center', cursor: 'pointer', fontSize: 12, fontWeight: 700, color: '#6B7280' } as any}>{t('cancel')}</div>
                       <div data-testid="save-params-btn" onClick={saveParams} style={{ flex: 1, padding: '10px', borderRadius: 10, background: accent, textAlign: 'center', cursor: 'pointer', fontSize: 12, fontWeight: 800, color: '#FFF', opacity: savingParams ? 0.5 : 1 } as any}>{savingParams ? '...' : 'Enregistrér'}</div>
                     </div>
                   </>
@@ -319,7 +319,7 @@ export default function ProExerciseDétailPage() {
               {/* Description */}
               {ex.description && (
                 <div style={{ borderRadius: 16, background: CARD2, padding: '14px 16px', marginBottom: 14 } as any}>
-                  <div style={{ fontSize: 11, fontWeight: 700, color: T3, textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 6 }}>Description</div>
+                  <div style={{ fontSize: 11, fontWeight: 700, color: T3, textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 6 }}>{t('description')}</div>
                   <div style={{ fontSize: 13, color: T2, lineHeight: 1.7 }}>{ex.description}</div>
                 </div>
               )}

@@ -291,7 +291,7 @@ function WebLocationPermissionGate() {
   return (
     <div data-testid="web-location-permission-guide" style={{ position: 'fixed', right: 16, bottom: 80, zIndex: 9999, width: 300, maxWidth: 'calc(100vw - 32px)', maxHeight: 140, overflow: 'hidden', borderRadius: 14, background: 'rgba(15,23,42,0.95)', border: '1px solid rgba(255,255,255,0.1)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', boxShadow: '0 8px 30px rgba(0,0,0,0.3)', padding: '12px 14px', fontFamily: "'Inter', system-ui, sans-serif" } as any}>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 } as any}>
-        <div style={{ fontSize: 12, fontWeight: 800, color: '#FFF' }} data-testid="web-location-permission-guide-title">Localisation</div>
+        <div style={{ fontSize: 12, fontWeight: 800, color: '#FFF' }} data-testid="web-location-permission-guide-title">{t('location')}</div>
         <div data-testid="web-location-dismiss" onClick={() => setVisible(false)} style={{ width: 22, height: 22, borderRadius: 999, background: 'rgba(255,255,255,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}>
           <i className="ri-close-line" style={{ fontSize: 12, color: 'rgba(255,255,255,0.5)' }} />
         </div>

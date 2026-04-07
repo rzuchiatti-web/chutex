@@ -127,7 +127,7 @@ export default function ReminderDétailPage() {
                 <div style={{ borderRadius: 16, background: '#F4F4F5', padding: '14px 16px', marginBottom: 14 } as any}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 8 } as any}>
                     <i className="ri-file-text-line" style={{ fontSize: 14, color: cfg.color }} />
-                    <span style={{ fontSize: 11, fontWeight: 700, color: '#6B7280', textTransform: 'uppercase', letterSpacing: 0.5 }}>Description</span>
+                    <span style={{ fontSize: 11, fontWeight: 700, color: '#6B7280', textTransform: 'uppercase', letterSpacing: 0.5 }}>{t('description')}</span>
                   </div>
                   <div style={{ fontSize: 13, color: '#6B7280', lineHeight: 1.7 }}>{rem.description}</div>
                 </div>
@@ -204,7 +204,7 @@ export default function ReminderDétailPage() {
                         </div>
                         {lastComp?.pain_level > 0 && (
                           <div style={{ marginBottom: 10 } as any}>
-                            <div style={{ fontSize: 11, color: '#6B7280', marginBottom: 6, fontWeight: 600 }}>Niveau de douleur</div>
+                            <div style={{ fontSize: 11, color: '#6B7280', marginBottom: 6, fontWeight: 600 }}>{t('pain_level')}</div>
                             <div style={{ display: 'flex', gap: 4 } as any}>
                               {[1,2,3,4,5,6,7,8,9,10].map(n => (
                                 <div key={n} style={{ flex: 1, height: 28, borderRadius: 6, background: n <= lastComp.pain_level ? (n <= 3 ? '#10B981' : n <= 6 ? '#F59E0B' : '#EF4444') : '#E5E7EB', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 10, fontWeight: 700, color: n <= lastComp.pain_level ? '#FFF' : '#9CA3AF' } as any}>{n}</div>
@@ -236,7 +236,7 @@ export default function ReminderDétailPage() {
                       </div>
                     </div>
                     <div style={{ marginBottom: 14 }}>
-                      <div style={{ fontSize: 11, color: '#6B7280', marginBottom: 6, fontWeight: 600 }}>Notes</div>
+                      <div style={{ fontSize: 11, color: '#6B7280', marginBottom: 6, fontWeight: 600 }}>{t('notes')}</div>
                       <input data-testid="reminder-notes-input" value={notes} onChange={(e: any) => setNotes(e.target.value)} placeholder="Comment ca s'est passe ?" style={INP} />
                     </div>
                     <div style={{ display: 'flex', gap: 8 } as any}>

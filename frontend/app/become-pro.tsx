@@ -120,7 +120,7 @@ export default function BecomeProPage() {
         body: JSON.stringify(body),
       });
       const d = await r.json();
-      if (!r.ok) { setError(d.detail || 'Erreur'); setSaving(false); return; }
+      if (!r.ok) { setError(d.detail || t('error')); setSaving(false); return; }
       setSuccess(d.message || 'Candidature envoyee !');
       setStep(4);
     } catch (e: any) { setError(e.message); }
@@ -172,12 +172,12 @@ export default function BecomeProPage() {
         {/* Step 1: Informations personnelles */}
         {step === 1 && (
           <div data-testid="step-1-info">
-            <div style={{ fontSize: 20, fontWeight: 800, color: C.text, marginBottom: 4 }}>Informations personnelles</div>
+            <div style={{ fontSize: 20, fontWeight: 800, color: C.text, marginBottom: 4 }}>{t('personal_info')}</div>
             <div style={{ fontSize: 13, color: C.muted, marginBottom: 24, lineHeight: 1.5 }}>Ces informations seront utilisees pour créer votre profil professionnel.</div>
 
             <div style={{ display: 'flex', gap: 12, marginBottom: 16 } as any}>
               <div style={{ flex: 1 }}>
-                <label style={lbl}>Prenom<span style={req}>*</span></label>
+                <label style={lbl}>{t('first_name_label')}<span style={req}>*</span></label>
                 <input data-testid="input-first-name" value={form.first_name} onChange={e => upd('first_name', e.target.value)} placeholder="Jean" style={inp} />
               </div>
               <div style={{ flex: 1 }}>
@@ -186,7 +186,7 @@ export default function BecomeProPage() {
               </div>
             </div>
             <div style={{ marginBottom: 16 }}>
-              <label style={lbl}>Telephone<span style={req}>*</span></label>
+              <label style={lbl}>{t('phone_label')}<span style={req}>*</span></label>
               <input data-testid="input-phone" value={form.phone} onChange={e => upd('phone', e.target.value)} placeholder="+33 6 12 34 56 78" style={inp} />
               <div style={{ fontSize: 10, color: C.light, marginTop: 4 }}>Ce numéro sera utilise pour activer votre espace sur l'application.</div>
             </div>
@@ -196,11 +196,11 @@ export default function BecomeProPage() {
             </div>
             <div style={{ display: 'flex', gap: 12, marginBottom: 16 } as any}>
               <div style={{ flex: 2 }}>
-                <label style={lbl}>Ville<span style={req}>*</span></label>
+                <label style={lbl}>{t('city')}<span style={req}>*</span></label>
                 <input data-testid="input-city" value={form.city} onChange={e => upd('city', e.target.value)} placeholder="Paris" style={inp} />
               </div>
               <div style={{ flex: 1 }}>
-                <label style={lbl}>Code postal</label>
+                <label style={lbl}>{t('postal_code')}</label>
                 <input data-testid="input-postal" value={form.postal_code} onChange={e => upd('postal_code', e.target.value)} placeholder="75001" style={inp} />
               </div>
             </div>
@@ -272,7 +272,7 @@ export default function BecomeProPage() {
             </div>
 
             <div style={{ display: 'flex', gap: 12 } as any}>
-              <div onClick={() => setStep(1)} style={{ flex: 1, padding: '16px', borderRadius: C.r, textAlign: 'center', cursor: 'pointer', border: `1.5px solid ${C.border}`, color: C.text, fontSize: 15, fontWeight: 700 } as any}>Retour</div>
+              <div onClick={() => setStep(1)} style={{ flex: 1, padding: '16px', borderRadius: C.r, textAlign: 'center', cursor: 'pointer', border: `1.5px solid ${C.border}`, color: C.text, fontSize: 15, fontWeight: 700 } as any}>{t('return_label')}</div>
               <div data-testid="btn-next-2" onClick={canAdvance2 ? () => { setStep(3); fetchContract(); } : undefined}
                 style={{ flex: 2, padding: '16px', borderRadius: C.r, textAlign: 'center', cursor: canAdvance2 ? 'pointer' : 'default',
                   background: canAdvance2 ? (AC) : C.border, color: canAdvance2 ? '#FFF' : C.light,
@@ -351,7 +351,7 @@ export default function BecomeProPage() {
             {error && <div data-testid="error-msg" style={{ padding: '12px 16px', borderRadius: 12, background: '#FEE2E2', color: '#DC2626', fontSize: 13, fontWeight: 600, marginBottom: 16 }}>{error}</div>}
 
             <div style={{ display: 'flex', gap: 12 } as any}>
-              <div onClick={() => setStep(2)} style={{ flex: 1, padding: '16px', borderRadius: C.r, textAlign: 'center', cursor: 'pointer', border: `1.5px solid ${C.border}`, color: C.text, fontSize: 15, fontWeight: 700 } as any}>Retour</div>
+              <div onClick={() => setStep(2)} style={{ flex: 1, padding: '16px', borderRadius: C.r, textAlign: 'center', cursor: 'pointer', border: `1.5px solid ${C.border}`, color: C.text, fontSize: 15, fontWeight: 700 } as any}>{t('return_label')}</div>
               <div data-testid="btn-submit" onClick={canSubmit && !saving ? submitApplication : undefined}
                 style={{ flex: 2, padding: '16px', borderRadius: C.r, textAlign: 'center', cursor: canSubmit && !saving ? 'pointer' : 'default',
                   background: canSubmit ? (AC) : C.border, color: canSubmit ? '#FFF' : C.light,

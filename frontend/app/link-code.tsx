@@ -128,8 +128,8 @@ export default function LinkScreen() {
   };
 
   const inviteByPhone = async () => {
-    if (!invitePhone.trim()) return Alert.alert('Erreur', 'Entrez un numéro');
-    if (!inviteRelationship) return Alert.alert('Erreur', 'Sélectionnéz qui est cette personne pour vous');
+    if (!invitePhone.trim()) return Alert.alert(t('error'), 'Entrez un numéro');
+    if (!inviteRelationship) return Alert.alert(t('error'), 'Sélectionnéz qui est cette personne pour vous');
     setInviting(true); setInviteResult(null);
     try {
       const r = await apiFetch('/api/guardians/invite', { method: 'POST', body: JSON.stringify({ phone: invitePhone.trim(), relationship: inviteRelationship }) }, token);
@@ -138,8 +138,8 @@ export default function LinkScreen() {
   };
 
   const linkWithCode = async () => {
-    if (!code.trim()) return Alert.alert('Erreur', 'Entrez un code');
-    if (!guardianRelationship) return Alert.alert('Erreur', 'Sélectionnéz qui vous etes pour ce beneficiaire');
+    if (!code.trim()) return Alert.alert(t('error'), 'Entrez un code');
+    if (!guardianRelationship) return Alert.alert(t('error'), 'Sélectionnéz qui vous etes pour ce beneficiaire');
     setLoading(true); setResult(null);
     try {
       const r = await apiFetch('/api/guardian/link-with-code', { method: 'POST', body: JSON.stringify({ link_code: code.trim().toUpperCase(), relationship: guardianRelationship }) }, token);
@@ -149,8 +149,8 @@ export default function LinkScreen() {
   };
 
   const linkWithPhone = async () => {
-    if (!phone.trim()) return Alert.alert('Erreur', 'Entrez un numéro');
-    if (!guardianRelationship) return Alert.alert('Erreur', 'Sélectionnéz qui vous etes pour ce beneficiaire');
+    if (!phone.trim()) return Alert.alert(t('error'), 'Entrez un numéro');
+    if (!guardianRelationship) return Alert.alert(t('error'), 'Sélectionnéz qui vous etes pour ce beneficiaire');
     setLoading(true); setResult(null);
     try {
       const r = await apiFetch('/api/guardian/link-with-phone', { method: 'POST', body: JSON.stringify({ phone: phone.trim(), relationship: guardianRelationship }) }, token);

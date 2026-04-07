@@ -284,7 +284,7 @@ function IntervenantPopup({ person, onClose }: { person: any; onClose: () => voi
             <i className="ri-close-line" style={{ fontSize: 18, color: 'rgba(255,255,255,0.8)' }} />
           </div>
         </div>
-        <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.35)', letterSpacing: 2, textTransform: 'uppercase', marginBottom: 16 }}>Fiche intervenant</div>
+        <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.35)', letterSpacing: 2, textTransform: 'uppercase', marginBottom: 16 }}>{t('intervenant_card')}</div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 24 } as any}>
           <div style={{ width: 64, height: 64, borderRadius: 20, background: 'rgba(124,92,255,0.15)', border: '1px solid rgba(124,92,255,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}>
             <span style={{ fontSize: 26, fontWeight: 800, color: '#A78BFA' }}>{dn.charAt(0)}</span>
@@ -540,7 +540,7 @@ function BeneficiaireCard({ ben }: { ben: any }) {
 
   return (
     <div style={{ padding: '14px 16px', borderRadius: 20, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', marginBottom: 10 } as any}>
-      <div style={{ fontSize: 10, fontWeight: 600, color: 'rgba(255,255,255,0.35)', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 10 }}>Fiche bénéficiaire</div>
+      <div style={{ fontSize: 10, fontWeight: 600, color: 'rgba(255,255,255,0.35)', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 10 }}>{t('beneficiary_card_label')}</div>
       <div style={{ display: 'flex', alignItems: 'center', gap: 12 } as any}>
         <div style={{ width: 44, height: 44, borderRadius: 999, background: 'linear-gradient(135deg, #D4845A, #E8A87C)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}>
           <span style={{ fontSize: 18, fontWeight: 800, color: '#FFF' }}>{(ben.name || '?').charAt(0)}</span>
@@ -686,7 +686,7 @@ function ResolvedSection({ alert, alertDetail }: { alert: any; alertDetail: any 
       {/* Intervention report — only if has real content */}
       {ivReport && ivReport.description && (
         <div style={{ ...G } as any}>
-          <div style={{ fontSize: 10, fontWeight: 600, color: 'rgba(255,255,255,0.35)', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 10 }}>Rapport d'intervention</div>
+          <div style={{ fontSize: 10, fontWeight: 600, color: 'rgba(255,255,255,0.35)', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 10 }}>{t('intervention_report_label')}</div>
           <div style={{ fontSize: 13, color: '#FFF', lineHeight: 1.5 }}>{ivReport.description}</div>
         </div>
       )}
@@ -1068,7 +1068,7 @@ export default function AlertsScreen() {
         </div>
         {/* Header */}
         <div style={{ position: 'relative', padding: '24px 20px 20px', textAlign: 'center', zIndex: 5, flexShrink: 0 } as any}>
-          <div style={{ fontSize: 26, fontWeight: 800, color: '#FFF', marginBottom: 16 }}>Alertes</div>
+          <div style={{ fontSize: 26, fontWeight: 800, color: '#FFF', marginBottom: 16 }}>{t('alerts_title')}</div>
           <div style={{ display: 'inline-flex', borderRadius: 999, padding: 4, background: 'rgba(255,255,255,0.15)', border: '1px solid rgba(255,255,255,0.2)' } as any}>
             <div onClick={() => setTab('active')} data-testid="tab-active" style={{ padding: '10px 24px', borderRadius: 999, cursor: 'pointer', background: tab === 'active' ? '#FFF' : 'transparent', color: tab === 'active' ? '#111' : 'rgba(255,255,255,0.8)', fontSize: 14, fontWeight: 700, transition: 'all 0.2s' } as any}>En cours ({activeAlerts.length})</div>
             <div onClick={() => setTab('resolved')} data-testid="tab-resolved" style={{ padding: '10px 24px', borderRadius: 999, cursor: 'pointer', background: tab === 'resolved' ? '#FFF' : 'transparent', color: tab === 'resolved' ? '#111' : 'rgba(255,255,255,0.8)', fontSize: 14, fontWeight: 700, transition: 'all 0.2s' } as any}>Cloturees ({resolved.length})</div>
@@ -1174,7 +1174,7 @@ export default function AlertsScreen() {
     return (
       <ScrollView style={{ flex: 1, backgroundColor: '#FFF' }} contentContainerStyle={{ padding: 16, paddingBottom: 80 }}
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => { setRefreshing(true); fetchAlerts(); }} />}>
-        <Text style={{ fontSize: 28, fontWeight: '900', color: '#111', marginBottom: 16, letterSpacing: -0.5 }}>Alertes</Text>
+        <Text style={{ fontSize: 28, fontWeight: '900', color: '#111', marginBottom: 16, letterSpacing: -0.5 }}>{t('alerts_title')}</Text>
         <View style={{ flexDirection: 'row', backgroundColor: '#F3F4F6', borderRadius: 14, padding: 3, marginBottom: 16 }}>
           <TouchableOpacity onPress={() => setTab('active')} style={{ flex: 1, backgroundColor: tab === 'active' ? '#111' : 'transparent', borderRadius: 12, paddingVertical: 10, alignItems: 'center' }}>
             <Text style={{ fontSize: 13, fontWeight: '700', color: tab === 'active' ? '#FFF' : '#6B7280' }}>En cours ({activeAlerts.length})</Text>
@@ -1203,7 +1203,7 @@ export default function AlertsScreen() {
   return (
     <View style={{ flex: 1, backgroundColor: '#FFFFFF' }}>
       <View style={{ paddingHorizontal: 16, paddingTop: 16, paddingBottom: 12 }}>
-        <Text style={{ fontSize: 28, fontWeight: '900', color: '#111', letterSpacing: -0.5 }}>Alertes</Text>
+        <Text style={{ fontSize: 28, fontWeight: '900', color: '#111', letterSpacing: -0.5 }}>{t('alerts_title')}</Text>
       </View>
       <FlatList data={filtered} keyExtractor={(item) => item.id}
         contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 80 }}

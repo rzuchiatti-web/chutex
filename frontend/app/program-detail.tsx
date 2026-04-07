@@ -79,7 +79,7 @@ export default function ProgramDétailScreen() {
       await apiFetch(`/api/programs/start/${programId}`, { method: 'POST', body: JSON.stringify({ mode, onboarding }) }, token);
       await applyOnboarding();
       setStep(2);
-    } catch (e: any) { setError(e.message || 'Erreur'); } finally { setStarting(false); }
+    } catch (e: any) { setError(e.message || t('error')); } finally { setStarting(false); }
   };
 
   const startSolo = async () => {
@@ -89,7 +89,7 @@ export default function ProgramDétailScreen() {
       await apiFetch(`/api/programs/start/${programId}`, { method: 'POST', body: JSON.stringify({ mode: 'solo', onboarding }) }, token);
       await applyOnboarding();
       router.replace('/(tabs)/chat' as any);
-    } catch (e: any) { setError(e.message || 'Erreur'); } finally { setStarting(false); }
+    } catch (e: any) { setError(e.message || t('error')); } finally { setStarting(false); }
   };
 
   const inviteFriend = async () => {
@@ -103,7 +103,7 @@ export default function ProgramDétailScreen() {
       setInviteMsg(res.message || 'Invitation envoyee');
       setInvitedFriends(prev => [...prev, { phone, status: res.status, name: res.invitee_name || phone }]);
       setInvitePhone('');
-    } catch (e: any) { setInviteMsg(e.message || 'Erreur'); } finally { setInviteLoading(false); }
+    } catch (e: any) { setInviteMsg(e.message || t('error')); } finally { setInviteLoading(false); }
   };
 
   return (

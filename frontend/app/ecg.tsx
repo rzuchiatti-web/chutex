@@ -371,7 +371,7 @@ export default function ECGScreen() {
           <div data-testid="ecg-go-devices" onClick={() => router.push('/(tabs)/devices' as any)} style={{ padding: '14px 32px', borderRadius: 16, background: 'rgba(255,255,255,0.15)', border: '1px solid rgba(255,255,255,0.3)', cursor: 'pointer', fontSize: 15, fontWeight: 800, color: '#FFFFFF', textAlign: 'center' } as any}>
             Aller aux Dispositifs
           </div>
-          <div onClick={() => router.back()} style={{ marginTop: 12, padding: '10px', cursor: 'pointer', fontSize: 12, color: 'rgba(255,255,255,0.3)', textAlign: 'center' } as any}>Annuler</div>
+          <div onClick={() => router.back()} style={{ marginTop: 12, padding: '10px', cursor: 'pointer', fontSize: 12, color: 'rgba(255,255,255,0.3)', textAlign: 'center' } as any}>{t('cancel')}</div>
         </div>
       </div>
     );
@@ -390,7 +390,7 @@ export default function ECGScreen() {
         {step === 0 && (
           <div style={{ width: '100%', maxWidth: 380, textAlign: 'center' } as any}>
             <img src={BRACELET_IMG} alt="" style={{ width: 140, height: 140, objectFit: 'contain', margin: '0 auto 24px', display: 'block', filter: 'drop-shadow(0 12px 32px rgba(0,0,0,0.4))' } as any} />
-            <div style={{ fontSize: 24, fontWeight: 900, color: '#FFF', marginBottom: 8 }}>Electrocardiogramme</div>
+            <div style={{ fontSize: 24, fontWeight: 900, color: '#FFF', marginBottom: 8 }}>{t('ecg_full')}</div>
             <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.45)', lineHeight: 1.7, marginBottom: 28 }}>
               Mesure reelle via le capteur ECG de votre bracelet V8.
             </div>
@@ -411,7 +411,7 @@ export default function ECGScreen() {
             <div data-testid="ecg-start-prep" onClick={() => setStep(1)} style={{ padding: '16px', borderRadius: 16, background: 'rgba(255,255,255,0.15)', border: '1px solid rgba(255,255,255,0.3)', cursor: 'pointer', fontSize: 16, fontWeight: 800, color: '#FFFFFF', textAlign: 'center' } as any}>
               Je suis pret
             </div>
-            <div onClick={() => router.back()} style={{ marginTop: 12, padding: '10px', cursor: 'pointer', fontSize: 12, color: 'rgba(255,255,255,0.3)', textAlign: 'center' } as any}>Annuler</div>
+            <div onClick={() => router.back()} style={{ marginTop: 12, padding: '10px', cursor: 'pointer', fontSize: 12, color: 'rgba(255,255,255,0.3)', textAlign: 'center' } as any}>{t('cancel')}</div>
           </div>
         )}
 
@@ -458,7 +458,7 @@ export default function ECGScreen() {
             <div data-testid="ecg-launch" onClick={connectAndStartECG} style={{ padding: '16px', borderRadius: 16, background: 'rgba(255,255,255,0.15)', border: '1px solid rgba(255,255,255,0.3)', cursor: 'pointer', fontSize: 16, fontWeight: 800, color: '#FFFFFF', textAlign: 'center', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 } as any}>
               <i className="ri-pulse-line" style={{ fontSize: 20 }} /> Lancer l'ECG
             </div>
-            <div onClick={() => router.back()} style={{ marginTop: 12, padding: '10px', cursor: 'pointer', fontSize: 12, color: 'rgba(255,255,255,0.3)', textAlign: 'center' } as any}>Annuler</div>
+            <div onClick={() => router.back()} style={{ marginTop: 12, padding: '10px', cursor: 'pointer', fontSize: 12, color: 'rgba(255,255,255,0.3)', textAlign: 'center' } as any}>{t('cancel')}</div>
           </div>
         )}
 

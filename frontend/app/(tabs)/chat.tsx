@@ -243,7 +243,7 @@ export default function ProgramsTab() {
             ))}
 
             <div style={{ display: 'flex', gap: 10, marginTop: 16 } as any}>
-              <div onClick={() => setShowGuide(false)} style={{ flex: 1, padding: '14px', borderRadius: 999, textAlign: 'center', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', color: 'rgba(255,255,255,0.6)', fontWeight: 700, cursor: 'pointer' } as any}>Fermer</div>
+              <div onClick={() => setShowGuide(false)} style={{ flex: 1, padding: '14px', borderRadius: 999, textAlign: 'center', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', color: 'rgba(255,255,255,0.6)', fontWeight: 700, cursor: 'pointer' } as any}>{t('close')}</div>
               <div data-testid="programs-guide-cta" onClick={() => setShowGuide(false)} style={{ flex: 1, padding: '14px', borderRadius: 999, textAlign: 'center', background: 'rgba(255,255,255,0.15)', border: '1px solid rgba(255,255,255,0.2)', color: '#FFF', fontWeight: 700, cursor: 'pointer' } as any}>C'est parti !</div>
             </div>
           </div>
@@ -284,7 +284,7 @@ export default function ProgramsTab() {
             )}
 
             <div style={{ display: 'flex', gap: 10, marginTop: 16 } as any}>
-              <div onClick={() => setShowJoinPopup(false)} style={{ flex: 1, padding: '14px', borderRadius: 999, textAlign: 'center', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', color: 'rgba(255,255,255,0.6)', fontWeight: 700, cursor: 'pointer' } as any}>Annuler</div>
+              <div onClick={() => setShowJoinPopup(false)} style={{ flex: 1, padding: '14px', borderRadius: 999, textAlign: 'center', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', color: 'rgba(255,255,255,0.6)', fontWeight: 700, cursor: 'pointer' } as any}>{t('cancel')}</div>
               <div data-testid="join-team-submit" onClick={!joinLoading ? handleJoinTeam : undefined}
                 style={{ flex: 1, padding: '14px', borderRadius: 999, textAlign: 'center', background: 'rgba(255,255,255,0.15)', border: '1px solid rgba(255,255,255,0.2)', color: '#FFF', fontWeight: 700, cursor: joinLoading ? 'default' : 'pointer', opacity: joinLoading ? 0.6 : 1 } as any}>
                 {joinLoading ? t('loading') : t('confirm')}

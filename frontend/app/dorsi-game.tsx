@@ -157,7 +157,7 @@ function EndScreen({ score, bestScore, isNew, meta, onReplay, onBack }: any) {
         {bestScore > 0 && !isNew && <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.25)', marginBottom: 32 }}>Record : {bestScore}</div>}
         <div style={{ display: 'flex', gap: 12, justifyContent: 'center' } as any}>
           <div onClick={onReplay} style={{ padding: '16px 36px', borderRadius: 999, background: meta.color, cursor: 'pointer', color: '#FFF', fontSize: 16, fontWeight: 800, boxShadow: `0 6px 24px ${meta.color}40` } as any}><i className="ri-refresh-line" style={{ marginRight: 8 }} />Rejouer</div>
-          <div onClick={onBack} style={{ padding: '16px 28px', borderRadius: 999, background: 'rgba(255,255,255,0.06)', cursor: 'pointer', color: 'rgba(255,255,255,0.6)', fontSize: 15, fontWeight: 700 } as any}>Retour</div>
+          <div onClick={onBack} style={{ padding: '16px 28px', borderRadius: 999, background: 'rgba(255,255,255,0.06)', cursor: 'pointer', color: 'rgba(255,255,255,0.6)', fontSize: 15, fontWeight: 700 } as any}>{t('return_label')}</div>
         </div>
       </div>
     </div>

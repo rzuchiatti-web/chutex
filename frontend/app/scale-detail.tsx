@@ -72,7 +72,7 @@ export default function ScaleDétailScreen() {
       setWifiProgress('WiFi configure avec succes !');
       setTimeout(() => setShowWifiSetup(false), 2000);
     } else {
-      setWifiProgress(res.error || 'Erreur');
+      setWifiProgress(res.error || t('error'));
     }
   };
 
@@ -157,7 +157,7 @@ export default function ScaleDétailScreen() {
       apiFetch('/api/devices/scale/link', { method: 'POST', body: JSON.stringify({ mac: deviceId, name: deviceName }) }, token).catch(() => {});
     } else {
       setBleState('idle');
-      Alert.alert('Erreur', 'Impossible de se connecter a la balance. Vérifiéz qu\'elle est allumee et a proximite.');
+      Alert.alert(t('error'), 'Impossible de se connecter a la balance. Vérifiéz qu\'elle est allumee et a proximite.');
     }
   };
 
@@ -173,7 +173,7 @@ export default function ScaleDétailScreen() {
       // Check for health alerts
       checkHealthAlerts(result);
     } catch (e: any) {
-      Alert.alert('Erreur', 'Impossible de sauvegarder la mesure');
+      Alert.alert(t('error'), 'Impossible de sauvegarder la mesure');
     }
   };
 
@@ -326,7 +326,7 @@ export default function ScaleDétailScreen() {
               <TouchableOpacity onPress={() => { setBleState('connected'); setLiveMeasurement(null); }}
                 style={{ backgroundColor: '#10B981', borderRadius: 9999, paddingVertical: 14, alignItems: 'center', marginTop: 12, flexDirection: 'row', justifyContent: 'center', gap: 8 }}>
                 <Icon name="refresh" size={18} color="#111827" />
-                <Text style={{ color: '#FFF', fontSize: 15, fontWeight: '800' }}>Nouvelle pesee</Text>
+                <Text style={{ color: '#FFF', fontSize: 15, fontWeight: '800' }}>{t('new_weighing_label')}</Text>
               </TouchableOpacity>
             )}
           </GC>
@@ -436,7 +436,7 @@ export default function ScaleDétailScreen() {
         {/* Weight chart */}
         {chartData.length > 1 && (
           <GC style={{ padding: 16 }}>
-            <Text style={{ fontSize: 13, fontWeight: '800', color: '#111827', marginBottom: 12 }}>Evolution du poids</Text>
+            <Text style={{ fontSize: 13, fontWeight: '800', color: '#111827', marginBottom: 12 }}>{t('weight_evolution')}</Text>
             <MiniChart data={chartData.map((d: any) => d.weight)} color="#2196F3" width={SW - 72} height={100} />
           </GC>
         )}
@@ -532,7 +532,7 @@ export default function ScaleDétailScreen() {
           {!history.length && (
             <GC style={{ alignItems: 'center', padding: 32 }}>
               <Icon name="scale-outline" size={40} color="#CCC" />
-              <Text style={{ fontSize: 15, fontWeight: '700', color: '#111827', marginTop: 12 }}>Aucune pesee</Text>
+              <Text style={{ fontSize: 15, fontWeight: '700', color: '#111827', marginTop: 12 }}>{t('no_weighing_data')}</Text>
               <Text style={{ fontSize: 12, color: '#6B7280', marginTop: 4, textAlign: 'center' }}>Connectez votre balance et pesez-vous pour voir vos donnees ici.</Text>
             </GC>
           )}

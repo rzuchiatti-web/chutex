@@ -57,7 +57,7 @@ export default function DataSharingScreen() {
         Alert.alert('Enregistré', 'Préférences mises a jour.');
       }
     } catch (e: any) {
-      Alert.alert('Erreur', e.message);
+      Alert.alert(t('error'), e.message);
     } finally { setSaving(false); }
   };
 
@@ -149,7 +149,7 @@ export default function DataSharingScreen() {
         <div style={{ marginBottom: 28 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 14 } as any}>
             <i className="ri-map-pin-fill" style={{ fontSize: 16, color: '#F59E0B' }} />
-            <span style={{ fontSize: 12, fontWeight: 700, color: 'rgba(255,255,255,0.4)', letterSpacing: 1, textTransform: 'uppercase' } as any}>Localisation</span>
+            <span style={{ fontSize: 12, fontWeight: 700, color: 'rgba(255,255,255,0.4)', letterSpacing: 1, textTransform: 'uppercase' } as any}>{t('location')}</span>
           </div>
 
           <div
@@ -195,7 +195,7 @@ export default function DataSharingScreen() {
         <div style={{ marginBottom: 28 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 14 } as any}>
             <i className="ri-alarm-warning-fill" style={{ fontSize: 16, color: '#EF4444' }} />
-            <span style={{ fontSize: 12, fontWeight: 700, color: 'rgba(255,255,255,0.4)', letterSpacing: 1, textTransform: 'uppercase' } as any}>Alertes</span>
+            <span style={{ fontSize: 12, fontWeight: 700, color: 'rgba(255,255,255,0.4)', letterSpacing: 1, textTransform: 'uppercase' } as any}>{t('alerts_title')}</span>
           </div>
 
           <div

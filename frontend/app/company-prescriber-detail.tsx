@@ -51,7 +51,7 @@ export default function CompanyPrescriberDétailScreen() {
       <div style={{ position: 'relative', display: 'flex', alignItems: 'center', gap: 10, padding: '16px 16px 0', zIndex: 10 } as any}>
         <div onClick={() => router.back()} style={{ width: 40, height: 40, borderRadius: 999, background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}><i className="ri-arrow-left-s-line" style={{ fontSize: 20, color: '#FFF' }} /></div>
         <div style={{ fontSize: 18, fontWeight: 800, color: '#FFF' }}>Fiche prescripteur</div>
-        <div style={{ padding: '3px 10px', borderRadius: 999, background: 'rgba(212,132,90,0.2)', border: '1px solid rgba(212,132,90,0.3)', marginLeft: 'auto' } as any}><span style={{ fontSize: 10, fontWeight: 700, color: '#D4845A' }}>Prescripteur</span></div>
+        <div style={{ padding: '3px 10px', borderRadius: 999, background: 'rgba(212,132,90,0.2)', border: '1px solid rgba(212,132,90,0.3)', marginLeft: 'auto' } as any}><span style={{ fontSize: 10, fontWeight: 700, color: '#D4845A' }}>{t('prescriber')}</span></div>
       </div>
       <div style={{ flex: 1, overflowY: 'auto', position: 'relative', zIndex: 5, padding: '20px 20px 100px', WebkitOverflowScrolling: 'touch' } as any}>
         {/* Header */}
@@ -68,7 +68,7 @@ export default function CompanyPrescriberDétailScreen() {
         </div>
         {/* Profile */}
         <div style={{ padding: '14px 16px', borderRadius: 20, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', marginBottom: 14 } as any}>
-          <div style={{ fontSize: 10, fontWeight: 600, color: 'rgba(255,255,255,0.35)', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 10 }}>Profil</div>
+          <div style={{ fontSize: 10, fontWeight: 600, color: 'rgba(255,255,255,0.35)', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 10 }}>{t('profile')}</div>
           {profileRows.map((item: any, i: number, arr: any[]) => (
             <div key={i}>
               <div onClick={() => item.phone && (window.location.href = `tel:${item.value}`)} style={{ display: 'flex', alignItems: 'center', gap: 14, cursor: item.phone ? 'pointer' : 'default', padding: '10px 0' } as any}>

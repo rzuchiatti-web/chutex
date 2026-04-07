@@ -109,7 +109,7 @@ export default function AdminPrescriptionDétail() {
               <View style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: '#FFF8E1', justifyContent: 'center', alignItems: 'center' }}>
                 <Icon name="person" size={18} color="#F57F17" />
               </View>
-              <Text style={{ fontSize: 16, fontWeight: '800', color: '#111827' }}>Prescripteur</Text>
+              <Text style={{ fontSize: 16, fontWeight: '800', color: '#111827' }}>{t('prescriber')}</Text>
             </View>
             <PersonCard name={g.name} subtitle={`${g.email} - ${g.prescriber_structure || g.structure_name || ''}`} color="#FFD54F"
               onPress={() => router.push({ pathname: '/admin-client-detail', params: { clientId: g.id } })} />

@@ -108,13 +108,13 @@ export default function ECGDétailScreen() {
       <div style={{ flex: 1, overflowY: 'auto', position: 'relative', zIndex: 5, padding: '70px 20px 100px', WebkitOverflowScrolling: 'touch' } as any}>
 
         <div data-testid="ecg-detail-back" onClick={() => router.push('/(tabs)/health' as any)} style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '8px 14px', borderRadius: 999, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', cursor: 'pointer', marginBottom: 16 } as any}>
-          <i className="ri-arrow-left-line" style={{ fontSize: 16, color: 'rgba(255,255,255,0.6)' }} /><span style={{ fontSize: 12, fontWeight: 600, color: 'rgba(255,255,255,0.6)' }}>Retour</span>
+          <i className="ri-arrow-left-line" style={{ fontSize: 16, color: 'rgba(255,255,255,0.6)' }} /><span style={{ fontSize: 12, fontWeight: 600, color: 'rgba(255,255,255,0.6)' }}>{t('return_label')}</span>
         </div>
 
         {/* Header */}
         <div style={{ textAlign: 'center', marginBottom: 20 } as any}>
           <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.35)', marginBottom: 6 }}>{dt.toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' })} a {dt.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}</div>
-          <div style={{ fontSize: 26, fontWeight: 900, color: '#FFF', marginBottom: 4 }}>Electrocardiogramme</div>
+          <div style={{ fontSize: 26, fontWeight: 900, color: '#FFF', marginBottom: 4 }}>{t('ecg_full')}</div>
           <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '5px 14px', borderRadius: 999, background: allNormal ? 'rgba(16,185,129,0.12)' : 'rgba(239,68,68,0.12)', border: `1px solid ${allNormal ? 'rgba(16,185,129,0.25)' : 'rgba(239,68,68,0.25)'}` } as any}>
             <span style={{ width: 6, height: 6, borderRadius: 3, background: allNormal ? '#10B981' : '#EF4444' } as any} />
             <span style={{ fontSize: 12, fontWeight: 700, color: allNormal ? '#10B981' : '#EF4444' }}>{statusText}</span>

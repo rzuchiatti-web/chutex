@@ -67,7 +67,7 @@ export default function CompanyAgencyScreen() {
     try {
       await apiFetch('/api/company/agencies', { method: 'POST', body: JSON.stringify(agForm) }, token);
       setShowCreate(false); setAgForm({ name: '', address: '' }); fetchData();
-    } catch (e: any) { Alert.alert('Erreur', e.message); } finally { setSaving(false); }
+    } catch (e: any) { Alert.alert(t('error'), e.message); } finally { setSaving(false); }
   };
 
   const deleteAgency = async (id: string) => {
@@ -430,7 +430,7 @@ export default function CompanyAgencyScreen() {
               </div>
             ))}
             <div style={{ display: 'flex', gap: 10, marginTop: 16 } as any}>
-              <div onClick={() => setShowCreate(false)} style={{ flex: 1, padding: '13px', borderRadius: 999, textAlign: 'center', background: '#F4F4F5', color: '#6B7280', fontWeight: 700, cursor: 'pointer' } as any}>Annuler</div>
+              <div onClick={() => setShowCreate(false)} style={{ flex: 1, padding: '13px', borderRadius: 999, textAlign: 'center', background: '#F4F4F5', color: '#6B7280', fontWeight: 700, cursor: 'pointer' } as any}>{t('cancel')}</div>
               <div onClick={createAgency} style={{ flex: 1, padding: '13px', borderRadius: 999, textAlign: 'center', background: '#FFF', color: '#111', fontWeight: 700, cursor: 'pointer' } as any}>{saving ? '...' : 'Créer'}</div>
             </div>
           </div>
@@ -459,9 +459,9 @@ export default function CompanyAgencyScreen() {
               </div>
             </div>
             {inviteMsg && (
-              <div style={{ padding: '13px 16px', borderRadius: 14, marginBottom: 16, background: inviteMsg.startsWith('Erreur') ? 'rgba(239,68,68,0.12)' : 'rgba(16,185,129,0.12)', border: `1px solid ${inviteMsg.startsWith('Erreur') ? 'rgba(239,68,68,0.25)' : 'rgba(16,185,129,0.25)'}` } as any}>
+              <div style={{ padding: '13px 16px', borderRadius: 14, marginBottom: 16, background: inviteMsg.startsWith(t('error')) ? 'rgba(239,68,68,0.12)' : 'rgba(16,185,129,0.12)', border: `1px solid ${inviteMsg.startsWith(t('error')) ? 'rgba(239,68,68,0.25)' : 'rgba(16,185,129,0.25)'}` } as any}>
                 <div style={{ display: 'flex', gap: 10, alignItems: 'flex-start' } as any}>
-                  <i className={inviteMsg.startsWith('Erreur') ? 'ri-error-warning-line' : 'ri-checkbox-circle-line'} style={{ fontSize: 17, color: inviteMsg.startsWith('Erreur') ? '#EF4444' : '#10B981', flexShrink: 0 }} />
+                  <i className={inviteMsg.startsWith(t('error')) ? 'ri-error-warning-line' : 'ri-checkbox-circle-line'} style={{ fontSize: 17, color: inviteMsg.startsWith(t('error')) ? '#EF4444' : '#10B981', flexShrink: 0 }} />
                   <span style={{ fontSize: 13, color: '#111', lineHeight: 1.5 }}>{inviteMsg}</span>
                 </div>
               </div>

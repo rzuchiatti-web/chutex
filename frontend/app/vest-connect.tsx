@@ -233,7 +233,7 @@ export default function VestConnectScreen() {
       <SafeAreaView style={[s.safe, { backgroundColor: themeColors.background }]}>
         <View style={s.topBar}>
           <TouchableOpacity onPress={() => router.back()} style={s.backBtn}><Icon name="chevron-back" size={22} color={Colors.textPrimary} /></TouchableOpacity>
-          <Text style={s.topTitle}>Gilet Anti-Chute</Text>
+          <Text style={s.topTitle}>{t('vest_name')}</Text>
           <View style={{ width: 36 }} />
         </View>
         <View style={s.center}>
@@ -263,7 +263,7 @@ export default function VestConnectScreen() {
     <SafeAreaView style={[s.safe, { backgroundColor: themeColors.background }]}>
       <View style={s.topBar}>
         <TouchableOpacity onPress={() => router.back()} style={s.backBtn}><Icon name="chevron-back" size={22} color={Colors.textPrimary} /></TouchableOpacity>
-        <Text style={s.topTitle}>Gilet Anti-Chute</Text>
+        <Text style={s.topTitle}>{t('vest_name')}</Text>
         <View style={[s.dot, { backgroundColor: statusColor }]} />
       </View>
 
@@ -286,7 +286,7 @@ export default function VestConnectScreen() {
               <Icon name="shield-checkmark" size={32} color={statusColor} />
             </View>
             <View style={{ flex: 1 }}>
-              <Text style={s.cardTitle}>Gilet Anti-Chute</Text>
+              <Text style={s.cardTitle}>{t('vest_name')}</Text>
               <Text style={[s.cardStatus, { color: statusColor }]}>{statusText}</Text>
             </View>
           </View>

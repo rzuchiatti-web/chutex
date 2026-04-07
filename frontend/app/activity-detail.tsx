@@ -281,7 +281,7 @@ export default function ActivityDétailPage() {
               <div data-testid="card-recovery" style={{ borderRadius: 18, background: '#F4F4F5', padding: '16px 18px', marginBottom: 10 } as any}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 14 } as any}>
                   <i className="ri-battery-charge-line" style={{ fontSize: 14, color: recCol }} />
-                  <span style={{ fontSize: 13, fontWeight: 800, color: '#111' }}>Récupération</span>
+                  <span style={{ fontSize: 13, fontWeight: 800, color: '#111' }}>{t('recovery')}</span>
                   <div onClick={() => setExplainMetric('recovery')} style={{ width: 28, height: 28, borderRadius: 999, background: '#FFF', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', flexShrink: 0, marginLeft: 'auto' } as any}><i className="ri-information-line" style={{ fontSize: 14, color: recCol }} /></div>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 16 } as any}>
@@ -353,7 +353,7 @@ export default function ActivityDétailPage() {
               <div style={{ height: 1, background: 'rgba(0,0,0,0.06)', margin: '14px 0 24px' } as any} />
               <div data-testid="exercises-section" style={{ marginBottom: 14 } as any}>
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 } as any}>
-                  <div style={{ fontSize: 20, fontWeight: 900, color: '#111', letterSpacing: '-0.3px' }}>Mes exercices</div>
+                  <div style={{ fontSize: 20, fontWeight: 900, color: '#111', letterSpacing: '-0.3px' }}>{t('my_exercises')}</div>
                   <div data-testid="add-exercise-btn" onClick={() => {
                     setShowAddExercise(true);
                     if (exerciseLibrary.length === 0) {
@@ -453,7 +453,7 @@ export default function ActivityDétailPage() {
                   </div>
                   <div style={{ fontSize: 15, color: 'rgba(255,255,255,0.6)', lineHeight: 1.9, marginBottom: 32, animation: 'slideUp 0.4s ease 0.2s both' } as any}>{e.desc}</div>
                   <div style={{ marginBottom: 32, animation: 'slideUp 0.4s ease 0.3s both' } as any}>
-                    <div style={{ fontSize: 10, fontWeight: 700, color: e.color, textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 14 }}>Valeurs de reference</div>
+                    <div style={{ fontSize: 10, fontWeight: 700, color: e.color, textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 14 }}>{t('reference_values')}</div>
                     {e.ranges.map((r, ri) => (
                       <div key={ri} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 0', borderBottom: ri < e.ranges.length - 1 ? '1px solid rgba(255,255,255,0.06)' : 'none' } as any}>
                         <span style={{ fontSize: 14, color: '#FFF', fontWeight: 600 }}>{r.label}</span>

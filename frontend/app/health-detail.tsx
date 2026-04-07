@@ -251,7 +251,7 @@ export default function HealthDétailScreen() {
               <div style={{ display: 'flex', alignItems: 'center', gap: 14 } as any}>
                 <div onClick={() => { try { router.back(); } catch { router.push('/(tabs)/health' as any); } }} style={{ width: 44, height: 44, borderRadius: 999, background: 'rgba(255,255,255,0.12)', border: '1px solid rgba(255,255,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', flexShrink: 0 } as any}><i className="ri-arrow-left-line" style={{ fontSize: 18, color: '#FFF' }} /></div>
                 <div style={{ flex: 1, textAlign: 'center' } as any}>
-                  <div style={{ fontSize: 22, fontWeight: 900, color: '#FFF' }}>Sommeil</div>
+                  <div style={{ fontSize: 22, fontWeight: 900, color: '#FFF' }}>{t('sleep_label')}</div>
                   <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)', marginTop: 4 }}>Analyse détaillée de votre nuit</div>
                 </div>
                 <div style={{ width: 44 } as any} />

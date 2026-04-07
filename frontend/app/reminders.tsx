@@ -98,7 +98,7 @@ export default function RemindersScreen() {
       <SafeAreaView style={{ flex: 1, backgroundColor: '#FFFFFF' }}>
         <View style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 16, paddingVertical: 14, paddingTop: 70 }}>
           <TouchableOpacity onPress={() => router.back()} style={{ padding: 4, marginRight: 12 }}><Icon name="chevron-back" size={24} color="#111827" /></TouchableOpacity>
-          <Text style={{ flex: 1, fontSize: 22, fontWeight: '900', color: '#111827' }}>Mes rappels</Text>
+          <Text style={{ flex: 1, fontSize: 22, fontWeight: '900', color: '#111827' }}>{t('my_reminders_title')}</Text>
         </View>
         <ScrollView contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 40 }}>
           {CATEGORIES.map(c => {
@@ -175,7 +175,7 @@ export default function RemindersScreen() {
             <Text style={{ fontSize: 13, color: '#6B7280', marginTop: 4 }}>Cette action est irreversible</Text>
             <View style={{ flexDirection: 'row', gap: 12, marginTop: 20, width: '100%' }}>
               <TouchableOpacity style={{ flex: 1, paddingVertical: 14, borderRadius: 9999, backgroundColor: '#F5F5F5', alignItems: 'center' }} onPress={() => setConfirmDelete(null)}>
-                <Text style={{ fontSize: 14, fontWeight: '700', color: '#6B7280' }}>Annuler</Text>
+                <Text style={{ fontSize: 14, fontWeight: '700', color: '#6B7280' }}>{t('cancel')}</Text>
               </TouchableOpacity>
               <TouchableOpacity style={{ flex: 1, paddingVertical: 14, borderRadius: 9999, backgroundColor: '#E53935', alignItems: 'center' }} onPress={() => doDelete(confirmDelete)}>
                 <Text style={{ fontSize: 14, fontWeight: '800', color: '#FFF' }}>SUPPRIMER</Text>
@@ -205,7 +205,7 @@ export default function RemindersScreen() {
             </View>
             <View style={{ flexDirection: 'row', gap: 12 }}>
               <TouchableOpacity style={{ flex: 1, paddingVertical: 14, borderRadius: 9999, backgroundColor: '#F5F5F5', alignItems: 'center' }} onPress={() => setShowModal(false)}>
-                <Text style={{ fontSize: 14, fontWeight: '700', color: '#6B7280' }}>Annuler</Text>
+                <Text style={{ fontSize: 14, fontWeight: '700', color: '#6B7280' }}>{t('cancel')}</Text>
               </TouchableOpacity>
               <TouchableOpacity style={{ flex: 1, paddingVertical: 14, borderRadius: 9999, backgroundColor: '#FFFFFF', alignItems: 'center' }} onPress={save} disabled={saving}>
                 {saving ? <ActivityIndicator color="#111827" size="small" /> : <Text style={{ fontSize: 14, fontWeight: '800', color: '#FFF' }}>{editR ? 'MODIFIER' : 'CREER'}</Text>}

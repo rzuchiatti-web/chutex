@@ -43,7 +43,7 @@ export default function InterventionDétailScreen() {
     try {
       await apiFetch('/api/intervention/accept', { method: 'POST', body: JSON.stringify({ intervention_id: interventionId }) }, token);
       fetchIntervention();
-    } catch (e: any) { Alert.alert('Erreur', e.message); } finally { setAccepting(false); }
+    } catch (e: any) { Alert.alert(t('error'), e.message); } finally { setAccepting(false); }
   };
 
   const openCloseQCM = async () => {
@@ -51,7 +51,7 @@ export default function InterventionDétailScreen() {
       const qs = await apiFetch('/api/intervention/close-qcm', {}, token);
       setQcmQuestions(qs);
       setShowQCM(true);
-    } catch (e: any) { Alert.alert('Erreur', e.message); }
+    } catch (e: any) { Alert.alert(t('error'), e.message); }
   };
 
   const closeIntervention = async () => {
@@ -64,7 +64,7 @@ export default function InterventionDétailScreen() {
       Alert.alert('Intervention cloturee', 'Le compte-rendu a été enregistré.');
       setShowQCM(false);
       fetchIntervention();
-    } catch (e: any) { Alert.alert('Erreur', e.message); } finally { setClosing(false); }
+    } catch (e: any) { Alert.alert(t('error'), e.message); } finally { setClosing(false); }
   };
 
   if (loading) return <FullScreenLoader />;

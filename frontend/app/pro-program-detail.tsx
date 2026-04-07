@@ -99,7 +99,7 @@ export default function ProProgramDétailPage() {
                     <div style={{ flex: 1, padding: '14px 12px', textAlign: 'center', borderRight: '1px solid rgba(255,255,255,0.04)' } as any}>
                       <i className="ri-timer-line" style={{ fontSize: 18, color: '#10B981', display: 'block', marginBottom: 4 }} />
                       <div style={{ fontSize: 18, fontWeight: 900, color: '#FFF' }}>{prog.duration_weeks || '—'}<span style={{ fontSize: 9, color: 'rgba(255,255,255,0.2)' }}> sem.</span></div>
-                      <div style={{ fontSize: 8, color: 'rgba(255,255,255,0.25)', fontWeight: 700, textTransform: 'uppercase' }}>Durée</div>
+                      <div style={{ fontSize: 8, color: 'rgba(255,255,255,0.25)', fontWeight: 700, textTransform: 'uppercase' }}>{t('duration')}</div>
                     </div>
                     <div style={{ flex: 1, padding: '14px 12px', textAlign: 'center' } as any}>
                       <i className="ri-list-check-2" style={{ fontSize: 18, color: '#F59E0B', display: 'block', marginBottom: 4 }} />
@@ -114,7 +114,7 @@ export default function ProProgramDétailPage() {
                   <div data-testid="pro-program-description" style={{ ...GL, padding: 16, marginBottom: 12 } as any}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 10 } as any}>
                       <i className="ri-file-text-line" style={{ fontSize: 14, color: accent }} />
-                      <span style={{ fontSize: 10, fontWeight: 800, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: 1 }}>Description</span>
+                      <span style={{ fontSize: 10, fontWeight: 800, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: 1 }}>{t('description')}</span>
                     </div>
                     <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.55)', lineHeight: 1.7 }}>{prog.description}</div>
                   </div>

@@ -103,7 +103,7 @@ export default function SubscriptionPage() {
     try {
       await fetch(`${API}/api/contract/sign/__pending__`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ signer_name: signerName }) }).catch(() => {});
       const res = await fetch(`${API}/api/contract/create`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ plan: selectedPlan, subscriber_type: subType, beneficiary: ben, housing, guardians, delivery, billing }) });
-      if (!res.ok) throw new Error((await res.json()).detail || 'Erreur');
+      if (!res.ok) throw new Error((await res.json()).detail || t('error'));
       const c = await res.json();
       setContractId(c.id); setContractNumber(c.contract_number);
       // Sign contract
@@ -148,7 +148,7 @@ export default function SubscriptionPage() {
               <div style={{ flex: 1 }}>
                 <div style={{ fontSize: 16, fontWeight: 800, color: C.text, marginBottom: 4 }}>{p.name}</div>
                 <div style={{ fontSize: 13, color: C.muted, marginBottom: 8, lineHeight: 1.4 }}>{p.description}</div>
-                <div style={{ fontSize: 22, fontWeight: 900, color: V }}>{p.price.toFixed(2).replace('.', ',')} <span style={{ fontSize: 12, fontWeight: 500, color: C.muted }}>EUR/mois</span></div>
+                <div style={{ fontSize: 22, fontWeight: 900, color: V }}>{p.price.toFixed(2).replace('.', ',')} <span style={{ fontSize: 12, fontWeight: 500, color: C.muted }}>{t('eur_month')}</span></div>
                 <div style={{ fontSize: 12, color: C.green, fontWeight: 600 }}>soit {p.price_after_credit.toFixed(2).replace('.', ',')} EUR après credit d'impot*</div>
               </div>
             </div>
@@ -159,7 +159,7 @@ export default function SubscriptionPage() {
         <div style={{ textAlign: 'center', marginBottom: 28 }}>
           <div style={{ width: 120, height: 120, borderRadius: 24, background: C.card, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', marginBottom: 16 }}><img src={selectedPlan === 'bracelet' ? IMG_BRACELET : IMG_GILET} alt="" style={{ width: '75%', height: '75%', objectFit: 'contain' } as any} /></div>
           <div style={{ fontSize: 22, fontWeight: 900, color: C.text, marginBottom: 4 }}>{plan.name}</div>
-          <div style={{ fontSize: 32, fontWeight: 900, color: V }}>{plan.price.toFixed(2).replace('.', ',')} <span style={{ fontSize: 14, color: C.muted }}>EUR/mois</span></div>
+          <div style={{ fontSize: 32, fontWeight: 900, color: V }}>{plan.price.toFixed(2).replace('.', ',')} <span style={{ fontSize: 14, color: C.muted }}>{t('eur_month')}</span></div>
           <div style={{ fontSize: 13, color: C.green, fontWeight: 600 }}>soit {plan.price_after_credit.toFixed(2).replace('.', ',')} EUR/mois après credit d'impot 50%</div>
         </div>
         <div style={{ background: C.card, borderRadius: C.r, padding: 20, marginBottom: 16 }}>
@@ -186,7 +186,7 @@ export default function SubscriptionPage() {
         </div></div>) : null;
 
       case 3: return (<div>
-        <div style={{ fontSize: 20, fontWeight: 800, color: C.text, marginBottom: 4 }}>Bénéficiaire</div>
+        <div style={{ fontSize: 20, fontWeight: 800, color: C.text, marginBottom: 4 }}>{t('beneficiary')}</div>
         <div style={{ fontSize: 13, color: C.muted, marginBottom: 20 }}>Pour qui souscrivez-vous ?</div>
         <div style={{ display: 'flex', gap: 10, marginBottom: 20 }}>
           {[{v:'self',l:'Pour moi-meme'},{v:'relative',l:'Pour un proche'}].map(o => (
@@ -196,13 +196,13 @@ export default function SubscriptionPage() {
         {subType && (<div style={{ background: C.card, borderRadius: C.r, padding: 20 }}>
           <div style={{ fontSize: 14, fontWeight: 700, color: C.text, marginBottom: 16 }}>{subType === 'self' ? 'Vos informations' : 'Informations du beneficiaire'}</div>
           <div style={{ display: 'flex', gap: 10, marginBottom: 16 }}>{[{v:'F',l:'Madame'},{v:'M',l:'Monsieur'}].map(g => <Chip key={g.v} on={ben.gender===g.v} onClick={() => setBen({...ben, gender:g.v})}>{g.l}</Chip>)}</div>
-          <div style={row}><div style={{flex:1}}><label style={lbl}>Prenom<span style={req}>*</span></label><input data-testid="ben-first-name" value={ben.first_name} onChange={e => setBen({...ben, first_name: e.target.value})} style={inp} placeholder="Prenom" /></div><div style={{flex:1}}><label style={lbl}>Nom<span style={req}>*</span></label><input data-testid="ben-last-name" value={ben.last_name} onChange={e => setBen({...ben, last_name: e.target.value})} style={inp} placeholder="Nom" /></div></div>
+          <div style={row}><div style={{flex:1}}><label style={lbl}>{t('first_name_label')}<span style={req}>*</span></label><input data-testid="ben-first-name" value={ben.first_name} onChange={e => setBen({...ben, first_name: e.target.value})} style={inp} placeholder="Prenom" /></div><div style={{flex:1}}><label style={lbl}>Nom<span style={req}>*</span></label><input data-testid="ben-last-name" value={ben.last_name} onChange={e => setBen({...ben, last_name: e.target.value})} style={inp} placeholder="Nom" /></div></div>
           <div style={{height:12}} />
-          <div style={row}><div style={{flex:1}}><label style={lbl}>Telephone<span style={req}>*</span></label><input data-testid="ben-phone" value={ben.phone} onChange={e => setBen({...ben, phone: e.target.value})} style={inp} placeholder="06 12 34 56 78" type="tel" /></div><div style={{flex:1}}><label style={lbl}>Date de naissance</label><input value={ben.date_of_birth} onChange={e => setBen({...ben, date_of_birth: e.target.value})} style={inp} type="date" /></div></div>
+          <div style={row}><div style={{flex:1}}><label style={lbl}>{t('phone_label')}<span style={req}>*</span></label><input data-testid="ben-phone" value={ben.phone} onChange={e => setBen({...ben, phone: e.target.value})} style={inp} placeholder="06 12 34 56 78" type="tel" /></div><div style={{flex:1}}><label style={lbl}>{t('date_of_birth')}</label><input value={ben.date_of_birth} onChange={e => setBen({...ben, date_of_birth: e.target.value})} style={inp} type="date" /></div></div>
           <div style={{height:12}} />
-          <label style={lbl}>Adresse<span style={req}>*</span></label><input value={ben.address} onChange={e => setBen({...ben, address: e.target.value})} style={inp} placeholder="12 rue de la Paix" />
+          <label style={lbl}>{t('address')}<span style={req}>*</span></label><input value={ben.address} onChange={e => setBen({...ben, address: e.target.value})} style={inp} placeholder="12 rue de la Paix" />
           <div style={{height:12}} />
-          <div style={row}><div style={{flex:2}}><label style={lbl}>Ville<span style={req}>*</span></label><input value={ben.city} onChange={e => setBen({...ben, city: e.target.value})} style={inp} placeholder="Paris" /></div><div style={{flex:1}}><label style={lbl}>Code postal<span style={req}>*</span></label><input value={ben.postal_code} onChange={e => setBen({...ben, postal_code: e.target.value})} style={inp} placeholder="75001" /></div></div>
+          <div style={row}><div style={{flex:2}}><label style={lbl}>{t('city')}<span style={req}>*</span></label><input value={ben.city} onChange={e => setBen({...ben, city: e.target.value})} style={inp} placeholder="Paris" /></div><div style={{flex:1}}><label style={lbl}>{t('postal_code')}<span style={req}>*</span></label><input value={ben.postal_code} onChange={e => setBen({...ben, postal_code: e.target.value})} style={inp} placeholder="75001" /></div></div>
         </div>)}
       </div>);
 
@@ -235,15 +235,15 @@ export default function SubscriptionPage() {
           <div key={i} style={{ background: C.card, borderRadius: C.r, padding: 20, marginBottom: 14 }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
               <div style={{ fontSize: 14, fontWeight: 800, color: C.text }}>Gardien {i+1} {g.is_admin_ref && <span style={{ fontSize: 11, color: V, fontWeight: 600 }}> — Referent administratif</span>}</div>
-              {guardians.length > 1 && <div onClick={() => setGuardians(guardians.filter((_,j)=>j!==i))} style={{ fontSize: 12, color: '#EF4444', cursor: 'pointer' }}>Supprimer</div>}
+              {guardians.length > 1 && <div onClick={() => setGuardians(guardians.filter((_,j)=>j!==i))} style={{ fontSize: 12, color: '#EF4444', cursor: 'pointer' }}>{t('delete')}</div>}
             </div>
-            <div style={row}><div style={{flex:1}}><label style={lbl}>Prenom<span style={req}>*</span></label><input value={g.first_name} onChange={e=>{const u=[...guardians];u[i]={...u[i],first_name:e.target.value};setGuardians(u)}} style={inp} placeholder="Prenom" /></div><div style={{flex:1}}><label style={lbl}>Nom<span style={req}>*</span></label><input value={g.last_name} onChange={e=>{const u=[...guardians];u[i]={...u[i],last_name:e.target.value};setGuardians(u)}} style={inp} placeholder="Nom" /></div></div>
+            <div style={row}><div style={{flex:1}}><label style={lbl}>{t('first_name_label')}<span style={req}>*</span></label><input value={g.first_name} onChange={e=>{const u=[...guardians];u[i]={...u[i],first_name:e.target.value};setGuardians(u)}} style={inp} placeholder="Prenom" /></div><div style={{flex:1}}><label style={lbl}>Nom<span style={req}>*</span></label><input value={g.last_name} onChange={e=>{const u=[...guardians];u[i]={...u[i],last_name:e.target.value};setGuardians(u)}} style={inp} placeholder="Nom" /></div></div>
             <div style={{height:10}} />
-            <div style={row}><div style={{flex:1}}><label style={lbl}>Telephone<span style={req}>*</span></label><input value={g.phone} onChange={e=>{const u=[...guardians];u[i]={...u[i],phone:e.target.value};setGuardians(u)}} style={inp} placeholder="06 ..." type="tel" /></div><div style={{flex:1}}><label style={lbl}>Email</label><input value={g.email} onChange={e=>{const u=[...guardians];u[i]={...u[i],email:e.target.value};setGuardians(u)}} style={inp} placeholder="email@..." /></div></div>
+            <div style={row}><div style={{flex:1}}><label style={lbl}>{t('phone_label')}<span style={req}>*</span></label><input value={g.phone} onChange={e=>{const u=[...guardians];u[i]={...u[i],phone:e.target.value};setGuardians(u)}} style={inp} placeholder="06 ..." type="tel" /></div><div style={{flex:1}}><label style={lbl}>Email</label><input value={g.email} onChange={e=>{const u=[...guardians];u[i]={...u[i],email:e.target.value};setGuardians(u)}} style={inp} placeholder="email@..." /></div></div>
             <div style={{height:10}} />
-            <label style={lbl}>Adresse</label><input value={g.address} onChange={e=>{const u=[...guardians];u[i]={...u[i],address:e.target.value};setGuardians(u)}} style={inp} placeholder="Adresse" />
+            <label style={lbl}>{t('address')}</label><input value={g.address} onChange={e=>{const u=[...guardians];u[i]={...u[i],address:e.target.value};setGuardians(u)}} style={inp} placeholder="Adresse" />
             <div style={{height:10}} />
-            <div style={row}><div style={{flex:2}}><label style={lbl}>Ville</label><input value={g.city} onChange={e=>{const u=[...guardians];u[i]={...u[i],city:e.target.value};setGuardians(u)}} style={inp} placeholder="Ville" /></div><div style={{flex:1}}><label style={lbl}>Code postal</label><input value={g.postal_code} onChange={e=>{const u=[...guardians];u[i]={...u[i],postal_code:e.target.value};setGuardians(u)}} style={inp} placeholder="75001" /></div></div>
+            <div style={row}><div style={{flex:2}}><label style={lbl}>{t('city')}</label><input value={g.city} onChange={e=>{const u=[...guardians];u[i]={...u[i],city:e.target.value};setGuardians(u)}} style={inp} placeholder="Ville" /></div><div style={{flex:1}}><label style={lbl}>{t('postal_code')}</label><input value={g.postal_code} onChange={e=>{const u=[...guardians];u[i]={...u[i],postal_code:e.target.value};setGuardians(u)}} style={inp} placeholder="75001" /></div></div>
             <div style={{height:10}} />
             <label style={lbl}>Lien avec le bénéficiaire<span style={req}>*</span></label>
             <select value={g.relationship} onChange={e=>{const u=[...guardians];u[i]={...u[i],relationship:e.target.value};setGuardians(u)}} style={sel}><option value="">Choisir...</option>{RELS.map(r => <option key={r} value={r}>{r}</option>)}</select>
@@ -340,7 +340,7 @@ export default function SubscriptionPage() {
       {step < 8 && (<div style={{ padding: '12px 24px', background: '#FFF', borderBottom: `1px solid ${C.border}`, display: 'flex', gap: 3, alignItems: 'center' } as any}>{Array.from({length:7}).map((_,i)=>(<div key={i} style={{ flex: 1, height: 4, borderRadius: 2, background: i+1<=step ? V : C.card, transition: 'background 0.3s' } as any} />))}<div style={{ fontSize: 11, color: C.light, marginLeft: 8, whiteSpace: 'nowrap' } as any}>{step}/7</div></div>)}
       <div style={{ flex: 1, overflowY: 'auto', padding: 24, maxWidth: 540, width: '100%', margin: '0 auto', boxSizing: 'border-box' } as any}>{renderStep()}</div>
       {step > 1 && step < 8 && (<div style={{ padding: '14px 24px', borderTop: `1px solid ${C.border}`, background: '#FFF', display: 'flex', gap: 12, maxWidth: 540, width: '100%', margin: '0 auto', boxSizing: 'border-box' } as any}>
-        <div data-testid="back-btn" onClick={() => setStep(step-1)} style={{ padding: '13px 24px', borderRadius: C.pill, background: '#FFF', border: `1.5px solid ${C.border}`, cursor: 'pointer', fontSize: 14, fontWeight: 600, color: C.muted }}>Retour</div>
+        <div data-testid="back-btn" onClick={() => setStep(step-1)} style={{ padding: '13px 24px', borderRadius: C.pill, background: '#FFF', border: `1.5px solid ${C.border}`, cursor: 'pointer', fontSize: 14, fontWeight: 600, color: C.muted }}>{t('return_label')}</div>
         {step < 7 && <div data-testid="next-btn" onClick={() => canNext() && setStep(step+1)} style={{ flex: 1, padding: 13, borderRadius: C.pill, background: canNext() ? V : C.card, color: canNext() ? '#FFF' : C.light, cursor: canNext() ? 'pointer' : 'not-allowed', textAlign: 'center', fontSize: 14, fontWeight: 700, boxShadow: canNext() ? `0 4px 14px ${V}30` : 'none' }}>Continuer</div>}
       </div>)}
     </div>

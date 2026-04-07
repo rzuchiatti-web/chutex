@@ -47,7 +47,7 @@ export default function ProRevenuePage() {
       await apiFetch('/api/pro/payment-config', { method: 'PUT', body: JSON.stringify(ibanForm) }, token);
       setIbanMsg('Compte bancaire mis a jour');
       fetchData();
-    } catch (e: any) { setIbanMsg(e.message || 'Erreur'); }
+    } catch (e: any) { setIbanMsg(e.message || t('error')); }
     finally { setIbanSaving(false); }
   };
 

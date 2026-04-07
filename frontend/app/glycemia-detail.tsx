@@ -114,7 +114,7 @@ export default function GlycemiaDétailPage() {
           <div style={{ position: 'relative', zIndex: 2, padding: '70px 20px 70px', maxWidth: 480, margin: '0 auto' } as any}>
             <div data-testid="back-button" onClick={() => router.back()} style={{ width: 44, height: 44, borderRadius: 14, background: 'rgba(255,255,255,0.12)', border: '1px solid rgba(255,255,255,0.15)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}><i className="ri-arrow-left-line" style={{ fontSize: 18, color: '#FFF' }} /></div>
             <div style={{ textAlign: 'center', marginTop: 12 } as any}>
-              <div style={{ fontSize: 22, fontWeight: 900, color: '#FFF', marginTop: 8 }}>Glycémie</div>
+              <div style={{ fontSize: 22, fontWeight: 900, color: '#FFF', marginTop: 8 }}>{t('glycemia')}</div>
               <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.5)' }}>Estimation et suivi glycemique</div>
             </div>
             {/* Calendar — identical to activity-detail / minceur */}
@@ -212,7 +212,7 @@ export default function GlycemiaDétailPage() {
                     <text x="140" y="12" textAnchor="middle" fill={GL_H} fontSize="8" fontWeight="700">Normal+</text>
                     <text x="220" y="12" textAnchor="middle" fill={A} fontSize="8" fontWeight="700">Vigilance</text>
                     <text x="290" y="12" textAnchor="middle" fill={O} fontSize="8" fontWeight="700">Pre-alerte</text>
-                    <text x="360" y="12" textAnchor="middle" fill={R} fontSize="8" fontWeight="700">Alerte</text>
+                    <text x="360" y="12" textAnchor="middle" fill={R} fontSize="8" fontWeight="700">{t('alert_type')}</text>
                     <text x="0" y="68" fill="#9CA3AF" fontSize="8">0.70</text>
                     <text x="100" y="68" textAnchor="middle" fill="#9CA3AF" fontSize="8">1.00</text>
                     <text x="180" y="68" textAnchor="middle" fill="#9CA3AF" fontSize="8">1.10</text>
@@ -414,7 +414,7 @@ export default function GlycemiaDétailPage() {
               <div style={{ fontSize: 15, color: 'rgba(255,255,255,0.6)', lineHeight: 1.9, marginBottom: 32, animation: 'slideUp 0.4s ease 0.2s both' } as any}>{e.desc}</div>
               {/* Reference values */}
               <div style={{ marginBottom: 32, animation: 'slideUp 0.4s ease 0.3s both' } as any}>
-                <div style={{ fontSize: 10, fontWeight: 700, color: e.color, textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 14 }}>Valeurs de reference</div>
+                <div style={{ fontSize: 10, fontWeight: 700, color: e.color, textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 14 }}>{t('reference_values')}</div>
                 {e.ranges.map((r, ri) => (
                   <div key={ri} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px 0', borderBottom: ri < e.ranges.length - 1 ? '1px solid rgba(255,255,255,0.06)' : 'none' } as any}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 10 } as any}>
@@ -431,7 +431,7 @@ export default function GlycemiaDétailPage() {
                   <i className="ri-lightbulb-line" style={{ fontSize: 18, color: '#F59E0B' }} />
                 </div>
                 <div>
-                  <div style={{ fontSize: 11, fontWeight: 800, color: '#F59E0B', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 6 }}>Conseil</div>
+                  <div style={{ fontSize: 11, fontWeight: 800, color: '#F59E0B', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 6 }}>{t('advice')}</div>
                   <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.45)', lineHeight: 1.8 }}>{e.tip}</div>
                 </div>
               </div>

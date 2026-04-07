@@ -51,14 +51,14 @@ export default function EditThresholdsScreen() {
 
   const save = async () => {
     const min = parseFloat(seuilBas); const max = parseFloat(seuilHaut);
-    if (isNaN(min) || isNaN(max)) return Alert.alert('Erreur', 'Valeurs invalides');
-    if (min >= max) return Alert.alert('Erreur', 'Le seuil bas doit etre inférieur au seuil haut');
+    if (isNaN(min) || isNaN(max)) return Alert.alert(t('error'), 'Valeurs invalides');
+    if (min >= max) return Alert.alert(t('error'), 'Le seuil bas doit etre inférieur au seuil haut');
     setSaving(true);
     try {
       await apiFetch('/api/health/thresholds', { method: 'PUT', body: JSON.stringify({ metric_id: metricId, min_val: min, max_val: max }) }, token);
       Alert.alert('Seuils mis a jour', `${config.title}: ${min}${config.unit} - ${max}${config.unit}`);
       router.back();
-    } catch (e: any) { Alert.alert('Erreur', e.message); } finally { setSaving(false); }
+    } catch (e: any) { Alert.alert(t('error'), e.message); } finally { setSaving(false); }
   };
 
   if (!loaded) return <SafeAreaView style={{ flex: 1, backgroundColor: 'transparent', justifyContent: 'center', alignItems: 'center' }}><ActivityIndicator size="large" color="#111827" /></SafeAreaView>;

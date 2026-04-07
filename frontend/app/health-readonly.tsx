@@ -72,7 +72,7 @@ export default function HealthReadonlyScreen() {
       <div style={{ textAlign: 'center' } as any}>
         <i className="ri-heart-pulse-line" style={{ fontSize: 40, color: isDark ? 'rgba(255,255,255,0.15)' : 'rgba(0,0,0,0.1)' }} />
         <div style={{ fontSize: 16, fontWeight: 700, color: isDark ? '#FFF' : '#111', marginTop: 12 }}>Donnees non disponibles</div>
-        <div onClick={() => router.back()} style={{ marginTop: 16, padding: '10px 24px', borderRadius: 99, background: isDark ? '#FFF' : '#111', color: isDark ? '#111' : '#FFF', fontSize: 13, fontWeight: 700, cursor: 'pointer' } as any}>Retour</div>
+        <div onClick={() => router.back()} style={{ marginTop: 16, padding: '10px 24px', borderRadius: 99, background: isDark ? '#FFF' : '#111', color: isDark ? '#111' : '#FFF', fontSize: 13, fontWeight: 700, cursor: 'pointer' } as any}>{t('return_label')}</div>
       </div>
     </div>
   );
@@ -129,7 +129,7 @@ export default function HealthReadonlyScreen() {
           <i className="ri-heart-pulse-line" style={{ fontSize: 48, color: isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.08)', marginBottom: 16 }} />
           <div style={{ fontSize: 22, fontWeight: 900, color: textColor, marginBottom: 8 }}>Aucune donnee de sante</div>
           <div style={{ fontSize: 13, color: subColor, lineHeight: 1.6, maxWidth: 320, marginBottom: 24 }}>{firstName} n'a pas encore connecte de dispositif de sante.</div>
-          <div onClick={() => router.back()} style={{ padding: '12px 32px', borderRadius: 99, background: isDark ? '#FFF' : '#111', color: isDark ? '#111' : '#FFF', fontSize: 14, fontWeight: 700, cursor: 'pointer' } as any}>Retour</div>
+          <div onClick={() => router.back()} style={{ padding: '12px 32px', borderRadius: 99, background: isDark ? '#FFF' : '#111', color: isDark ? '#111' : '#FFF', fontSize: 14, fontWeight: 700, cursor: 'pointer' } as any}>{t('return_label')}</div>
         </div>
       </div>
     );
@@ -235,7 +235,7 @@ export default function HealthReadonlyScreen() {
             </div>
             <div style={{ padding: '10px 16px 14px' } as any}>
               <div style={{ textAlign: 'center', marginBottom: 10 } as any}>
-                <div style={{ fontSize: 15, fontWeight: 900, color: '#FFF', marginBottom: 2 }}>Poids & Nutrition</div>
+                <div style={{ fontSize: 15, fontWeight: 900, color: '#FFF', marginBottom: 2 }}>{t('weight_nutrition')}</div>
                 <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.4)' }}>Appuyez pour voir les details</div>
               </div>
               <div style={{ display: 'flex', gap: 6 } as any}>
@@ -270,7 +270,7 @@ export default function HealthReadonlyScreen() {
             <div style={{ flex: 1 } as any}><div style={{ fontSize: 14, fontWeight: 800, color: textColor }}>Historique pesees</div><div style={{ fontSize: 10, color: subColor }}>Balance 8 electrodes</div></div>
           </div>
           <div style={{ padding: '0 16px' } as any}>
-            {weighings.length === 0 && <div style={{ textAlign: 'center', padding: '12px 0', fontSize: 11, color: subColor }}>Aucune pesee</div>}
+            {weighings.length === 0 && <div style={{ textAlign: 'center', padding: '12px 0', fontSize: 11, color: subColor }}>{t('no_weighing_data')}</div>}
             {weighings.slice(0, 5).map((w: any, i: number) => (
               <div key={i} onClick={() => router.push({ pathname: '/minceur' as any, params: { beneficiaryId } })} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 0', borderTop: i > 0 ? `1px solid ${sepColor}` : 'none', cursor: 'pointer' } as any}>
                 <div style={{ flex: 1 } as any}><span style={{ fontSize: 14, fontWeight: 800, color: textColor }}>{w.weight} kg</span><span style={{ fontSize: 10, color: subColor, marginLeft: 8 }}>{new Date(w.date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })}</span></div>
@@ -287,7 +287,7 @@ export default function HealthReadonlyScreen() {
         <div style={{ borderRadius: 18, background: cardBg, marginBottom: 14, overflow: 'hidden' } as any}>
           <div style={{ padding: '12px 16px', display: 'flex', alignItems: 'center', gap: 14, borderBottom: `1px solid ${sepColor}` } as any}>
             <img src={BRACELET_IMG} alt="Bracelet" style={{ height: 40, objectFit: 'contain', filter: 'drop-shadow(0 4px 12px rgba(0,0,0,0.3))', flexShrink: 0 } as any} />
-            <div style={{ flex: 1 } as any}><div style={{ fontSize: 14, fontWeight: 800, color: textColor }}>Historique ECG</div><div style={{ fontSize: 10, color: subColor }}>Electrocardiogramme</div></div>
+            <div style={{ flex: 1 } as any}><div style={{ fontSize: 14, fontWeight: 800, color: textColor }}>Historique ECG</div><div style={{ fontSize: 10, color: subColor }}>{t('ecg_full')}</div></div>
           </div>
           <div style={{ padding: '0 16px' } as any}>
             <div style={{ textAlign: 'center', padding: '12px 0', fontSize: 11, color: subColor }}>Aucun ECG enregistré</div>

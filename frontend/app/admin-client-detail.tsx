@@ -120,7 +120,7 @@ export default function AdminClientDétail() {
               <View style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: '#E8EAF6', justifyContent: 'center', alignItems: 'center' }}>
                 <Icon name="card-outline" size={18} color="#3F51B5" />
               </View>
-              <Text style={{ fontSize: 16, fontWeight: '800', color: '#111827' }}>Abonnement</Text>
+              <Text style={{ fontSize: 16, fontWeight: '800', color: '#111827' }}>{t('subscription')}</Text>
             </View>
             <InfoRow icon="pricetag-outline" label="Type" value={data.subscription.subscription_type?.toUpperCase()} />
             <InfoRow icon="checkmark-circle-outline" label="Statut" value={data.subscription.status === 'active' ? 'Actif' : data.subscription.status} color="#4CAF50" />
@@ -318,7 +318,7 @@ export default function AdminClientDétail() {
               <View style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: '#E3F2FD', justifyContent: 'center', alignItems: 'center' }}>
                 <Icon name="navigate" size={18} color="#1565C0" />
               </View>
-              <Text style={{ fontSize: 16, fontWeight: '800', color: '#111827' }}>Localisation</Text>
+              <Text style={{ fontSize: 16, fontWeight: '800', color: '#111827' }}>{t('location')}</Text>
             </View>
             <InfoRow icon="location-outline" label="Coordonnées" value={`${u.latitude?.toFixed(4)}, ${u.longitude?.toFixed(4)}`} color="#1565C0" />
             <InfoRow icon="share-outline" label="Partage" value={u.location_sharing === 'always' ? 'Toujours' : u.location_sharing === 'alert_only' ? 'Alertes uniquement' : 'Désactivé'} />

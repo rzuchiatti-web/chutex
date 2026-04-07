@@ -187,7 +187,7 @@ export default function IntervenantVisitScreen() {
             </div>
 
             {/* Pain level */}
-            <div style={{ fontSize: 12, fontWeight: 700, color: 'rgba(255,255,255,0.4)', marginBottom: 8 }}>Niveau de douleur</div>
+            <div style={{ fontSize: 12, fontWeight: 700, color: 'rgba(255,255,255,0.4)', marginBottom: 8 }}>{t('pain_level')}</div>
             <div style={{ display: 'flex', gap: 4, marginBottom: 16 } as any}>
               {Array.from({ length: 11 }, (_, i) => i).map(n => (
                 <div key={n} onClick={() => setForm({ ...form, pain_level: n })} style={{ flex: 1, height: 36, borderRadius: 8, background: form.pain_level >= n && n > 0 ? `rgba(239,68,68,${0.1 + n * 0.08})` : n === 0 && form.pain_level === 0 ? 'rgba(16,185,129,0.15)' : 'rgba(255,255,255,0.03)', border: `1px solid ${form.pain_level === n ? 'rgba(255,255,255,0.2)' : 'rgba(255,255,255,0.04)'}`, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 10, fontWeight: 700, color: form.pain_level === n ? '#FFF' : 'rgba(255,255,255,0.2)' } as any}>{n}</div>
@@ -203,7 +203,7 @@ export default function IntervenantVisitScreen() {
             </div>
 
             {/* Notes */}
-            <div style={{ fontSize: 12, fontWeight: 700, color: 'rgba(255,255,255,0.4)', marginBottom: 6 }}>Notes</div>
+            <div style={{ fontSize: 12, fontWeight: 700, color: 'rgba(255,255,255,0.4)', marginBottom: 6 }}>{t('notes')}</div>
             <textarea value={form.notes} onChange={(e: any) => setForm({ ...form, notes: e.target.value })} placeholder="Observations, etat du logement, comportement..." rows={3} style={{ width: '100%', padding: '12px 14px', borderRadius: 14, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', color: '#FFF', fontSize: 13, fontFamily: 'inherit', resize: 'none', boxSizing: 'border-box', outline: 'none', marginBottom: 12 } as any} />
 
             {/* Alert doctor */}
