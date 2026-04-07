@@ -1,8 +1,10 @@
 import React from 'react';
 import { useRouter } from 'expo-router';
+import { useI18n } from '../../../context/I18nContext';
 
 export function TodayExercisesSection({ todayExercises, C, glass }: any) {
   const router = useRouter();
+  const { t } = useI18n();
   const exDoneCount = todayExercises.filter((e: any) => e.completed_today || e.done_today).length;
   const exAllDone = exDoneCount >= todayExercises.length;
   const API = process.env.EXPO_PUBLIC_BACKEND_URL || '';
@@ -10,10 +12,10 @@ export function TodayExercisesSection({ todayExercises, C, glass }: any) {
   return (
     <div data-testid="today-exercises-dashboard" className="dash-slide-up" style={{ marginBottom: 28 } as any}>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 } as any}>
-        <div style={{ fontSize: 20, fontWeight: 900, color: C.text, letterSpacing: '-0.3px' } as any}>Mes exercices</div>
+        <div style={{ fontSize: 20, fontWeight: 900, color: C.text, letterSpacing: '-0.3px' } as any}>{t('my_exercises')}</div>
         <span style={{ fontSize: 13, fontWeight: 800, color: exAllDone ? '#10B981' : C.text, background: exAllDone ? 'rgba(16,185,129,0.12)' : C.card, padding: '4px 12px', borderRadius: 999 }}>{exDoneCount}/{todayExercises.length}</span>
       </div>
-      <div style={{ fontSize: 13, color: C.sub, marginBottom: 16, lineHeight: '1.45' } as any}>Vos exercices a realiser aujourd'hui.</div>
+      <div style={{ fontSize: 13, color: C.sub, marginBottom: 16, lineHeight: '1.45' } as any}>{t('exercises_today_desc')}</div>
       {todayExercises.map((ex: any, i: number) => {
         const done = ex.completed_today || ex.done_today;
         const todayStr = new Date().toISOString().split('T')[0];
@@ -31,7 +33,7 @@ export function TodayExercisesSection({ todayExercises, C, glass }: any) {
                 <div style={{ position: 'absolute', inset: 0, background: done ? 'rgba(16,185,129,0.15)' : '#E5E7EB', display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}><i className={ex.icon || 'ri-run-line'} style={{ fontSize: 24, color: done ? '#10B981' : '#EF4444' }} /></div>}
               </div>
               <div style={{ flex: 1, minWidth: 0, padding: '10px 12px', display: 'flex', flexDirection: 'column', justifyContent: 'center' } as any}>
-                <span style={{ fontSize: 8, fontWeight: 700, color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: 0.6 }}>{ex.category || 'Exercice'}</span>
+                <span style={{ fontSize: 8, fontWeight: 700, color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: 0.6 }}>{ex.category || t('exercise_label')}</span>
                 <div style={{ fontSize: 14, fontWeight: 700, color: done ? '#10B981' : C.text, marginTop: 2 }}>{ex.title}</div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 2 } as any}>
                   <span style={{ fontSize: 11, color: done ? 'rgba(16,185,129,0.6)' : '#6B7280' }}>{ex.sets}x{ex.repetitions} reps</span>
@@ -66,7 +68,7 @@ export function TodayExercisesSection({ todayExercises, C, glass }: any) {
         onMouseEnter={(e: any) => { e.currentTarget.style.opacity = '0.85'; }}
         onMouseLeave={(e: any) => { e.currentTarget.style.opacity = '1'; }}>
         <i className="ri-run-line" style={{ fontSize: 16 }} />
-        Voir mon activité
+        {t('see_my_activity')}
       </div>
     </div>
   );

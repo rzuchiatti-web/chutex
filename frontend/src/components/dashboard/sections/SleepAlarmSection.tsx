@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { apiFetch } from '../../../services/api';
 import { HEALTH_IMAGES } from '../constants';
+import { useI18n } from '../../../context/I18nContext';
 
 function WheelPicker({ value, items, onChange, accent = '#FFF' }: { value: number; items: { val: number; label: string }[]; onChange: (v: number) => void; accent?: string }) {
   const ref = useRef<HTMLDivElement>(null);
@@ -26,6 +27,7 @@ function WheelPicker({ value, items, onChange, accent = '#FFF' }: { value: numbe
 }
 
 export function SleepAlarmSection({ sleepAlarm, alarmTime, setAlarmTime, editingAlarm, setEditingAlarm, setSleepAlarm, token, C, glass, isDark }: any) {
+  const { t } = useI18n();
   const [saving, setSaving] = useState(false);
   const [alarmDays, setAlarmDays] = useState<number[]>(sleepAlarm?.days || [1, 2, 3, 4, 5, 6, 7]); // 1=Lun..7=Dim
   const s = sleepAlarm || {};
@@ -61,7 +63,7 @@ export function SleepAlarmSection({ sleepAlarm, alarmTime, setAlarmTime, editing
         onMouseEnter={(e: any) => { e.currentTarget.style.transform = 'translateY(-2px)'; }}
         onMouseLeave={(e: any) => { e.currentTarget.style.transform = ''; }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 } as any}>
-          <div style={{ fontSize: 15, fontWeight: 800, color: C.text }}>Sommeil de ce soir</div>
+          <div style={{ fontSize: 15, fontWeight: 800, color: C.text }}>{t('tonight_sleep')}</div>
           <i className="ri-arrow-right-s-line" style={{ fontSize: 18, color: C.arrow }} />
         </div>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-around' } as any}>
@@ -70,14 +72,14 @@ export function SleepAlarmSection({ sleepAlarm, alarmTime, setAlarmTime, editing
               <i className="ri-moon-clear-fill" style={{ fontSize: 16, color: '#A78BFA' }} />
               <span style={{ fontSize: 26, fontWeight: 900, color: C.text, fontVariantNumeric: 'tabular-nums' } as any}>{s.bedtime || '22:00'}</span>
             </div>
-            <div style={{ fontSize: 9, fontWeight: 700, color: C.sub, textTransform: 'uppercase', letterSpacing: 0.8, marginTop: 3 }}>Coucher recommande</div>
+            <div style={{ fontSize: 9, fontWeight: 700, color: C.sub, textTransform: 'uppercase', letterSpacing: 0.8, marginTop: 3 }}>{t('recommended_bedtime')}</div>
           </div>
           <div style={{ width: 36, height: 0, borderTop: `2px dashed ${isDark ? 'rgba(255,255,255,0.15)' : 'rgba(0,0,0,0.1)'}` } as any} />
           <div style={{ textAlign: 'center' } as any}>
             <span style={{ fontSize: 26, fontWeight: 900, color: C.text, fontVariantNumeric: 'tabular-nums' } as any}>{s.wake_time || alarmTime}</span>
             <div style={{ display: 'flex', alignItems: 'center', gap: 4, justifyContent: 'center', marginTop: 3 } as any}>
               <span style={{ width: 5, height: 5, borderRadius: 3, background: '#10B981' } as any} />
-              <span style={{ fontSize: 9, fontWeight: 800, color: '#10B981', textTransform: 'uppercase', letterSpacing: 0.5 }}>Alarme activée</span>
+              <span style={{ fontSize: 9, fontWeight: 800, color: '#10B981', textTransform: 'uppercase', letterSpacing: 0.5 }}>{t('alarm_enabled')}</span>
             </div>
           </div>
         </div>
@@ -102,15 +104,15 @@ export function SleepAlarmSection({ sleepAlarm, alarmTime, setAlarmTime, editing
 
             {/* Title */}
             <div style={{ textAlign: 'center', marginBottom: 28 } as any}>
-              <div style={{ fontSize: 22, fontWeight: 900, color: '#FFF' }}>Votre sommeil ce soir</div>
-              <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.3)', marginTop: 4 }}>Definissez votre heure de réveil, nous calculons le meilleur moment pour vous coucher</div>
+              <div style={{ fontSize: 22, fontWeight: 900, color: '#FFF' }}>{t('your_sleep_tonight')}</div>
+              <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.3)', marginTop: 4 }}>{t('set_wake_time')}</div>
             </div>
 
             {/* === MAIN SECTION : Wake time → dotted → Bedtime === */}
             <div style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 20, padding: '20px 16px', marginBottom: 24 } as any}>
 
               {/* Wake time label */}
-              <div style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.4)', textAlign: 'center', marginBottom: 8 }}>A quelle heure vous réveillez-vous ?</div>
+              <div style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.4)', textAlign: 'center', marginBottom: 8 }}>{t('what_time_wake')}</div>
 
               {/* Wheel picker */}
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, marginBottom: 16 } as any}>
@@ -127,7 +129,7 @@ export function SleepAlarmSection({ sleepAlarm, alarmTime, setAlarmTime, editing
 
               {/* Bedtime result */}
               <div style={{ textAlign: 'center', marginTop: 8 } as any}>
-                <div style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.4)', marginBottom: 6 }}>Heure de coucher recommandée</div>
+                <div style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.4)', marginBottom: 6 }}>{t('recommended_bedtime_label')}</div>
                 <div style={{ fontSize: 44, fontWeight: 900, color: '#FFF', fontVariantNumeric: 'tabular-nums', lineHeight: 1 }}>{s.bedtime || '22:00'}</div>
                 <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)', marginTop: 6 }}>
                   Soit {(s.sleep_need_hours || 7)}h{(s.sleep_need_minutes || 30) > 0 ? `${s.sleep_need_minutes || 30}min` : ''} de sommeil optimal
@@ -138,7 +140,7 @@ export function SleepAlarmSection({ sleepAlarm, alarmTime, setAlarmTime, editing
 
             {/* === WEEKDAY SELECTOR === */}
             <div style={{ marginBottom: 24 } as any}>
-              <div style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.4)', textAlign: 'center', marginBottom: 10 }}>Jours de réveil</div>
+              <div style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.4)', textAlign: 'center', marginBottom: 10 }}>{t('wake_days')}</div>
               <div style={{ display: 'flex', justifyContent: 'center', gap: 6 } as any}>
                 {[
                   { day: 1, label: 'L' },
@@ -161,7 +163,7 @@ export function SleepAlarmSection({ sleepAlarm, alarmTime, setAlarmTime, editing
 
             {/* Save — above factors */}
             <div data-testid="save-alarm-btn" onClick={handleSave} style={{ padding: '16px', borderRadius: 999, background: '#FFF', textAlign: 'center', cursor: 'pointer', fontSize: 15, fontWeight: 800, color: '#111', opacity: saving ? 0.5 : 1, marginBottom: 24 } as any}>
-              {saving ? 'Enregistrément...' : 'Enregistrér'}
+              {saving ? t('saving_dots') : t('save_btn')}
             </div>
 
             {/* Factors */}

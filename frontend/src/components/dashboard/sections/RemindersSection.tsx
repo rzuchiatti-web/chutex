@@ -1,8 +1,10 @@
 import React from 'react';
 import { useRouter } from 'expo-router';
 import { REMINDER_IMAGES } from '../constants';
+import { useI18n } from '../../../context/I18nContext';
 
 export function RemindersSection({ reminders, C, glass, isDark, setEditReminder, setShowReminderCRUD }: any) {
+  const { t } = useI18n();
   const router = useRouter();
 
   const getNextReminderTime = (rem: any) => {
@@ -20,7 +22,7 @@ export function RemindersSection({ reminders, C, glass, isDark, setEditReminder,
   return (
     <div data-testid="reminders-section" className="dash-slide-up" style={{ marginBottom: 28 } as any}>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 } as any}>
-        <div style={{ fontSize: 20, fontWeight: 900, color: C.text, letterSpacing: '-0.3px' } as any}>Mes rappels</div>
+        <div style={{ fontSize: 20, fontWeight: 900, color: C.text, letterSpacing: '-0.3px' } as any}>{t('my_reminders_title')}</div>
         <div style={{ display: 'flex', gap: 0 } as any}>
           {[
             { bg: '#38BDF8', icon: 'ri-drop-fill' },
@@ -38,7 +40,7 @@ export function RemindersSection({ reminders, C, glass, isDark, setEditReminder,
         {[
           { type: 'hydration', label: 'Hydratation', img: REMINDER_IMAGES.hydration, color: '#38BDF8', desc: 'Pensez a boire regulierement' },
           { type: 'medication', label: 'Traitement', img: REMINDER_IMAGES.medication, color: '#F59E0B', desc: 'Suivi de votre traitement' },
-          { type: 'alarm', label: 'Alarmes', img: REMINDER_IMAGES.alarm, color: '#EF4444', desc: 'Vos alarmes personnalisées' },
+          { type: 'alarm', label: t('alarms'), img: REMINDER_IMAGES.alarm, color: '#EF4444', desc: t('your_alarms') },
         ].map((cat) => {
           const catRems = reminders.filter((r: any) => r.reminder_type === cat.type);
           const activeCount = catRems.filter((r: any) => r.active).length;
