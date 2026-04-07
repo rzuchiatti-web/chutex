@@ -218,19 +218,29 @@ export default function ProExerciseDetailPage() {
       <style dangerouslySetInnerHTML={{ __html: `@keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}@keyframes pulse-ring{0%,100%{box-shadow:0 0 0 0 rgba(16,185,129,0.3)}50%{box-shadow:0 0 0 8px rgba(16,185,129,0)}}` }} />
       <div style={{ flex: 1, overflowY: 'auto', WebkitOverflowScrolling: 'touch' } as any}>
 
-        {/* HEADER — title only, no icon */}
-        <div style={{ position: 'relative', zIndex: 1, minHeight: 160 } as any}>
+        {/* HEADER — title + pills, enlarged with 70px top */}
+        <div style={{ position: 'relative', zIndex: 1, minHeight: 240 } as any}>
           {(() => {
             const imgSrc = ex?.image ? (ex.image.startsWith('/') ? ex.image : ex.image) : '';
             return <img key={imgSrc || 'bg'} src={imgSrc || BG} alt="" style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', objectFit: 'cover' } as any} />;
           })()}
           <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', background: 'linear-gradient(180deg, rgba(0,0,0,0.3) 0%, rgba(0,0,0,0.65) 100%)' } as any} />
-          <div style={{ position: 'relative', zIndex: 2, padding: '24px 16px 28px', maxWidth: 480, margin: '0 auto', width: '100%', boxSizing: 'border-box' } as any}>
-            <div data-testid="pro-exercise-back-btn" onClick={() => router.back()} style={{ width: 38, height: 38, borderRadius: 999, background: 'rgba(255,255,255,0.15)', backdropFilter: 'blur(12px)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', border: '1px solid rgba(255,255,255,0.15)', marginBottom: 12 } as any}>
-              <i className="ri-arrow-left-line" style={{ fontSize: 16, color: '#FFF' }} />
+          <div style={{ position: 'relative', zIndex: 2, padding: '70px 16px 28px', maxWidth: 480, margin: '0 auto', width: '100%', boxSizing: 'border-box' } as any}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 16 } as any}>
+              <div data-testid="pro-exercise-back-btn" onClick={() => router.back()} style={{ width: 44, height: 44, borderRadius: 999, background: 'rgba(255,255,255,0.15)', backdropFilter: 'blur(12px)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', border: '1px solid rgba(255,255,255,0.15)', flexShrink: 0 } as any}>
+                <i className="ri-arrow-left-line" style={{ fontSize: 18, color: '#FFF' }} />
+              </div>
+              {!loading && ex && (
+                <div style={{ fontSize: 24, fontWeight: 900, color: '#FFF', textTransform: 'capitalize', textShadow: '0 2px 8px rgba(0,0,0,0.3)' }}>{ex.title}</div>
+              )}
             </div>
-            {!loading && ex && (
-              <div style={{ fontSize: 24, fontWeight: 900, color: '#FFF', textTransform: 'capitalize', textShadow: '0 2px 8px rgba(0,0,0,0.3)', textAlign: 'center' }}>{ex.title}</div>
+            {/* Pills — glass blur in header */}
+            {!loading && ex && (ex.difficulty || ex.muscle_group) && (
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 } as any}>
+                {ex.difficulty && <span style={{ padding: '6px 14px', borderRadius: 999, background: 'rgba(255,255,255,0.12)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)', border: '1px solid rgba(255,255,255,0.2)', fontSize: 11, fontWeight: 700, color: '#FFF' }}>{DIFF_LABELS[ex.difficulty] || ex.difficulty}</span>}
+                {ex.muscle_group && <span style={{ padding: '6px 14px', borderRadius: 999, background: 'rgba(255,255,255,0.12)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)', border: '1px solid rgba(255,255,255,0.2)', fontSize: 11, fontWeight: 700, color: '#FFF' }}>{ex.muscle_group}</span>}
+                {ex.equipment && ex.equipment !== 'Aucun' && <span style={{ padding: '6px 14px', borderRadius: 999, background: 'rgba(255,255,255,0.12)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)', border: '1px solid rgba(255,255,255,0.2)', fontSize: 11, fontWeight: 700, color: '#FFF' }}>{ex.equipment}</span>}
+              </div>
             )}
           </div>
         </div>
@@ -241,15 +251,6 @@ export default function ProExerciseDetailPage() {
 
           {!loading && ex && (
             <>
-              {/* Info tags */}
-              {(ex.difficulty || ex.muscle_group || ex.equipment) && (
-                <div data-testid="exercise-info" style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginBottom: 14 } as any}>
-                  {ex.difficulty && <span style={{ padding: '5px 10px', borderRadius: 999, background: `${accent}10`, fontSize: 11, fontWeight: 700, color: accent }}>{DIFF_LABELS[ex.difficulty] || ex.difficulty}</span>}
-                  {ex.muscle_group && <span style={{ padding: '5px 10px', borderRadius: 999, background: CARD2, fontSize: 11, fontWeight: 700, color: T2 }}>{ex.muscle_group}</span>}
-                  {ex.equipment && ex.equipment !== 'Aucun' && <span style={{ padding: '5px 10px', borderRadius: 999, background: CARD2, fontSize: 11, fontWeight: 700, color: T2 }}>{ex.equipment}</span>}
-                </div>
-              )}
-
               {/* STATS with edit button */}
               <div data-testid="exercise-stats" style={{ borderRadius: 16, background: CARD2, marginBottom: 14, overflow: 'hidden' } as any}>
                 {editing ? (

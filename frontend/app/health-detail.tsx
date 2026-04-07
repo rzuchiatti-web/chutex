@@ -246,9 +246,11 @@ export default function HealthDetailScreen() {
             <img src={BG_VIOLET} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 } as any} />
             <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.35)', zIndex: 1 } as any} />
             <div style={{ position: 'relative', zIndex: 2, padding: '70px 20px 60px', maxWidth: 480, margin: '0 auto' } as any}>
-              <div onClick={() => { try { router.back(); } catch { router.push('/(tabs)/health' as any); } }} style={{ width: 44, height: 44, borderRadius: 14, background: 'rgba(255,255,255,0.12)', border: '1px solid rgba(255,255,255,0.15)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}><i className="ri-arrow-left-line" style={{ fontSize: 18, color: '#FFF' }} /></div>
-              <div style={{ textAlign: 'center', marginTop: 8 } as any}>
-                <div style={{ fontSize: 22, fontWeight: 900, color: '#FFF', marginBottom: 2 }}>Sommeil</div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 14 } as any}>
+                <div onClick={() => { try { router.back(); } catch { router.push('/(tabs)/health' as any); } }} style={{ width: 44, height: 44, borderRadius: 999, background: 'rgba(255,255,255,0.12)', border: '1px solid rgba(255,255,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', flexShrink: 0 } as any}><i className="ri-arrow-left-line" style={{ fontSize: 18, color: '#FFF' }} /></div>
+                <div style={{ fontSize: 22, fontWeight: 900, color: '#FFF' }}>Sommeil</div>
+              </div>
+              <div style={{ textAlign: 'center', marginTop: 12 } as any}>
                 <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)', marginBottom: 12 }}>Analyse detaillee de votre nuit</div>
                 {sleepNightData && <div style={{ display: 'inline-flex', alignItems: 'baseline', gap: 4 } as any}><span style={{ fontSize: 48, fontWeight: 900, color: '#FFF', lineHeight: 1, letterSpacing: -1 }}>{Math.floor(sleepNightData.duration / 60)}</span><span style={{ fontSize: 16, fontWeight: 600, color: 'rgba(255,255,255,0.4)' }}>h</span><span style={{ fontSize: 48, fontWeight: 900, color: '#FFF', lineHeight: 1, letterSpacing: -1 }}>{String(sleepNightData.duration % 60).padStart(2, '0')}</span><span style={{ fontSize: 16, fontWeight: 600, color: 'rgba(255,255,255,0.4)' }}>min</span></div>}
                 {!sleepNightData && <div style={{ fontSize: 14, color: 'rgba(255,255,255,0.3)' }}>Aucune donnee disponible</div>}
