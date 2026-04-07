@@ -5,6 +5,7 @@ import { View, Text, Platform } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useGlobalSearchParams, useLocalSearchParams, useRouter } from 'expo-router';
 import { useAuth } from '../src/context/AuthContext';
+import { useI18n } from '../src/context/I18nContext';
 import { apiFetch } from '../src/services/api';
 import NativePageView from '../src/components/NativePageView';
 
@@ -22,6 +23,7 @@ export default function BeneficiaryDétailScreen() {
   const globalBid = normalizeBid(Array.isArray(globalParams?.beneficiaryId) ? globalParams.beneficiaryId[0] : globalParams?.beneficiaryId);
   const bid = localBid || globalBid || normalizeBid(webBeneficiaryId) || '';
   const { token, user } = useAuth();
+  const { t } = useI18n();
   const router = useRouter();
 
   const [data, setData] = useState<any>(null);
@@ -256,7 +258,7 @@ export default function BeneficiaryDétailScreen() {
           <div style={{ height: 1, background: C.sep, margin: '8px 0' } as any} />
 
           {/* ── 3. DONNEES DE SANTE (conditionnelles selon autorisations) ── */}
-          <div style={SL}>Données de santé</div>
+          <div style={SL}>{t('health_detail_title')}</div>
 
           {healthSharing === 'none' ? (
             <div data-testid="health-no-access" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10, padding: '32px 20px', borderRadius: 18, background: C.row, border: `1px solid ${C.sep}`, marginBottom: 12 } as any}>
@@ -284,7 +286,7 @@ export default function BeneficiaryDétailScreen() {
 
               {/* ── 4. ACTIVITE PHYSIQUE - only with full access ── */}
               {showFullHealth && activityMetrics.length > 0 && (<>
-                <div style={SL}>Activité physique</div>
+                <div style={SL}>{t('activity')}</div>
                 <div style={{ display: 'grid', gridTemplateColumns: `repeat(${activityMetrics.length}, 1fr)`, gap: 1, borderRadius: 14, overflow: 'hidden', border: `1px solid ${C.sep}`, marginBottom: 12 } as any}>
                   {activityMetrics.map((m, i) => (
                     <div key={i} data-testid={`beneficiary-activity-card-${m.label.toLowerCase()}`} style={{ padding: '14px 10px', background: C.row, textAlign: 'center', borderRight: i < activityMetrics.length - 1 ? `1px solid ${C.sep}` : 'none' } as any}>

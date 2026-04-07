@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, Platform } from 'react-native';
 import { useAuth } from '../../src/context/AuthContext';
+import { useI18n } from '../../src/context/I18nContext';
 import { apiFetch } from '../../src/services/api';
 import NativePageView from '../../src/components/NativePageView';
 import ProgramDailyView from '../../src/components/ProgramDailyView';
@@ -51,14 +52,14 @@ export default function ProgramsTab() {
   }, []);
 
   const handleJoinTeam = async () => {
-    if (!joinCode.trim()) { setJoinError('Entrez un code equipe'); return; }
+    if (!joinCode.trim()) { setJoinError(t('enter_team_code')); return; }
     setJoinLoading(true); setJoinError(''); setJoinSuccess('');
     try {
       const res = await apiFetch('/api/programs/team/join', { method: 'POST', body: JSON.stringify({ invite_code: joinCode.trim() }) }, token);
-      setJoinSuccess(res?.message || 'Vous avez rejoint l\'equipe !');
+      setJoinSuccess(res?.message || t('joined_team'));
       setTimeout(() => { setShowJoinPopup(false); setJoinCode(''); setJoinSuccess(''); setJoinError(''); loadData(); }, 1500);
     } catch (e: any) {
-      setJoinError(e?.message || e?.detail || 'Code invalide ou equipe introuvable');
+      setJoinError(e?.message || e?.detail || t('invalid_team_code'));
     } finally { setJoinLoading(false); }
   };
 
@@ -286,7 +287,7 @@ export default function ProgramsTab() {
               <div onClick={() => setShowJoinPopup(false)} style={{ flex: 1, padding: '14px', borderRadius: 999, textAlign: 'center', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', color: 'rgba(255,255,255,0.6)', fontWeight: 700, cursor: 'pointer' } as any}>Annuler</div>
               <div data-testid="join-team-submit" onClick={!joinLoading ? handleJoinTeam : undefined}
                 style={{ flex: 1, padding: '14px', borderRadius: 999, textAlign: 'center', background: 'rgba(255,255,255,0.15)', border: '1px solid rgba(255,255,255,0.2)', color: '#FFF', fontWeight: 700, cursor: joinLoading ? 'default' : 'pointer', opacity: joinLoading ? 0.6 : 1 } as any}>
-                {joinLoading ? 'Vérification...' : 'Rejoindre'}
+                {joinLoading ? t('loading') : t('confirm')}
               </div>
             </div>
           </div>

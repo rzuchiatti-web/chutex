@@ -16,6 +16,7 @@ import HealthSections from '../../src/components/health/HealthSections';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { useAuth } from '../../src/context/AuthContext';
+import { useI18n } from '../../src/context/I18nContext';
 import { useTheme } from '../../src/context/ThemeContext';
 import { apiFetch } from '../../src/services/api';
 import FullScreenLoader from '../../src/components/FullScreenLoader';
@@ -32,6 +33,7 @@ function CompanyAgences({ token }: { token: string }) {
 
 export default function HealthScreen() {
   const { token, user } = useAuth();
+  const { t } = useI18n();
   const { colors } = useTheme();
   const router = useRouter();
   const [loading, setLoading] = useState(true);

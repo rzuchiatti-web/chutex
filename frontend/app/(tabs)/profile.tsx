@@ -198,7 +198,7 @@ export default function ProfileScreen() {
       }) }, token);
       await refreshUser();
       setShowGuardianActivation(false);
-      Alert.alert('Espace gardien active', 'Vous pouvez maintenant basculer vers votre espace gardien.');
+      Alert.alert(t('guardian_activated'), t('guardian_activated_msg'));
     } catch (e: any) { Alert.alert('Erreur', e.message); } finally { setActivatingGuardian(false); }
   };
 
@@ -253,17 +253,17 @@ export default function ProfileScreen() {
       }
       const result = await apiFetch('/api/auth/update-profile', { method: 'PUT', body: JSON.stringify(body) }, token);
       if (result.user) await refreshUser();
-      Alert.alert('Profil mis a jour');
+      Alert.alert(t('profile_updated'));
       setEditMode(false);
     } catch (e: any) { Alert.alert('Erreur', e.message); } finally { setSaving(false); }
   };
 
   const changePassword = async () => {
-    if (!newPw || newPw.length < 6) { if (Platform.OS === 'web') window.alert('Min. 6 caracteres'); else Alert.alert('Erreur', 'Min. 6 caracteres'); return; }
+    if (!newPw || newPw.length < 6) { if (Platform.OS === 'web') window.alert(t('min_chars')); else Alert.alert('Erreur', t('min_chars')); return; }
     try {
       await apiFetch('/api/auth/change-password', { method: 'PUT', body: JSON.stringify({ old_password: oldPw, new_password: newPw }) }, token);
-      if (Platform.OS === 'web') window.alert('Mot de passe modifie avec succes');
-      else Alert.alert('Mot de passe modifie');
+      if (Platform.OS === 'web') window.alert(t('password_changed'));
+      else Alert.alert(t('password_changed'));
       setShowPwChange(false); setOldPw(''); setNewPw('');
     } catch (e: any) {
       if (Platform.OS === 'web') window.alert(e.message || 'Erreur');
@@ -272,7 +272,7 @@ export default function ProfileScreen() {
   };
 
   const sendContactForm = async () => {
-    if (!contactMsg.trim() || !contactObj.trim()) { if (Platform.OS === 'web') window.alert('Objet et message requis'); return; }
+    if (!contactMsg.trim() || !contactObj.trim()) { if (Platform.OS === 'web') window.alert(t('subject_required')); return; }
     setSendingContact(true);
     try { await apiFetch('/api/contact', { method: 'POST', body: JSON.stringify({ subject: contactObj, message: contactMsg, name: contactName, email: contactEmail, phone: contactPhone }) }, token); Alert.alert('Message envoye', 'Nous vous repondrons rapidement.'); setShowContact(false); setContactMsg(''); setContactObj(''); } catch (e: any) { Alert.alert('Erreur', e.message); } finally { setSendingContact(false); }
   };
@@ -670,7 +670,7 @@ const BG_PROFILE = 'https://customer-assets.emergentagent.com/job_9950a869-9328-
           <ProfileGlassPopup visible={showPwChange} onClose={() => setShowPwChange(false)}>
             <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.35)', letterSpacing: 2, textTransform: 'uppercase', marginBottom: 16 }}>{t('security')}</div>
             <div style={{ fontSize: 22, fontWeight: 800, color: '#FFF', marginBottom: 20 }}>Mot de passe</div>
-            {[{ val: oldPw, set: setOldPw, label: 'Mot de passe actuel' }, { val: newPw, set: setNewPw, label: 'Nouveau mot de passe' }].map((f, i) => (
+            {[{ val: oldPw, set: setOldPw, label: t('current_password') }, { val: newPw, set: setNewPw, label: t('new_password') }].map((f, i) => (
               <div key={i} style={{ marginBottom: 12 } as any}>
                 <div style={{ fontSize: 9, fontWeight: 600, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 4 }}>{f.label}</div>
                 <input type="password" value={f.val} onChange={(e: any) => f.set(e.target.value)} style={{ width: '100%', fontSize: 15, padding: '14px 16px', borderRadius: 14, border: '1px solid rgba(255,255,255,0.1)', background: 'rgba(255,255,255,0.06)', color: '#FFF', fontFamily: 'inherit', boxSizing: 'border-box', outline: 'none' } as any} />
@@ -686,7 +686,7 @@ const BG_PROFILE = 'https://customer-assets.emergentagent.com/job_9950a869-9328-
             <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.35)', letterSpacing: 2, textTransform: 'uppercase', marginBottom: 8 }}>{t('support')}</div>
             <div style={{ fontSize: 22, fontWeight: 800, color: '#FFF', marginBottom: 4 }}>Assistance</div>
             <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', marginBottom: 20 }}>contact@chutex-innovation.com</div>
-            {[{ val: contactObj, set: setContactObj, label: 'Objet' }, { val: contactName, set: setContactName, label: 'Nom' }, { val: contactEmail, set: setContactEmail, label: 'Email' }].map((f, i) => (
+            {[{ val: contactObj, set: setContactObj, label: t('subject') }, { val: contactName, set: setContactName, label: 'Nom' }, { val: contactEmail, set: setContactEmail, label: 'Email' }].map((f, i) => (
               <div key={i} style={{ marginBottom: 12 } as any}>
                 <div style={{ fontSize: 9, fontWeight: 600, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 4 }}>{f.label}</div>
                 <input value={f.val} onChange={(e: any) => f.set(e.target.value)} style={{ width: '100%', fontSize: 15, padding: '14px 16px', borderRadius: 14, border: '1px solid rgba(255,255,255,0.1)', background: 'rgba(255,255,255,0.06)', color: '#FFF', fontFamily: 'inherit', boxSizing: 'border-box', outline: 'none' } as any} />

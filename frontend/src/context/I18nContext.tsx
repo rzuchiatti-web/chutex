@@ -206,6 +206,10 @@ const T: Record<string, Record<string, string>> = {
     my_profile: 'Mon profil', my_subscription: 'Mon abonnement',
     // Days/Months
     mon: 'Lun', tue: 'Mar', wed: 'Mer', thu: 'Jeu', fri: 'Ven', sat: 'Sam', sun: 'Dim',
+    enter_team_code: 'Entrez un code équipe', joined_team: 'Vous avez rejoint l\'équipe !', invalid_team_code: 'Code invalide ou équipe introuvable',
+    profile_updated: 'Profil mis à jour', password_changed: 'Mot de passe modifié', min_chars: 'Min. 6 caractères',
+    subject_required: 'Objet et message requis', current_password: 'Mot de passe actuel', new_password: 'Nouveau mot de passe',
+    subject: 'Objet', send_message: 'Envoyer le message',
     jan: 'Janvier', feb: 'Février', mar: 'Mars', apr: 'Avril', may: 'Mai', jun: 'Juin',
     jul: 'Juillet', aug: 'Août', sep: 'Septembre', oct: 'Octobre', nov: 'Novembre', dec: 'Décembre',
   },
@@ -400,6 +404,10 @@ const T: Record<string, Record<string, string>> = {
     my_profile: 'My profile', my_subscription: 'My subscription',
     // Days/Months
     mon: 'Mon', tue: 'Tue', wed: 'Wed', thu: 'Thu', fri: 'Fri', sat: 'Sat', sun: 'Sun',
+    enter_team_code: 'Enter a team code', joined_team: 'You joined the team!', invalid_team_code: 'Invalid code or team not found',
+    profile_updated: 'Profile updated', password_changed: 'Password changed', min_chars: 'Min. 6 characters',
+    subject_required: 'Subject and message required', current_password: 'Current password', new_password: 'New password',
+    subject: 'Subject', send_message: 'Send message',
     jan: 'January', feb: 'February', mar: 'March', apr: 'April', may: 'May', jun: 'June',
     jul: 'July', aug: 'August', sep: 'September', oct: 'October', nov: 'November', dec: 'December',
   },
