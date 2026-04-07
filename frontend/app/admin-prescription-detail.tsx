@@ -6,6 +6,7 @@ import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator, Platform, 
 import { Ionicons } from '@expo/vector-icons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useAuth } from '../src/context/AuthContext';
+import { useI18n } from '../src/context/I18nContext';
 import { apiFetch } from '../src/services/api';
 
 const glass = Platform.OS === 'web' ? { backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)', boxShadow: '0 14px 40px rgba(0,0,0,0.35)' } : {};
@@ -43,6 +44,7 @@ export default function AdminPrescriptionDétail() {
   const { colors, isDark } = useTheme();
   const { prescriptionId } = useLocalSearchParams<{ prescriptionId: string }>();
   const { token } = useAuth();
+  const { t } = useI18n();
   const router = useRouter();
   const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState(true);

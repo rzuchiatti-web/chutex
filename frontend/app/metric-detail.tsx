@@ -2,6 +2,7 @@ import React, { useState, useEffect, useMemo, useRef, useCallback } from 'react'
 import { View, Text, Platform } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useAuth } from '../src/context/AuthContext';
+import { useI18n } from '../src/context/I18nContext';
 import { apiFetch } from '../src/services/api';
 import FullScreenLoader from '../src/components/FullScreenLoader';
 import NativePageView from '../src/components/NativePageView';
@@ -100,6 +101,7 @@ function HorizontalCalendar({ selectedDate, onSelect }: { selectedDate: Date; on
 export default function MetricDétailScreen() {
   const params = useLocalSearchParams<{ key: string; beneficiaryId?: string }>();
   const { token } = useAuth();
+  const { t } = useI18n();
   const router = useRouter();
   const webBeneficiaryId = (() => { try { if (typeof window !== 'undefined' && window.location?.search) return new URLSearchParams(window.location.search).get('beneficiaryId') || ''; } catch {} return ''; })();
   const key = params.key;

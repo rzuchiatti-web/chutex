@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { View, Text, Platform } from 'react-native';
 import { useAuth } from '../src/context/AuthContext';
+import { useI18n } from '../src/context/I18nContext';
 import { apiFetch } from '../src/services/api';
 import { useRouter } from 'expo-router';
 import FullScreenLoader from '../src/components/FullScreenLoader';
@@ -44,6 +45,7 @@ function buildPPGEnable(on: boolean) {
 
 export default function ECGScreen() {
   const { token } = useAuth();
+  const { t } = useI18n();
   const router = useRouter();
   const [step, setStep] = useState(0); // 0=prep, 1=breathing, 2=finger, 3=connecting, 4=recording
   const [breathSec, setBreathSec] = useState(0);

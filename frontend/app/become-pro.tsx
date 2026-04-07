@@ -1,6 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { Platform, View, Text } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
+import { useI18n } from '../src/context/I18nContext';
 
 const API = process.env.EXPO_PUBLIC_BACKEND_URL || '';
 
@@ -34,6 +35,7 @@ export default function BecomeProPage() {
   const params = useLocalSearchParams();
   const proType = (params.type as string) || 'coach';
   const isPhysio = proType === 'physio';
+  const { t } = useI18n();
   const router = useRouter();
 
   const [step, setStep] = useState(1);

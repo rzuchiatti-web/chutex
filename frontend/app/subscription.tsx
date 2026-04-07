@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Platform, View, Text } from 'react-native';
 import FullScreenLoader from '../src/components/FullScreenLoader';
+import { useI18n } from '../src/context/I18nContext';
 
 const API = process.env.EXPO_PUBLIC_BACKEND_URL || '';
 const IMG_BRACELET = 'https://customer-assets.emergentagent.com/job_8afdc991-0ab2-4687-a2a5-438b9a5f0711/artifacts/2fto1qw7_bracelet_sante_connecte_elio_chutex_care_teleassistance_telealarme%281%29.svg';
@@ -47,6 +48,7 @@ Article 7 - Responsabilite
 Chutex Innovation met en oeuvre tous les moyens necessaires pour assurer la continuite du service. La responsabilite de Chutex Innovation ne saurait etre engagee en cas de force majeure.`;
 
 export default function SubscriptionPage() {
+  const { t } = useI18n();
   const [step, setStep] = useState(1);
   const [plans, setPlans] = useState<Plan[]>([]);
   const [selectedPlan, setSelectedPlan] = useState('');

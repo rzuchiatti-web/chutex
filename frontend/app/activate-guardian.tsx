@@ -7,6 +7,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { useAuth } from '../src/context/AuthContext';
+import { useI18n } from '../src/context/I18nContext';
 import { apiFetch } from '../src/services/api';
 
 const glass = Platform.OS === 'web' ? { backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)', boxShadow: '0 14px 40px rgba(0,0,0,0.35)' } : {};
@@ -24,6 +25,7 @@ const WebInput = ({ label, val, onChange, placeholder, type }: any) => Platform.
 export default function ActivateGuardianScreen() {
   const { colors, isDark } = useTheme();
   const { token, user, refreshUser } = useAuth();
+  const { t } = useI18n();
   const router = useRouter();
   const [guardianType, setGuardianType] = useState(user?.guardian_type || 'particular');
   const [relationship, setRelationship] = useState(user?.relationship || '');

@@ -4,6 +4,7 @@ import { View, Text, Platform } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useAuth } from '../src/context/AuthContext';
+import { useI18n } from '../src/context/I18nContext';
 import { apiFetch } from '../src/services/api';
 import NativePageView from '../src/components/NativePageView';
 
@@ -32,6 +33,7 @@ const BG_RED = 'https://customer-assets.emergentagent.com/job_443c9c6e-0feb-4920
 export default function GuardianDétailScreen() {
   const params = useLocalSearchParams<{ guardianId: string; gName?: string; gPhone?: string; gEmail?: string; gRelationship?: string; gType?: string; gAddress?: string; gPostalCode?: string; gCity?: string; gCountry?: string; fromBeneficiary?: string }>();
   const { token, user } = useAuth();
+  const { t } = useI18n();
   const router = useRouter();
 
   // Expo Router web fallback

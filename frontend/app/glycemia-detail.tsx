@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Platform } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useAuth } from '../src/context/AuthContext';
+import { useI18n } from '../src/context/I18nContext';
 import { apiFetch } from '../src/services/api';
 import NoraOverlay, { NoraButton } from '../src/components/dashboard/NoraOverlay';
 import { HorizontalCalendar } from '../src/components/dashboard/pro/ProCalendar';
@@ -59,6 +60,7 @@ const GLYCEMIA_EXPLANATIONS: Record<string, { icon: string; color: string; title
 
 export default function GlycemiaDétailPage() {
   const { token } = useAuth();
+  const { t } = useI18n();
   const router = useRouter();
   const [data, setData] = useState<any>(null);
   const [calibrations, setCalibrations] = useState<any[]>([]);

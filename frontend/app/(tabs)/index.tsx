@@ -1,5 +1,6 @@
 import React from 'react';
 import { useAuth } from '../../src/context/AuthContext';
+import { useI18n } from '../../src/context/I18nContext';
 import { BeneficiaryHome } from '../../src/components/dashboard/BeneficiaryHome';
 import GuardianHome from '../../src/components/dashboard/GuardianHome';
 import TeleassistanceHome from '../../src/components/dashboard/TeleassistanceHome';
@@ -9,6 +10,7 @@ import ProHome from '../../src/components/dashboard/ProHome';
 
 export default function Dashboard() {
   const { user, token } = useAuth();
+  const { t } = useI18n();
   if (!user || !token) return null;
   const r = user.active_role || user.role;
 

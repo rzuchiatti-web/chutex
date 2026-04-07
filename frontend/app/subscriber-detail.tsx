@@ -4,6 +4,7 @@ import { View, Text, ActivityIndicator, Platform } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useAuth } from '../src/context/AuthContext';
+import { useI18n } from '../src/context/I18nContext';
 import { apiFetch } from '../src/services/api';
 import NativePageView from '../src/components/NativePageView';
 
@@ -12,6 +13,7 @@ const BG = 'https://customer-assets.emergentagent.com/job_8afdc991-0ab2-4687-a2a
 export default function SubscriberDétailScreen() {
   const { subscriberId } = useLocalSearchParams<{ subscriberId: string }>();
   const { token } = useAuth();
+  const { t } = useI18n();
   const router = useRouter();
   const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState(true);

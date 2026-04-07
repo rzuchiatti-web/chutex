@@ -6,6 +6,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useAuth } from '../src/context/AuthContext';
+import { useI18n } from '../src/context/I18nContext';
 import { useTheme } from '../src/context/ThemeContext';
 import { apiFetch } from '../src/services/api';
 
@@ -18,6 +19,7 @@ export default function InterventionDétailScreen() {
   const { colors } = useTheme();
   const { interventionId } = useLocalSearchParams<{ interventionId: string }>();
   const { token, user } = useAuth();
+  const { t } = useI18n();
   const router = useRouter();
   const [iv, setIv] = useState<any>(null);
   const [loading, setLoading] = useState(true);

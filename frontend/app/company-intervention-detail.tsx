@@ -6,6 +6,7 @@ import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator, Platform, 
 import { Ionicons } from '@expo/vector-icons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useAuth } from '../src/context/AuthContext';
+import { useI18n } from '../src/context/I18nContext';
 import { apiFetch } from '../src/services/api';
 
 const { height: SCREEN_H } = Dimensions.get('window');
@@ -29,6 +30,7 @@ export default function CompanyInterventionDétail() {
   const { colors, isDark } = useTheme();
   const { interventionId } = useLocalSearchParams<{ interventionId: string }>();
   const { token, user } = useAuth();
+  const { t } = useI18n();
   const router = useRouter();
   const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState(true);

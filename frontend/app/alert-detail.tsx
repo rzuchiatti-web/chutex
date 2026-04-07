@@ -3,8 +3,10 @@ import { Platform } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import NativePageView from '../src/components/NativePageView';
 import FullScreenLoader from '../src/components/FullScreenLoader';
+import { useI18n } from '../src/context/I18nContext';
 
 export default function AlertDétailScreen() {
+  const { t } = useI18n();
   const router = useRouter();
   const { alertId } = useLocalSearchParams<{ alertId: string }>();
 

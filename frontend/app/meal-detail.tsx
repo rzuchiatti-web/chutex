@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Platform } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useAuth } from '../src/context/AuthContext';
+import { useI18n } from '../src/context/I18nContext';
 import { apiFetch } from '../src/services/api';
 
 const BG = 'https://customer-assets.emergentagent.com/job_443c9c6e-0feb-4920-a358-fe7cc1a6289b/artifacts/v5t9l2mb_ChatGPT%20Image%2017%20f%C3%A9vr.%202026%2C%2014_10_07.png';
@@ -36,6 +37,7 @@ const INP_STYLE: any = { width: '100%', padding: '12px 14px', borderRadius: 12, 
 
 export default function MealDétailPage() {
   const { token } = useAuth();
+  const { t } = useI18n();
   const router = useRouter();
   const params = useLocalSearchParams();
   const { index, id, mode, assignmentId } = params as any;

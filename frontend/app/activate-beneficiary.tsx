@@ -6,6 +6,7 @@ import { View, Text, ScrollView, TouchableOpacity, Alert, ActivityIndicator, Pla
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { useAuth } from '../src/context/AuthContext';
+import { useI18n } from '../src/context/I18nContext';
 import { apiFetch } from '../src/services/api';
 
 const WebInput = ({ label, val, onChange, placeholder, type }: any) => Platform.OS === 'web' ? (
@@ -18,6 +19,7 @@ const WebInput = ({ label, val, onChange, placeholder, type }: any) => Platform.
 
 export default function ActivateBeneficiaryScreen() {
   const { token, user, refreshUser } = useAuth();
+  const { t } = useI18n();
   const router = useRouter();
   const [step, setStep] = useState(0);
   const [dob, setDob] = useState(user?.date_of_birth || '');

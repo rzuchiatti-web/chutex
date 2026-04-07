@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Platform } from 'react-native';
 import { useAuth } from '../src/context/AuthContext';
+import { useI18n } from '../src/context/I18nContext';
 import { apiFetch } from '../src/services/api';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import NativePageView from '../src/components/NativePageView';
@@ -12,6 +13,7 @@ import { ProgramReady } from '../src/components/programs/ProgramReady';
 
 export default function ProgramDétailScreen() {
   const { token } = useAuth();
+  const { t } = useI18n();
   const router = useRouter();
   const { id } = useLocalSearchParams();
   const programId = Array.isArray(id) ? id[0] : id;

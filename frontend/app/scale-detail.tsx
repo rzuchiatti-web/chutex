@@ -6,6 +6,7 @@ import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator, Platform, 
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { useAuth } from '../src/context/AuthContext';
+import { useI18n } from '../src/context/I18nContext';
 import { apiFetch } from '../src/services/api';
 import { scanForScales, connectToScale, disconnectScale, stopScaleScan, configureScaleWifi } from '../src/services/ble';
 import type { ScaleMeasurement } from '../src/services/ble';
@@ -36,6 +37,7 @@ const bodyTypeLabel = (t: number) => ['', 'Maigre', 'Mince', 'Normal', 'Muscle+'
 export default function ScaleDétailScreen() {
   const { colors, isDark } = useTheme();
   const { token, user } = useAuth();
+  const { t } = useI18n();
   const router = useRouter();
   const [history, setHistory] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);

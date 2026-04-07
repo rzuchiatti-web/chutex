@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, Platform } from 'react-native';
 import { useAuth } from '../src/context/AuthContext';
+import { useI18n } from '../src/context/I18nContext';
 import { apiFetch } from '../src/services/api';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import NativePageView from '../src/components/NativePageView';
 
 export default function IntervenantVisitScreen() {
   const { user, token } = useAuth();
+  const { t } = useI18n();
   const router = useRouter();
   const { beneficiaryId } = useLocalSearchParams<{ beneficiaryId: string }>();
   const [visitData, setVisitData] = useState<any>(null);

@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { View, Platform } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useAuth } from '../src/context/AuthContext';
+import { useI18n } from '../src/context/I18nContext';
 import { apiFetch } from '../src/services/api';
 import FullScreenLoader from '../src/components/FullScreenLoader';
 
@@ -11,6 +12,7 @@ const accentColor = '#3B82F6';
 export default function ProChatPage() {
   const { proId } = useLocalSearchParams<{ proId: string }>();
   const { token, user } = useAuth();
+  const { t } = useI18n();
   const router = useRouter();
   const [convo, setConvo] = useState<any>(null);
   const [messages, setMessages] = useState<any[]>([]);

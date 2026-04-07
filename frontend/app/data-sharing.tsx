@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Platform, Alert } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useAuth } from '../src/context/AuthContext';
+import { useI18n } from '../src/context/I18nContext';
 import { apiFetch } from '../src/services/api';
 import FullScreenLoader from '../src/components/FullScreenLoader';
 
@@ -31,6 +32,7 @@ const HEALTH_OPTIONS = [
 
 export default function DataSharingScreen() {
   const { token } = useAuth();
+  const { t } = useI18n();
   const router = useRouter();
   const [prefs, setPrefs] = useState<any>({ health_sharing: 'all', share_location: true, share_alerts: true });
   const [loading, setLoading] = useState(true);

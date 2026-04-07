@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Platform } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useAuth } from '../src/context/AuthContext';
+import { useI18n } from '../src/context/I18nContext';
 import { apiFetch, clearApiCache } from '../src/services/api';
 import { StatEditor, WeightChart } from '../src/components/exercises/WeightChart';
 import { WorkoutPopup } from '../src/components/exercises/WorkoutPopup';
@@ -13,6 +14,7 @@ const INP: any = { width: '100%', padding: '12px 14px', borderRadius: 12, backgr
 
 export default function ProExerciseDétailPage() {
   const { token } = useAuth();
+  const { t } = useI18n();
   const router = useRouter();
   const params = useLocalSearchParams();
   const exerciseId = Array.isArray(params.id) ? params.id[0] : params.id;

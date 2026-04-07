@@ -1,5 +1,6 @@
 import React from 'react';
 import { Redirect, useLocalSearchParams } from 'expo-router';
+import { useI18n } from '../src/context/I18nContext';
 
 export default function GeofencingDeprecatedPage() {
   const { beneficiaryId } = useLocalSearchParams<{ beneficiaryId?: string | string[] }>();

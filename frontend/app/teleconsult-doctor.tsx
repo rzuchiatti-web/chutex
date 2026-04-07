@@ -2,6 +2,7 @@ import React from 'react';
 import { Platform } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useAuth } from '../src/context/AuthContext';
+import { useI18n } from '../src/context/I18nContext';
 import { BeneficiaryTeleconsult } from '../src/components/teleconsult/BeneficiaryTeleconsult';
 import FullScreenLoader from '../src/components/FullScreenLoader';
 

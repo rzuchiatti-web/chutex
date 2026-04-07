@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { Platform } from 'react-native';
 import { useRouter, useLocalSearchParams, useFocusEffect } from 'expo-router';
 import { useAuth } from '../src/context/AuthContext';
+import { useI18n } from '../src/context/I18nContext';
 import { apiFetch } from '../src/services/api';
 import { BG_IMAGES } from '../src/components/dashboard/constants';
 
@@ -16,6 +17,7 @@ const CAT: Record<string, { icon: string; label: string; color: string; img: str
 
 export default function ExerciseDétailPage() {
   const { token } = useAuth();
+  const { t } = useI18n();
   const router = useRouter();
   const { index } = useLocalSearchParams();
   const idx = Number(index ?? 0);

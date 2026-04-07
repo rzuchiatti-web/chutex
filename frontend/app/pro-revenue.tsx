@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { Platform } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useAuth } from '../src/context/AuthContext';
+import { useI18n } from '../src/context/I18nContext';
 import { apiFetch } from '../src/services/api';
 
 const API = process.env.EXPO_PUBLIC_BACKEND_URL || '';
@@ -11,6 +12,7 @@ const INP: any = { width: '100%', padding: '12px 14px', borderRadius: 12, backgr
 
 export default function ProRevenuePage() {
   const { token, user } = useAuth();
+  const { t } = useI18n();
   const router = useRouter();
   const [dash, setDash] = useState<any>(null);
   const [history, setHistory] = useState<any[]>([]);

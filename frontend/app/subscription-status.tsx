@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { View, Platform } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useAuth } from '../src/context/AuthContext';
+import { useI18n } from '../src/context/I18nContext';
 import { apiFetch } from '../src/services/api';
 
 const C = { bg: '#0A0A12', text: '#FFF', sub: 'rgba(255,255,255,0.5)', muted: 'rgba(255,255,255,0.25)', green: '#10B981', amber: '#F59E0B', red: '#EF4444', accent: '#3B82F6' };
@@ -9,6 +10,7 @@ const C = { bg: '#0A0A12', text: '#FFF', sub: 'rgba(255,255,255,0.5)', muted: 'r
 export default function SubscriptionStatusPage() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const { token } = useAuth();
+  const { t } = useI18n();
   const router = useRouter();
   const [sub, setSub] = useState<any>(null);
   const [loading, setLoading] = useState(true);

@@ -5,6 +5,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { PhoneInputWithPrefix } from '../src/components/PhoneInputWithPrefix';
 import { useAuth } from '../src/context/AuthContext';
+import { useI18n } from '../src/context/I18nContext';
 import { apiFetch } from '../src/services/api';
 import NativePageView from '../src/components/NativePageView';
 
@@ -22,6 +23,7 @@ const GCard = ({ children, style, onClick }: any) => (
 export default function CompanyAgencyScreen() {
   const { agencyId } = useLocalSearchParams<{ agencyId?: string }>();
   const { token, user } = useAuth();
+  const { t } = useI18n();
   const router = useRouter();
   const [tab, setTab] = useState<'agencies' | 'guardians'>('agencies');
   const [agencies, setAgencies] = useState<any[]>([]);

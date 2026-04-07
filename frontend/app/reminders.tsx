@@ -5,6 +5,7 @@ import { View, Text, ScrollView, TouchableOpacity, Modal, ActivityIndicator, Swi
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../src/context/AuthContext';
+import { useI18n } from '../src/context/I18nContext';
 import { useTheme } from '../src/context/ThemeContext';
 import { apiFetch } from '../src/services/api';
 import { useRouter } from 'expo-router';
@@ -49,6 +50,7 @@ function getTimeRemaining(reminders: any[]): string {
 export default function RemindersScreen() {
   const { colors } = useTheme();
   const { token } = useAuth();
+  const { t } = useI18n();
   const router = useRouter();
   const [reminders, setReminders] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);

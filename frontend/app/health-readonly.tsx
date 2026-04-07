@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Platform } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useAuth } from '../src/context/AuthContext';
+import { useI18n } from '../src/context/I18nContext';
 import { apiFetch } from '../src/services/api';
 import FullScreenLoader from '../src/components/FullScreenLoader';
 import HeroScore from '../src/components/health/HeroScore';
@@ -13,6 +14,7 @@ import HealthSections from '../src/components/health/HealthSections';
 export default function HealthReadonlyScreen() {
   const params = useLocalSearchParams<{ beneficiaryId: string }>();
   const { token } = useAuth();
+  const { t } = useI18n();
   const router = useRouter();
   // Expo Router useLocalSearchParams is unreliable on web — fallback to window.location.search
   const webBeneficiaryId = (() => { try { if (typeof window !== 'undefined' && window.location?.search) return new URLSearchParams(window.location.search).get('beneficiaryId') || ''; } catch {} return ''; })();

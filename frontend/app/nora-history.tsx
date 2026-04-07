@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Platform } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useAuth } from '../src/context/AuthContext';
+import { useI18n } from '../src/context/I18nContext';
 import { apiFetch } from '../src/services/api';
 import NoraOverlay from '../src/components/dashboard/NoraOverlay';
 
@@ -24,6 +25,7 @@ const CONTEXT_META: Record<string, { label: string; icon: string; color: string 
 
 export default function NoraHistoryPage() {
   const { token } = useAuth();
+  const { t } = useI18n();
   const router = useRouter();
   const [analyses, setAnalyses] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);

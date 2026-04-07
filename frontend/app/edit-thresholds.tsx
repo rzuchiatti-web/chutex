@@ -6,6 +6,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useAuth } from '../src/context/AuthContext';
+import { useI18n } from '../src/context/I18nContext';
 import { useTheme } from '../src/context/ThemeContext';
 import { apiFetch } from '../src/services/api';
 
@@ -27,6 +28,7 @@ export default function EditThresholdsScreen() {
   const { colors } = useTheme();
   const { metricId } = useLocalSearchParams<{ metricId: string }>();
   const { token } = useAuth();
+  const { t } = useI18n();
   const router = useRouter();
   const [seuilBas, setSeuilBas] = useState('');
   const [seuilHaut, setSeuilHaut] = useState('');
