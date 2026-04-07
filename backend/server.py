@@ -503,11 +503,8 @@ async def _check_bedtime_reminders():
             bed_m = bed_total % 60
             bedtime = f"{bed_h:02d}:{bed_m:02d}"
 
-            # Target = bedtime - 15 min
-            target_total = bed_total - 15
-            if target_total < 0:
-                target_total += 1440
-            target_hhmm = f"{target_total // 60:02d}:{target_total % 60:02d}"
+            # Target = bedtime exact (vibrate at recommended bedtime, not before)
+            target_hhmm = bedtime
 
             if current_hhmm != target_hhmm:
                 continue
