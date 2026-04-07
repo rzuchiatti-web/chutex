@@ -3,7 +3,7 @@ import { useRouter } from 'expo-router';
 
 export function TodayExercisesSection({ todayExercises, C, glass }: any) {
   const router = useRouter();
-  const exDoneCount = todayExercises.filter((e: any) => e.completed_today).length;
+  const exDoneCount = todayExercises.filter((e: any) => e.completed_today || e.done_today).length;
   const exAllDone = exDoneCount >= todayExercises.length;
   const API = process.env.EXPO_PUBLIC_BACKEND_URL || '';
 
@@ -15,7 +15,7 @@ export function TodayExercisesSection({ todayExercises, C, glass }: any) {
       </div>
       <div style={{ fontSize: 13, color: C.sub, marginBottom: 16, lineHeight: '1.45' } as any}>Vos exercices a realiser aujourd'hui.</div>
       {todayExercises.map((ex: any, i: number) => {
-        const done = ex.completed_today;
+        const done = ex.completed_today || ex.done_today;
         const todayStr = new Date().toISOString().split('T')[0];
         const lastCompletion = (ex.completions || []).filter((c: any) => c.date?.startsWith(todayStr) && c.status === 'done').slice(-1)[0];
         const exImg = ex.image ? (ex.image.startsWith('/') ? `${API}${ex.image}` : ex.image) : null;
