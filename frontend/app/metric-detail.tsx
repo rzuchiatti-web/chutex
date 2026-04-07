@@ -134,7 +134,16 @@ export default function MetricDetailScreen() {
     };
     pollLive();
     liveInterval.current = setInterval(pollLive, 10000);
-    return () => { if (liveInterval.current) clearInterval(liveInterval.current); };
+    // Also listen for real-time BLE sync events (instant update via WebSocket)
+    const onBleVitals = (e: any) => {
+      const hr = e.detail?.heart_rate;
+      if (hr && hr > 0) setLiveHR(hr);
+    };
+    window.addEventListener('ble_vitals', onBleVitals);
+    return () => {
+      if (liveInterval.current) clearInterval(liveInterval.current);
+      window.removeEventListener('ble_vitals', onBleVitals);
+    };
   }, [key, token]);
 
   const load = async (r: string, dateOverride?: string) => {

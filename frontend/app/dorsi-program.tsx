@@ -56,10 +56,14 @@ function MoutonsGame({ difficulty, onFinish, bleAngles, bleConnected }: any) {
     const loop = () => {
       if (gameOverRef.current) return;
       ctx.clearRect(0, 0, W, H);
-      ctx.fillStyle = '#0d1117';
+      // Gradient background
+      const bgGrad = ctx.createRadialGradient(W/2, H/2, 0, W/2, H/2, W*0.7);
+      bgGrad.addColorStop(0, '#0f1923');
+      bgGrad.addColorStop(1, '#060a0f');
+      ctx.fillStyle = bgGrad;
       ctx.fillRect(0, 0, W, H);
-      // Grid
-      ctx.strokeStyle = 'rgba(34,211,238,0.04)';
+      // Subtle grid with glow
+      ctx.strokeStyle = 'rgba(34,211,238,0.03)';
       for (let i = 0; i < W; i += 40) { ctx.beginPath(); ctx.moveTo(i, 0); ctx.lineTo(i, H); ctx.stroke(); }
       for (let i = 0; i < H; i += 40) { ctx.beginPath(); ctx.moveTo(0, i); ctx.lineTo(W, i); ctx.stroke(); }
 
@@ -107,9 +111,16 @@ function MoutonsGame({ difficulty, onFinish, bleAngles, bleConnected }: any) {
         }
       }
 
-      // Cursor (hand)
+      // Cursor (hand) with glow
+      ctx.shadowColor = '#22D3EE';
+      ctx.shadowBlur = 20;
       ctx.fillStyle = '#22D3EE';
       ctx.beginPath(); ctx.arc(cursorPos.current.x, cursorPos.current.y, 12, 0, Math.PI * 2); ctx.fill();
+      ctx.shadowBlur = 0;
+      // Outer ring
+      ctx.strokeStyle = 'rgba(34,211,238,0.3)';
+      ctx.lineWidth = 2;
+      ctx.beginPath(); ctx.arc(cursorPos.current.x, cursorPos.current.y, 18, 0, Math.PI * 2); ctx.stroke();
       ctx.fillStyle = '#FFF';
       ctx.font = 'bold 14px Inter';
       ctx.textAlign = 'center';
@@ -207,10 +218,12 @@ function BullesGame({ difficulty, onFinish, bleAngles, bleConnected }: any) {
     const loop = () => {
       if (gameOverRef.current) return;
       ctx.clearRect(0, 0, W, H);
-      ctx.fillStyle = '#0d1117';
+      // Deep space gradient background
+      const bgGrad = ctx.createRadialGradient(W/2, H/2, 0, W/2, H/2, W*0.7);
+      bgGrad.addColorStop(0, '#130f25');
+      bgGrad.addColorStop(1, '#060410');
+      ctx.fillStyle = bgGrad;
       ctx.fillRect(0, 0, W, H);
-
-      // Spawn bubbles
       frameRef.current++;
       const spawnRate = Math.max(20, 50 - Math.round(difficulty * 30));
       if (frameRef.current % spawnRate === 0) spawnBubble();
@@ -259,9 +272,12 @@ function BullesGame({ difficulty, onFinish, bleAngles, bleConnected }: any) {
         return true;
       });
 
-      // Cursor
+      // Cursor with glow
+      ctx.shadowColor = '#A78BFA';
+      ctx.shadowBlur = 16;
       ctx.fillStyle = '#A78BFA';
       ctx.beginPath(); ctx.arc(cursorPos.current.x, cursorPos.current.y, 8, 0, Math.PI * 2); ctx.fill();
+      ctx.shadowBlur = 0;
       ctx.strokeStyle = 'rgba(167,139,250,0.4)';
       ctx.lineWidth = 2;
       ctx.beginPath(); ctx.arc(cursorPos.current.x, cursorPos.current.y, 16, 0, Math.PI * 2); ctx.stroke();
@@ -344,7 +360,11 @@ function ProprioceptionGame({ difficulty, onFinish, bleAngles, bleConnected }: a
     const loop = () => {
       if (gameOverRef.current) return;
       ctx.clearRect(0, 0, W, H);
-      ctx.fillStyle = '#0d1117';
+      // Radial gradient background
+      const bgGrad = ctx.createRadialGradient(W/2, H/2, 0, W/2, H/2, W*0.6);
+      bgGrad.addColorStop(0, '#0a1a15');
+      bgGrad.addColorStop(1, '#060a0f');
+      ctx.fillStyle = bgGrad;
       ctx.fillRect(0, 0, W, H);
       frameRef.current++;
 
@@ -399,11 +419,20 @@ function ProprioceptionGame({ difficulty, onFinish, bleAngles, bleConnected }: a
         else if (d < 100) { scoreRef.current += 1; setScore(scoreRef.current); }
       }
 
-      // Ball
+      // Ball with glow
+      ctx.shadowColor = '#10B981';
+      ctx.shadowBlur = 20;
       ctx.fillStyle = '#10B981';
       ctx.beginPath(); ctx.arc(ballPos.current.x, ballPos.current.y, 12, 0, Math.PI * 2); ctx.fill();
+      ctx.shadowBlur = 0;
+      // Inner shine
       ctx.fillStyle = 'rgba(255,255,255,0.6)';
       ctx.beginPath(); ctx.arc(ballPos.current.x - 3, ballPos.current.y - 3, 3, 0, Math.PI * 2); ctx.fill();
+      // Outer pulse ring
+      const pulseR = 20 + Math.sin(frameRef.current * 0.05) * 4;
+      ctx.strokeStyle = `rgba(16,185,129,${0.15 + Math.sin(frameRef.current * 0.05) * 0.1})`;
+      ctx.lineWidth = 1.5;
+      ctx.beginPath(); ctx.arc(ballPos.current.x, ballPos.current.y, pulseR, 0, Math.PI * 2); ctx.stroke();
 
       ctx.fillStyle = '#FFF';
       ctx.font = 'bold 14px Inter';

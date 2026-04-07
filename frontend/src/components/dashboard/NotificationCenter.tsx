@@ -70,6 +70,10 @@ export function useNotifications(token: string | null, onBleSync?: () => void) {
             if (data.type === 'ble_sync') {
               clearApiCache();
               if (bleSyncRef.current) bleSyncRef.current();
+              // Dispatch global event for live vitals (used by metric-detail for live pulse)
+              if (data.data && typeof window !== 'undefined') {
+                window.dispatchEvent(new CustomEvent('ble_vitals', { detail: data.data }));
+              }
             }
             // Reminder alert — show in-app confirmation immediately
             if (data.type === 'reminder_alert') {

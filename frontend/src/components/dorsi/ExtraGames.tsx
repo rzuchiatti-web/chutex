@@ -114,9 +114,24 @@ export function SerpentGame({ difficulty, onFinish, bleAngles, bleConnected }: a
         scoreRef.current += 20; setScore(scoreRef.current);
         food.current = { x: Math.floor(Math.random() * (W / gs)), y: Math.floor(Math.random() * (H / gs)) };
       } else { snake.current.pop(); }
-      ctx.fillStyle = '#0d1117'; ctx.fillRect(0, 0, W, H);
-      ctx.fillStyle = '#F59E0B'; ctx.fillRect(food.current.x * gs, food.current.y * gs, gs - 2, gs - 2);
-      snake.current.forEach((s, i) => { ctx.fillStyle = i === 0 ? '#10B981' : '#059669'; ctx.fillRect(s.x * gs, s.y * gs, gs - 2, gs - 2); });
+      ctx.fillStyle = '#060a10'; ctx.fillRect(0, 0, W, H);
+      // Neon grid
+      ctx.strokeStyle = 'rgba(249,115,22,0.03)';
+      for (let gx = 0; gx < W; gx += gs) { ctx.beginPath(); ctx.moveTo(gx, 0); ctx.lineTo(gx, H); ctx.stroke(); }
+      for (let gy = 0; gy < H; gy += gs) { ctx.beginPath(); ctx.moveTo(0, gy); ctx.lineTo(W, gy); ctx.stroke(); }
+      // Food with glow
+      ctx.shadowColor = '#F59E0B';
+      ctx.shadowBlur = 12;
+      ctx.fillStyle = '#F59E0B';
+      ctx.beginPath(); ctx.arc(food.current.x * gs + gs/2, food.current.y * gs + gs/2, gs/2 - 2, 0, Math.PI * 2); ctx.fill();
+      ctx.shadowBlur = 0;
+      // Snake with glow trail
+      snake.current.forEach((s, i) => {
+        const alpha = 1 - (i / Math.max(snake.current.length, 1)) * 0.6;
+        ctx.fillStyle = i === 0 ? '#10B981' : `rgba(5,150,105,${alpha})`;
+        ctx.beginPath(); ctx.arc(s.x * gs + gs/2, s.y * gs + gs/2, gs/2 - 1, 0, Math.PI * 2); ctx.fill();
+        if (i === 0) { ctx.shadowColor = '#10B981'; ctx.shadowBlur = 10; ctx.fill(); ctx.shadowBlur = 0; }
+      });
       ctx.fillStyle = '#FFF'; ctx.font = 'bold 14px Inter'; ctx.textAlign = 'left'; ctx.fillText(`Score: ${scoreRef.current}`, 12, 28);
     }, Math.max(80, 150 - difficulty * 70));
     return () => clearInterval(loop);
@@ -149,13 +164,27 @@ export function LabyrintheGame({ difficulty, onFinish, bleAngles, bleConnected }
     }
     const anim = () => {
       if (gameOverRef.current) return;
-      ctx.fillStyle = '#0d1117'; ctx.fillRect(0, 0, W, H);
+      ctx.fillStyle = '#080612'; ctx.fillRect(0, 0, W, H);
+      // Subtle grid
+      ctx.strokeStyle = 'rgba(236,72,153,0.02)';
+      for (let gx = 0; gx < W; gx += 30) { ctx.beginPath(); ctx.moveTo(gx, 0); ctx.lineTo(gx, H); ctx.stroke(); }
+      for (let gy = 0; gy < H; gy += 30) { ctx.beginPath(); ctx.moveTo(0, gy); ctx.lineTo(W, gy); ctx.stroke(); }
       cursor.move();
-      // Walls
-      walls.current.forEach(w => { ctx.fillStyle = 'rgba(236,72,153,0.3)'; ctx.fillRect(w.x, w.y, w.w, w.h); ctx.strokeStyle = '#EC4899'; ctx.lineWidth = 1; ctx.strokeRect(w.x, w.y, w.w, w.h); });
-      // Goal
-      ctx.fillStyle = 'rgba(16,185,129,0.3)'; ctx.beginPath(); ctx.arc(goal.current.x, goal.current.y, 20, 0, Math.PI * 2); ctx.fill();
+      // Walls with neon glow
+      walls.current.forEach(w => {
+        ctx.shadowColor = '#EC4899';
+        ctx.shadowBlur = 8;
+        ctx.fillStyle = 'rgba(236,72,153,0.2)';
+        ctx.fillRect(w.x, w.y, w.w, w.h);
+        ctx.shadowBlur = 0;
+        ctx.strokeStyle = 'rgba(236,72,153,0.6)'; ctx.lineWidth = 1.5; ctx.strokeRect(w.x, w.y, w.w, w.h);
+      });
+      // Goal with pulse
+      const goalPulse = 18 + Math.sin(Date.now() * 0.004) * 4;
+      ctx.shadowColor = '#10B981'; ctx.shadowBlur = 16;
+      ctx.fillStyle = 'rgba(16,185,129,0.15)'; ctx.beginPath(); ctx.arc(goal.current.x, goal.current.y, goalPulse, 0, Math.PI * 2); ctx.fill();
       ctx.fillStyle = '#10B981'; ctx.beginPath(); ctx.arc(goal.current.x, goal.current.y, 8, 0, Math.PI * 2); ctx.fill();
+      ctx.shadowBlur = 0;
       // Check goal
       const dx = cursor.pos.current.x - goal.current.x, dy = cursor.pos.current.y - goal.current.y;
       if (Math.sqrt(dx * dx + dy * dy) < 22) {
