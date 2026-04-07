@@ -34,7 +34,7 @@ export function AdminIntervenants({ token }: { token: string }) {
   useEffect(() => { fetchAll(); }, [fetchAll]);
 
   const saveCode = async () => {
-    if (!form.structure_name) return Alert.alert('Erreur', 'Nom de structure requis');
+    if (!form.structure_name) return Alert.alert(t('error'), 'Nom de structure requis');
     setSaving(true);
     try {
       if (editCode) {
@@ -45,18 +45,18 @@ export function AdminIntervenants({ token }: { token: string }) {
         setCodes([r, ...codes]);
       }
       setShowModal(false); setEditCode(null);
-    } catch (e: any) { Alert.alert('Erreur', e.message); } finally { setSaving(false); }
+    } catch (e: any) { Alert.alert(t('error'), e.message); } finally { setSaving(false); }
   };
 
   const toggleCode = async (id: string) => {
     try {
       const r = await apiFetch(`/api/admin/intervention-codes/${id}/toggle`, { method: 'PUT' }, token);
       setCodes(codes.map(c => c.id === id ? { ...c, active: r.active } : c));
-    } catch (e: any) { Alert.alert('Erreur', e.message); }
+    } catch (e: any) { Alert.alert(t('error'), e.message); }
   };
 
   const deleteCode = (id: string) => {
-    confirmAction('Supprimer', 'Supprimer définitivement ce code intervenant ?', async () => {
+    confirmAction(t('delete'), 'Supprimer définitivement ce code intervenant ?', async () => {
       await apiFetch(`/api/admin/intervention-codes/${id}`, { method: 'DELETE' }, token);
       setCodes(codes.filter(c => c.id !== id));
     });
@@ -91,9 +91,9 @@ export function AdminIntervenants({ token }: { token: string }) {
             {codes.map((c: any) => (<div key={c.id} style={{ padding: '14px 16px', borderRadius: 18, background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)', marginBottom: 8 } as any}><div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' } as any}><div><div style={{ fontSize: 15, fontWeight: 800, color: '#FFF', letterSpacing: 2 }}>{c.code}</div><div style={{ fontSize: 12, color: 'rgba(255,255,255,0.5)', marginTop: 2 }}>{c.structure_name}</div></div><div style={{ display: 'flex', gap: 6 } as any}><div onClick={() => openEdit(c)} style={{ width: 32, height: 32, borderRadius: 999, background: 'rgba(255,255,255,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}><i className="ri-edit-line" style={{ fontSize: 14, color: '#FFF' }} /></div><div onClick={() => toggleCode(c.id)} style={{ width: 32, height: 32, borderRadius: 999, background: c.active ? 'rgba(16,185,129,0.15)' : 'rgba(239,68,68,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}><i className={c.active ? 'ri-toggle-line' : 'ri-toggle-fill'} style={{ fontSize: 14, color: c.active ? '#10B981' : '#EF4444' }} /></div></div></div><div style={{ height: 1, background: 'rgba(255,255,255,0.06)', margin: '8px 0' } as any} /><div style={{ display: 'flex', gap: 12 } as any}><span style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)' }}>Rayon: {c.default_radius_km || 30}km</span><span style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)' }}>{c.uses_count || 0}/{c.max_uses} uses</span><span style={{ fontSize: 11, color: c.active ? '#10B981' : '#EF4444' }}>{c.active ? 'Actif' : 'Désactivé'}</span></div></div>))}
           </>)}
           {tab === 'providers' && providers.map((p: any) => (<div key={p.id} style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '14px 16px', borderRadius: 18, background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)', marginBottom: 8 } as any}><div style={{ width: 44, height: 44, borderRadius: 999, background: 'linear-gradient(135deg, #7C5CFF, #A78BFA)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}><span style={{ fontSize: 18, fontWeight: 800, color: '#FFF' }}>{p.name?.charAt(0)}</span></div><div style={{ flex: 1 } as any}><div style={{ fontSize: 14, fontWeight: 700, color: '#FFF' }}>{p.name}</div><div style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)' }}>{p.intervention_structure || p.structure_name || ''}</div></div><div style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)' }}>{p.total_interventions || 0} missions</div></div>))}
-          {tab === 'interventions' && interventions.map((iv: any) => { const isAct = ['pending_acceptance','in_progress','en_route'].includes(iv.status); return (<div key={iv.id} style={{ padding: '14px 16px', borderRadius: 18, background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)', marginBottom: 8 } as any}><div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' } as any}><div><div style={{ fontSize: 14, fontWeight: 700, color: '#FFF' }}>{iv.beneficiary_name || 'Intervention'}</div><div style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)' }}>{iv.assigned_name || 'En attente'}</div></div><div style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '4px 10px', borderRadius: 999, background: isAct ? 'rgba(124,92,255,0.2)' : 'rgba(16,185,129,0.2)' } as any}><span style={{ width: 5, height: 5, borderRadius: 3, background: isAct ? '#A78BFA' : '#10B981' } as any} /><span style={{ fontSize: 9, fontWeight: 600, color: '#FFF' }}>{isAct ? 'En cours' : 'Terminee'}</span></div></div></div>); })}
+          {tab === 'interventions' && interventions.map((iv: any) => { const isAct = ['pending_acceptance','in_progress','en_route'].includes(iv.status); return (<div key={iv.id} style={{ padding: '14px 16px', borderRadius: 18, background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)', marginBottom: 8 } as any}><div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' } as any}><div><div style={{ fontSize: 14, fontWeight: 700, color: '#FFF' }}>{iv.beneficiary_name || 'Intervention'}</div><div style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)' }}>{iv.assigned_name || t('pending')}</div></div><div style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '4px 10px', borderRadius: 999, background: isAct ? 'rgba(124,92,255,0.2)' : 'rgba(16,185,129,0.2)' } as any}><span style={{ width: 5, height: 5, borderRadius: 3, background: isAct ? '#A78BFA' : '#10B981' } as any} /><span style={{ fontSize: 9, fontWeight: 600, color: '#FFF' }}>{isAct ? t('in_progress') : 'Terminee'}</span></div></div></div>); })}
         </div>
-        {showModal && (<div onClick={() => setShowModal(false)} style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 9999, backdropFilter: 'blur(32px)', WebkitBackdropFilter: 'blur(32px)', background: 'rgba(0,0,0,0.2)', overflowY: 'scroll', WebkitOverflowScrolling: 'touch' } as any}><div onClick={(e: any) => e.stopPropagation()} className="anim-up" style={{ width: '100%', maxWidth: 420, margin: '0 auto', padding: '70px 28px 120px', boxSizing: 'border-box' } as any}><div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 20 } as any}><div onClick={() => setShowModal(false)} style={{ width: 38, height: 38, borderRadius: 999, background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}><i className="ri-close-line" style={{ fontSize: 18, color: 'rgba(255,255,255,0.8)' }} /></div></div><div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.35)', letterSpacing: 2, textTransform: 'uppercase', marginBottom: 8 }}>Intervenants Care</div><div style={{ fontSize: 22, fontWeight: 800, color: '#FFF', marginBottom: 20 }}>{editCode ? 'Modifier' : 'Nouveau code'}</div>{['structure_name','raison_sociale','siret','adresse','telephone','email_contact','radius_km'].map(k => (<div key={k} style={{ marginBottom: 12 } as any}><div style={{ fontSize: 9, fontWeight: 600, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 4 }}>{k.replace(/_/g, ' ')}</div><input value={(form as any)[k]} onChange={(e: any) => setForm({...form, [k]: e.target.value})} style={{ width: '100%', padding: '14px 16px', borderRadius: 14, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', color: '#FFF', fontSize: 15, fontFamily: 'inherit', boxSizing: 'border-box', outline: 'none' } as any} /></div>))}<div style={{ display: 'flex', gap: 10, marginTop: 16 } as any}><div onClick={() => setShowModal(false)} style={{ flex: 1, padding: '14px', borderRadius: 999, textAlign: 'center', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', color: 'rgba(255,255,255,0.6)', fontWeight: 700, cursor: 'pointer' } as any}>Annuler</div><div onClick={saveCode} style={{ flex: 1, padding: '14px', borderRadius: 999, textAlign: 'center', background: 'rgba(255,255,255,0.15)', border: '1px solid rgba(255,255,255,0.2)', color: '#FFF', fontWeight: 700, cursor: 'pointer' } as any}>{saving ? '...' : 'Enregistrér'}</div></div></div></div>)}
+        {showModal && (<div onClick={() => setShowModal(false)} style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 9999, backdropFilter: 'blur(32px)', WebkitBackdropFilter: 'blur(32px)', background: 'rgba(0,0,0,0.2)', overflowY: 'scroll', WebkitOverflowScrolling: 'touch' } as any}><div onClick={(e: any) => e.stopPropagation()} className="anim-up" style={{ width: '100%', maxWidth: 420, margin: '0 auto', padding: '70px 28px 120px', boxSizing: 'border-box' } as any}><div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 20 } as any}><div onClick={() => setShowModal(false)} style={{ width: 38, height: 38, borderRadius: 999, background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}><i className="ri-close-line" style={{ fontSize: 18, color: 'rgba(255,255,255,0.8)' }} /></div></div><div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.35)', letterSpacing: 2, textTransform: 'uppercase', marginBottom: 8 }}>Intervenants Care</div><div style={{ fontSize: 22, fontWeight: 800, color: '#FFF', marginBottom: 20 }}>{editCode ? t('modify') : 'Nouveau code'}</div>{['structure_name','raison_sociale','siret','adresse','telephone','email_contact','radius_km'].map(k => (<div key={k} style={{ marginBottom: 12 } as any}><div style={{ fontSize: 9, fontWeight: 600, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 4 }}>{k.replace(/_/g, ' ')}</div><input value={(form as any)[k]} onChange={(e: any) => setForm({...form, [k]: e.target.value})} style={{ width: '100%', padding: '14px 16px', borderRadius: 14, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', color: '#FFF', fontSize: 15, fontFamily: 'inherit', boxSizing: 'border-box', outline: 'none' } as any} /></div>))}<div style={{ display: 'flex', gap: 10, marginTop: 16 } as any}><div onClick={() => setShowModal(false)} style={{ flex: 1, padding: '14px', borderRadius: 999, textAlign: 'center', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', color: 'rgba(255,255,255,0.6)', fontWeight: 700, cursor: 'pointer' } as any}>Annuler</div><div onClick={saveCode} style={{ flex: 1, padding: '14px', borderRadius: 999, textAlign: 'center', background: 'rgba(255,255,255,0.15)', border: '1px solid rgba(255,255,255,0.2)', color: '#FFF', fontWeight: 700, cursor: 'pointer' } as any}>{saving ? '...' : t('save')}</div></div></div></div>)}
       </div>
     );
   }
@@ -177,8 +177,8 @@ export function AdminIntervenants({ token }: { token: string }) {
         {interventions.length > 0 && (
           <View style={{ flexDirection: 'row', gap: 8, marginBottom: 12 }}>
             {[
-              { val: interventions.filter((i: any) => ['pending_acceptance', 'dispatched'].includes(i.status)).length, label: 'En attente', color: '#FF9800' },
-              { val: interventions.filter((i: any) => ['in_progress', 'en_route'].includes(i.status)).length, label: 'En cours', color: '#2196F3' },
+              { val: interventions.filter((i: any) => ['pending_acceptance', 'dispatched'].includes(i.status)).length, label: t('pending'), color: '#FF9800' },
+              { val: interventions.filter((i: any) => ['in_progress', 'en_route'].includes(i.status)).length, label: t('in_progress'), color: '#2196F3' },
               { val: interventions.filter((i: any) => i.status === 'completed').length, label: 'Terminees', color: '#10B981' },
             ].map((s, i) => (
               <View key={i} style={{ flex: 1, backgroundColor: '#F0F1F3', borderRadius: 14, padding: 12, alignItems: 'center', borderWidth: 1, borderColor: 'rgba(0,0,0,0.06)' }}>
@@ -190,7 +190,7 @@ export function AdminIntervenants({ token }: { token: string }) {
         )}
         {interventions.map((iv: any) => {
           const sc: any = { pending_acceptance: '#FF9800', in_progress: '#2196F3', en_route: '#009688', completed: '#4CAF50', dispatched: '#FF5722' };
-          const sl: any = { pending_acceptance: 'En attente', in_progress: 'En cours', en_route: 'En route', completed: 'Terminee', dispatched: 'Dispatchee' };
+          const sl: any = { pending_acceptance: t('pending'), in_progress: t('in_progress'), en_route: 'En route', completed: 'Terminee', dispatched: 'Dispatchee' };
           const statusIcon: any = { pending_acceptance: 'time', in_progress: 'navigate', en_route: 'car', completed: 'checkmark-circle', dispatched: 'send' };
           const isActive = ['pending_acceptance', 'in_progress', 'en_route', 'dispatched'].includes(iv.status);
           return (
@@ -255,9 +255,9 @@ export function AdminIntervenants({ token }: { token: string }) {
             {[
               { k: 'structure_name', l: 'Nom commercial', p: 'Ex: Ambulances du Sud' },
               { k: 'raison_sociale', l: 'Raison sociale', p: 'Ex: SARL Ambulances du Sud' },
-              { k: 'siret', l: 'SIRET', p: '12345678900000' },
+              { k: 'siret', l: t('siret_label'), p: '12345678900000' },
               { k: 'tva', l: 'N° TVA', p: 'FR12345678900' },
-              { k: 'adresse', l: 'Adresse', p: '12 rue des Chênes, 75001 Paris' },
+              { k: 'adresse', l: t('address'), p: '12 rue des Chênes, 75001 Paris' },
               { k: 'telephone', l: 'Téléphone', p: '+33 1 23 45 67 89' },
               { k: 'email_contact', l: 'Email contact', p: 'contact@structure.fr' },
               { k: 'radius_km', l: 'Rayon d\'intervention (km)', p: '30' },
@@ -271,7 +271,7 @@ export function AdminIntervenants({ token }: { token: string }) {
             <View style={s.modalBtns}>
               <TouchableOpacity style={s.cancelBtn} onPress={() => setShowModal(false)}><Text style={{ color: Colors.textMuted, fontWeight: '600' }}>Annuler</Text></TouchableOpacity>
               <TouchableOpacity style={s.confirmBtn} onPress={saveCode} disabled={saving}>
-                {saving ? <ActivityIndicator color="#111827" /> : <Text style={{ color: '#FFF', fontWeight: '700' }}>{editCode ? 'Modifier' : 'Créer'}</Text>}
+                {saving ? <ActivityIndicator color="#111827" /> : <Text style={{ color: '#FFF', fontWeight: '700' }}>{editCode ? t('modify') : 'Créer'}</Text>}
               </TouchableOpacity>
             </View>
           </ScrollView>

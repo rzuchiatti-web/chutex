@@ -634,16 +634,16 @@ const BG_PROFILE = 'https://customer-assets.emergentagent.com/job_9950a869-9328-
             <div style={{ fontSize: 22, fontWeight: 800, color: '#FFF', marginBottom: 20 }}>{user.name}</div>
             {(effectiveRole === 'prescriber_company' ? [
               { val: editStructure, set: setEditStructure, label: t('structure_name'), icon: 'ri-building-line' },
-              { val: editSiret, set: setEditSiret, label: 'SIRET', icon: 'ri-file-text-line' },
-              { val: editName, set: setEditName, label: 'Nom du responsable', icon: 'ri-user-line' },
-              { val: editEmail, set: setEditEmail, label: 'Email', icon: 'ri-mail-line' },
-              { val: editPhone, set: setEditPhone, label: 'Telephone', icon: 'ri-phone-line' },
-              { val: editAddress, set: setEditAddress, label: 'Adresse', icon: 'ri-map-pin-line' },
+              { val: editSiret, set: setEditSiret, label: t('siret_label'), icon: 'ri-file-text-line' },
+              { val: editName, set: setEditName, label: t('manager_name'), icon: 'ri-user-line' },
+              { val: editEmail, set: setEditEmail, label: t('email_label'), icon: 'ri-mail-line' },
+              { val: editPhone, set: setEditPhone, label: t('phone_label'), icon: 'ri-phone-line' },
+              { val: editAddress, set: setEditAddress, label: t('address'), icon: 'ri-map-pin-line' },
             ] : [
-              { val: editName, set: setEditName, label: 'Nom complet', icon: 'ri-user-line' },
-              { val: editEmail, set: setEditEmail, label: 'Email', icon: 'ri-mail-line' },
-              { val: editPhone, set: setEditPhone, label: 'Telephone', icon: 'ri-phone-line' },
-              { val: editAddress, set: setEditAddress, label: 'Adresse', icon: 'ri-map-pin-line' },
+              { val: editName, set: setEditName, label: t('full_name'), icon: 'ri-user-line' },
+              { val: editEmail, set: setEditEmail, label: t('email_label'), icon: 'ri-mail-line' },
+              { val: editPhone, set: setEditPhone, label: t('phone_label'), icon: 'ri-phone-line' },
+              { val: editAddress, set: setEditAddress, label: t('address'), icon: 'ri-map-pin-line' },
               ...(isBen ? [
                 { val: editDob, set: setEditDob, label: t('date_of_birth'), icon: 'ri-calendar-line', type: 'date' },
                 { val: editGender, set: setEditGender, label: 'Sexe (M/F)', icon: 'ri-genderless-line' },
@@ -663,7 +663,7 @@ const BG_PROFILE = 'https://customer-assets.emergentagent.com/job_9950a869-9328-
             ))}
             <div style={{ display: 'flex', gap: 10, marginTop: 16 } as any}>
               <div onClick={() => setEditMode(false)} style={{ flex: 1, padding: '14px', borderRadius: 999, textAlign: 'center', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', color: 'rgba(255,255,255,0.6)', fontWeight: 700, cursor: 'pointer' } as any}>{t('cancel')}</div>
-              <div onClick={saveProfile} style={{ flex: 1, padding: '14px', borderRadius: 999, textAlign: 'center', background: 'rgba(255,255,255,0.15)', border: '1px solid rgba(255,255,255,0.2)', color: '#FFF', fontWeight: 700, cursor: 'pointer' } as any}>{saving ? '...' : 'Enregistrér'}</div>
+              <div onClick={saveProfile} style={{ flex: 1, padding: '14px', borderRadius: 999, textAlign: 'center', background: 'rgba(255,255,255,0.15)', border: '1px solid rgba(255,255,255,0.2)', color: '#FFF', fontWeight: 700, cursor: 'pointer' } as any}>{saving ? '...' : t('save')}</div>
             </div>
           </ProfileGlassPopup>
 
@@ -686,7 +686,7 @@ const BG_PROFILE = 'https://customer-assets.emergentagent.com/job_9950a869-9328-
             <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.35)', letterSpacing: 2, textTransform: 'uppercase', marginBottom: 8 }}>{t('support')}</div>
             <div style={{ fontSize: 22, fontWeight: 800, color: '#FFF', marginBottom: 4 }}>Assistance</div>
             <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', marginBottom: 20 }}>contact@chutex-innovation.com</div>
-            {[{ val: contactObj, set: setContactObj, label: t('subject') }, { val: contactName, set: setContactName, label: 'Nom' }, { val: contactEmail, set: setContactEmail, label: 'Email' }].map((f, i) => (
+            {[{ val: contactObj, set: setContactObj, label: t('subject') }, { val: contactName, set: setContactName, label: t('last_name') }, { val: contactEmail, set: setContactEmail, label: t('email_label') }].map((f, i) => (
               <div key={i} style={{ marginBottom: 12 } as any}>
                 <div style={{ fontSize: 9, fontWeight: 600, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 4 }}>{f.label}</div>
                 <input value={f.val} onChange={(e: any) => f.set(e.target.value)} style={{ width: '100%', fontSize: 15, padding: '14px 16px', borderRadius: 14, border: '1px solid rgba(255,255,255,0.1)', background: 'rgba(255,255,255,0.06)', color: '#FFF', fontFamily: 'inherit', boxSizing: 'border-box', outline: 'none' } as any} />

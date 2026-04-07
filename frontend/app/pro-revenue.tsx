@@ -108,7 +108,7 @@ export default function ProRevenuePage() {
                 {[
                   { label: 'Ce mois', value: `${dash?.projected_monthly_ht || 0} €`, sub: 'HT', icon: 'ri-calendar-line', color: '#3B82F6' },
                   { label: 'Total gagne', value: `${dash?.total_revenue_ht || 0} €`, sub: 'HT', icon: 'ri-money-euro-circle-line', color: '#10B981' },
-                  { label: 'Abonnes', value: `${dash?.active_subscriptions || 0}`, sub: 'actifs', icon: 'ri-group-line', color: '#A78BFA' },
+                  { label: t('subscribers'), value: `${dash?.active_subscriptions || 0}`, sub: 'actifs', icon: 'ri-group-line', color: '#A78BFA' },
                 ].map((kpi, i) => (
                   <div key={i} style={{ flex: 1, padding: '14px 10px', borderRadius: 14, background: '#F4F4F5', textAlign: 'center' } as any}>
                     <i className={kpi.icon} style={{ fontSize: 16, color: kpi.color, display: 'block', marginBottom: 6 }} />
@@ -274,7 +274,7 @@ export default function ProRevenuePage() {
                   {ibanMsg && <div style={{ padding: '10px 14px', borderRadius: 12, background: ibanMsg.includes('jour') ? '#10B98108' : '#EF444408', marginTop: 12, fontSize: 12, fontWeight: 600, color: ibanMsg.includes('jour') ? '#10B981' : '#EF4444', textAlign: 'center' } as any}>{ibanMsg}</div>}
 
                   <div data-testid="save-iban-btn" onClick={saveIban} style={{ marginTop: 18, padding: '16px', borderRadius: 16, background: '#111', textAlign: 'center', cursor: ibanSaving ? 'wait' : 'pointer', opacity: ibanSaving ? 0.6 : 1 } as any}>
-                    <span style={{ fontSize: 15, fontWeight: 800, color: '#FFF' }}>{ibanSaving ? 'Enregistrément...' : 'Enregistrér'}</span>
+                    <span style={{ fontSize: 15, fontWeight: 800, color: '#FFF' }}>{ibanSaving ? 'Enregistrément...' : t('save')}</span>
                   </div>
                 </>
               )}

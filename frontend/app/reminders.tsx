@@ -189,7 +189,7 @@ export default function RemindersScreen() {
       <Modal visible={showModal} transparent animationType="slide">
         <View style={{ flex: 1, justifyContent: 'flex-end', backgroundColor: 'rgba(0,0,0,0.5)' }}>
           <View style={{ backgroundColor: '#FFFFFF', borderTopLeftRadius: 24, borderTopRightRadius: 24, padding: 24 }}>
-            <Text style={{ fontSize: 20, fontWeight: '900', color: '#111827', marginBottom: 16 }}>{editR ? 'Modifier' : 'Nouveau rappel'}</Text>
+            <Text style={{ fontSize: 20, fontWeight: '900', color: '#111827', marginBottom: 16 }}>{editR ? t('modify') : 'Nouveau rappel'}</Text>
             {Platform.OS === 'web' && (<>
               <div style={{ marginBottom: 12 }}><div style={{ fontSize: 11, fontWeight: '700', color: '#6B7280', marginBottom: 6, textTransform: 'uppercase' as any, letterSpacing: 1 }}>Titre</div><input type="text" placeholder="Ex: Boire 1 verre" value={fTitle} onChange={(e: any) => setFTitle(e.target.value)} style={{ width: '100%', fontSize: 15, padding: '12px', borderRadius: 12, border: '1px solid rgba(255,255,255,0.10)', background: 'rgba(245,245,245,0.8)', fontFamily: 'system-ui', boxSizing: 'border-box' as any }} /></div>
               <div style={{ marginBottom: 12 }}><div style={{ fontSize: 11, fontWeight: '700', color: '#6B7280', marginBottom: 6, textTransform: 'uppercase' as any, letterSpacing: 1 }}>Heure</div><input type="time" value={fTime} onChange={(e: any) => setFTime(e.target.value)} style={{ width: '100%', fontSize: 18, fontWeight: '800', padding: '12px', borderRadius: 12, border: '1px solid rgba(255,255,255,0.10)', background: 'rgba(245,245,245,0.8)', fontFamily: 'system-ui', boxSizing: 'border-box' as any }} /></div>

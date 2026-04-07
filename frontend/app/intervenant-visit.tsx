@@ -95,10 +95,10 @@ export default function IntervenantVisitScreen() {
         <div style={{ padding: '14px 16px', borderRadius: 16, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.06)', marginBottom: 16 } as any}>
           <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 8 }}>Informations medicales</div>
           {[
-            { label: 'Pathologies', val: ben.medical_conditions || 'Aucune renseignee' },
-            { label: 'Allergies', val: ben.allergies || 'Aucune' },
+            { label: t('pathologies'), val: ben.medical_conditions || 'Aucune renseignee' },
+            { label: t('allergies_label'), val: ben.allergies || 'Aucune' },
             { label: 'Médecin', val: ben.doctor_name || 'Non renseigne' },
-            { label: 'Adresse', val: ben.address || 'Non renseignee' },
+            { label: t('address'), val: ben.address || 'Non renseignee' },
           ].map((r, i) => (
             <div key={i} style={{ display: 'flex', justifyContent: 'space-between', padding: '6px 0', borderTop: i > 0 ? '1px solid rgba(255,255,255,0.04)' : 'none' } as any}>
               <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.35)' }}>{r.label}</span>

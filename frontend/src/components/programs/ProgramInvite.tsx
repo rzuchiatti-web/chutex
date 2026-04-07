@@ -89,7 +89,7 @@ export const ProgramInvite = ({
     </div>
 
     {inviteMsg && (
-      <div style={{ padding: '12px 16px', borderRadius: 999, background: inviteMsg.includes('Erreur') ? 'rgba(239,68,68,0.08)' : 'rgba(16,185,129,0.08)', border: `1px solid ${inviteMsg.includes('Erreur') ? 'rgba(239,68,68,0.18)' : 'rgba(16,185,129,0.18)'}`, marginBottom: 16, fontSize: 12, color: T, textAlign: 'center' } as any}>{inviteMsg}</div>
+      <div style={{ padding: '12px 16px', borderRadius: 999, background: inviteMsg.includes(t('error')) ? 'rgba(239,68,68,0.08)' : 'rgba(16,185,129,0.08)', border: `1px solid ${inviteMsg.includes(t('error')) ? 'rgba(239,68,68,0.18)' : 'rgba(16,185,129,0.18)'}`, marginBottom: 16, fontSize: 12, color: T, textAlign: 'center' } as any}>{inviteMsg}</div>
     )}
 
     {invitedFriends.length > 0 && (
@@ -102,7 +102,7 @@ export const ProgramInvite = ({
             </div>
             <div style={{ flex: 1 } as any}>
               <div style={{ fontSize: 12, fontWeight: 600, color: T }}>{f.name}</div>
-              <div style={{ fontSize: 10, color: S2 }}>{f.status === 'notification_sent' ? 'Notification in-app' : f.status === 'sms_sent' ? 'SMS envoye' : f.status === 'already_member' ? 'Deja membre' : 'En attente'}</div>
+              <div style={{ fontSize: 10, color: S2 }}>{f.status === 'notification_sent' ? 'Notification in-app' : f.status === 'sms_sent' ? 'SMS envoye' : f.status === 'already_member' ? 'Deja membre' : t('pending')}</div>
             </div>
           </div>
         ))}

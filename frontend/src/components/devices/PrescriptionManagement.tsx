@@ -1,3 +1,4 @@
+import { useI18n } from '../../context/I18nContext';
 import { Icon, MCIcon } from '../WebIcon';
 import { PhoneInputWithPrefix } from '../PhoneInputWithPrefix';
 import FullScreenLoader from '../FullScreenLoader';
@@ -18,6 +19,7 @@ import { confirmAction } from './constants';
 import RewardsCard from './RewardsCard';
 
 function PrescriptionManagement({ token, user }: { token: string; user: any }) {
+  const { t } = useI18n();
   const { refreshUser } = useAuth();
   const [prescriptions, setPrescriptions] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -59,7 +61,7 @@ function PrescriptionManagement({ token, user }: { token: string; user: any }) {
     setActivating(true); setPrescError('');
     try {
       await apiFetch('/api/guardian/activate-prescriber', { method: 'POST', body: JSON.stringify({ code: actCode.trim().toUpperCase() }) }, token);
-      Alert.alert('Active', 'Votre espace prescripteur est maintenant actif !');
+      Alert.alert(t('active'), 'Votre espace prescripteur est maintenant actif !');
       setActCode(''); await refreshUser();
     } catch (e: any) { setPrescError(e.message || 'Code invalide'); } finally { setActivating(false); }
   };
@@ -405,7 +407,7 @@ function PrescriptionManagement({ token, user }: { token: string; user: any }) {
           </div>
           <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '7px 16px', borderRadius: 999, background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)' } as any}>
             <span style={{ width: 8, height: 8, borderRadius: '50%', background: isValidated ? '#10B981' : '#F59E0B' } as any} />
-            <span style={{ fontSize: 13, fontWeight: 600, color: '#FFF' }}>{isValidated ? 'Valide' : 'En attente'}</span>
+            <span style={{ fontSize: 13, fontWeight: 600, color: '#FFF' }}>{isValidated ? 'Valide' : t('pending')}</span>
           </div>
         </div>
         <div style={{ flex: 1, overflowY: 'auto', position: 'relative', zIndex: 5, padding: '16px 20px 100px', WebkitOverflowScrolling: 'touch' } as any} data-animate>
@@ -417,7 +419,7 @@ function PrescriptionManagement({ token, user }: { token: string; user: any }) {
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginBottom: 12 } as any}>
             {[
               { label: 'Bénéficiaire', value: selectedPresc.beneficiary_name || '-' },
-              { label: 'Statut', value: isValidated ? 'Valide' : 'En attente' },
+              { label: 'Statut', value: isValidated ? 'Valide' : t('pending') },
               { label: 'Type', value: selectedPresc.subscription_type === 'sport' ? 'Abo Sport' : selectedPresc.subscription_type === 'physio' ? 'Abo Physio' : selectedPresc.subscription_type === 'bracelet_gilet' ? 'Bracelet + Gilet Elder' : 'Bracelet Elio' },
               { label: 'Paiement', value: isValidated ? 'Au 1er du mois' : 'Apres validation' },
               { label: 'Date', value: selectedPresc.created_at ? new Date(selectedPresc.created_at).toLocaleString('fr-FR', { day: '2-digit', month: '2-digit', year: 'numeric' }) : '-' },
@@ -445,7 +447,7 @@ function PrescriptionManagement({ token, user }: { token: string; user: any }) {
             </div>
           )}
           {selectedPresc.notes && <div style={{ padding: '12px 14px', borderRadius: 14, background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)', marginBottom: 8 } as any}><div style={{ fontSize: 9, fontWeight: 600, color: 'rgba(255,255,255,0.35)', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 3 }}>Notes</div><div style={{ fontSize: 14, fontWeight: 600, color: '#FFF', lineHeight: 1.5 }}>{selectedPresc.notes}</div></div>}
-          <div style={{ padding: '12px 14px', borderRadius: 14, background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)' } as any}><div style={{ fontSize: 9, fontWeight: 600, color: 'rgba(255,255,255,0.35)', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 3 }}>Prescrit par</div><div style={{ fontSize: 14, fontWeight: 600, color: '#FFF' }}>{user.name} — {user.prescriber_structure || 'Structure'}</div></div>
+          <div style={{ padding: '12px 14px', borderRadius: 14, background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)' } as any}><div style={{ fontSize: 9, fontWeight: 600, color: 'rgba(255,255,255,0.35)', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 3 }}>Prescrit par</div><div style={{ fontSize: 14, fontWeight: 600, color: '#FFF' }}>{user.name} — {user.prescriber_structure || t('structure')}</div></div>
         </div>
       </div>
     );
@@ -469,7 +471,7 @@ function PrescriptionManagement({ token, user }: { token: string; user: any }) {
             ) : (
               <div onClick={() => setShowPrescModal(true)} style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '7px 16px', borderRadius: 999, background: 'rgba(255,255,255,0.12)', border: '1px solid rgba(255,255,255,0.2)', cursor: 'pointer', marginBottom: 10 } as any}>
                 <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#10B981' } as any} />
-                <span style={{ fontSize: 13, fontWeight: 600, color: '#FFF' }}>Actif - {saadLink?.company_name || user.prescription_structure || user.structure_name || 'Structure'}</span>
+                <span style={{ fontSize: 13, fontWeight: 600, color: '#FFF' }}>Actif - {saadLink?.company_name || user.prescription_structure || user.structure_name || t('structure')}</span>
               </div>
             )}
             <div style={{ fontSize: 26, fontWeight: 800, color: '#FFF', marginBottom: 6 }}>Prescription</div>
@@ -505,7 +507,7 @@ function PrescriptionManagement({ token, user }: { token: string; user: any }) {
             <div key={p.id} onClick={() => setSelectedPresc(p)} style={{ borderRadius: 20, padding: '18px 16px', marginBottom: 12, cursor: 'pointer', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)' } as any} data-glass-card>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 6 } as any}>
                 <div><div style={{ fontSize: 16, fontWeight: 800, color: '#FFF' }}>{p.beneficiary_name}</div><div style={{ fontSize: 11, color: 'rgba(255,255,255,0.5)' }}>{p.subscription_type === 'sport' ? 'Abo Sport · 89€/mois' : p.subscription_type === 'physio' ? 'Abo Physio · 89€/mois' : p.subscription_type === 'bracelet_gilet' ? 'Bracelet + Gilet Elder' : 'Bracelet Elio'}</div></div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '4px 10px', borderRadius: 999, background: (p.status === 'subscribed' || p.status === 'validated' || p.status === 'contract_created') ? 'rgba(16,185,129,0.15)' : 'rgba(245,158,11,0.15)', flexShrink: 0 } as any}><span style={{ width: 6, height: 6, borderRadius: 3, background: (p.status === 'subscribed' || p.status === 'validated' || p.status === 'contract_created') ? '#10B981' : '#F59E0B' } as any} /><span style={{ fontSize: 10, fontWeight: 600, color: '#FFF' }}>{(p.status === 'subscribed' || p.status === 'validated' || p.status === 'contract_created') ? 'Validee' : 'En cours'}</span></div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '4px 10px', borderRadius: 999, background: (p.status === 'subscribed' || p.status === 'validated' || p.status === 'contract_created') ? 'rgba(16,185,129,0.15)' : 'rgba(245,158,11,0.15)', flexShrink: 0 } as any}><span style={{ width: 6, height: 6, borderRadius: 3, background: (p.status === 'subscribed' || p.status === 'validated' || p.status === 'contract_created') ? '#10B981' : '#F59E0B' } as any} /><span style={{ fontSize: 10, fontWeight: 600, color: '#FFF' }}>{(p.status === 'subscribed' || p.status === 'validated' || p.status === 'contract_created') ? 'Validee' : t('in_progress')}</span></div>
               </div>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' } as any}><div style={{ fontSize: 18, fontWeight: 900, color: '#FFF' }}>+{p.commission || getCommission(p)}EUR${commLabelG}</div><div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: 'rgba(255,255,255,.12)', borderRadius: 999, padding: '8px 16px' } as any}><i className="ri-heart-line" style={{ fontSize: 14, color: '#FFF' }} /><span style={{ fontSize: 13, fontWeight: 600, color: '#FFF' }}>Consulter</span></div></div>
             </div>
@@ -522,16 +524,16 @@ function PrescriptionManagement({ token, user }: { token: string; user: any }) {
               <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.35)', letterSpacing: 2, textTransform: 'uppercase', marginBottom: 16 }}>Structure prescripteur</div>
               <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 28 } as any}>
                 <div style={{ width: 64, height: 64, borderRadius: 20, background: 'rgba(212,132,90,0.15)', border: '1px solid rgba(212,132,90,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}><i className="ri-building-line" style={{ fontSize: 28, color: '#E8A87C' }} /></div>
-                <div><div style={{ fontSize: 24, fontWeight: 800, color: '#FFF', letterSpacing: -0.5 }}>{user.prescription_structure || user.structure_name || 'Structure'}</div><div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, marginTop: 6, padding: '4px 12px', borderRadius: 999, background: 'rgba(16,185,129,0.1)', border: '1px solid rgba(16,185,129,0.2)' } as any}><span style={{ width: 6, height: 6, borderRadius: 3, background: '#10B981' } as any} /><span style={{ fontSize: 11, fontWeight: 600, color: '#10B981' }}>Prescripteur actif</span></div></div>
+                <div><div style={{ fontSize: 24, fontWeight: 800, color: '#FFF', letterSpacing: -0.5 }}>{user.prescription_structure || user.structure_name || t('structure')}</div><div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, marginTop: 6, padding: '4px 12px', borderRadius: 999, background: 'rgba(16,185,129,0.1)', border: '1px solid rgba(16,185,129,0.2)' } as any}><span style={{ width: 6, height: 6, borderRadius: 3, background: '#10B981' } as any} /><span style={{ fontSize: 11, fontWeight: 600, color: '#10B981' }}>Prescripteur actif</span></div></div>
               </div>
               {[
                 saadLink?.company_name && { icon: 'ri-building-line', label: 'Structure SAAD', value: saadLink.company_name },
                 saadLink?.agency_name && { icon: 'ri-map-pin-line', label: 'Agence', value: saadLink.agency_name },
                 saadLink?.commission_type && { icon: 'ri-hand-coin-line', label: 'Mode commission', value: saadLink.commission_type === 'oneshot' ? 'Commission unique' : 'Commission mensuelle' },
-                user.phone && { icon: 'ri-phone-line', label: 'Telephone', value: user.phone, phone: true },
-                user.email && { icon: 'ri-mail-line', label: 'Email', value: user.email },
-                user.name && { icon: 'ri-user-line', label: 'Prescripteur', value: user.name },
-                { icon: 'ri-file-text-line', label: 'Prescriptions', value: `${prescriptions.length} prescription(s)` },
+                user.phone && { icon: 'ri-phone-line', label: t('phone_label'), value: user.phone, phone: true },
+                user.email && { icon: 'ri-mail-line', label: t('email_label'), value: user.email },
+                user.name && { icon: 'ri-user-line', label: t('prescriber'), value: user.name },
+                { icon: 'ri-file-text-line', label: t('prescriptions'), value: `${prescriptions.length} prescription(s)` },
                 { icon: 'ri-money-euro-circle-line', label: 'Commission estimee', value: `${allTimeAmount} EUR${commLabelG}` },
               ].filter(Boolean).map((item: any, i: number, arr: any[]) => (
                 <div key={i}>
@@ -649,7 +651,7 @@ function PrescriptionManagement({ token, user }: { token: string; user: any }) {
           <div style={{ position: 'relative', zIndex: 2 } as any}>
             <div onClick={() => setShowPrescModal(true)} style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '7px 16px', borderRadius: 999, background: 'rgba(255,255,255,0.12)', border: '1px solid rgba(255,255,255,0.2)', backdropFilter: 'blur(8px)', marginBottom: 10, cursor: 'pointer' } as any}>
               <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#10B981' } as any} />
-              <span style={{ fontSize: 13, fontWeight: 600, color: '#FFF' }}>Actif - {saadLink?.company_name || user.prescription_structure || user.structure_name || 'Structure'}</span>
+              <span style={{ fontSize: 13, fontWeight: 600, color: '#FFF' }}>Actif - {saadLink?.company_name || user.prescription_structure || user.structure_name || t('structure')}</span>
             </div>
             <div style={{ fontSize: 26, fontWeight: 800, color: '#FFF', marginBottom: 16 }}>Prescription</div>
             <div style={{ display: 'inline-flex', borderRadius: 999, padding: 4, background: 'rgba(255,255,255,0.15)', backdropFilter: 'blur(8px)', border: '1px solid rgba(255,255,255,0.2)' } as any}>
@@ -671,7 +673,7 @@ function PrescriptionManagement({ token, user }: { token: string; user: any }) {
         <View style={{ backgroundColor: '#8B4513', padding: 20, alignItems: 'center' }}>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, backgroundColor: 'rgba(255,255,255,0.12)', borderRadius: 999, paddingVertical: 7, paddingHorizontal: 16, marginBottom: 10 }}>
             <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: '#10B981' }} />
-            <Text style={{ fontSize: 13, fontWeight: '600', color: '#FFF' }}>Actif - {saadLink?.company_name || user.prescription_structure || 'Structure'}</Text>
+            <Text style={{ fontSize: 13, fontWeight: '600', color: '#FFF' }}>Actif - {saadLink?.company_name || user.prescription_structure || t('structure')}</Text>
           </View>
           <Text style={{ fontSize: 26, fontWeight: '800', color: '#FFF', marginBottom: 14 }}>Prescription</Text>
           <View style={{ flexDirection: 'row', backgroundColor: 'rgba(255,255,255,0.15)', borderRadius: 999, padding: 4 }}>
@@ -752,7 +754,7 @@ function PrescriptionManagement({ token, user }: { token: string; user: any }) {
                   </div>
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' } as any}>
-                  <div style={{ fontSize: 14, fontWeight: 600, color: '#FFF' }}>{isValidated ? 'Valide' : 'En attente'}</div>
+                  <div style={{ fontSize: 14, fontWeight: 600, color: '#FFF' }}>{isValidated ? 'Valide' : t('pending')}</div>
                   <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: 'rgba(255,255,255,.18)', borderRadius: 999, padding: '8px 16px', border: '1px solid rgba(255,255,255,.2)' } as any}>
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#FFF" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
                     <span style={{ fontSize: 13, fontWeight: 600, color: '#FFF' }}>Consulter</span>
@@ -768,7 +770,7 @@ function PrescriptionManagement({ token, user }: { token: string; user: any }) {
                   <View style={{ backgroundColor: 'rgba(255,255,255,.2)', borderRadius: 12, paddingHorizontal: 12, paddingVertical: 6 }}><Text style={{ fontSize: 15, fontWeight: '800', color: '#FFF' }}>+{p.commission || getCommission(p)}EUR{commLabelG}</Text></View>
                 </View>
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <Text style={{ fontSize: 14, fontWeight: '600', color: '#FFF' }}>{isValidated ? 'Valide' : 'En attente'}</Text>
+                  <Text style={{ fontSize: 14, fontWeight: '600', color: '#FFF' }}>{isValidated ? 'Valide' : t('pending')}</Text>
                   <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, backgroundColor: 'rgba(255,255,255,.18)', borderRadius: 999, paddingVertical: 8, paddingHorizontal: 16 }}>
                     <Icon name="heart-outline" size={16} color="#FFF" />
                     <Text style={{ fontSize: 13, fontWeight: '600', color: '#FFF' }}>Consulter</Text>
@@ -822,7 +824,7 @@ function PrescriptionManagement({ token, user }: { token: string; user: any }) {
                 </View>
                 <View style={{ flex: 1 }}>
                   <Text style={{ fontSize: 16, fontWeight: '800', color: '#FFF' }}>{user.name}</Text>
-                  <Text style={{ fontSize: 12, color: 'rgba(255,255,255,0.5)', marginTop: 2 }}>{user.prescriber_structure || 'Structure'}</Text>
+                  <Text style={{ fontSize: 12, color: 'rgba(255,255,255,0.5)', marginTop: 2 }}>{user.prescriber_structure || t('structure')}</Text>
                 </View>
                 <View style={{ flexDirection: 'row', alignItems: 'center', gap: 5, backgroundColor: 'rgba(16,185,129,0.15)', borderRadius: 999, paddingHorizontal: 10, paddingVertical: 4 }}>
                   <View style={{ width: 6, height: 6, borderRadius: 3, backgroundColor: '#10B981' }} />
@@ -832,10 +834,10 @@ function PrescriptionManagement({ token, user }: { token: string; user: any }) {
 
               {/* Détails */}
               {[
-                { icon: 'business-outline', label: 'Structure', value: user.prescriber_structure || '-' },
+                { icon: 'business-outline', label: t('structure'), value: user.prescriber_structure || '-' },
                 { icon: 'key-outline', label: 'Code', value: user.prescriber_code_used || '-' },
-                { icon: 'call-outline', label: 'Telephone', value: user.phone || '-' },
-                { icon: 'mail-outline', label: 'Email', value: user.email || '-' },
+                { icon: 'call-outline', label: t('phone_label'), value: user.phone || '-' },
+                { icon: 'mail-outline', label: t('email_label'), value: user.email || '-' },
               ].map(({ icon, label, value }) => value !== '-' ? (
                 <View key={label} style={{ flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 12, borderBottomWidth: 0.5, borderBottomColor: 'rgba(255,255,255,0.06)' }}>
                   <View style={{ width: 32, height: 32, borderRadius: 10, backgroundColor: 'rgba(255,255,255,0.06)', justifyContent: 'center', alignItems: 'center' }}>
@@ -873,9 +875,9 @@ function PrescriptionManagement({ token, user }: { token: string; user: any }) {
             <ScrollView showsVerticalScrollIndicator={false}>
               {[
                 { key: 'name', label: 'Nom du bénéficiaire', placeholder: 'Jean Dupont' },
-                { key: 'email', label: 'Email', placeholder: 'jean@email.com' },
-                { key: 'phone', label: 'Telephone', placeholder: '06 12 34 56 78' },
-                { key: 'notes', label: 'Notes', placeholder: 'Informations supplementaires...' },
+                { key: 'email', label: t('email_label'), placeholder: 'jean@email.com' },
+                { key: 'phone', label: t('phone_label'), placeholder: '06 12 34 56 78' },
+                { key: 'notes', label: t('notes'), placeholder: 'Informations supplementaires...' },
               ].map(f => (
                 <View key={f.key} style={{ marginBottom: 14 }}>
                   <Text style={{ fontSize: 12, fontWeight: '600', color: 'rgba(255,255,255,0.5)', marginBottom: 6 }}>{f.label}</Text>

@@ -78,7 +78,7 @@ export default function SleepCard({ d, beneficiaryId }: Props) {
             { l: 'Profond', v: deep > 0 ? `${Math.floor(deep / 60)}h${String(deep % 60).padStart(2, '0')}` : '--', pct: total > 0 ? Math.round(deep / total * 100) : 0, c: '#3A4099' },
             { l: 'Leger', v: light > 0 ? `${Math.floor(light / 60)}h${String(light % 60).padStart(2, '0')}` : '--', pct: total > 0 ? Math.round(light / total * 100) : 0, c: '#6B7BD9' },
             { l: 'REM', v: rem > 0 ? `${Math.floor(rem / 60)}h${String(rem % 60).padStart(2, '0')}` : '--', pct: total > 0 ? Math.round(rem / total * 100) : 0, c: '#A8B4F0' },
-            { l: 'Qualite', v: slQ > 0 ? `${slQ}%` : '--', c: slQ >= 80 ? '#10B981' : '#F59E0B' },
+            { l: t('quality'), v: slQ > 0 ? `${slQ}%` : '--', c: slQ >= 80 ? '#10B981' : '#F59E0B' },
           ].map((s, i) => (
             <div key={i} style={{ flex: 1, textAlign: 'center' } as any}>
               <div style={{ width: 8, height: 8, borderRadius: 3, background: s.c, margin: '0 auto 3px' } as any} />

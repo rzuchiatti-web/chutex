@@ -43,7 +43,7 @@ function AdminPrescripteurs({ token }: { token: string }) {
   useEffect(() => { fetchAll(); }, [fetchAll]);
 
   const saveCode = async () => {
-    if (!form.structure_name) return Alert.alert('Erreur', 'Nom de structure requis');
+    if (!form.structure_name) return Alert.alert(t('error'), 'Nom de structure requis');
     setSaving(true);
     try {
       if (editCode) {
@@ -55,18 +55,18 @@ function AdminPrescripteurs({ token }: { token: string }) {
       }
       setShowModal(false); setEditCode(null);
       setForm({ structure_name: '', raison_sociale: '', siret: '', tva: '', adresse: '', telephone: '', email_contact: '', max_uses: '50' });
-    } catch (e: any) { Alert.alert('Erreur', e.message); } finally { setSaving(false); }
+    } catch (e: any) { Alert.alert(t('error'), e.message); } finally { setSaving(false); }
   };
 
   const toggleCode = async (id: string) => {
     try {
       const r = await apiFetch(`/api/admin/activation-codes/${id}/toggle`, { method: 'PUT' }, token);
       setCodes(codes.map(c => c.id === id ? { ...c, active: r.active } : c));
-    } catch (e: any) { Alert.alert('Erreur', e.message); }
+    } catch (e: any) { Alert.alert(t('error'), e.message); }
   };
 
   const deleteCode = (id: string) => {
-    confirmAction('Supprimer', 'Supprimer définitivement ce code prescripteur ?', async () => {
+    confirmAction(t('delete'), 'Supprimer définitivement ce code prescripteur ?', async () => {
       await apiFetch(`/api/admin/activation-codes/${id}`, { method: 'DELETE' }, token);
       setCodes(codes.filter(c => c.id !== id));
     });
@@ -100,11 +100,11 @@ function AdminPrescripteurs({ token }: { token: string }) {
             <div onClick={() => { setEditCode(null); setForm({ structure_name: '', raison_sociale: '', siret: '', tva: '', adresse: '', telephone: '', email_contact: '', max_uses: '50' }); setShowModal(true); }} style={{ padding: '14px', borderRadius: 999, textAlign: 'center', cursor: 'pointer', background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)', color: '#FFF', fontSize: 14, fontWeight: 700, marginBottom: 12, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 } as any}><i className="ri-add-circle-line" style={{ fontSize: 16 }} />Créer un code</div>
             {codes.map((c: any) => (<div key={c.id} style={{ padding: '14px 16px', borderRadius: 18, background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)', marginBottom: 8 } as any}><div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' } as any}><div><div style={{ fontSize: 15, fontWeight: 800, color: '#FFF', letterSpacing: 2 }}>{c.code}</div><div style={{ fontSize: 12, color: 'rgba(255,255,255,0.5)', marginTop: 2 }}>{c.structure_name}</div></div><div style={{ display: 'flex', gap: 6 } as any}><div onClick={() => openEdit(c)} style={{ width: 32, height: 32, borderRadius: 999, background: 'rgba(255,255,255,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}><i className="ri-edit-line" style={{ fontSize: 14, color: '#FFF' }} /></div><div onClick={() => toggleCode(c.id)} style={{ width: 32, height: 32, borderRadius: 999, background: c.active ? 'rgba(16,185,129,0.15)' : 'rgba(239,68,68,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}><i className={c.active ? 'ri-toggle-line' : 'ri-toggle-fill'} style={{ fontSize: 14, color: c.active ? '#10B981' : '#EF4444' }} /></div></div></div><div style={{ height: 1, background: 'rgba(255,255,255,0.06)', margin: '8px 0' } as any} /><div style={{ display: 'flex', gap: 12 } as any}><span style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)' }}>{c.current_uses || 0}/{c.max_uses} uses</span><span style={{ fontSize: 11, color: c.active ? '#10B981' : '#EF4444' }}>{c.active ? 'Actif' : 'Désactivé'}</span></div></div>))}
           </>)}
-          {tab === 'prescribers' && prescribers.map((p: any) => (<div key={p.id} onClick={() => router.push({ pathname: '/company-prescriber-detail', params: { prescriberId: p.id } })} style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '14px 16px', borderRadius: 18, background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)', marginBottom: 8, cursor: 'pointer' } as any}><div style={{ width: 44, height: 44, borderRadius: 999, background: 'rgba(212,132,90,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}><span style={{ fontSize: 18, fontWeight: 800, color: '#D4845A' }}>{p.name?.charAt(0)}</span></div><div style={{ flex: 1 } as any}><div style={{ fontSize: 14, fontWeight: 700, color: '#FFF' }}>{p.name}</div><div style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)' }}>{p.prescriber_structure || p.structure_name || 'Prescripteur'}</div></div><i className="ri-arrow-right-s-line" style={{ fontSize: 16, color: 'rgba(255,255,255,0.25)' }} /></div>))}
-          {tab === 'prescriptions' && prescriptions.map((p: any) => (<div key={p.id} style={{ padding: '14px 16px', borderRadius: 18, background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)', marginBottom: 8 } as any}><div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' } as any}><div><div style={{ fontSize: 14, fontWeight: 700, color: '#FFF' }}>{p.beneficiary_name || 'Souscription'}</div><div style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)' }}>Par {p.prescriber_name} · {p.subscription_type || 'Standard'}</div></div><div style={{ padding: '3px 10px', borderRadius: 999, background: p.status === 'validated' ? 'rgba(16,185,129,0.2)' : 'rgba(245,158,11,0.2)' } as any}><span style={{ fontSize: 10, fontWeight: 600, color: p.status === 'validated' ? '#10B981' : '#F59E0B' }}>{p.status === 'validated' ? 'Validee' : 'En attente'}</span></div></div></div>))}
+          {tab === 'prescribers' && prescribers.map((p: any) => (<div key={p.id} onClick={() => router.push({ pathname: '/company-prescriber-detail', params: { prescriberId: p.id } })} style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '14px 16px', borderRadius: 18, background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)', marginBottom: 8, cursor: 'pointer' } as any}><div style={{ width: 44, height: 44, borderRadius: 999, background: 'rgba(212,132,90,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}><span style={{ fontSize: 18, fontWeight: 800, color: '#D4845A' }}>{p.name?.charAt(0)}</span></div><div style={{ flex: 1 } as any}><div style={{ fontSize: 14, fontWeight: 700, color: '#FFF' }}>{p.name}</div><div style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)' }}>{p.prescriber_structure || p.structure_name || t('prescriber')}</div></div><i className="ri-arrow-right-s-line" style={{ fontSize: 16, color: 'rgba(255,255,255,0.25)' }} /></div>))}
+          {tab === 'prescriptions' && prescriptions.map((p: any) => (<div key={p.id} style={{ padding: '14px 16px', borderRadius: 18, background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)', marginBottom: 8 } as any}><div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' } as any}><div><div style={{ fontSize: 14, fontWeight: 700, color: '#FFF' }}>{p.beneficiary_name || 'Souscription'}</div><div style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)' }}>Par {p.prescriber_name} · {p.subscription_type || 'Standard'}</div></div><div style={{ padding: '3px 10px', borderRadius: 999, background: p.status === 'validated' ? 'rgba(16,185,129,0.2)' : 'rgba(245,158,11,0.2)' } as any}><span style={{ fontSize: 10, fontWeight: 600, color: p.status === 'validated' ? '#10B981' : '#F59E0B' }}>{p.status === 'validated' ? 'Validee' : t('pending')}</span></div></div></div>))}
         </div>
         {/* Modal */}
-        {showModal && (<div onClick={() => setShowModal(false)} style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 9999, backdropFilter: 'blur(32px)', WebkitBackdropFilter: 'blur(32px)', background: 'rgba(0,0,0,0.2)', overflowY: 'scroll', WebkitOverflowScrolling: 'touch' } as any}><div onClick={(e: any) => e.stopPropagation()} style={{ width: '100%', maxWidth: 420, margin: '0 auto', padding: '70px 28px 120px', boxSizing: 'border-box' } as any}><div style={{ fontSize: 18, fontWeight: 800, color: '#FFF', marginBottom: 14 }}>{editCode ? 'Modifier le code' : 'Nouveau code'}</div>{['structure_name','raison_sociale','siret','adresse','telephone','email_contact','max_uses'].map(k => (<div key={k} style={{ marginBottom: 10 } as any}><div style={{ fontSize: 10, fontWeight: 600, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', marginBottom: 4 }}>{k.replace(/_/g, ' ')}</div><input value={(form as any)[k]} onChange={(e: any) => setForm({...form, [k]: e.target.value})} style={{ width: '100%', padding: '10px 14px', borderRadius: 14, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', color: '#FFF', fontSize: 14 } as any} /></div>))}<div style={{ display: 'flex', gap: 10, marginTop: 8 } as any}><div onClick={() => setShowModal(false)} style={{ flex: 1, padding: '12px', borderRadius: 999, textAlign: 'center', background: 'rgba(255,255,255,0.06)', color: 'rgba(255,255,255,0.5)', fontWeight: 700, cursor: 'pointer' } as any}>Annuler</div><div onClick={saveCode} style={{ flex: 1, padding: '12px', borderRadius: 999, textAlign: 'center', background: '#FFF', color: '#111', fontWeight: 700, cursor: 'pointer' } as any}>{saving ? '...' : 'Enregistrér'}</div></div></div></div>)}
+        {showModal && (<div onClick={() => setShowModal(false)} style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 9999, backdropFilter: 'blur(32px)', WebkitBackdropFilter: 'blur(32px)', background: 'rgba(0,0,0,0.2)', overflowY: 'scroll', WebkitOverflowScrolling: 'touch' } as any}><div onClick={(e: any) => e.stopPropagation()} style={{ width: '100%', maxWidth: 420, margin: '0 auto', padding: '70px 28px 120px', boxSizing: 'border-box' } as any}><div style={{ fontSize: 18, fontWeight: 800, color: '#FFF', marginBottom: 14 }}>{editCode ? 'Modifier le code' : 'Nouveau code'}</div>{['structure_name','raison_sociale','siret','adresse','telephone','email_contact','max_uses'].map(k => (<div key={k} style={{ marginBottom: 10 } as any}><div style={{ fontSize: 10, fontWeight: 600, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', marginBottom: 4 }}>{k.replace(/_/g, ' ')}</div><input value={(form as any)[k]} onChange={(e: any) => setForm({...form, [k]: e.target.value})} style={{ width: '100%', padding: '10px 14px', borderRadius: 14, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', color: '#FFF', fontSize: 14 } as any} /></div>))}<div style={{ display: 'flex', gap: 10, marginTop: 8 } as any}><div onClick={() => setShowModal(false)} style={{ flex: 1, padding: '12px', borderRadius: 999, textAlign: 'center', background: 'rgba(255,255,255,0.06)', color: 'rgba(255,255,255,0.5)', fontWeight: 700, cursor: 'pointer' } as any}>Annuler</div><div onClick={saveCode} style={{ flex: 1, padding: '12px', borderRadius: 999, textAlign: 'center', background: '#FFF', color: '#111', fontWeight: 700, cursor: 'pointer' } as any}>{saving ? '...' : t('save')}</div></div></div></div>)}
       </div>
     );
   }
@@ -215,9 +215,9 @@ function AdminPrescripteurs({ token }: { token: string }) {
           {[
             { k: 'structure_name', l: 'Nom commercial', p: 'Ex: Résidence Les Oliviers' },
             { k: 'raison_sociale', l: 'Raison sociale', p: 'Ex: SAS Les Oliviers' },
-            { k: 'siret', l: 'SIRET', p: '12345678900000' },
+            { k: 'siret', l: t('siret_label'), p: '12345678900000' },
             { k: 'tva', l: 'N° TVA', p: 'FR12345678900' },
-            { k: 'adresse', l: 'Adresse', p: '12 rue des Chênes, 75001 Paris' },
+            { k: 'adresse', l: t('address'), p: '12 rue des Chênes, 75001 Paris' },
             { k: 'telephone', l: 'Téléphone', p: '+33 1 23 45 67 89' },
             { k: 'email_contact', l: 'Email contact', p: 'contact@structure.fr' },
           ].map(f => (
@@ -230,7 +230,7 @@ function AdminPrescripteurs({ token }: { token: string }) {
           <View style={d.modalBtns}>
             <TouchableOpacity style={d.cancelBtn} onPress={() => setShowModal(false)}><Text style={d.cancelBtnT}>Annuler</Text></TouchableOpacity>
             <TouchableOpacity style={d.submitBtn} onPress={saveCode} disabled={saving}>
-              {saving ? <ActivityIndicator color="#111827" /> : <Text style={d.submitBtnT}>{editCode ? 'Modifier' : 'Créer'}</Text>}
+              {saving ? <ActivityIndicator color="#111827" /> : <Text style={d.submitBtnT}>{editCode ? t('modify') : 'Créer'}</Text>}
             </TouchableOpacity>
           </View>
         </View></View>

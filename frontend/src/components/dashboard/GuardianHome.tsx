@@ -72,7 +72,7 @@ export default function GuardianHome({ token, user }: { token: string; user: any
         await apiFetch('/api/auth/switch-role', { method: 'POST', body: JSON.stringify({ role: 'beneficiary' }) }, token);
         await refreshUser();
       } else { router.push('/activate-beneficiary' as any); }
-    } catch (e: any) { Alert.alert('Erreur', e.message); } finally { setSwitching(false); }
+    } catch (e: any) { Alert.alert(t('error'), e.message); } finally { setSwitching(false); }
   };
 
   const [showAddBenPopup, setShowAddBenPopup] = useState(false);
@@ -160,7 +160,7 @@ export default function GuardianHome({ token, user }: { token: string; user: any
                 <div style={{ display: 'flex', alignItems: 'center', gap: 14, flex: 1 } as any}>
                   <div style={{ fontSize: 32, fontWeight: 900, color: '#FFF' }}>{activeAlerts.length}</div>
                   <div style={{ width: 1, height: 32, background: 'rgba(255,255,255,0.2)', flexShrink: 0 } as any} />
-                  <div><div style={{ fontSize: 14, fontWeight: 700, color: '#FFF' }}>Alerte{activeAlerts.length !== 1 ? 's' : ''}</div><div style={{ fontSize: 11, color: 'rgba(255,255,255,0.6)' }}>{activeAlerts.length > 0 ? `${activeAlerts.length} en cours` : 'Aucune alerte'}</div></div>
+                  <div><div style={{ fontSize: 14, fontWeight: 700, color: '#FFF' }}>Alerte{activeAlerts.length !== 1 ? 's' : ''}</div><div style={{ fontSize: 11, color: 'rgba(255,255,255,0.6)' }}>{activeAlerts.length > 0 ? `${activeAlerts.length} en cours` : t('no_alert')}</div></div>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 6 } as any}>
                   {activeAlerts.length > 0 ? <div style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '4px 10px', borderRadius: 999, background: 'rgba(239,68,68,0.3)' } as any}><span style={{ width: 6, height: 6, borderRadius: 3, background: '#EF4444' } as any} /><span style={{ fontSize: 10, fontWeight: 600, color: '#FFF' }}>Active</span></div> : <div style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '4px 10px', borderRadius: 999, background: 'rgba(16,185,129,0.2)' } as any}><span style={{ width: 6, height: 6, borderRadius: 3, background: '#10B981' } as any} /><span style={{ fontSize: 10, fontWeight: 600, color: '#10B981' }}>OK</span></div>}
@@ -341,9 +341,9 @@ export default function GuardianHome({ token, user }: { token: string; user: any
                 );
               })()}
               {linkMessage !== '' && (
-                <div style={{ padding: '14px 16px', borderRadius: 14, marginBottom: 16, background: linkMessage.startsWith('Erreur') ? 'rgba(239,68,68,0.12)' : 'rgba(16,185,129,0.12)', border: `1px solid ${linkMessage.startsWith('Erreur') ? 'rgba(239,68,68,0.25)' : 'rgba(16,185,129,0.25)'}` } as any}>
+                <div style={{ padding: '14px 16px', borderRadius: 14, marginBottom: 16, background: linkMessage.startsWith(t('error')) ? 'rgba(239,68,68,0.12)' : 'rgba(16,185,129,0.12)', border: `1px solid ${linkMessage.startsWith(t('error')) ? 'rgba(239,68,68,0.25)' : 'rgba(16,185,129,0.25)'}` } as any}>
                   <div style={{ display: 'flex', alignItems: 'flex-start', gap: 10 } as any}>
-                    <i className={linkMessage.startsWith('Erreur') ? 'ri-error-warning-line' : 'ri-checkbox-circle-line'} style={{ fontSize: 18, color: linkMessage.startsWith('Erreur') ? '#EF4444' : '#10B981', flexShrink: 0, marginTop: 1 }} />
+                    <i className={linkMessage.startsWith(t('error')) ? 'ri-error-warning-line' : 'ri-checkbox-circle-line'} style={{ fontSize: 18, color: linkMessage.startsWith(t('error')) ? '#EF4444' : '#10B981', flexShrink: 0, marginTop: 1 }} />
                     <span style={{ fontSize: 13, color: '#FFF', lineHeight: 1.5 }}>{linkMessage}</span>
                   </div>
                 </div>
@@ -477,7 +477,7 @@ export default function GuardianHome({ token, user }: { token: string; user: any
                   setIbanMsg({ type: 'err', text: e.message || 'Erreur lors de la sauvegarde' });
                 } finally { setIbanSaving(false); }
               }} style={{ padding: '16px', borderRadius: 14, textAlign: 'center', cursor: ibanForm.account_holder && ibanForm.iban ? 'pointer' : 'default', background: ibanForm.account_holder && ibanForm.iban ? '#10B981' : 'rgba(255,255,255,0.06)', color: ibanForm.account_holder && ibanForm.iban ? '#FFF' : 'rgba(255,255,255,0.3)', fontSize: 15, fontWeight: 800, opacity: ibanSaving ? 0.5 : 1, transition: 'all 0.15s' } as any}>
-                {ibanSaving ? 'Enregistrément...' : 'Enregistrér'}
+                {ibanSaving ? 'Enregistrément...' : t('save')}
               </div>
 
               <div style={{ textAlign: 'center', marginTop: 20 } as any}>
@@ -519,7 +519,7 @@ export default function GuardianHome({ token, user }: { token: string; user: any
         <View style={{ flexDirection: 'row', gap: 10 }}>
           {[
             { val: bens.length, label: 'Bénéficiaires' },
-            { val: activeAlerts.length, label: 'Alertes' },
+            { val: activeAlerts.length, label: t('alerts_title') },
             { val: pendingInterventions.length, label: 'Interventions' },
           ].map((s, i) => (
             <View key={i} style={{ flex: 1, backgroundColor: '#FFFFFF', borderRadius: 16, padding: 12, alignItems: 'center' }}>
@@ -614,7 +614,7 @@ export default function GuardianHome({ token, user }: { token: string; user: any
           <Text style={{ fontSize: 16, fontWeight: '800', color: '#111827', marginTop: 4 }}>{inv.beneficiary_name} vous invite</Text>
           <View style={{ flexDirection: 'row', gap: 10, marginTop: 14 }}>
             <TouchableOpacity testID={`accept-inv-${inv.id}`} style={{ flex: 1, backgroundColor: '#10B981', borderRadius: 9999, paddingVertical: 12, alignItems: 'center' }}
-              onPress={async () => { try { await apiFetch(`/api/guardian/invitations/${inv.id}/accept`, { method: 'POST' }, token); Alert.alert('Accepte', 'Vous etes maintenant gardien.'); fetchData(); } catch (e: any) { Alert.alert('Erreur', e.message); } }}>
+              onPress={async () => { try { await apiFetch(`/api/guardian/invitations/${inv.id}/accept`, { method: 'POST' }, token); Alert.alert('Accepte', 'Vous etes maintenant gardien.'); fetchData(); } catch (e: any) { Alert.alert(t('error'), e.message); } }}>
               <Text style={{ color: '#FFF', fontSize: 13, fontWeight: '700' }}>{t('accept')}</Text>
             </TouchableOpacity>
             <TouchableOpacity style={{ flex: 1, backgroundColor: '#F3F4F6', borderRadius: 9999, paddingVertical: 12, alignItems: 'center' }}
@@ -717,8 +717,8 @@ export default function GuardianHome({ token, user }: { token: string; user: any
             <Text style={{ fontSize: 10, fontWeight: '700', color: '#6B7280', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 6 }}>Lien de parente (optionnel)</Text>
             <TextInput value={linkRelationship} onChangeText={setLinkRelationship} placeholder="Ex: Fils, Fille, Voisin..." style={{ borderWidth: 1, borderColor: '#E5E7EB', borderRadius: 12, padding: 14, fontSize: 15, color: '#111827', marginBottom: 20 }} />
             {linkMessage !== '' && (
-              <View style={{ padding: 14, borderRadius: 12, marginBottom: 14, backgroundColor: linkMessage.startsWith('Erreur') ? 'rgba(239,68,68,0.08)' : 'rgba(16,185,129,0.08)' }}>
-                <Text style={{ fontSize: 13, color: linkMessage.startsWith('Erreur') ? '#EF4444' : '#10B981' }}>{linkMessage}</Text>
+              <View style={{ padding: 14, borderRadius: 12, marginBottom: 14, backgroundColor: linkMessage.startsWith(t('error')) ? 'rgba(239,68,68,0.08)' : 'rgba(16,185,129,0.08)' }}>
+                <Text style={{ fontSize: 13, color: linkMessage.startsWith(t('error')) ? '#EF4444' : '#10B981' }}>{linkMessage}</Text>
               </View>
             )}
             <TouchableOpacity
@@ -751,7 +751,7 @@ export default function GuardianHome({ token, user }: { token: string; user: any
       <ContextualTip id="guardian-welcome" icon="people-outline" text="Bienvenue dans votre espace gardien ! Suivez la sante de vos proches en temps reel." color="#111827" />
       <MiniTuto id="guardian-intro" triggerLabel="Guide du gardien" steps={[
         { title: 'Votre role', text: 'Vous veillez sur vos proches a distance avec des notifications instantanees.', icon: 'shield-outline' },
-        { title: 'Alertes', text: 'Quand une alerte se declenche, vous pouvez intervenir ou suivre l\'intervenant.', icon: 'alert-circle-outline' },
+        { title: t('alerts_title'), text: 'Quand une alerte se declenche, vous pouvez intervenir ou suivre l\'intervenant.', icon: 'alert-circle-outline' },
         { title: 'Ajouter', text: 'Entrez le numéro de telephone de votre proche pour lui envoyer une invitation a rejoindre votre espace gardien.', icon: 'person-add-outline' },
       ]} />
     </ScrollView>

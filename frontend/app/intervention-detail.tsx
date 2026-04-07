@@ -73,7 +73,7 @@ export default function InterventionDétailScreen() {
   const isRecipient = iv.recipients?.some((r: any) => r.id === user?.id) || iv.assigned_to === user?.id || (iv.company_id && (iv.company_id === user?.saad_company_id || iv.company_id === user?.prescriber_company_id)) || (iv.agency_id && iv.agency_id === user?.agency_id);
   const isAssigned = iv.assigned_to === user?.id;
   const ben = iv.beneficiary_info || {};
-  const statusLabel = iv.status === 'pending_acceptance' ? 'En attente' : iv.status === 'in_progress' ? 'En cours' : iv.status === 'completed' ? 'Terminee' : iv.status;
+  const statusLabel = iv.status === 'pending_acceptance' ? t('pending') : iv.status === 'in_progress' ? t('in_progress') : iv.status === 'completed' ? 'Terminee' : iv.status;
   const statusColor = iv.status === 'pending_acceptance' ? '#FF9800' : iv.status === 'in_progress' ? '#4CAF50' : iv.status === 'completed' ? '#000' : '#888';
 
   // QCM View

@@ -1,3 +1,4 @@
+import { useI18n } from '../../context/I18nContext';
 import React, { useState, useEffect, useCallback } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, RefreshControl, Platform } from 'react-native';
 import { useRouter } from 'expo-router';
@@ -8,6 +9,7 @@ import { Icon } from '../WebIcon';
 import { BG_IMAGES } from './constants';
 
 export default function CompanyHome({ token, user }: { token: string; user: any }) {
+  const { t } = useI18n();
   const router = useRouter();
   const [stats, setStats] = useState<any>({});
   const [intervenants, setIntervenants] = useState<any[]>([]);
@@ -80,7 +82,7 @@ export default function CompanyHome({ token, user }: { token: string; user: any 
                 {[
                   { val: agencies.length, label: 'Agences', color: '#D4845A' },
                   { val: intervenants.length, label: 'Intervenants', color: '#A78BFA' },
-                  { val: stats.total_prescribers || 0, label: 'Prescripteurs', color: '#F59E0B' },
+                  { val: stats.total_prescribers || 0, label: t('prescribers'), color: '#F59E0B' },
                 ].map((s, i) => (
                   <div key={i} style={{ flex: 1, padding: '10px 6px', borderRadius: 14, background: 'rgba(255,255,255,0.12)', textAlign: 'center', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)', border: '1px solid rgba(255,255,255,0.15)' } as any}>
                     <div style={{ fontSize: 20, fontWeight: 900, color: '#FFF' }}>{s.val}</div>
@@ -116,7 +118,7 @@ export default function CompanyHome({ token, user }: { token: string; user: any 
                 <div style={{ display: 'flex', alignItems: 'center', gap: 14, flex: 1 } as any}>
                   <div style={{ fontSize: 32, fontWeight: 900, color: '#FFF' }}>{activeAlerts.length}</div>
                   <div style={{ width: 1, height: 32, background: 'rgba(255,255,255,0.2)', flexShrink: 0 } as any} />
-                  <div><div style={{ fontSize: 14, fontWeight: 700, color: '#FFF' }}>Alerte{activeAlerts.length !== 1 ? 's' : ''}</div><div style={{ fontSize: 11, color: 'rgba(255,255,255,0.6)' }}>{activeAlerts.length > 0 ? `${activeAlerts.length} en cours` : 'Aucune alerte'}</div></div>
+                  <div><div style={{ fontSize: 14, fontWeight: 700, color: '#FFF' }}>Alerte{activeAlerts.length !== 1 ? 's' : ''}</div><div style={{ fontSize: 11, color: 'rgba(255,255,255,0.6)' }}>{activeAlerts.length > 0 ? `${activeAlerts.length} en cours` : t('no_alert')}</div></div>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 6 } as any}>
                   {activeAlerts.length > 0 ? <div style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '4px 10px', borderRadius: 999, background: 'rgba(239,68,68,0.3)' } as any}><span style={{ width: 6, height: 6, borderRadius: 3, background: '#EF4444' } as any} /><span style={{ fontSize: 10, fontWeight: 600, color: '#FFF' }}>Active</span></div> : <div style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '4px 10px', borderRadius: 999, background: 'rgba(16,185,129,0.2)' } as any}><span style={{ width: 6, height: 6, borderRadius: 3, background: '#10B981' } as any} /><span style={{ fontSize: 10, fontWeight: 600, color: '#10B981' }}>OK</span></div>}
@@ -231,7 +233,7 @@ export default function CompanyHome({ token, user }: { token: string; user: any 
                     try {
                       await apiFetch('/api/company/commission-type', { method: 'PUT', body: JSON.stringify({ commission_type: commissionChoice }) }, token);
                       setOnboardingStep(2);
-                    } catch (e: any) { alert(e.message || 'Erreur'); }
+                    } catch (e: any) { alert(e.message || t('error')); }
                   }} style={{ padding: '17px', borderRadius: 999, background: 'linear-gradient(135deg, #7C3AED, #6D28D9)', color: '#FFF', cursor: 'pointer', textAlign: 'center', fontSize: 16, fontWeight: 800, boxShadow: '0 4px 16px rgba(124,58,237,0.3)' } as any}>
                     Confirmer et continuer
                   </div>
@@ -279,7 +281,7 @@ export default function CompanyHome({ token, user }: { token: string; user: any 
                       const res = await apiFetch('/api/saad/stripe-onboarding', { method: 'POST', body: JSON.stringify({ saad_id: user.id, company_name: user.structure_name || user.name, email: user.email, commission_type: commissionChoice, refresh_url: window.location.href, return_url: window.location.href }) }, token);
                       if (res.onboarding_url) window.open(res.onboarding_url, '_blank');
                       setShowStripeSetup(false);
-                    } catch (e: any) { alert(e.message || 'Erreur'); }
+                    } catch (e: any) { alert(e.message || t('error')); }
                     setStripeLoading(false);
                   }} style={{ padding: '17px', borderRadius: 999, background: stripeLoading ? 'rgba(255,255,255,0.05)' : 'linear-gradient(135deg, #10B981, #059669)', color: '#FFF', cursor: stripeLoading ? 'wait' : 'pointer', textAlign: 'center', fontSize: 16, fontWeight: 800, opacity: stripeLoading ? 0.5 : 1, boxShadow: '0 4px 16px rgba(16,185,129,0.3)', marginBottom: 12 } as any}>
                     {stripeLoading ? 'Création en cours...' : 'Connecter mon compte bancaire'}
@@ -365,7 +367,7 @@ export default function CompanyHome({ token, user }: { token: string; user: any 
                 <div style={{ position: 'relative', zIndex: 2, textAlign: 'center' } as any}>
                   <div style={{ fontSize: 20, fontWeight: 800, color: '#FFF', marginBottom: 14 }}>Intervention Care</div>
                   <div style={{ display: 'flex', gap: 10, marginBottom: 14 } as any}>
-                    {[{ val: activeIvs.length, label: 'En cours' }, { val: completedIvs, label: 'Terminees' }, { val: intervenants.length, label: 'Intervenants' }].map((s, i) => (
+                    {[{ val: activeIvs.length, label: t('in_progress') }, { val: completedIvs, label: 'Terminees' }, { val: intervenants.length, label: 'Intervenants' }].map((s, i) => (
                       <div key={i} style={{ flex: 1, textAlign: 'center' } as any}>
                         <div style={{ fontSize: 28, fontWeight: 900, color: '#FFF' }}>{s.val}</div>
                         <div style={{ display: 'inline-flex', padding: '2px 10px', borderRadius: 999, background: 'rgba(255,255,255,0.15)', marginTop: 4 } as any}><span style={{ fontSize: 9, fontWeight: 700, color: '#FFF' }}>{s.label}</span></div>
@@ -429,7 +431,7 @@ export default function CompanyHome({ token, user }: { token: string; user: any 
                   <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.6)', marginTop: 2, marginBottom: 2 }}>{user.commission_type === 'oneshot' ? 'Commissions uniques ce mois' : 'Souscriptions validees ce mois'}</div>
                   <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)', marginBottom: 14 }}>{allTimeValidated} EUR{user.commission_type === 'monthly' ? '/mois' : ''} valides au total {user.commission_type === 'monthly' ? `- Versement le ${nextPay}` : ''}</div>
                   <div style={{ display: 'flex', gap: 10, marginBottom: 14 } as any}>
-                    {[{ val: validatedP.length, label: 'Validees' }, { val: pendingP.length, label: 'En attente' }, { val: prescribers.length, label: 'Prescripteurs' }].map((s, i) => (
+                    {[{ val: validatedP.length, label: 'Validees' }, { val: pendingP.length, label: t('pending') }, { val: prescribers.length, label: t('prescribers') }].map((s, i) => (
                       <div key={i} style={{ flex: 1, textAlign: 'center' } as any}>
                         <div style={{ fontSize: 28, fontWeight: 900, color: '#FFF' }}>{s.val}</div>
                         <div style={{ display: 'inline-flex', padding: '2px 10px', borderRadius: 999, background: 'rgba(255,255,255,0.15)', marginTop: 4 } as any}><span style={{ fontSize: 9, fontWeight: 700, color: '#FFF' }}>{s.label}</span></div>
@@ -516,8 +518,8 @@ export default function CompanyHome({ token, user }: { token: string; user: any 
         <View style={{ flexDirection: 'row', gap: 10 }}>
           {[
             { val: stats.total_intervenants || intervenants.length, label: 'Intervenants' },
-            { val: stats.total_prescribers || prescribers.length, label: 'Prescripteurs' },
-            { val: activeAlerts.length, label: 'Alertes' },
+            { val: stats.total_prescribers || prescribers.length, label: t('prescribers') },
+            { val: activeAlerts.length, label: t('alerts_title') },
           ].map((s, i) => (
             <View key={i} style={{ flex: 1, backgroundColor: '#FFFFFF', borderRadius: 16, padding: 12, alignItems: 'center' }}>
               <Text style={{ fontSize: 22, fontWeight: '700', color: '#111827' }}>{s.val}</Text>
@@ -560,7 +562,7 @@ export default function CompanyHome({ token, user }: { token: string; user: any 
             <TouchableOpacity key={iv.id} onPress={() => router.push({ pathname: '/company-intervention-detail', params: { interventionId: iv.id } })}>
               <Card style={{ borderLeftWidth: 3, borderLeftColor: iv.status === 'completed' ? '#10B981' : iv.status === 'in_progress' ? '#111827' : '#F59E0B' }}>
                 <Text style={{ fontSize: 14, fontWeight: '700', color: '#111827' }}>{iv.beneficiary_name || 'Intervention'}</Text>
-                <Text style={{ fontSize: 12, color: '#6B7280', marginTop: 2 }}>{iv.status === 'completed' ? 'Terminee' : iv.status === 'in_progress' ? 'En cours' : 'En attente'}</Text>
+                <Text style={{ fontSize: 12, color: '#6B7280', marginTop: 2 }}>{iv.status === 'completed' ? 'Terminee' : iv.status === 'in_progress' ? t('in_progress') : t('pending')}</Text>
               </Card>
             </TouchableOpacity>
           ))}

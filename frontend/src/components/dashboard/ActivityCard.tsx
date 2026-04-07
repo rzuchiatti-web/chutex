@@ -32,7 +32,7 @@ function getRecoveryInfo(recovery: number, stress: number, sleepQuality: number,
   }
   if (pct >= 80) return { level: 'optimal', pct, color: '#10B981', barColor: '#10B981', label: 'Optimale', note: 'Pret pour l\'effort' };
   if (pct >= 60) return { level: 'bon', pct, color: '#22D3EE', barColor: '#22D3EE', label: 'Bonne', note: 'En bonne forme' };
-  if (pct >= 40) return { level: 'modere', pct, color: '#F59E0B', barColor: '#F59E0B', label: 'Moyenne', note: 'Activité moderee' };
+  if (pct >= 40) return { level: 'modere', pct, color: '#F59E0B', barColor: '#F59E0B', label: t('month_avg'), note: 'Activité moderee' };
   return { level: 'faible', pct, color: '#EF4444', barColor: '#EF4444', label: 'Faible', note: 'Repos conseille' };
 }
 

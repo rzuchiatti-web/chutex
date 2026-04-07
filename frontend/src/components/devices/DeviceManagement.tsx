@@ -183,7 +183,7 @@ export function DeviceManagement({ token }: { token: string }) {
             </View>
             <TouchableOpacity style={styles.syncBtn} onPress={() => handleStartPairing(dt)}>
               <Icon name="bluetooth" size={16} color={isA ? Colors.success : Colors.primary} />
-              <Text style={styles.syncBtnText}>{isA ? (dt === 'scale' ? 'Nouvelle pesee' : 'Connexion') : (dt === 'scale' ? 'Nouvelle pesee' : 'Associer')}</Text>
+              <Text style={styles.syncBtnText}>{isA ? (dt === 'scale' ? 'Nouvelle pesee' : t('login')) : (dt === 'scale' ? 'Nouvelle pesee' : 'Associer')}</Text>
             </TouchableOpacity>
           </View>
         );

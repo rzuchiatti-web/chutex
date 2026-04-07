@@ -93,7 +93,7 @@ export default function BackofficeScreen() {
   };
 
   const deleteSub = (id: string) => {
-    confirmAction('Confirmer', 'Supprimer cet abonnement ?', async () => {
+    confirmAction(t('confirm'), 'Supprimer cet abonnement ?', async () => {
       try {
         await apiFetch(`/api/admin/subscriptions/${id}`, { method: 'DELETE' }, token);
         setSubscriptions(subscriptions.filter(s => s.id !== id));
@@ -171,7 +171,7 @@ export default function BackofficeScreen() {
   };
 
   const deleteCode = (id: string) => {
-    confirmAction('Confirmer', 'Supprimer ce code ?', async () => {
+    confirmAction(t('confirm'), 'Supprimer ce code ?', async () => {
       try {
         await apiFetch(`/api/admin/activation-codes/${id}`, { method: 'DELETE' }, token);
         setCodes(codes.filter(c => c.id !== id && c.code !== id));
@@ -223,7 +223,7 @@ export default function BackofficeScreen() {
   };
 
   const deleteIvCode = (id: string) => {
-    confirmAction('Confirmer', 'Supprimer ce code intervenant ?', async () => {
+    confirmAction(t('confirm'), 'Supprimer ce code intervenant ?', async () => {
       try {
         await apiFetch(`/api/admin/intervention-codes/${id}`, { method: 'DELETE' }, token);
         setInterventionCodes(interventionCodes.filter(c => c.id !== id && c.code !== id));
@@ -235,9 +235,9 @@ export default function BackofficeScreen() {
     { id: 'stats', label: 'Stats' },
     { id: 'subscriptions', label: 'Abonnements' },
     { id: 'users', label: 'Utilisateurs' },
-    { id: 'alerts', label: 'Alertes' },
+    { id: 'alerts', label: t('alerts_title') },
     { id: 'codes', label: 'Codes' },
-    { id: 'prescriptions', label: 'Prescriptions' },
+    { id: 'prescriptions', label: t('prescriptions') },
     { id: 'interventions', label: 'Intervenants' },
     { id: 'kpi', label: 'KPI' },
   ] as const;
@@ -268,7 +268,7 @@ export default function BackofficeScreen() {
             <View style={bs.grid}>
               {[
                 { l: 'Utilisateurs', v: stats.total_users }, { l: 'Bénéficiaires', v: stats.beneficiaries },
-                { l: 'Gardiens', v: stats.guardians }, { l: 'Prescripteurs', v: stats.prescribers },
+                { l: 'Gardiens', v: stats.guardians }, { l: t('prescribers'), v: stats.prescribers },
                 { l: 'Alertes actives', v: stats.active_alerts }, { l: 'Total alertes', v: stats.total_alerts },
                 { l: 'Abon. Standard', v: stats.subscriptions_standard || 0 }, { l: 'Abon. Care', v: stats.subscriptions_care || 0 },
                 { l: 'Interventions', v: stats.interventions }, { l: 'Teleconsults', v: stats.teleconsults },
@@ -395,7 +395,7 @@ export default function BackofficeScreen() {
               <View style={bs.prescTop}>
                 <Text style={bs.prescName}>{p.beneficiary_name}</Text>
                 <View style={[bs.stBdg, p.status === 'subscribed' && { backgroundColor: Colors.success + '12' }]}>
-                  <Text style={[bs.stBdgT, p.status === 'subscribed' && { color: Colors.success }]}>{p.status === 'subscribed' ? 'Souscrit' : 'En attente'}</Text>
+                  <Text style={[bs.stBdgT, p.status === 'subscribed' && { color: Colors.success }]}>{p.status === 'subscribed' ? 'Souscrit' : t('pending')}</Text>
                 </View>
               </View>
               <Text style={bs.prescMeta}>{p.beneficiary_email} - {p.beneficiary_phone}</Text>
@@ -470,7 +470,7 @@ export default function BackofficeScreen() {
                   { l: 'Alertes totales', v: kpi.total_alerts, c: Colors.destructive },
                   { l: 'Interventions', v: kpi.total_interventions, c: '#FF9800' },
                   { l: 'Abonnes actifs', v: kpi.active_subscriptions, c: Colors.success },
-                  { l: 'En attente', v: kpi.pending_subscriptions, c: Colors.textMuted },
+                  { l: t('pending'), v: kpi.pending_subscriptions, c: Colors.textMuted },
                   { l: 'Resolution moy.', v: `${kpi.avg_resolution_minutes}min`, c: Colors.primary },
                 ].map(x => (
                   <View key={x.l} style={bs.miniStat}><Text style={[bs.miniStatV, { color: x.c }]}>{x.v}</Text><Text style={bs.miniStatL}>{x.l}</Text></View>
@@ -546,7 +546,7 @@ export default function BackofficeScreen() {
                     <View style={bs.modalBtns}>
                       <TouchableOpacity style={bs.cancelBtn} onPress={() => setShowCodeModal(false)}><Text style={bs.cancelBtnT}>{t('cancel')}</Text></TouchableOpacity>
                       <TouchableOpacity testID="confirm-code-btn" style={bs.confirmBtn} onPress={saveCode} disabled={creating}>
-                        {creating ? <ActivityIndicator color="#111827" /> : <Text style={bs.confirmBtnT}>{editingCode ? 'Enregistrér' : 'Créer'}</Text>}
+                        {creating ? <ActivityIndicator color="#111827" /> : <Text style={bs.confirmBtnT}>{editingCode ? t('save') : 'Créer'}</Text>}
                       </TouchableOpacity>
                     </View>
                   </ScrollView>
@@ -577,7 +577,7 @@ export default function BackofficeScreen() {
                     <View style={bs.modalBtns}>
                       <TouchableOpacity style={bs.cancelBtn} onPress={() => setShowIvCodeModal(false)}><Text style={bs.cancelBtnT}>{t('cancel')}</Text></TouchableOpacity>
                       <TouchableOpacity testID="confirm-iv-code-btn" style={bs.confirmBtn} onPress={saveIvCode} disabled={creating}>
-                        {creating ? <ActivityIndicator color="#111827" /> : <Text style={bs.confirmBtnT}>{editingIvCode ? 'Enregistrér' : 'Créer'}</Text>}
+                        {creating ? <ActivityIndicator color="#111827" /> : <Text style={bs.confirmBtnT}>{editingIvCode ? t('save') : 'Créer'}</Text>}
                       </TouchableOpacity>
                     </View>
                   </ScrollView>

@@ -117,7 +117,7 @@ export function PairingStepsPopup({ deviceType, step, onSetStep, onClose, onLaun
             if (deviceType === 'scale') { onClose(); onScaleWeighing(); }
             else onLaunchScan(deviceType);
           }} style={{ flex: 1, padding: '14px', borderRadius: 999, background: isLast ? `linear-gradient(135deg, ${meta.color}CC, ${meta.color})` : '#FFF', cursor: 'pointer', textAlign: 'center', fontSize: 14, fontWeight: 700, color: isLast ? '#FFF' : '#111', boxShadow: isLast ? `0 4px 20px ${meta.color}40` : 'none' } as any}>
-            {isLast ? "Lancer l'appairage" : 'Suivant'}
+            {isLast ? "Lancer l'appairage" : t('next')}
           </div>
         </div>
       </div>

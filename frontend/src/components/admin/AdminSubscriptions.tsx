@@ -6,7 +6,7 @@ export default function AdminSubscriptions({ subs, prescs, invites, rgpd, emails
 
   const tabs = [
     { key: 'subs', label: 'Abonnements', count: subs.length, icon: 'ri-vip-crown-line' },
-    { key: 'prescs', label: 'Prescriptions', count: prescs.length, icon: 'ri-file-list-3-line' },
+    { key: 'prescs', label: t('prescriptions'), count: prescs.length, icon: 'ri-file-list-3-line' },
     { key: 'saad', label: 'SAAD', count: invites.length, icon: 'ri-building-line' },
     { key: 'rgpd', label: 'RGPD', count: rgpd.length, icon: 'ri-shield-line' },
     { key: 'emails', label: 'Emails', count: emails.length, icon: 'ri-mail-line' },
@@ -68,7 +68,7 @@ export default function AdminSubscriptions({ subs, prescs, invites, rgpd, emails
                 {prescs.slice(0, 30).map((p: any, i: number) => (
                   <tr key={i}>
                     <td style={{ fontWeight: 600 }}>{p.beneficiary_name || p.beneficiary_phone}</td>
-                    <td style={{ color: '#64748B' }}>{p.guardian_name || 'Prescripteur'}</td>
+                    <td style={{ color: '#64748B' }}>{p.guardian_name || t('prescriber')}</td>
                     <td><span className="adm-badge" style={{ background: p.status === 'active' || p.status === 'subscribed' ? '#F0FDF4' : '#FFFBEB', color: p.status === 'active' || p.status === 'subscribed' ? '#10B981' : '#F59E0B' }}>{p.status}</span></td>
                     <td style={{ fontSize: 12, color: '#94A3B8' }}>{p.created_at ? new Date(p.created_at).toLocaleDateString('fr-FR') : ''}</td>
                   </tr>

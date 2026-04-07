@@ -92,7 +92,7 @@ export function CompanyPrescriptions({ token }: { token: string }) {
                       <Text style={{ fontSize: 20, fontWeight: '900', color: '#111827' }}>{selectedPresc.beneficiary_name}</Text>
                       <View style={{ flexDirection: 'row', gap: 6, marginTop: 6, flexWrap: 'wrap' }}>
                         <View style={{ backgroundColor: selectedPresc.status === 'subscribed' ? '#E8F5E9' : '#FFF3E0', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 8 }}>
-                          <Text style={{ fontSize: 10, fontWeight: '800', color: selectedPresc.status === 'subscribed' ? '#2E7D32' : '#E65100', textTransform: 'uppercase', letterSpacing: 0.5 }}>{selectedPresc.status === 'subscribed' ? 'Souscrit' : 'En attente'}</Text>
+                          <Text style={{ fontSize: 10, fontWeight: '800', color: selectedPresc.status === 'subscribed' ? '#2E7D32' : '#E65100', textTransform: 'uppercase', letterSpacing: 0.5 }}>{selectedPresc.status === 'subscribed' ? 'Souscrit' : t('pending')}</Text>
                         </View>
                         <View style={{ backgroundColor: '#E3F2FD', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 8 }}>
                           <Text style={{ fontSize: 10, fontWeight: '800', color: '#1565C0', textTransform: 'uppercase' }}>{selectedPresc.subscription_type}</Text>
@@ -101,9 +101,9 @@ export function CompanyPrescriptions({ token }: { token: string }) {
                     </View>
                   </View>
                   {[
-                    { icon: 'mail-outline', label: 'Email', value: selectedPresc.beneficiary_email },
-                    { icon: 'call-outline', label: 'Telephone', value: selectedPresc.beneficiary_phone },
-                    { icon: 'person-circle-outline', label: 'Prescripteur', value: selectedPresc.guardian_name },
+                    { icon: 'mail-outline', label: t('email_label'), value: selectedPresc.beneficiary_email },
+                    { icon: 'call-outline', label: t('phone_label'), value: selectedPresc.beneficiary_phone },
+                    { icon: 'person-circle-outline', label: t('prescriber'), value: selectedPresc.guardian_name },
                     { icon: 'cash-outline', label: 'Commission', value: `${selectedPresc.commission} EUR` },
                     { icon: 'calendar-outline', label: 'Date', value: selectedPresc.created_at ? new Date(selectedPresc.created_at).toLocaleDateString('fr-FR') : '' },
                   ].map(({ icon, label, value }) => value ? (

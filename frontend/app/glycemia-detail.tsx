@@ -168,7 +168,7 @@ export default function GlycemiaDétailPage() {
                     <div style={{ display: 'flex', alignItems: 'center' } as any}>
                       {[
                         { label: 'Plus haut', value: high },
-                        { label: 'Moyenne', value: avg },
+                        { label: t('month_avg'), value: avg },
                         { label: 'Plus bas', value: low },
                       ].map((s, i) => (
                         <div key={i} style={{ flex: 1, textAlign: 'center', padding: '10px 0', borderRight: i < 2 ? '1px solid rgba(0,0,0,0.08)' : 'none' } as any}>

@@ -270,11 +270,11 @@ function ReportPage({ alert, role, token, onClose, onDone }: { alert: any; role:
 function IntervenantPopup({ person, onClose }: { person: any; onClose: () => void }) {
   const dn = person?.name || 'Intervenant';
   const rows = [
-    person?.phone && { icon: 'ri-phone-line', label: 'Telephone', value: person.phone, phone: true },
-    person?.email && { icon: 'ri-mail-line', label: 'Email', value: person.email },
+    person?.phone && { icon: 'ri-phone-line', label: t('phone_label'), value: person.phone, phone: true },
+    person?.email && { icon: 'ri-mail-line', label: t('email_label'), value: person.email },
     person?.profession && { icon: 'ri-stethoscope-line', label: 'Profession', value: person.profession },
-    person?.structure_name && { icon: 'ri-building-line', label: 'Structure', value: person.structure_name },
-    person?.address && { icon: 'ri-map-pin-line', label: 'Adresse', value: person.address },
+    person?.structure_name && { icon: 'ri-building-line', label: t('structure'), value: person.structure_name },
+    person?.address && { icon: 'ri-map-pin-line', label: t('address'), value: person.address },
     person?.distance_km && { icon: 'ri-route-line', label: 'Distance', value: `${person.distance_km} km` },
   ].filter(Boolean) as any[];
 
@@ -529,15 +529,15 @@ function AlertDetailWeb({ alert, onClose, role, token, onRefresh, user }: { aler
 
 function BeneficiaireCard({ ben }: { ben: any }) {
   const rows = [
-    ben.date_of_birth && { icon: 'ri-calendar-line', label: 'Date de naissance', value: ben.date_of_birth },
-    ben.gender && { icon: 'ri-user-line', label: 'Genre', value: ben.gender },
-    ben.blood_type && { icon: 'ri-drop-line', label: 'Groupe sanguin', value: ben.blood_type, color: '#EF4444' },
+    ben.date_of_birth && { icon: 'ri-calendar-line', label: t('date_of_birth'), value: ben.date_of_birth },
+    ben.gender && { icon: 'ri-user-line', label: t('gender'), value: ben.gender },
+    ben.blood_type && { icon: 'ri-drop-line', label: t('blood_type'), value: ben.blood_type, color: '#EF4444' },
     (ben.height_cm || ben.weight_kg) && { icon: 'ri-ruler-line', label: 'Morphologie', value: [ben.height_cm && `${ben.height_cm} cm`, ben.weight_kg && `${ben.weight_kg} kg`].filter(Boolean).join(' - ') },
-    ben.medical_conditions && { icon: 'ri-heart-pulse-line', label: 'Pathologies', value: ben.medical_conditions, color: '#F59E0B', highlight: true },
-    ben.allergies && { icon: 'ri-alarm-warning-line', label: 'Allergies', value: ben.allergies, color: '#EF4444', highlight: true },
+    ben.medical_conditions && { icon: 'ri-heart-pulse-line', label: t('pathologies'), value: ben.medical_conditions, color: '#F59E0B', highlight: true },
+    ben.allergies && { icon: 'ri-alarm-warning-line', label: t('allergies_label'), value: ben.allergies, color: '#EF4444', highlight: true },
     ben.doctor_name && { icon: 'ri-stethoscope-line', label: 'Médecin traitant', value: ben.doctor_name + (ben.doctor_phone ? ` — ${ben.doctor_phone}` : ''), phone: ben.doctor_phone },
     ben.emergency_contact_name && { icon: 'ri-shield-user-line', label: 'Contact d\'urgence', value: ben.emergency_contact_name + (ben.emergency_contact_phone ? ` — ${ben.emergency_contact_phone}` : ''), phone: ben.emergency_contact_phone },
-    ben.address && { icon: 'ri-map-pin-line', label: 'Adresse', value: ben.address },
+    ben.address && { icon: 'ri-map-pin-line', label: t('address'), value: ben.address },
   ].filter(Boolean) as any[];
 
   return (
@@ -593,7 +593,7 @@ function BeneficiaireCard({ ben }: { ben: any }) {
 function InterventionCard({ iv, hasAssigned, alert, onOpenPopup }: { iv: any; hasAssigned: boolean; alert: any; onOpenPopup: () => void }) {
   const structure = iv.structure_name || iv.company_name || alert.intervener_info?.structure;
   const displayName = hasAssigned ? (iv.assigned_name || iv.intervenant_profile?.name || 'Intervenant') : (structure || 'Intervention Care');
-  const statusLabel = iv.status === 'completed' ? 'Terminee' : iv.status === 'in_progress' ? 'En cours' : iv.status === 'en_route' ? 'En route' : iv.status === 'pending_acceptance' ? 'En attente d\'acceptation' : iv.status || '';
+  const statusLabel = iv.status === 'completed' ? 'Terminee' : iv.status === 'in_progress' ? t('in_progress') : iv.status === 'en_route' ? 'En route' : iv.status === 'pending_acceptance' ? 'En attente d\'acceptation' : iv.status || '';
 
   return (
     <div onClick={hasAssigned ? onOpenPopup : undefined} data-testid="intervention-card" style={{ padding: '14px 16px', borderRadius: 20, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', marginBottom: 10, cursor: hasAssigned ? 'pointer' : 'default' } as any}>
@@ -1099,7 +1099,7 @@ export default function AlertsScreen() {
                     </div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '4px 10px', borderRadius: 999, background: isActive ? 'rgba(239,68,68,0.25)' : 'rgba(16,185,129,0.25)', flexShrink: 0 } as any}>
                       <span style={{ width: 6, height: 6, borderRadius: 3, background: isActive ? '#EF4444' : '#10B981' } as any} />
-                      <span style={{ fontSize: 10, fontWeight: 600, color: '#FFF' }}>{isActive ? 'Alerte active' : 'Resolue'}</span>
+                      <span style={{ fontSize: 10, fontWeight: 600, color: '#FFF' }}>{isActive ? 'Alerte active' : t('resolved')}</span>
                     </div>
                   </div>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: (isActive && (hasIntervention && hasAssignedIntervenant)) ? 12 : ((isActive && r === 'guardian' && !hasAssignedIntervenant) ? 12 : 0) } as any}>

@@ -1,3 +1,4 @@
+import { useI18n } from '../context/I18nContext';
 import { Icon } from './WebIcon';
 import React, { useState, useEffect, useRef } from 'react';
 import { View, Text, TouchableOpacity, Modal, ScrollView, Platform, TextInput, Animated, Dimensions } from 'react-native';
@@ -9,6 +10,7 @@ const { width: SCREEN_W } = Dimensions.get('window');
 
 /* ===== HELP BUBBLE - "?" button that shows contextual help ===== */
 export function HelpBubble({ id, title, description, steps }: { id: string; title: string; description: string; steps?: string[] }) {
+  const { t } = useI18n();
   const [show, setShow] = useState(false);
   return (
     <>
@@ -162,7 +164,7 @@ export function HelpCenter({ visible, onClose, role }: { visible: boolean; onClo
 
   const tabs = [
     { id: 'general', label: 'General', data: FAQ_GENERAL },
-    ...(role === 'guardian' ? [{ id: 'guardian', label: 'Gardien', data: FAQ_GUARDIAN }] : []),
+    ...(role === 'guardian' ? [{ id: 'guardian', label: t('guardian'), data: FAQ_GUARDIAN }] : []),
     ...(role === 'beneficiary' || !role ? [{ id: 'beneficiary', label: 'Bénéficiaire', data: FAQ_BENEFICIARY }] : []),
     ...(role === 'prescriber_company' || role === 'admin' ? [{ id: 'saad', label: 'SAAD', data: FAQ_SAAD }] : []),
   ];

@@ -42,7 +42,7 @@ export default function AdminDevices({ data, token, mob }: any) {
                       <i className="ri-heart-pulse-line" style={{ fontSize: 20, color: d.connected ? '#10B981' : '#CBD5E1' }} />
                     </div>
                     <div style={{ flex: 1, minWidth: 0 } as any}>
-                      <div style={{ fontSize: 13, fontWeight: 700, color: '#1E293B' }}>{d.name || 'Bracelet'}</div>
+                      <div style={{ fontSize: 13, fontWeight: 700, color: '#1E293B' }}>{d.name || t('bracelet')}</div>
                       <div style={{ fontSize: 11, color: '#64748B', marginTop: 2 }}>{d.user_name} · {d.user_phone}</div>
                     </div>
                     <div style={{ textAlign: 'right', flexShrink: 0 } as any}>
@@ -69,7 +69,7 @@ export default function AdminDevices({ data, token, mob }: any) {
                       <i className="ri-scales-3-line" style={{ fontSize: 20, color: d.connected ? '#10B981' : '#CBD5E1' }} />
                     </div>
                     <div style={{ flex: 1, minWidth: 0 } as any}>
-                      <div style={{ fontSize: 13, fontWeight: 700, color: '#1E293B' }}>{d.name || 'Balance'}</div>
+                      <div style={{ fontSize: 13, fontWeight: 700, color: '#1E293B' }}>{d.name || t('scale')}</div>
                       <div style={{ fontSize: 11, color: '#64748B', marginTop: 2 }}>{d.user_name} · {d.user_phone}</div>
                     </div>
                     <div style={{ textAlign: 'right', flexShrink: 0 } as any}>

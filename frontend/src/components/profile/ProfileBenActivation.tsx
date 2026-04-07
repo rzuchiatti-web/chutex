@@ -131,7 +131,7 @@ export function ProfileBenActivation({ show, onClose, user, apiFetch, token, ref
               }) }, token);
               await apiFetch('/api/auth/switch-role', { method: 'POST', body: JSON.stringify({ role: 'beneficiary' }) }, token);
               await refreshUser(); handleClose();
-            } catch (e: any) { setBenError(e.message || 'Erreur'); } finally { setBenSaving(false); }
+            } catch (e: any) { setBenError(e.message || t('error')); } finally { setBenSaving(false); }
           }} style={{ padding: '17px', borderRadius: 999, background: benSaving ? 'rgba(255,255,255,0.2)' : '#FFF', color: benSaving ? 'rgba(0,0,0,0.4)' : '#111', cursor: benSaving ? 'wait' : 'pointer', textAlign: 'center', fontSize: 16, fontWeight: 800, opacity: benSaving ? 0.5 : 1, boxShadow: '0 4px 14px rgba(255,255,255,0.15)' } as any}>{benSaving ? 'Activation...' : 'Activer mon espace bénéficiaire'}</div>
         </>)}
       </div>

@@ -268,7 +268,7 @@ export default function ProExerciseDétailPage() {
                     </div>
                     <div style={{ display: 'flex', gap: 8, padding: '10px 12px', borderTop: '1px solid #E5E7EB' } as any}>
                       <div onClick={() => { setEditing(false); initParams(ex); }} style={{ flex: 1, padding: '10px', borderRadius: 10, background: '#E5E7EB', textAlign: 'center', cursor: 'pointer', fontSize: 12, fontWeight: 700, color: '#6B7280' } as any}>{t('cancel')}</div>
-                      <div data-testid="save-params-btn" onClick={saveParams} style={{ flex: 1, padding: '10px', borderRadius: 10, background: accent, textAlign: 'center', cursor: 'pointer', fontSize: 12, fontWeight: 800, color: '#FFF', opacity: savingParams ? 0.5 : 1 } as any}>{savingParams ? '...' : 'Enregistrér'}</div>
+                      <div data-testid="save-params-btn" onClick={saveParams} style={{ flex: 1, padding: '10px', borderRadius: 10, background: accent, textAlign: 'center', cursor: 'pointer', fontSize: 12, fontWeight: 800, color: '#FFF', opacity: savingParams ? 0.5 : 1 } as any}>{savingParams ? '...' : t('save')}</div>
                     </div>
                   </>
                 ) : (

@@ -211,7 +211,7 @@ export default function CorrelationsCard() {
         <div data-testid="correlations-toggle" onClick={() => setExpanded(!expanded)}
           style={{ padding: '8px 16px', background: 'rgba(0,0,0,0.15)', textAlign: 'right', cursor: 'pointer' } as any}>
           <span style={{ fontSize: 9, fontWeight: 700, color: 'rgba(255,255,255,0.35)' }}>
-            {expanded ? 'Voir moins' : `${correlations.length - 4} autres liens`}{' '}
+            {expanded ? t('see_less') : `${correlations.length - 4} autres liens`}{' '}
             <i className={expanded ? 'ri-arrow-up-s-line' : 'ri-arrow-right-s-line'} style={{ fontSize: 10 }} />
           </span>
         </div>

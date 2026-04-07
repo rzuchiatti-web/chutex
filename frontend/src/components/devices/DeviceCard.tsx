@@ -29,7 +29,7 @@ export function DeviceCard({ deviceType: dt, device, subscription, weighings, to
 
   const statusLabel = dt === 'vest'
     ? (vestActive ? 'En marche' : isAssociated ? 'En veille' : '')
-    : (realConnected ? 'Connecte' : isAssociated ? 'En veille' : '');
+    : (realConnected ? t('connected') : isAssociated ? 'En veille' : '');
   const statusActive = dt === 'vest' ? vestActive : realConnected;
 
   return (

@@ -167,7 +167,7 @@ export default function ProgramsTab() {
                       <img src={img} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' } as any} />
                       <div style={{ position: 'absolute', inset: 0, background: `linear-gradient(180deg, transparent 30%, ${gradEnd} 80%, ${gradFull} 100%)` } as any} />
                       <div style={{ position: 'absolute', top: 12, left: 12, padding: '5px 12px', borderRadius: 999, background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)', border: '1px solid rgba(255,255,255,0.1)', fontSize: 10, fontWeight: 700, color: p.color || '#A78BFA', textTransform: 'uppercase', letterSpacing: 0.5 } as any}>
-                        <i className={p.icon} style={{ fontSize: 11, marginRight: 5 }} />{p.category || 'Sante'}
+                        <i className={p.icon} style={{ fontSize: 11, marginRight: 5 }} />{p.category || t('health')}
                       </div>
                       <div style={{ position: 'absolute', top: 12, right: 12, padding: '5px 10px', borderRadius: 999, background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)', border: '1px solid rgba(255,255,255,0.1)', fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.6)' } as any}>
                         {p.duration_days}j

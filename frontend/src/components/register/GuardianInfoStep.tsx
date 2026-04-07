@@ -24,7 +24,7 @@ export default function GuardianInfoStep({ form, u }: { form: RegisterForm; u: U
       <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 18 } as any}>
         {[
           { key: 'alert_sms', label: 'SMS', desc: 'Recevez un SMS pour chaque alerte critique' },
-          { key: 'alert_email', label: 'Email', desc: 'Recevez un email pour les rapports et alertes' },
+          { key: 'alert_email', label: t('email_label'), desc: 'Recevez un email pour les rapports et alertes' },
         ].map(opt => (
           <div key={opt.key} onClick={() => u(opt.key, !(form as any)[opt.key])} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '14px 16px', borderRadius: 14, background: (form as any)[opt.key] ? 'rgba(255,255,255,0.08)' : 'rgba(255,255,255,0.03)', border: `1px solid ${(form as any)[opt.key] ? 'rgba(255,255,255,0.2)' : 'rgba(255,255,255,0.06)'}`, cursor: 'pointer' } as any}>
             <div style={{ width: 22, height: 22, borderRadius: 6, background: (form as any)[opt.key] ? '#10B981' : 'rgba(255,255,255,0.06)', border: `1px solid ${(form as any)[opt.key] ? '#10B981' : 'rgba(255,255,255,0.15)'}`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}>

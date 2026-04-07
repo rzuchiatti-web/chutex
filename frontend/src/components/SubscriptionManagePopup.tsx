@@ -1,3 +1,4 @@
+import { useI18n } from '../context/I18nContext';
 import React, { useState, useEffect, useCallback } from 'react';
 import { Platform } from 'react-native';
 import { useRouter } from 'expo-router';
@@ -16,6 +17,7 @@ interface Props {
 }
 
 export default function SubscriptionManagePopup({ show, onClose, subData, onRefresh }: Props) {
+  const { t } = useI18n();
   const { token, user } = useAuth();
   const router = useRouter();
   const [tab, setTab] = useState<string>('info');
@@ -120,7 +122,7 @@ export default function SubscriptionManagePopup({ show, onClose, subData, onRefr
   // Care = 3 tabs: Abonnement (combines info+contract+payment), Logement, Gardiens
   // Standard = no tabs, flat display
   const tabs = isCare
-    ? [{ key: 'info', label: 'Abonnement', icon: 'ri-shield-star-line' }, { key: 'housing', label: 'Logement', icon: 'ri-home-4-line' }, { key: 'guardians', label: 'Gardiens', icon: 'ri-group-line' }]
+    ? [{ key: 'info', label: t('subscription'), icon: 'ri-shield-star-line' }, { key: 'housing', label: 'Logement', icon: 'ri-home-4-line' }, { key: 'guardians', label: 'Gardiens', icon: 'ri-group-line' }]
     : [];
 
   const glass = { backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' };
@@ -185,7 +187,7 @@ export default function SubscriptionManagePopup({ show, onClose, subData, onRefr
                 { icon: 'ri-shield-check-line', label: 'Formule', value: planLabel },
                 { icon: 'ri-money-euro-circle-line', label: 'Mensualite', value: `${price.toFixed(2).replace('.', ',')} EUR/mois${priceCredit ? ` (${priceCredit.toFixed(2).replace('.', ',')} EUR après credit d'impot)` : ''}` },
                 ct.contract_number && { icon: 'ri-file-text-line', label: 'N° contrat', value: ct.contract_number },
-                sub?.beneficiary_phone && { icon: 'ri-phone-line', label: 'Telephone', value: sub.beneficiary_phone },
+                sub?.beneficiary_phone && { icon: 'ri-phone-line', label: t('phone_label'), value: sub.beneficiary_phone },
                 (subData?.start_date || sub?.created_at) && { icon: 'ri-calendar-line', label: 'Souscrit le', value: new Date(subData.start_date || sub.created_at).toLocaleDateString('fr-FR', { day: '2-digit', month: 'long', year: 'numeric' }) },
                 subData?.source && { icon: 'ri-information-line', label: 'Source', value: subData.source === 'shopify' ? 'Achat en ligne (Shopify)' : subData.source === 'website_contract' ? 'Souscription en ligne' : subData.source === 'manual' ? 'Activation manuelle' : subData.source },
               ].filter(Boolean);
@@ -322,7 +324,7 @@ export default function SubscriptionManagePopup({ show, onClose, subData, onRefr
                   </div>
                   <div style={{ display: 'flex', gap: 10 } as any}>
                     <div onClick={() => setShowCancel(false)} style={{ flex: 1, padding: '12px', borderRadius: 999, background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.15)', cursor: 'pointer', textAlign: 'center', fontSize: 13, fontWeight: 700, color: '#FFF' } as any}>Annuler</div>
-                    <div data-testid="confirm-cancel-btn" onClick={cancelSub} style={{ flex: 1, padding: '12px', borderRadius: 999, background: '#EF4444', cursor: 'pointer', textAlign: 'center', fontSize: 13, fontWeight: 700, color: '#FFF' } as any}>{cancelling ? 'Resiliation...' : 'Confirmer'}</div>
+                    <div data-testid="confirm-cancel-btn" onClick={cancelSub} style={{ flex: 1, padding: '12px', borderRadius: 999, background: '#EF4444', cursor: 'pointer', textAlign: 'center', fontSize: 13, fontWeight: 700, color: '#FFF' } as any}>{cancelling ? 'Resiliation...' : t('confirm')}</div>
                   </div>
                 </div>
               )}
@@ -335,9 +337,9 @@ export default function SubscriptionManagePopup({ show, onClose, subData, onRefr
           <div>
             <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.3)', letterSpacing: 1.5, textTransform: 'uppercase', marginBottom: 14 }}>Informations logement</div>
             {[
-              { key: 'address', label: 'Adresse', placeholder: '12 rue de la Paix', icon: 'ri-map-pin-line' },
-              { key: 'postal_code', label: 'Code postal', placeholder: '75001', icon: 'ri-mail-line' },
-              { key: 'city', label: 'Ville', placeholder: 'Paris', icon: 'ri-building-line' },
+              { key: 'address', label: t('address'), placeholder: '12 rue de la Paix', icon: 'ri-map-pin-line' },
+              { key: 'postal_code', label: t('postal_code'), placeholder: '75001', icon: 'ri-mail-line' },
+              { key: 'city', label: t('city'), placeholder: 'Paris', icon: 'ri-building-line' },
               { key: 'floor', label: 'Etage', placeholder: '3eme etage', icon: 'ri-stairs-line' },
               { key: 'digicode', label: 'Digicode', placeholder: 'A1234', icon: 'ri-lock-password-line' },
               { key: 'interphone', label: 'Interphone', placeholder: 'Martin', icon: 'ri-door-lock-line' },
@@ -377,7 +379,7 @@ export default function SubscriptionManagePopup({ show, onClose, subData, onRefr
 
             {/* Save */}
             <div data-testid="save-housing-btn" onClick={saveHousing} style={{ marginTop: 16, padding: '14px', borderRadius: 999, background: saved ? 'rgba(16,185,129,0.15)' : '#FFF', border: saved ? '1px solid rgba(16,185,129,0.3)' : 'none', cursor: 'pointer', textAlign: 'center', fontSize: 14, fontWeight: 700, color: saved ? '#10B981' : '#111', transition: 'all 0.3s' } as any}>
-              {saving ? 'Enregistrément...' : saved ? 'Enregistré !' : 'Enregistrér'}
+              {saving ? 'Enregistrément...' : saved ? 'Enregistré !' : t('save')}
             </div>
           </div>
         )}
@@ -408,7 +410,7 @@ export default function SubscriptionManagePopup({ show, onClose, subData, onRefr
                     <div style={{ width: 32, height: 32, borderRadius: 999, background: 'rgba(245,158,11,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}><i className="ri-time-line" style={{ fontSize: 14, color: '#F59E0B' }} /></div>
                     <div style={{ flex: 1 } as any}>
                       <div style={{ fontSize: 14, fontWeight: 700, color: '#FFF' }}>{cg.first_name} {cg.last_name}</div>
-                      <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)' }}>{cg.phone} · {cg.relationship || 'Gardien'}</div>
+                      <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)' }}>{cg.phone} · {cg.relationship || t('guardian')}</div>
                     </div>
                     <div style={{ padding: '4px 10px', borderRadius: 999, background: 'rgba(245,158,11,0.12)', border: '1px solid rgba(245,158,11,0.25)', fontSize: 9, fontWeight: 700, color: '#F59E0B' }}>En attente</div>
                   </div>

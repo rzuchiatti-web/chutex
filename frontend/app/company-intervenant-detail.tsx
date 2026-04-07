@@ -37,15 +37,15 @@ export default function CompanyIntervenantDétailScreen() {
   const totalCount = data.total_interventions || interventions.length;
 
   const profileRows = [
-    p.phone && { icon: 'ri-phone-line', label: 'Telephone', value: p.phone, phone: true },
-    p.email && { icon: 'ri-mail-line', label: 'Email', value: p.email },
+    p.phone && { icon: 'ri-phone-line', label: t('phone_label'), value: p.phone, phone: true },
+    p.email && { icon: 'ri-mail-line', label: t('email_label'), value: p.email },
     p.profession && { icon: 'ri-stethoscope-line', label: 'Profession', value: p.profession },
-    p.structure_name && { icon: 'ri-building-line', label: 'Structure', value: p.structure_name },
-    p.address && { icon: 'ri-map-pin-line', label: 'Adresse', value: p.address },
+    p.structure_name && { icon: 'ri-building-line', label: t('structure'), value: p.structure_name },
+    p.address && { icon: 'ri-map-pin-line', label: t('address'), value: p.address },
     agency?.name && { icon: 'ri-community-line', label: 'Agence', value: agency.name },
     p.intervention_radius_km && { icon: 'ri-compass-3-line', label: 'Rayon d\'intervention', value: `${p.intervention_radius_km} km` },
     p.guardian_type && { icon: 'ri-user-star-line', label: 'Type', value: p.guardian_type === 'professional' ? 'Professionnel' : 'Particulier' },
-    p.is_prescriber && { icon: 'ri-file-text-line', label: 'Prescripteur', value: 'Oui' },
+    p.is_prescriber && { icon: 'ri-file-text-line', label: t('prescriber'), value: 'Oui' },
     p.prescriber_structure && { icon: 'ri-hospital-line', label: 'Structure prescripteur', value: p.prescriber_structure },
   ].filter(Boolean);
 
@@ -97,7 +97,7 @@ export default function CompanyIntervenantDétailScreen() {
                     <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', marginTop: 2 }}>{iv.alert_message || iv.alert_type || ''}</div>
                     {iv.created_at && <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.3)', marginTop: 2 }}>{new Date(iv.created_at).toLocaleDateString('fr-FR')}</div>}
                   </div>
-                  <div style={{ padding: '4px 10px', borderRadius: 999, background: iv.status === 'completed' ? 'rgba(16,185,129,0.2)' : 'rgba(124,92,255,0.2)' } as any}><span style={{ fontSize: 10, fontWeight: 700, color: iv.status === 'completed' ? '#10B981' : '#A78BFA' }}>{iv.status === 'completed' ? 'Terminee' : 'En cours'}</span></div>
+                  <div style={{ padding: '4px 10px', borderRadius: 999, background: iv.status === 'completed' ? 'rgba(16,185,129,0.2)' : 'rgba(124,92,255,0.2)' } as any}><span style={{ fontSize: 10, fontWeight: 700, color: iv.status === 'completed' ? '#10B981' : '#A78BFA' }}>{iv.status === 'completed' ? 'Terminee' : t('in_progress')}</span></div>
                 </div>
               </div>
             ))}

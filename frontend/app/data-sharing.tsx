@@ -257,7 +257,7 @@ export default function DataSharingScreen() {
             opacity: saving ? 0.6 : 1, transition: 'opacity 0.2s',
           } as any}
         >
-          {saving ? 'Enregistrément...' : 'Enregistrér'}
+          {saving ? 'Enregistrément...' : t('save')}
         </div>
       </div>
     </div>

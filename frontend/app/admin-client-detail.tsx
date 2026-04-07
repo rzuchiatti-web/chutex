@@ -53,7 +53,7 @@ export default function AdminClientDétail() {
   const showAsBen = viewAs === 'beneficiary' || (!viewAs && u.role === 'beneficiary');
   const showAsGuard = viewAs === 'guardian' || (!viewAs && u.role === 'guardian');
   const roleColor = showAsBen ? '#4FC3F7' : '#FFD54F';
-  const roleLabel = showAsBen ? 'Bénéficiaire' : 'Gardien';
+  const roleLabel = showAsBen ? 'Bénéficiaire' : t('guardian');
 
   return (
     <View style={{ flex: 1, backgroundColor: '#FFFFFF' }}>
@@ -179,7 +179,7 @@ export default function AdminClientDétail() {
                 </View>
                 <View style={{ flex: 1 }}>
                   <Text style={{ fontSize: 14, fontWeight: '700', color: '#111827' }}>{g.name}</Text>
-                  <Text style={{ fontSize: 11, color: '#6B7280' }}>{g.relationship || g.guardian_type || 'Gardien'}{g.profession ? ` - ${g.profession}` : ''}{g.structure_name ? ` (${g.structure_name})` : ''}</Text>
+                  <Text style={{ fontSize: 11, color: '#6B7280' }}>{g.relationship || g.guardian_type || t('guardian')}{g.profession ? ` - ${g.profession}` : ''}{g.structure_name ? ` (${g.structure_name})` : ''}</Text>
                 </View>
                 <View style={{ flexDirection: 'row', gap: 4 }}>
                   {g.is_prescriber && <Badge label="Presc." color="#7B1FA2" bg="#F3E5F5" />}
@@ -254,7 +254,7 @@ export default function AdminClientDétail() {
               <View key={p.id} style={{ paddingVertical: 8, borderBottomWidth: 0.5, borderBottomColor: 'rgba(0,0,0,0.04)' }}>
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
                   <Text style={{ fontSize: 13, fontWeight: '700', color: '#111827' }}>{p.beneficiary_name}</Text>
-                  <Badge label={p.status === 'subscribed' ? 'Actif' : 'En attente'} color={p.status === 'subscribed' ? '#2E7D32' : '#FF9800'} bg={p.status === 'subscribed' ? '#E8F5E9' : '#FFF3E0'} />
+                  <Badge label={p.status === 'subscribed' ? 'Actif' : t('pending')} color={p.status === 'subscribed' ? '#2E7D32' : '#FF9800'} bg={p.status === 'subscribed' ? '#E8F5E9' : '#FFF3E0'} />
                 </View>
                 <Text style={{ fontSize: 11, color: '#6B7280', marginTop: 2 }}>{p.subscription_type} - Commission: {p.commission}EUR</Text>
               </View>
@@ -280,7 +280,7 @@ export default function AdminClientDétail() {
                     <Text style={{ fontSize: 12, fontWeight: '600', color: '#111827' }}>{a.message?.slice(0, 60)}</Text>
                     <Text style={{ fontSize: 10, color: '#6B7280' }}>{a.alert_type?.toUpperCase()} - {new Date(a.created_at).toLocaleString('fr-FR')}</Text>
                   </View>
-                  <Badge label={a.status === 'active' ? 'Active' : 'Resolue'} color={a.status === 'active' ? '#E53935' : '#4CAF50'} bg={a.status === 'active' ? '#FFEBEE' : '#E8F5E9'} />
+                  <Badge label={a.status === 'active' ? t('active') : t('resolved')} color={a.status === 'active' ? '#E53935' : '#4CAF50'} bg={a.status === 'active' ? '#FFEBEE' : '#E8F5E9'} />
                 </View>
               );
             })}

@@ -69,7 +69,7 @@ export default function AdminPrescriptionDétail() {
       <View style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 16, paddingVertical: 14 }}>
         <TouchableOpacity onPress={() => router.back()} style={{ padding: 4, marginRight: 12 }}><Icon name="chevron-back" size={24} color="#111827" /></TouchableOpacity>
         <Text style={{ flex: 1, fontSize: 18, fontWeight: '900', color: '#111827' }}>Fiche Prescription</Text>
-        <Badge label={p.status === 'subscribed' ? 'Souscrit' : 'En attente'} color={p.status === 'subscribed' ? '#2E7D32' : '#FF9800'} bg={p.status === 'subscribed' ? '#E8F5E9' : '#FFF3E0'} />
+        <Badge label={p.status === 'subscribed' ? 'Souscrit' : t('pending')} color={p.status === 'subscribed' ? '#2E7D32' : '#FF9800'} bg={p.status === 'subscribed' ? '#E8F5E9' : '#FFF3E0'} />
       </View>
       <ScrollView contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 80 }}>
         <GlassCard>

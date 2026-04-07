@@ -1,3 +1,4 @@
+import { useI18n } from '../../context/I18nContext';
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useRouter } from 'expo-router';
 import { apiFetch, BG, DAYS_FR, toLocalDateStr } from './pro/constants';
@@ -8,6 +9,7 @@ import { ProModals } from './pro/ProModals';
 import FullScreenLoader from '../FullScreenLoader';
 
 export default function ProSpace({ token, user }: { token: string; user: any }) {
+  const { t } = useI18n();
   const router = useRouter();
   const proType = user?.professional_type || '';
   const isCoach = proType === 'coach';

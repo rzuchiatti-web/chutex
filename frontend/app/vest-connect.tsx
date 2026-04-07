@@ -171,7 +171,7 @@ export default function VestConnectScreen() {
         manager.startDeviceScan(null, null, async (error: any, dev: any) => {
           if (error || !dev) return;
           const name = dev.name || dev.localName || '';
-          if (name.includes('Elder') || name.includes('AIRBAG') || name.includes('Gilet') || name.includes('Airbag')) {
+          if (name.includes('Elder') || name.includes('AIRBAG') || name.includes(t('vest')) || name.includes('Airbag')) {
             if (found) return;
             found = true;
             manager.stopDeviceScan();

@@ -1,3 +1,4 @@
+import { useI18n } from '../../../context/I18nContext';
 import React from 'react';
 import { GlassModal, ImagePicker, DaysPicker } from './GlassModal';
 import { API, INP, LBL, SEL, GBTN, MUSCLE_GROUPS, EQUIPMENT_LIST, SUPPLEMENT_TYPES, HYDRATION_TYPES, HYDRATION_CATEGORIES, INGREDIENT_LIST } from './constants';
@@ -42,6 +43,7 @@ interface ProModalsProps {
 }
 
 export function ProModals(props: ProModalsProps) {
+  const { t } = useI18n();
   const { modal, modalCtx, saving, token, AC, activeBenName, exerciseTemplates, reminderTemplates, mealTemplates } = props;
   const { exForm, setExForm, remAssignForm, setRemAssignForm, mealAssignForm, setMealAssignForm } = props;
   const { editExForm, setEditExForm, editRemForm, setEditRemForm, editMealForm, setEditMealForm } = props;

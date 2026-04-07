@@ -295,7 +295,7 @@ export function BeneficiaryHome({ token, user }: { token: string; user: any }) {
         await apiFetch('/api/auth/switch-role', { method: 'POST', body: JSON.stringify({ role: 'guardian' }) }, token);
         await refreshUser();
       } else { setShowGuardianActivation(true); setGuardianActivationStep(0); }
-    } catch (e: any) { Alert.alert('Erreur', e.message); } finally { setSwitching(false); }
+    } catch (e: any) { Alert.alert(t('error'), e.message); } finally { setSwitching(false); }
   };
 
   const handleTabSwitch = (tab: 'beneficiary' | 'guardian') => {
@@ -312,7 +312,7 @@ export function BeneficiaryHome({ token, user }: { token: string; user: any }) {
       await refreshUser();
       setShowGuardianActivation(false); setActiveTab('beneficiary');
       Alert.alert(t('guardian_activated'), t('guardian_activated_msg'));
-    } catch (e: any) { Alert.alert('Erreur', e.message); } finally { setActivatingGuardian(false); }
+    } catch (e: any) { Alert.alert(t('error'), e.message); } finally { setActivatingGuardian(false); }
   };
 
   if (loading) return Platform.OS === 'web' ? <FullScreenLoader /> : <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#F2F2F7' }}><ActivityIndicator size="large" color="#111" /></View>;
@@ -655,7 +655,7 @@ export function BeneficiaryHome({ token, user }: { token: string; user: any }) {
                     const res = await apiFetch(`/api/pro/subscriptions/${proSub.id}/accept`, { method: 'POST' }, token);
                     if (res?.checkout_url) { window.open(res.checkout_url, '_blank'); }
                     else { await apiFetch(`/api/pro/subscriptions/${proSub.id}/simulate-payment`, { method: 'POST' }, token); fetchData(); }
-                  } catch (e: any) { Alert.alert('Erreur', e.message); }
+                  } catch (e: any) { Alert.alert(t('error'), e.message); }
                 }} style={{ flex: 1, padding: '12px', borderRadius: 999, textAlign: 'center', cursor: 'pointer', background: 'rgba(212,175,55,0.12)', border: '1px solid rgba(212,175,55,0.25)', fontSize: 13, fontWeight: 800, color: '#D4AF37' } as any}>
                   Accepter · {proSub.price_ttc}€/mois
                 </div>
@@ -719,7 +719,7 @@ export function BeneficiaryHome({ token, user }: { token: string; user: any }) {
                           <div style={{ fontSize: 15, fontWeight: 700, color: C.text, marginBottom: 3 }}>{d.name}</div>
                           <div style={{ display: 'flex', alignItems: 'center', gap: 5 } as any}>
                             <span style={{ width: 6, height: 6, borderRadius: 3, background: d.connected ? '#10B981' : '#F59E0B' } as any} />
-                            <span style={{ fontSize: 10, fontWeight: 600, color: d.connected ? '#10B981' : '#F59E0B' }}>{d.connected ? 'Connecte' : 'En veille'}</span>
+                            <span style={{ fontSize: 10, fontWeight: 600, color: d.connected ? '#10B981' : '#F59E0B' }}>{d.connected ? t('connected') : 'En veille'}</span>
                           </div>
                           {d.battery > 0 && (
                             <div style={{ height: 4, borderRadius: 2, background: C.sep, overflow: 'hidden', marginTop: 6 } as any}>

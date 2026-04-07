@@ -164,7 +164,7 @@ export default function DeviceCards({ br, sc, vs, onStartWeighing, weighings = [
             <div data-testid="pairing-next" onClick={() => isLast ? launchScan() : setPairingStep(pairingStep + 1)} style={{ flex: 1, padding: '14px', borderRadius: 999, background: isLast ? `linear-gradient(135deg, ${dev.color}CC, ${dev.color})` : '#FFF', cursor: 'pointer', textAlign: 'center', fontSize: 14, fontWeight: 700, color: isLast ? '#FFF' : '#111', boxShadow: isLast ? `0 4px 20px ${dev.color}40` : 'none', transition: 'transform 0.2s' } as any}
               onMouseEnter={(e: any) => e.currentTarget.style.transform = 'translateY(-1px)'}
               onMouseLeave={(e: any) => e.currentTarget.style.transform = ''}
-            >{isLast ? "Lancer l'appairage" : 'Suivant'}</div>
+            >{isLast ? "Lancer l'appairage" : t('next')}</div>
           </div>
         </div>
       </GlassOverlay>
@@ -181,7 +181,7 @@ export default function DeviceCards({ br, sc, vs, onStartWeighing, weighings = [
             <div style={{ fontSize: 14, fontWeight: 800, color: 'var(--card-text, #111)', marginBottom: 3 }}>{d.name}</div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 5 } as any}>
               <span style={{ width: 6, height: 6, borderRadius: 3, background: d.connected ? '#10B981' : d.id === 'vest' ? '#F59E0B' : '#EF4444' } as any} />
-              <span style={{ fontSize: 10, fontWeight: 600, color: d.connected ? '#10B981' : d.id === 'vest' ? '#F59E0B' : '#EF4444' }}>{d.connected ? (d.id === 'vest' ? 'En marche' : 'Connecte') : (d.id === 'vest' ? 'En veille' : 'Deconnecte')}</span>
+              <span style={{ fontSize: 10, fontWeight: 600, color: d.connected ? '#10B981' : d.id === 'vest' ? '#F59E0B' : '#EF4444' }}>{d.connected ? (d.id === 'vest' ? 'En marche' : t('connected')) : (d.id === 'vest' ? 'En veille' : t('disconnected'))}</span>
             </div>
             <div style={{ height: 4, borderRadius: 2, background: 'var(--card-sep, rgba(0,0,0,0.06))', overflow: 'hidden', marginTop: 6 } as any}><div style={{ height: 4, borderRadius: 2, width: `${d.battery}%`, background: batteryGrad(d.battery) } as any} /></div>
           </div>

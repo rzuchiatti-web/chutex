@@ -499,7 +499,7 @@ export default function MetricDétailScreen() {
               {/* Stats */}
               <div data-testid="stats-row" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 8, marginBottom: 14 } as any}>
                 {[
-                  { label: 'Moyenne', value: avg, icon: 'ri-bar-chart-box-line', c: color },
+                  { label: t('month_avg'), value: avg, icon: 'ri-bar-chart-box-line', c: color },
                   { label: 'Plus bas', value: vals.length ? (mn % 1 === 0 ? mn : mn.toFixed(1)) : '--', icon: 'ri-arrow-down-line', c: '#38BDF8' },
                   { label: 'Plus haut', value: vals.length ? (mx % 1 === 0 ? mx : mx.toFixed(1)) : '--', icon: 'ri-arrow-up-line', c: '#EF4444' },
                 ].map((s, i) => (
@@ -609,7 +609,7 @@ export default function MetricDétailScreen() {
                       {typeof currentVal === 'number' && (
                         <div style={{ textAlign: 'center' } as any}>
                           <div style={{ fontSize: 11, fontWeight: 700, color: currentVal >= parseFloat(threshold?.goal || threshold?.max_val || goal?.value || '0') ? '#10B981' : '#F59E0B' }}>
-                            {currentVal >= parseFloat(threshold?.goal || threshold?.max_val || goal?.value || '0') ? 'Atteint' : 'En cours'}
+                            {currentVal >= parseFloat(threshold?.goal || threshold?.max_val || goal?.value || '0') ? 'Atteint' : t('in_progress')}
                           </div>
                           <div style={{ fontSize: 9, color: '#9CA3AF' }}>{Math.round((currentVal / parseFloat(threshold?.goal || threshold?.max_val || goal?.value || '1')) * 100)}%</div>
                         </div>
@@ -642,7 +642,7 @@ export default function MetricDétailScreen() {
                   setThEdit(true);
                   const defs: Record<string, { min: string; max: string }> = { heart_rate: { min: '50', max: '100' }, spo2: { min: '92', max: '' }, blood_pressure: { min: '90', max: '140' }, temperature: { min: '35.5', max: '38.5' }, hrv: { min: '20', max: '' } };
                   const d = defs[key || '']; if (d) { if (!thMin) setThMin(d.min); if (!thMax) setThMax(d.max); } else { if (!thMin && nMin != null) setThMin(String(nMin)); if (!thMax && nMax != null) setThMax(String(nMax)); }
-                }} style={{ padding: '6px 14px', borderRadius: 999, background: '#FFF', border: '1px solid #E5E7EB', cursor: 'pointer', fontSize: 11, fontWeight: 700, color: '#111' } as any}>{threshold?.min_val != null ? 'Modifier' : 'Configurer'}</div>}
+                }} style={{ padding: '6px 14px', borderRadius: 999, background: '#FFF', border: '1px solid #E5E7EB', cursor: 'pointer', fontSize: 11, fontWeight: 700, color: '#111' } as any}>{threshold?.min_val != null ? t('modify') : 'Configurer'}</div>}
               </div>
               <div style={{ fontSize: 12, color: '#9CA3AF', marginBottom: 12, lineHeight: 1.5 }}>Vos gardiens seront alertes si cette donnee depasse les seuils definis.</div>
               {!thEdit ? (

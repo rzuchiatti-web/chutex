@@ -23,7 +23,7 @@ export function BeneficiaryTeleconsult({ token }: { token: string }) {
       const a = questions.map(q => ({ question_id: q.id, question: q.question, answer: answers[q.id] || '' }));
       const r = await apiFetch('/api/teleconsult/submit', { method: 'POST', body: JSON.stringify({ answers: a, notes: freeText }) }, token);
       setCallInfo(r); setSubmitted(true);
-    } catch (e: any) { Alert.alert('Erreur', e.message); }
+    } catch (e: any) { Alert.alert(t('error'), e.message); }
   };
 
   if (loading) return <FullScreenLoader />;

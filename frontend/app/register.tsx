@@ -227,7 +227,7 @@ export default function RegisterScreen() {
           {step > 0 && !isVerifyStep && (
             <div style={{ marginTop: 24 } as any}>
               <div data-testid="register-next-btn" onClick={() => { if (!canNext()) return; setError(''); if (isLastStep) handleRegister(); else setStep(step + 1); }} style={{ padding: '16px', borderRadius: 999, background: canNext() ? 'rgba(255,255,255,0.12)' : 'rgba(0,0,0,0.15)', border: `1px solid ${canNext() ? 'rgba(255,255,255,0.2)' : 'rgba(255,255,255,0.06)'}`, backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', cursor: canNext() ? 'pointer' : 'not-allowed', textAlign: 'center', fontSize: 15, fontWeight: 800, color: canNext() ? '#FFF' : 'rgba(255,255,255,0.25)', opacity: submitting ? 0.6 : 1 } as any}>
-                {submitting ? 'Création en cours...' : isLastStep ? 'Créer mon compte' : 'Continuer'}
+                {submitting ? 'Création en cours...' : isLastStep ? 'Créer mon compte' : t('dorsi_continue')}
               </div>
             </div>
           )}

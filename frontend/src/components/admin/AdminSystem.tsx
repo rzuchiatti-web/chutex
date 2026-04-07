@@ -30,7 +30,7 @@ export default function AdminSystem({ actC, ivC, shop, users, alerts, token, loa
         <div>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 } as any}>
             <span style={{ fontSize: 14, fontWeight: 700, color: '#1E293B' }}>Codes d'activation ({actC.length})</span>
-            <div onClick={() => { const c = prompt('Code'); const s = prompt('Structure'); if (c && s) apiFetch('/api/admin/activation-codes', { method: 'POST', body: JSON.stringify({ code: c, structure_name: s, max_uses: 50 }) }, token).then(() => load()).catch((e: any) => alert(e.message)); }} className="adm-btn" style={{ background: '#7C3AED', color: '#FFF' }}>
+            <div onClick={() => { const c = prompt('Code'); const s = prompt(t('structure')); if (c && s) apiFetch('/api/admin/activation-codes', { method: 'POST', body: JSON.stringify({ code: c, structure_name: s, max_uses: 50 }) }, token).then(() => load()).catch((e: any) => alert(e.message)); }} className="adm-btn" style={{ background: '#7C3AED', color: '#FFF' }}>
               <i className="ri-add-line" style={{ fontSize: 14 }} />Ajouter
             </div>
           </div>
@@ -64,7 +64,7 @@ export default function AdminSystem({ actC, ivC, shop, users, alerts, token, loa
         <div>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 } as any}>
             <span style={{ fontSize: 14, fontWeight: 700, color: '#1E293B' }}>Codes intervention ({ivC.length})</span>
-            <div onClick={() => { const c = prompt('Code'); const s = prompt('Structure'); if (c && s) apiFetch('/api/admin/intervention-codes', { method: 'POST', body: JSON.stringify({ code: c, structure_name: s, default_radius_km: 30 }) }, token).then(() => load()).catch((e: any) => alert(e.message)); }} className="adm-btn" style={{ background: '#F59E0B', color: '#FFF' }}>
+            <div onClick={() => { const c = prompt('Code'); const s = prompt(t('structure')); if (c && s) apiFetch('/api/admin/intervention-codes', { method: 'POST', body: JSON.stringify({ code: c, structure_name: s, default_radius_km: 30 }) }, token).then(() => load()).catch((e: any) => alert(e.message)); }} className="adm-btn" style={{ background: '#F59E0B', color: '#FFF' }}>
               <i className="ri-add-line" style={{ fontSize: 14 }} />Ajouter
             </div>
           </div>
@@ -96,7 +96,7 @@ export default function AdminSystem({ actC, ivC, shop, users, alerts, token, loa
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' } as any}>
             <div>
               <div style={{ fontSize: 14, fontWeight: 700, color: '#1E293B', marginBottom: 4 }}>Integration Shopify</div>
-              <div style={{ fontSize: 12, color: '#64748B' }}>Statut : {shop?.connected ? 'Connecte' : 'Non configure'}</div>
+              <div style={{ fontSize: 12, color: '#64748B' }}>Statut : {shop?.connected ? t('connected') : 'Non configure'}</div>
             </div>
             <div onClick={() => apiFetch('/api/admin/shopify/sync', { method: 'POST' }, token).then(() => alert('Synchronisation OK')).catch(() => {})} className="adm-btn" style={{ background: '#10B981', color: '#FFF' }}>
               <i className="ri-refresh-line" style={{ fontSize: 14 }} />Synchroniser

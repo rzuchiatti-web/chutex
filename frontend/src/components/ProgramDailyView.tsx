@@ -1,3 +1,4 @@
+import { useI18n } from '../context/I18nContext';
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { Platform } from 'react-native';
 import ReactDOM from 'react-dom';
@@ -17,6 +18,7 @@ interface Props { token: string; onStop: () => void; }
 
 /* ── Countdown Timer Component ── */
 function CountdownTimer({ durationSec, color, icon, label, onComplete }: { durationSec: number; color: string; icon: string; label: string; onComplete: () => void }) {
+  const { t } = useI18n();
   const [remaining, setRemaining] = useState(durationSec);
   const [running, setRunning] = useState(false);
   const ref = useRef<any>(null);
@@ -191,7 +193,7 @@ function ExercisePopup({ task, steps, color, category, alreadyDone, onComplete, 
             </div>
             {!stepChoices && (
               <div onClick={advanceStep} style={{ padding: '15px', borderRadius: 16, background: `linear-gradient(135deg, ${color}45, ${color}20)`, border: `1px solid ${color}40`, textAlign: 'center', cursor: 'pointer', fontSize: 15, fontWeight: 900, color: '#FFF', boxShadow: `0 4px 20px ${color}25` } as any}>
-                {currentStep < totalSteps - 1 ? 'Suivant' : 'Terminer'}
+                {currentStep < totalSteps - 1 ? t('next') : 'Terminer'}
               </div>
             )}
           </>

@@ -88,7 +88,7 @@ export function RGPDPopup({ visible, onClose, rgpdRight, setRgpdRight, rgpdMsg, 
               const res = await apiFetch('/api/rgpd/request', { method: 'POST', body: JSON.stringify({ right_type: rgpdRight, message: rgpdMsg }) }, token);
               setRgpdRef(res.request_id || '');
               setRgpdSent(true);
-            } catch (e: any) { Alert.alert('Erreur', e.message); } finally { setRgpdSending(false); }
+            } catch (e: any) { Alert.alert(t('error'), e.message); } finally { setRgpdSending(false); }
           }} style={{ padding: '16px', borderRadius: 999, background: 'rgba(56,189,248,0.12)', border: '1px solid rgba(56,189,248,0.25)', cursor: rgpdSending ? 'wait' : 'pointer', textAlign: 'center', fontSize: 15, fontWeight: 800, color: '#38BDF8' } as any}>
             {rgpdSending ? 'Envoi en cours...' : 'Envoyer ma demande'}
           </div>

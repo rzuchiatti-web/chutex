@@ -1,3 +1,4 @@
+import { useI18n } from '../../context/I18nContext';
 import React, { useState, useEffect, useRef } from 'react';
 import { Platform } from 'react-native';
 import { useRouter } from 'expo-router';
@@ -18,6 +19,7 @@ const OVERLAY_CENTER: any = { ...OVERLAY, display: 'flex', alignItems: 'center',
 
 /* ─── NOTIFICATIONS POPUP ─── */
 export function NotificationsPopup({ show, onClose, activeAlerts, guardianRequests, predictiveAlerts, token, onRefresh }: any) {
+  const { t } = useI18n();
   const router = useRouter();
   const [processing, setProcessing] = useState<string | null>(null);
   if (!show) return null;
@@ -557,7 +559,7 @@ export function AddGuardianPopup({ show, onClose, phone, setPhone, relationship,
           )}
         </div>
         {msg && (
-          <div style={{ padding: '12px 14px', borderRadius: 12, marginBottom: 14, background: msg.startsWith('Erreur') ? 'rgba(239,68,68,0.1)' : 'rgba(16,185,129,0.1)', border: `1px solid ${msg.startsWith('Erreur') ? 'rgba(239,68,68,0.2)' : 'rgba(16,185,129,0.2)'}` } as any}>
+          <div style={{ padding: '12px 14px', borderRadius: 12, marginBottom: 14, background: msg.startsWith(t('error')) ? 'rgba(239,68,68,0.1)' : 'rgba(16,185,129,0.1)', border: `1px solid ${msg.startsWith(t('error')) ? 'rgba(239,68,68,0.2)' : 'rgba(16,185,129,0.2)'}` } as any}>
             <div style={{ fontSize: 12, color: '#FFF', lineHeight: 1.5 }}>{msg}</div>
           </div>
         )}

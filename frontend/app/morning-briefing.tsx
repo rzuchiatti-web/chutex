@@ -81,7 +81,7 @@ export default function MorningBriefingScreen() {
 
   const cards = [
     // 1. Sleep
-    { key: 'sleep', icon: 'ri-moon-clear-fill', color: '#A78BFA', title: 'Sommeil', value: `Coucher ${sleep.bedtime || '22:00'}`, detail: `Réveil ${sleep.wake_time || '07:00'} · ${sleep.sleep_need_hours || 7}h${sleep.sleep_need_minutes || 30 > 0 ? (sleep.sleep_need_minutes || 30) + 'min' : ''} recommandées`, extra: sleep.adjustments?.length > 0 ? sleep.adjustments.join(', ') : '' },
+    { key: 'sleep', icon: 'ri-moon-clear-fill', color: '#A78BFA', title: t('sleep'), value: `Coucher ${sleep.bedtime || '22:00'}`, detail: `Réveil ${sleep.wake_time || '07:00'} · ${sleep.sleep_need_hours || 7}h${sleep.sleep_need_minutes || 30 > 0 ? (sleep.sleep_need_minutes || 30) + 'min' : ''} recommandées`, extra: sleep.adjustments?.length > 0 ? sleep.adjustments.join(', ') : '' },
     // 2. Exercises
     { key: 'exercises', icon: 'ri-run-line', color: '#EF4444', title: 'Exercices', value: exTotal > 0 ? `${exDone}/${exTotal} completes` : 'Aucun exercice', detail: exTotal > 0 ? (b.exercises || []).filter((e: any) => !e.done).slice(0, 2).map((e: any) => e.title).join(', ') || 'Tout fait !' : '', extra: '' },
     // 3. Nutrition
@@ -218,7 +218,7 @@ export default function MorningBriefingScreen() {
           </div>
         ) : (
           <div style={{ padding: '14px', textAlign: 'center' } as any}>
-            <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.15)', marginBottom: 8 }}>{phase === 'loading' ? 'Chargement...' : 'Analyse en cours...'}</div>
+            <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.15)', marginBottom: 8 }}>{phase === 'loading' ? t('loading') : 'Analyse en cours...'}</div>
             <div data-testid="skip-briefing" onClick={goToDashboard} style={{ fontSize: 12, fontWeight: 600, color: 'rgba(255,255,255,0.25)', cursor: 'pointer', padding: 6 } as any}>Passer</div>
           </div>
         )}

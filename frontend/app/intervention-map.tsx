@@ -250,7 +250,7 @@ export default function InterventionMapScreen() {
               </div>
               <div style={{ display: 'flex', alignItems: 'center', gap: 12 } as any}>
                 <div style={{ width: 38, height: 38, borderRadius: 999, background: isCare ? 'linear-gradient(135deg, #7C5CFF, #A78BFA)' : 'rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}><span style={{ fontSize: 16, fontWeight: 800, color: '#FFF' }}>{iv.assigned_name.charAt(0)}</span></div>
-                <div style={{ flex: 1 } as any}><div style={{ fontSize: 14, fontWeight: 800, color: '#FFF' }}>{iv.assigned_name}</div><div style={{ fontSize: 10, color: 'rgba(255,255,255,0.4)' }}>{intervener.structure_name || (iv.intervener_type === 'guardian' ? 'Gardien' : 'Intervenant')}</div></div>
+                <div style={{ flex: 1 } as any}><div style={{ fontSize: 14, fontWeight: 800, color: '#FFF' }}>{iv.assigned_name}</div><div style={{ fontSize: 10, color: 'rgba(255,255,255,0.4)' }}>{intervener.structure_name || (iv.intervener_type === 'guardian' ? t('guardian') : 'Intervenant')}</div></div>
               </div>
             </div>
           )}

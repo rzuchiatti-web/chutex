@@ -118,7 +118,7 @@ export default function CompanyAgencyScreen() {
           <div style={{ display: 'flex', gap: 8, marginBottom: 20 } as any}>
             {[
               { val: agGuardians.length, label: 'Gardiens', icon: 'ri-shield-user-line', color: '#10B981' },
-              { val: agPrescribers.length, label: 'Prescripteurs', icon: 'ri-file-text-line', color: '#F59E0B' },
+              { val: agPrescribers.length, label: t('prescribers'), icon: 'ri-file-text-line', color: '#F59E0B' },
               { val: agIvs.length, label: 'Intervenants', icon: 'ri-user-star-line', color: '#A78BFA' },
             ].map((s, i) => (
               <div key={i} style={{ flex: 1, padding: '14px 8px', borderRadius: 16, background: '#F4F4F5', border: '1px solid rgba(0,0,0,0.06)', textAlign: 'center' } as any}>
@@ -182,7 +182,7 @@ export default function CompanyAgencyScreen() {
             <div style={{ width: 52, height: 52, borderRadius: 16, background: 'rgba(212,132,90,0.2)', border: '2px solid rgba(212,132,90,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 10px' } as any}>
               <i className="ri-building-line" style={{ fontSize: 24, color: '#D4845A' }} />
             </div>
-            <div style={{ fontSize: 22, fontWeight: 800, color: '#FFF', marginBottom: 2 }}>{u?.structure_name || u?.name || 'Structure'}</div>
+            <div style={{ fontSize: 22, fontWeight: 800, color: '#FFF', marginBottom: 2 }}>{u?.structure_name || u?.name || t('structure')}</div>
             {u?.address && <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.5)', marginBottom: 2 }}>{u.address}</div>}
             {u?.siret && <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.4)', marginBottom: 12 }}>SIRET : {u.siret}</div>}
             <div style={{ display: 'flex', gap: 8 } as any}>
@@ -373,7 +373,7 @@ export default function CompanyAgencyScreen() {
             <div style={{ display: 'flex', gap: 8, marginBottom: 16 } as any}>
               {[
                 { icon: 'ri-heart-pulse-line', val: selectedGuardian.professional_beneficiaries || 0, label: 'Bénéficiaires', color: '#10B981' },
-                { icon: 'ri-file-text-line', val: selectedGuardian.prescriptions_count || 0, label: 'Prescriptions', color: '#F59E0B' },
+                { icon: 'ri-file-text-line', val: selectedGuardian.prescriptions_count || 0, label: t('prescriptions'), color: '#F59E0B' },
               ].map((s, i) => (
                 <div key={i} style={{ flex: 1, padding: '12px 8px', borderRadius: 14, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(0,0,0,0.06)', textAlign: 'center' } as any}>
                   <i className={s.icon} style={{ fontSize: 16, color: s.color }} />
@@ -423,7 +423,7 @@ export default function CompanyAgencyScreen() {
             </div>
             <div style={{ fontSize: 10, fontWeight: 700, color: '#9CA3AF', letterSpacing: 2, textTransform: 'uppercase', marginBottom: 6 }}>Agences</div>
             <div style={{ fontSize: 22, fontWeight: 800, color: '#111', marginBottom: 20 }}>Nouvelle agence</div>
-            {[{ k: 'name', label: 'Nom de l\'agence', ph: 'Agence Lyon Centre' }, { k: 'address', label: 'Adresse', ph: '45 rue de la Part-Dieu, 69003 Lyon' }].map(({ k, label, ph }) => (
+            {[{ k: 'name', label: 'Nom de l\'agence', ph: 'Agence Lyon Centre' }, { k: 'address', label: t('address'), ph: '45 rue de la Part-Dieu, 69003 Lyon' }].map(({ k, label, ph }) => (
               <div key={k} style={{ marginBottom: 12 } as any}>
                 <div style={{ fontSize: 9, fontWeight: 700, color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 6 }}>{label}</div>
                 <input value={(agForm as any)[k]} onChange={(e: any) => setAgForm({ ...agForm, [k]: e.target.value })} placeholder={ph} style={{ width: '100%', padding: '13px 14px', borderRadius: 14, background: '#F4F4F5', border: '1px solid rgba(255,255,255,0.1)', color: '#111', fontSize: 14, fontFamily: 'inherit', boxSizing: 'border-box', outline: 'none' } as any} />

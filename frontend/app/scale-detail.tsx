@@ -479,7 +479,7 @@ export default function ScaleDétailScreen() {
               latest.obesity_level, latest.impedance,
             ].filter(v => v && v !== 0).length + 10} donnees mesurees</Text>
             {[
-              { icon: 'body-outline', label: 'Poids', value: latest.weight, unit: 'kg', color: '#111827' },
+              { icon: 'body-outline', label: t('weight'), value: latest.weight, unit: 'kg', color: '#111827' },
               { icon: 'analytics-outline', label: 'IMC', value: latest.bmi, unit: '', color: '#2196F3' },
               { icon: 'flame-outline', label: 'Masse grasse', value: latest.body_fat_pct, unit: '%', color: '#FF9800' },
               { icon: 'analytics-outline', label: 'Masse graisseuse', value: latest.fat_kg, unit: 'kg', color: '#FF9800' },
@@ -500,7 +500,7 @@ export default function ScaleDétailScreen() {
               { icon: 'fitness-outline', label: 'Contrôle muscle', value: latest.muscle_control_kg, unit: 'kg', color: '#10B981' },
               { icon: 'options-outline', label: 'Type corporel', value: latest.body_type ? bodyTypeLabel(latest.body_type) : null, unit: '', color: '#607D8B' },
               { icon: 'bar-chart-outline', label: 'Niveau d\'obesite', value: latest.obesity_level, unit: '', color: '#FF5722' },
-              { icon: 'pulse-outline', label: 'Frequence cardiaque', value: latest.heart_rate, unit: 'bpm', color: '#E53935' },
+              { icon: 'pulse-outline', label: t('heart_rate'), value: latest.heart_rate, unit: 'bpm', color: '#E53935' },
               { icon: 'flash-outline', label: 'Impedance', value: latest.impedance, unit: 'ohm', color: '#607D8B' },
             ].map((m, i) => (
               <View key={i} style={{ flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 10, borderBottomWidth: 0.5, borderBottomColor: 'rgba(0,0,0,0.04)' }}>

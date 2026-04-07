@@ -280,7 +280,7 @@ export default function HealthScreen() {
                 </div>
                 <div style={{ display: 'flex', gap: 6 } as any}>
                   {[
-                    { label: 'Poids', val: d.weight, unit: 'kg', color: '#F59E0B' },
+                    { label: t('weight'), val: d.weight, unit: 'kg', color: '#F59E0B' },
                     { label: 'Graisse', val: weighings[0]?.body_fat_pct, unit: '%', color: '#F97316' },
                     { label: 'Muscle', val: weighings[0]?.muscle_pct, unit: '%', color: '#10B981' },
                   ].map((m, i) => (
@@ -371,7 +371,7 @@ export default function HealthScreen() {
   /* ─── NATIVE FALLBACK ─── */
   const nativeVitals = vitals || { heart_rate: 0, spo2: 0, systolic: 0, diastolic: 0, temperature: 0, steps: 0 };
   const metrics = [
-    { id: 'heart_rate', label: 'Frequence cardiaque', value: nativeVitals.heart_rate, unit: 'bpm', icon: 'pulse-outline' as any, color: '#EF4444', range: '60-100' },
+    { id: 'heart_rate', label: t('heart_rate'), value: nativeVitals.heart_rate, unit: 'bpm', icon: 'pulse-outline' as any, color: '#EF4444', range: '60-100' },
     { id: 'spo2', label: 'Saturation O2', value: nativeVitals.spo2, unit: '%', icon: 'water-outline' as any, color: '#38BDF8', range: '95-100' },
     { id: 'blood_pressure', label: 'Tension arterielle', value: `${nativeVitals.systolic}/${nativeVitals.diastolic}`, unit: 'mmHg', icon: 'pulse-outline' as any, color: '#A78BFA', range: '120/80' },
     { id: 'temperature', label: 'Température', value: nativeVitals.temperature, unit: 'C', icon: 'thermometer-outline' as any, color: '#F59E0B', range: '36.5-37.5' },

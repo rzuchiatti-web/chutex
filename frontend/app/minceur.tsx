@@ -65,7 +65,7 @@ function NoraAnalysisOverlay({ text: initialText, onClose, history, current, bod
               return diff >= 6;
             }) || sorted[Math.min(sorted.length - 1, 7)];
             const metrics = [
-              { label: 'Poids', key: 'weight', unit: 'kg', color: '#F59E0B', icon: 'ri-scales-3-line' },
+              { label: t('weight'), key: 'weight', unit: 'kg', color: '#F59E0B', icon: 'ri-scales-3-line' },
               { label: 'Graisse', key: 'body_fat_pct', unit: '%', color: '#F97316', icon: 'ri-fire-line' },
               { label: 'Muscle', key: 'muscle_pct', unit: '%', color: '#10B981', icon: 'ri-body-scan-line' },
             ];
@@ -646,7 +646,7 @@ export default function MinceurPage() {
       {explainMetric && (() => {
         const explanations: Record<string, { icon: string; color: string; title: string; desc: string; ranges: { label: string; value: string; color: string }[]; tip: string }> = {
           bmi: { icon: 'ri-body-scan-line', color: P, title: 'IMC', desc: "L'Indice de Masse Corporelle met en relation votre poids et votre taille pour evaluer votre corpulence.", ranges: [{ label: 'Maigreur', value: '< 18.5', color: B }, { label: 'Normal', value: '18.5 - 25', color: G }, { label: 'Surpoids', value: '25 - 30', color: A }, { label: 'Obesite', value: '> 30', color: R }], tip: "L'IMC ne distingue pas masse grasse et masse musculaire. Un sportif muscle peut avoir un IMC élevé sans exces de graisse." },
-          weight: { icon: 'ri-scales-3-line', color: A, title: 'Poids', desc: 'Le suivi regulier du poids permet de detecter les tendances. Les variations quotidiennes sont normales (eau, repas, hormones).', ranges: [{ label: 'Perte saine', value: '0.3-0.7 kg/sem', color: G }, { label: 'Maintien', value: '+/- 0.5 kg', color: B }, { label: 'Prise', value: 'selon objectif', color: A }], tip: 'Pesez-vous toujours au meme moment, le matin a jeun, pour des mesures comparables.' },
+          weight: { icon: 'ri-scales-3-line', color: A, title: t('weight'), desc: 'Le suivi regulier du poids permet de detecter les tendances. Les variations quotidiennes sont normales (eau, repas, hormones).', ranges: [{ label: 'Perte saine', value: '0.3-0.7 kg/sem', color: G }, { label: 'Maintien', value: '+/- 0.5 kg', color: B }, { label: 'Prise', value: 'selon objectif', color: A }], tip: 'Pesez-vous toujours au meme moment, le matin a jeun, pour des mesures comparables.' },
           body_fat: { icon: 'ri-fire-line', color: '#F97316', title: 'Masse grasse', desc: 'Le pourcentage de masse grasse indique la proportion de graisse dans votre corps. Un taux equilibre est essentiel.', ranges: [{ label: 'Homme normal', value: '14-25%', color: G }, { label: 'Femme normal', value: '20-33%', color: G }, { label: 'Eleve', value: '> 30% / > 39%', color: R }], tip: "La masse grasse protege les organes et regule les hormones. Un taux trop bas est aussi risque qu'un taux trop élevé." },
           muscle: { icon: 'ri-body-scan-line', color: G, title: 'Masse musculaire', desc: 'La proportion de muscles dans votre composition corporelle. Essentielle pour le métabolisme, la mobilite et la prevention des chutes.', ranges: [{ label: 'Homme normal', value: '33-39%', color: G }, { label: 'Femme normal', value: '24-30%', color: G }, { label: 'Faible', value: '< 33% / < 24%', color: R }], tip: "La masse musculaire diminue avec l'age. L'exercice de resistance et les proteines aident a la maintenir." },
         };

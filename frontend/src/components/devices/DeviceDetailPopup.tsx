@@ -38,7 +38,7 @@ export function DeviceDétailPopup({ deviceType, device, weighings, removing, on
       {/* Info rows — ID aligned left */}
       <div style={{ padding: '4px 16px', borderRadius: 16, background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)', marginBottom: 12 } as any}>
         {[
-          ['Nom', meta.name],
+          [t('last_name'), meta.name],
           ...(device.mac_address || device.ble_device_id ? [['ID', device.mac_address || device.ble_device_id]] : []),
           ['Dernière sync.', device.last_sync ? new Date(device.last_sync).toLocaleString('fr-FR', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' }) : '--'],
         ].map(([l, v]) => (

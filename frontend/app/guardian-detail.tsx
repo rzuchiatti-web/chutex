@@ -165,7 +165,7 @@ export default function GuardianDétailScreen() {
         <i className={icon} style={{ fontSize: 18, color: masterOn ? '#10B981' : C.sub }} />
         <div style={{ flex: 1 } as any}>
           <div style={{ fontSize: 14, fontWeight: 700, color: C.text }}>{title}</div>
-          <div style={{ fontSize: 11, color: masterOn ? '#10B981' : C.sub, marginTop: 1 }}>{masterOn ? 'Active' : 'Désactivé'}</div>
+          <div style={{ fontSize: 11, color: masterOn ? '#10B981' : C.sub, marginTop: 1 }}>{masterOn ? t('active') : 'Désactivé'}</div>
         </div>
         <Toggle on={masterOn} onToggle={(e: any) => { e?.stopPropagation?.(); onMasterToggle(); }} />
         <i className={expanded ? 'ri-arrow-up-s-line' : 'ri-arrow-down-s-line'} style={{ fontSize: 18, color: C.sub, marginLeft: 4 }} />
@@ -240,11 +240,11 @@ export default function GuardianDétailScreen() {
           <div style={{ fontSize: 11, fontWeight: 700, color: C.muted, textTransform: 'uppercase', letterSpacing: 1.2, padding: '20px 0 10px' }}>Coordonnées</div>
           <div style={{ borderRadius: 16, background: C.cardGrey, border: `1px solid ${C.cardBorder}`, padding: '4px 16px', marginBottom: 4 } as any}>
             {[
-              guardian.phone && { icon: 'ri-phone-line', label: 'Telephone', value: guardian.phone, color: '#10B981' },
-              guardian.email && { icon: 'ri-mail-line', label: 'Email', value: guardian.email, color: '#38BDF8' },
-              guardian.address && { icon: 'ri-map-pin-line', label: 'Adresse', value: guardian.address, color: '#F59E0B' },
-              guardian.postal_code && { icon: 'ri-hashtag', label: 'Code postal', value: guardian.postal_code, color: '#F59E0B' },
-              guardian.city && { icon: 'ri-building-line', label: 'Ville', value: guardian.city, color: '#F59E0B' },
+              guardian.phone && { icon: 'ri-phone-line', label: t('phone_label'), value: guardian.phone, color: '#10B981' },
+              guardian.email && { icon: 'ri-mail-line', label: t('email_label'), value: guardian.email, color: '#38BDF8' },
+              guardian.address && { icon: 'ri-map-pin-line', label: t('address'), value: guardian.address, color: '#F59E0B' },
+              guardian.postal_code && { icon: 'ri-hashtag', label: t('postal_code'), value: guardian.postal_code, color: '#F59E0B' },
+              guardian.city && { icon: 'ri-building-line', label: t('city'), value: guardian.city, color: '#F59E0B' },
               guardian.country && { icon: 'ri-earth-line', label: 'Pays', value: guardian.country, color: '#F59E0B' },
             ].filter(Boolean).map((item: any, i: number, arr: any[]) => (
               <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '11px 0', borderBottom: i < arr.length - 1 ? `1px solid ${C.sep}` : 'none' } as any}>

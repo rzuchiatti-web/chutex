@@ -66,7 +66,7 @@ export default function RoleSelection({ onSelect }: { onSelect: (role: string) =
             </div>
             {[
               { title: 'Bénéficiaire', desc: 'Vous portez les dispositifs de sante (bracelet, balance) et souhaitez suivre vos constantes vitales au quotidien. Vous etes le patient ou la personne accompagnee.', who: 'Seniors, sportifs, personnes avec pathologies chroniques, toute personne soucieuse de sa sante.' },
-              { title: 'Gardien', desc: 'Vous accompagnez un bénéficiaire dans son suivi de sante. Vous recevez ses alertes, consultez ses donnees et intervenez en cas de besoin.', who: 'Famille, aidants, infirmiers, medecins, SAP/HAD, coachs sportifs, structures de soins.' },
+              { title: t('guardian'), desc: 'Vous accompagnez un bénéficiaire dans son suivi de sante. Vous recevez ses alertes, consultez ses donnees et intervenez en cas de besoin.', who: 'Famille, aidants, infirmiers, medecins, SAP/HAD, coachs sportifs, structures de soins.' },
             ].map((item, i) => (
               <div key={i} style={{ padding: '16px 0', borderTop: i > 0 ? '1px solid rgba(255,255,255,0.06)' : 'none' } as any}>
                 <div style={{ fontSize: 16, fontWeight: 800, color: '#FFF', marginBottom: 6 }}>{item.title}</div>

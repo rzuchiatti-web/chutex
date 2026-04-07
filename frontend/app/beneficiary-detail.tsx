@@ -344,9 +344,9 @@ export default function BeneficiaryDétailScreen() {
             <div style={SL}>Mes préférences</div>
             <div style={{ fontSize: 11, color: C.sub, marginBottom: 8 }}>Notifications pour {firstName}.</div>
             {[
-              { key: 'guardian_alerts_enabled', icon: 'ri-alarm-warning-line', label: 'Alertes' },
+              { key: 'guardian_alerts_enabled', icon: 'ri-alarm-warning-line', label: t('alerts_title') },
               { key: 'guardian_health_enabled', icon: 'ri-heart-pulse-line', label: 'Données de santé' },
-              { key: 'guardian_location_accepted', icon: 'ri-map-pin-line', label: 'Localisation' },
+              { key: 'guardian_location_accepted', icon: 'ri-map-pin-line', label: t('location') },
             ].map((pf, pi) => (
               <div key={pf.key} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px 0', borderBottom: pi < 2 ? `1px solid ${C.sep}` : 'none' } as any}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8 } as any}><i className={pf.icon} style={{ fontSize: 15, color: (guardianPerms as any)[pf.key] ? '#10B981' : C.muted }} /><span style={{ fontSize: 13, fontWeight: 600, color: C.text }}>{pf.label}</span></div>
@@ -355,7 +355,7 @@ export default function BeneficiaryDétailScreen() {
             ))}
             {guardianPerms.guardian_alerts_enabled && guardianPerms.alerts_enabled && (<>
               <div onClick={() => setExpandedPerm(expandedPerm === 'alerts' ? null : 'alerts')} style={{ fontSize: 11, color: C.sub, fontWeight: 600, cursor: 'pointer', padding: '8px 0', display: 'flex', alignItems: 'center', gap: 4 } as any}><i className={expandedPerm === 'alerts' ? 'ri-arrow-up-s-line' : 'ri-arrow-down-s-line'} style={{ fontSize: 14 }} />{expandedPerm === 'alerts' ? 'Masquer' : 'Personnaliser les alertes'}</div>
-              {expandedPerm === 'alerts' && <div>{Object.entries(guardianPerms.guardian_alert_types || {}).map(([k, val]: [string, any]) => { const lbl: Record<string, string> = { fall: 'Chute', heart_rate: 'Fréq. cardiaque', inactivity: 'Inactivité', sos_manual: 'SOS', temperature: 'Température', spo2: 'SpO2', blood_pressure: 'Tension', weight: 'Poids', pulse: 'Pouls' }; const bg = guardianPerms.alert_types?.[k]; return (<div key={k} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '7px 0', borderBottom: `1px solid ${C.sep}` } as any}><span style={{ flex: 1, fontSize: 12, color: bg ? C.text : C.muted, fontWeight: 500 }}>{lbl[k] || k}{!bg ? ' (non partagé)' : ''}</span><div onClick={() => { if (!bg) return; const n2 = { ...guardianPerms.guardian_alert_types, [k]: !val }; setGuardianPerms((p: any) => ({ ...p, guardian_alert_types: n2 })); apiFetch(`/api/guardian-permissions/${user?.id}/${activeBid}/guardian`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ guardian_alert_types: n2 }) }, token).catch(() => {}); }} style={{ width: 36, height: 20, borderRadius: 10, background: (val && bg) ? '#10B981' : C.toggleBg, cursor: bg ? 'pointer' : 'default', position: 'relative', transition: 'background 0.2s', opacity: bg ? 1 : 0.3 } as any}><div style={{ width: 14, height: 14, borderRadius: 7, background: '#FFF', position: 'absolute', top: 3, left: (val && bg) ? 19 : 3, transition: 'left 0.2s' } as any} /></div></div>); })}</div>}
+              {expandedPerm === 'alerts' && <div>{Object.entries(guardianPerms.guardian_alert_types || {}).map(([k, val]: [string, any]) => { const lbl: Record<string, string> = { fall: 'Chute', heart_rate: 'Fréq. cardiaque', inactivity: 'Inactivité', sos_manual: 'SOS', temperature: 'Température', spo2: 'SpO2', blood_pressure: 'Tension', weight: t('weight'), pulse: 'Pouls' }; const bg = guardianPerms.alert_types?.[k]; return (<div key={k} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '7px 0', borderBottom: `1px solid ${C.sep}` } as any}><span style={{ flex: 1, fontSize: 12, color: bg ? C.text : C.muted, fontWeight: 500 }}>{lbl[k] || k}{!bg ? ' (non partagé)' : ''}</span><div onClick={() => { if (!bg) return; const n2 = { ...guardianPerms.guardian_alert_types, [k]: !val }; setGuardianPerms((p: any) => ({ ...p, guardian_alert_types: n2 })); apiFetch(`/api/guardian-permissions/${user?.id}/${activeBid}/guardian`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ guardian_alert_types: n2 }) }, token).catch(() => {}); }} style={{ width: 36, height: 20, borderRadius: 10, background: (val && bg) ? '#10B981' : C.toggleBg, cursor: bg ? 'pointer' : 'default', position: 'relative', transition: 'background 0.2s', opacity: bg ? 1 : 0.3 } as any}><div style={{ width: 14, height: 14, borderRadius: 7, background: '#FFF', position: 'absolute', top: 3, left: (val && bg) ? 19 : 3, transition: 'left 0.2s' } as any} /></div></div>); })}</div>}
             </>)}
           </>)}
 
@@ -369,7 +369,7 @@ export default function BeneficiaryDétailScreen() {
                 style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '13px 16px', borderBottom: i < guardiansList.length - 1 ? `1px solid ${C.sep}` : 'none', cursor: 'pointer', transition: 'opacity 0.15s' } as any}
                 onMouseEnter={(e: any) => e.currentTarget.style.opacity = '0.7'} onMouseLeave={(e: any) => e.currentTarget.style.opacity = '1'}>
                 <div style={{ width: 36, height: 36, borderRadius: 10, background: isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.06)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}><span style={{ fontSize: 14, fontWeight: 700, color: C.text }}>{g.name?.charAt(0)}</span></div>
-                <div style={{ flex: 1 } as any}><div style={{ fontSize: 13, fontWeight: 600, color: C.text }}>{g.name}</div><div style={{ fontSize: 10, color: C.sub, marginTop: 1 }}>{g.relationship || g.guardian_type || 'Gardien'}{g.phone ? ` \u00b7 ${g.phone}` : ''}</div></div>
+                <div style={{ flex: 1 } as any}><div style={{ fontSize: 13, fontWeight: 600, color: C.text }}>{g.name}</div><div style={{ fontSize: 10, color: C.sub, marginTop: 1 }}>{g.relationship || g.guardian_type || t('guardian')}{g.phone ? ` \u00b7 ${g.phone}` : ''}</div></div>
                 <i className="ri-arrow-right-s-line" style={{ fontSize: 16, color: C.muted }} />
               </div>
             )) : <div data-testid="beneficiary-guardians-empty" style={{ padding: '16px', textAlign: 'center', fontSize: 12, color: C.sub }}>Aucun gardien associe</div>}
@@ -414,7 +414,7 @@ export default function BeneficiaryDétailScreen() {
 
           {/* zones list */}
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 } as any}>
-            <span data-testid="beneficiary-safezone-count" style={{ fontSize: 12, fontWeight: 600, color: C.text }}>{geoLoading ? 'Chargement...' : geoZones.length === 0 ? 'Aucune zone definie' : `${geoZones.length} zone${geoZones.length > 1 ? 's' : ''} active${geoZones.length > 1 ? 's' : ''}`}</span>
+            <span data-testid="beneficiary-safezone-count" style={{ fontSize: 12, fontWeight: 600, color: C.text }}>{geoLoading ? t('loading') : geoZones.length === 0 ? 'Aucune zone definie' : `${geoZones.length} zone${geoZones.length > 1 ? 's' : ''} active${geoZones.length > 1 ? 's' : ''}`}</span>
           </div>
 
           {geoZones.length > 0 && (
@@ -503,7 +503,7 @@ export default function BeneficiaryDétailScreen() {
             <div style={{ display: 'flex', gap: 10 } as any}>
               <div data-testid="safezone-form-cancel-btn" onClick={() => { setGeoFormOpen(false); setGeoEditingId(null); }} style={{ flex: 1, padding: '13px', borderRadius: 14, cursor: 'pointer', textAlign: 'center', border: '1px solid rgba(255,255,255,0.12)', fontSize: 14, fontWeight: 600, color: 'rgba(255,255,255,0.7)', transition: 'background 0.15s' } as any}
                 onMouseEnter={(e: any) => e.currentTarget.style.background = 'rgba(255,255,255,0.06)'} onMouseLeave={(e: any) => e.currentTarget.style.background = 'transparent'}>{t('cancel')}</div>
-              <div data-testid="safezone-form-save-btn" onClick={saveGeoForm} style={{ flex: 1, padding: '13px', borderRadius: 14, cursor: geoFormSaving ? 'wait' : 'pointer', textAlign: 'center', background: '#FFF', fontSize: 14, fontWeight: 700, color: '#111', opacity: geoFormSaving ? 0.6 : 1, transition: 'opacity 0.15s' } as any}>{geoFormSaving ? '...' : (geoEditingId ? 'Enregistrér' : 'Créer la zone')}</div>
+              <div data-testid="safezone-form-save-btn" onClick={saveGeoForm} style={{ flex: 1, padding: '13px', borderRadius: 14, cursor: geoFormSaving ? 'wait' : 'pointer', textAlign: 'center', background: '#FFF', fontSize: 14, fontWeight: 700, color: '#111', opacity: geoFormSaving ? 0.6 : 1, transition: 'opacity 0.15s' } as any}>{geoFormSaving ? '...' : (geoEditingId ? t('save') : 'Créer la zone')}</div>
             </div>
           </div>
         </div>
