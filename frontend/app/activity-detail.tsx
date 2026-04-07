@@ -2,14 +2,15 @@ import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { Platform } from 'react-native';
 import { useRouter, useFocusEffect } from 'expo-router';
 import { useAuth } from '../src/context/AuthContext';
+import { useI18n } from '../src/context/I18nContext';
 import { apiFetch, API_URL } from '../src/services/api';
 import NoraOverlay, { NoraButton } from '../src/components/dashboard/NoraOverlay';
 
 const G = '#10B981', A = '#F59E0B', B = '#38BDF8', R = '#EF4444', P = '#A78BFA', CY = '#22D3EE';
 const BG = 'https://customer-assets.emergentagent.com/job_443c9c6e-0feb-4920-a358-fe7cc1a6289b/artifacts/1lq6xl58_ChatGPT%20Image%2017%20f%C3%A9vr.%202026%2C%2008_54_55.png';
 
-const DAYS_SHORT = ['Lun','Mar','Mer','Jeu','Ven','Sam','Dim'];
-const MONTHS_FR = ['Janvier','Fevrier','Mars','Avril','Mai','Juin','Juillet','Aout','Septembre','Octobre','Novembre','Decembre'];
+// Days/months now use i18n - see component
+// Months now use i18n - see component
 const toDateStr = (d: Date) => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
 
 const EX_IMG: Record<string, string> = {
@@ -195,12 +196,12 @@ export default function ActivityDétailPage() {
     recPct = Math.max(10, Math.min(100, s));
   }
   const recCol = recPct >= 80 ? G : recPct >= 60 ? CY : recPct >= 40 ? A : R;
-  const recLabel = recPct >= 80 ? 'Optimale' : recPct >= 60 ? 'Bonne' : recPct >= 40 ? 'Modérée' : 'Faible';
+  const recLabel = recPct >= 80 ? t('optimal') : recPct >= 60 ? t('good') : recPct >= 40 ? t('moderate') : t('low');
   const recMinutes = Math.round((100 - recPct) * 14.4);
   const recH = Math.floor(recMinutes / 60);
   const recM = recMinutes % 60;
   const recTimeStr = recMinutes <= 0 ? 'Pret' : recH > 0 ? `${recH}h${recM > 0 ? String(recM).padStart(2, '0') : ''}` : `${recM}min`;
-  const vo2Label = vo2 >= 40 ? 'Excellent' : vo2 >= 30 ? 'Bon' : vo2 >= 20 ? 'Moyen' : vo2 > 0 ? 'Faible' : '--';
+  const vo2Label = vo2 >= 40 ? t('excellent') : vo2 >= 30 ? t('good_label') : vo2 >= 20 ? t('average') : vo2 > 0 ? t('low') : '--';
   const vo2Col = vo2 >= 40 ? G : vo2 >= 30 ? CY : vo2 >= 20 ? A : R;
 
   return (
@@ -215,8 +216,8 @@ export default function ActivityDétailPage() {
             <div style={{ display: 'flex', alignItems: 'center', gap: 14 } as any}>
               <div data-testid="back-button" onClick={() => router.back()} style={{ width: 44, height: 44, borderRadius: 999, background: 'rgba(255,255,255,0.12)', border: '1px solid rgba(255,255,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', flexShrink: 0 } as any}><i className="ri-arrow-left-line" style={{ fontSize: 18, color: '#FFF' }} /></div>
               <div style={{ flex: 1, textAlign: 'center' } as any}>
-                <div style={{ fontSize: 22, fontWeight: 900, color: '#FFF' }}>Activité du jour</div>
-                <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.5)', marginTop: 4 }}>Suivi de votre activité physique</div>
+                <div style={{ fontSize: 22, fontWeight: 900, color: '#FFF' }}>{t('activity_detail_title')}</div>
+                <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.5)', marginTop: 4 }}>{t('activity_detail_sub')}</div>
               </div>
               <div style={{ width: 44 } as any} />
             </div>
@@ -233,7 +234,7 @@ export default function ActivityDétailPage() {
           {!loading && (
             <>
               {/* Nora Activity Analysis */}
-              <NoraButton label="Analyse de l'activité" sublabel="Analyse par Nora de votre activité physique" onClick={() => setShowNoraActivity(true)} />
+              <NoraButton label={t('nora_activity_analysis')} sublabel={t('nora_activity_sub')} onClick={() => setShowNoraActivity(true)} />
 
               {/* ── STREAK ── */}
               {st.current_streak > 0 && <div style={{ textAlign: 'center', marginBottom: 14 } as any}><div style={{ display: 'inline-flex', alignItems: 'center', gap: 5, padding: '4px 12px', borderRadius: 999, background: 'rgba(245,158,11,0.1)' } as any}><i className="ri-fire-fill" style={{ fontSize: 11, color: A }} /><span style={{ fontSize: 11, fontWeight: 900, color: A }}>{st.current_streak}j consecutifs</span></div></div>}
@@ -471,7 +472,7 @@ export default function ActivityDétailPage() {
         </div>
       </div>
       <style dangerouslySetInnerHTML={{ __html: `@keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}@keyframes popIn{from{opacity:0;transform:scale(0.95) translateY(20px)}to{opacity:1;transform:scale(1) translateY(0)}}@keyframes slideUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}` }} />
-      {showNoraActivity && <NoraOverlay token={token} endpoint="/api/nora/page-analysis?context=activity" title="Analyse activité" subtitle="Analyse par Nora de votre activité physique" onClose={() => setShowNoraActivity(false)} />}
+      {showNoraActivity && <NoraOverlay token={token} endpoint="/api/nora/page-analysis?context=activity" title={t('nora_activity_analysis')} subtitle={t('nora_activity_sub')} onClose={() => setShowNoraActivity(false)} />}
 
       {/* ── POPUP AJOUT EXERCICE ── */}
       {showAddExercise && (
@@ -495,7 +496,7 @@ export default function ActivityDétailPage() {
               </div>
               <div>
                 <div style={{ fontSize: 15, fontWeight: 800, color: '#FFF' }}>Créer un exercice</div>
-                <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', marginTop: 2 }}>Exercice personnalisé</div>
+                <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', marginTop: 2 }}>{t('exercise_label')}</div>
               </div>
               <i className="ri-arrow-right-s-line" style={{ fontSize: 20, color: 'rgba(255,255,255,0.3)', marginLeft: 'auto' }} />
             </div>

@@ -192,6 +192,22 @@ const T: Record<string, Record<string, string>> = {
     reminder_active: 'rappel actif', reminders_active: 'rappels actifs',
     // Days abbreviations
     day_mon: 'L', day_tue: 'M', day_wed: 'Me', day_thu: 'J', day_fri: 'V', day_sat: 'S', day_sun: 'D',
+    // Activity detail page
+    activity_detail_title: 'Activité du jour', activity_detail_sub: 'Suivi de votre activité physique',
+    daily_steps_title: 'Nombre de pas', calories_title: 'Calories brûlées', distance_title: 'Distance parcourue',
+    recovery_title: 'Récupération', vo2_title: 'VO2 Max', stress_title: 'Niveau de stress',
+    excellent: 'Excellent', good_label: 'Bon', average: 'Moyen',
+    nora_activity_analysis: 'Analyse de l\'activité', nora_activity_sub: 'Analyse par Nora de votre activité physique',
+    // Health detail
+    health_detail_title: 'Ma santé', heart_health_title: 'Santé cardiaque',
+    // Minceur
+    weight_tracking: 'Suivi du poids', daily_intake: 'Apport journalier',
+    // Profile
+    my_profile: 'Mon profil', my_subscription: 'Mon abonnement',
+    // Days/Months
+    mon: 'Lun', tue: 'Mar', wed: 'Mer', thu: 'Jeu', fri: 'Ven', sat: 'Sam', sun: 'Dim',
+    jan: 'Janvier', feb: 'Février', mar: 'Mars', apr: 'Avril', may: 'Mai', jun: 'Juin',
+    jul: 'Juillet', aug: 'Août', sep: 'Septembre', oct: 'Octobre', nov: 'Novembre', dec: 'Décembre',
   },
   EN: {
     home: 'Home', health: 'Health', alerts: 'Alerts', devices: 'Devices', profile: 'Profile', programs: 'Programs',
@@ -370,6 +386,22 @@ const T: Record<string, Record<string, string>> = {
     reminder_active: 'active reminder', reminders_active: 'active reminders',
     // Days abbreviations
     day_mon: 'M', day_tue: 'T', day_wed: 'W', day_thu: 'T', day_fri: 'F', day_sat: 'S', day_sun: 'S',
+    // Activity detail page
+    activity_detail_title: 'Today\'s activity', activity_detail_sub: 'Tracking your physical activity',
+    daily_steps_title: 'Step count', calories_title: 'Calories burned', distance_title: 'Distance covered',
+    recovery_title: 'Recovery', vo2_title: 'VO2 Max', stress_title: 'Stress level',
+    excellent: 'Excellent', good_label: 'Good', average: 'Average',
+    nora_activity_analysis: 'Activity analysis', nora_activity_sub: 'Nora\'s analysis of your physical activity',
+    // Health detail
+    health_detail_title: 'My health', heart_health_title: 'Heart health',
+    // Minceur
+    weight_tracking: 'Weight tracking', daily_intake: 'Daily intake',
+    // Profile
+    my_profile: 'My profile', my_subscription: 'My subscription',
+    // Days/Months
+    mon: 'Mon', tue: 'Tue', wed: 'Wed', thu: 'Thu', fri: 'Fri', sat: 'Sat', sun: 'Sun',
+    jan: 'January', feb: 'February', mar: 'March', apr: 'April', may: 'May', jun: 'June',
+    jul: 'July', aug: 'August', sep: 'September', oct: 'October', nov: 'November', dec: 'December',
   },
   DE: {
     home: 'Start', health: 'Gesundheit', alerts: 'Alarme', devices: 'Gerate', profile: 'Profil', programs: 'Programme',

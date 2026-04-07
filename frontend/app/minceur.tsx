@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Platform } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useAuth } from '../src/context/AuthContext';
+import { useI18n } from '../src/context/I18nContext';
 import { apiFetch } from '../src/services/api';
 import NoraCard from '../src/components/shared/NoraCard';
 import { BG_IMAGES } from '../src/components/dashboard/constants';
@@ -235,6 +236,7 @@ function SwipePicker({ values, selected, onChange, unit, color }: { values: numb
 
 export default function MinceurPage() {
   const { token } = useAuth();
+  const { t } = useI18n();
   const router = useRouter();
   const params = useLocalSearchParams();
   const beneficiaryId = (params.beneficiaryId as string) || null;

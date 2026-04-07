@@ -6,17 +6,14 @@ Application de téléassistance et suivi santé connecté (bracelet Elio V8, bal
 ## Complété cette session (Avril 2026)
 
 ### Système i18n multilingue complet (7 langues)
-- ~70 clés de traduction en 7 langues: FR, EN, DE, ES, IT, PT, NL
+- ~85 clés de traduction en 7 langues: FR, EN, DE, ES, IT, PT, NL
 - Détection automatique de la locale du device via `expo-localization` (getLocales)
 - Sélecteur de langue dans le header du dashboard (7 drapeaux)
 - Composants convertis vers t():
-  - BeneficiaryHome (Nora card, notifications popup, SOS alerts)
-  - ActivityCard (Steps, Calories, Distance labels, streak)
-  - SleepCard (Sleep label, wear bracelet text)
-  - HealthSections (4 sections: Cardiology, Metabolism, Physical condition, Body composition)
-  - SleepAlarmSection (tonight sleep, bedtime, alarm, wake time)
-  - TodayExercisesSection (exercises, see activity)
-  - RemindersSection (reminders, alarms)
+  - Dashboard: BeneficiaryHome, ActivityCard, SleepCard, HealthSections
+  - Sections: SleepAlarmSection, TodayExercisesSection, RemindersSection
+  - Pages: activity-detail.tsx, health-detail.tsx, minceur.tsx
+- Clés couvrant: dashboard, santé, activité, sommeil, appareils, notifications, alertes, Nora, minceur, jours/mois
 
 ### Correction massive des accents français
 - 120+ fichiers modifiés pour les accents
@@ -30,7 +27,7 @@ Application de téléassistance et suivi santé connecté (bracelet Elio V8, bal
 - IA: OpenAI GPT-5.2 via Emergent LLM Key (Nora)
 - i18n: Centralisé dans I18nContext.tsx + expo-localization (7 langues)
 
-## Composants i18n restants (backlog)
-- activity-detail.tsx, health-detail.tsx (pages complètes)
-- profile.tsx, alerts.tsx, chat-ia.tsx
+## Backlog i18n restant
+- profile.tsx, alerts.tsx, chat-ia.tsx, beneficiary-detail.tsx
 - DeviceCards (strings internes appairage)
+- Pages admin (backoffice, admin-client-detail)

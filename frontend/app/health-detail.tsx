@@ -5,6 +5,7 @@ import NoraCard from '../src/components/shared/NoraCard';
 import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator, Platform } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useAuth } from '../src/context/AuthContext';
+import { useI18n } from '../src/context/I18nContext';
 import { apiFetch } from '../src/services/api';
 import { HorizontalCalendar } from '../src/components/dashboard/pro/ProCalendar';
 import SleepHypnogramCard from '../src/components/health/sleep/SleepHypnogramCard';
@@ -81,6 +82,7 @@ const BG_RED = 'https://customer-assets.emergentagent.com/job_443c9c6e-0feb-4920
 export default function HealthDétailScreen() {
   const params = useLocalSearchParams<{ metricId: string; beneficiaryId?: string }>();
   const { token } = useAuth();
+  const { t } = useI18n();
   const router = useRouter();
   // Expo Router useLocalSearchParams is unreliable on web — fallback to window.location.search
   const webBeneficiaryId = (() => { try { if (typeof window !== 'undefined' && window.location?.search) return new URLSearchParams(window.location.search).get('beneficiaryId') || ''; } catch {} return ''; })();
