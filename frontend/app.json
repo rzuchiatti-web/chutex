@@ -70,7 +70,8 @@
           "color": "#111827"
         }
       ],
-      "expo-local-authentication"
+      "expo-local-authentication",
+      "expo-localization"
     ],
     "experiments": {
       "typedRoutes": true
