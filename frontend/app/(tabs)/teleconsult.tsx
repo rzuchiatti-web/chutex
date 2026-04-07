@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, Platform } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useAuth } from '../../src/context/AuthContext';
+import { useI18n } from '../../src/context/I18nContext';
 import { useTheme } from '../../src/context/ThemeContext';
 import FullScreenLoader from '../../src/components/FullScreenLoader';
 import { apiFetch } from '../../src/services/api';

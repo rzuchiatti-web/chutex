@@ -6,6 +6,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { useAuth } from '../src/context/AuthContext';
+import { useI18n } from '../src/context/I18nContext';
 import { apiFetch } from '../src/services/api';
 import { Colors } from '../src/constants/colors';
 import { useTheme } from '../src/context/ThemeContext';
@@ -36,6 +37,7 @@ function parseVestData(raw: string) {
 export default function VestConnectScreen() {
   const { colors: themeColors } = useTheme();
   const { token } = useAuth();
+  const { t } = useI18n();
   const router = useRouter();
   const [bleStatus, setBleStatus] = useState<'idle'|'scanning'|'connecting'|'connected'>('idle');
   const [device, setDevice] = useState<any>(null);

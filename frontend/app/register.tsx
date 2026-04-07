@@ -4,6 +4,7 @@ import { useRouter } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { apiFetch } from '../src/services/api';
 import { useAuth } from '../src/context/AuthContext';
+import { useI18n } from '../src/context/I18nContext';
 import { RegisterForm } from '../src/components/register/RegisterUI';
 import LanguagePicker from '../src/components/LanguagePicker';
 import RoleSelection from '../src/components/register/RoleSelection';
