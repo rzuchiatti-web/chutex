@@ -445,16 +445,16 @@ export function BeneficiaryHome({ token, user }: { token: string; user: any }) {
             const hasGoal = wg && wg.target_kg;
             return (
               <div data-testid="calorie-intake-card" onClick={() => router.push('/minceur' as any)}
-                style={{ borderRadius: 18, background: '#F4F4F5', padding: 0, marginBottom: 16, overflow: 'hidden', cursor: 'pointer', transition: 'transform 0.15s' } as any}
+                style={{ borderRadius: 18, background: C.card, padding: 0, marginBottom: 16, overflow: 'hidden', cursor: 'pointer', transition: 'transform 0.15s', ...glass } as any}
                 onMouseEnter={(e: any) => { e.currentTarget.style.transform = 'translateY(-1px)'; }}
                 onMouseLeave={(e: any) => { e.currentTarget.style.transform = ''; }}>
                 <div style={{ padding: '18px 18px 14px' } as any}>
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' } as any}>
                     <div>
-                      <div style={{ fontSize: 8, fontWeight: 700, color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: 1.5 }}>Apport calorique journalier</div>
+                      <div style={{ fontSize: 8, fontWeight: 700, color: C.sub, textTransform: 'uppercase', letterSpacing: 1.5 }}>Apport calorique journalier</div>
                       <div style={{ display: 'flex', alignItems: 'baseline', gap: 4, marginTop: 4 } as any}>
-                        <span style={{ fontSize: 38, fontWeight: 900, color: '#111', lineHeight: 1, letterSpacing: -1 }}>{recs.daily_calories}</span>
-                        <span style={{ fontSize: 13, fontWeight: 600, color: '#9CA3AF' }}>kcal</span>
+                        <span style={{ fontSize: 38, fontWeight: 900, color: C.text, lineHeight: 1, letterSpacing: -1 }}>{recs.daily_calories}</span>
+                        <span style={{ fontSize: 13, fontWeight: 600, color: C.sub }}>kcal</span>
                       </div>
                     </div>
                     {recs.water_ml > 0 && (
@@ -466,10 +466,10 @@ export function BeneficiaryHome({ token, user }: { token: string; user: any }) {
                   </div>
                 </div>
                 {recs.macros && (
-                  <div style={{ display: 'flex', borderTop: '1px solid #E5E7EB' } as any}>
+                  <div style={{ display: 'flex', borderTop: `1px solid ${C.sep}` } as any}>
                     {[{ l: 'Proteines', v: recs.macros.proteines_g, c: '#10B981' }, { l: 'Glucides', v: recs.macros.glucides_g, c: '#F59E0B' }, { l: 'Lipides', v: recs.macros.lipides_g, c: '#EF4444' }].map((m, i) => (
-                      <div key={i} style={{ flex: 1, padding: '12px 8px', textAlign: 'center', borderRight: i < 2 ? '1px solid #E5E7EB' : 'none' } as any}>
-                        <div style={{ fontSize: 20, fontWeight: 900, color: '#111', lineHeight: 1 }}>{m.v}<span style={{ fontSize: 9, color: '#9CA3AF' }}>g</span></div>
+                      <div key={i} style={{ flex: 1, padding: '12px 8px', textAlign: 'center', borderRight: i < 2 ? `1px solid ${C.sep}` : 'none' } as any}>
+                        <div style={{ fontSize: 20, fontWeight: 900, color: C.text, lineHeight: 1 }}>{m.v}<span style={{ fontSize: 9, color: C.sub }}>g</span></div>
                         <div style={{ fontSize: 8, color: m.c, fontWeight: 700, marginTop: 3, textTransform: 'uppercase', letterSpacing: 0.5 }}>{m.l}</div>
                       </div>
                     ))}
