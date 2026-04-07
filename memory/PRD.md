@@ -1,34 +1,46 @@
 # Chutex Care - PRD
 
-## Completed this session
+## Problème Original
+Application de téléassistance et suivi santé connecté (bracelet Elio V8, balance Vita, gilet Elder). Pipeline BLE temps réel via bridge natif iOS. Zéro mock data.
 
-### Refonte page santé
-- HealthSections: cartes grises avec icônes (plus d'images de fond), métriques preview en bas de chaque carte
-- 4 sections: Cardiologie, Métabolisme, Condition physique, Composition corporelle
-- Chaque carte montre 3 métriques clés avec valeurs en direct
-- Support dark mode (fond transparent + borders subtiles)
+## Complété cette session (Avril 2026)
 
-### Popups explicatives
-- Activity detail: padding 70px, close button rond avec fond glass visible
-- Minceur: padding 70px, close button rond avec fond glass visible
-- Sleep explain: déjà correct (fond glass)
+### Correction massive des accents français
+- 120+ fichiers modifiés pour ajouter les accents manquants (é, è, ê, à, ô, û, ç)
+- Pages concernées : login, dashboard, santé, activité, sommeil, profil, admin, abonnements, contrats, CGU, RGPD, téléassistance, appareils, programmes, alertes, inscription
+- Correction des noms de variables accidentellement accentués (showCareDetail, AlertDetailWeb, etc.)
+- Correction de l'import TeleassistanceHome cassé par le script d'accents
 
-### Page exercice
-- Titre centré entre back button et spacer (flex row)
-- Pilules glass centrées (justify-content: center)
+### Suppression textes BLE obsolètes
+- "V6" → "Elio" dans tous les textes visibles (useBleConnection.ts, ble.ts)
+- "bouton latéral" supprimé des étapes d'appairage (DeviceCards.tsx)
+- "dissocier" confirmé absent
+- Étape corrigée : "Posez le bracelet Elio sur son socle puis retirez-le"
 
-### Bug exercise validé
-- Frontend lisait `completed_today` mais backend envoie `done_today` → corrigé
+### Amélioration historique sommeil
+- Endpoint /api/health/sleep/history étendu de 7 à 30 jours
 
-### DeviceDetailPopup refonte
-- ID aligné à gauche
-- Section "Données captées" avec FC, SpO2, Temp, Pas, Calories
-- Bouton supprimer tout en bas
-- Batterie avec gradient
+## Session précédente (complété)
+- Refonte page Santé (cartes grises HealthSections)
+- Popups avec marge 70px + boutons ronds
+- Titres exercices centrés
+- Bug done_today corrigé
+- Données corrompues an 9734 purgées
+- Pouls temps réel (badge bpm)
+- Jeux Dorsi améliorés visuellement
+- Streak Minceur (flamme)
+- Builds 134/136 TestFlight
 
-### Corrections données
-- 61 readings corrompues supprimées (timestamp 9734)
-- Daily report: 1329 pas, 38.5 kcal, 58 bpm, 98% SpO2, 36.4°C
+## En attente de vérification utilisateur
+- Page santé cartes grises
+- Popups BLE simplifiées
+- Exercice validé sur dashboard
+- Gilet Sx-sairbag connexion
+- Données sommeil (timezone/durée)
+- Contexte Nora IA avec sleep_data
 
-## Vérifiable sur preview web maintenant
-Le bracelet est connecté via TestFlight et synchronise en temps réel vers le serveur.
+## Architecture
+- Frontend: React Native / Expo (WebView iOS)
+- Backend: FastAPI + MongoDB
+- BLE: Bridge natif iOS (bleV8Bridge.ts)
+- IA: OpenAI GPT-5.2 via Emergent LLM Key (Nora)
