@@ -270,14 +270,14 @@ export default function HealthScreen() {
             <img src="https://customer-assets.emergentagent.com/job_443c9c6e-0feb-4920-a358-fe7cc1a6289b/artifacts/v5t9l2mb_ChatGPT%20Image%2017%20f%C3%A9vr.%202026%2C%2014_10_07.png" alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 } as any} />
             <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.4)', zIndex: 1 } as any} />
             <div style={{ position: 'relative', zIndex: 2 } as any}>
-              <div style={{ textAlign: 'center', paddingTop: 16 } as any}>
-                <img src="https://customer-assets.emergentagent.com/job_8afdc991-0ab2-4687-a2a5-438b9a5f0711/artifacts/dwmw2i8r_Balance_connecte_Vita_chutex.svg" alt="" style={{ width: 80, height: 80, objectFit: 'contain', display: 'block', margin: '0 auto', filter: 'drop-shadow(0 8px 20px rgba(0,0,0,0.4))' } as any} />
-              </div>
-              <div style={{ padding: '10px 16px 14px' } as any}>
-                <div style={{ textAlign: 'center', marginBottom: 10 } as any}>
+              <div style={{ padding: '16px 16px 10px', display: 'flex', alignItems: 'center', gap: 10 } as any}>
+                <div style={{ width: 40, height: 40, borderRadius: 12, background: 'rgba(255,255,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}><i className="ri-scales-3-line" style={{ fontSize: 20, color: '#FFF' }} /></div>
+                <div>
                   <div style={{ fontSize: 15, fontWeight: 900, color: '#FFF', marginBottom: 2 }}>{t('weight_nutrition')}</div>
                   <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.4)' }}>Repas, exercices, objectif</div>
                 </div>
+              </div>
+              <div style={{ padding: '10px 16px 14px' } as any}>
                 <div style={{ display: 'flex', gap: 6 } as any}>
                   {[
                     { label: t('weight'), val: d.weight, unit: 'kg', color: '#F59E0B' },
@@ -315,7 +315,7 @@ export default function HealthScreen() {
           {/* Pesee card */}
           <div style={{ borderRadius: 18, background: cardBg, marginBottom: 14, overflow: 'hidden' } as any}>
             <div data-testid="action-weighing" onClick={() => setWeighingStep(1)} style={{ padding: '12px 16px', display: 'flex', alignItems: 'center', gap: 14, cursor: 'pointer', borderBottom: `1px solid ${sepColor}` } as any}>
-              <img src="https://customer-assets.emergentagent.com/job_8afdc991-0ab2-4687-a2a5-438b9a5f0711/artifacts/dwmw2i8r_Balance_connecte_Vita_chutex.svg" alt="Balance" style={{ height: 40, objectFit: 'contain', filter: 'drop-shadow(0 4px 12px rgba(0,0,0,0.3))', flexShrink: 0 } as any} />
+              <div style={{ width: 40, height: 40, borderRadius: 12, background: 'rgba(245,158,11,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}><i className="ri-scales-3-line" style={{ fontSize: 20, color: '#F59E0B' }} /></div>
               <div style={{ flex: 1 } as any}><div style={{ fontSize: 14, fontWeight: 800, color: textColor }}>{t('new_weighing_label')}</div><div style={{ fontSize: 10, color: subColor }}>Balance 8 electrodes</div></div>
               <div style={{ padding: '8px 14px', borderRadius: 999, background: isDark ? '#FFF' : '#1A1A2E', display: 'flex', alignItems: 'center', gap: 6 } as any}><i className="ri-scales-3-line" style={{ fontSize: 14, color: isDark ? '#111' : '#FFF' }} /><span style={{ fontSize: 11, fontWeight: 700, color: isDark ? '#111' : '#FFF' }}>Lancer</span></div>
             </div>
@@ -336,7 +336,7 @@ export default function HealthScreen() {
           {/* ECG card */}
           <div style={{ borderRadius: 18, background: cardBg, marginBottom: 14, overflow: 'hidden' } as any}>
             <div data-testid="action-ecg" onClick={() => router.push('/ecg' as any)} style={{ padding: '12px 16px', display: 'flex', alignItems: 'center', gap: 14, cursor: 'pointer', borderBottom: `1px solid ${sepColor}` } as any}>
-              <img src="https://customer-assets.emergentagent.com/job_8afdc991-0ab2-4687-a2a5-438b9a5f0711/artifacts/2fto1qw7_bracelet_sante_connecte_elio_chutex_care_teleassistance_telealarme%281%29.svg" alt="Bracelet" style={{ height: 40, objectFit: 'contain', filter: 'drop-shadow(0 4px 12px rgba(0,0,0,0.3))', flexShrink: 0 } as any} />
+              <div style={{ width: 40, height: 40, borderRadius: 12, background: 'rgba(239,68,68,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}><i className="ri-pulse-line" style={{ fontSize: 20, color: '#EF4444' }} /></div>
               <div style={{ flex: 1 } as any}><div style={{ fontSize: 14, fontWeight: 800, color: textColor }}>Realiser un ECG</div><div style={{ fontSize: 10, color: subColor }}>{t('ecg_full')}</div></div>
               <div style={{ padding: '8px 14px', borderRadius: 999, background: isDark ? '#FFF' : '#1A1A2E', display: 'flex', alignItems: 'center', gap: 6 } as any}><i className="ri-pulse-line" style={{ fontSize: 14, color: isDark ? '#111' : '#FFF' }} /><span style={{ fontSize: 11, fontWeight: 700, color: isDark ? '#111' : '#FFF' }}>Lancer</span></div>
             </div>
