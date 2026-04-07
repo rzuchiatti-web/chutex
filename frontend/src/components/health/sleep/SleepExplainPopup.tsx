@@ -1,3 +1,4 @@
+import { useI18n } from '../../../context/I18nContext';
 import React from 'react';
 
 const SLEEP_EXPLANATIONS: Record<string, { icon: string; color: string; title: string; desc: string; ranges: { label: string; value: string; color: string }[]; tip: string }> = {

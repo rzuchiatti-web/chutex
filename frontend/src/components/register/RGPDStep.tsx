@@ -1,3 +1,4 @@
+import { useI18n } from '../../context/I18nContext';
 import React from 'react';
 
 export default function RGPDStep() {

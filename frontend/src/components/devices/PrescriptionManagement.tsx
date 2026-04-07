@@ -528,7 +528,7 @@ function PrescriptionManagement({ token, user }: { token: string; user: any }) {
               </div>
               {[
                 saadLink?.company_name && { icon: 'ri-building-line', label: 'Structure SAAD', value: saadLink.company_name },
-                saadLink?.agency_name && { icon: 'ri-map-pin-line', label: 'Agence', value: saadLink.agency_name },
+                saadLink?.agency_name && { icon: 'ri-map-pin-line', label: t('agent_tab'), value: saadLink.agency_name },
                 saadLink?.commission_type && { icon: 'ri-hand-coin-line', label: 'Mode commission', value: saadLink.commission_type === 'oneshot' ? 'Commission unique' : 'Commission mensuelle' },
                 user.phone && { icon: 'ri-phone-line', label: t('phone_label'), value: user.phone, phone: true },
                 user.email && { icon: 'ri-mail-line', label: t('email_label'), value: user.email },

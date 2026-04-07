@@ -1,3 +1,4 @@
+import { useI18n } from '../../context/I18nContext';
 import { Icon } from '../WebIcon';
 import FullScreenLoader from '../FullScreenLoader';
 import React, { useState, useEffect, useCallback } from 'react';

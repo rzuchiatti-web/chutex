@@ -105,6 +105,7 @@ export const appT: Record<string, Record<string, string>> = {
     // ─── Subscription relationships ───
     rel_child: 'Fils / Fille', rel_spouse: 'Conjoint(e)', rel_sibling: 'Frere / Soeur',
     rel_parent: 'Parent', rel_friend: 'Ami(e)', rel_neighbor: 'Voisin(e)', rel_other: 'Autre',
+    'home_tab': 'Accueil', 'messages_tab': 'Messages', 'interventions_tab': 'Interventions', 'more_tab': 'Plus', 'dashboard_tab': 'Dashboard', 'calls_tab': 'Appels', 'stats_tab': 'Stats', 'agency_tab': 'Agence', 'none_label': 'Aucun', 'none_female': 'Aucune', 'anomaly_detected': 'Anomalie de sante detectee', 'mrs': 'Madame', 'mr': 'Monsieur', 'for_myself': 'Pour moi-meme', 'for_relative': 'Pour un proche', 'new_weighing_action': 'Nouvelle pesee', 'sms_sent_label': 'SMS envoye', 'withdrawn_label': 'Retire', 'refused_label': 'Refuse', 'attached_label': 'Rattache', 'son_daughter': 'Fils / Fille', 'spouse_label': 'Conjoint(e)', 'brother_sister': 'Frere / Soeur', 'friend_label': 'Ami(e)', 'neighbor_label': 'Voisin(e)', 'other_label': 'Autre', 'dog_label': 'Chien', 'cat_label': 'Chat', 'key_safe_label': 'Coffre a cles', 'pet_label': 'Animal de compagnie', 'no_pet': 'Aucun', 'sos_button_label': 'Bouton SOS', 'cardiac_monitoring': 'Suivi cardiaque en continu', 'daily_protection': 'Votre protection au quotidien', 'auto_fall_detection': 'Detection de chute automatique', 'agent_tab': 'Agence', 'confirmed_subscription': 'Souscription confirmee !', 'next_steps_label': 'Prochaines etapes',
   },
 
   EN: {
@@ -175,6 +176,7 @@ export const appT: Record<string, Record<string, string>> = {
     animal_dog: 'Dog', animal_cat: 'Cat', animal_other_animal: 'Other',
     rel_child: 'Son / Daughter', rel_spouse: 'Spouse', rel_sibling: 'Brother / Sister',
     rel_parent: 'Parent', rel_friend: 'Friend', rel_neighbor: 'Neighbor', rel_other: 'Other',
+    'home_tab': 'Home', 'messages_tab': 'Messages', 'interventions_tab': 'Interventions', 'more_tab': 'More', 'dashboard_tab': 'Dashboard', 'calls_tab': 'Calls', 'stats_tab': 'Stats', 'agency_tab': 'Agency', 'none_label': 'None', 'none_female': 'None', 'anomaly_detected': 'Health anomaly detected', 'mrs': 'Mrs', 'mr': 'Mr', 'for_myself': 'For myself', 'for_relative': 'For a loved one', 'new_weighing_action': 'New weighing', 'sms_sent_label': 'SMS sent', 'withdrawn_label': 'Withdrawn', 'refused_label': 'Refused', 'attached_label': 'Attached', 'son_daughter': 'Son / Daughter', 'spouse_label': 'Spouse', 'brother_sister': 'Brother / Sister', 'friend_label': 'Friend', 'neighbor_label': 'Neighbor', 'other_label': 'Other', 'dog_label': 'Dog', 'cat_label': 'Cat', 'key_safe_label': 'Key safe', 'pet_label': 'Pet', 'no_pet': 'None', 'sos_button_label': 'SOS Button', 'cardiac_monitoring': 'Continuous cardiac monitoring', 'daily_protection': 'Your daily protection', 'auto_fall_detection': 'Automatic fall detection', 'agent_tab': 'Agency', 'confirmed_subscription': 'Subscription confirmed!', 'next_steps_label': 'Next steps',
   },
 
   DE: {
@@ -245,6 +247,7 @@ export const appT: Record<string, Record<string, string>> = {
     animal_dog: 'Hund', animal_cat: 'Katze', animal_other_animal: 'Andere',
     rel_child: 'Sohn / Tochter', rel_spouse: 'Ehepartner(in)', rel_sibling: 'Bruder / Schwester',
     rel_parent: 'Elternteil', rel_friend: 'Freund(in)', rel_neighbor: 'Nachbar(in)', rel_other: 'Andere',
+    'home_tab': 'Start', 'messages_tab': 'Nachrichten', 'interventions_tab': 'Interventionen', 'more_tab': 'Mehr', 'dashboard_tab': 'Dashboard', 'calls_tab': 'Anrufe', 'stats_tab': 'Statistik', 'agency_tab': 'Agentur', 'none_label': 'Keine', 'none_female': 'Keine', 'anomaly_detected': 'Gesundheitsanomalie erkannt', 'mrs': 'Frau', 'mr': 'Herr', 'for_myself': 'Fur mich', 'for_relative': 'Fur einen Angehorigen', 'new_weighing_action': 'Neue Wiegung', 'sms_sent_label': 'SMS gesendet', 'withdrawn_label': 'Zuruckgezogen', 'refused_label': 'Abgelehnt', 'attached_label': 'Verbunden', 'son_daughter': 'Sohn / Tochter', 'spouse_label': 'Ehepartner(in)', 'brother_sister': 'Bruder / Schwester', 'friend_label': 'Freund(in)', 'neighbor_label': 'Nachbar(in)', 'other_label': 'Andere', 'dog_label': 'Hund', 'cat_label': 'Katze', 'key_safe_label': 'Schlusseltresor', 'pet_label': 'Haustier', 'no_pet': 'Keines', 'sos_button_label': 'SOS-Taste', 'cardiac_monitoring': 'Kontinuierliche Herzuberwachung', 'daily_protection': 'Ihr taglicher Schutz', 'auto_fall_detection': 'Automatische Sturzerkennung', 'agent_tab': 'Agentur', 'confirmed_subscription': 'Abonnement bestatigt!', 'next_steps_label': 'Nachste Schritte',
   },
 
   ES: {
@@ -314,6 +317,7 @@ export const appT: Record<string, Record<string, string>> = {
     animal_dog: 'Perro', animal_cat: 'Gato', animal_other_animal: 'Otro',
     rel_child: 'Hijo/a', rel_spouse: 'Conyuge', rel_sibling: 'Hermano/a',
     rel_parent: 'Padre/Madre', rel_friend: 'Amigo/a', rel_neighbor: 'Vecino/a', rel_other: 'Otro',
+    'home_tab': 'Inicio', 'messages_tab': 'Mensajes', 'interventions_tab': 'Intervenciones', 'more_tab': 'Mas', 'dashboard_tab': 'Panel', 'calls_tab': 'Llamadas', 'stats_tab': 'Estadisticas', 'agency_tab': 'Agencia', 'none_label': 'Ninguno', 'none_female': 'Ninguna', 'anomaly_detected': 'Anomalia de salud detectada', 'mrs': 'Senora', 'mr': 'Senor', 'for_myself': 'Para mi', 'for_relative': 'Para un familiar', 'new_weighing_action': 'Nueva pesada', 'sms_sent_label': 'SMS enviado', 'withdrawn_label': 'Retirado', 'refused_label': 'Rechazado', 'attached_label': 'Vinculado', 'son_daughter': 'Hijo/a', 'spouse_label': 'Conyuge', 'brother_sister': 'Hermano/a', 'friend_label': 'Amigo/a', 'neighbor_label': 'Vecino/a', 'other_label': 'Otro', 'dog_label': 'Perro', 'cat_label': 'Gato', 'key_safe_label': 'Caja de llaves', 'pet_label': 'Mascota', 'no_pet': 'Ninguno', 'sos_button_label': 'Boton SOS', 'cardiac_monitoring': 'Monitorizacion cardiaca continua', 'daily_protection': 'Su proteccion diaria', 'auto_fall_detection': 'Deteccion automatica de caidas', 'agent_tab': 'Agencia', 'confirmed_subscription': 'Suscripcion confirmada!', 'next_steps_label': 'Proximos pasos',
   },
 
   IT: {
@@ -383,6 +387,7 @@ export const appT: Record<string, Record<string, string>> = {
     animal_dog: 'Cane', animal_cat: 'Gatto', animal_other_animal: 'Altro',
     rel_child: 'Figlio/a', rel_spouse: 'Coniuge', rel_sibling: 'Fratello/Sorella',
     rel_parent: 'Genitore', rel_friend: 'Amico/a', rel_neighbor: 'Vicino/a', rel_other: 'Altro',
+    'home_tab': 'Home', 'messages_tab': 'Messaggi', 'interventions_tab': 'Interventi', 'more_tab': 'Altro', 'dashboard_tab': 'Dashboard', 'calls_tab': 'Chiamate', 'stats_tab': 'Statistiche', 'agency_tab': 'Agenzia', 'none_label': 'Nessuno', 'none_female': 'Nessuna', 'anomaly_detected': 'Anomalia di salute rilevata', 'mrs': 'Signora', 'mr': 'Signore', 'for_myself': 'Per me', 'for_relative': 'Per un familiare', 'new_weighing_action': 'Nuova pesata', 'sms_sent_label': 'SMS inviato', 'withdrawn_label': 'Ritirato', 'refused_label': 'Rifiutato', 'attached_label': 'Collegato', 'son_daughter': 'Figlio/a', 'spouse_label': 'Coniuge', 'brother_sister': 'Fratello/Sorella', 'friend_label': 'Amico/a', 'neighbor_label': 'Vicino/a', 'other_label': 'Altro', 'dog_label': 'Cane', 'cat_label': 'Gatto', 'key_safe_label': 'Cassetta chiavi', 'pet_label': 'Animale domestico', 'no_pet': 'Nessuno', 'sos_button_label': 'Pulsante SOS', 'cardiac_monitoring': 'Monitoraggio cardiaco continuo', 'daily_protection': 'La sua protezione quotidiana', 'auto_fall_detection': 'Rilevamento cadute automatico', 'agent_tab': 'Agenzia', 'confirmed_subscription': 'Abbonamento confermato!', 'next_steps_label': 'Prossimi passi',
   },
 
   PT: {
@@ -452,6 +457,7 @@ export const appT: Record<string, Record<string, string>> = {
     animal_dog: 'Cao', animal_cat: 'Gato', animal_other_animal: 'Outro',
     rel_child: 'Filho/a', rel_spouse: 'Conjuge', rel_sibling: 'Irmao/Irma',
     rel_parent: 'Pai/Mae', rel_friend: 'Amigo/a', rel_neighbor: 'Vizinho/a', rel_other: 'Outro',
+    'home_tab': 'Inicio', 'messages_tab': 'Mensagens', 'interventions_tab': 'Intervencoes', 'more_tab': 'Mais', 'dashboard_tab': 'Painel', 'calls_tab': 'Chamadas', 'stats_tab': 'Estatisticas', 'agency_tab': 'Agencia', 'none_label': 'Nenhum', 'none_female': 'Nenhuma', 'anomaly_detected': 'Anomalia de saude detetada', 'mrs': 'Senhora', 'mr': 'Senhor', 'for_myself': 'Para mim', 'for_relative': 'Para um familiar', 'new_weighing_action': 'Nova pesagem', 'sms_sent_label': 'SMS enviado', 'withdrawn_label': 'Retirado', 'refused_label': 'Recusado', 'attached_label': 'Vinculado', 'son_daughter': 'Filho/a', 'spouse_label': 'Conjuge', 'brother_sister': 'Irmao/Irma', 'friend_label': 'Amigo/a', 'neighbor_label': 'Vizinho/a', 'other_label': 'Outro', 'dog_label': 'Cao', 'cat_label': 'Gato', 'key_safe_label': 'Cofre de chaves', 'pet_label': 'Animal de estimacao', 'no_pet': 'Nenhum', 'sos_button_label': 'Botao SOS', 'cardiac_monitoring': 'Monitorizacao cardiaca continua', 'daily_protection': 'A sua protecao diaria', 'auto_fall_detection': 'Detecao automatica de quedas', 'agent_tab': 'Agencia', 'confirmed_subscription': 'Assinatura confirmada!', 'next_steps_label': 'Proximos passos',
   },
 
   NL: {

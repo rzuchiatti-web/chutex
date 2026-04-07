@@ -125,7 +125,7 @@ const FAQ_GENERAL = [
 
 const FAQ_BENEFICIARY = [
   { q: "Comment connecter mon bracelet ?", a: "Allez dans l'onglet Appareils, activez le Bluetooth, puis cliquez 'Rechercher et associer'. Suivez les instructions a l'ecran pour connecter votre bracelet Elio." },
-  { q: "Comment faire une pesee ?", a: "Depuis la page Sante, cliquez sur 'Nouvelle pesee'. Suivez le parcours guide : placez la balance sur un sol dur, montez pieds nus et tenez le manche. La mesure dure 15 secondes." },
+  { q: "Comment faire une pesee ?", a: "Depuis la page Sante, cliquez sur t('new_weighing_action'). Suivez le parcours guide : placez la balance sur un sol dur, montez pieds nus et tenez le manche. La mesure dure 15 secondes." },
   { q: "Comment realiser un ECG ?", a: "Depuis la page Sante, cliquez sur 'Realiser un ECG'. L'app vous guide : asseyez-vous, respirez calmement pendant 15s, placez votre doigt sur le capteur du bracelet et attendez 30 secondes." },
   { q: "Que signifient les zones de couleur sur mes donnees ?", a: "Vert = zone normale, Bleu = en dessous de la normale, Rouge = au dessus de la normale. Le marqueur rond indique votre valeur actuelle sur la barre." },
   { q: "Comment ajouter un gardien ?", a: "Sur votre dashboard, faites defiler jusqu'a la section 'Mes gardiens', puis cliquez le bouton '+'. Entrez le numéro de telephone de votre proche et choisissez le type de lien (famille ou professionnel)." },

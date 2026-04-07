@@ -12,23 +12,21 @@ Application de téléassistance et suivi santé connecté (bracelet Elio V8, bal
 
 ## Complété (Avril 2026)
 
-### Système i18n — Couverture massive (Phase 1+2+3)
-- Total: ~910 clés i18n × 7 langues = ~6370 traductions
-- 3 fichiers de traductions: I18nContext.tsx (base ~490 clés), medicalTranslations.ts (~300 clés), appTranslations.ts (~120 clés)
-- +305 remplacements bulk via script Python (labels, boutons, statuts) dans 70+ fichiers
-- Fichiers convertis manuellement: health-detail, metric-detail, glycemia-detail, alerts, health, profile, BeneficiaryHome, nora-history, subscriber-detail, activity-detail, exercise-detail
+### Système i18n — Couverture complète
+- **1352 appels t()** dans l'application
+- **~950 clés i18n × 7 langues = ~6650 traductions**
+- 3 fichiers de traductions: I18nContext.tsx (base ~490), medicalTranslations.ts (~300), appTranslations.ts (~160)
+- **463 remplacements bulk** via scripts Python dans 70+ fichiers
+- 20+ fichiers convertis manuellement (health-detail, metric-detail, glycemia-detail, alerts, health, profile, BeneficiaryHome, nora-history, subscriber-detail, activity-detail, exercise-detail, subscription, etc.)
+- useI18n ajouté à 19+ composants manquants
+- Conditions médicales (14), allergies (8), niveaux activité, textes VO2/récup, descriptions exercices, FAQ alertes, rapports clôture, features abonnement, textes contrat, labels formulaires — tous traduits
 - Détection automatique locale (expo-localization)
-- Sélecteur 7 drapeaux
-- Build compile 100%, app fonctionnelle
+- Sélecteur 7 drapeaux (FR, EN, DE, ES, IT, PT, NL)
+- Build compile 100%
 
-### Accents français + textes BLE (sessions précédentes)
-- 120+ fichiers corrigés pour les accents
-- V6 → Elio, bouton latéral supprimé
-- Historique sommeil: 7 → 30 jours
-
-## Issues connues
-- Bracelet date BCD 2017 (hardware, TIME_SYNC inefficace)
-- GlassTabBar.tsx: labels en français dur (module-level, non-translatable sans refactoring)
+### Reste (module-level, ~26 strings)
+- GlassTabBar.tsx : labels tabs (Accueil, Messages, Plus) — nécessite refactoring structurel
+- Quelques constantes module-level dans fichiers admin/company
 
 ## Backlog P2
 - Déploiement serveur TCP J2358
@@ -37,4 +35,3 @@ Application de téléassistance et suivi santé connecté (bracelet Elio V8, bal
 - Système de parrainage Gardiens
 - Flux essai gratuit 7 jours
 - Intégration test urinaire Vivoo
-- Refactoring: rendre GlassTabBar dynamique avec i18n

@@ -342,7 +342,7 @@ export default function ScaleDétailScreen() {
               <View style={{ flex: 1 }}>
                 <Text style={{ fontSize: 14, fontWeight: '800', color: '#111827' }}>Configurer le WiFi</Text>
                 <Text style={{ fontSize: 11, color: '#6B7280', marginTop: 2 }}>
-                  {isConnected ? 'Pesees automatiques sans telephone' : 'Connectez d\'abord la balance en Bluetooth'}
+                  {isConnected ? t('auto_weighing') : 'Connectez d\'abord la balance en Bluetooth'}
                 </Text>
               </View>
               <Icon name="chevron-forward" size={18} color="#9CA3AF" />

@@ -85,7 +85,7 @@ export default function ActivateBeneficiaryScreen() {
             <WebInput label="Date de naissance" val={dob} onChange={setDob} placeholder="JJ/MM/AAAA" />
             <Text style={{ fontSize: 12, fontWeight: '600', color: '#6B7280', marginBottom: 8 }}>Genre</Text>
             <View style={{ flexDirection: 'row', gap: 8, marginBottom: 18 }}>
-              {['Homme', 'Femme', 'Autre'].map(g => (
+              {['Homme', 'Femme', t('other_label')].map(g => (
                 <TouchableOpacity key={g} style={{ paddingVertical: 10, paddingHorizontal: 18, borderRadius: 9999, borderWidth: 1.5, borderColor: gender === g ? '#D97756' : '#E5E7EB', backgroundColor: gender === g ? 'rgba(217,119,86,0.08)' : '#FFFFFF' }} onPress={() => setGender(g)}>
                   <Text style={{ fontSize: 13, fontWeight: '600', color: gender === g ? '#D97756' : '#6B7280' }}>{g}</Text>
                 </TouchableOpacity>

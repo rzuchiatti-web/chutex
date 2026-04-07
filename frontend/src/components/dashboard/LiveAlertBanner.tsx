@@ -1,3 +1,4 @@
+import { useI18n } from '../../context/I18nContext';
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Platform, Linking } from 'react-native';
 import { useRouter } from 'expo-router';

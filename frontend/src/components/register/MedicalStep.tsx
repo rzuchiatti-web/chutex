@@ -1,14 +1,15 @@
+import { useI18n } from '../../context/I18nContext';
 import React from 'react';
 import { GI, INPUT_STYLE, RegisterForm, UpdateFn, CheckboxGrid, YesNoToggle } from './RegisterUI';
 
 export default function MedicalStep({ form, u, toggleArr }: { form: RegisterForm; u: UpdateFn; toggleArr: (k: string, v: string) => void }) {
   const handleConditionToggle = (c: string) => {
-    if (c === 'Aucune') u('medical_conditions', ['Aucune']);
+    if (c === t('none_female')) u('medical_conditions', [t('none_female')]);
     else toggleArr('medical_conditions', c);
   };
 
   const handleAllergyToggle = (a: string) => {
-    if (a === 'Aucune') u('allergies', ['Aucune']);
+    if (a === t('none_female')) u('allergies', [t('none_female')]);
     else toggleArr('allergies', a);
   };
 
@@ -31,7 +32,7 @@ export default function MedicalStep({ form, u, toggleArr }: { form: RegisterForm
       <div style={GLASS}>
         <div style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.6)', textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 10 }}>Pathologies / Antecedents medicaux</div>
         <CheckboxGrid
-          items={['Diabete', 'Hypertension', 'Cholesterol', 'Arthrose', 'Insuffisance cardiaque', 'AVC', 'Asthme', 'Osteoporose', 'Parkinson', 'Alzheimer', 'Depression', 'Hemophilie', 'Epilepsie', 'Aucune']}
+          items={[t('condition_diabetes'), t('condition_hypertension'), t('condition_cholesterol'), t('condition_arthrose'), 'Insuffisance cardiaque', 'AVC', t('condition_asthma'), t('condition_osteoporosis'), t('condition_parkinson'), t('condition_alzheimer'), t('condition_depression'), t('condition_hemophilia'), t('condition_epilepsy'), t('none_female')]}
           selected={form.medical_conditions}
           onToggle={handleConditionToggle}
         />
@@ -41,7 +42,7 @@ export default function MedicalStep({ form, u, toggleArr }: { form: RegisterForm
       <div style={GLASS}>
         <div style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.6)', textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 10 }}>Allergies</div>
         <CheckboxGrid
-          items={['Penicilline', 'Aspirine', 'Latex', 'Arachides', 'Gluten', 'Lactose', 'Iode', 'Aucune']}
+          items={[t('allergy_penicillin'), t('allergy_aspirin'), t('allergy_latex'), 'Arachides', t('allergy_gluten'), t('allergy_lactose'), t('allergy_iodine'), t('none_female')]}
           selected={form.allergies}
           onToggle={handleAllergyToggle}
         />

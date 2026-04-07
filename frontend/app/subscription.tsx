@@ -11,8 +11,8 @@ type Plan = { id: string; name: string; description: string; price: number; pric
 type Guardian = { first_name: string; last_name: string; phone: string; email: string; address: string; city: string; postal_code: string; within_30min: boolean; has_keys: boolean; relationship: string; is_admin_ref: boolean };
 
 const EMPTY_G: Guardian = { first_name: '', last_name: '', phone: '', email: '', address: '', city: '', postal_code: '', within_30min: false, has_keys: false, relationship: '', is_admin_ref: false };
-const RELS = ['Fils/Fille', 'Pere/Mere', 'Conjoint(e)', 'Petit-fils/Petite-fille', 'Frere/Soeur', 'Neveu/Niece', 'Ami(e)', 'Voisin(e)', 'Aide a domicile', 'Autre'];
-const ANIMALS = ['Chien', 'Chat', 'Oiseau', 'Autre'];
+const RELS = ['Fils/Fille', 'Pere/Mere', t('spouse_label'), 'Petit-fils/Petite-fille', 'Frere/Soeur', 'Neveu/Niece', t('friend_label'), t('neighbor_label'), 'Aide a domicile', t('other_label')];
+const ANIMALS = ['Chien', 'Chat', 'Oiseau', t('other_label')];
 const HOUSING_TYPES = ['Appartement', 'Maison', 'Residence senior'];
 
 /* ─── Theme ─── */
@@ -166,9 +166,9 @@ export default function SubscriptionPage() {
           <div style={{ fontSize: 14, fontWeight: 800, color: C.text, marginBottom: 14 }}>Votre protection au quotidien</div>
           {[
             { icon: '🔔', title: 'Téléassistance 24h/24, 7j/7', desc: 'Une equipe de professionnels a votre ecoute jour et nuit, prete a intervenir en cas de besoin.' },
-            { icon: '📲', title: 'Detection de chute automatique', desc: 'Le bracelet detecte les chutes et envoie une alerte meme si vous ne pouvez pas appuyer sur le bouton.' },
-            { icon: '❤️', title: 'Suivi cardiaque en continu', desc: 'Frequence cardiaque, SpO2, tension — toutes vos constantes suivies et partagees avec vos proches.' },
-            { icon: '🆘', title: 'Bouton SOS', desc: 'Un simple appui pour alerter instantanement la plateforme et vos gardiens.' },
+            { icon: '📲', title: t('auto_fall_detection'), desc: 'Le bracelet detecte les chutes et envoie une alerte meme si vous ne pouvez pas appuyer sur le bouton.' },
+            { icon: '❤️', title: t('cardiac_monitoring'), desc: 'Frequence cardiaque, SpO2, tension — toutes vos constantes suivies et partagees avec vos proches.' },
+            { icon: '🆘', title: t('sos_button_label'), desc: 'Un simple appui pour alerter instantanement la plateforme et vos gardiens.' },
             { icon: '📱', title: 'Application mobile Chutex', desc: 'Vos proches suivent votre sante en temps reel, recoivent les alertes et communiquent avec vous.' },
             { icon: '🤖', title: 'Assistant IA Nora', desc: 'Une intelligence artificielle qui analyse vos donnees et vous accompagne dans votre parcours sante.' },
           ].concat(selectedPlan === 'bracelet_gilet' ? [
@@ -189,13 +189,13 @@ export default function SubscriptionPage() {
         <div style={{ fontSize: 20, fontWeight: 800, color: C.text, marginBottom: 4 }}>{t('beneficiary')}</div>
         <div style={{ fontSize: 13, color: C.muted, marginBottom: 20 }}>Pour qui souscrivez-vous ?</div>
         <div style={{ display: 'flex', gap: 10, marginBottom: 20 }}>
-          {[{v:'self',l:'Pour moi-meme'},{v:'relative',l:'Pour un proche'}].map(o => (
+          {[{v:'self',l:t('for_myself')},{v:'relative',l:t('for_relative')}].map(o => (
             <div key={o.v} data-testid={`sub-type-${o.v}`} onClick={() => setSubType(o.v)} style={{ flex: 1, padding: 14, borderRadius: C.r, background: subType === o.v ? `${V}08` : '#FFF', border: `2px solid ${subType === o.v ? V : C.border}`, cursor: 'pointer', textAlign: 'center', fontSize: 14, fontWeight: 700, color: subType === o.v ? V : C.muted }}>{o.l}</div>
           ))}
         </div>
         {subType && (<div style={{ background: C.card, borderRadius: C.r, padding: 20 }}>
           <div style={{ fontSize: 14, fontWeight: 700, color: C.text, marginBottom: 16 }}>{subType === 'self' ? 'Vos informations' : 'Informations du beneficiaire'}</div>
-          <div style={{ display: 'flex', gap: 10, marginBottom: 16 }}>{[{v:'F',l:'Madame'},{v:'M',l:'Monsieur'}].map(g => <Chip key={g.v} on={ben.gender===g.v} onClick={() => setBen({...ben, gender:g.v})}>{g.l}</Chip>)}</div>
+          <div style={{ display: 'flex', gap: 10, marginBottom: 16 }}>{[{v:'F',l:t('mrs')},{v:'M',l:t('mr')}].map(g => <Chip key={g.v} on={ben.gender===g.v} onClick={() => setBen({...ben, gender:g.v})}>{g.l}</Chip>)}</div>
           <div style={row}><div style={{flex:1}}><label style={lbl}>{t('first_name_label')}<span style={req}>*</span></label><input data-testid="ben-first-name" value={ben.first_name} onChange={e => setBen({...ben, first_name: e.target.value})} style={inp} placeholder="Prenom" /></div><div style={{flex:1}}><label style={lbl}>Nom<span style={req}>*</span></label><input data-testid="ben-last-name" value={ben.last_name} onChange={e => setBen({...ben, last_name: e.target.value})} style={inp} placeholder="Nom" /></div></div>
           <div style={{height:12}} />
           <div style={row}><div style={{flex:1}}><label style={lbl}>{t('phone_label')}<span style={req}>*</span></label><input data-testid="ben-phone" value={ben.phone} onChange={e => setBen({...ben, phone: e.target.value})} style={inp} placeholder="06 12 34 56 78" type="tel" /></div><div style={{flex:1}}><label style={lbl}>{t('date_of_birth')}</label><input value={ben.date_of_birth} onChange={e => setBen({...ben, date_of_birth: e.target.value})} style={inp} type="date" /></div></div>

@@ -391,7 +391,7 @@ export function ProModals(props: ProModalsProps) {
                 {SUPPLEMENT_TYPES.map(t => <option key={t} value={t}>{t}</option>)}
               </select>
             </div>
-            {remForm.title === 'Autre' && (
+            {remForm.title === t('other_label') && (
               <div style={{ marginBottom: 14 }}><label style={LBL}>Nom personnalisé</label><input value={remForm.notes} onChange={(e: any) => setRemForm({ ...remForm, notes: e.target.value })} style={INP} placeholder="Nom du complement" /></div>
             )}
             <div style={{ marginBottom: 14 }}><label style={LBL}>Description</label>

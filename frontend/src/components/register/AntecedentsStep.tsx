@@ -54,8 +54,8 @@ export default function AntecedentsStep({ form, u, toggleArr }: { form: Register
         <div style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.6)', textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 10 }}>Antecedents familiaux</div>
         <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)', marginBottom: 10 }}>Des membres de votre famille ont-ils ete touches par :</div>
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 } as any}>
-          {['Diabete', 'Hypertension', 'Maladie cardiaque', 'AVC', 'Cancer', 'Alzheimer', 'Parkinson', 'Osteoporose', 'Thyroide', 'Aucun'].map(f => (
-            <Chip key={f} label={f} selected={form.family_history.includes(f)} onClick={() => { if (f === 'Aucun') u('family_history', ['Aucun']); else toggleArr('family_history', f); }} />
+          {[t('condition_diabetes'), t('condition_hypertension'), 'Maladie cardiaque', t('condition_stroke'), 'Cancer', t('condition_alzheimer'), t('condition_parkinson'), t('condition_osteoporosis'), 'Thyroide', t('none_label')].map(f => (
+            <Chip key={f} label={f} selected={form.family_history.includes(f)} onClick={() => { if (f === t('none_label')) u('family_history', [t('none_label')]); else toggleArr('family_history', f); }} />
           ))}
         </div>
       </div>

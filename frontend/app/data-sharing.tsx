@@ -24,7 +24,7 @@ const HEALTH_OPTIONS = [
   {
     key: 'none',
     icon: 'ri-eye-off-line',
-    title: 'Aucune',
+    title: t('none_female'),
     desc: 'Les gardiens ne voient aucune donnee de sante',
     color: '#EF4444',
   },

@@ -522,7 +522,7 @@ export function AddGuardianPopup({ show, onClose, phone, setPhone, relationship,
   const [phonePrefix, setPhonePrefix] = useState('+33');
   if (!show) return null;
   const PROS_G = ['Auxiliaire de vie', 'Aide soignant(e)', 'Aide a domicile', 'Professionnel de sante', 'Infirmier(e) liberale', 'Coach sportif', 'Preparateur physique'];
-  const PERSO_G = ['Mere', 'Pere', 'Fils', 'Fille', 'Petit-enfant', 'Conjoint(e)', 'Frere', 'Soeur', 'Ami(e)', 'Voisin(e)', 'Autre'];
+  const PERSO_G = ['Mere', 'Pere', 'Fils', 'Fille', 'Petit-enfant', t('spouse_label'), 'Frere', 'Soeur', t('friend_label'), t('neighbor_label'), t('other_label')];
   const isPro = PROS_G.includes(relationship);
   const isPerso = PERSO_G.includes(relationship);
   return portalMount(

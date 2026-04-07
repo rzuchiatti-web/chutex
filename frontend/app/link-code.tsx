@@ -16,14 +16,14 @@ const GlassCard = ({ children, style }: any) => (
 
 // ─── RELATIONSHIP LISTS ───
 const GUARDIAN_RELATIONSHIPS = [
-  { id: 'conjoint', label: 'Conjoint(e)' },
-  { id: 'fils_fille', label: 'Fils / Fille' },
+  { id: 'conjoint', label: t('spouse_label') },
+  { id: 'fils_fille', label: t('son_daughter') },
   { id: 'pere_mere', label: 'Pere / Mere' },
-  { id: 'frere_soeur', label: 'Frere / Soeur' },
+  { id: 'frere_soeur', label: t('brother_sister') },
   { id: 'petit_enfant', label: 'Petit-fils / Petite-fille' },
   { id: 'neveu_niece', label: 'Neveu / Niece' },
   { id: 'ami', label: 'Ami(e) proche' },
-  { id: 'voisin', label: 'Voisin(e)' },
+  { id: 'voisin', label: t('neighbor_label') },
   { id: 'aide_soignant', label: 'Aide-soignant(e)' },
   { id: 'infirmier', label: 'Infirmier(ere)' },
   { id: 'auxiliaire_vie', label: 'Auxiliaire de vie' },
@@ -31,21 +31,21 @@ const GUARDIAN_RELATIONSHIPS = [
   { id: 'coach', label: 'Coach sportif' },
   { id: 'preparateur_physique', label: 'Preparateur physique' },
   { id: 'pro_sante', label: 'Autre professionnel de sante' },
-  { id: 'autre', label: 'Autre' },
+  { id: 'autre', label: t('other_label') },
 ];
 
 const BENEFICIARY_RELATIONSHIPS = [
-  { id: 'conjoint', label: 'Conjoint(e)' },
+  { id: 'conjoint', label: t('spouse_label') },
   { id: 'mamie', label: 'Mamie' },
   { id: 'papy', label: 'Papy' },
   { id: 'pere_mere', label: 'Pere / Mere' },
-  { id: 'fils_fille', label: 'Fils / Fille' },
-  { id: 'frere_soeur', label: 'Frere / Soeur' },
+  { id: 'fils_fille', label: t('son_daughter') },
+  { id: 'frere_soeur', label: t('brother_sister') },
   { id: 'oncle_tante', label: 'Oncle / Tante' },
-  { id: 'ami', label: 'Ami(e)' },
-  { id: 'voisin', label: 'Voisin(e)' },
+  { id: 'ami', label: t('friend_label') },
+  { id: 'voisin', label: t('neighbor_label') },
   { id: 'patient', label: 'Patient(e)' },
-  { id: 'autre', label: 'Autre' },
+  { id: 'autre', label: t('other_label') },
 ];
 
 // ─── RELATIONSHIP PICKER COMPONENT ───

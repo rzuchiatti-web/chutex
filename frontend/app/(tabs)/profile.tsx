@@ -167,8 +167,8 @@ export default function ProfileScreen() {
   };
   const rawConditions = parseMedList(user?.medical_conditions);
   const rawAllergies = parseMedList(user?.allergies);
-  const CONDITION_LIST = ['Diabete', 'Hypertension', 'Cholesterol', 'Arthrose', 'Insuffisance cardiaque', 'AVC', 'Asthme', 'Osteoporose', 'Parkinson', 'Alzheimer', 'Depression', 'Hemophilie', 'Epilepsie', 'Aucune'];
-  const ALLERGY_LIST = ['Penicilline', 'Aspirine', 'Latex', 'Iode', 'Pollen', 'Acariens', 'Gluten', 'Lactose', 'Aucune'];
+  const CONDITION_LIST = [t('condition_diabetes'), t('condition_hypertension'), t('condition_cholesterol'), t('condition_arthrose'), t('condition_heart_failure'), t('condition_stroke'), t('condition_asthma'), t('condition_osteoporosis'), t('condition_parkinson'), t('condition_alzheimer'), t('condition_depression'), t('condition_hemophilia'), t('condition_epilepsy'), t('none_female')];
+  const ALLERGY_LIST = [t('allergy_penicillin'), t('allergy_aspirin'), t('allergy_latex'), t('allergy_iodine'), t('allergy_pollen'), t('allergy_dust_mites'), t('allergy_gluten'), t('allergy_lactose'), t('none_female')];
   const matchList = (raw: string[], list: string[]) => list.filter(item => raw.some(r => r.toLowerCase().includes(item.toLowerCase()) || item.toLowerCase().includes(r.toLowerCase())));
   const [medForm, setMedForm] = useState({
     blood_type: user?.blood_type || '',

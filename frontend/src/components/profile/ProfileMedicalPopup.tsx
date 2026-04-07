@@ -1,3 +1,4 @@
+import { useI18n } from '../../context/I18nContext';
 import React from 'react';
 import { Platform } from 'react-native';
 
@@ -10,8 +11,8 @@ const portalMount = (node: React.ReactNode) => {
 };
 const POP: any = { position: 'fixed', inset: 0, zIndex: 99990, backdropFilter: 'blur(32px)', WebkitBackdropFilter: 'blur(32px)', background: 'rgba(0,0,0,0.55)', overflowY: 'scroll', WebkitOverflowScrolling: 'touch' };
 
-const CONDITION_LIST = ['Diabete', 'Hypertension', 'Cholesterol', 'Arthrose', 'Insuffisance cardiaque', 'AVC', 'Asthme', 'Osteoporose', 'Parkinson', 'Alzheimer', 'Depression', 'Hemophilie', 'Epilepsie', 'Aucune'];
-const ALLERGY_LIST = ['Penicilline', 'Aspirine', 'Latex', 'Iode', 'Pollen', 'Acariens', 'Gluten', 'Lactose', 'Aucune'];
+const CONDITION_LIST = [t('condition_diabetes'), t('condition_hypertension'), t('condition_cholesterol'), t('condition_arthrose'), 'Insuffisance cardiaque', 'AVC', t('condition_asthma'), t('condition_osteoporosis'), t('condition_parkinson'), t('condition_alzheimer'), t('condition_depression'), t('condition_hemophilia'), t('condition_epilepsy'), t('none_female')];
+const ALLERGY_LIST = [t('allergy_penicillin'), t('allergy_aspirin'), t('allergy_latex'), t('allergy_iodine'), t('allergy_pollen'), t('allergy_dust_mites'), t('allergy_gluten'), t('allergy_lactose'), t('none_female')];
 
 interface Props {
   visible: boolean;
@@ -56,8 +57,8 @@ export function ProfileMedicalPopup({ visible, onClose, medForm, setMedForm, med
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginBottom: 16 } as any}>
           {CONDITION_LIST.map(c => (
             <div key={c} data-testid={`condition-${c}`} onClick={() => {
-              if (c === 'Aucune') setMedForm({ ...medForm, conditions: ['Aucune'] });
-              else setMedForm({ ...medForm, conditions: medForm.conditions.includes(c) ? medForm.conditions.filter((x: string) => x !== c) : [...medForm.conditions.filter((x: string) => x !== 'Aucune'), c] });
+              if (c === t('none_female')) setMedForm({ ...medForm, conditions: [t('none_female')] });
+              else setMedForm({ ...medForm, conditions: medForm.conditions.includes(c) ? medForm.conditions.filter((x: string) => x !== c) : [...medForm.conditions.filter((x: string) => x !== t('none_female')), c] });
             }} style={{ padding: '8px 12px', borderRadius: 999, background: medForm.conditions.includes(c) ? 'rgba(255,255,255,0.1)' : 'rgba(255,255,255,0.03)', border: `1px solid ${medForm.conditions.includes(c) ? 'rgba(255,255,255,0.2)' : 'rgba(255,255,255,0.06)'}`, cursor: 'pointer', fontSize: 12, fontWeight: 600, color: medForm.conditions.includes(c) ? '#FFF' : 'rgba(255,255,255,0.35)' } as any}>{c}</div>
           ))}
         </div>
@@ -66,7 +67,7 @@ export function ProfileMedicalPopup({ visible, onClose, medForm, setMedForm, med
         <div style={{ fontSize: 9, fontWeight: 700, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 8 }}>Allergies</div>
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginBottom: 16 } as any}>
           {ALLERGY_LIST.map(a => (
-            <div key={a} onClick={() => { if (a === 'Aucune') setMedForm({ ...medForm, allergies: ['Aucune'] }); else setMedForm({ ...medForm, allergies: medForm.allergies.includes(a) ? medForm.allergies.filter((x: string) => x !== a) : [...medForm.allergies.filter((x: string) => x !== 'Aucune'), a] }); }} style={{ padding: '10px 12px', borderRadius: 12, background: medForm.allergies.includes(a) ? 'rgba(255,255,255,0.1)' : 'rgba(255,255,255,0.03)', border: `1px solid ${medForm.allergies.includes(a) ? 'rgba(255,255,255,0.25)' : 'rgba(255,255,255,0.06)'}`, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8 } as any}>
+            <div key={a} onClick={() => { if (a === t('none_female')) setMedForm({ ...medForm, allergies: [t('none_female')] }); else setMedForm({ ...medForm, allergies: medForm.allergies.includes(a) ? medForm.allergies.filter((x: string) => x !== a) : [...medForm.allergies.filter((x: string) => x !== t('none_female')), a] }); }} style={{ padding: '10px 12px', borderRadius: 12, background: medForm.allergies.includes(a) ? 'rgba(255,255,255,0.1)' : 'rgba(255,255,255,0.03)', border: `1px solid ${medForm.allergies.includes(a) ? 'rgba(255,255,255,0.25)' : 'rgba(255,255,255,0.06)'}`, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8 } as any}>
               <div style={{ width: 18, height: 18, borderRadius: 5, background: medForm.allergies.includes(a) ? '#10B981' : 'rgba(255,255,255,0.06)', border: `1px solid ${medForm.allergies.includes(a) ? '#10B981' : 'rgba(255,255,255,0.15)'}`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}>
                 {medForm.allergies.includes(a) && <i className="ri-check-line" style={{ fontSize: 11, color: '#FFF' }} />}
               </div>

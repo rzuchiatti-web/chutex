@@ -251,8 +251,8 @@ export default function BeneficiaryDétailScreen() {
           <div style={SL}>Dossier medical</div>
           <div style={{ borderRadius: 16, background: C.cardGrey, border: `1px solid ${C.cardBorder}`, padding: '4px 16px', marginBottom: 4 } as any}>
             <div style={rowS}><span style={lbS}>Groupe sanguin</span><span style={vlS}>{data.blood_type || '--'}</span></div>
-            <div style={{ ...rowS, flexDirection: 'column', alignItems: 'flex-start', gap: 2 } as any}><span style={lbS}>Pathologies</span><span style={{ fontSize: 13, color: C.text, fontWeight: 600, marginTop: 2 }}>{data.medical_conditions || 'Aucune'}</span></div>
-            <div style={{ ...rowS, flexDirection: 'column', alignItems: 'flex-start', gap: 2, borderBottom: 'none' } as any}><span style={lbS}>Allergies</span><span style={{ fontSize: 13, color: C.text, fontWeight: 600, marginTop: 2 }}>{data.allergies || 'Aucune'}</span></div>
+            <div style={{ ...rowS, flexDirection: 'column', alignItems: 'flex-start', gap: 2 } as any}><span style={lbS}>Pathologies</span><span style={{ fontSize: 13, color: C.text, fontWeight: 600, marginTop: 2 }}>{data.medical_conditions || t('none_female')}</span></div>
+            <div style={{ ...rowS, flexDirection: 'column', alignItems: 'flex-start', gap: 2, borderBottom: 'none' } as any}><span style={lbS}>Allergies</span><span style={{ fontSize: 13, color: C.text, fontWeight: 600, marginTop: 2 }}>{data.allergies || t('none_female')}</span></div>
           </div>
 
           <div style={{ height: 1, background: C.sep, margin: '8px 0' } as any} />

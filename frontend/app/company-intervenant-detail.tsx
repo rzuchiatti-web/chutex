@@ -42,7 +42,7 @@ export default function CompanyIntervenantDétailScreen() {
     p.profession && { icon: 'ri-stethoscope-line', label: 'Profession', value: p.profession },
     p.structure_name && { icon: 'ri-building-line', label: t('structure'), value: p.structure_name },
     p.address && { icon: 'ri-map-pin-line', label: t('address'), value: p.address },
-    agency?.name && { icon: 'ri-community-line', label: 'Agence', value: agency.name },
+    agency?.name && { icon: 'ri-community-line', label: t('agent_tab'), value: agency.name },
     p.intervention_radius_km && { icon: 'ri-compass-3-line', label: 'Rayon d\'intervention', value: `${p.intervention_radius_km} km` },
     p.guardian_type && { icon: 'ri-user-star-line', label: 'Type', value: p.guardian_type === 'professional' ? 'Professionnel' : 'Particulier' },
     p.is_prescriber && { icon: 'ri-file-text-line', label: t('prescriber'), value: 'Oui' },

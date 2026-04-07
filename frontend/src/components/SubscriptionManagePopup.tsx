@@ -209,7 +209,7 @@ export default function SubscriptionManagePopup({ show, onClose, subData, onRefr
             <div style={{ marginTop: 16, padding: '14px 16px', borderRadius: 16, background: `${accent}0C`, border: `1px solid ${accent}18`, ...glass } as any}>
               <div style={{ fontSize: 9, fontWeight: 700, color: 'rgba(255,255,255,0.3)', letterSpacing: 1.5, textTransform: 'uppercase', marginBottom: 10 }}>Inclus</div>
               {(isCare
-                ? ['Détection de chute', 'Bouton SOS', 'Plateau d\'ecoute 24/7', 'Intervenants Care', 'Suivi GPS', 'Notifications gardiens', 'Rapports']
+                ? ['Détection de chute', t('sos_button_label'), 'Plateau d\'ecoute 24/7', 'Intervenants Care', 'Suivi GPS', 'Notifications gardiens', 'Rapports']
                 : isProSub
                 ? ['Programmes exercices personnalisés', 'Suivi par votre professionnel', 'Rappels compléments / hydratation', 'Plan repas sur mesure', 'Bilans de santé Nora', 'Messagerie directe', 'Historique activité']
                 : ['Suivi cardiaque', 'SpO2 et température', 'Détection de chute', 'Historique santé', 'App mobile']

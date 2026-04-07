@@ -1,3 +1,4 @@
+import { useI18n } from '../../context/I18nContext';
 import React from 'react';
 
 const RCOL: any = { beneficiary: '#3B82F6', guardian: '#10B981', admin: '#7C3AED', téléassistance: '#F59E0B', prescriber_company: '#F97316' };

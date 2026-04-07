@@ -299,7 +299,7 @@ export default function GuardianHome({ token, user }: { token: string; user: any
               </div>
               {(() => {
                 const PROS = ['Auxiliaire de vie', 'Aide soignant(e)', 'Aide à domicile', 'Professionnel de santé', 'Infirmier(e) libérale', 'Coach sportif', 'Préparateur physique'];
-                const PERSO = ['Mère', 'Père', 'Fils', 'Fille', 'Petit-enfant', 'Conjoint(e)', 'Frère', 'Sœur', 'Ami(e)', 'Voisin(e)', 'Autre'];
+                const PERSO = ['Mère', 'Père', 'Fils', 'Fille', 'Petit-enfant', t('spouse_label'), 'Frère', 'Sœur', t('friend_label'), t('neighbor_label'), t('other_label')];
                 const isPro = PROS.includes(linkRelationship);
                 const isPerso = PERSO.includes(linkRelationship);
                 const linkType = isPro ? 'pro' : isPerso ? 'perso' : '';

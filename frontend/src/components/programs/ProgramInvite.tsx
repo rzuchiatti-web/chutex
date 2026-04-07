@@ -102,7 +102,7 @@ export const ProgramInvite = ({
             </div>
             <div style={{ flex: 1 } as any}>
               <div style={{ fontSize: 12, fontWeight: 600, color: T }}>{f.name}</div>
-              <div style={{ fontSize: 10, color: S2 }}>{f.status === 'notification_sent' ? 'Notification in-app' : f.status === 'sms_sent' ? 'SMS envoye' : f.status === 'already_member' ? 'Deja membre' : t('pending')}</div>
+              <div style={{ fontSize: 10, color: S2 }}>{f.status === 'notification_sent' ? 'Notification in-app' : f.status === 'sms_sent' ? t('sms_sent_label') : f.status === 'already_member' ? 'Deja membre' : t('pending')}</div>
             </div>
           </div>
         ))}

@@ -96,7 +96,7 @@ export default function IntervenantVisitScreen() {
           <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 8 }}>Informations medicales</div>
           {[
             { label: t('pathologies'), val: ben.medical_conditions || 'Aucune renseignee' },
-            { label: t('allergies_label'), val: ben.allergies || 'Aucune' },
+            { label: t('allergies_label'), val: ben.allergies || t('none_female') },
             { label: 'Médecin', val: ben.doctor_name || 'Non renseigne' },
             { label: t('address'), val: ben.address || 'Non renseignee' },
           ].map((r, i) => (
