@@ -67,13 +67,13 @@ export function DeviceCard({ deviceType: dt, device, subscription, weighings, to
             </>
           )}
           <div style={{ display: 'flex', gap: 8, marginTop: 12 } as any}>
-            {dt === 'bracelet' && (
-              <div data-testid="bracelet-sync-btn" onClick={(e) => {
+            {dt === 'bracelet' && !isAssociated && (
+              <div data-testid="bracelet-connect-btn" onClick={(e) => {
                 e.stopPropagation();
                 onStartPairing(dt);
               }} style={{ flex: 1, padding: '12px 14px', borderRadius: 999, cursor: 'pointer', background: '#111', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, fontSize: 13, fontWeight: 700, color: '#FFF' } as any}>
                 <i className="ri-bluetooth-connect-line" style={{ fontSize: 14 }} />
-                {realConnected ? 'Synchroniser' : 'Connecter & Sync'}
+                Connecter
               </div>
             )}
             {dt === 'scale' && (

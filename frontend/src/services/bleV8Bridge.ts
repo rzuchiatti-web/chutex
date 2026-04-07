@@ -16,7 +16,7 @@ const NOTIFY_UUID  = '0000fff7-0000-1000-8000-00805f9b34fb';
 export const BLE_NAME_FILTERS = {
   bracelet: ['2208', 'J22', 'JStyle', 'Elio', 'V8', 'JCV8', 'HB8', '2301'],
   scale: ['QN-Scale', 'Lefu', 'CF586', 'Health Scale', 'SWAN', 'BF600'],
-  vest: ['Elder', 'AIRBAG', 'Gilet', 'Airbag'],
+  vest: ['Elder', 'AIRBAG', 'Gilet', 'Airbag', 'airbag', 'Sx-', 'sx-', 'SX-', 'S1-', 'S2-', 'S3-', 'sairbag'],
 };
 
 // ── V8 Command codes (per J-Style 2208A BLE API) ──
