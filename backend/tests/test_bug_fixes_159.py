@@ -7,7 +7,7 @@ import pytest
 import requests
 import os
 
-BASE_URL = os.environ.get('EXPO_PUBLIC_BACKEND_URL', 'https://bracelet-biometrics.preview.emergentagent.com').rstrip('/')
+BASE_URL = os.environ.get('EXPO_PUBLIC_BACKEND_URL', 'https://real-time-ble-bridge.preview.emergentagent.com').rstrip('/')
 
 class TestBugFixes159:
     """Test the 3 bug fixes"""
