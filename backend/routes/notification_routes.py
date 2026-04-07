@@ -78,6 +78,10 @@ async def create_notification(
         "notification": notif,
     })
 
+    # Send Expo Push Notification (iOS/Android native)
+    from routes.push_routes import send_push_to_user
+    await send_push_to_user(user_id, title, body, data, notif_type)
+
     # Send browser push via web-push if user has a subscription
     await _send_web_push(user_id, title, body, icon)
 
