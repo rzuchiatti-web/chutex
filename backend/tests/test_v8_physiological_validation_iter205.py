@@ -16,7 +16,7 @@ import httpx
 import os
 import time
 
-API_URL = os.environ.get("REACT_APP_BACKEND_URL", "https://real-time-ble-bridge.preview.emergentagent.com")
+API_URL = os.environ.get("REACT_APP_BACKEND_URL", "https://biometric-realtime.preview.emergentagent.com")
 PHONE = "+33651245918"
 PASSWORD = "test123"
 USER_ID = "495e5e38-3591-474b-abe5-c932574bb609"

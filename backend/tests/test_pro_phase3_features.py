@@ -13,7 +13,7 @@ import os
 import uuid
 from datetime import datetime
 
-BASE_URL = os.environ.get('REACT_APP_BACKEND_URL', 'https://real-time-ble-bridge.preview.emergentagent.com').rstrip('/')
+BASE_URL = os.environ.get('REACT_APP_BACKEND_URL', 'https://biometric-realtime.preview.emergentagent.com').rstrip('/')
 
 # Test credentials
 PRO_PHONE = "+33655443322"
