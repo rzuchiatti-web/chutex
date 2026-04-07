@@ -393,14 +393,19 @@ export default function MetricDetailScreen() {
           <img src={BG} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 } as any} />
           <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.35)', zIndex: 1 } as any} />
           <div style={{ position: 'relative', zIndex: 2, padding: '70px 20px 20px', maxWidth: 480, margin: '0 auto' } as any}>
-            <div data-testid="back-btn" onClick={() => {
-              if (isReadonly && beneficiaryId) router.push({ pathname: '/health-readonly' as any, params: { beneficiaryId } });
-              else router.push('/(tabs)/health' as any);
-            }} style={{ width: 44, height: 44, borderRadius: 999, background: 'rgba(255,255,255,0.12)', border: '1px solid rgba(255,255,255,0.15)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}>
-              <i className="ri-arrow-left-line" style={{ fontSize: 18, color: '#FFF' }} />
+            <div style={{ display: 'flex', alignItems: 'center', gap: 14 } as any}>
+              <div data-testid="back-btn" onClick={() => {
+                if (isReadonly && beneficiaryId) router.push({ pathname: '/health-readonly' as any, params: { beneficiaryId } });
+                else router.push('/(tabs)/health' as any);
+              }} style={{ width: 44, height: 44, borderRadius: 999, background: 'rgba(255,255,255,0.12)', border: '1px solid rgba(255,255,255,0.15)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', flexShrink: 0 } as any}>
+                <i className="ri-arrow-left-line" style={{ fontSize: 18, color: '#FFF' }} />
+              </div>
+              <div style={{ flex: 1, textAlign: 'center' } as any}>
+                <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: 1.2 }}>{m.title || key}</div>
+              </div>
+              <div style={{ width: 44 } as any} />
             </div>
-            <div style={{ textAlign: 'center', marginTop: 8 } as any}>
-              <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: 1.2, marginBottom: 4 }}>{m.title || key}</div>
+            <div style={{ textAlign: 'center', marginTop: 12 } as any}>
               <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'center', gap: 8 } as any}>
                 <span data-testid="current-value" style={{ fontSize: 48, fontWeight: 900, color: '#FFF', lineHeight: 1 }}>{isBP && selData ? `${selData.systolic}/${selData.diastolic}` : selData ? selData.value : currentVal}</span>
                 <span style={{ fontSize: 16, fontWeight: 600, color: 'rgba(255,255,255,0.5)' }}>{m.unit}</span>

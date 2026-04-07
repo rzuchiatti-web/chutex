@@ -133,6 +133,9 @@ export default function ECGDetailScreen() {
           </div>
         </div>
 
+        {/* Nora ECG Analysis — Interactive card (avant comprendre) */}
+        <NoraButton label="Analyse ECG par Nora" sublabel="Interpretation complete de votre electrocardiogramme" onClick={() => setShowNoraEcg(true)} />
+
         {/* Comprendre les donnees */}
         <div onClick={() => setShowExplain(true)} style={{ padding: '14px', borderRadius: 14, background: 'rgba(255,255,255,0.08)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', border: '1px solid rgba(255,255,255,0.12)', cursor: 'pointer', textAlign: 'center', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, marginBottom: 14 } as any}>
           <i className="ri-book-open-line" style={{ fontSize: 16, color: '#FFF' }} />
@@ -182,9 +185,6 @@ export default function ECGDetailScreen() {
             </div>
           ))}
         </div>
-
-        {/* Nora ECG Analysis — Interactive card */}
-        <NoraButton label="Analyse ECG par Nora" sublabel="Interpretation complete de votre electrocardiogramme" onClick={() => setShowNoraEcg(true)} />
 
         {/* What is an ECG? — Educational card */}
         <div data-testid="ecg-education" style={{ borderRadius: 18, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', padding: '16px', marginBottom: 14 } as any}>

@@ -70,7 +70,7 @@ export function PairingStepsPopup({ deviceType, step, onSetStep, onClose, onLaun
             <div style={{ display: 'flex', alignItems: 'center', gap: 10 } as any}>
               <i className="ri-information-line" style={{ fontSize: 16, color: meta.color, flexShrink: 0 }} />
               <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', lineHeight: 1.5 }}>
-                {macInput ? `Recherche ciblee sur: ${macInput}` : 'Sans adresse MAC, la recherche scannera tous les appareils V6 a proximite.'}
+                {macInput ? `Recherche ciblee sur: ${macInput}` : 'Sans adresse MAC, la recherche detectera votre bracelet Elio a proximite automatiquement.'}
               </span>
             </div>
           </div>

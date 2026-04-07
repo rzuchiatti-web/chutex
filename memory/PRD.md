@@ -1,36 +1,34 @@
 # Chutex Care - PRD
 
+## Build 136 (2026-04-07) — Correctifs retours utilisateur
+
+### Corrections Build 136:
+- **BLE Connection fix**: Corrigé le bug de listener ble_result qui cassait la connexion bracelet/gilet sur iOS
+- **Pairing bracelet**: Supprimé étape "dissocier app fabricant", corrigé textes (pas de bouton latéral, Elio pas V6)
+- **Headers centrés**: Titre centré sur pages Activité, Sommeil, Minceur, Metric-detail (aligné avec bouton retour)
+- **ECG**: Nora avant "Comprendre les données"
+- **Dashboard refresh**: Re-fetch auto quand la page redevient visible (exercice validé → pilule mise à jour)
+- **Pairing MAC step**: "Elio à proximité" au lieu de "V6"
+
+### Accents à corriger (passage global restant)
+Les textes utilisent des translittérations ASCII (e au lieu de é). Passage progressif vers UTF-8 correct.
+
 ## Architecture
 - Frontend: React Native _layout.tsx + WebView. BLE: bleV8Bridge.ts (natif) + useBleConnection.ts (Chrome)
-- Backend: FastAPI. WebSocket: ws_manager.py. Routes: bracelet_routes.py, health_report_routes.py
+- Backend: FastAPI. WebSocket: ws_manager.py
 - DB: MongoDB (vitallink_db)
 
-## BLE Sync Pipeline
+## Pipeline BLE
 ```
-Bracelet BLE → POST /api/bracelet/v8/push → Backend Save → WebSocket ble_sync → Frontend clearApiCache() + fetchData()
-→ Also dispatches ble_vitals CustomEvent for live pulse on metric-detail
+Bracelet → POST /api/bracelet/v8/push → Backend → WebSocket ble_sync → Frontend refresh
 ```
 
-## Completed (2026-04-07)
+## Issues restantes signalées par l'utilisateur
+- Sommeil: anciennes nuits non affichées au changement de jour calendrier
+- Sommeil: durée 9h42 possiblement incorrecte (couché ~minuit, levé ~7h30)
+- Hypnogramme: heures/cycles toujours incorrects
+- Accents français manquants dans toute l'app
+- Nora: pas d'accès aux données dans le chat
 
-### Jeux Dorsi - Visual Enhancement (5 jeux)
-- **Moutons**: Gradient radial bg (#0f1923→#060a0f), curseur avec glow cyan (shadowBlur=20), anneau extérieur
-- **Bulles**: Deep space gradient (#130f25→#060410), curseur glow violet
-- **Proprioception**: Gradient radial vert (#0a1a15→#060a0f), balle glow + anneau pulse animé (sin wave)
-- **Serpent**: Bg sombre + grille néon orange, nourriture glow, segments ronds avec trail lumineux
-- **Labyrinthe**: Bg sombre + grille rose, murs néon glow, objectif pulse animé
-
-### Pouls Temps Réel via WebSocket
-- NotificationCenter dispatch `ble_vitals` CustomEvent quand ble_sync arrive avec heart_rate
-- metric-detail écoute `ble_vitals` pour mise à jour instantanée (en plus du polling 10s)
-- Badge "bpm en direct" avec point pulsant dans le header
-
-### P1 Fixes (session précédente)
-- Poids/IMC: fallback profil, progress bar corrigée
-- Exercice: clearApiCache après complétion
-- Rappels: WebSocket reminder_alert temps réel
-- Gilet BLE: timeout 25s scan
-- Dorsi: coussin obligatoire, historique bilans
-
-## Upcoming Tasks
-- P2: Deploiement TCP J2358, Gilet complet, Signature, Parrainage, Essai 7j, Vivoo
+## Upcoming
+- P2: TCP J2358, Gilet complet, Signature, Parrainage, Essai 7j, Vivoo

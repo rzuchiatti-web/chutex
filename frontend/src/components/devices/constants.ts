@@ -12,9 +12,8 @@ export const confirmAction = (title: string, message: string, onConfirm: () => v
 };
 
 export const BRACELET_STEPS = [
-  { icon: 'ri-link-unlink', title: 'Dissociez l\'app fabricant', desc: 'Si le bracelet est connecte a l\'app du fabricant (ex: WearFit Pro), dissociez-le d\'abord via "Unpair Device" dans l\'app fabricant.', tip: 'Un bracelet BLE ne peut etre connecte qu\'a une seule application a la fois.' },
-  { icon: 'ri-battery-charge-line', title: 'Verifiez la charge (>20%)', desc: 'Assurez-vous que le bracelet a au moins 20% de charge. Quand il clignote vert, il est pret. Placez-le a un doigt de largeur du poignet, sans serrer.', tip: 'Maintenez le bouton lateral 3s si l\'ecran est eteint. Le bracelet ne doit pas etre trop serre pour une mesure optimale.' },
-  { icon: 'ri-bluetooth-connect-line', title: 'Lancer l\'appairage', desc: 'Rapprochez le bracelet de votre telephone (moins d\'1 metre). L\'app va scanner et detecter votre bracelet automatiquement.', tip: 'Assurez-vous que le Bluetooth est active dans les parametres de votre telephone.' },
+  { icon: 'ri-battery-charge-line', title: 'Verifiez la charge (>20%)', desc: 'Assurez-vous que le bracelet Elio a au moins 20% de charge (voyant vert clignotant). Placez-le a un doigt de largeur du poignet, sans trop serrer.', tip: 'Touchez l\'ecran pour reveiller le bracelet si l\'ecran est eteint.' },
+  { icon: 'ri-bluetooth-connect-line', title: 'Recherche automatique', desc: 'Rapprochez le bracelet Elio de votre telephone (moins d\'1 metre). L\'application va rechercher et detecter votre bracelet Elio a proximite automatiquement.', tip: 'Assurez-vous que le Bluetooth est active dans les Reglages de votre telephone.' },
 ];
 
 export const VEST_STEPS = [

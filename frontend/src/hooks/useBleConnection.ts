@@ -195,7 +195,10 @@ export function useBleConnection(token: string, fetchDevices: () => Promise<void
     // ── Native WebView bridge ──
     if (hasNativeBridge) {
       setBleError('Recherche de votre appareil...');
+      let handled = false;
       const handler = async (e: any) => {
+        if (handled) return;
+        handled = true;
         window.removeEventListener('ble_result', handler);
         const detail = e.detail || {};
         if (detail.error) {
@@ -214,23 +217,15 @@ export function useBleConnection(token: string, fetchDevices: () => Promise<void
       };
       window.addEventListener('ble_result', handler);
       (window as any).ReactNativeWebView.postMessage(JSON.stringify({ action: `ble_scan_${deviceType}` }));
-      // Timeout: if no response after 25s, set error instead of leaving in 'scanning' forever
-      const scanTimeout = setTimeout(() => {
-        window.removeEventListener('ble_result', handler);
-        if (bleStatus === 'scanning') {
+      // Timeout: clean up after 30s if no response
+      setTimeout(() => {
+        if (!handled) {
+          handled = true;
+          window.removeEventListener('ble_result', handler);
           setBleStatus('error');
           setBleError(`Appareil ${DEVICE_META[deviceType].name} non detecte. Verifiez qu'il est allume et a proximite.`);
         }
-      }, 25000);
-      // Clean up timeout if handler fires
-      const origHandler = handler;
-      const wrappedHandler = async (e: any) => {
-        clearTimeout(scanTimeout);
-        await origHandler(e);
-      };
-      window.removeEventListener('ble_result', handler);
-      window.addEventListener('ble_result', wrappedHandler);
-      setTimeout(() => { window.removeEventListener('ble_result', wrappedHandler); clearTimeout(scanTimeout); }, 26000);
+      }, 30000);
       return;
     }
 

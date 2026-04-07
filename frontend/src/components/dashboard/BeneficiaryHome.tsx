@@ -188,6 +188,13 @@ export function BeneficiaryHome({ token, user }: { token: string; user: any }) {
   }, [token]);
 
   useEffect(() => { fetchData(); const iv = setInterval(fetchData, 60000); return () => clearInterval(iv); }, [fetchData]);
+  // Re-fetch on page focus (e.g. after returning from exercise detail)
+  useEffect(() => {
+    if (Platform.OS !== 'web' || typeof document === 'undefined') return;
+    const onVisible = () => { if (document.visibilityState === 'visible') { clearApiCache(); fetchData(); } };
+    document.addEventListener('visibilitychange', onVisible);
+    return () => document.removeEventListener('visibilitychange', onVisible);
+  }, [fetchData]);
   // Independent fetch for today's exercises (coach-prescribed)
   useEffect(() => {
     if (!token) return;

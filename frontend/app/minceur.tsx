@@ -315,12 +315,15 @@ export default function MinceurPage() {
           <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.4)', zIndex: 1 } as any} />
           <div style={{ position: 'relative', zIndex: 2, padding: '70px 20px 60px', maxWidth: 480, margin: '0 auto' } as any}>
 
-            {/* Title row — round back button + title aligned */}
+            {/* Title row — round back button + centered title */}
             <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 16 } as any}>
               <div data-testid="back-button" onClick={() => router.back()} style={{ width: 44, height: 44, borderRadius: 999, background: 'rgba(255,255,255,0.12)', border: '1px solid rgba(255,255,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', flexShrink: 0 } as any}><i className="ri-arrow-left-line" style={{ fontSize: 18, color: '#FFF' }} /></div>
-              <div style={{ fontSize: 22, fontWeight: 900, color: '#FFF', letterSpacing: -0.3, flex: 1 }}>Poids & Nutrition</div>
+              <div style={{ flex: 1, textAlign: 'center' } as any}>
+                <div style={{ fontSize: 22, fontWeight: 900, color: '#FFF', letterSpacing: -0.3 }}>Poids & Nutrition</div>
+                <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)', marginTop: 4 }}>{isReadonly ? 'Vue gardien (lecture seule)' : 'Suivi personnalise'}</div>
+              </div>
+              <div style={{ width: 44 } as any} />
             </div>
-            <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)', marginBottom: 8 }}>{isReadonly ? 'Vue gardien (lecture seule)' : 'Suivi personnalise'}</div>
 
             {/* Centered weight */}
             {!loading && data && (
