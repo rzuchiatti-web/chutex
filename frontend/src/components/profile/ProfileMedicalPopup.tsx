@@ -11,8 +11,8 @@ const portalMount = (node: React.ReactNode) => {
 };
 const POP: any = { position: 'fixed', inset: 0, zIndex: 99990, backdropFilter: 'blur(32px)', WebkitBackdropFilter: 'blur(32px)', background: 'rgba(0,0,0,0.55)', overflowY: 'scroll', WebkitOverflowScrolling: 'touch' };
 
-const CONDITION_LIST = [t('condition_diabetes'), t('condition_hypertension'), t('condition_cholesterol'), t('condition_arthrose'), 'Insuffisance cardiaque', 'AVC', t('condition_asthma'), t('condition_osteoporosis'), t('condition_parkinson'), t('condition_alzheimer'), t('condition_depression'), t('condition_hemophilia'), t('condition_epilepsy'), t('none_female')];
-const ALLERGY_LIST = [t('allergy_penicillin'), t('allergy_aspirin'), t('allergy_latex'), t('allergy_iodine'), t('allergy_pollen'), t('allergy_dust_mites'), t('allergy_gluten'), t('allergy_lactose'), t('none_female')];
+const CONDITION_LIST = ['Diabete', 'Hypertension', 'Cholesterol', 'Arthrose', 'Insuffisance cardiaque', 'AVC', 'Asthme', 'Osteoporose', 'Parkinson', 'Alzheimer', 'Depression', 'Hemophilie', 'Epilepsie', 'Aucune'];
+const ALLERGY_LIST = ['Penicilline', 'Aspirine', 'Latex', 'Iode', 'Pollen', 'Acariens', 'Gluten', 'Lactose', 'Aucune'];
 
 interface Props {
   visible: boolean;

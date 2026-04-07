@@ -1,6 +1,7 @@
 import React from 'react';
 import { useRouter } from 'expo-router';
 import { useAuth } from '../context/AuthContext';
+import { useI18n } from '../context/I18nContext';
 
 const NORA_VIDEO = 'https://customer-assets.emergentagent.com/job_ba3a5789-c8f1-4b12-b5d8-478a7f99aaea/artifacts/b6eh1r76_Nora_video.mp4';
 
@@ -10,26 +11,60 @@ export interface TabConfig {
   label: string;
 }
 
-function getGuardianTabs(user: any): TabConfig[] {
+// Tab label i18n keys (resolved at render time)
+const TAB_LABEL_KEYS: Record<string, string> = {
+  home: 'home_tab', health_ben: 'health', health_guardian: 'activity', programs: 'programs',
+  messages: 'messages_tab', prescriptions: 'prescriptions', interventions: 'interventions_tab',
+  more: 'more_tab', dashboard: 'dashboard_tab', alerts: 'alerts_title', calls: 'calls_tab',
+  stats: 'stats_tab', agency: 'agent_tab',
+};
+
+function getGuardianTabs(user: any, t: (k: string) => string): TabConfig[] {
   const tabs: TabConfig[] = [
-    { key: 'index', icon: 'ri-home-smile-2-fill', label: 'Accueil' },
-    { key: 'health', icon: 'ri-run-fill', label: 'Activité' },
+    { key: 'index', icon: 'ri-home-smile-2-fill', label: t('home_tab') },
+    { key: 'health', icon: 'ri-run-fill', label: t('activity') },
   ];
   const hasSaad = !!user?.saad_company_id;
   const proType = user?.professional_type;
   const isCoachOrPhysio = proType === 'coach' || proType === 'physio';
 
   if (isCoachOrPhysio) {
-    tabs.push({ key: 'alerts', icon: 'ri-chat-3-fill', label: 'Messages' });
-    tabs.push({ key: 'devices', icon: 'ri-file-list-3-fill', label: 'Prescriptions' });
+    tabs.push({ key: 'alerts', icon: 'ri-chat-3-fill', label: t('messages_tab') });
+    tabs.push({ key: 'devices', icon: 'ri-file-list-3-fill', label: t('prescriptions') });
   } else if (hasSaad) {
-    tabs.push({ key: 'teleconsult', icon: 'ri-service-fill', label: 'Interventions' });
-    tabs.push({ key: 'devices', icon: 'ri-file-list-3-fill', label: 'Prescriptions' });
+    tabs.push({ key: 'teleconsult', icon: 'ri-service-fill', label: t('interventions_tab') });
+    tabs.push({ key: 'devices', icon: 'ri-file-list-3-fill', label: t('prescriptions') });
   }
-  tabs.push({ key: 'profile', icon: 'ri-menu-3-fill', label: 'Plus' });
+  tabs.push({ key: 'profile', icon: 'ri-menu-3-fill', label: t('more_tab') });
   return tabs;
 }
 
+function getTabConfigs(t: (k: string) => string): Record<string, TabConfig[]> {
+  return {
+    beneficiary: [
+      { key: 'index', icon: 'ri-home-smile-2-fill', label: t('home_tab') },
+      { key: 'health', icon: 'ri-heart-pulse-fill', label: t('health') },
+      { key: 'chat', icon: 'ri-dna-fill', label: t('programs') },
+      { key: 'teleconsult', icon: 'ri-chat-3-fill', label: t('messages_tab') },
+      { key: 'profile', icon: 'ri-menu-3-fill', label: t('more_tab') },
+    ],
+    téléassistance: [
+      { key: 'index', icon: 'ri-dashboard-3-fill', label: t('dashboard_tab') },
+      { key: 'alerts', icon: 'ri-alarm-warning-fill', label: t('alerts_title') },
+      { key: 'teleconsult', icon: 'ri-headphone-fill', label: t('calls_tab') },
+      { key: 'profile', icon: 'ri-menu-3-fill', label: t('more_tab') },
+    ],
+    company: [
+      { key: 'index', icon: 'ri-bar-chart-box-fill', label: t('stats_tab') },
+      { key: 'health', icon: 'ri-building-2-fill', label: t('agent_tab') },
+      { key: 'teleconsult', icon: 'ri-service-fill', label: t('interventions_tab') },
+      { key: 'devices', icon: 'ri-file-list-3-fill', label: t('prescriptions') },
+      { key: 'profile', icon: 'ri-menu-3-fill', label: t('more_tab') },
+    ],
+  };
+}
+
+// Keep exported for backward compat (static fallback)
 export const TAB_CONFIGS: Record<string, TabConfig[]> = {
   beneficiary: [
     { key: 'index', icon: 'ri-home-smile-2-fill', label: 'Accueil' },
@@ -63,6 +98,7 @@ interface GlassTabBarProps {
 export default function GlassTabBar({ state, navigation, role, showNora = true }: GlassTabBarProps) {
   const router = useRouter();
   const { user } = useAuth();
+  const { t } = useI18n();
   const [isDark, setIsDark] = React.useState(false);
 
   React.useEffect(() => {
@@ -75,7 +111,8 @@ export default function GlassTabBar({ state, navigation, role, showNora = true }
   }, []);
 
   const isGuardian = role === 'guardian' || role === 'professional';
-  const tabs = isGuardian ? getGuardianTabs(user) : (TAB_CONFIGS[role] || TAB_CONFIGS.beneficiary);
+  const tabConfigs = getTabConfigs(t);
+  const tabs = isGuardian ? getGuardianTabs(user, t) : (tabConfigs[role] || tabConfigs.beneficiary);
   const currentRoute = state?.routes?.[state.index]?.name || '';
 
   React.useEffect(() => {

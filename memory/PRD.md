@@ -12,21 +12,19 @@ Application de téléassistance et suivi santé connecté (bracelet Elio V8, bal
 
 ## Complété (Avril 2026)
 
-### Système i18n — Couverture complète
-- **1352 appels t()** dans l'application
+### Système i18n — Couverture complète (toutes phases)
+- **1352+ appels t()** dans l'application
 - **~950 clés i18n × 7 langues = ~6650 traductions**
 - 3 fichiers de traductions: I18nContext.tsx (base ~490), medicalTranslations.ts (~300), appTranslations.ts (~160)
-- **463 remplacements bulk** via scripts Python dans 70+ fichiers
-- 20+ fichiers convertis manuellement (health-detail, metric-detail, glycemia-detail, alerts, health, profile, BeneficiaryHome, nora-history, subscriber-detail, activity-detail, exercise-detail, subscription, etc.)
+- **533+ remplacements bulk** via 4 passes de scripts Python dans 70+ fichiers
+- GlassTabBar.tsx refactoré avec getTabConfigs(t) + getGuardianTabs(user, t) = **tabs traduits dynamiquement**
 - useI18n ajouté à 19+ composants manquants
-- Conditions médicales (14), allergies (8), niveaux activité, textes VO2/récup, descriptions exercices, FAQ alertes, rapports clôture, features abonnement, textes contrat, labels formulaires — tous traduits
-- Détection automatique locale (expo-localization)
-- Sélecteur 7 drapeaux (FR, EN, DE, ES, IT, PT, NL)
-- Build compile 100%
+- Toutes les sections principales traduites: Onboarding, Login, Dashboard, Santé, Profil, Alertes, Dispositifs, Abonnement, Exercices, Sommeil, Activité, Nora, Minceur, Glycémie, Prescriptions, Interventions
 
-### Reste (module-level, ~26 strings)
-- GlassTabBar.tsx : labels tabs (Accueil, Messages, Plus) — nécessite refactoring structurel
-- Quelques constantes module-level dans fichiers admin/company
+### Sessions précédentes
+- 120+ fichiers corrigés pour les accents français
+- V6 → Elio, bouton latéral supprimé
+- Historique sommeil: 7 → 30 jours
 
 ## Backlog P2
 - Déploiement serveur TCP J2358

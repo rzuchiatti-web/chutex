@@ -13,9 +13,9 @@ const lbl: any = { fontSize: 11, fontWeight: 700, color: C.muted, marginBottom: 
 const req: any = { color: COACH_COLOR, marginLeft: 2 };
 const sel: any = { ...inp, appearance: 'none', WebkitAppearance: 'none', backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%2371717A' viewBox='0 0 16 16'%3E%3Cpath d='M8 11L3 6h10z'/%3E%3C/svg%3E")`, backgroundRepeat: 'no-repeat', backgroundPosition: 'right 14px center' };
 
-const SITUATIONS = ['Independant / Liberal', 'Salarie en salle de sport', 'Salarie en clinique', 'Auto-entrepreneur', t('other_label')];
-const SPECIALISATIONS_COACH = ['Preparation physique', 'Fitness & Bien-etre', 'Reeducation sportive', 'Coaching senior', 'Perte de poids', t('other_label')];
-const SPECIALISATIONS_PHYSIO = ['Kinesitherapeute', 'Osteopathe', 'Reeducation fonctionnelle', 'Reeducation neurologique', 'Geriatrie', t('other_label')];
+const SITUATIONS = ['Independant / Liberal', 'Salarie en salle de sport', 'Salarie en clinique', 'Auto-entrepreneur', 'Autre'];
+const SPECIALISATIONS_COACH = ['Preparation physique', 'Fitness & Bien-etre', 'Reeducation sportive', 'Coaching senior', 'Perte de poids', 'Autre'];
+const SPECIALISATIONS_PHYSIO = ['Kinesitherapeute', 'Osteopathe', 'Reeducation fonctionnelle', 'Reeducation neurologique', 'Geriatrie', 'Autre'];
 
 interface ProFormData {
   first_name: string; last_name: string; phone: string; email: string;
