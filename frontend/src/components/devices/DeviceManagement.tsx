@@ -67,8 +67,8 @@ export function DeviceManagement({ token }: { token: string }) {
             <img src={BG_BLACK} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 } as any} />
             <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.25)', zIndex: 1 } as any} />
             <div style={{ position: 'relative', zIndex: 2, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: 240, padding: '70px 20px 44px', textAlign: 'center' } as any}>
-              <div style={{ fontSize: 24, fontWeight: 900, color: '#FFF', marginBottom: 8 }}>Dispositifs connectes</div>
-              <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.5)' }}>Gerez vos dispositifs de sante Chutex</div>
+              <div style={{ fontSize: 22, fontWeight: 900, color: '#FFF', marginBottom: 8 }}>Dispositifs connectés</div>
+              <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.5)' }}>Gérez vos dispositifs de santé Chutex</div>
             </div>
           </div>
 

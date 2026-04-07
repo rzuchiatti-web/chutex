@@ -170,6 +170,16 @@ async def build_nora_context(user: dict) -> dict:
     sleep_reading = None
     if bracelet_reading and bracelet_reading.get("data", {}).get("sleep_quality", 0) > 0:
         sleep_reading = bracelet_reading["data"]
+    # Also fetch dedicated sleep history for richer context
+    if not sleep_reading:
+        sleep_hist = await db.device_readings.find(
+            {"user_id": uid, "device_type": "bracelet", "data_type": {"$in": ["sleep", "sleep_segment"]}},
+            {"_id": 0}
+        ).sort("timestamp", -1).to_list(1)
+        if sleep_hist:
+            sd = sleep_hist[0].get("data", {})
+            if sd.get("deep_sleep_min", 0) > 0 or sd.get("light_sleep_min", 0) > 0:
+                sleep_reading = sd
     ctx["sleep_data"] = sleep_reading
 
     # ── Smart recommendations ──

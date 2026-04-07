@@ -27,7 +27,7 @@
         ],
         "ITSAppUsesNonExemptEncryption": false
       },
-      "buildNumber": "136"
+      "buildNumber": "137"
     },
     "android": {
       "package": "com.chutex.app",
