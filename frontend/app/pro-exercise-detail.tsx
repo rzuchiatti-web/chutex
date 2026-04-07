@@ -232,12 +232,15 @@ export default function ProExerciseDetailPage() {
                 <i className="ri-arrow-left-line" style={{ fontSize: 18, color: '#FFF' }} />
               </div>
               {!loading && ex && (
-                <div style={{ fontSize: 24, fontWeight: 900, color: '#FFF', textTransform: 'capitalize', textShadow: '0 2px 8px rgba(0,0,0,0.3)' }}>{ex.title}</div>
+                <div style={{ flex: 1, textAlign: 'center' } as any}>
+                  <div style={{ fontSize: 24, fontWeight: 900, color: '#FFF', textTransform: 'capitalize', textShadow: '0 2px 8px rgba(0,0,0,0.3)' }}>{ex.title}</div>
+                </div>
               )}
+              <div style={{ width: 44 } as any} />
             </div>
-            {/* Pills — glass blur in header */}
+            {/* Pills — glass blur in header, centered */}
             {!loading && ex && (ex.difficulty || ex.muscle_group) && (
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 } as any}>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, justifyContent: 'center' } as any}>
                 {ex.difficulty && <span style={{ padding: '6px 14px', borderRadius: 999, background: 'rgba(255,255,255,0.12)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)', border: '1px solid rgba(255,255,255,0.2)', fontSize: 11, fontWeight: 700, color: '#FFF' }}>{DIFF_LABELS[ex.difficulty] || ex.difficulty}</span>}
                 {ex.muscle_group && <span style={{ padding: '6px 14px', borderRadius: 999, background: 'rgba(255,255,255,0.12)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)', border: '1px solid rgba(255,255,255,0.2)', fontSize: 11, fontWeight: 700, color: '#FFF' }}>{ex.muscle_group}</span>}
                 {ex.equipment && ex.equipment !== 'Aucun' && <span style={{ padding: '6px 14px', borderRadius: 999, background: 'rgba(255,255,255,0.12)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)', border: '1px solid rgba(255,255,255,0.2)', fontSize: 11, fontWeight: 700, color: '#FFF' }}>{ex.equipment}</span>}

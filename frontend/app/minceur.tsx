@@ -651,8 +651,8 @@ export default function MinceurPage() {
         const e = explanations[explainMetric] || explanations.weight;
         return (
           <div data-testid="explain-popup" onClick={() => setExplainMetric(null)} style={{ position: 'fixed', inset: 0, zIndex: 9999, backdropFilter: 'blur(48px)', WebkitBackdropFilter: 'blur(48px)', background: 'rgba(0,0,0,0.82)', overflowY: 'auto', animation: 'popIn 0.3s ease' } as any}>
-            <div onClick={(ev: any) => ev.stopPropagation()} style={{ width: '100%', maxWidth: 400, margin: '0 auto', padding: '50px 28px 120px', boxSizing: 'border-box' } as any}>
-              <div onClick={() => setExplainMetric(null)} style={{ position: 'absolute', top: 70, right: 20, width: 40, height: 40, borderRadius: 999, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}><i className="ri-close-line" style={{ fontSize: 22, color: '#FFF' }} /></div>
+            <div onClick={(ev: any) => ev.stopPropagation()} style={{ width: '100%', maxWidth: 400, margin: '0 auto', padding: '70px 28px 120px', boxSizing: 'border-box' } as any}>
+              <div onClick={() => setExplainMetric(null)} style={{ position: 'absolute', top: 70, right: 20, width: 44, height: 44, borderRadius: 999, background: 'rgba(255,255,255,0.12)', border: '1px solid rgba(255,255,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}><i className="ri-close-line" style={{ fontSize: 22, color: '#FFF' }} /></div>
               <div style={{ textAlign: 'center', marginBottom: 32, animation: 'slideUp 0.4s ease 0.1s both' } as any}>
                 <i className={e.icon} style={{ fontSize: 44, color: e.color }} />
                 <div style={{ fontSize: 28, fontWeight: 900, color: '#FFF', marginTop: 14 }}>{e.title}</div>

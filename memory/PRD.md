@@ -1,25 +1,34 @@
 # Chutex Care - PRD
 
-## Architecture
-- Frontend: React Native _layout.tsx + WebView. BLE: bleV8Bridge.ts (natif) + useBleConnection.ts (Chrome)
-- Backend: FastAPI. WebSocket: ws_manager.py
-- DB: MongoDB (vitallink_db)
+## Completed this session
 
-## Corrections en cours (session actuelle)
+### Refonte page santé
+- HealthSections: cartes grises avec icônes (plus d'images de fond), métriques preview en bas de chaque carte
+- 4 sections: Cardiologie, Métabolisme, Condition physique, Composition corporelle
+- Chaque carte montre 3 métriques clés avec valeurs en direct
+- Support dark mode (fond transparent + borders subtiles)
 
-### Corrigé :
-- BLE listener fix (plus de suppression du handler)
-- Gilet BLE : filtres ajoutés (Sx-, sairbag)
-- Description Elio premium (sans détection chute)
-- Bouton Synchroniser supprimé de carte Elio (affiché seulement si non associé)
-- DeviceDetailPopup refonte : ID aligné gauche, données bracelet (FC/SpO2/Temp/Pas/Cal), delete en bas
-- Bug exercice : frontend lisait `completed_today` mais backend envoie `done_today` → corrigé
-- Bug pas 354 : readings corrompues (timestamp 9734) supprimées → maintenant 1329 pas corrects
-- Accents français sur health-detail et devices
-- Pairing bracelet : 2 étapes seulement (pas de "dissocier"), textes Elio
-- Headers centrés (activité, sommeil, minceur, metric-detail)
+### Popups explicatives
+- Activity detail: padding 70px, close button rond avec fond glass visible
+- Minceur: padding 70px, close button rond avec fond glass visible
+- Sleep explain: déjà correct (fond glass)
 
-### Reste à faire :
-- Page santé refonte (cartes grises, glycémie)
-- Popups explicatives 70px + bouton rond
-- Page exercice centrer titre + pilules
+### Page exercice
+- Titre centré entre back button et spacer (flex row)
+- Pilules glass centrées (justify-content: center)
+
+### Bug exercise validé
+- Frontend lisait `completed_today` mais backend envoie `done_today` → corrigé
+
+### DeviceDetailPopup refonte
+- ID aligné à gauche
+- Section "Données captées" avec FC, SpO2, Temp, Pas, Calories
+- Bouton supprimer tout en bas
+- Batterie avec gradient
+
+### Corrections données
+- 61 readings corrompues supprimées (timestamp 9734)
+- Daily report: 1329 pas, 38.5 kcal, 58 bpm, 98% SpO2, 36.4°C
+
+## Vérifiable sur preview web maintenant
+Le bracelet est connecté via TestFlight et synchronise en temps réel vers le serveur.
