@@ -1,6 +1,7 @@
 import React, { useMemo } from 'react';
 import { useRouter } from 'expo-router';
 import SleepHypnogram, { fromBraceletStages } from './SleepHypnogram';
+import { useI18n } from '../../context/I18nContext';
 
 const BG_VIOLET = 'https://customer-assets.emergentagent.com/job_8afdc991-0ab2-4687-a2a5-438b9a5f0711/artifacts/v6obzpez_ChatGPT%20Image%2018%20f%C3%A9vr.%202026%2C%2012_28_20.png';
 
@@ -8,6 +9,7 @@ interface Props { d: any; beneficiaryId?: string; }
 
 export default function SleepCard({ d, beneficiaryId }: Props) {
   const router = useRouter();
+  const { t } = useI18n();
   const slQ = d.sleep_quality || 0;
   const deep = d.deep_sleep_min || 0;
   const light = d.light_sleep_min || 0;
@@ -44,8 +46,8 @@ export default function SleepCard({ d, beneficiaryId }: Props) {
         <div style={{ position: 'relative', zIndex: 2 } as any}>
           <div style={{ textAlign: 'center', paddingTop: 16 } as any}><img src="https://customer-assets.emergentagent.com/job_92308143-f99e-4bad-8264-e3775a214313/artifacts/xtzgjs5s_sommeil.png" alt="" style={{ width: 80, height: 80, objectFit: 'contain', display: 'block', margin: '0 auto', filter: 'drop-shadow(0 8px 20px rgba(0,0,0,0.4))' } as any} /></div>
           <div style={{ padding: '10px 16px 14px', textAlign: 'center' } as any}>
-            <div style={{ fontSize: 15, fontWeight: 900, color: '#FFF', marginBottom: 4 }}>Sommeil</div>
-            <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)' }}>Portez votre bracelet Elio la nuit</div>
+            <div style={{ fontSize: 15, fontWeight: 900, color: '#FFF', marginBottom: 4 }}>{t('sleep_label')}</div>
+            <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)' }}>{t('wear_bracelet_night')}</div>
           </div>
           <div style={{ padding: '8px 16px', background: 'rgba(0,0,0,0.15)', display: 'flex', justifyContent: 'center' } as any}>
             <span style={{ fontSize: 9, fontWeight: 700, color: '#A78BFA' }}>Voir le detail</span>
@@ -66,7 +68,7 @@ export default function SleepCard({ d, beneficiaryId }: Props) {
         <div style={{ textAlign: 'center', paddingTop: 14 } as any}><img src="https://customer-assets.emergentagent.com/job_92308143-f99e-4bad-8264-e3775a214313/artifacts/xtzgjs5s_sommeil.png" alt="" style={{ width: 80, height: 80, objectFit: 'contain', display: 'block', margin: '0 auto', filter: 'drop-shadow(0 8px 20px rgba(0,0,0,0.4))' } as any} /></div>
         <div style={{ padding: '8px 16px 0' } as any}>
           <div style={{ textAlign: 'center', marginBottom: 8 } as any}>
-            <div style={{ fontSize: 15, fontWeight: 900, color: '#FFF' }}>Sommeil</div>
+            <div style={{ fontSize: 15, fontWeight: 900, color: '#FFF' }}>{t('sleep_label')}</div>
             <div style={{ fontSize: 28, fontWeight: 900, color: '#FFF', lineHeight: 1, marginTop: 4 }}>{Math.floor(slD / 60)}h{String(slD % 60).padStart(2, '0')}</div>
           </div>
           {sleepSession && <SleepHypnogram session={sleepSession} width={640} height={160} showLabels={true} compact={false} timeLabelCount={4} />}

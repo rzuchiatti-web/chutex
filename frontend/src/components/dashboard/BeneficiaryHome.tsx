@@ -281,10 +281,10 @@ export function BeneficiaryHome({ token, user }: { token: string; user: any }) {
         }
       } catch {}
       await apiFetch('/api/alerts', { method: 'POST', body: JSON.stringify({ alert_type: 'manual_app', message: 'Bouton SOS active depuis l\'application', device_type: 'app', latitude: lat, longitude: lng }) }, token);
-      notifyAlert('sos', 'SOS envoye ! Vos gardiens ont ete alertes.');
-      Alert.alert('Alerte envoyee', 'Nous avons bien recu votre alerte.\n\n1. Vos gardiens sont notifies par SMS et push\n2. Votre position est transmise\n3. Un intervenant sera envoye si besoin');
+      notifyAlert('sos', t('sos_sent'));
+      Alert.alert(t('alert_sent_title'), t('alert_sent_msg'));
       fetchData();
-    } catch (e: any) { Alert.alert('Erreur', e.message); } finally { setSosLoading(false); }
+    } catch (e: any) { Alert.alert(t('error'), e.message); } finally { setSosLoading(false); }
   };
 
   const switchToGuardian = async () => {
@@ -311,7 +311,7 @@ export function BeneficiaryHome({ token, user }: { token: string; user: any }) {
       await apiFetch('/api/auth/activate-guardian', { method: 'POST', body: JSON.stringify({ guardian_type: 'particular', alert_sms: alertSms, alert_email: alertEmail }) }, token);
       await refreshUser();
       setShowGuardianActivation(false); setActiveTab('beneficiary');
-      Alert.alert('Espace aidant active', 'Vous pouvez maintenant basculer vers votre espace aidant.');
+      Alert.alert(t('guardian_activated'), t('guardian_activated_msg'));
     } catch (e: any) { Alert.alert('Erreur', e.message); } finally { setActivatingGuardian(false); }
   };
 
@@ -385,8 +385,8 @@ export function BeneficiaryHome({ token, user }: { token: string; user: any }) {
                   </div>
                   <div style={{ textAlign: 'center', marginBottom: 28 } as any}>
                     <div style={{ width: 56, height: 56, borderRadius: 16, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', marginBottom: 14 } as any}><i className="ri-notification-4-line" style={{ fontSize: 26, color: 'rgba(255,255,255,0.6)' }} /></div>
-                    <div style={{ fontSize: 22, fontWeight: 900, color: '#FFF' }}>Notifications</div>
-                    <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.3)', marginTop: 4 }}>{liveUnread > 0 ? `${liveUnread} non lue${liveUnread > 1 ? 's' : ''}` : 'Toutes lues'}</div>
+                    <div style={{ fontSize: 22, fontWeight: 900, color: '#FFF' }}>{t('notifications')}</div>
+                    <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.3)', marginTop: 4 }}>{liveUnread > 0 ? `${liveUnread} ${t('unread_notifs')}` : t('all_read')}</div>
                   </div>
                   {liveUnread > 0 && <div onClick={markAllRead} style={{ textAlign: 'center', marginBottom: 16, fontSize: 12, fontWeight: 700, color: '#3B82F6', cursor: 'pointer' }}>Tout marquer comme lu</div>}
                   <div style={{ display: 'flex', flexDirection: 'column', gap: 6 } as any}>
@@ -434,8 +434,8 @@ export function BeneficiaryHome({ token, user }: { token: string; user: any }) {
             <video autoPlay loop muted playsInline style={{ width: 36, height: 36, borderRadius: 12, objectFit: 'contain', flexShrink: 0 } as any}
               src="https://customer-assets.emergentagent.com/job_ba3a5789-c8f1-4b12-b5d8-478a7f99aaea/artifacts/b6eh1r76_Nora_video.mp4" />
             <div style={{ flex: 1 } as any}>
-              <div style={{ fontSize: 13, fontWeight: 800, color: '#FFF' }}>Analyse & Objectifs</div>
-              <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.35)', marginTop: 1 }}>Analyse personnalisée de votre etat de sante</div>
+              <div style={{ fontSize: 13, fontWeight: 800, color: '#FFF' }}>{t('analysis_objectives')}</div>
+              <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.35)', marginTop: 1 }}>{t('personalized_analysis')}</div>
             </div>
             <i className="ri-arrow-right-s-line" style={{ fontSize: 18, color: 'rgba(255,255,255,0.3)' }} />
           </div>
