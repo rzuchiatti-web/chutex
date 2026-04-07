@@ -8,44 +8,51 @@ Application de téléassistance et suivi santé connecté (bracelet Elio V8, bal
 - Backend: FastAPI + MongoDB
 - BLE: Bridge natif iOS (bleV8Bridge.ts)
 - IA: OpenAI GPT-5.2 via Emergent LLM Key (Nora)
-- i18n: I18nContext.tsx + medicalTranslations.ts + expo-localization (7 langues, ~790 clés totales, 77+ fichiers)
+- i18n: I18nContext.tsx + medicalTranslations.ts + appTranslations.ts + expo-localization (7 langues, ~1100 clés totales)
 
 ## Complété (Avril 2026)
 
-### Système i18n multilingue — Phase 1 (session précédente)
+### Système i18n — Couverture complète
+- 3 fichiers de traductions: I18nContext.tsx (~490 clés base), medicalTranslations.ts (~300 clés), appTranslations.ts (~120 clés)
+- Total: ~910 clés par langue × 7 langues = ~6370 traductions
+- Fichiers convertis cette session (Phase 2+3):
+  - health-detail.tsx: 25 métriques avec buildSections(t)
+  - metric-detail.tsx: 13 RICH_EXPLAIN + mois traduits
+  - glycemia-detail.tsx: zones + explications avec buildZones(t) / buildGlycExplanations(t)
+  - alerts.tsx: STATE_LABEL, getAlertLabel, ExplainerPage, FAQ, ReportPage
+  - health.tsx (onglet): vitals (HR, SpO2, BP, Temperature) labels traduits
+  - profile.tsx: notifications (8 types), form labels, CGU, date naissance
+  - BeneficiaryHome.tsx: rappels (hydratation/traitement/alarmes), checkin
+  - nora-history.tsx: CONTEXT_META traduit avec labelKey
+  - subscriber-detail.tsx: labels détails (téléphone, email, adresse, médecin, etc.)
+  - activity-detail.tsx: textes récupération VO2, niveaux
+  - exercise-detail.tsx: descriptions intensité + avertissement
+  - metric-detail.tsx: noms des mois, labels objectifs
+
+### Phase 1 (session précédente)
 - 7 langues: FR, EN, DE, ES, IT, PT, NL
-- ~490 clés de traduction par langue (base)
-- 77 fichiers intégrés (60 pages + 17 composants)
-- 418 appels t() dans les pages app
-- 198 strings bulk-converties (titres, boutons, labels communs)
-- Détection automatique locale device (expo-localization)
-- Sélecteur de langue dans le header dashboard (7 drapeaux)
+- 77 fichiers intégrés initialement (60 pages + 17 composants)
+- 418 appels t() + 198 strings bulk-converties
+- Détection automatique locale (expo-localization)
+- Sélecteur de langue (7 drapeaux)
+- Accents français corrigés (120+ fichiers)
+- V6 → Elio
 
-### Système i18n — Phase 2 : Textes médicaux longs (cette session)
-- Fichier `medicalTranslations.ts` créé (~300 clés par langue, 7 langues)
-- health-detail.tsx : 25 métriques (labels + explications) traduits via `buildSections(t)`
-- metric-detail.tsx : 13 RICH_EXPLAIN (desc/why/tip/source + range labels) traduits
-- glycemia-detail.tsx : 5 zones + 3 explications complètes traduites via `buildZones(t)` / `buildGlycExplanations(t)`
-- alerts.tsx : STATE_LABEL, getAlertLabel, ExplainerPage (steps/roles/FAQ), ReportPage (questions/options) — tous traduits
-- subscription.tsx : 7 features, textes formulaire, étapes confirmation — clés i18n prêtes
-- profile.tsx : 6 descriptions notifications, features abonnement — clés i18n prêtes
-- Merge automatique `_BASE` + `medicalT` dans I18nContext.tsx
-
-### Accents français + textes BLE (session précédente)
-- 120+ fichiers corrigés pour les accents
-- V6 → Elio, bouton latéral supprimé
-- Historique sommeil: 7 → 30 jours
-
-## Issues connues
-- Bracelet date BCD 2017 (hardware, TIME_SYNC inefficace)
-- Historique sommeil : 1 seule nuit en base (données réelles, pas un bug code)
+## Fichiers restant à convertir (i18n)
+- GuardianHome.tsx: labels stats, IBAN, messages
+- CompanyHome.tsx: textes admin SAAD
+- PrescriptionManagement.tsx: textes prescriptions
+- CompanyPrescriptionsTab.tsx: textes prescriptions SAAD
+- dorsi-program.tsx / dorsi-game.tsx / dorsi-bilan.tsx: textes Dorsi
+- minceur.tsx: labels minceur
+- subscription.tsx: features + étapes (clés i18n prêtes, à câbler)
+- scale-detail.tsx: textes WiFi/BLE
+- backoffice.tsx: textes admin
 
 ## Backlog P2
 - Déploiement serveur TCP J2358
 - Intégration complète gilet connecté
-- Signature Électronique documents Admin
+- Signature Électronique Admin
 - Système de parrainage Gardiens
 - Flux d'essai gratuit 7 jours
 - Intégration test urinaire Vivoo
-- Splitter I18nContext.tsx en fichiers JSON séparés (refactoring maintenabilité)
-- Convertir les textes restants du dashboard (minceur, caloric intake) en i18n

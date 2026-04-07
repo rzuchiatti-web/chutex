@@ -2,6 +2,7 @@ import React, { createContext, useContext, useState, useEffect, useMemo, ReactNo
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { getLocales } from 'expo-localization';
 import { medicalT } from './medicalTranslations';
+import { appT } from './appTranslations';
 
 const _BASE: Record<string, Record<string, string>> = {
   FR: {
@@ -1692,7 +1693,7 @@ const _BASE: Record<string, Record<string, string>> = {
 // Merge base translations with medical/long-text translations
 const T: Record<string, Record<string, string>> = {};
 for (const lang of Object.keys(_BASE)) {
-  T[lang] = { ..._BASE[lang], ...(medicalT[lang] || {}) };
+  T[lang] = { ..._BASE[lang], ...(medicalT[lang] || {}), ...(appT[lang] || {}) };
 }
 
 const FLAGS = [

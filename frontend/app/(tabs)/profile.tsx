@@ -608,7 +608,7 @@ const BG_PROFILE = 'https://customer-assets.emergentagent.com/job_9950a869-9328-
           <div style={{ padding: '4px 18px', borderRadius: 22, background: cardBg, border: `1px solid ${sepColor}`, backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', marginBottom: 14 } as any}>
             <ProfileMenuItem icon="ri-shield-check-line" label="Gestion des donnees" onPress={() => { setShowRGPD(true); setRgpdSent(false); setRgpdMsg(''); }} />
             <ProfileMenuItem icon="ri-file-shield-2-line" label="Politique de confidentialite" onPress={() => setShowPrivacy(true)} />
-            <ProfileMenuItem icon="ri-file-text-line" label="Conditions generales (CGU)" onPress={() => setShowCGU(true)} />
+            <ProfileMenuItem icon="ri-file-text-line" label={t('prof_cgu')} onPress={() => setShowCGU(true)} />
             <ProfileMenuItem icon="ri-information-line" label="Mentions legales" onPress={() => setShowMentions(true)} />
           </div>
 
@@ -633,7 +633,7 @@ const BG_PROFILE = 'https://customer-assets.emergentagent.com/job_9950a869-9328-
             <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.35)', letterSpacing: 2, textTransform: 'uppercase', marginBottom: 16 }}>{t('modify_profile')}</div>
             <div style={{ fontSize: 22, fontWeight: 800, color: '#FFF', marginBottom: 20 }}>{user.name}</div>
             {(effectiveRole === 'prescriber_company' ? [
-              { val: editStructure, set: setEditStructure, label: 'Nom de la structure', icon: 'ri-building-line' },
+              { val: editStructure, set: setEditStructure, label: t('structure_name'), icon: 'ri-building-line' },
               { val: editSiret, set: setEditSiret, label: 'SIRET', icon: 'ri-file-text-line' },
               { val: editName, set: setEditName, label: 'Nom du responsable', icon: 'ri-user-line' },
               { val: editEmail, set: setEditEmail, label: 'Email', icon: 'ri-mail-line' },
@@ -645,7 +645,7 @@ const BG_PROFILE = 'https://customer-assets.emergentagent.com/job_9950a869-9328-
               { val: editPhone, set: setEditPhone, label: 'Telephone', icon: 'ri-phone-line' },
               { val: editAddress, set: setEditAddress, label: 'Adresse', icon: 'ri-map-pin-line' },
               ...(isBen ? [
-                { val: editDob, set: setEditDob, label: 'Date de naissance', icon: 'ri-calendar-line', type: 'date' },
+                { val: editDob, set: setEditDob, label: t('date_of_birth'), icon: 'ri-calendar-line', type: 'date' },
                 { val: editGender, set: setEditGender, label: 'Sexe (M/F)', icon: 'ri-genderless-line' },
                 { val: editHeight, set: setEditHeight, label: 'Taille (cm)', icon: 'ri-ruler-line', type: 'number' },
                 { val: editWeight, set: setEditWeight, label: 'Poids (kg)', icon: 'ri-scales-3-line', type: 'number' },
@@ -707,18 +707,18 @@ const BG_PROFILE = 'https://customer-assets.emergentagent.com/job_9950a869-9328-
             <div style={{ fontSize: 22, fontWeight: 800, color: '#FFF', marginBottom: 6 }}>Préférences</div>
             <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', marginBottom: 20, lineHeight: 1.5 }}>{effectiveRole === 'prescriber_company' ? 'Choisissez les notifications que vous souhaitez recevoir pour votre structure.' : 'Activez ou désactivéz les types de notifications.'}</div>
             {notifPrefs ? (effectiveRole === 'prescriber_company' ? [
-              { key: 'intervention_new', label: 'Nouvelle intervention Care', desc: 'Quand un intervenant est sollicite', icon: 'ri-first-aid-kit-line', color: '#8B5CF6' },
-              { key: 'intervention_done', label: 'Intervention terminee', desc: 'Quand un intervenant cloture son rapport', icon: 'ri-check-double-line', color: '#10B981' },
-              { key: 'prescription_new', label: 'Nouvelle prescription', desc: 'Quand un gardien créé une prescription', icon: 'ri-file-text-line', color: '#F59E0B' },
-              { key: 'prescription_validated', label: 'Prescription validee', desc: 'Quand un beneficiaire souscrit', icon: 'ri-checkbox-circle-line', color: '#10B981' },
-              { key: 'alert_new', label: 'Nouvelle alerte', desc: 'Quand une alerte est declenchee', icon: 'ri-alarm-warning-line', color: '#EF4444' },
-              { key: 'alert_resolved', label: 'Alerte cloturee', desc: 'Quand une alerte est resolue', icon: 'ri-shield-check-line', color: '#3B82F6' },
-              { key: 'guardian_joined', label: 'Nouveau gardien', desc: 'Un gardien a accepte votre invitation — pensez a l\'affilier a une agence', icon: 'ri-user-add-line', color: '#D4845A' },
+              { key: 'intervention_new', label: t('notif_intervention_new_label'), desc: t('notif_intervention_new_desc'), icon: 'ri-first-aid-kit-line', color: '#8B5CF6' },
+              { key: 'intervention_done', label: t('notif_intervention_done_label'), desc: t('notif_intervention_done_desc'), icon: 'ri-check-double-line', color: '#10B981' },
+              { key: 'prescription_new', label: t('notif_prescription_new_label'), desc: t('notif_prescription_new_desc'), icon: 'ri-file-text-line', color: '#F59E0B' },
+              { key: 'prescription_validated', label: t('notif_prescription_validated_label'), desc: t('notif_prescription_validated_desc'), icon: 'ri-checkbox-circle-line', color: '#10B981' },
+              { key: 'alert_new', label: t('notif_alert_new_label'), desc: t('notif_alert_new_desc'), icon: 'ri-alarm-warning-line', color: '#EF4444' },
+              { key: 'alert_resolved', label: t('notif_alert_resolved_label'), desc: t('notif_alert_resolved_desc'), icon: 'ri-shield-check-line', color: '#3B82F6' },
+              { key: 'guardian_joined', label: t('notif_guardian_joined_label'), desc: t('notif_guardian_joined_desc'), icon: 'ri-user-add-line', color: '#D4845A' },
             ] : [
-              { key: 'sos_alerts', label: 'Alertes SOS', desc: 'Bouton SOS et alertes critiques', icon: 'ri-alarm-warning-line', color: '#EF4444' },
-              { key: 'fall_detection', label: 'Detection de chute', desc: 'Alertes automatiques de chute', icon: 'ri-run-line', color: '#F59E0B' },
-              { key: 'health_thresholds', label: 'Seuils de sante', desc: 'Anomalies cardiaques et vitaux', icon: 'ri-heart-pulse-line', color: '#3B82F6' },
-              { key: 'low_battery', label: 'Batterie faible', desc: 'Bracelet ou appareil a recharger', icon: 'ri-battery-low-line', color: '#8B5CF6' },
+              { key: 'sos_alerts', label: t('notif_sos_alerts_label'), desc: t('notif_sos_alerts_desc'), icon: 'ri-alarm-warning-line', color: '#EF4444' },
+              { key: 'fall_detection', label: t('notif_fall_detection_label'), desc: t('notif_fall_detection_desc'), icon: 'ri-run-line', color: '#F59E0B' },
+              { key: 'health_thresholds', label: t('threshold_high'), desc: t('notif_sos_alerts_desc'), icon: 'ri-heart-pulse-line', color: '#3B82F6' },
+              { key: 'low_battery', label: t('notif_low_battery_label'), desc: t('notif_low_battery_desc'), icon: 'ri-battery-low-line', color: '#8B5CF6' },
             ]).map((item, i, arr) => (
               <div key={item.key}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '14px 0' } as any}>

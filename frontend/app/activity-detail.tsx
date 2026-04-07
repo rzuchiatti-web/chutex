@@ -293,7 +293,7 @@ export default function ActivityDétailPage() {
                       <span style={{ fontSize: 12, fontWeight: 700, color: recCol }}>{recLabel}</span>
                     </div>
                     <div style={{ fontSize: 12, color: '#6B7280', lineHeight: 1.6 }}>
-                      {recPct >= 80 ? 'Votre corps est bien reposé. Vous pouvez vous entraîner intensément.' : recPct >= 60 ? 'Récupération correcte. Activité modérée conseillée.' : recPct >= 40 ? 'Récupération en cours. Privilégiez la marche douce.' : 'Repos nécessaire. Évitez les efforts intenses.'}
+                      {recPct >= 80 ? t('recovery_text_high') : recPct >= 60 ? t('recovery_text_good') : recPct >= 40 ? t('recovery_text_mid') : t('recovery_text_low')}
                     </div>
                   </div>
                 </div>
@@ -321,7 +321,7 @@ export default function ActivityDétailPage() {
                       <span style={{ fontSize: 10, color: '#9CA3AF' }}>ml/kg/min</span>
                     </div>
                     <div style={{ fontSize: 12, color: '#6B7280', lineHeight: 1.6 }}>
-                      {vo2 >= 40 ? 'Votre capacité aérobique est excellente pour votre age.' : vo2 >= 30 ? 'Bonne capacité aérobique. Continuez vos efforts.' : vo2 >= 20 ? 'Capacité aérobique moyenne. L\'exercice régulier l\'améliorera.' : vo2 > 0 ? 'Capacité aérobique a améliorer. La marche quotidienne vous aidera.' : 'Mesure en attente de données suffisantes.'}
+                      {vo2 >= 40 ? t('vo2_text_excellent') : vo2 >= 30 ? t('vo2_text_good') : vo2 >= 20 ? t('vo2_text_average') : vo2 > 0 ? t('vo2_text_low') : t('vo2_text_pending')}
                     </div>
                   </div>
                 </div>
@@ -342,7 +342,7 @@ export default function ActivityDétailPage() {
                     ))}
                   </div>
                   <div style={{ display: 'flex', justifyContent: 'space-between' } as any}>
-                    {['Faible', 'Moyen', 'Bon', 'Excellent'].map((l, i) => (
+                    {[t('level_low'), t('level_medium'), t('level_good'), t('level_excellent')].map((l, i) => (
                       <span key={i} style={{ fontSize: 8, color: '#9CA3AF', fontWeight: 600 }}>{l}</span>
                     ))}
                   </div>

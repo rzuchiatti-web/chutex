@@ -224,10 +224,10 @@ export default function HealthScreen() {
           {/* Vitals Row */}
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 14 } as any}>
             {[
-              { val: d.heart_rate > 0 ? d.heart_rate : '--', unit: 'bpm', label: 'Rythme cardiaque', status: d.heart_rate > 0 ? 'Mesure recente' : 'Aucune donnee', icon: 'ri-heart-pulse-line', color: '#EF4444', key: 'heart_rate' },
-              { val: d.spo2 > 0 ? `${d.spo2}` : '--', unit: '%', label: 'Saturation O2', status: d.spo2 > 0 ? 'Mesure recente' : 'Aucune donnee', icon: 'ri-drop-line', color: '#6366F1', key: 'spo2' },
-              { val: d.blood_pressure?.systolic > 0 && d.blood_pressure?.diastolic > 0 ? `${d.blood_pressure.systolic}/${d.blood_pressure.diastolic}` : '--/--', unit: 'mmHg', label: 'Pression arterielle', status: d.blood_pressure?.systolic > 0 ? 'Mesure recente' : 'Aucune donnee', icon: 'ri-water-flash-line', color: '#8B5CF6', key: 'blood_pressure' },
-              { val: d.temperature > 0 ? `${d.temperature}` : '--', unit: '°C', label: 'Température', status: d.temperature > 0 ? 'Mesure recente' : 'Aucune donnee', icon: 'ri-temp-hot-line', color: '#F59E0B', key: 'temperature' },
+              { val: d.heart_rate > 0 ? d.heart_rate : '--', unit: 'bpm', label: t('heart_rhythm'), status: d.heart_rate > 0 ? t('recent_measurement') : t('no_data_yet'), icon: 'ri-heart-pulse-line', color: '#EF4444', key: 'heart_rate' },
+              { val: d.spo2 > 0 ? `${d.spo2}` : '--', unit: '%', label: t('saturation_o2'), status: d.spo2 > 0 ? t('recent_measurement') : t('no_data_yet'), icon: 'ri-drop-line', color: '#6366F1', key: 'spo2' },
+              { val: d.blood_pressure?.systolic > 0 && d.blood_pressure?.diastolic > 0 ? `${d.blood_pressure.systolic}/${d.blood_pressure.diastolic}` : '--/--', unit: 'mmHg', label: t('arterial_pressure'), status: d.blood_pressure?.systolic > 0 ? t('recent_measurement') : t('no_data_yet'), icon: 'ri-water-flash-line', color: '#8B5CF6', key: 'blood_pressure' },
+              { val: d.temperature > 0 ? `${d.temperature}` : '--', unit: '°C', label: t('temperature'), status: d.temperature > 0 ? t('recent_measurement') : t('no_data_yet'), icon: 'ri-temp-hot-line', color: '#F59E0B', key: 'temperature' },
             ].map((v, i) => (
               <div key={i} onClick={() => router.push({ pathname: '/metric-detail' as any, params: { key: v.key } })} style={{ padding: '12px 14px 10px', borderRadius: 18, background: cardBg, cursor: 'pointer', transition: 'transform 0.15s' } as any}
                 onMouseEnter={(e: any) => { e.currentTarget.style.transform = 'translateY(-2px)'; }}

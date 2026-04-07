@@ -119,7 +119,7 @@ export default function ExerciseDétailPage() {
                     <i className="ri-shield-check-line" style={{ fontSize: 16, color: intC }} />
                   </div>
                   <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)', lineHeight: 1.5 }}>
-                    {int === 'leger' ? 'Exercice doux, adapte a tous les niveaux.' : int === 'modere' ? 'Effort contrôle, ecoutez votre corps.' : 'Exercice soutenu, avec precaution.'} Arretez en cas de douleur ou d'essoufflement.
+                    {int === 'leger' ? t('exercise_light_desc') : int === 'modere' ? t('exercise_moderate_desc') : t('exercise_intense_desc')} {t('exercise_stop_warning')}
                   </div>
                 </div>
               </>

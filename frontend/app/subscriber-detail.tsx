@@ -32,15 +32,15 @@ export default function SubscriberDétailScreen() {
   if (Platform.OS !== 'web') return <NativePageView path="/subscriber-detail" />;
 
   const rows = [
-    data.phone && { icon: 'ri-phone-line', label: 'Telephone', value: data.phone, phone: true },
-    data.email && { icon: 'ri-mail-line', label: 'Email', value: data.email },
-    data.address && { icon: 'ri-map-pin-line', label: 'Adresse', value: data.address },
-    data.subscription_type && { icon: 'ri-vip-crown-line', label: 'Abonnement', value: data.subscription_type },
-    data.blood_type && { icon: 'ri-drop-line', label: 'Groupe sanguin', value: data.blood_type },
-    data.medical_conditions && { icon: 'ri-heart-pulse-line', label: 'Pathologies', value: data.medical_conditions },
-    data.allergies && { icon: 'ri-alarm-warning-line', label: 'Allergies', value: data.allergies },
-    data.doctor_name && { icon: 'ri-stethoscope-line', label: 'Médecin', value: data.doctor_name },
-    data.emergency_contact_name && { icon: 'ri-shield-user-line', label: 'Contact urgence', value: `${data.emergency_contact_name}${data.emergency_contact_phone ? ` — ${data.emergency_contact_phone}` : ''}` },
+    data.phone && { icon: 'ri-phone-line', label: t('phone_label'), value: data.phone, phone: true },
+    data.email && { icon: 'ri-mail-line', label: t('email_label'), value: data.email },
+    data.address && { icon: 'ri-map-pin-line', label: t('address'), value: data.address },
+    data.subscription_type && { icon: 'ri-vip-crown-line', label: t('subscription'), value: data.subscription_type },
+    data.blood_type && { icon: 'ri-drop-line', label: t('blood_group'), value: data.blood_type },
+    data.medical_conditions && { icon: 'ri-heart-pulse-line', label: t('pathologies'), value: data.medical_conditions },
+    data.allergies && { icon: 'ri-alarm-warning-line', label: t('allergies_label'), value: data.allergies },
+    data.doctor_name && { icon: 'ri-stethoscope-line', label: t('doctor_label'), value: data.doctor_name },
+    data.emergency_contact_name && { icon: 'ri-shield-user-line', label: t('emergency_contact_label'), value: `${data.emergency_contact_name}${data.emergency_contact_phone ? ` — ${data.emergency_contact_phone}` : ''}` },
   ].filter(Boolean);
 
   return (

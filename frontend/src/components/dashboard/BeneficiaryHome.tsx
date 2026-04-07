@@ -241,9 +241,9 @@ export function BeneficiaryHome({ token, user }: { token: string; user: any }) {
   };
 
   const reminderMeta: Record<string, { label: string; img: string; question: string }> = {
-    hydration: { label: 'Hydratation', img: REMINDER_IMAGES.hydration, question: 'Avez-vous bien pense a vous hydrater ?' },
-    medication: { label: 'Traitement', img: REMINDER_IMAGES.medication, question: 'Avez-vous bien pense a prendre votre traitement ?' },
-    alarm: { label: 'Alarmes', img: REMINDER_IMAGES.alarm, question: 'Avez-vous bien pense a votre rappel ?' },
+    hydration: { label: t('hydration_label'), img: REMINDER_IMAGES.hydration, question: t('hydration_question') },
+    medication: { label: t('treatment_label'), img: REMINDER_IMAGES.medication, question: t('medication_question') },
+    alarm: { label: t('alarms_label'), img: REMINDER_IMAGES.alarm, question: t('alarm_question') },
   };
 
   const saveReminder = async () => {
@@ -613,11 +613,11 @@ export function BeneficiaryHome({ token, user }: { token: string; user: any }) {
                           ))}
                         </div>
                         <span style={{ fontSize: 11, fontWeight: 700, color: allDone ? '#10B981' : C.sub }}>
-                          {allDone ? 'Tout fait !' : `${doneCount}/${totalTasks} actions`}
+                          {allDone ? t('all_done') : `${doneCount}/${totalTasks} actions`}
                         </span>
                       </div>
                       <div style={{ padding: '4px 10px', borderRadius: 8, background: ap.today_checkin ? 'rgba(16,185,129,0.08)' : `${clr}08`, border: `1px solid ${ap.today_checkin ? 'rgba(16,185,129,0.15)' : `${clr}15`}`, fontSize: 10, fontWeight: 700, color: ap.today_checkin ? '#10B981' : clr }}>
-                        {ap.today_checkin ? 'Bilan fait' : 'Continuer'}
+                        {ap.today_checkin ? t('checkin_done') : t('checkin_continue')}
                       </div>
                     </div>
                   )}

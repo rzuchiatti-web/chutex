@@ -9,18 +9,18 @@ import NoraOverlay from '../src/components/dashboard/NoraOverlay';
 const P = '#A78BFA', G = '#10B981', A = '#F59E0B', R = '#EF4444', B = '#38BDF8', CY = '#22D3EE';
 const NORA_VIDEO = 'https://customer-assets.emergentagent.com/job_ba3a5789-c8f1-4b12-b5d8-478a7f99aaea/artifacts/b6eh1r76_Nora_video.mp4';
 
-const CONTEXT_META: Record<string, { label: string; icon: string; color: string }> = {
-  health: { label: 'Sante globale', icon: 'ri-heart-pulse-line', color: R },
-  aging: { label: 'Age biologique', icon: 'ri-seedling-line', color: G },
-  minceur: { label: 'Minceur', icon: 'ri-scales-3-line', color: A },
-  activity: { label: 'Activite', icon: 'ri-run-line', color: CY },
-  sleep: { label: 'Sommeil', icon: 'ri-moon-line', color: P },
-  glycemia: { label: 'Glycémie', icon: 'ri-drop-line', color: R },
-  heart_rate: { label: 'Rythme cardiaque', icon: 'ri-heart-line', color: R },
-  spo2: { label: 'Oxygene', icon: 'ri-lungs-line', color: B },
-  blood_pressure: { label: 'Tension', icon: 'ri-stethoscope-line', color: P },
-  temperature: { label: 'Température', icon: 'ri-temp-hot-line', color: A },
-  general: { label: 'Analyse generale', icon: 'ri-brain-line', color: P },
+const CONTEXT_META_KEYS: Record<string, { labelKey: string; icon: string; color: string }> = {
+  health: { labelKey: 'nora_global_health', icon: 'ri-heart-pulse-line', color: R },
+  aging: { labelKey: 'bio_age', icon: 'ri-seedling-line', color: G },
+  minceur: { labelKey: 'weight_tracking', icon: 'ri-scales-3-line', color: A },
+  activity: { labelKey: 'activity', icon: 'ri-run-line', color: CY },
+  sleep: { labelKey: 'sleep', icon: 'ri-moon-line', color: P },
+  glycemia: { labelKey: 'glycemia', icon: 'ri-drop-line', color: R },
+  heart_rate: { labelKey: 'heart_rhythm', icon: 'ri-heart-line', color: R },
+  spo2: { labelKey: 'saturation_o2', icon: 'ri-lungs-line', color: B },
+  blood_pressure: { labelKey: 'arterial_pressure', icon: 'ri-stethoscope-line', color: P },
+  temperature: { labelKey: 'temperature', icon: 'ri-temp-hot-line', color: A },
+  general: { labelKey: 'information', icon: 'ri-brain-line', color: P },
 };
 
 export default function NoraHistoryPage() {
@@ -58,7 +58,7 @@ export default function NoraHistoryPage() {
       const yesterday = new Date(today); yesterday.setDate(yesterday.getDate() - 1);
       const yesterdayStr = yesterday.toISOString().split('T')[0];
       if (d === todayStr) return "Aujourd'hui";
-      if (d === yesterdayStr) return 'Hier';
+      if (d === yesterdayStr) return t('yesterday');
       return dt.toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' });
     } catch { return d; }
   };
@@ -98,7 +98,8 @@ export default function NoraHistoryPage() {
             <div key={date} style={{ marginBottom: 20 } as any}>
               <div style={{ fontSize: 12, fontWeight: 800, color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 10, padding: '0 4px' }}>{formatDate(date)}</div>
               {groupedByDate[date].map((a: any, i: number) => {
-                const meta = CONTEXT_META[a.context] || CONTEXT_META.general;
+                const meta = CONTEXT_META_KEYS[a.context] || CONTEXT_META_KEYS.general;
+                const label = t(meta.labelKey);
                 const uid = `${a.context}_${a.date}_${i}`;
                 const isExpanded = expanded === uid;
                 return (
@@ -108,7 +109,7 @@ export default function NoraHistoryPage() {
                         <i className={meta.icon} style={{ fontSize: 18, color: meta.color }} />
                       </div>
                       <div style={{ flex: 1, minWidth: 0 } as any}>
-                        <div style={{ fontSize: 14, fontWeight: 800, color: '#111' }}>{meta.label}</div>
+                        <div style={{ fontSize: 14, fontWeight: 800, color: '#111' }}>{label}</div>
                         {!isExpanded && (
                           <div style={{ fontSize: 11, color: '#9CA3AF', marginTop: 2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' } as any}>{a.analysis?.slice(0, 80)}...</div>
                         )}
@@ -132,7 +133,7 @@ export default function NoraHistoryPage() {
         </div>
       </div>
       <style dangerouslySetInnerHTML={{ __html: `@keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}` }} />
-      {replayCtx && <NoraOverlay token={token} endpoint={`/api/nora/analysis?context=${replayCtx}`} title={CONTEXT_META[replayCtx]?.label || 'Analyse'} subtitle="Analyse mise a jour par Nora" onClose={() => setReplayCtx(null)} />}
+      {replayCtx && <NoraOverlay token={token} endpoint={`/api/nora/analysis?context=${replayCtx}`} title={t(CONTEXT_META_KEYS[replayCtx]?.labelKey || 'information')} subtitle={t('analysis_in_progress')} onClose={() => setReplayCtx(null)} />}
     </div>
   );
 }

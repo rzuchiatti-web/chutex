@@ -21,7 +21,7 @@ const ZONES: Record<string, { min: number; max: number; label: string; color: st
 };
 
 const DAYS_SHORT = ['Lun','Mar','Mer','Jeu','Ven','Sam','Dim'];
-const MONTHS_FR = ['Janvier','Fevrier','Mars','Avril','Mai','Juin','Juillet','Aout','Septembre','Octobre','Novembre','Decembre'];
+const MONTHS_FR_DEFAULT = ['Janvier','Fevrier','Mars','Avril','Mai','Juin','Juillet','Aout','Septembre','Octobre','Novembre','Decembre'];
 const toDateStr = (d: Date) => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
 
 function smooth(pts: { x: number; y: number }[], t = 0.3): string {
@@ -102,6 +102,8 @@ export default function MetricDétailScreen() {
   const params = useLocalSearchParams<{ key: string; beneficiaryId?: string }>();
   const { token } = useAuth();
   const { t } = useI18n();
+  const MONTHS_FR = [t('months_fr_jan'),t('months_fr_feb'),t('months_fr_mar'),t('months_fr_apr'),t('months_fr_may'),t('months_fr_jun'),t('months_fr_jul'),t('months_fr_aug'),t('months_fr_sep'),t('months_fr_oct'),t('months_fr_nov'),t('months_fr_dec')];
+  const DAYS_I18N = [t('day_mon'),t('day_tue'),t('day_wed'),t('day_thu'),t('day_fri'),t('day_sat'),t('day_sun')];
   const router = useRouter();
   const webBeneficiaryId = (() => { try { if (typeof window !== 'undefined' && window.location?.search) return new URLSearchParams(window.location.search).get('beneficiaryId') || ''; } catch {} return ''; })();
   const key = params.key;
