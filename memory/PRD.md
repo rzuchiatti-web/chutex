@@ -1,57 +1,37 @@
 # Chutex Care - PRD
 
-## Build 129 (2026-04-06) — Pipeline BLE → WebSocket → UI temps réel
-
-### Architecture BLE sync (Build 129):
-```
-Bracelet BLE → Frontend parse → POST /api/bracelet/v8/push
-  → Backend: stocke device doc + readings + consolidated
-  → Backend: invalide cache daily-report
-  → Backend: envoie WebSocket {type: "ble_sync"} au frontend
-  → Frontend: NotificationCenter reçoit → clearApiCache() + fetchData()
-  → Toutes les pages se rafraîchissent instantanément
-```
-
-### P1 Fixes (2026-04-07):
-**Poids & IMC:**
-- Backend daily-report: fallback au profil user (weight_kg/height_cm) pour poids et IMC quand aucune pesée balance
-- Dashboard: corrigé minceurData.current?.weight (au lieu de .current_weight)
-- Barre progression objectif poids: formule corrigée (plus bloquée à 50%)
-- BMI affiché 24.5 dans santé métabolique
-
-**Validation exercice:**
-- clearApiCache() appelé après complétion d'un exercice (rafraîchit dashboard automatiquement)
-
-**Rappels & Notifications Push:**
-- Backend envoie WebSocket 'reminder_alert' en temps réel quand un rappel se déclenche
-- Frontend NotificationCenter reçoit 'reminder_alert' et affiche un banner in-app immédiat
-- Push notification + notification in-app créée pour chaque rappel
-- Vibration bracelet déclenchée (2-4 vibrations selon type)
-
-**Gilet BLE (Vest):**
-- Ajout timeout 25s pour le scan BLE natif du gilet (évite la boucle infinie)
-- Status passé à 'error' avec message explicatif si pas de réponse
-
-### Batch UI/UX (2026-04-07):
-- Bouton "Voir mon activité" : blanc avec icône en dark mode
-- Page Devices : dark mode complet (cartes glass, textes blancs, contraste)
-- Dorsi Bilan : suppression "Continuer sans coussin", suppression images phases, % centré
-- Dorsi Programme : bouton retour rond, popup info glass renforcé
-- Instructions bracelet : charge >20% (vert clignotant), positionnement 1 doigt du poignet
-
-### Native iOS auto-reconnect:
-- _layout.tsx: 3s après chargement WebView + retry 30s
-- scanAndConnect silent avec knownDeviceId
-- startBraceletProtocol: monitoring FFF7 + polling 10-15s
-
 ## Architecture
 - Frontend: React Native _layout.tsx + WebView. BLE: bleV8Bridge.ts (natif) + useBleConnection.ts (Chrome)
 - Backend: FastAPI. WebSocket: ws_manager.py. Routes: bracelet_routes.py, health_report_routes.py
 - DB: MongoDB (vitallink_db)
 
+## BLE Sync Pipeline
+```
+Bracelet BLE → POST /api/bracelet/v8/push → Backend Save → WebSocket ble_sync → Frontend clearApiCache() + fetchData()
+```
+
+## Completed (2026-04-07)
+
+### P1 Fixes
+- **Poids & IMC**: Backend fallback profil user (75kg → BMI 24.5), frontend minceurData.current?.weight fix, barre progression corrigée
+- **Validation exercice**: clearApiCache() après complétion
+- **Rappels/Notifications**: WebSocket reminder_alert temps réel, banner in-app, push + vibration
+- **Gilet BLE**: Timeout 25s scan natif, plus de boucle infinie
+
+### Batch UI/UX
+- Bouton "Voir mon activité" blanc avec icône en dark mode
+- Page Devices dark mode complet
+- Dorsi Bilan: pas de "continuer sans coussin", pas d'images phases, % centré, boutons ronds
+- Dorsi Programme: bouton retour rond, popup info glass renforcé
+- Instructions bracelet: charge >20%, positionnement 1 doigt du poignet
+
+### P1 Nouvelles features
+- **Minceur**: Streak badge sous le poids dans le header
+- **Pouls temps réel**: Badge "bpm en direct" avec polling /api/devices toutes les 10s sur page metric-detail heart_rate
+- **Dorsi jeux**: Coussin connecté obligatoire (alert si non connecté), historique 11 bilans avec barres d'évolution (Avant/Arrière/Gauche/Droite)
+- **WiFi Balance Lefu**: Déjà implémenté (scale-detail.tsx + configureScaleWifi)
+
 ## Upcoming Tasks
-- P1: Jeux Dorsi (imposer coussin connecté, complexité 5 jeux, historique bilans)
-- P1: Minceur/Poids (enlever refresh/streak, placer streak sous poids)
-- P1: Configuration WiFi balance Lefu
-- P2: Pouls en temps réel dans header page pouls
+- P1: Jeux Dorsi - ajouter complexité/profondeur visuelle à 5 jeux
+- P2: Pouls en temps réel - améliorer avec WebSocket au lieu de polling
 - P2: Deploiement TCP J2358, Gilet complet, Signature, Parrainage, Essai 7j, Vivoo

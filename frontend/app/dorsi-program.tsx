@@ -467,9 +467,13 @@ export default function DorsiProgramPage() {
 
   const fetchProgram = useCallback(async () => {
     try {
-      const programs = await apiFetch('/api/dorsi/programs', {}, token);
+      const [programs, bilans] = await Promise.all([
+        apiFetch('/api/dorsi/programs', {}, token),
+        apiFetch('/api/dorsi/bilans', {}, token).catch(() => []),
+      ]);
       const active = programs.find((p: any) => p.status === 'active') || programs[0];
       setProgram(active || null);
+      if (Array.isArray(bilans) && bilans.length > 0) setBilanHistory(bilans);
     } catch (e) { console.error(e); } finally { setLoading(false); }
   }, [token]);
 
