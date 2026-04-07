@@ -329,6 +329,13 @@ export default function MinceurPage() {
                   <span style={{ fontSize: 52, fontWeight: 900, color: '#FFF', lineHeight: 1, letterSpacing: -1 }}>{cr.weight > 0 ? cr.weight : '--'}</span>
                   <span style={{ fontSize: 16, fontWeight: 600, color: 'rgba(255,255,255,0.3)' }}>kg</span>
                 </div>
+                {streak > 0 && (
+                  <div onClick={() => setShowStreakInfo(true)} data-testid="streak-badge" style={{ display: 'inline-flex', alignItems: 'center', gap: 6, marginTop: 8, padding: '4px 14px', borderRadius: 999, background: 'rgba(255,255,255,0.12)', border: '1px solid rgba(255,255,255,0.15)', cursor: 'pointer' } as any}>
+                    <i className="ri-fire-fill" style={{ fontSize: 14, color: '#F97316' }} />
+                    <span style={{ fontSize: 13, fontWeight: 800, color: '#FFF' }}>{streak}</span>
+                    <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.4)' }}>jours</span>
+                  </div>
+                )}
               </div>
             )}
 

@@ -120,6 +120,23 @@ export default function MetricDetailScreen() {
   const isReadonly = !!beneficiaryId;
   const chartRef = useRef<HTMLDivElement>(null);
 
+  // Live pulse polling for heart_rate
+  const [liveHR, setLiveHR] = useState<number>(0);
+  const liveInterval = useRef<any>(null);
+  useEffect(() => {
+    if (key !== 'heart_rate' || !token) return;
+    const pollLive = async () => {
+      try {
+        const devices = await apiFetch('/api/devices', {}, token);
+        const bracelet = Array.isArray(devices) ? devices.find((d: any) => d.device_type === 'bracelet') : null;
+        if (bracelet?.last_heart_rate && bracelet.last_heart_rate > 0) setLiveHR(bracelet.last_heart_rate);
+      } catch {}
+    };
+    pollLive();
+    liveInterval.current = setInterval(pollLive, 10000);
+    return () => { if (liveInterval.current) clearInterval(liveInterval.current); };
+  }, [key, token]);
+
   const load = async (r: string, dateOverride?: string) => {
     setLoading(true); setChartReady(false);
     try {
@@ -379,6 +396,14 @@ export default function MetricDetailScreen() {
                 <span data-testid="current-value" style={{ fontSize: 48, fontWeight: 900, color: '#FFF', lineHeight: 1 }}>{isBP && selData ? `${selData.systolic}/${selData.diastolic}` : selData ? selData.value : currentVal}</span>
                 <span style={{ fontSize: 16, fontWeight: 600, color: 'rgba(255,255,255,0.5)' }}>{m.unit}</span>
               </div>
+              {/* Live pulse indicator for heart_rate */}
+              {key === 'heart_rate' && liveHR > 0 && (
+                <div data-testid="live-pulse-badge" style={{ display: 'inline-flex', alignItems: 'center', gap: 8, marginTop: 10, padding: '6px 16px', borderRadius: 999, background: 'rgba(239,68,68,0.2)', border: '1px solid rgba(239,68,68,0.3)' } as any}>
+                  <div style={{ width: 10, height: 10, borderRadius: '50%', background: '#EF4444', animation: 'pulseDot 1s ease infinite' } as any} />
+                  <span style={{ fontSize: 14, fontWeight: 800, color: '#FFF' }}>{liveHR}</span>
+                  <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.5)' }}>bpm en direct</span>
+                </div>
+              )}
               {!isGauge && (
                 <>
                   {nMin != null && (
@@ -626,7 +651,7 @@ export default function MetricDetailScreen() {
         </div>
       </div>
       {showNoraMetric && <NoraOverlay token={token} endpoint={`/api/nora/page-analysis?context=${key}`} title={`Analyse ${m.title?.toLowerCase()}`} subtitle={`Analyse detaillee de votre ${m.title?.toLowerCase()}`} onClose={() => setShowNoraMetric(false)} />}
-      <style dangerouslySetInnerHTML={{ __html: `@keyframes fadeSlideIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}` }} />
+      <style dangerouslySetInnerHTML={{ __html: `@keyframes fadeSlideIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}@keyframes pulseDot{0%,100%{opacity:1;transform:scale(1)}50%{opacity:0.4;transform:scale(0.8)}}` }} />
     </div>
   );
 }

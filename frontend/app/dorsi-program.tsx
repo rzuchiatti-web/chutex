@@ -463,6 +463,7 @@ export default function DorsiProgramPage() {
   const [streaks, setStreaks] = useState<any>(null);
   const [comparison, setComparison] = useState<any>(null);
   const [showInfo, setShowInfo] = useState('');
+  const [bilanHistory, setBilanHistory] = useState<any[]>([]);
 
   const fetchProgram = useCallback(async () => {
     try {
@@ -482,14 +483,23 @@ export default function DorsiProgramPage() {
       apiFetch('/api/dorsi/index', {}, token).then(setDorsiIndex).catch(() => {});
       apiFetch('/api/dorsi/streaks', {}, token).then(setStreaks).catch(() => {});
       apiFetch('/api/dorsi/comparison', {}, token).then(setComparison).catch(() => {});
+      apiFetch('/api/dorsi/bilans', {}, token).then(b => { if (Array.isArray(b)) setBilanHistory(b); }).catch(() => {});
     }
   }, [token]);
 
   const startSession = (day: any, session: any) => {
+    if (!ble.connected) {
+      alert('Connectez votre coussin Dorsi pour commencer la session.');
+      return;
+    }
     router.push({ pathname: '/dorsi-game', params: { gameId: session.game.game_id, programId: program?.id, day: String(day.day_num), session: String(session.session_num) } } as any);
   };
 
   const startFreeGame = (gid: string) => {
+    if (!ble.connected) {
+      alert('Connectez votre coussin Dorsi pour jouer.');
+      return;
+    }
     router.push({ pathname: '/dorsi-game', params: { gameId: gid } } as any);
   };
 
@@ -764,6 +774,55 @@ export default function DorsiProgramPage() {
             )}
 
             {/* Program progress */}
+
+            {/* ═══ BILAN HISTORY with evolution bars ═══ */}
+            {bilanHistory.length > 0 && (
+              <div data-testid="bilan-history-section" style={{ ...GLASS, padding: 20, marginBottom: 16 } as any}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 } as any}>
+                  <span style={{ fontSize: 13, fontWeight: 800, color: '#FFF' }}>Historique des bilans</span>
+                  <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)' }}>{bilanHistory.length} bilan{bilanHistory.length > 1 ? 's' : ''}</span>
+                </div>
+                {bilanHistory.slice(0, 5).map((bilan: any, bi: number) => {
+                  const m = bilan.measurements || {};
+                  const dirs = [
+                    { key: 'forward', label: 'Avant', color: '#F97316' },
+                    { key: 'backward', label: 'Arriere', color: '#22D3EE' },
+                    { key: 'left', label: 'Gauche', color: '#A78BFA' },
+                    { key: 'right', label: 'Droite', color: '#10B981' },
+                  ];
+                  const avgMobility = dirs.reduce((s, d) => s + (m[d.key]?.mobility || 0), 0) / 4;
+                  const prevBilan = bilanHistory[bi + 1];
+                  const prevAvg = prevBilan ? ['forward','backward','left','right'].reduce((s, k) => s + (prevBilan.measurements?.[k]?.mobility || 0), 0) / 4 : 0;
+                  const diff = prevBilan ? Math.round(avgMobility - prevAvg) : 0;
+                  const dateStr = bilan.created_at ? new Date(bilan.created_at).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' }) : '';
+                  return (
+                    <div key={bilan.id || bi} style={{ padding: '12px 0', borderTop: bi > 0 ? '1px solid rgba(255,255,255,0.06)' : 'none' } as any}>
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 } as any}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 8 } as any}>
+                          <span style={{ fontSize: 12, fontWeight: 700, color: '#FFF' }}>{dateStr}</span>
+                          {bi === 0 && <span style={{ fontSize: 8, fontWeight: 700, color: '#F97316', background: 'rgba(249,115,22,0.15)', padding: '2px 8px', borderRadius: 99 }}>Dernier</span>}
+                        </div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 4 } as any}>
+                          <span style={{ fontSize: 16, fontWeight: 900, color: '#FFF' }}>{Math.round(avgMobility)}%</span>
+                          {diff !== 0 && <span style={{ fontSize: 10, fontWeight: 700, color: diff > 0 ? '#10B981' : '#EF4444' }}>{diff > 0 ? '+' : ''}{diff}%</span>}
+                        </div>
+                      </div>
+                      <div style={{ display: 'flex', gap: 4 } as any}>
+                        {dirs.map(d => (
+                          <div key={d.key} style={{ flex: 1 } as any}>
+                            <div style={{ height: 6, borderRadius: 3, background: 'rgba(255,255,255,0.06)', overflow: 'hidden' } as any}>
+                              <div style={{ height: '100%', borderRadius: 3, background: d.color, width: `${m[d.key]?.mobility || 0}%`, transition: 'width 0.5s' } as any} />
+                            </div>
+                            <div style={{ fontSize: 7, color: 'rgba(255,255,255,0.25)', marginTop: 2, textAlign: 'center' }}>{d.label}</div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+
             {program && (
               <>
                 <div style={{ ...GLASS, padding: 20, marginBottom: 16 } as any}>
