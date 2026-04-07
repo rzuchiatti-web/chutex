@@ -17,7 +17,7 @@ const CAT_ICONS: Record<string, string> = {
   general: 'ri-calendar-check-line',
 };
 
-export default function ProProgramDetailPage() {
+export default function ProProgramDétailPage() {
   const { token } = useAuth();
   const router = useRouter();
   const { id } = useLocalSearchParams();
@@ -97,7 +97,7 @@ export default function ProProgramDetailPage() {
                     <div style={{ flex: 1, padding: '14px 12px', textAlign: 'center', borderRight: '1px solid rgba(255,255,255,0.04)' } as any}>
                       <i className="ri-timer-line" style={{ fontSize: 18, color: '#10B981', display: 'block', marginBottom: 4 }} />
                       <div style={{ fontSize: 18, fontWeight: 900, color: '#FFF' }}>{prog.duration_weeks || '—'}<span style={{ fontSize: 9, color: 'rgba(255,255,255,0.2)' }}> sem.</span></div>
-                      <div style={{ fontSize: 8, color: 'rgba(255,255,255,0.25)', fontWeight: 700, textTransform: 'uppercase' }}>Duree</div>
+                      <div style={{ fontSize: 8, color: 'rgba(255,255,255,0.25)', fontWeight: 700, textTransform: 'uppercase' }}>Durée</div>
                     </div>
                     <div style={{ flex: 1, padding: '14px 12px', textAlign: 'center' } as any}>
                       <i className="ri-list-check-2" style={{ fontSize: 18, color: '#F59E0B', display: 'block', marginBottom: 4 }} />
@@ -159,7 +159,7 @@ export default function ProProgramDetailPage() {
                     <i className="ri-information-line" style={{ fontSize: 16, color: accent }} />
                   </div>
                   <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)', lineHeight: 1.5 }}>
-                    Programme cree le {prog.created_at ? new Date(prog.created_at).toLocaleDateString('fr-FR') : '—'}
+                    Programme créé le {prog.created_at ? new Date(prog.created_at).toLocaleDateString('fr-FR') : '—'}
                     {prog.professional_name && ` par ${prog.professional_name}`}
                   </div>
                 </div>

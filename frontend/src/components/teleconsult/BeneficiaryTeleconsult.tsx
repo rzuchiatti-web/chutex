@@ -70,7 +70,7 @@ export function BeneficiaryTeleconsult({ token }: { token: string }) {
             <div style={{ fontSize: 22, fontWeight: 900, color: '#FFF', marginBottom: 10 }}>Teleconsultation</div>
             <div data-testid="doctor-available-pill" style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '8px 16px', borderRadius: 999, background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)' } as any}>
               <div style={{ width: 8, height: 8, borderRadius: 999, background: '#22C55E', boxShadow: '0 0 8px rgba(34,197,94,0.5)' }} />
-              <span style={{ fontSize: 12, fontWeight: 600, color: 'rgba(255,255,255,0.8)' }}>Medecin disponible 24/7</span>
+              <span style={{ fontSize: 12, fontWeight: 600, color: 'rgba(255,255,255,0.8)' }}>Médecin disponible 24/7</span>
             </div>
           </div>
 
@@ -127,7 +127,7 @@ export function BeneficiaryTeleconsult({ token }: { token: string }) {
             {step > 0 ? (
               <div onClick={() => setStep(step - 1)} style={{ padding: '14px 20px', borderRadius: 999, background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)', color: 'rgba(255,255,255,0.6)', fontSize: 14, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)' } as any}>
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M15 18l-6-6 6-6"/></svg>
-                Precedent
+                Précédent
               </div>
             ) : <div />}
             {step < questions.length - 1 ? (
@@ -163,7 +163,7 @@ export function BeneficiaryTeleconsult({ token }: { token: string }) {
             onPress={() => { setPainLevel(n); setAnswers({ ...answers, [q.id]: n.toString() }); }}><Text style={[s.scaleBT, painLevel === n && { color: '#FFF' }]}>{n}</Text></TouchableOpacity>)}</View></View>}
         {q.type === 'text' && <TextInput style={s.textInp} placeholder="Decrivez..." placeholderTextColor={Colors.textMuted} value={freeText} onChangeText={v => { setFreeText(v); setAnswers({ ...answers, [q.id]: v }); }} multiline />}
       </View>}
-      <View style={s.navR}>{step > 0 && <TouchableOpacity style={s.prevB} onPress={() => setStep(step - 1)}><Icon name="chevron-back" size={16} color={Colors.textSecondary} /><Text style={s.prevBT}>Precedent</Text></TouchableOpacity>}
+      <View style={s.navR}>{step > 0 && <TouchableOpacity style={s.prevB} onPress={() => setStep(step - 1)}><Icon name="chevron-back" size={16} color={Colors.textSecondary} /><Text style={s.prevBT}>Précédent</Text></TouchableOpacity>}
         <View style={{ flex: 1 }} />{step < questions.length - 1 ? <TouchableOpacity style={s.nextB} onPress={() => setStep(step + 1)}><Text style={s.nextBT}>Suivant</Text><Icon name="chevron-forward" size={16} color="#111827" /></TouchableOpacity>
           : <TouchableOpacity testID="submit-qcm" style={s.submitB} onPress={submitQCM}><Icon name="send" size={14} color="#111827" /><Text style={s.submitBT}>Envoyer</Text></TouchableOpacity>}</View>
     </ScrollView>);

@@ -27,7 +27,7 @@ const Badge = ({ label, color, bg }: { label: string; color: string; bg: string 
   </View>
 );
 
-export default function AdminClientDetail() {
+export default function AdminClientDétail() {
   const { colors, isDark } = useTheme();
   const { clientId, viewAs } = useLocalSearchParams<{ clientId: string; viewAs?: string }>();
   const { token } = useAuth();
@@ -51,7 +51,7 @@ export default function AdminClientDetail() {
   const showAsBen = viewAs === 'beneficiary' || (!viewAs && u.role === 'beneficiary');
   const showAsGuard = viewAs === 'guardian' || (!viewAs && u.role === 'guardian');
   const roleColor = showAsBen ? '#4FC3F7' : '#FFD54F';
-  const roleLabel = showAsBen ? 'Beneficiaire' : 'Gardien';
+  const roleLabel = showAsBen ? 'Bénéficiaire' : 'Gardien';
 
   return (
     <View style={{ flex: 1, backgroundColor: '#FFFFFF' }}>
@@ -80,7 +80,7 @@ export default function AdminClientDetail() {
                 {showAsGuard && u.is_intervention_provider && <Badge label="Intervenant Care" color="#2E7D32" bg="#E8F5E9" />}
                 {showAsBen && u.has_subscription && <Badge label={`Abon. ${u.subscription_type?.toUpperCase()}`} color={u.subscription_type === 'care' ? '#7B1FA2' : '#1565C0'} bg={u.subscription_type === 'care' ? '#F3E5F5' : '#E3F2FD'} />}
                 {(showAsBen && u.has_guardian_space) && <Badge label="Aussi gardien" color="#888" bg="#F5F5F5" />}
-                {(showAsGuard && u.has_beneficiary_space) && <Badge label="Aussi beneficiaire" color="#888" bg="#F5F5F5" />}
+                {(showAsGuard && u.has_beneficiary_space) && <Badge label="Aussi bénéficiaire" color="#888" bg="#F5F5F5" />}
               </View>
             </View>
           </View>
@@ -106,7 +106,7 @@ export default function AdminClientDetail() {
             <InfoRow icon="water-outline" label="Groupe sanguin" value={u.blood_type} color="#E53935" />
             <InfoRow icon="warning-outline" label="Allergies" value={u.allergies} color="#FF9800" />
             <InfoRow icon="fitness-outline" label="Pathologies" value={u.medical_conditions} color="#E53935" />
-            <InfoRow icon="person-circle-outline" label="Medecin" value={u.doctor_name} />
+            <InfoRow icon="person-circle-outline" label="Médecin" value={u.doctor_name} />
             <InfoRow icon="call-outline" label="Contact urgence" value={u.emergency_contact_name ? `${u.emergency_contact_name} (${u.emergency_contact_phone || ''})` : ''} color="#E53935" />
           </GlassCard>
         )}
@@ -196,7 +196,7 @@ export default function AdminClientDetail() {
               <View style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: '#E1F5FE', justifyContent: 'center', alignItems: 'center' }}>
                 <Icon name="heart" size={18} color="#0288D1" />
               </View>
-              <Text style={{ fontSize: 16, fontWeight: '800', color: '#111827' }}>Beneficiaires ({data.beneficiaries.length})</Text>
+              <Text style={{ fontSize: 16, fontWeight: '800', color: '#111827' }}>Bénéficiaires ({data.beneficiaries.length})</Text>
             </View>
             {data.beneficiaries.map((b: any) => (
               <TouchableOpacity key={b.id} style={{ flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 10, borderBottomWidth: 0.5, borderBottomColor: 'rgba(0,0,0,0.04)' }}
@@ -318,8 +318,8 @@ export default function AdminClientDetail() {
               </View>
               <Text style={{ fontSize: 16, fontWeight: '800', color: '#111827' }}>Localisation</Text>
             </View>
-            <InfoRow icon="location-outline" label="Coordonnees" value={`${u.latitude?.toFixed(4)}, ${u.longitude?.toFixed(4)}`} color="#1565C0" />
-            <InfoRow icon="share-outline" label="Partage" value={u.location_sharing === 'always' ? 'Toujours' : u.location_sharing === 'alert_only' ? 'Alertes uniquement' : 'Desactive'} />
+            <InfoRow icon="location-outline" label="Coordonnées" value={`${u.latitude?.toFixed(4)}, ${u.longitude?.toFixed(4)}`} color="#1565C0" />
+            <InfoRow icon="share-outline" label="Partage" value={u.location_sharing === 'always' ? 'Toujours' : u.location_sharing === 'alert_only' ? 'Alertes uniquement' : 'Désactivé'} />
           </GlassCard>
         )}
 
@@ -328,7 +328,7 @@ export default function AdminClientDetail() {
           <GlassCard style={{ alignItems: 'center', padding: 24 }}>
             <Icon name="checkmark-circle-outline" size={32} color="#4CAF50" />
             <Text style={{ fontSize: 14, fontWeight: '700', color: '#10B981', marginTop: 8 }}>Aucune alerte</Text>
-            <Text style={{ fontSize: 11, color: '#6B7280', marginTop: 2 }}>Ce beneficiaire n'a pas d'historique d'alertes</Text>
+            <Text style={{ fontSize: 11, color: '#6B7280', marginTop: 2 }}>Ce bénéficiaire n'a pas d'historique d'alertes</Text>
           </GlassCard>
         )}
       </ScrollView>

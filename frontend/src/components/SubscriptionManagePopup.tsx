@@ -178,12 +178,12 @@ export default function SubscriptionManagePopup({ show, onClose, subData, onRefr
           <div>
             {(() => {
               const ct = subData?.contract || {};
-              const planLabel = ct.plan_label || (isCare ? 'Care — Teleassistance 24/7' : isSport ? 'Sport — Coaching personnalise' : isPhysio ? 'Physio — Reeducation personnalisee' : 'Standard — Bracelet Elio');
+              const planLabel = ct.plan_label || (isCare ? 'Care — Téléassistance 24/7' : isSport ? 'Sport — Coaching personnalisé' : isPhysio ? 'Physio — Reeducation personnalisée' : 'Standard — Bracelet Elio');
               const price = ct.price_monthly || (isCare ? 39.90 : isProSub ? 89.00 : 24.90);
               const priceCredit = ct.price_after_credit;
               return [
                 { icon: 'ri-shield-check-line', label: 'Formule', value: planLabel },
-                { icon: 'ri-money-euro-circle-line', label: 'Mensualite', value: `${price.toFixed(2).replace('.', ',')} EUR/mois${priceCredit ? ` (${priceCredit.toFixed(2).replace('.', ',')} EUR apres credit d'impot)` : ''}` },
+                { icon: 'ri-money-euro-circle-line', label: 'Mensualite', value: `${price.toFixed(2).replace('.', ',')} EUR/mois${priceCredit ? ` (${priceCredit.toFixed(2).replace('.', ',')} EUR après credit d'impot)` : ''}` },
                 ct.contract_number && { icon: 'ri-file-text-line', label: 'N° contrat', value: ct.contract_number },
                 sub?.beneficiary_phone && { icon: 'ri-phone-line', label: 'Telephone', value: sub.beneficiary_phone },
                 (subData?.start_date || sub?.created_at) && { icon: 'ri-calendar-line', label: 'Souscrit le', value: new Date(subData.start_date || sub.created_at).toLocaleDateString('fr-FR', { day: '2-digit', month: 'long', year: 'numeric' }) },
@@ -207,10 +207,10 @@ export default function SubscriptionManagePopup({ show, onClose, subData, onRefr
             <div style={{ marginTop: 16, padding: '14px 16px', borderRadius: 16, background: `${accent}0C`, border: `1px solid ${accent}18`, ...glass } as any}>
               <div style={{ fontSize: 9, fontWeight: 700, color: 'rgba(255,255,255,0.3)', letterSpacing: 1.5, textTransform: 'uppercase', marginBottom: 10 }}>Inclus</div>
               {(isCare
-                ? ['Detection de chute', 'Bouton SOS', 'Plateau d\'ecoute 24/7', 'Intervenants Care', 'Suivi GPS', 'Notifications gardiens', 'Rapports']
+                ? ['Détection de chute', 'Bouton SOS', 'Plateau d\'ecoute 24/7', 'Intervenants Care', 'Suivi GPS', 'Notifications gardiens', 'Rapports']
                 : isProSub
-                ? ['Programmes exercices personnalises', 'Suivi par votre professionnel', 'Rappels complements / hydratation', 'Plan repas sur mesure', 'Bilans de sante Nora', 'Messagerie directe', 'Historique activite']
-                : ['Suivi cardiaque', 'SpO2 et temperature', 'Detection de chute', 'Historique sante', 'App mobile']
+                ? ['Programmes exercices personnalisés', 'Suivi par votre professionnel', 'Rappels compléments / hydratation', 'Plan repas sur mesure', 'Bilans de santé Nora', 'Messagerie directe', 'Historique activité']
+                : ['Suivi cardiaque', 'SpO2 et température', 'Détection de chute', 'Historique santé', 'App mobile']
               ).map((f, i) => (
                 <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 } as any}>
                   <i className="ri-check-line" style={{ fontSize: 12, color: accent }} />
@@ -224,7 +224,7 @@ export default function SubscriptionManagePopup({ show, onClose, subData, onRefr
                 <i className="ri-arrow-up-circle-line" style={{ fontSize: 20, color: '#A78BFA' }} />
                 <div style={{ flex: 1 } as any}>
                   <div style={{ fontSize: 13, fontWeight: 700, color: '#FFF' }}>Passer a Chutex Care</div>
-                  <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.35)' }}>+15 EUR/mois — Teleassistance 24/7</div>
+                  <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.35)' }}>+15 EUR/mois — Téléassistance 24/7</div>
                 </div>
                 <i className="ri-arrow-right-s-line" style={{ fontSize: 16, color: '#A78BFA' }} />
               </div>
@@ -248,7 +248,7 @@ export default function SubscriptionManagePopup({ show, onClose, subData, onRefr
                 {[
                   'Resiliable a tout moment (30 jours de preavis)',
                   'Credit d\'impot 50% (art. 199 sexdecies du CGI)',
-                  'Equipements a restituer en cas de resiliation',
+                  'Équipements a restituer en cas de resiliation',
                 ].map((r, i) => (
                   <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: 6, marginBottom: 5 } as any}>
                     <i className="ri-checkbox-circle-line" style={{ fontSize: 12, color: 'rgba(255,255,255,0.2)', marginTop: 1, flexShrink: 0 }} />
@@ -317,8 +317,8 @@ export default function SubscriptionManagePopup({ show, onClose, subData, onRefr
                   <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.5)', lineHeight: 1.6, marginBottom: 14 }}>
                     En resiliant votre abonnement :<br/>
                     - Vous devez retourner le materiel sous 30 jours ouvrables<br/>
-                    - Envoyez le numero de suivi a : <span style={{ color: '#F59E0B', fontWeight: 700 }}>contact@chutex-innovation.com</span><br/>
-                    {isCare ? '- Vous perdrez l\'acces a la teleassistance 24/7, au suivi GPS et aux intervenants Care' : '- Vous ne pourrez plus utiliser votre bracelet Elio ni acceder a vos donnees de sante'}
+                    - Envoyez le numéro de suivi a : <span style={{ color: '#F59E0B', fontWeight: 700 }}>contact@chutex-innovation.com</span><br/>
+                    {isCare ? '- Vous perdrez l\'accès à la téléassistance 24/7, au suivi GPS et aux intervenants Care' : '- Vous ne pourrez plus utiliser votre bracelet Elio ni accéder à vos données de santé'}
                   </div>
                   <div style={{ display: 'flex', gap: 10 } as any}>
                     <div onClick={() => setShowCancel(false)} style={{ flex: 1, padding: '12px', borderRadius: 999, background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.15)', cursor: 'pointer', textAlign: 'center', fontSize: 13, fontWeight: 700, color: '#FFF' } as any}>Annuler</div>
@@ -377,7 +377,7 @@ export default function SubscriptionManagePopup({ show, onClose, subData, onRefr
 
             {/* Save */}
             <div data-testid="save-housing-btn" onClick={saveHousing} style={{ marginTop: 16, padding: '14px', borderRadius: 999, background: saved ? 'rgba(16,185,129,0.15)' : '#FFF', border: saved ? '1px solid rgba(16,185,129,0.3)' : 'none', cursor: 'pointer', textAlign: 'center', fontSize: 14, fontWeight: 700, color: saved ? '#10B981' : '#111', transition: 'all 0.3s' } as any}>
-              {saving ? 'Enregistrement...' : saved ? 'Enregistre !' : 'Enregistrer'}
+              {saving ? 'Enregistrément...' : saved ? 'Enregistré !' : 'Enregistrér'}
             </div>
           </div>
         )}
@@ -385,8 +385,8 @@ export default function SubscriptionManagePopup({ show, onClose, subData, onRefr
         {/* === TAB: GUARDIANS (Care only) === */}
         {tab === 'guardians' && (
           <div>
-            <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.3)', letterSpacing: 1.5, textTransform: 'uppercase', marginBottom: 6 }}>Ordre d'escalade teleassistance</div>
-            <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.25)', marginBottom: 14, lineHeight: 1.5 }}>En cas d'alerte, la teleassistance appellera vos gardiens dans cet ordre.</div>
+            <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.3)', letterSpacing: 1.5, textTransform: 'uppercase', marginBottom: 6 }}>Ordre d'escalade téléassistance</div>
+            <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.25)', marginBottom: 14, lineHeight: 1.5 }}>En cas d'alerte, la téléassistance appellera vos gardiens dans cet ordre.</div>
 
             {guardians.length > 0 ? guardians.map((g: any, i: number) => (
               <div key={g.id} data-testid={`guardian-${i}`} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 14px', borderRadius: 16, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', marginBottom: 8, ...glass } as any}>
@@ -402,7 +402,7 @@ export default function SubscriptionManagePopup({ show, onClose, subData, onRefr
               </div>
             )) : (subData?.contract?.contract_guardians || []).length > 0 ? (
               <>
-                <div style={{ fontSize: 11, color: 'rgba(245,158,11,0.7)', marginBottom: 10, lineHeight: 1.5 }}>Les gardiens renseignes lors de la souscription apparaissent ci-dessous. Ils doivent creer leur compte dans l'application pour etre actifs.</div>
+                <div style={{ fontSize: 11, color: 'rgba(245,158,11,0.7)', marginBottom: 10, lineHeight: 1.5 }}>Les gardiens renseignes lors de la souscription apparaissent ci-dessous. Ils doivent créer leur compte dans l'application pour etre actifs.</div>
                 {(subData.contract.contract_guardians || []).map((cg: any, i: number) => (
                   <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 14px', borderRadius: 16, background: 'rgba(245,158,11,0.06)', border: '1px solid rgba(245,158,11,0.15)', marginBottom: 8, ...glass } as any}>
                     <div style={{ width: 32, height: 32, borderRadius: 999, background: 'rgba(245,158,11,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}><i className="ri-time-line" style={{ fontSize: 14, color: '#F59E0B' }} /></div>

@@ -18,7 +18,7 @@ const HEALTH_IMAGES: Record<string, string> = {
 const METRIC_CONFIG: Record<string, any> = {
   heart_rate: { title: 'Pouls', unit: 'bpm', min: 20, max: 200, color: '#E53935' },
   spo2: { title: 'SpO2', unit: '%', min: 70, max: 100, color: '#1E88E5' },
-  temperature: { title: 'Temperature', unit: '°C', min: 34, max: 42, color: '#F57C00' },
+  temperature: { title: 'Température', unit: '°C', min: 34, max: 42, color: '#F57C00' },
 };
 
 const glass = Platform.OS === 'web' ? { backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)', boxShadow: '0 14px 40px rgba(0,0,0,0.35)' } : {};
@@ -50,7 +50,7 @@ export default function EditThresholdsScreen() {
   const save = async () => {
     const min = parseFloat(seuilBas); const max = parseFloat(seuilHaut);
     if (isNaN(min) || isNaN(max)) return Alert.alert('Erreur', 'Valeurs invalides');
-    if (min >= max) return Alert.alert('Erreur', 'Le seuil bas doit etre inferieur au seuil haut');
+    if (min >= max) return Alert.alert('Erreur', 'Le seuil bas doit etre inférieur au seuil haut');
     setSaving(true);
     try {
       await apiFetch('/api/health/thresholds', { method: 'PUT', body: JSON.stringify({ metric_id: metricId, min_val: min, max_val: max }) }, token);

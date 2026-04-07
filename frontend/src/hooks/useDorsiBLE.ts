@@ -111,7 +111,7 @@ function useNativeBLE() {
           }
         });
         // Timeout scan after 10s
-        setTimeout(() => { if (!found) { mgr.stopDeviceScan(); setState(s => ({ ...s, connecting: false, error: 'Coussin HeloKine non trouve. Verifiez qu\'il est allume.' })); resolve(false); } }, 10000);
+        setTimeout(() => { if (!found) { mgr.stopDeviceScan(); setState(s => ({ ...s, connecting: false, error: 'Coussin HeloKine non trouve. Vérifiéz qu\'il est allume.' })); resolve(false); } }, 10000);
       });
     } catch (e: any) {
       setState(s => ({ ...s, connecting: false, error: e.message || 'Erreur BLE' }));

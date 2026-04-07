@@ -50,8 +50,8 @@ export default function BecomeProPage() {
 
   const TITLE = isPhysio ? 'Devenir Kinesitherapeute Partenaire' : 'Devenir Coach Sportif Partenaire';
   const SUBTITLE = isPhysio
-    ? 'Rejoignez le reseau Chutex et accompagnez les beneficiaires dans leur reeducation physique.'
-    : 'Rejoignez le reseau Chutex et accompagnez les beneficiaires dans leur activite sportive.';
+    ? 'Rejoignez le réseau Chutex et accompagnez les bénéficiaires dans leur rééducation physique.'
+    : 'Rejoignez le réseau Chutex et accompagnez les bénéficiaires dans leur activité sportive.';
   const SPECS = isPhysio ? SPECIALISATIONS_PHYSIO : SPECIALISATIONS_COACH;
   const AC = isPhysio ? PHYSIO_COLOR : COACH_COLOR;
   const AC_LIGHT = isPhysio ? '#FDBA74' : '#FCA5A5';
@@ -144,7 +144,7 @@ export default function BecomeProPage() {
         <div style={{ fontSize: 14, color: 'rgba(255,255,255,0.7)', maxWidth: 500, margin: '0 auto', lineHeight: 1.6 }}>{SUBTITLE}</div>
         <div style={{ display: 'flex', justifyContent: 'center', gap: 8, marginTop: 20, padding: '10px 16px', borderRadius: 999, background: 'rgba(255,255,255,0.15)', display: 'inline-flex' } as any}>
           <i className="ri-money-euro-circle-line" style={{ fontSize: 16, color: '#FFF' }} />
-          <span style={{ fontSize: 14, fontWeight: 700, color: '#FFF' }}>Remuneration : 45 EUR HT / mois / beneficiaire</span>
+          <span style={{ fontSize: 14, fontWeight: 700, color: '#FFF' }}>Rémunération : 45 EUR HT / mois / beneficiaire</span>
         </div>
       </div>
 
@@ -171,7 +171,7 @@ export default function BecomeProPage() {
         {step === 1 && (
           <div data-testid="step-1-info">
             <div style={{ fontSize: 20, fontWeight: 800, color: C.text, marginBottom: 4 }}>Informations personnelles</div>
-            <div style={{ fontSize: 13, color: C.muted, marginBottom: 24, lineHeight: 1.5 }}>Ces informations seront utilisees pour creer votre profil professionnel.</div>
+            <div style={{ fontSize: 13, color: C.muted, marginBottom: 24, lineHeight: 1.5 }}>Ces informations seront utilisees pour créer votre profil professionnel.</div>
 
             <div style={{ display: 'flex', gap: 12, marginBottom: 16 } as any}>
               <div style={{ flex: 1 }}>
@@ -186,7 +186,7 @@ export default function BecomeProPage() {
             <div style={{ marginBottom: 16 }}>
               <label style={lbl}>Telephone<span style={req}>*</span></label>
               <input data-testid="input-phone" value={form.phone} onChange={e => upd('phone', e.target.value)} placeholder="+33 6 12 34 56 78" style={inp} />
-              <div style={{ fontSize: 10, color: C.light, marginTop: 4 }}>Ce numero sera utilise pour activer votre espace sur l'application.</div>
+              <div style={{ fontSize: 10, color: C.light, marginTop: 4 }}>Ce numéro sera utilise pour activer votre espace sur l'application.</div>
             </div>
             <div style={{ marginBottom: 16 }}>
               <label style={lbl}>Email<span style={req}>*</span></label>
@@ -217,7 +217,7 @@ export default function BecomeProPage() {
         {step === 2 && (
           <div data-testid="step-2-qualifications">
             <div style={{ fontSize: 20, fontWeight: 800, color: C.text, marginBottom: 4 }}>Diplomes & Experience</div>
-            <div style={{ fontSize: 13, color: C.muted, marginBottom: 24, lineHeight: 1.5 }}>Verifiez votre legitimite en tant que professionnel de sante.</div>
+            <div style={{ fontSize: 13, color: C.muted, marginBottom: 24, lineHeight: 1.5 }}>Vérifiez votre légitimité en tant que professionnel de santé.</div>
 
             <div style={{ marginBottom: 16 }}>
               <label style={lbl}>Diplome / Certification<span style={req}>*</span></label>
@@ -241,9 +241,9 @@ export default function BecomeProPage() {
 
             {isPhysio && (
               <div style={{ marginBottom: 16 }}>
-                <label style={lbl}>Numero ADELI / RPPS<span style={req}>*</span></label>
+                <label style={lbl}>Numéro ADELI / RPPS<span style={req}>*</span></label>
                 <input data-testid="input-adeli" value={form.adeli_rpps} onChange={e => upd('adeli_rpps', e.target.value)} placeholder="10 75 XXXXX X" style={inp} />
-                <div style={{ fontSize: 10, color: C.light, marginTop: 4 }}>Obligatoire pour les professionnels de sante reglementes.</div>
+                <div style={{ fontSize: 10, color: C.light, marginTop: 4 }}>Obligatoire pour les professionnels de santé réglementés.</div>
               </div>
             )}
 
@@ -299,7 +299,7 @@ export default function BecomeProPage() {
             <div style={{ background: `${AC}08`, borderRadius: C.r, padding: '16px', marginBottom: 20, border: `1px solid ${AC}20` } as any}>
               <div style={{ fontSize: 13, fontWeight: 700, color: AC, marginBottom: 8 }}>Points cles du contrat</div>
               <div style={{ fontSize: 12, color: C.text, lineHeight: 1.6 }}>
-                - Remuneration : <strong>45 EUR HT / mois / beneficiaire actif</strong><br />
+                - Rémunération : <strong>45 EUR HT / mois / bénéficiaire actif</strong><br />
                 - Paiement mensuel par virement bancaire<br />
                 - Engagement a suivre les beneficiaires via la plateforme<br />
                 - Delai de reponse : 24h ouvrables maximum<br />
@@ -369,7 +369,7 @@ export default function BecomeProPage() {
             </div>
             <div style={{ fontSize: 22, fontWeight: 900, color: C.text, marginBottom: 12 }}>Candidature validee !</div>
             <div style={{ fontSize: 14, color: C.muted, lineHeight: 1.7, maxWidth: 420, margin: '0 auto 24px' }}>
-              {success || `Votre candidature a ete validee. Un SMS et un email de confirmation vous ont ete envoyes.`}
+              {success || `Votre candidature a été validee. Un SMS et un email de confirmation vous ont ete envoyes.`}
             </div>
 
             <div style={{ background: C.card, borderRadius: C.r, padding: '20px', marginBottom: 24, textAlign: 'left' } as any}>
@@ -377,7 +377,7 @@ export default function BecomeProPage() {
               <div style={{ display: 'flex', flexDirection: 'column', gap: 12 } as any}>
                 {[
                   { icon: 'ri-smartphone-line', text: `Telechargez l'application Chutex Care` },
-                  { icon: 'ri-shield-user-line', text: `Inscrivez-vous en tant que "Gardien" avec le numero ${form.phone}` },
+                  { icon: 'ri-shield-user-line', text: `Inscrivez-vous en tant que "Gardien" avec le numéro ${form.phone}` },
                   { icon: 'ri-magic-line', text: `Votre espace ${isPhysio ? 'kinesitherapeute' : 'coach sportif'} sera automatiquement active` },
                 ].map((s, i) => (
                   <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 12 } as any}>

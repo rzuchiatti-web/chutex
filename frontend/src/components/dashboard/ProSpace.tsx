@@ -13,7 +13,7 @@ export default function ProSpace({ token, user }: { token: string; user: any }) 
   const isCoach = proType === 'coach';
   const isPhysio = proType === 'physio';
   const AC = isCoach ? '#DC2626' : isPhysio ? '#F97316' : '#3B82F6';
-  const patientLabel = isCoach ? 'Eleves' : 'Patients';
+  const patientLabel = isCoach ? 'Élevés' : 'Patients';
   const patientSingle = isCoach ? 'eleve' : 'patient';
 
   const [bens, setBens] = useState<any[]>([]);
@@ -235,7 +235,7 @@ export default function ProSpace({ token, user }: { token: string; user: any }) 
               <i className={isPhysio ? 'ri-stethoscope-line' : isCoach ? 'ri-run-line' : 'ri-shield-user-line'} style={{ fontSize: 22, color: '#FFF' }} />
             </div>
             <div style={{ fontSize: 26, fontWeight: 900, color: '#FFF', marginBottom: 4, letterSpacing: -0.5 }}>
-              {isPhysio ? 'Espace Kine' : isCoach ? 'Espace Coach' : 'Activite'}
+              {isPhysio ? 'Espace Kine' : isCoach ? 'Espace Coach' : 'Activité'}
             </div>
             <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.55)', marginBottom: 18 }}>{bens.length} {patientSingle}{bens.length !== 1 ? 's' : ''}</div>
 
@@ -267,7 +267,7 @@ export default function ProSpace({ token, user }: { token: string; user: any }) 
                     <span style={{ fontSize: 16, fontWeight: 900, color: '#FFF' }}>{(activeBenData?.name || '?')[0]}</span>
                   </div>
                   <div style={{ flex: 1, minWidth: 0 } as any}>
-                    <div style={{ fontSize: 15, fontWeight: 700, color: '#FFF', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' } as any}>{activeBenData?.name || 'Selectionnez'}</div>
+                    <div style={{ fontSize: 15, fontWeight: 700, color: '#FFF', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' } as any}>{activeBenData?.name || 'Sélectionnéz'}</div>
                     <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.45)' }}>{patientLabel} actif</div>
                   </div>
                   <i className={benOpen ? 'ri-arrow-up-s-line' : 'ri-arrow-down-s-line'} style={{ fontSize: 20, color: 'rgba(255,255,255,0.5)' }} />
@@ -394,16 +394,16 @@ export default function ProSpace({ token, user }: { token: string; user: any }) 
               <div style={{ width: 56, height: 56, borderRadius: 16, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', marginBottom: 14 } as any}>
                 <i className={isCoach ? 'ri-run-line' : 'ri-shield-user-line'} style={{ fontSize: 26, color: AC }} />
               </div>
-              <div style={{ fontSize: 22, fontWeight: 900, color: '#FFF' }}>Votre espace activite</div>
+              <div style={{ fontSize: 22, fontWeight: 900, color: '#FFF' }}>Votre espace activité</div>
               <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.4)', marginTop: 4 }}>Tout ce que vous pouvez faire ici</div>
             </div>
 
             {[
-              { icon: 'ri-user-heart-line', color: '#3B82F6', title: 'Selectionnez un beneficiaire', desc: 'Choisissez parmi vos beneficiaires pour gerer leur programme personnalise.' },
+              { icon: 'ri-user-heart-line', color: '#3B82F6', title: 'Sélectionnéz un bénéficiaire', desc: 'Choisissez parmi vos bénéficiaires pour gerer leur programme personnalisé.' },
               { icon: 'ri-calendar-check-line', color: AC, title: 'Planifiez par jour', desc: 'Utilisez le calendrier pour voir et assigner exercices, complements et repas jour par jour.' },
               { icon: 'ri-run-line', color: '#EF4444', title: 'Exercices', desc: 'Assignez des exercices depuis la bibliotheque avec series, repetitions et jours.' },
-              { icon: 'ri-capsule-line', color: '#F59E0B', title: 'Complements & Rappels', desc: 'Programmez des rappels avec heure et dosage. Le beneficiaire recevra une notification.' },
-              { icon: 'ri-drop-line', color: '#38BDF8', title: 'Hydratation', desc: 'Ajoutez des rappels d\'hydratation personnalises.' },
+              { icon: 'ri-capsule-line', color: '#F59E0B', title: 'Complements & Rappels', desc: 'Programmez des rappels avec heure et dosage. Le bénéficiaire recevra une notification.' },
+              { icon: 'ri-drop-line', color: '#38BDF8', title: 'Hydratation', desc: 'Ajoutez des rappels d\'hydratation personnalisés.' },
               { icon: 'ri-restaurant-line', color: '#10B981', title: 'Repas sur mesure', desc: 'Creez des repas avec ingredients et etapes. Ils remplaceront les suggestions de Nora.' },
               { icon: 'ri-book-2-line', color: '#A78BFA', title: 'Bibliotheque', desc: 'Creez, modifiez et supprimez vos modeles d\'exercices, complements et repas.' },
             ].map((item, i) => (

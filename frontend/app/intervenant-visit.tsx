@@ -95,7 +95,7 @@ export default function IntervenantVisitScreen() {
           {[
             { label: 'Pathologies', val: ben.medical_conditions || 'Aucune renseignee' },
             { label: 'Allergies', val: ben.allergies || 'Aucune' },
-            { label: 'Medecin', val: ben.doctor_name || 'Non renseigne' },
+            { label: 'Médecin', val: ben.doctor_name || 'Non renseigne' },
             { label: 'Adresse', val: ben.address || 'Non renseignee' },
           ].map((r, i) => (
             <div key={i} style={{ display: 'flex', justifyContent: 'space-between', padding: '6px 0', borderTop: i > 0 ? '1px solid rgba(255,255,255,0.04)' : 'none' } as any}>
@@ -142,7 +142,7 @@ export default function IntervenantVisitScreen() {
         {/* Previous observations */}
         {visitData.previous_observations?.length > 0 && (
           <div style={{ marginBottom: 16 } as any}>
-            <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 8 }}>Observations precedentes</div>
+            <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 8 }}>Observations précédentes</div>
             {visitData.previous_observations.slice(0, 3).map((o: any, i: number) => (
               <div key={i} style={{ padding: '10px 14px', borderRadius: 12, background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.05)', marginBottom: 6 } as any}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 } as any}>
@@ -159,7 +159,7 @@ export default function IntervenantVisitScreen() {
         {saved && (
           <div style={{ padding: '14px', borderRadius: 14, background: 'rgba(16,185,129,0.1)', border: '1px solid rgba(16,185,129,0.25)', marginBottom: 14, textAlign: 'center' } as any}>
             <i className="ri-checkbox-circle-fill" style={{ fontSize: 20, color: '#10B981', display: 'block', marginBottom: 4 }} />
-            <div style={{ fontSize: 13, fontWeight: 700, color: '#10B981' }}>Observation enregistree</div>
+            <div style={{ fontSize: 13, fontWeight: 700, color: '#10B981' }}>Observation enregistrée</div>
           </div>
         )}
 
@@ -211,13 +211,13 @@ export default function IntervenantVisitScreen() {
               </div>
               <div style={{ flex: 1 } as any}>
                 <div style={{ fontSize: 13, fontWeight: 700, color: form.alert_doctor ? '#EF4444' : 'rgba(255,255,255,0.5)' }}>Alerter le medecin traitant</div>
-                <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.25)' }}>Creer une alerte pour {ben.doctor_name || 'le medecin'}</div>
+                <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.25)' }}>Créer une alerte pour {ben.doctor_name || 'le medecin'}</div>
               </div>
             </div>
 
             {/* Submit */}
             <div onClick={submitObservation} style={{ padding: '16px', borderRadius: 14, textAlign: 'center', cursor: saving ? 'wait' : 'pointer', background: form.general_state ? 'linear-gradient(135deg, rgba(6,182,212,0.3), rgba(6,182,212,0.12))' : 'rgba(255,255,255,0.03)', border: `1px solid ${form.general_state ? 'rgba(6,182,212,0.4)' : 'rgba(255,255,255,0.06)'}`, fontSize: 15, fontWeight: 800, color: form.general_state ? '#FFF' : 'rgba(255,255,255,0.2)' } as any}>
-              {saving ? 'Enregistrement...' : 'Enregistrer l\'observation'}
+              {saving ? 'Enregistrément...' : 'Enregistrér l\'observation'}
             </div>
           </div>
         )}

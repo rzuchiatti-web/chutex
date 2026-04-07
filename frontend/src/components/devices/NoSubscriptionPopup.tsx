@@ -35,7 +35,7 @@ export function NoSubscriptionPopup({ onClose }: NoSubscriptionPopupProps) {
       {/* Chutex Care option */}
       <div onClick={() => { onClose(); router.push('/subscription' as any); }} style={{ padding: '20px', borderRadius: 20, background: 'linear-gradient(135deg,rgba(124,92,255,0.1),rgba(167,139,250,0.04))', border: '1px solid rgba(124,92,255,0.25)', marginBottom: 14, cursor: 'pointer', position: 'relative' } as any}>
         <div style={{ position: 'absolute', top: 10, right: 12, padding: '3px 10px', borderRadius: 999, background: 'rgba(16,185,129,0.15)', border: '1px solid rgba(16,185,129,0.25)' } as any}>
-          <span style={{ fontSize: 9, fontWeight: 700, color: '#10B981', textTransform: 'uppercase' }}>Recommande</span>
+          <span style={{ fontSize: 9, fontWeight: 700, color: '#10B981', textTransform: 'uppercase' }}>Recommandé</span>
         </div>
         <div style={{ display: 'flex', gap: 16, alignItems: 'center' } as any}>
           <div style={{ width: 52, height: 52, borderRadius: 16, background: 'rgba(124,92,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}>

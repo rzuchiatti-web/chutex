@@ -124,7 +124,7 @@ export default function TeleconsultScreen() {
     return <BeneficiaryTeleconsult token={token} />;
   }
 
-  // Teleassistance + Admin: full screen web
+  // Téléassistance + Admin: full screen web
   if (Platform.OS === 'web') {
     if (r === 'teleassistance') return <TeleassistanceDashboard token={token} />;
     if (r === 'admin') return <AdminIntervenants token={token} />;
@@ -133,7 +133,7 @@ export default function TeleconsultScreen() {
   return (
     <View key={r} style={[s.safe, { backgroundColor: '#FFFFFF' }]} testID="teleconsult-screen">
       <View style={s.header}>
-        <Text style={[s.title, { color: '#111827' }]}>{r === 'teleassistance' ? 'Teleassistance IA' : r === 'admin' ? 'Intervenants' : 'Teleconsultation'}</Text>
+        <Text style={[s.title, { color: '#111827' }]}>{r === 'teleassistance' ? 'Téléassistance IA' : r === 'admin' ? 'Intervenants' : 'Teleconsultation'}</Text>
         {r === 'teleassistance' && <Text style={[s.subtitle, { color: '#9CA3AF' }]}>Plateau d'ecoute — Protocole d'escalade</Text>}
       </View>
       {r === 'teleassistance' ? <TeleassistanceDashboard token={token} />

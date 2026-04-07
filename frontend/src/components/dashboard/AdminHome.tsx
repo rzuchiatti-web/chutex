@@ -25,8 +25,8 @@ const NAV: { key: Page; icon: string; label: string; group: string }[] = [
   { key: 'health', icon: 'ri-heart-pulse-line', label: 'Sante', group: 'Monitoring' },
   { key: 'subscriptions', icon: 'ri-file-list-3-line', label: 'Contrats', group: 'Gestion' },
   { key: 'programs', icon: 'ri-flag-line', label: 'Programmes', group: 'Gestion' },
-  { key: 'docs', icon: 'ri-book-2-line', label: 'Documents', group: 'Systeme' },
-  { key: 'system', icon: 'ri-settings-4-line', label: 'Configuration', group: 'Systeme' },
+  { key: 'docs', icon: 'ri-book-2-line', label: 'Documents', group: 'Système' },
+  { key: 'system', icon: 'ri-settings-4-line', label: 'Configuration', group: 'Système' },
 ];
 
 export default function AdminHome({ token, user }: { token: string; user: any }) {

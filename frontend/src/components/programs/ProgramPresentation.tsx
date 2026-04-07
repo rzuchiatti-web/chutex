@@ -10,10 +10,10 @@ const METRIC_ICONS: Record<string, string> = {
 };
 
 const METRIC_LABELS: Record<string, string> = {
-  sleep_quality: 'Qualite du sommeil', sleep_duration_min: 'Duree de sommeil', deep_sleep_min: 'Sommeil profond',
-  heart_rate: 'Frequence cardiaque', hrv: 'HRV', stress_level: 'Stress',
+  sleep_quality: 'Qualité du sommeil', sleep_duration_min: 'Durée de sommeil', deep_sleep_min: 'Sommeil profond',
+  heart_rate: 'Fréquence cardiaque', hrv: 'HRV', stress_level: 'Stress',
   blood_pressure: 'Tension arterielle', steps: 'Pas quotidiens', calories: 'Depense calorique',
-  weight: 'Poids', body_fat_pct: 'Masse grasse', muscle_pct: 'Masse musculaire', recovery_score: 'Recuperation',
+  weight: 'Poids', body_fat_pct: 'Masse grasse', muscle_pct: 'Masse musculaire', recovery_score: 'Récupération',
 };
 
 interface ProgramPresentationProps {
@@ -120,7 +120,7 @@ export const ProgramPresentation = ({
         {/* Quick Stats Row */}
         <div style={{ display: 'flex', gap: 10, marginBottom: 24, animation: 'pd-fade-up 500ms ease 150ms both' } as any}>
           <div style={{ flex: 1, padding: '16px', borderRadius: 18, background: cardBg, border: cardBorder } as any}>
-            <div style={{ fontSize: 9, color: S2, fontWeight: 700, textTransform: 'uppercase', letterSpacing: 1, marginBottom: 6 }}>Duree</div>
+            <div style={{ fontSize: 9, color: S2, fontWeight: 700, textTransform: 'uppercase', letterSpacing: 1, marginBottom: 6 }}>Durée</div>
             <div style={{ fontSize: 26, fontWeight: 900, color: T }}>{program.duration_days}<span style={{ fontSize: 13, fontWeight: 600, color: S2, marginLeft: 4 }}>jours</span></div>
           </div>
           <div style={{ flex: 1, padding: '16px', borderRadius: 18, background: cardBg, border: cardBorder } as any}>

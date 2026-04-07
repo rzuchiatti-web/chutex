@@ -124,7 +124,7 @@ export default function ProgramsTab() {
                 </div>
               </div>
             </div>
-            <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.7)', lineHeight: 1.5, textShadow: '0 1px 4px rgba(0,0,0,0.3)' }}>Parcours de prevention personnalises pour ameliorer votre sante au quotidien.</div>
+            <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.7)', lineHeight: 1.5, textShadow: '0 1px 4px rgba(0,0,0,0.3)' }}>Parcours de prevention personnalises pour améliorer votre sante au quotidien.</div>
           </div>
         </div>
 
@@ -222,7 +222,7 @@ export default function ProgramsTab() {
 
             <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.35)', letterSpacing: 2, textTransform: 'uppercase', marginBottom: 8 } as any}>Guide</div>
             <div style={{ fontSize: 22, fontWeight: 800, color: '#FFF', marginBottom: 6 }}>Comment ca marche ?</div>
-            <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', lineHeight: 1.5, marginBottom: 28 }}>Nos programmes de prevention sont conçus pour ameliorer votre sante au quotidien.</div>
+            <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', lineHeight: 1.5, marginBottom: 28 }}>Nos programmes de prevention sont conçus pour améliorer votre sante au quotidien.</div>
 
             {[
               { icon: 'ri-search-line', color: '#60A5FA', title: '1. Choisissez un programme', desc: 'Parcourez le catalogue et selectionnez le programme adapte a vos besoins.' },
@@ -286,7 +286,7 @@ export default function ProgramsTab() {
               <div onClick={() => setShowJoinPopup(false)} style={{ flex: 1, padding: '14px', borderRadius: 999, textAlign: 'center', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', color: 'rgba(255,255,255,0.6)', fontWeight: 700, cursor: 'pointer' } as any}>Annuler</div>
               <div data-testid="join-team-submit" onClick={!joinLoading ? handleJoinTeam : undefined}
                 style={{ flex: 1, padding: '14px', borderRadius: 999, textAlign: 'center', background: 'rgba(255,255,255,0.15)', border: '1px solid rgba(255,255,255,0.2)', color: '#FFF', fontWeight: 700, cursor: joinLoading ? 'default' : 'pointer', opacity: joinLoading ? 0.6 : 1 } as any}>
-                {joinLoading ? 'Verification...' : 'Rejoindre'}
+                {joinLoading ? 'Vérification...' : 'Rejoindre'}
               </div>
             </div>
           </div>

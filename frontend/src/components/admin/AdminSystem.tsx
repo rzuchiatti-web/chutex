@@ -8,7 +8,7 @@ export default function AdminSystem({ actC, ivC, shop, users, alerts, token, loa
     { key: 'activation', label: 'Codes activation', count: actC.length, icon: 'ri-key-2-line' },
     { key: 'intervention', label: 'Codes intervention', count: ivC.length, icon: 'ri-map-pin-range-line' },
     { key: 'shopify', label: 'Shopify', count: null, icon: 'ri-shopping-bag-line' },
-    { key: 'info', label: 'Systeme', count: null, icon: 'ri-information-line' },
+    { key: 'info', label: 'Système', count: null, icon: 'ri-information-line' },
   ];
 
   return (
@@ -47,7 +47,7 @@ export default function AdminSystem({ actC, ivC, shop, users, alerts, token, loa
                       <td><span className="adm-badge" style={{ background: c.active ? '#F0FDF4' : '#FEF2F2', color: c.active ? '#10B981' : '#EF4444' }}>{c.active ? 'Actif' : 'Inactif'}</span></td>
                       <td>
                         <div style={{ display: 'flex', gap: 6 } as any}>
-                          <div onClick={() => apiFetch(`/api/admin/activation-codes/${c.id}/toggle`, { method: 'PUT' }, token).then(() => load())} className="adm-btn" style={{ background: '#F8FAFC', border: '1px solid #E2E8F0', color: '#475569', padding: '4px 10px', fontSize: 10 }}>{c.active ? 'Desactiver' : 'Activer'}</div>
+                          <div onClick={() => apiFetch(`/api/admin/activation-codes/${c.id}/toggle`, { method: 'PUT' }, token).then(() => load())} className="adm-btn" style={{ background: '#F8FAFC', border: '1px solid #E2E8F0', color: '#475569', padding: '4px 10px', fontSize: 10 }}>{c.active ? 'Désactivér' : 'Activer'}</div>
                           <div onClick={() => { if (window.confirm('Supprimer ?')) apiFetch(`/api/admin/activation-codes/${c.id}`, { method: 'DELETE' }, token).then(() => load()); }} style={{ cursor: 'pointer', display: 'flex', alignItems: 'center' } as any}><i className="ri-delete-bin-line" style={{ fontSize: 15, color: '#EF4444' }} /></div>
                         </div>
                       </td>
@@ -80,7 +80,7 @@ export default function AdminSystem({ actC, ivC, shop, users, alerts, token, loa
                       <td>{c.default_radius_km} km</td>
                       <td><span className="adm-badge" style={{ background: c.active ? '#F0FDF4' : '#FEF2F2', color: c.active ? '#10B981' : '#EF4444' }}>{c.active ? 'Actif' : 'Inactif'}</span></td>
                       <td>
-                        <div onClick={() => apiFetch(`/api/admin/intervention-codes/${c.id}/toggle`, { method: 'PUT' }, token).then(() => load())} className="adm-btn" style={{ background: '#F8FAFC', border: '1px solid #E2E8F0', color: '#475569', padding: '4px 10px', fontSize: 10 }}>{c.active ? 'Desactiver' : 'Activer'}</div>
+                        <div onClick={() => apiFetch(`/api/admin/intervention-codes/${c.id}/toggle`, { method: 'PUT' }, token).then(() => load())} className="adm-btn" style={{ background: '#F8FAFC', border: '1px solid #E2E8F0', color: '#475569', padding: '4px 10px', fontSize: 10 }}>{c.active ? 'Désactivér' : 'Activer'}</div>
                       </td>
                     </tr>
                   ))}
@@ -107,13 +107,13 @@ export default function AdminSystem({ actC, ivC, shop, users, alerts, token, loa
 
       {tab === 'info' && (
         <div className="adm-card">
-          <div className="adm-section-title">Informations systeme</div>
+          <div className="adm-section-title">Informations système</div>
           {[
             ['Version', 'CARE WATCH v3.0'],
             ['Editeur', 'Chutex Innovation SAS'],
             ['Contact DPO', 'contact@chutex-innovation.com'],
             ['Stack', 'FastAPI + MongoDB + Expo'],
-            ['IA', 'GPT-5.2 via Emergent + ML Glycemie V3'],
+            ['IA', 'GPT-5.2 via Emergent + ML Glycémie V3'],
             ['ML Model', 'GradientBoostingRegressor (scikit-learn)'],
             ['Utilisateurs', String(users.length)],
             ['Alertes totales', String(alerts.length)],

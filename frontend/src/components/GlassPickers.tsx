@@ -77,7 +77,7 @@ export function CountryPicker({ value, onChange }: { value: string; onChange: (c
         <div style={{ fontSize: 9, fontWeight: 700, color: 'rgba(255,255,255,0.5)', textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 5 }}>Pays</div>
         <div data-testid="country-picker-btn" onClick={() => { setOpen(true); setSearch(''); }} style={{ width: '100%', padding: '13px 16px', borderRadius: 999, background: 'rgba(0,0,0,0.2)', border: '1px solid rgba(255,255,255,0.12)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)', color: '#FFF', fontSize: 14, fontFamily: 'inherit', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8, boxSizing: 'border-box' } as any}>
           {current && <span style={{ fontSize: 16 }}>{current.flag}</span>}
-          <span style={{ flex: 1, color: value ? '#FFF' : 'rgba(255,255,255,0.35)' }}>{value || 'Selectionner un pays'}</span>
+          <span style={{ flex: 1, color: value ? '#FFF' : 'rgba(255,255,255,0.35)' }}>{value || 'Sélectionner un pays'}</span>
           <i className="ri-arrow-down-s-line" style={{ fontSize: 14, color: 'rgba(255,255,255,0.3)' }} />
         </div>
       </div>

@@ -8,8 +8,8 @@ import { apiFetch } from '../src/services/api';
 import NativePageView from '../src/components/NativePageView';
 
 const ALERT_LABELS: Record<string, string> = {
-  fall: 'Chute detectee', heart_rate: 'Frequence cardiaque', inactivity: 'Inactivite prolongee',
-  sos_manual: 'SOS manuel', temperature: 'Temperature', spo2: 'SpO2',
+  fall: 'Chute détectée', heart_rate: 'Frequence cardiaque', inactivity: 'Inactivité prolongee',
+  sos_manual: 'SOS manuel', temperature: 'Température', spo2: 'SpO2',
   blood_pressure: 'Tension arterielle', weight: 'Poids', pulse: 'Pouls',
 };
 const ALERT_ICONS: Record<string, string> = {
@@ -19,7 +19,7 @@ const ALERT_ICONS: Record<string, string> = {
 };
 const HEALTH_LABELS: Record<string, string> = {
   heart_rate: 'Frequence cardiaque', blood_pressure: 'Tension arterielle', sleep: 'Sommeil',
-  activity: 'Activite physique', weight: 'Poids', temperature: 'Temperature', spo2: 'SpO2',
+  activity: 'Activité physique', weight: 'Poids', temperature: 'Température', spo2: 'SpO2',
 };
 const LOC_OPTIONS = [
   { value: 'never', label: 'Jamais', icon: 'ri-eye-off-line', color: '#EF4444' },
@@ -29,7 +29,7 @@ const LOC_OPTIONS = [
 
 const BG_RED = 'https://customer-assets.emergentagent.com/job_443c9c6e-0feb-4920-a358-fe7cc1a6289b/artifacts/mhh7xwy3_ChatGPT%20Image%2017%20f%C3%A9vr.%202026%2C%2014_08_43.png';
 
-export default function GuardianDetailScreen() {
+export default function GuardianDétailScreen() {
   const params = useLocalSearchParams<{ guardianId: string; gName?: string; gPhone?: string; gEmail?: string; gRelationship?: string; gType?: string; gAddress?: string; gPostalCode?: string; gCity?: string; gCountry?: string; fromBeneficiary?: string }>();
   const { token, user } = useAuth();
   const router = useRouter();
@@ -163,7 +163,7 @@ export default function GuardianDetailScreen() {
         <i className={icon} style={{ fontSize: 18, color: masterOn ? '#10B981' : C.sub }} />
         <div style={{ flex: 1 } as any}>
           <div style={{ fontSize: 14, fontWeight: 700, color: C.text }}>{title}</div>
-          <div style={{ fontSize: 11, color: masterOn ? '#10B981' : C.sub, marginTop: 1 }}>{masterOn ? 'Active' : 'Desactive'}</div>
+          <div style={{ fontSize: 11, color: masterOn ? '#10B981' : C.sub, marginTop: 1 }}>{masterOn ? 'Active' : 'Désactivé'}</div>
         </div>
         <Toggle on={masterOn} onToggle={(e: any) => { e?.stopPropagation?.(); onMasterToggle(); }} />
         <i className={expanded ? 'ri-arrow-up-s-line' : 'ri-arrow-down-s-line'} style={{ fontSize: 18, color: C.sub, marginLeft: 4 }} />
@@ -234,8 +234,8 @@ export default function GuardianDetailScreen() {
         {/* ══ CONTENT (overlapping card) ══ */}
         <div style={{ padding: '0 20px 120px', marginTop: -16, borderRadius: '22px 22px 0 0', background: C.contentBg, position: 'relative', zIndex: 10, borderTop: `1px solid ${C.border}` } as any}>
 
-          {/* Coordonnees */}
-          <div style={{ fontSize: 11, fontWeight: 700, color: C.muted, textTransform: 'uppercase', letterSpacing: 1.2, padding: '20px 0 10px' }}>Coordonnees</div>
+          {/* Coordonnées */}
+          <div style={{ fontSize: 11, fontWeight: 700, color: C.muted, textTransform: 'uppercase', letterSpacing: 1.2, padding: '20px 0 10px' }}>Coordonnées</div>
           <div style={{ borderRadius: 16, background: C.cardGrey, border: `1px solid ${C.cardBorder}`, padding: '4px 16px', marginBottom: 4 } as any}>
             {[
               guardian.phone && { icon: 'ri-phone-line', label: 'Telephone', value: guardian.phone, color: '#10B981' },
@@ -279,14 +279,14 @@ export default function GuardianDetailScreen() {
                 ))}
                 {!perms.guardian_alerts_enabled && (
                   <div style={{ marginTop: 10, padding: '10px 14px', borderRadius: 12, background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.15)' } as any}>
-                    <div style={{ fontSize: 11, color: '#EF4444', fontWeight: 600 }}><i className="ri-information-line" style={{ marginRight: 6 }} />{guardianFirstName} a desactive la reception des alertes de son cote</div>
+                    <div style={{ fontSize: 11, color: '#EF4444', fontWeight: 600 }}><i className="ri-information-line" style={{ marginRight: 6 }} />{guardianFirstName} a désactivé la reception des alertes de son cote</div>
                   </div>
                 )}
               </div>
             </SectionCard>
 
-            {/* Donnees de sante */}
-            <SectionCard title="Donnees de sante" icon="ri-heart-pulse-line"
+            {/* Données de santé */}
+            <SectionCard title="Données de santé" icon="ri-heart-pulse-line"
               expanded={expandedSection === 'health'} onToggle={() => setExpandedSection(expandedSection === 'health' ? null : 'health')}
               masterOn={perms.health_data_enabled} onMasterToggle={() => savePerms({ health_data_enabled: !perms.health_data_enabled })}>
               <div style={{ paddingTop: 12 } as any}>

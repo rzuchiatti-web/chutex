@@ -52,7 +52,7 @@ export default function DataSharingScreen() {
       if (Platform.OS === 'web') {
         router.back();
       } else {
-        Alert.alert('Enregistre', 'Preferences mises a jour.');
+        Alert.alert('Enregistré', 'Préférences mises a jour.');
       }
     } catch (e: any) {
       Alert.alert('Erreur', e.message);
@@ -84,7 +84,7 @@ export default function DataSharingScreen() {
         <div style={{ marginBottom: 28 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 14 } as any}>
             <i className="ri-heart-pulse-fill" style={{ fontSize: 16, color: '#3B82F6' }} />
-            <span style={{ fontSize: 12, fontWeight: 700, color: 'rgba(255,255,255,0.4)', letterSpacing: 1, textTransform: 'uppercase' } as any}>Donnees de sante</span>
+            <span style={{ fontSize: 12, fontWeight: 700, color: 'rgba(255,255,255,0.4)', letterSpacing: 1, textTransform: 'uppercase' } as any}>Données de santé</span>
           </div>
 
           {HEALTH_OPTIONS.map((opt) => {
@@ -131,7 +131,7 @@ export default function DataSharingScreen() {
               {[
                 { icon: 'ri-heart-pulse-line', label: 'Pouls' },
                 { icon: 'ri-blood-test-line', label: 'Tension' },
-                { icon: 'ri-temp-hot-line', label: 'Temperature' },
+                { icon: 'ri-temp-hot-line', label: 'Température' },
                 { icon: 'ri-lungs-line', label: 'SpO2' },
               ].map((v) => (
                 <div key={v.label} style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '5px 10px', borderRadius: 999, background: 'rgba(59,130,246,0.08)', border: '1px solid rgba(59,130,246,0.15)' } as any}>
@@ -239,7 +239,7 @@ export default function DataSharingScreen() {
         <div style={{ display: 'flex', alignItems: 'flex-start', gap: 10, padding: '14px 16px', borderRadius: 16, background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)' } as any}>
           <i className="ri-shield-check-line" style={{ fontSize: 18, color: 'rgba(255,255,255,0.2)', flexShrink: 0, marginTop: 1 }} />
           <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.3)', lineHeight: 1.6 }}>
-            Vos donnees sont chiffrees et ne sont accessibles qu'aux gardiens que vous avez autorises. Vous pouvez modifier ces reglages a tout moment.
+            Vos donnees sont chiffrees et ne sont accessibles qu'aux gardiens que vous avez autorises. Vous pouvez modifier ces réglages a tout moment.
           </div>
         </div>
       </div>
@@ -255,7 +255,7 @@ export default function DataSharingScreen() {
             opacity: saving ? 0.6 : 1, transition: 'opacity 0.2s',
           } as any}
         >
-          {saving ? 'Enregistrement...' : 'Enregistrer'}
+          {saving ? 'Enregistrément...' : 'Enregistrér'}
         </div>
       </div>
     </div>

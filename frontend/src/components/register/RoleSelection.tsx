@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 
 const AVATARS_BEN = [
-  { img: 'https://customer-assets.emergentagent.com/job_2b5dbeb2-3b58-427e-b6c4-5ee36abc8ab4/artifacts/dbnv0bpj_img1_beneficiaire.png', label: 'SENIOR' },
-  { img: 'https://customer-assets.emergentagent.com/job_2b5dbeb2-3b58-427e-b6c4-5ee36abc8ab4/artifacts/z2xcol2r_img2_beneficiaire.png', label: 'SPORTIVE' },
-  { img: 'https://customer-assets.emergentagent.com/job_2b5dbeb2-3b58-427e-b6c4-5ee36abc8ab4/artifacts/9xmj6v5y_img3_beneficiaire.png', label: 'HOMME' },
-  { img: 'https://customer-assets.emergentagent.com/job_2b5dbeb2-3b58-427e-b6c4-5ee36abc8ab4/artifacts/ifr3insc_img4_beneficiaire.png', label: 'FEMME' },
+  { img: 'https://customer-assets.emergentagent.com/job_2b5dbeb2-3b58-427e-b6c4-5ee36abc8ab4/artifacts/dbnv0bpj_img1_bénéficiaire.png', label: 'SENIOR' },
+  { img: 'https://customer-assets.emergentagent.com/job_2b5dbeb2-3b58-427e-b6c4-5ee36abc8ab4/artifacts/z2xcol2r_img2_bénéficiaire.png', label: 'SPORTIVE' },
+  { img: 'https://customer-assets.emergentagent.com/job_2b5dbeb2-3b58-427e-b6c4-5ee36abc8ab4/artifacts/9xmj6v5y_img3_bénéficiaire.png', label: 'HOMME' },
+  { img: 'https://customer-assets.emergentagent.com/job_2b5dbeb2-3b58-427e-b6c4-5ee36abc8ab4/artifacts/ifr3insc_img4_bénéficiaire.png', label: 'FEMME' },
 ];
 
 const AVATARS_GUARD = [
@@ -42,13 +42,13 @@ export default function RoleSelection({ onSelect }: { onSelect: (role: string) =
       </div>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 12 } as any}>
         <div data-testid="role-beneficiary" onClick={() => onSelect('beneficiary')} style={{ padding: '24px 16px 20px', borderRadius: 22, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', cursor: 'pointer', textAlign: 'center' } as any}>
-          <div style={{ fontSize: 22, fontWeight: 900, color: '#FFF', marginBottom: 6 }}>Beneficiaire</div>
+          <div style={{ fontSize: 22, fontWeight: 900, color: '#FFF', marginBottom: 6 }}>Bénéficiaire</div>
           <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.45)', marginBottom: 18, lineHeight: 1.5 }}>Vous souhaitez utiliser ou porter les dispositifs de sante de Chutex.</div>
           <AvatarRow items={AVATARS_BEN} />
         </div>
         <div data-testid="role-guardian" onClick={() => onSelect('guardian')} style={{ padding: '24px 16px 20px', borderRadius: 22, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', cursor: 'pointer', textAlign: 'center' } as any}>
           <div style={{ fontSize: 22, fontWeight: 900, color: '#FFF', marginBottom: 6 }}>Gardien</div>
-          <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.45)', marginBottom: 18, lineHeight: 1.5 }}>Vous etes un aidant ou professionnel souhaitant accompagner un beneficiaire.</div>
+          <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.45)', marginBottom: 18, lineHeight: 1.5 }}>Vous etes un aidant ou professionnel souhaitant accompagner un bénéficiaire.</div>
           <AvatarRow items={AVATARS_GUARD} />
         </div>
         <div data-testid="role-saad" onClick={() => onSelect('prescriber_company')} style={{ padding: '20px 16px', borderRadius: 22, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', cursor: 'pointer', textAlign: 'center' } as any}>
@@ -65,8 +65,8 @@ export default function RoleSelection({ onSelect }: { onSelect: (role: string) =
               <div onClick={() => setShowHelp(false)} style={{ width: 32, height: 32, borderRadius: 999, background: 'rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}><i className="ri-close-line" style={{ fontSize: 16, color: '#FFF' }} /></div>
             </div>
             {[
-              { title: 'Beneficiaire', desc: 'Vous portez les dispositifs de sante (bracelet, balance) et souhaitez suivre vos constantes vitales au quotidien. Vous etes le patient ou la personne accompagnee.', who: 'Seniors, sportifs, personnes avec pathologies chroniques, toute personne soucieuse de sa sante.' },
-              { title: 'Gardien', desc: 'Vous accompagnez un beneficiaire dans son suivi de sante. Vous recevez ses alertes, consultez ses donnees et intervenez en cas de besoin.', who: 'Famille, aidants, infirmiers, medecins, SAP/HAD, coachs sportifs, structures de soins.' },
+              { title: 'Bénéficiaire', desc: 'Vous portez les dispositifs de sante (bracelet, balance) et souhaitez suivre vos constantes vitales au quotidien. Vous etes le patient ou la personne accompagnee.', who: 'Seniors, sportifs, personnes avec pathologies chroniques, toute personne soucieuse de sa sante.' },
+              { title: 'Gardien', desc: 'Vous accompagnez un bénéficiaire dans son suivi de sante. Vous recevez ses alertes, consultez ses donnees et intervenez en cas de besoin.', who: 'Famille, aidants, infirmiers, medecins, SAP/HAD, coachs sportifs, structures de soins.' },
             ].map((item, i) => (
               <div key={i} style={{ padding: '16px 0', borderTop: i > 0 ? '1px solid rgba(255,255,255,0.06)' : 'none' } as any}>
                 <div style={{ fontSize: 16, fontWeight: 800, color: '#FFF', marginBottom: 6 }}>{item.title}</div>

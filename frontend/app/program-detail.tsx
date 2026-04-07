@@ -10,7 +10,7 @@ import { ProgramOnboarding } from '../src/components/programs/ProgramOnboarding'
 import { ProgramInvite } from '../src/components/programs/ProgramInvite';
 import { ProgramReady } from '../src/components/programs/ProgramReady';
 
-export default function ProgramDetailScreen() {
+export default function ProgramDétailScreen() {
   const { token } = useAuth();
   const router = useRouter();
   const { id } = useLocalSearchParams();
@@ -68,7 +68,7 @@ export default function ProgramDetailScreen() {
   };
 
   const createTeamAndStart = async () => {
-    if (hasActiveConflict) { setError('Vous avez deja un programme actif. Terminez-le avant d en lancer un nouveau.'); return; }
+    if (hasActiveConflict) { setError('Vous avez déjà un programme actif. Terminez-le avant d en lancer un nouveau.'); return; }
     setStarting(true); setError('');
     try {
       const startDate = new Date().toISOString().split('T')[0];
@@ -81,7 +81,7 @@ export default function ProgramDetailScreen() {
   };
 
   const startSolo = async () => {
-    if (hasActiveConflict) { setError('Vous avez deja un programme actif. Terminez-le avant d en lancer un nouveau.'); return; }
+    if (hasActiveConflict) { setError('Vous avez déjà un programme actif. Terminez-le avant d en lancer un nouveau.'); return; }
     setStarting(true); setError('');
     try {
       await apiFetch(`/api/programs/start/${programId}`, { method: 'POST', body: JSON.stringify({ mode: 'solo', onboarding }) }, token);
@@ -121,8 +121,8 @@ export default function ProgramDetailScreen() {
             program={program} clr={clr} isDark={isDark}
             hasActiveConflict={hasActiveConflict} hasOnboarding={hasOnboarding}
             error={error}
-            onStartSolo={() => { if (hasActiveConflict) { setError('Vous avez deja un programme actif.'); return; } setMode('solo'); setStep(hasOnboarding ? 1 : 3); }}
-            onStartTeam={() => { if (hasActiveConflict) { setError('Vous avez deja un programme actif.'); return; } setMode('duo'); setStep(hasOnboarding ? 1 : 3); }}
+            onStartSolo={() => { if (hasActiveConflict) { setError('Vous avez déjà un programme actif.'); return; } setMode('solo'); setStep(hasOnboarding ? 1 : 3); }}
+            onStartTeam={() => { if (hasActiveConflict) { setError('Vous avez déjà un programme actif.'); return; } setMode('duo'); setStep(hasOnboarding ? 1 : 3); }}
             onBack={() => router.back()}
           />
         )}
@@ -132,7 +132,7 @@ export default function ProgramDetailScreen() {
             program={program} clr={clr} isDark={isDark}
             onboarding={onboarding} setOnboarding={setOnboarding}
             hasActiveConflict={hasActiveConflict}
-            onNext={() => { if (hasActiveConflict) { setError('Vous avez deja un programme actif.'); return; } setStep(3); }}
+            onNext={() => { if (hasActiveConflict) { setError('Vous avez déjà un programme actif.'); return; } setStep(3); }}
             onBack={() => setStep(0)}
           />
         )}
@@ -155,7 +155,7 @@ export default function ProgramDetailScreen() {
             hasOnboarding={hasOnboarding} hasActiveConflict={hasActiveConflict}
             starting={starting} error={error}
             onBack={() => setStep(hasOnboarding ? 1 : 0)}
-            onLaunch={() => { if (hasActiveConflict) { setError('Vous avez deja un programme actif.'); return; } mode !== 'solo' ? createTeamAndStart() : startSolo(); }}
+            onLaunch={() => { if (hasActiveConflict) { setError('Vous avez déjà un programme actif.'); return; } mode !== 'solo' ? createTeamAndStart() : startSolo(); }}
           />
         )}
       </div>

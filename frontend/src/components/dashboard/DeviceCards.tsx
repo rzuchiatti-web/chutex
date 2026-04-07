@@ -10,21 +10,21 @@ const batteryColor = (pct: number) => pct > 50 ? '#10B981' : pct > 25 ? '#F59E0B
 const batteryGrad = (pct: number) => pct > 50 ? 'linear-gradient(90deg, #059669, #10B981)' : pct > 25 ? 'linear-gradient(90deg, #D97706, #F59E0B)' : 'linear-gradient(90deg, #DC2626, #EF4444)';
 
 const BRACELET_STEPS = [
-  { icon: 'ri-battery-charge-line', title: 'Chargez votre bracelet', desc: 'Placez le bracelet Elio sur son socle de charge. Attendez que le voyant LED clignote en vert.', tip: 'Le bracelet doit etre charge a au moins 20% pour demarrer l\'appairage.' },
-  { icon: 'ri-flashlight-line', title: 'Attendez le voyant bleu', desc: 'Maintenez le bouton lateral enfonce pendant 3 secondes. Attendez que le voyant clignote en bleu.', tip: 'Le voyant bleu clignotant signifie que le bracelet est en mode appairage.' },
-  { icon: 'ri-bluetooth-connect-line', title: 'Recherche en cours...', desc: 'Rapprochez le bracelet de votre telephone. L\'appairage Bluetooth va demarrer automatiquement.', tip: 'Assurez-vous que le Bluetooth est active sur votre telephone.' },
+  { icon: 'ri-battery-charge-line', title: 'Chargez votre bracelet', desc: 'Placez le bracelet Elio sur son socle de charge. Attendez que le voyant LED clignote en vert.', tip: 'Le bracelet doit être chargé à au moins 20% pour demarrer l\'appairage.' },
+  { icon: 'ri-flashlight-line', title: 'Attendez le voyant bleu', desc: 'Posez le bracelet Elio sur son socle puis retirez-le. Attendez que le voyant clignote en bleu.', tip: 'Le voyant bleu clignotant signifie que le bracelet est en mode appairage.' },
+  { icon: 'ri-bluetooth-connect-line', title: 'Recherche en cours...', desc: 'Rapprochez le bracelet de votre telephone. L\'appairage Bluetooth va demarrer automatiquement.', tip: 'Assurez-vous que le Bluetooth est activé sur votre téléphone.' },
 ];
 
 const VEST_STEPS = [
-  { icon: 'ri-shirt-line', title: 'Enfilez le gilet', desc: 'Enfilez le gilet Elder par-dessus vos vetements. Assurez-vous que la fermeture eclair est bien en face avant.', tip: 'Le gilet doit etre porte pres du corps pour une detection optimale des chutes.' },
+  { icon: 'ri-shirt-line', title: 'Enfilez le gilet', desc: 'Enfilez le gilet Elder par-dessus vos vêtements. Assurez-vous que la fermeture éclair est bien en face avant.', tip: 'Le gilet doit etre porte pres du corps pour une détection optimale des chutes.' },
   { icon: 'ri-ruler-line', title: 'Ajustez les sangles', desc: 'Serrez les sangles laterales pour que le gilet soit bien ajuste a votre taille. Il ne doit pas etre trop lache.', tip: 'Un ajustement correct est essentiel pour le bon fonctionnement des airbags.' },
-  { icon: 'ri-power-line', title: 'Activez le gilet', desc: 'Appuyez sur le bouton d\'alimentation situe a l\'avant, en bas du gilet. Un bip sonore confirme l\'activation.', tip: 'Le voyant vert fixe signifie que le gilet est pret. Un voyant rouge signifie que la batterie est faible.' },
-  { icon: 'ri-bluetooth-connect-line', title: 'Recherche en cours...', desc: 'Rapprochez votre telephone du gilet. L\'appairage Bluetooth va demarrer automatiquement.', tip: 'Le gilet est detecte sous le nom "Elder-XXXX" dans la liste Bluetooth.' },
+  { icon: 'ri-power-line', title: 'Activez le gilet', desc: 'Appuyez sur le bouton d\'alimentation situe a l\'avant, en bas du gilet. Un bip sonore confirme l\'activation.', tip: 'Le voyant vert fixe signifie que le gilet est prêt. Un voyant rouge signifie que la batterie est faible.' },
+  { icon: 'ri-bluetooth-connect-line', title: 'Recherche en cours...', desc: 'Rapprochez votre telephone du gilet. L\'appairage Bluetooth va demarrer automatiquement.', tip: 'Le gilet est détecté sous le nom "Elder-XXXX" dans la liste Bluetooth.' },
 ];
 
 const SCALE_STEPS = [
-  { icon: 'ri-scales-3-line', title: 'Placez la balance', desc: 'Posez la balance sur une surface plane et dure. Evitez les tapis et moquettes.', tip: 'Une surface stable est necessaire pour des mesures precises.' },
-  { icon: 'ri-bluetooth-connect-line', title: 'Montez sur la balance', desc: 'Montez pieds nus sur la balance. Elle s\'allume automatiquement et lance la recherche Bluetooth.', tip: 'Restez immobile pendant la mesure pour un resultat optimal.' },
+  { icon: 'ri-scales-3-line', title: 'Placez la balance', desc: 'Posez la balance sur une surface plane et dure. Évitez les tapis et moquettes.', tip: 'Une surface stable est nécessaire pour des mesures précises.' },
+  { icon: 'ri-bluetooth-connect-line', title: 'Montez sur la balance', desc: 'Montez pieds nus sur la balance. Elle s\'allume automatiquement et lance la recherche Bluetooth.', tip: 'Restez immobile pendant la mesure pour un résultat optimal.' },
 ];
 
 export default function DeviceCards({ br, sc, vs, onStartWeighing, weighings = [], onRefresh, subscription }: Props) {
@@ -38,7 +38,7 @@ export default function DeviceCards({ br, sc, vs, onStartWeighing, weighings = [
   const needsSub = !subscription?.can_use_bracelet;
 
   const devices = [
-    { id: 'bracelet', name: 'Bracelet Elio', img: 'https://customer-assets.emergentagent.com/job_8afdc991-0ab2-4687-a2a5-438b9a5f0711/artifacts/2fto1qw7_bracelet_sante_connecte_elio_chutex_care_teleassistance_telealarme%281%29.svg', battery: br.battery, connected: br.connected, paired: br.paired, color: '#22D3EE', link: 'https://chutex-innovation.com/bracelet-elio', steps: BRACELET_STEPS },
+    { id: 'bracelet', name: 'Bracelet Elio', img: 'https://customer-assets.emergentagent.com/job_8afdc991-0ab2-4687-a2a5-438b9a5f0711/artifacts/2fto1qw7_bracelet_sante_connecte_elio_chutex_care_téléassistance_telealarme%281%29.svg', battery: br.battery, connected: br.connected, paired: br.paired, color: '#22D3EE', link: 'https://chutex-innovation.com/bracelet-elio', steps: BRACELET_STEPS },
     { id: 'scale', name: 'Balance Vita', img: 'https://customer-assets.emergentagent.com/job_8afdc991-0ab2-4687-a2a5-438b9a5f0711/artifacts/dwmw2i8r_Balance_connecte_Vita_chutex.svg', battery: sc.battery, connected: sc.connected, paired: sc.paired, color: '#A78BFA', link: 'https://chutex-innovation.com/balance-vita', steps: SCALE_STEPS },
     { id: 'vest', name: 'Elder', img: 'https://customer-assets.emergentagent.com/job_8afdc991-0ab2-4687-a2a5-438b9a5f0711/artifacts/ljh1zzu3_Gilet_Elder_airbag_Chutex.svg', battery: vs.battery, connected: vs.connected, paired: vs.paired, color: '#F59E0B', link: 'https://chutex-innovation.com/gilet-elder', steps: VEST_STEPS },
   ];
@@ -115,7 +115,7 @@ export default function DeviceCards({ br, sc, vs, onStartWeighing, weighings = [
             <div style={{ padding: '14px 18px', borderRadius: 16, background: `${dev.color}08`, border: `1px solid ${dev.color}18`, marginBottom: 24 } as any}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 10 } as any}>
                 <i className="ri-information-line" style={{ fontSize: 16, color: dev.color, flexShrink: 0 }} />
-                <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', lineHeight: 1.5 }}>Assurez-vous que le Bluetooth est active sur votre telephone et que l'appareil est a proximite.</span>
+                <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', lineHeight: 1.5 }}>Assurez-vous que le Bluetooth est activé sur votre téléphone et que l'appareil est à proximité.</span>
               </div>
             </div>
             <div data-testid="cancel-scan" onClick={closePairing} style={{ padding: '14px', borderRadius: 999, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', cursor: 'pointer', textAlign: 'center', fontSize: 14, fontWeight: 700, color: 'rgba(255,255,255,0.5)' } as any}>Annuler</div>
@@ -198,7 +198,7 @@ export default function DeviceCards({ br, sc, vs, onStartWeighing, weighings = [
       {showNoSubPopup && (
         <GlassOverlay onClose={() => setShowNoSubPopup(false)}>
           <div style={{ textAlign: 'center', marginBottom: 28 } as any}>
-            <img src="https://customer-assets.emergentagent.com/job_8afdc991-0ab2-4687-a2a5-438b9a5f0711/artifacts/2fto1qw7_bracelet_sante_connecte_elio_chutex_care_teleassistance_telealarme%281%29.svg" alt="" style={{ width: 110, height: 110, objectFit: 'contain', margin: '0 auto 20px', display: 'block' } as any} />
+            <img src="https://customer-assets.emergentagent.com/job_8afdc991-0ab2-4687-a2a5-438b9a5f0711/artifacts/2fto1qw7_bracelet_sante_connecte_elio_chutex_care_téléassistance_telealarme%281%29.svg" alt="" style={{ width: 110, height: 110, objectFit: 'contain', margin: '0 auto 20px', display: 'block' } as any} />
             <div style={{ fontSize: 24, fontWeight: 900, color: '#FFF', marginBottom: 8, lineHeight: 1.2 }}>Bracelet Elio</div>
             <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.45)', lineHeight: 1.6 }}>Le bracelet connecte 4G qui veille sur votre sante au quotidien.</div>
           </div>
@@ -207,13 +207,13 @@ export default function DeviceCards({ br, sc, vs, onStartWeighing, weighings = [
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 28 } as any}>
             {[
               { icon: 'ri-heart-pulse-line', text: 'Suivi cardiaque continu (FC, HRV, SpO2)', color: '#EF4444' },
-              { icon: 'ri-temp-hot-line', text: 'Temperature corporelle en temps reel', color: '#F59E0B' },
-              { icon: 'ri-moon-line', text: 'Analyse du sommeil (phases, qualite, duree)', color: '#818CF8' },
+              { icon: 'ri-temp-hot-line', text: 'Température corporelle en temps reel', color: '#F59E0B' },
+              { icon: 'ri-moon-line', text: 'Analyse du sommeil (phases, qualite, durée)', color: '#818CF8' },
               { icon: 'ri-footprint-line', text: 'Compteur de pas, calories et distance', color: '#10B981' },
               { icon: 'ri-alarm-warning-line', text: 'Detection automatique de chute', color: '#EF4444' },
               { icon: 'ri-signal-tower-line', text: 'Connectivite 4G integree', color: '#3B82F6' },
-              { icon: 'ri-brain-line', text: 'Nora IA : analyse personnalisee de vos donnees', color: '#A78BFA' },
-              { icon: 'ri-calendar-check-line', text: 'Programmes de prevention gratuits', color: '#22D3EE' },
+              { icon: 'ri-brain-line', text: 'Nora IA : analyse personnalisée de vos donnees', color: '#A78BFA' },
+              { icon: 'ri-calendar-check-line', text: 'Programmes de prévention gratuits', color: '#22D3EE' },
               { icon: 'ri-body-scan-line', text: 'Estimation de l\'age biologique', color: '#F59E0B' },
             ].map((f, i) => (
               <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 14px', borderRadius: 14, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.06)' } as any}>

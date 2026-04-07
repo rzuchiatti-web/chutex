@@ -128,7 +128,7 @@ function CompanyPrescriptionsTab({ token, user }: { token: string; user: any }) 
                 <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)', marginTop: 6, lineHeight: 1.6 }}>Le challenge concerne tous les prescripteurs Chutex, pas seulement ceux de votre structure.</div>
               </div>
               {[
-                { icon: 'ri-file-text-line', title: 'Prescrivez', desc: 'Vos gardiens creent des prescriptions. Quand le beneficiaire souscrit, elle est validee.', color: '#D4845A' },
+                { icon: 'ri-file-text-line', title: 'Prescrivez', desc: 'Vos gardiens creent des prescriptions. Quand le bénéficiaire souscrit, elle est validee.', color: '#D4845A' },
                 { icon: 'ri-bar-chart-box-line', title: 'Classement general', desc: 'Chaque prescription validee fait monter le prescripteur au classement. Tous les prescripteurs Chutex participent.', color: '#3B82F6' },
                 { icon: 'ri-trophy-line', title: 'Recompenses mensuelles', desc: '1er: 100 EUR, 2eme: 70 EUR, 3eme: 30 EUR. Versement automatique debut du mois suivant.', color: '#FFD700' },
                 { icon: 'ri-refresh-line', title: 'Reinitialisation', desc: 'Le classement repart a zero chaque 1er du mois. Chaque mois est une nouvelle chance.', color: '#10B981' },
@@ -170,7 +170,7 @@ function CompanyPrescriptionsTab({ token, user }: { token: string; user: any }) 
               <i className="ri-arrow-right-s-line" style={{ fontSize: 16, color: 'rgba(255,255,255,0.25)' }} />
             </div>
           ))}
-          {filtered.length === 0 && <div style={{ textAlign: 'center', padding: '40px 20px' } as any}><i className="ri-file-text-line" style={{ fontSize: 36, color: 'rgba(255,255,255,0.15)' }} /><div style={{ fontSize: 14, fontWeight: 700, color: '#FFF', marginTop: 10 }}>{search ? 'Aucun resultat' : 'Aucun prescripteur'}</div></div>}
+          {filtered.length === 0 && <div style={{ textAlign: 'center', padding: '40px 20px' } as any}><i className="ri-file-text-line" style={{ fontSize: 36, color: 'rgba(255,255,255,0.15)' }} /><div style={{ fontSize: 14, fontWeight: 700, color: '#FFF', marginTop: 10 }}>{search ? 'Aucun résultat' : 'Aucun prescripteur'}</div></div>}
         </div>
       </div>
     );
@@ -185,8 +185,8 @@ function CompanyPrescriptionsTab({ token, user }: { token: string; user: any }) 
       selectedPresc.subscription_type && { icon: 'ri-vip-crown-line', label: 'Abonnement', value: selectedPresc.subscription_type },
       { icon: 'ri-money-euro-circle-line', label: 'Commission', value: `${selectedPresc.commission || getCommission(selectedPresc)} EUR${commLabel}` },
       selectedPresc.created_at && { icon: 'ri-calendar-line', label: 'Date', value: new Date(selectedPresc.created_at).toLocaleString('fr-FR', { day: '2-digit', month: 'long', year: 'numeric' }) },
-      selectedPresc.beneficiary_phone && { icon: 'ri-phone-line', label: 'Telephone beneficiaire', value: selectedPresc.beneficiary_phone, phone: true },
-      selectedPresc.beneficiary_email && { icon: 'ri-mail-line', label: 'Email beneficiaire', value: selectedPresc.beneficiary_email },
+      selectedPresc.beneficiary_phone && { icon: 'ri-phone-line', label: 'Telephone bénéficiaire', value: selectedPresc.beneficiary_phone, phone: true },
+      selectedPresc.beneficiary_email && { icon: 'ri-mail-line', label: 'Email bénéficiaire', value: selectedPresc.beneficiary_email },
       selectedPresc.guardian_contact_name && { icon: 'ri-user-heart-line', label: 'Aidant', value: selectedPresc.guardian_contact_name },
       selectedPresc.guardian_contact_phone && { icon: 'ri-phone-line', label: 'Telephone aidant', value: selectedPresc.guardian_contact_phone, phone: true },
       selectedPresc.beneficiary_address && { icon: 'ri-map-pin-line', label: 'Adresse', value: selectedPresc.beneficiary_address },
@@ -208,9 +208,9 @@ function CompanyPrescriptionsTab({ token, user }: { token: string; user: any }) 
             <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.55)', marginTop: 4 }}>Prescription {selectedPresc.subscription_type || 'Standard'}</div>
             {(selectedPresc.commission || getCommission(selectedPresc)) && <div style={{ fontSize: 36, fontWeight: 900, color: '#FFF', marginTop: 8, letterSpacing: -1 }}>+{selectedPresc.commission || getCommission(selectedPresc)} EUR{commLabel}</div>}
           </div>
-          {/* Details */}
+          {/* Détails */}
           <div style={{ padding: '14px 16px', borderRadius: 20, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', marginBottom: 10 } as any}>
-            <div style={{ fontSize: 10, fontWeight: 600, color: 'rgba(255,255,255,0.35)', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 8 }}>Details de la prescription</div>
+            <div style={{ fontSize: 10, fontWeight: 600, color: 'rgba(255,255,255,0.35)', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 8 }}>Détails de la prescription</div>
             {pRows.map((item: any, i: number) => (<div key={i}>{i > 0 && <div style={{ height: 1, background: 'rgba(255,255,255,0.06)', margin: '10px 0' } as any} />}<div onClick={() => item.phone && (window.location.href = `tel:${item.value}`)} style={{ display: 'flex', alignItems: 'center', gap: 10, cursor: item.phone ? 'pointer' : 'default' } as any}><i className={item.icon} style={{ fontSize: 14, color: item.phone ? '#10B981' : 'rgba(255,255,255,0.35)' }} /><div style={{ flex: 1 } as any}><div style={{ fontSize: 9, fontWeight: 600, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', marginBottom: 2 }}>{item.label}</div><div style={{ fontSize: 14, color: '#FFF', fontWeight: item.phone ? 700 : 500 }}>{item.value}</div></div>{item.phone && <i className="ri-phone-line" style={{ fontSize: 14, color: '#10B981' }} />}</div></div>))}
           </div>
           {/* Prescriber card — clickable with popup */}
@@ -226,7 +226,7 @@ function CompanyPrescriptionsTab({ token, user }: { token: string; user: any }) 
           {/* Beneficiary card — ONLY for validated prescriptions */}
           {isValidated && (
             <div onClick={() => setShowBenPopup(true)} style={{ padding: '14px 16px', borderRadius: 20, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', marginBottom: 10, cursor: 'pointer' } as any}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 } as any}><div style={{ fontSize: 10, fontWeight: 600, color: 'rgba(255,255,255,0.35)', letterSpacing: 1, textTransform: 'uppercase' }}>Beneficiaire</div><i className="ri-arrow-right-s-line" style={{ fontSize: 16, color: 'rgba(255,255,255,0.3)' }} /></div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 } as any}><div style={{ fontSize: 10, fontWeight: 600, color: 'rgba(255,255,255,0.35)', letterSpacing: 1, textTransform: 'uppercase' }}>Bénéficiaire</div><i className="ri-arrow-right-s-line" style={{ fontSize: 16, color: 'rgba(255,255,255,0.3)' }} /></div>
               <div style={{ display: 'flex', alignItems: 'center', gap: 12 } as any}>
                 <div style={{ width: 44, height: 44, borderRadius: 999, background: 'linear-gradient(135deg, #D4845A, #E8A87C)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}><span style={{ fontSize: 18, fontWeight: 800, color: '#FFF' }}>{(selectedPresc.beneficiary_name || '?').charAt(0)}</span></div>
                 <div style={{ flex: 1 } as any}><div style={{ fontSize: 16, fontWeight: 700, color: '#FFF' }}>{selectedPresc.beneficiary_name}</div>{selectedPresc.beneficiary_email && <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)' }}>{selectedPresc.beneficiary_email}</div>}</div>
@@ -244,7 +244,7 @@ function CompanyPrescriptionsTab({ token, user }: { token: string; user: any }) 
         {/* BENEFICIARY POPUP */}
         {showBenPopup && <div onClick={() => setShowBenPopup(false)} style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 9999, backdropFilter: 'blur(32px)', WebkitBackdropFilter: 'blur(32px)', background: 'rgba(0,0,0,0.2)', overflowY: 'scroll', WebkitOverflowScrolling: 'touch' } as any}><div onClick={(e: any) => e.stopPropagation()} style={{ width: '100%', maxWidth: 400, margin: '0 auto', padding: '70px 28px 120px', boxSizing: 'border-box' } as any}>
           <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 20 } as any}><div onClick={() => setShowBenPopup(false)} style={{ width: 38, height: 38, borderRadius: 999, background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}><i className="ri-close-line" style={{ fontSize: 18, color: 'rgba(255,255,255,0.8)' }} /></div></div>
-          <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.35)', letterSpacing: 2, textTransform: 'uppercase', marginBottom: 16 }}>Fiche beneficiaire</div>
+          <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.35)', letterSpacing: 2, textTransform: 'uppercase', marginBottom: 16 }}>Fiche bénéficiaire</div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 24 } as any}><div style={{ width: 64, height: 64, borderRadius: 20, background: 'linear-gradient(135deg, #D4845A, #E8A87C)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}><span style={{ fontSize: 26, fontWeight: 800, color: '#FFF' }}>{(selectedPresc.beneficiary_name || '?').charAt(0)}</span></div><div><div style={{ fontSize: 22, fontWeight: 800, color: '#FFF' }}>{selectedPresc.beneficiary_name}</div></div></div>
           {[selectedPresc.beneficiary_phone && { icon: 'ri-phone-line', label: 'Telephone', value: selectedPresc.beneficiary_phone, phone: true }, selectedPresc.beneficiary_email && { icon: 'ri-mail-line', label: 'Email', value: selectedPresc.beneficiary_email }, selectedPresc.beneficiary_address && { icon: 'ri-map-pin-line', label: 'Adresse', value: selectedPresc.beneficiary_address }, selectedPresc.guardian_contact_name && { icon: 'ri-user-heart-line', label: 'Aidant', value: selectedPresc.guardian_contact_name }, selectedPresc.guardian_contact_phone && { icon: 'ri-phone-line', label: 'Telephone aidant', value: selectedPresc.guardian_contact_phone, phone: true }, { icon: 'ri-vip-crown-line', label: 'Abonnement', value: selectedPresc.subscription_type || 'Standard' }, selectedPresc.subscribed_at && { icon: 'ri-calendar-check-line', label: 'Souscrit le', value: new Date(selectedPresc.subscribed_at).toLocaleString('fr-FR', { day: '2-digit', month: 'long', year: 'numeric' }) }, { icon: 'ri-check-double-line', label: 'Statut', value: 'Souscription validee' }].filter(Boolean).map((item: any, i: number, arr: any[]) => (<div key={i}><div onClick={() => item.phone && (window.location.href = `tel:${item.value}`)} style={{ display: 'flex', alignItems: 'center', gap: 14, cursor: item.phone ? 'pointer' : 'default', padding: '13px 0' } as any}><div style={{ width: 34, height: 34, borderRadius: 10, background: item.phone ? 'rgba(16,185,129,0.1)' : 'rgba(255,255,255,0.08)', border: `1px solid ${item.phone ? 'rgba(16,185,129,0.2)' : 'rgba(255,255,255,0.1)'}`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}><i className={item.icon} style={{ fontSize: 15, color: item.phone ? '#10B981' : 'rgba(255,255,255,0.5)' }} /></div><div style={{ flex: 1 } as any}><div style={{ fontSize: 9, fontWeight: 600, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 2 }}>{item.label}</div><div style={{ fontSize: 15, color: '#FFF', fontWeight: item.phone ? 700 : 500 }}>{item.value}</div></div></div>{i < arr.length - 1 && <div style={{ height: 1, background: 'rgba(255,255,255,0.08)' } as any} />}</div>))}
         </div></div>}
@@ -302,7 +302,7 @@ function CompanyPrescriptionsTab({ token, user }: { token: string; user: any }) 
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' } as any}><div style={{ fontSize: 18, fontWeight: 900, color: '#FFF' }}>+{p.commission || getCommission(p)} EUR{commLabel}</div><div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: 'rgba(255,255,255,.12)', borderRadius: 999, padding: '8px 16px' } as any}><i className="ri-heart-line" style={{ fontSize: 14, color: '#FFF' }} /><span style={{ fontSize: 13, fontWeight: 600, color: '#FFF' }}>Consulter</span></div></div>
             </div>
           ))}
-          {filteredPrescs.length === 0 && <div style={{ textAlign: 'center', padding: '40px 20px' } as any}><i className="ri-file-text-line" style={{ fontSize: 36, color: 'rgba(255,255,255,0.15)' }} /><div style={{ fontSize: 14, fontWeight: 700, color: 'rgba(255,255,255,0.5)', marginTop: 10 }}>{searchPresc ? 'Aucun resultat' : `Aucune prescription ${prescTab === 'pending' ? 'en cours' : 'validee'}`}</div></div>}
+          {filteredPrescs.length === 0 && <div style={{ textAlign: 'center', padding: '40px 20px' } as any}><i className="ri-file-text-line" style={{ fontSize: 36, color: 'rgba(255,255,255,0.15)' }} /><div style={{ fontSize: 14, fontWeight: 700, color: 'rgba(255,255,255,0.5)', marginTop: 10 }}>{searchPresc ? 'Aucun résultat' : `Aucune prescription ${prescTab === 'pending' ? 'en cours' : 'validee'}`}</div></div>}
         </div>
       </div>
     );
@@ -356,7 +356,7 @@ function CompanyPrescriptionsTab({ token, user }: { token: string; user: any }) 
         )}
       </ScrollView>
 
-      {/* Prescription Detail Modal */}
+      {/* Prescription Détail Modal */}
       <Modal visible={!!selectedPresc} transparent animationType="fade" onRequestClose={() => setSelectedPresc(null)}>
         <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'flex-end' }}>
           <View style={{ backgroundColor: '#FFFFFF', borderTopLeftRadius: 28, borderTopRightRadius: 28, maxHeight: '90%' }}>

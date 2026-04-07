@@ -74,7 +74,7 @@ export default function VestConnectScreen() {
       if (r?.alert === 'sos') {
         setSosTriggered(true);
         if (Platform.OS === 'web' && 'Notification' in window && Notification.permission === 'granted')
-          new Notification('CHUTEX - Chute detectee !', { body: 'Alerte envoyee aux gardiens.' });
+          new Notification('CHUTEX - Chute détectée !', { body: 'Alerte envoyee aux gardiens.' });
       }
     } catch {}
   }, [token]);

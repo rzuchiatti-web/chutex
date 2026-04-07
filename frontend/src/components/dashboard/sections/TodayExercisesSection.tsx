@@ -66,7 +66,7 @@ export function TodayExercisesSection({ todayExercises, C, glass }: any) {
         onMouseEnter={(e: any) => { e.currentTarget.style.opacity = '0.85'; }}
         onMouseLeave={(e: any) => { e.currentTarget.style.opacity = '1'; }}>
         <i className="ri-run-line" style={{ fontSize: 16 }} />
-        Voir mon activite
+        Voir mon activité
       </div>
     </div>
   );

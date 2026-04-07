@@ -39,7 +39,7 @@ const PersonCard = ({ name, subtitle, color, onPress }: { name: string; subtitle
   </TouchableOpacity>
 );
 
-export default function AdminPrescriptionDetail() {
+export default function AdminPrescriptionDétail() {
   const { colors, isDark } = useTheme();
   const { prescriptionId } = useLocalSearchParams<{ prescriptionId: string }>();
   const { token } = useAuth();
@@ -75,15 +75,15 @@ export default function AdminPrescriptionDetail() {
             <View style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: '#F3E5F5', justifyContent: 'center', alignItems: 'center' }}>
               <Icon name="document-text" size={18} color="#7B1FA2" />
             </View>
-            <Text style={{ fontSize: 16, fontWeight: '800', color: '#111827' }}>Details Prescription</Text>
+            <Text style={{ fontSize: 16, fontWeight: '800', color: '#111827' }}>Détails Prescription</Text>
           </View>
-          <InfoRow icon="person-outline" label="Beneficiaire" value={p.beneficiary_name} />
+          <InfoRow icon="person-outline" label="Bénéficiaire" value={p.beneficiary_name} />
           <InfoRow icon="mail-outline" label="Email" value={p.beneficiary_email} />
           <InfoRow icon="call-outline" label="Telephone" value={p.beneficiary_phone} />
-          <InfoRow icon="pricetag-outline" label="Type abonnement" value={p.subscription_type === 'standard' ? 'Standard (15EUR/mois)' : 'Teleassistance (25EUR/mois)'} />
+          <InfoRow icon="pricetag-outline" label="Type abonnement" value={p.subscription_type === 'standard' ? 'Standard (15EUR/mois)' : 'Téléassistance (25EUR/mois)'} />
           <InfoRow icon="cash-outline" label="Commission" value={`${p.commission || 0} EUR`} color="#4CAF50" />
           <InfoRow icon="business-outline" label="Structure" value={p.prescriber_structure} color="#7B1FA2" />
-          <InfoRow icon="calendar-outline" label="Date creation" value={p.created_at ? new Date(p.created_at).toLocaleString('fr-FR') : ''} />
+          <InfoRow icon="calendar-outline" label="Date création" value={p.created_at ? new Date(p.created_at).toLocaleString('fr-FR') : ''} />
           {p.subscribed_at && <InfoRow icon="checkmark-circle-outline" label="Date souscription" value={new Date(p.subscribed_at).toLocaleString('fr-FR')} color="#4CAF50" />}
           {p.notes && <InfoRow icon="chatbox-outline" label="Notes" value={p.notes} />}
         </GlassCard>
@@ -120,7 +120,7 @@ export default function AdminPrescriptionDetail() {
               <View style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: '#E1F5FE', justifyContent: 'center', alignItems: 'center' }}>
                 <Icon name="heart" size={18} color="#0288D1" />
               </View>
-              <Text style={{ fontSize: 16, fontWeight: '800', color: '#111827' }}>Beneficiaire inscrit</Text>
+              <Text style={{ fontSize: 16, fontWeight: '800', color: '#111827' }}>Bénéficiaire inscrit</Text>
             </View>
             <PersonCard name={b.name} subtitle={`${b.email} - ${b.phone || ''}`} color="#4FC3F7"
               onPress={() => router.push({ pathname: '/admin-client-detail', params: { clientId: b.id } })} />

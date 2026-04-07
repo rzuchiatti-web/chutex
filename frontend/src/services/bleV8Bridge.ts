@@ -340,7 +340,7 @@ export function parseV8Response(bytes: number[]): { cmd: number; raw_hex?: strin
     }
   }
 
-  // 0x52: Detailed step data (historical)
+  // 0x52: Détailed step data (historical)
   if (cmd === V8_CMD.STEP_DETAIL && bytes.length >= 6) {
     parsed.steps = bytes[1] | (bytes[2] << 8) | (bytes[3] << 16);
     parsed.calories = bytes[4] | (bytes[5] << 8);
@@ -442,9 +442,9 @@ export async function sendInitialCommands(device: any) {
   setTimeout(() => writeToDevice(device, V8_CMD.STEPS, [1, 1]), 6000);
   // Blood glucose
   setTimeout(() => writeToDevice(device, V8_CMD.GLUCOSE), 6500);
-  // Temperature (0x14 — 3-NTC sensor, per V8 SDK)
+  // Température (0x14 — 3-NTC sensor, per V8 SDK)
   setTimeout(() => writeToDevice(device, V8_CMD.TEMPERATURE), 7000);
-  // Temperature history (0x62)
+  // Température history (0x62)
   setTimeout(() => writeToDevice(device, V8_CMD.TEMP_HISTORY, [0]), 7200);
 
   // Historical data: request past 3 days of steps (0x51 with date)
@@ -712,7 +712,7 @@ export function scanAndConnect(
       if (!found) {
         manager.stopDeviceScan();
         notifyWebView(
-          `window.dispatchEvent(new CustomEvent('ble_result',{detail:{error:'Appareil non trouve. Verifiez qu\\'il est allume et a proximite.'}}));true;`
+          `window.dispatchEvent(new CustomEvent('ble_result',{detail:{error:'Appareil non trouve. Vérifiéz qu\\'il est allume et à proximité.'}}));true;`
         );
       }
     }, scanTimeout);
@@ -744,7 +744,7 @@ export function scanAndConnect(
       manager.state().then((s: string) => {
         if (s === 'PoweredOn') startScan();
         else notifyWebView(
-          `window.dispatchEvent(new CustomEvent('ble_result',{detail:{error:'Bluetooth desactive. Activez-le dans les Reglages.'}}));true;`
+          `window.dispatchEvent(new CustomEvent('ble_result',{detail:{error:'Bluetooth désactivé. Activez-le dans les Réglages.'}}));true;`
         );
       }).catch(() => {});
     }

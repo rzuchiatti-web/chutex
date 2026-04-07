@@ -610,7 +610,7 @@ export default function DorsiProgramPage() {
                 </div>
                 <div style={{ flex: 1 } as any}>
                   <div style={{ fontSize: 14, fontWeight: 700, color: '#FFF' }}>{activeGame.game.name}</div>
-                  <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)' }}>{ble.connected ? 'Controle par coussin HeloKine' : 'Controle clavier / boutons'}</div>
+                  <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)' }}>{ble.connected ? 'Contrôle par coussin HeloKine' : 'Contrôle clavier / boutons'}</div>
                 </div>
               </div>
               <GameComponent difficulty={activeGame.difficulty} onFinish={handleGameFinish} bleAngles={ble.angles} bleConnected={ble.connected} />
@@ -638,8 +638,8 @@ export default function DorsiProgramPage() {
                     </div>
                   </div>
                   <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.6)', lineHeight: 1.7 }}>
-                    {showInfo === 'index' && 'Votre Dorsi Index est un score de 0 a 100 qui mesure votre sante lombaire. Il combine votre mobilite (30pts), votre niveau de douleur (25pts), la regularite de vos exercices (25pts) et votre progression (20pts). Plus il est eleve, mieux c\'est !'}
-                    {showInfo === 'streak' && 'Votre serie represente le nombre de jours consecutifs ou vous avez fait au moins un exercice Dorsi. Essayez de maintenir la serie ! Chaque jour compte pour ameliorer votre Dorsi Index.'}
+                    {showInfo === 'index' && 'Votre Dorsi Index est un score de 0 a 100 qui mesure votre sante lombaire. Il combine votre mobilite (30pts), votre niveau de douleur (25pts), la régularité de vos exercices (25pts) et votre progression (20pts). Plus il est élevé, mieux c\'est !'}
+                    {showInfo === 'streak' && 'Votre serie represente le nombre de jours consecutifs ou vous avez fait au moins un exercice Dorsi. Essayez de maintenir la serie ! Chaque jour compte pour améliorer votre Dorsi Index.'}
                     {showInfo === 'bilan' && 'Le bilan mesure votre mobilite lombaire dans 4 directions (avant, arriere, gauche, droite) et votre niveau de douleur. Faites-le regulierement pour suivre votre evolution et adapter votre programme.'}
                   </div>
                 </div>
@@ -671,7 +671,7 @@ export default function DorsiProgramPage() {
                         </div>
                       </div>
                       <div style={{ fontSize: 15, fontWeight: 800, color: '#FFF', marginTop: 2 }}>
-                        {dorsiIndex.index >= 70 ? 'Excellent' : dorsiIndex.index >= 50 ? 'Bon' : dorsiIndex.index >= 30 ? 'Modere' : 'A ameliorer'}
+                        {dorsiIndex.index >= 70 ? 'Excellent' : dorsiIndex.index >= 50 ? 'Bon' : dorsiIndex.index >= 30 ? 'Modéré' : 'A améliorer'}
                       </div>
                       {comparison && comparison.population_count > 0 && (
                         <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.35)', marginTop: 2 }}>

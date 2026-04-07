@@ -423,8 +423,8 @@ export default function WeighingFlow({ onClose, d = {}, weighings = [] }: Props)
               <>
                 <div style={{ fontSize: 22, fontWeight: 900, color: '#FFF', marginBottom: 20 }}>{bleStatus === 'connecting' ? 'Connexion...' : 'Recherche de la balance...'}</div>
                 <div style={{ width: 60, height: 60, borderRadius: 999, border: '3px solid rgba(167,139,250,0.3)', borderTopColor: '#A78BFA', margin: '0 auto 20px', animation: 'spin 1s linear infinite' } as any} />
-                <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.4)', marginBottom: 8 }}>{bleError || 'Selectionnez votre balance dans la popup Bluetooth'}</div>
-                <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.25)', marginBottom: 24 }}>Assurez-vous que la balance est allumee et a proximite</div>
+                <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.4)', marginBottom: 8 }}>{bleError || 'Sélectionnéz votre balance dans la popup Bluetooth'}</div>
+                <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.25)', marginBottom: 24 }}>Assurez-vous que la balance est allumee et à proximité</div>
                 <div onClick={closeAndCleanup} style={{ padding: '14px', borderRadius: 999, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', cursor: 'pointer', fontSize: 13, fontWeight: 700, color: 'rgba(255,255,255,0.4)' } as any}>Annuler</div>
               </>
             )}
@@ -502,7 +502,7 @@ export default function WeighingFlow({ onClose, d = {}, weighings = [] }: Props)
                   { label: 'Hydratation', value: r.water_pct || result?.hydration_pct, unit: '%', color: '#38BDF8', icon: 'ri-drop-fill' },
                   { label: 'Masse osseuse', value: r.bone_mass_kg || result?.bone_mass, unit: 'kg', color: '#A78BFA', icon: 'ri-shield-line' },
                   { label: 'Graisse visc.', value: r.visceral_fat || result?.visceral_fat, unit: '', color: '#EF4444', icon: 'ri-fire-line' },
-                  { label: 'Metabolisme', value: r.basal_metabolism || result?.basal_metabolism, unit: 'kcal', color: '#F97316', icon: 'ri-flashlight-line' },
+                  { label: 'Métabolisme', value: r.basal_metabolism || result?.basal_metabolism, unit: 'kcal', color: '#F97316', icon: 'ri-flashlight-line' },
                   { label: 'Proteines', value: r.protein_pct || result?.protein_pct, unit: '%', color: '#14B8A6', icon: 'ri-leaf-line' },
                   { label: 'Age corporel', value: r.body_age || result?.body_age, unit: 'ans', color: '#8B5CF6', icon: 'ri-time-line' },
                   { label: 'Score sante', value: result?.health_score || r.health_score_balance, unit: '/100', color: '#FFB300', icon: 'ri-star-line' },

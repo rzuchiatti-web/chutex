@@ -131,7 +131,7 @@ export function DailyObjectivesOnDashboard({ token, isDark = true }: { token: st
   if (!plan.length) return null;
 
   const objectiveConfigs: Record<string, { label: string; unit: string; route: string }> = {
-    steps: { label: 'Activite physique', unit: 'Pas', route: '/metric-detail' },
+    steps: { label: 'Activité physique', unit: 'Pas', route: '/metric-detail' },
     hydration: { label: 'Hydratation', unit: 'Litre', route: '/minceur' },
     sleep: { label: 'Endormissement', unit: 'Heure', route: '/sleep' },
     calories_intake: { label: 'Apport calorique', unit: 'Kcal', route: '/minceur' },

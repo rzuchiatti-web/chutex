@@ -319,7 +319,7 @@ export function BeneficiaryHome({ token, user }: { token: string; user: any }) {
 
   const br = dashData?.bracelet || { heart_rate: 0, spo2: 0, steps: 0, blood_pressure: { systolic: 0, diastolic: 0 }, temperature: 0, battery: 0, connected: false, calories: 0, distance_km: 0, heart_rate_history: [], paired: false };
   const sc = dashData?.scale || { weight: 0, bmi: 0, body_fat: 0, muscle_mass: 0, water_pct: 0, battery: 0, connected: false, paired: false };
-  const vs = dashData?.vest || { fall_detected: false, posture_score: 0, chest_temp: 0, battery: 0, connected: false, wearing_hours_today: 0, alerts_today: 0, paired: false };
+  const vs = dashData?.vest || { fall_détectéd: false, posture_score: 0, chest_temp: 0, battery: 0, connected: false, wearing_hours_today: 0, alerts_today: 0, paired: false };
   const sl = dashData?.sleep || null;
 
   /* ─── WEB: Dashboard with light/dark mode ─── */
@@ -435,7 +435,7 @@ export function BeneficiaryHome({ token, user }: { token: string; user: any }) {
               src="https://customer-assets.emergentagent.com/job_ba3a5789-c8f1-4b12-b5d8-478a7f99aaea/artifacts/b6eh1r76_Nora_video.mp4" />
             <div style={{ flex: 1 } as any}>
               <div style={{ fontSize: 13, fontWeight: 800, color: '#FFF' }}>Analyse & Objectifs</div>
-              <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.35)', marginTop: 1 }}>Analyse personnalisee de votre etat de sante</div>
+              <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.35)', marginTop: 1 }}>Analyse personnalisée de votre etat de sante</div>
             </div>
             <i className="ri-arrow-right-s-line" style={{ fontSize: 18, color: 'rgba(255,255,255,0.3)' }} />
           </div>
@@ -689,7 +689,7 @@ export function BeneficiaryHome({ token, user }: { token: string; user: any }) {
           {/* ── Dispositifs connectes ── */}
           {(() => {
             const deviceList = [
-              { show: br.connected || br.paired, name: 'Bracelet Elio', img: 'https://customer-assets.emergentagent.com/job_8afdc991-0ab2-4687-a2a5-438b9a5f0711/artifacts/2fto1qw7_bracelet_sante_connecte_elio_chutex_care_teleassistance_telealarme%281%29.svg', battery: br.battery, connected: br.connected, color: '#22D3EE' },
+              { show: br.connected || br.paired, name: 'Bracelet Elio', img: 'https://customer-assets.emergentagent.com/job_8afdc991-0ab2-4687-a2a5-438b9a5f0711/artifacts/2fto1qw7_bracelet_sante_connecte_elio_chutex_care_téléassistance_telealarme%281%29.svg', battery: br.battery, connected: br.connected, color: '#22D3EE' },
               { show: (sc.connected || sc.paired) && weighings.length > 0, name: 'Balance Vita', img: 'https://customer-assets.emergentagent.com/job_8afdc991-0ab2-4687-a2a5-438b9a5f0711/artifacts/dwmw2i8r_Balance_connecte_Vita_chutex.svg', battery: sc.battery, connected: sc.connected, color: '#A78BFA' },
               { show: vs.connected || vs.paired, name: 'Elder', img: 'https://customer-assets.emergentagent.com/job_8afdc991-0ab2-4687-a2a5-438b9a5f0711/artifacts/ljh1zzu3_Gilet_Elder_airbag_Chutex.svg', battery: vs.battery, connected: vs.connected, color: '#F59E0B' },
             ];

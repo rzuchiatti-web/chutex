@@ -225,7 +225,7 @@ export default function HealthScreen() {
               { val: d.heart_rate > 0 ? d.heart_rate : '--', unit: 'bpm', label: 'Rythme cardiaque', status: d.heart_rate > 0 ? 'Mesure recente' : 'Aucune donnee', icon: 'ri-heart-pulse-line', color: '#EF4444', key: 'heart_rate' },
               { val: d.spo2 > 0 ? `${d.spo2}` : '--', unit: '%', label: 'Saturation O2', status: d.spo2 > 0 ? 'Mesure recente' : 'Aucune donnee', icon: 'ri-drop-line', color: '#6366F1', key: 'spo2' },
               { val: d.blood_pressure?.systolic > 0 && d.blood_pressure?.diastolic > 0 ? `${d.blood_pressure.systolic}/${d.blood_pressure.diastolic}` : '--/--', unit: 'mmHg', label: 'Pression arterielle', status: d.blood_pressure?.systolic > 0 ? 'Mesure recente' : 'Aucune donnee', icon: 'ri-water-flash-line', color: '#8B5CF6', key: 'blood_pressure' },
-              { val: d.temperature > 0 ? `${d.temperature}` : '--', unit: '°C', label: 'Temperature', status: d.temperature > 0 ? 'Mesure recente' : 'Aucune donnee', icon: 'ri-temp-hot-line', color: '#F59E0B', key: 'temperature' },
+              { val: d.temperature > 0 ? `${d.temperature}` : '--', unit: '°C', label: 'Température', status: d.temperature > 0 ? 'Mesure recente' : 'Aucune donnee', icon: 'ri-temp-hot-line', color: '#F59E0B', key: 'temperature' },
             ].map((v, i) => (
               <div key={i} onClick={() => router.push({ pathname: '/metric-detail' as any, params: { key: v.key } })} style={{ padding: '12px 14px 10px', borderRadius: 18, background: cardBg, cursor: 'pointer', transition: 'transform 0.15s' } as any}
                 onMouseEnter={(e: any) => { e.currentTarget.style.transform = 'translateY(-2px)'; }}
@@ -372,7 +372,7 @@ export default function HealthScreen() {
     { id: 'heart_rate', label: 'Frequence cardiaque', value: nativeVitals.heart_rate, unit: 'bpm', icon: 'pulse-outline' as any, color: '#EF4444', range: '60-100' },
     { id: 'spo2', label: 'Saturation O2', value: nativeVitals.spo2, unit: '%', icon: 'water-outline' as any, color: '#38BDF8', range: '95-100' },
     { id: 'blood_pressure', label: 'Tension arterielle', value: `${nativeVitals.systolic}/${nativeVitals.diastolic}`, unit: 'mmHg', icon: 'pulse-outline' as any, color: '#A78BFA', range: '120/80' },
-    { id: 'temperature', label: 'Temperature', value: nativeVitals.temperature, unit: 'C', icon: 'thermometer-outline' as any, color: '#F59E0B', range: '36.5-37.5' },
+    { id: 'temperature', label: 'Température', value: nativeVitals.temperature, unit: 'C', icon: 'thermometer-outline' as any, color: '#F59E0B', range: '36.5-37.5' },
   ];
 
   return (
@@ -403,3 +403,4 @@ export default function HealthScreen() {
     </View>
   );
 }
+

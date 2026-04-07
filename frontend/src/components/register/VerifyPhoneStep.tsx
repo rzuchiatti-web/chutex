@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { INPUT_STYLE } from './RegisterUI';
 import { apiFetch } from '../../services/api';
 
-export default function VerifyPhoneStep({ phone, onVerified }: { phone: string; onVerified: () => void }) {
+export default function VerifyPhoneStep({ phone, onVérifiéd }: { phone: string; onVérifiéd: () => void }) {
   const [digits, setDigits] = useState(['', '', '', '', '', '']);
   const [error, setError] = useState('');
   const [sending, setSending] = useState(false);
@@ -14,7 +14,7 @@ export default function VerifyPhoneStep({ phone, onVerified }: { phone: string; 
   const sendCode = async () => {
     setSending(true); setError(''); setDevCode('');
     try {
-      const res = await apiFetch('/api/auth/send-verification-code', { method: 'POST', body: JSON.stringify({ phone }) });
+      const res = await apiFetch('/api/auth/send-vérification-code', { method: 'POST', body: JSON.stringify({ phone }) });
       if (res.dev_code) setDevCode(res.dev_code);
       setCooldown(60);
     } catch (e: any) { setError(e.message); } finally { setSending(false); }
@@ -40,7 +40,7 @@ export default function VerifyPhoneStep({ phone, onVerified }: { phone: string; 
     setVerifying(true); setError('');
     try {
       await apiFetch('/api/auth/verify-code', { method: 'POST', body: JSON.stringify({ phone, code }) });
-      onVerified();
+      onVérifiéd();
     } catch (e: any) {
       setError(e.message || 'Code incorrect');
       setDigits(['', '', '', '', '', '']);
@@ -54,9 +54,9 @@ export default function VerifyPhoneStep({ phone, onVerified }: { phone: string; 
         <div style={{ width: 56, height: 56, borderRadius: 16, background: 'rgba(16,185,129,0.15)', border: '1px solid rgba(16,185,129,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 14px' } as any}>
           <i className="ri-smartphone-line" style={{ fontSize: 26, color: '#10B981' }} />
         </div>
-        <div style={{ fontSize: 22, fontWeight: 900, color: '#FFF', marginBottom: 6 }}>Verification du telephone</div>
+        <div style={{ fontSize: 22, fontWeight: 900, color: '#FFF', marginBottom: 6 }}>Vérification du telephone</div>
         <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', lineHeight: 1.6 }}>
-          Un code a 6 chiffres a ete envoye au<br />
+          Un code a 6 chiffres a été envoye au<br />
           <span style={{ color: '#FFF', fontWeight: 700 }}>{phone}</span>
         </div>
       </div>
@@ -84,7 +84,7 @@ export default function VerifyPhoneStep({ phone, onVerified }: { phone: string; 
       </div>
 
       {error && <div data-testid="verify-error" style={{ textAlign: 'center', fontSize: 13, color: '#F87171', marginBottom: 12 }}>{error}</div>}
-      {verifying && <div style={{ textAlign: 'center', fontSize: 12, color: 'rgba(255,255,255,0.4)', marginBottom: 12 }}>Verification en cours...</div>}
+      {verifying && <div style={{ textAlign: 'center', fontSize: 12, color: 'rgba(255,255,255,0.4)', marginBottom: 12 }}>Vérification en cours...</div>}
 
       {devCode && (
         <div style={{ textAlign: 'center', padding: '10px 16px', borderRadius: 12, background: 'rgba(245,158,11,0.1)', border: '1px solid rgba(245,158,11,0.2)', marginBottom: 12 } as any}>

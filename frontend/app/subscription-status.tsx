@@ -46,8 +46,8 @@ export default function SubscriptionStatusPage() {
             <i className={icon} style={{ fontSize: 32, color }} />
           </div>
         )}
-        <div style={{ fontSize: 18, fontWeight: 800, color: C.text, marginBottom: 8 }}>{loading ? 'Verification...' : label}</div>
-        {isActive && <div style={{ fontSize: 13, color: C.sub, lineHeight: 1.5, marginBottom: 20 }}>Votre abonnement {sub.type} a ete active avec succes. Votre professionnel peut maintenant gerer vos exercices.</div>}
+        <div style={{ fontSize: 18, fontWeight: 800, color: C.text, marginBottom: 8 }}>{loading ? 'Vérification...' : label}</div>
+        {isActive && <div style={{ fontSize: 13, color: C.sub, lineHeight: 1.5, marginBottom: 20 }}>Votre abonnement {sub.type} a été active avec succes. Votre professionnel peut maintenant gerer vos exercices.</div>}
         <div onClick={() => router.replace('/(tabs)' as any)} style={{ padding: '14px 28px', borderRadius: 999, background: `${color}15`, border: `1px solid ${color}25`, cursor: 'pointer', fontSize: 14, fontWeight: 700, color } as any}>
           Retour au tableau de bord
         </div>

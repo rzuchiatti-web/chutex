@@ -134,7 +134,7 @@ export async function scanForBracelet(
         if (normalizedTarget && deviceMac.includes(normalizedTarget)) {
           if (!seen.has(device.id)) {
             seen.add(device.id);
-            onFound({ id: device.id, name: name || 'Bracelet V6', rssi: device.rssi, mac: device.id });
+            onFound({ id: device.id, name: name || 'Bracelet Elio', rssi: device.rssi, mac: device.id });
           }
           return;
         }
@@ -172,7 +172,7 @@ export async function connectToBracelet(
     await device.discoverAllServicesAndCharacteristics();
 
     let battery = 0;
-    let deviceName = device.name || device.localName || 'Bracelet V6';
+    let deviceName = device.name || device.localName || 'Bracelet Elio';
 
     // Read battery level
     try {

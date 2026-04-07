@@ -35,7 +35,7 @@ export function DoctorCard({ onPress }: { onPress: () => void }) {
             Teleconsultation
           </div>
           <div style={{ fontSize: 12, color: 'rgba(255,255,255,.6)', marginBottom: 12, fontWeight: 500 }}>
-            Medecin 24/7
+            Médecin 24/7
           </div>
 
           {/* Button — gray pill with white phone circle */}
@@ -69,7 +69,7 @@ export function DoctorCard({ onPress }: { onPress: () => void }) {
       <Image source={{ uri: DOCTOR_IMG }} style={{ position: 'absolute', right: -8, bottom: 0, height: '110%', width: 160, resizeMode: 'contain' }} />
       <View style={{ padding: 20, flex: 1, maxWidth: '58%' }}>
         <Text style={{ fontSize: 22, fontWeight: '800', color: '#FFF', marginBottom: 6 }}>Teleconsultation</Text>
-        <Text style={{ fontSize: 14, color: 'rgba(255,255,255,.7)', marginBottom: 16, fontWeight: '500' }}>Medecin disponible 24/7</Text>
+        <Text style={{ fontSize: 14, color: 'rgba(255,255,255,.7)', marginBottom: 16, fontWeight: '500' }}>Médecin disponible 24/7</Text>
         <View style={{ flexDirection: 'row', alignItems: 'center', backgroundColor: 'rgba(200,210,225,.35)', borderRadius: 999, alignSelf: 'flex-start', borderWidth: 1, borderColor: 'rgba(255,255,255,.25)', overflow: 'hidden' }}>
           <View style={{ width: 42, height: 42, borderRadius: 21, backgroundColor: '#FFF', justifyContent: 'center', alignItems: 'center', margin: 3 }}>
             <Icon name="call-outline" size={18} color="#1f4a7a" />

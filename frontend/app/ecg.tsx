@@ -283,10 +283,10 @@ export default function ECGScreen() {
       interpretation = `Bloc auriculo-ventriculaire detecte (grade ${avBlock}). Consultez un medecin.`;
     } else if (resultVal === 1) {
       status = 'low';
-      interpretation = 'Rythme cardiaque bas detecte. Surveillance recommandee.';
+      interpretation = 'Rythme cardiaque bas detecte. Surveillance recommandée.';
     } else if (resultVal === 3) {
       status = 'high';
-      interpretation = 'Rythme cardiaque eleve detecte. Reposez-vous et consultez si persistant.';
+      interpretation = 'Rythme cardiaque élevé detecte. Reposez-vous et consultez si persistant.';
     }
 
     let ecgId = 'ecg-' + Date.now();
@@ -448,7 +448,7 @@ export default function ECGScreen() {
             <img src={BRACELET_IMG} alt="" style={{ width: 160, height: 160, objectFit: 'contain', margin: '0 auto 20px', display: 'block', filter: 'drop-shadow(0 12px 32px rgba(0,0,0,0.4))' } as any} />
             <div style={{ fontSize: 22, fontWeight: 900, color: '#FFF', marginBottom: 8 }}>Positionnez votre doigt</div>
             <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.45)', lineHeight: 1.7, marginBottom: 24 }}>
-              Placez votre index sur le capteur metallique du bracelet. Maintenez une pression legere.
+              Placez votre index sur le capteur metallique du bracelet. Maintenez une pression légère.
             </div>
             {bleError && (
               <div style={{ padding: '10px 16px', borderRadius: 12, background: 'rgba(239,68,68,0.12)', border: '1px solid rgba(239,68,68,0.2)', marginBottom: 16, fontSize: 12, color: '#EF4444' } as any}>{bleError}</div>
@@ -472,7 +472,7 @@ export default function ECGScreen() {
         {/* Step 4: Recording */}
         {step === 4 && (
           <div style={{ width: '100%', maxWidth: 420, textAlign: 'center' } as any}>
-            <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 12 }}>Enregistrement ECG</div>
+            <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 12 }}>Enregistrément ECG</div>
             <div style={{ display: 'flex', justifyContent: 'center', gap: 24, marginBottom: 16 } as any}>
               <div>
                 <div style={{ fontSize: 36, fontWeight: 900, color: '#FFF', lineHeight: 1 }}>{ECG_DURATION - recordSec}s</div>
@@ -499,7 +499,7 @@ export default function ECGScreen() {
             </div>
             <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)' }}>{ecgSamples.length} echantillons</div>
             <div style={{ fontSize: 14, fontWeight: 700, color: '#FFFFFF', marginTop: 8, marginBottom: 4 }}>Gardez votre doigt sur le capteur</div>
-            <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.3)' }}>Ne bougez pas pendant l'enregistrement</div>
+            <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.3)' }}>Ne bougez pas pendant l'enregistrément</div>
           </div>
         )}
 

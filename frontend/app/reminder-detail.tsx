@@ -12,7 +12,7 @@ const TYPE_CONFIG: Record<string, { label: string; icon: string; color: string }
   medication: { label: 'Complement', icon: 'ri-capsule-fill', color: '#F59E0B' },
 };
 
-export default function ReminderDetailPage() {
+export default function ReminderDétailPage() {
   const { token } = useAuth();
   const router = useRouter();
   const params = useLocalSearchParams();

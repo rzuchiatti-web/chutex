@@ -90,9 +90,9 @@ export default function SleepCard({ d, beneficiaryId }: Props) {
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 } as any}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 6 } as any}>
               <i className="ri-lungs-line" style={{ fontSize: 12, color: apneaRisk < 30 ? '#10B981' : apneaRisk < 60 ? '#F59E0B' : '#EF4444' }} />
-              <span style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.4)' }}>Risque d'apnee</span>
+              <span style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.4)' }}>Risque d'apnée</span>
             </div>
-            <span style={{ fontSize: 11, fontWeight: 800, color: apneaRisk < 30 ? '#10B981' : apneaRisk < 60 ? '#F59E0B' : '#EF4444' }}>{apneaRisk < 30 ? 'Faible' : apneaRisk < 60 ? 'Modere' : 'Eleve'}</span>
+            <span style={{ fontSize: 11, fontWeight: 800, color: apneaRisk < 30 ? '#10B981' : apneaRisk < 60 ? '#F59E0B' : '#EF4444' }}>{apneaRisk < 30 ? 'Faible' : apneaRisk < 60 ? 'Modéré' : 'Élevé'}</span>
           </div>
           <div style={{ height: 6, borderRadius: 3, background: 'rgba(255,255,255,0.06)', overflow: 'hidden' } as any}>
             <div style={{ height: 6, borderRadius: 3, width: `${apneaRisk}%`, background: `linear-gradient(90deg, ${apneaRisk < 30 ? '#10B981' : apneaRisk < 60 ? '#F59E0B' : '#EF4444'}80, ${apneaRisk < 30 ? '#10B981' : apneaRisk < 60 ? '#F59E0B' : '#EF4444'})` } as any} />

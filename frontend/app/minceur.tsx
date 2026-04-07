@@ -188,7 +188,7 @@ function Insight({ metric, value, gender, weight }: { metric: MK; value: number;
   if (!value || metric === 'weight') return null;
   const fem = gender?.toLowerCase().includes('femme');
   const info = metric === 'body_fat_pct'
-    ? (() => { const rs = fem ? [{ m: 20, l: 'Faible', c: B }, { m: 33, l: 'Normal', c: G }, { m: 39, l: 'Eleve', c: A }, { m: 100, l: 'Tres eleve', c: R }] : [{ m: 14, l: 'Faible', c: B }, { m: 25, l: 'Normal', c: G }, { m: 30, l: 'Eleve', c: A }, { m: 100, l: 'Tres eleve', c: R }]; const r = rs.find(r => value <= r.m) || rs[rs.length - 1]; return { ...r, ref: fem ? '20-33%' : '14-25%', desc: `Soit ${Math.round(value / 100 * weight * 10) / 10}kg de masse grasse` }; })()
+    ? (() => { const rs = fem ? [{ m: 20, l: 'Faible', c: B }, { m: 33, l: 'Normal', c: G }, { m: 39, l: 'Eleve', c: A }, { m: 100, l: 'Tres élevé', c: R }] : [{ m: 14, l: 'Faible', c: B }, { m: 25, l: 'Normal', c: G }, { m: 30, l: 'Eleve', c: A }, { m: 100, l: 'Tres élevé', c: R }]; const r = rs.find(r => value <= r.m) || rs[rs.length - 1]; return { ...r, ref: fem ? '20-33%' : '14-25%', desc: `Soit ${Math.round(value / 100 * weight * 10) / 10}kg de masse grasse` }; })()
     : (() => { const rs = fem ? [{ m: 24, l: 'Faible', c: R }, { m: 30, l: 'Normal', c: A }, { m: 100, l: 'Excellent', c: G }] : [{ m: 33, l: 'Faible', c: R }, { m: 39, l: 'Normal', c: A }, { m: 100, l: 'Excellent', c: G }]; const r = rs.find(r => value <= r.m) || rs[rs.length - 1]; return { ...r, ref: fem ? '24-30%+' : '33-39%+', desc: 'Inclut coeur, dos, membres, organes' }; })();
   return (
     <div data-testid="metric-insight" style={{ padding: '8px 0 0', animation: 'fadeSlide 0.35s ease' } as any}>
@@ -539,7 +539,7 @@ export default function MinceurPage() {
             </div>
             {recs && (
               <div style={{ animation: 'slideUp 0.4s ease 0.3s both' } as any}>
-                <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.2)', textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 16 }}>Detail du jour</div>
+                <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.2)', textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 16 }}>Détail du jour</div>
                 {recs.meals?.map((meal: any, i: number) => { const dk = tracked[`meal_${i}`]; return (
                   <div key={`m${i}`} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 0', borderBottom: '1px solid rgba(255,255,255,0.06)' } as any}>
                     <i className={dk ? 'ri-checkbox-circle-fill' : 'ri-checkbox-blank-circle-line'} style={{ fontSize: 18, color: dk ? G : 'rgba(255,255,255,0.12)' }} />
@@ -586,7 +586,7 @@ export default function MinceurPage() {
               </div>
               <div style={{ height: 1, background: 'rgba(255,255,255,0.06)', margin: '24px 0' } as any} />
               <div style={{ animation: 'slideUp 0.4s ease 0.3s both' } as any}>
-                <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.25)', textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 12, textAlign: 'center' }}>Duree</div>
+                <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.25)', textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 12, textAlign: 'center' }}>Durée</div>
                 <SwipePicker values={dOpts} selected={goalWeeks} onChange={setGoalWeeks} unit="sem" color={G} />
               </div>
               {diff > 0 && (
@@ -643,10 +643,10 @@ export default function MinceurPage() {
       {/* ══ METRIC EXPLAIN POPUP — clean dark ══ */}
       {explainMetric && (() => {
         const explanations: Record<string, { icon: string; color: string; title: string; desc: string; ranges: { label: string; value: string; color: string }[]; tip: string }> = {
-          bmi: { icon: 'ri-body-scan-line', color: P, title: 'IMC', desc: "L'Indice de Masse Corporelle met en relation votre poids et votre taille pour evaluer votre corpulence.", ranges: [{ label: 'Maigreur', value: '< 18.5', color: B }, { label: 'Normal', value: '18.5 - 25', color: G }, { label: 'Surpoids', value: '25 - 30', color: A }, { label: 'Obesite', value: '> 30', color: R }], tip: "L'IMC ne distingue pas masse grasse et masse musculaire. Un sportif muscle peut avoir un IMC eleve sans exces de graisse." },
+          bmi: { icon: 'ri-body-scan-line', color: P, title: 'IMC', desc: "L'Indice de Masse Corporelle met en relation votre poids et votre taille pour evaluer votre corpulence.", ranges: [{ label: 'Maigreur', value: '< 18.5', color: B }, { label: 'Normal', value: '18.5 - 25', color: G }, { label: 'Surpoids', value: '25 - 30', color: A }, { label: 'Obesite', value: '> 30', color: R }], tip: "L'IMC ne distingue pas masse grasse et masse musculaire. Un sportif muscle peut avoir un IMC élevé sans exces de graisse." },
           weight: { icon: 'ri-scales-3-line', color: A, title: 'Poids', desc: 'Le suivi regulier du poids permet de detecter les tendances. Les variations quotidiennes sont normales (eau, repas, hormones).', ranges: [{ label: 'Perte saine', value: '0.3-0.7 kg/sem', color: G }, { label: 'Maintien', value: '+/- 0.5 kg', color: B }, { label: 'Prise', value: 'selon objectif', color: A }], tip: 'Pesez-vous toujours au meme moment, le matin a jeun, pour des mesures comparables.' },
-          body_fat: { icon: 'ri-fire-line', color: '#F97316', title: 'Masse grasse', desc: 'Le pourcentage de masse grasse indique la proportion de graisse dans votre corps. Un taux equilibre est essentiel.', ranges: [{ label: 'Homme normal', value: '14-25%', color: G }, { label: 'Femme normal', value: '20-33%', color: G }, { label: 'Eleve', value: '> 30% / > 39%', color: R }], tip: "La masse grasse protege les organes et regule les hormones. Un taux trop bas est aussi risque qu'un taux trop eleve." },
-          muscle: { icon: 'ri-body-scan-line', color: G, title: 'Masse musculaire', desc: 'La proportion de muscles dans votre composition corporelle. Essentielle pour le metabolisme, la mobilite et la prevention des chutes.', ranges: [{ label: 'Homme normal', value: '33-39%', color: G }, { label: 'Femme normal', value: '24-30%', color: G }, { label: 'Faible', value: '< 33% / < 24%', color: R }], tip: "La masse musculaire diminue avec l'age. L'exercice de resistance et les proteines aident a la maintenir." },
+          body_fat: { icon: 'ri-fire-line', color: '#F97316', title: 'Masse grasse', desc: 'Le pourcentage de masse grasse indique la proportion de graisse dans votre corps. Un taux equilibre est essentiel.', ranges: [{ label: 'Homme normal', value: '14-25%', color: G }, { label: 'Femme normal', value: '20-33%', color: G }, { label: 'Eleve', value: '> 30% / > 39%', color: R }], tip: "La masse grasse protege les organes et regule les hormones. Un taux trop bas est aussi risque qu'un taux trop élevé." },
+          muscle: { icon: 'ri-body-scan-line', color: G, title: 'Masse musculaire', desc: 'La proportion de muscles dans votre composition corporelle. Essentielle pour le métabolisme, la mobilite et la prevention des chutes.', ranges: [{ label: 'Homme normal', value: '33-39%', color: G }, { label: 'Femme normal', value: '24-30%', color: G }, { label: 'Faible', value: '< 33% / < 24%', color: R }], tip: "La masse musculaire diminue avec l'age. L'exercice de resistance et les proteines aident a la maintenir." },
         };
         const e = explanations[explainMetric] || explanations.weight;
         return (

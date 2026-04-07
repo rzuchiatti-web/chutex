@@ -62,7 +62,7 @@ export function ProfileBenActivation({ show, onClose, user, apiFetch, token, ref
         {/* STEP 1: Personal info */}
         {benStep === 1 && (<>
           <div style={{ fontSize: 22, fontWeight: 800, color: '#FFF', marginBottom: 6 }}>Informations personnelles</div>
-          <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)', marginBottom: 20 }}>Pour personnaliser votre suivi sante</div>
+          <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)', marginBottom: 20 }}>Pour personnalisér votre suivi sante</div>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 } as any}>
             <div style={{ marginBottom: 12 } as any}><div style={LBL}>Prenom *</div><input value={benForm.firstName} onChange={(e: any) => uf('firstName', e.target.value)} placeholder="Jean" style={IST} /></div>
             <div style={{ marginBottom: 12 } as any}><div style={LBL}>Nom *</div><input value={benForm.lastName} onChange={(e: any) => uf('lastName', e.target.value)} placeholder="Dupont" style={IST} /></div>
@@ -102,10 +102,10 @@ export function ProfileBenActivation({ show, onClose, user, apiFetch, token, ref
         {benStep === 2 && (<>
           <div style={{ fontSize: 22, fontWeight: 800, color: '#FFF', marginBottom: 6 }}>Dossier medical</div>
           <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)', marginBottom: 20 }}>Informations confidentielles pour votre suivi</div>
-          <div style={GLASS}><div style={{ ...LBL, marginBottom: 10 }}>Groupe sanguin</div><select value={benForm.blood_type} onChange={(e: any) => uf('blood_type', e.target.value)} style={{ ...IST, appearance: 'none', cursor: 'pointer', colorScheme: 'dark' }}><option value="">Selectionner</option>{['A+','A-','B+','B-','AB+','AB-','O+','O-','Je ne sais pas'].map(bt => <option key={bt} value={bt}>{bt}</option>)}</select></div>
+          <div style={GLASS}><div style={{ ...LBL, marginBottom: 10 }}>Groupe sanguin</div><select value={benForm.blood_type} onChange={(e: any) => uf('blood_type', e.target.value)} style={{ ...IST, appearance: 'none', cursor: 'pointer', colorScheme: 'dark' }}><option value="">Sélectionner</option>{['A+','A-','B+','B-','AB+','AB-','O+','O-','Je ne sais pas'].map(bt => <option key={bt} value={bt}>{bt}</option>)}</select></div>
           <div style={GLASS}><div style={{ ...LBL, marginBottom: 10 }}>Pathologies / Antecedents</div><div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 } as any}>{['Diabete','Hypertension','Cholesterol','Arthrose','Insuffisance cardiaque','AVC','Asthme','Osteoporose','Parkinson','Alzheimer','Depression','Aucune'].map(c => <Chip key={c} label={c} sel={benForm.medical_conditions.includes(c)} click={() => { if (c === 'Aucune') uf('medical_conditions', ['Aucune']); else toggleArr('medical_conditions', c); }} />)}</div></div>
           <div style={GLASS}><div style={{ ...LBL, marginBottom: 10 }}>Allergies</div><div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 } as any}>{['Penicilline','Aspirine','Latex','Arachides','Gluten','Lactose','Iode','Aucune'].map(a => <Chip key={a} label={a} sel={benForm.allergies.includes(a)} click={() => { if (a === 'Aucune') uf('allergies', ['Aucune']); else toggleArr('allergies', a); }} />)}</div></div>
-          <div style={GLASS}><div style={{ ...LBL, marginBottom: 10 }}>Questions medicales</div><YN label="Avez-vous deja fait un AVC ?" val={benForm.had_avc} set={(v: string) => uf('had_avc', v)} /><YN label="Portez-vous un pacemaker ?" val={benForm.pacemaker} set={(v: string) => uf('pacemaker', v)} /><YN label="Avez-vous des stents ?" val={benForm.stents} set={(v: string) => uf('stents', v)} /><YN label="Probleme de thyroide ?" val={benForm.thyroid} set={(v: string) => uf('thyroid', v)} /></div>
+          <div style={GLASS}><div style={{ ...LBL, marginBottom: 10 }}>Questions medicales</div><YN label="Avez-vous déjà fait un AVC ?" val={benForm.had_avc} set={(v: string) => uf('had_avc', v)} /><YN label="Portez-vous un pacemaker ?" val={benForm.pacemaker} set={(v: string) => uf('pacemaker', v)} /><YN label="Avez-vous des stents ?" val={benForm.stents} set={(v: string) => uf('stents', v)} /><YN label="Probleme de thyroide ?" val={benForm.thyroid} set={(v: string) => uf('thyroid', v)} /></div>
           <div data-testid="ben-step2-continue" onClick={() => { setBenError(''); setBenStep(3); }} style={{ padding: '17px', borderRadius: 999, background: '#FFF', color: '#111', cursor: 'pointer', textAlign: 'center', fontSize: 16, fontWeight: 800, boxShadow: '0 4px 14px rgba(255,255,255,0.15)' } as any}>Continuer</div>
         </>)}
 
@@ -132,7 +132,7 @@ export function ProfileBenActivation({ show, onClose, user, apiFetch, token, ref
               await apiFetch('/api/auth/switch-role', { method: 'POST', body: JSON.stringify({ role: 'beneficiary' }) }, token);
               await refreshUser(); handleClose();
             } catch (e: any) { setBenError(e.message || 'Erreur'); } finally { setBenSaving(false); }
-          }} style={{ padding: '17px', borderRadius: 999, background: benSaving ? 'rgba(255,255,255,0.2)' : '#FFF', color: benSaving ? 'rgba(0,0,0,0.4)' : '#111', cursor: benSaving ? 'wait' : 'pointer', textAlign: 'center', fontSize: 16, fontWeight: 800, opacity: benSaving ? 0.5 : 1, boxShadow: '0 4px 14px rgba(255,255,255,0.15)' } as any}>{benSaving ? 'Activation...' : 'Activer mon espace beneficiaire'}</div>
+          }} style={{ padding: '17px', borderRadius: 999, background: benSaving ? 'rgba(255,255,255,0.2)' : '#FFF', color: benSaving ? 'rgba(0,0,0,0.4)' : '#111', cursor: benSaving ? 'wait' : 'pointer', textAlign: 'center', fontSize: 16, fontWeight: 800, opacity: benSaving ? 0.5 : 1, boxShadow: '0 4px 14px rgba(255,255,255,0.15)' } as any}>{benSaving ? 'Activation...' : 'Activer mon espace bénéficiaire'}</div>
         </>)}
       </div>
     </div>

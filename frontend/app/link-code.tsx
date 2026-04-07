@@ -127,8 +127,8 @@ export default function LinkScreen() {
   };
 
   const inviteByPhone = async () => {
-    if (!invitePhone.trim()) return Alert.alert('Erreur', 'Entrez un numero');
-    if (!inviteRelationship) return Alert.alert('Erreur', 'Selectionnez qui est cette personne pour vous');
+    if (!invitePhone.trim()) return Alert.alert('Erreur', 'Entrez un numéro');
+    if (!inviteRelationship) return Alert.alert('Erreur', 'Sélectionnéz qui est cette personne pour vous');
     setInviting(true); setInviteResult(null);
     try {
       const r = await apiFetch('/api/guardians/invite', { method: 'POST', body: JSON.stringify({ phone: invitePhone.trim(), relationship: inviteRelationship }) }, token);
@@ -138,7 +138,7 @@ export default function LinkScreen() {
 
   const linkWithCode = async () => {
     if (!code.trim()) return Alert.alert('Erreur', 'Entrez un code');
-    if (!guardianRelationship) return Alert.alert('Erreur', 'Selectionnez qui vous etes pour ce beneficiaire');
+    if (!guardianRelationship) return Alert.alert('Erreur', 'Sélectionnéz qui vous etes pour ce beneficiaire');
     setLoading(true); setResult(null);
     try {
       const r = await apiFetch('/api/guardian/link-with-code', { method: 'POST', body: JSON.stringify({ link_code: code.trim().toUpperCase(), relationship: guardianRelationship }) }, token);
@@ -148,8 +148,8 @@ export default function LinkScreen() {
   };
 
   const linkWithPhone = async () => {
-    if (!phone.trim()) return Alert.alert('Erreur', 'Entrez un numero');
-    if (!guardianRelationship) return Alert.alert('Erreur', 'Selectionnez qui vous etes pour ce beneficiaire');
+    if (!phone.trim()) return Alert.alert('Erreur', 'Entrez un numéro');
+    if (!guardianRelationship) return Alert.alert('Erreur', 'Sélectionnéz qui vous etes pour ce beneficiaire');
     setLoading(true); setResult(null);
     try {
       const r = await apiFetch('/api/guardian/link-with-phone', { method: 'POST', body: JSON.stringify({ phone: phone.trim(), relationship: guardianRelationship }) }, token);
@@ -246,7 +246,7 @@ export default function LinkScreen() {
             <Text style={{ fontSize: 14, color: '#6B7280', marginBottom: 20, lineHeight: 20 }}>Choisissez une methode. Le beneficiaire devra valider votre demande.</Text>
             {[
               { key: 'enter_code', icon: 'keypad-outline', title: 'Saisir un code', desc: 'Entrez le code du beneficiaire' },
-              { key: 'enter_phone', icon: 'call-outline', title: 'Numero de telephone', desc: 'Envoyez une demande par telephone' },
+              { key: 'enter_phone', icon: 'call-outline', title: 'Numéro de telephone', desc: 'Envoyez une demande par telephone' },
             ].map((opt, i) => (
               <TouchableOpacity key={i} onPress={() => setMode(opt.key as any)} activeOpacity={0.7}>
                 <GlassCard style={{ flexDirection: 'row', alignItems: 'center', gap: 16 }}>
@@ -292,8 +292,8 @@ export default function LinkScreen() {
 
         {mode === 'enter_phone' && (
           <GlassCard style={{ padding: 24 }}>
-            <Text style={{ fontSize: 18, fontWeight: '900', color: '#111827', marginBottom: 8 }}>Numero de telephone</Text>
-            <Text style={{ fontSize: 13, color: '#6B7280', marginBottom: 16 }}>Entrez le numero du beneficiaire</Text>
+            <Text style={{ fontSize: 18, fontWeight: '900', color: '#111827', marginBottom: 8 }}>Numéro de telephone</Text>
+            <Text style={{ fontSize: 13, color: '#6B7280', marginBottom: 16 }}>Entrez le numéro du beneficiaire</Text>
 
             <InputField testID="link-phone-input" type="tel" placeholder="06 12 34 56 78" value={phone} onChangeText={setPhone} />
 

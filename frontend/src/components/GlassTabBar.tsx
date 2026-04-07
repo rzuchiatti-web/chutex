@@ -13,7 +13,7 @@ export interface TabConfig {
 function getGuardianTabs(user: any): TabConfig[] {
   const tabs: TabConfig[] = [
     { key: 'index', icon: 'ri-home-smile-2-fill', label: 'Accueil' },
-    { key: 'health', icon: 'ri-run-fill', label: 'Activite' },
+    { key: 'health', icon: 'ri-run-fill', label: 'Activité' },
   ];
   const hasSaad = !!user?.saad_company_id;
   const proType = user?.professional_type;
@@ -38,7 +38,7 @@ export const TAB_CONFIGS: Record<string, TabConfig[]> = {
     { key: 'teleconsult', icon: 'ri-chat-3-fill', label: 'Messages' },
     { key: 'profile', icon: 'ri-menu-3-fill', label: 'Plus' },
   ],
-  teleassistance: [
+  téléassistance: [
     { key: 'index', icon: 'ri-dashboard-3-fill', label: 'Dashboard' },
     { key: 'alerts', icon: 'ri-alarm-warning-fill', label: 'Alertes' },
     { key: 'teleconsult', icon: 'ri-headphone-fill', label: 'Appels' },

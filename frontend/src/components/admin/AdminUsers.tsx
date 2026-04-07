@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { apiFetch } from '../../services/api';
 
-const RCOL: any = { beneficiary: '#3B82F6', guardian: '#10B981', admin: '#7C3AED', teleassistance: '#F59E0B', prescriber_company: '#F97316' };
-const RLAB: any = { beneficiary: 'Beneficiaire', guardian: 'Gardien', admin: 'Admin', teleassistance: 'Teleassistance', prescriber_company: 'SAAD' };
+const RCOL: any = { beneficiary: '#3B82F6', guardian: '#10B981', admin: '#7C3AED', téléassistance: '#F59E0B', prescriber_company: '#F97316' };
+const RLAB: any = { beneficiary: 'Bénéficiaire', guardian: 'Gardien', admin: 'Admin', téléassistance: 'Téléassistance', prescriber_company: 'SAAD' };
 
 export default function AdminUsers({ users, token, load, mob }: any) {
   const [search, setSearch] = useState('');
@@ -79,7 +79,7 @@ export default function AdminUsers({ users, token, load, mob }: any) {
         </div>
       </div>
 
-      {/* Detail Modal */}
+      {/* Détail Modal */}
       {sel && (
         <div onClick={() => { setSel(null); setDetail(null); }} style={{ position: 'fixed', inset: 0, zIndex: 9999, background: 'rgba(15,23,42,0.5)', backdropFilter: 'blur(4px)', WebkitBackdropFilter: 'blur(4px)', display: 'flex', alignItems: 'flex-start', justifyContent: 'center', overflowY: 'auto', padding: '40px 16px' } as any}>
           <div onClick={(e: any) => e.stopPropagation()} className="adm-card" style={{ width: '100%', maxWidth: 520, padding: 0, overflow: 'hidden' } as any}>
@@ -129,7 +129,7 @@ export default function AdminUsers({ users, token, load, mob }: any) {
                         <Field icon="ri-drop-line" label="Sang" value={u.blood_type} />
                         <Field icon="ri-heart-pulse-line" label="Pathologies" value={u.medical_conditions} />
                         <Field icon="ri-alert-line" label="Allergies" value={u.allergies} />
-                        <Field icon="ri-stethoscope-line" label="Medecin" value={u.doctor_name} />
+                        <Field icon="ri-stethoscope-line" label="Médecin" value={u.doctor_name} />
                         <Field icon="ri-ruler-line" label="Taille" value={u.height_cm ? `${u.height_cm} cm` : null} />
                         <Field icon="ri-scales-3-line" label="Poids" value={u.weight_kg ? `${u.weight_kg} kg` : null} />
                       </Section>
@@ -149,7 +149,7 @@ export default function AdminUsers({ users, token, load, mob }: any) {
                     )}
 
                     {guards.length > 0 && <Section title={`Gardiens (${guards.length})`}>{guards.map((g: any, i: number) => <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '4px 0' } as any}><span style={{ fontSize: 13, color: '#1E293B', fontWeight: 600, flex: 1 }}>{g.name}</span><span style={{ fontSize: 11, color: '#94A3B8' }}>{g.phone}</span></div>)}</Section>}
-                    {bens.length > 0 && <Section title={`Beneficiaires (${bens.length})`}>{bens.map((b: any, i: number) => <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '4px 0' } as any}><span style={{ fontSize: 13, color: '#1E293B', fontWeight: 600, flex: 1 }}>{b.name}</span><span style={{ fontSize: 11, color: '#94A3B8' }}>{b.phone}</span></div>)}</Section>}
+                    {bens.length > 0 && <Section title={`Bénéficiaires (${bens.length})`}>{bens.map((b: any, i: number) => <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '4px 0' } as any}><span style={{ fontSize: 13, color: '#1E293B', fontWeight: 600, flex: 1 }}>{b.name}</span><span style={{ fontSize: 11, color: '#94A3B8' }}>{b.phone}</span></div>)}</Section>}
 
                     {als.length > 0 && (
                       <Section title={`Alertes (${als.length})`}>

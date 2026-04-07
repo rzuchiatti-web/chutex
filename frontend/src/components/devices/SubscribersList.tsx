@@ -19,7 +19,7 @@ function SubscribersList({ token }: { token: string }) {
   const router = useRouter();
   const [subs, setSubs] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  useEffect(() => { (async () => { try { setSubs(await apiFetch('/api/teleassistance/subscribers', {}, token)); } catch {} finally { setLoading(false); } })(); }, []);
+  useEffect(() => { (async () => { try { setSubs(await apiFetch('/api/téléassistance/subscribers', {}, token)); } catch {} finally { setLoading(false); } })(); }, []);
   if (loading) return <FullScreenLoader />;
   const BG = 'https://customer-assets.emergentagent.com/job_8afdc991-0ab2-4687-a2a5-438b9a5f0711/artifacts/j2b92wwx_ChatGPT%20Image%2017%20f%C3%A9vr.%202026%2C%2015_59_23.png';
   if (Platform.OS === 'web') {

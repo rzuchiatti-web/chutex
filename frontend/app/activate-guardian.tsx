@@ -67,7 +67,7 @@ export default function ActivateGuardianScreen() {
               </TouchableOpacity>
             ))}
           </View>
-          {guardianType === 'particular' && <WebInput label="Lien avec le beneficiaire" val={relationship} onChange={setRelationship} placeholder="Fils, fille, voisin..." />}
+          {guardianType === 'particular' && <WebInput label="Lien avec le bénéficiaire" val={relationship} onChange={setRelationship} placeholder="Fils, fille, voisin..." />}
           {guardianType === 'professional' && (
             <>
               <WebInput label="Structure / Societe" val={structureName} onChange={setStructureName} placeholder="SAAD Exemple" />

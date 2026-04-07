@@ -20,7 +20,7 @@ export default function AnalysisPhase({ analysisPhase, showInfo, setShowInfo, pr
         </div>
         <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.75)', lineHeight: 1.7, marginBottom: 20, maxWidth: 320, margin: '0 auto 20px' }}>
           {isBodyAge
-            ? `Nora collecte vos donnees de sante depuis votre inscription pour estimer votre age biologique. Encore ${total - day} jour${total - day > 1 ? 's' : ''} de donnees necessaires.`
+            ? `Nora collecte vos données de santé depuis votre inscription pour estimer votre age biologique. Encore ${total - day} jour${total - day > 1 ? 's' : ''} de donnees necessaires.`
             : `Pendant les ${total} premiers jours, nous analysons vos donnees pour comprendre votre rythme, vos habitudes et vos tendances.`
           }
         </div>
@@ -62,13 +62,13 @@ function NoraInfoPopup({ onClose }: { onClose: () => void }) {
   const [visibleCards, setVisibleCards] = useState(0);
   const scrollRef = useRef<HTMLDivElement>(null);
 
-  const title = 'Comprendre mon analyse sante';
-  const desc = 'Notre intelligence artificielle Nora analyse vos donnees de sante pour vous offrir un suivi personnalise et precis.';
+  const title = 'Comprendre mon analyse santé';
+  const desc = 'Notre intelligence artificielle Nora analyse vos données de santé pour vous offrir un suivi personnalisé et précis.';
 
   const cards = [
-    { title: 'Pourquoi 7 jours ?', text: "Votre corps a un rythme unique. Pour etablir un profil sante fiable et personnalise, Nora a besoin d'observer vos constantes sur un cycle complet.", icon: 'ri-time-line' },
-    { title: 'Ce que nous analysons', text: "Nora croise les donnees de votre bracelet Elio (frequence cardiaque, HRV, SpO2, sommeil, activite, stress) et de votre balance Vita (poids, composition corporelle). Plus de 70 metriques.", icon: 'ri-line-chart-line' },
-    { title: 'Votre Score Sante', text: "Un Score Sante personnalise sur 100, base sur 5 sous-scores : Cardio, Sommeil, Activite, Metabolisme et Hydratation. Il evolue chaque jour.", icon: 'ri-heart-pulse-line' },
+    { title: 'Pourquoi 7 jours ?', text: "Votre corps a un rythme unique. Pour établir un profil santé fiable et personnalisé, Nora a besoin d'observer vos constantes sur un cycle complet.", icon: 'ri-time-line' },
+    { title: 'Ce que nous analysons', text: "Nora croise les donnees de votre bracelet Elio (fréquence cardiaque, HRV, SpO2, sommeil, activité, stress) et de votre balance Vita (poids, composition corporelle). Plus de 70 métriques.", icon: 'ri-line-chart-line' },
+    { title: 'Votre Score Santé', text: "Un Score Santé personnalisé sur 100, basé sur 5 sous-scores : Cardio, Sommeil, Activité, Métabolisme et Hydratation. Il évolue chaque jour.", icon: 'ri-heart-pulse-line' },
     { title: 'Recommandations', text: "Des recommandations concretes et actionnables : objectif de pas adapte, apport calorique, heure de coucher, hydratation. Chaque conseil base sur VOS donnees.", icon: 'ri-lightbulb-line' },
   ];
 

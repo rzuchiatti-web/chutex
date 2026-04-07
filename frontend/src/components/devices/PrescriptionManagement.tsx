@@ -67,13 +67,13 @@ function PrescriptionManagement({ token, user }: { token: string; user: any }) {
   const submitPrescription = async () => {
     setFormError('');
     // Validations
-    if (!formData.name.trim()) { setFormError('Le nom du beneficiaire est obligatoire'); return; }
-    if (!formData.firstName.trim()) { setFormError('Le prenom du beneficiaire est obligatoire'); return; }
+    if (!formData.name.trim()) { setFormError('Le nom du bénéficiaire est obligatoire'); return; }
+    if (!formData.firstName.trim()) { setFormError('Le prenom du bénéficiaire est obligatoire'); return; }
     const phoneClean = formData.phone.replace(/[\s.\-]/g, '');
-    if (!phoneClean || phoneClean.length < 10) { setFormError('Le numero de telephone du beneficiaire est invalide (min 10 chiffres)'); return; }
+    if (!phoneClean || phoneClean.length < 10) { setFormError('Le numéro de telephone du bénéficiaire est invalide (min 10 chiffres)'); return; }
     if (formData.guardianPhone.trim()) {
       const gPhoneClean = formData.guardianPhone.replace(/[\s.\-]/g, '');
-      if (gPhoneClean.length < 10) { setFormError('Le numero de l\'aidant est invalide (min 10 chiffres)'); return; }
+      if (gPhoneClean.length < 10) { setFormError('Le numéro de l\'aidant est invalide (min 10 chiffres)'); return; }
     }
     setSubmitting(true);
     try {
@@ -84,9 +84,9 @@ function PrescriptionManagement({ token, user }: { token: string; user: any }) {
         subscription_type: formData.type, notes: formData.notes,
       }) }, token);
       setShowForm(false); setFormData({ name: '', firstName: '', email: '', phone: '', guardianName: '', guardianPhone: '', type: 'bracelet', notes: '' }); setFormError(''); fetchPrescriptions();
-      if (Platform.OS === 'web') window.alert('Prescription creee ! Un SMS a ete envoye.');
-      else Alert.alert('Prescription creee');
-    } catch (e: any) { setFormError(e.message || 'Erreur lors de la creation'); } finally { setSubmitting(false); }
+      if (Platform.OS === 'web') window.alert('Prescription créée ! Un SMS a été envoye.');
+      else Alert.alert('Prescription créée');
+    } catch (e: any) { setFormError(e.message || 'Erreur lors de la création'); } finally { setSubmitting(false); }
   };
 
   const validated = prescriptions.filter((p: any) => p.status === 'subscribed' || p.status === 'validated' || p.status === 'contract_created');
@@ -157,7 +157,7 @@ function PrescriptionManagement({ token, user }: { token: string; user: any }) {
           <div style={{ marginBottom: 28 } as any}>
             <div style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.35)', letterSpacing: 1.5, textTransform: 'uppercase', marginBottom: 14 }}>Comment ca fonctionne</div>
             {[
-              { icon: 'ri-file-text-line', title: 'Prescrivez un abonnement', desc: 'Creez une prescription pour un beneficiaire. Une fois que celui-ci souscrit, la prescription est validee et comptabilisee.', color: '#D4845A' },
+              { icon: 'ri-file-text-line', title: 'Prescrivez un abonnement', desc: 'Creez une prescription pour un bénéficiaire. Une fois que celui-ci souscrit, la prescription est validee et comptabilisee.', color: '#D4845A' },
               { icon: 'ri-bar-chart-box-line', title: 'Montez dans le classement', desc: 'Chaque prescription validee vous fait monter dans le classement mensuel. Plus vous prescrivez, plus vous montez.', color: '#3B82F6' },
               { icon: 'ri-trophy-line', title: 'Gagnez des primes', desc: 'A la fin du mois, les 3 meilleurs prescripteurs recoivent une prime automatiquement versee. Les montants varient chaque mois.', color: '#FFD700' },
               { icon: 'ri-refresh-line', title: 'Recommencez', desc: 'Le classement est reinitialise chaque 1er du mois. Chaque mois est une nouvelle chance de gagner.', color: '#10B981' },
@@ -196,7 +196,7 @@ function PrescriptionManagement({ token, user }: { token: string; user: any }) {
 
           {/* Rules */}
           <div style={{ marginBottom: 28 } as any}>
-            <div style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.35)', letterSpacing: 1.5, textTransform: 'uppercase', marginBottom: 14 }}>Regles du programme</div>
+            <div style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.35)', letterSpacing: 1.5, textTransform: 'uppercase', marginBottom: 14 }}>Réglés du programme</div>
             {[
               'Seules les prescriptions validees (abonnement actif) sont comptabilisees.',
               'Le classement est reinitialise le 1er de chaque mois a 00h00.',
@@ -375,7 +375,7 @@ function PrescriptionManagement({ token, user }: { token: string; user: any }) {
               <div style={{ fontSize: 17, fontWeight: 800, color: '#FFF' }}>Comment ca marche ?</div>
             </div>
             {[
-              { icon: 'ri-file-text-line', title: 'Prescrivez', desc: 'Creez une prescription pour un beneficiaire. Quand il souscrit, elle est validee.', color: '#D4845A' },
+              { icon: 'ri-file-text-line', title: 'Prescrivez', desc: 'Creez une prescription pour un bénéficiaire. Quand il souscrit, elle est validee.', color: '#D4845A' },
               { icon: 'ri-bar-chart-box-line', title: 'Montez au classement', desc: 'Chaque validation vous fait monter. Plus vous prescrivez, plus vous montez.', color: '#3B82F6' },
               { icon: 'ri-trophy-line', title: 'Gagnez des primes', desc: 'Top 3 mensuel: 1er 100EUR, 2e 70EUR, 3e 30EUR. Verse automatiquement.', color: '#FFD700' },
             ].map((s, i) => (
@@ -416,7 +416,7 @@ function PrescriptionManagement({ token, user }: { token: string; user: any }) {
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginBottom: 12 } as any}>
             {[
-              { label: 'Beneficiaire', value: selectedPresc.beneficiary_name || '-' },
+              { label: 'Bénéficiaire', value: selectedPresc.beneficiary_name || '-' },
               { label: 'Statut', value: isValidated ? 'Valide' : 'En attente' },
               { label: 'Type', value: selectedPresc.subscription_type === 'sport' ? 'Abo Sport' : selectedPresc.subscription_type === 'physio' ? 'Abo Physio' : selectedPresc.subscription_type === 'bracelet_gilet' ? 'Bracelet + Gilet Elder' : 'Bracelet Elio' },
               { label: 'Paiement', value: isValidated ? 'Au 1er du mois' : 'Apres validation' },
@@ -544,7 +544,7 @@ function PrescriptionManagement({ token, user }: { token: string; user: any }) {
               ))}
               <div onClick={async () => { try { await apiFetch('/api/auth/update-profile', { method: 'PUT', body: JSON.stringify({ is_prescriber: false }) }, token); await refreshUser(); setShowPrescModal(false); } catch {} }} style={{ padding: '15px', borderRadius: 999, textAlign: 'center', cursor: 'pointer', background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.15)', color: '#EF4444', fontSize: 14, fontWeight: 700, marginTop: 20, transition: 'all 0.2s' } as any}
                 onMouseEnter={(e: any) => { e.currentTarget.style.background = 'rgba(239,68,68,0.15)'; }}
-                onMouseLeave={(e: any) => { e.currentTarget.style.background = 'rgba(239,68,68,0.08)'; }}>Desactiver mon espace prescripteur</div>
+                onMouseLeave={(e: any) => { e.currentTarget.style.background = 'rgba(239,68,68,0.08)'; }}>Désactivér mon espace prescripteur</div>
             </div>
           </div>
         )}
@@ -566,8 +566,8 @@ function PrescriptionManagement({ token, user }: { token: string; user: any }) {
                 </div>
               )}
 
-              {/* Beneficiaire section */}
-              <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.3)', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 10 }}>Beneficiaire</div>
+              {/* Bénéficiaire section */}
+              <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.3)', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 10 }}>Bénéficiaire</div>
               {[
                 { key: 'name', label: 'Nom *', placeholder: 'Dupont', required: true },
                 { key: 'firstName', label: 'Prenom *', placeholder: 'Jean', required: true },
@@ -745,7 +745,7 @@ function PrescriptionManagement({ token, user }: { token: string; user: any }) {
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 8 } as any}>
                   <div>
                     <div style={{ fontSize: 18, fontWeight: 800, color: '#FFF' }}>{p.beneficiary_name}</div>
-                    <div style={{ fontSize: 12, color: 'rgba(255,255,255,.7)', marginTop: 2 }}>{p.subscription_type === 'sport' ? 'Abonnement Sport · 89€/mois' : p.subscription_type === 'physio' ? 'Abonnement Physio · 89€/mois' : p.subscription_type === 'teleassistance' ? 'Abonnement teleassistance' : `Abonnement ${p.subscription_type || 'Standard'}`}</div>
+                    <div style={{ fontSize: 12, color: 'rgba(255,255,255,.7)', marginTop: 2 }}>{p.subscription_type === 'sport' ? 'Abonnement Sport · 89€/mois' : p.subscription_type === 'physio' ? 'Abonnement Physio · 89€/mois' : p.subscription_type === 'téléassistance' ? 'Abonnement téléassistance' : `Abonnement ${p.subscription_type || 'Standard'}`}</div>
                   </div>
                   <div style={{ background: 'rgba(255,255,255,.2)', borderRadius: 12, padding: '6px 12px', backdropFilter: 'blur(6px)', border: '1px solid rgba(255,255,255,.2)' } as any}>
                     <span style={{ fontSize: 15, fontWeight: 800, color: '#FFF' }}>+{p.commission || getCommission(p)}EUR{commLabelG}</span>
@@ -798,7 +798,7 @@ function PrescriptionManagement({ token, user }: { token: string; user: any }) {
 
       </View>{/* End white rounded container */}
 
-      {/* Prescriber Detail Modal — GLASS DARK */}
+      {/* Prescriber Détail Modal — GLASS DARK */}
       <Modal visible={showPrescModal} transparent animationType="fade" onRequestClose={() => setShowPrescModal(false)}>
         <View style={{ flex: 1, justifyContent: 'flex-end', ...(Platform.OS === 'web' ? { backgroundColor: 'rgba(0,0,0,0.5)' } : { backgroundColor: 'rgba(0,0,0,0.6)' }) } as any}>
           <View style={{
@@ -830,7 +830,7 @@ function PrescriptionManagement({ token, user }: { token: string; user: any }) {
                 </View>
               </View>
 
-              {/* Details */}
+              {/* Détails */}
               {[
                 { icon: 'business-outline', label: 'Structure', value: user.prescriber_structure || '-' },
                 { icon: 'key-outline', label: 'Code', value: user.prescriber_code_used || '-' },
@@ -846,16 +846,16 @@ function PrescriptionManagement({ token, user }: { token: string; user: any }) {
                 </View>
               ) : null)}
 
-              {/* Desactiver — glass red button */}
+              {/* Désactivér — glass red button */}
               <TouchableOpacity style={{
                 marginTop: 24, borderRadius: 999, paddingVertical: 16, alignItems: 'center',
                 backgroundColor: 'rgba(239,68,68,0.15)', borderWidth: 1, borderColor: 'rgba(239,68,68,0.25)',
                 ...(Platform.OS === 'web' ? { backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)' } : {}),
               } as any}
-                onPress={() => { setShowPrescModal(false); confirmAction('Desactiver', 'Confirmer la desactivation ?', async () => {
+                onPress={() => { setShowPrescModal(false); confirmAction('Désactivér', 'Confirmer la desactivation ?', async () => {
                   try { await apiFetch('/api/auth/update-profile', { method: 'PUT', body: JSON.stringify({ is_prescriber: false }) }, token); await refreshUser(); } catch {}
                 }); }}>
-                <Text style={{ fontSize: 14, fontWeight: '700', color: '#FCA5A5' }}>Desactiver mon espace prescripteur</Text>
+                <Text style={{ fontSize: 14, fontWeight: '700', color: '#FCA5A5' }}>Désactivér mon espace prescripteur</Text>
               </TouchableOpacity>
             </ScrollView>
           </View>
@@ -872,7 +872,7 @@ function PrescriptionManagement({ token, user }: { token: string; user: any }) {
             </View>
             <ScrollView showsVerticalScrollIndicator={false}>
               {[
-                { key: 'name', label: 'Nom du beneficiaire', placeholder: 'Jean Dupont' },
+                { key: 'name', label: 'Nom du bénéficiaire', placeholder: 'Jean Dupont' },
                 { key: 'email', label: 'Email', placeholder: 'jean@email.com' },
                 { key: 'phone', label: 'Telephone', placeholder: '06 12 34 56 78' },
                 { key: 'notes', label: 'Notes', placeholder: 'Informations supplementaires...' },

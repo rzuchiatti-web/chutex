@@ -11,18 +11,18 @@ const META_IMG = 'https://customer-assets.emergentagent.com/job_92308143-f99e-4b
 const BG = 'https://customer-assets.emergentagent.com/job_443c9c6e-0feb-4920-a358-fe7cc1a6289b/artifacts/mhh7xwy3_ChatGPT%20Image%2017%20f%C3%A9vr.%202026%2C%2014_08_43.png';
 
 const ZONES_V2 = [
-  { zone: 'Normal', range: '0.70 - 0.99 g/L', color: G, desc: 'Metabolisme glucidique sain.' },
-  { zone: 'Normal haut', range: '0.90 - 1.05 g/L', color: GL_H, desc: 'Partie superieure de la norme. Surveillance recommandee.' },
-  { zone: 'Vigilance', range: '1.00 - 1.25 g/L', color: A, desc: 'Pre-diabete potentiel. Controle medical conseille.' },
-  { zone: 'Pre-alerte', range: '1.20 - 1.40 g/L', color: O, desc: 'Risque eleve. Bilan sanguin recommande rapidement.' },
+  { zone: 'Normal', range: '0.70 - 0.99 g/L', color: G, desc: 'Métabolisme glucidique sain.' },
+  { zone: 'Normal haut', range: '0.90 - 1.05 g/L', color: GL_H, desc: 'Partie supérieure de la norme. Surveillance recommandée.' },
+  { zone: 'Vigilance', range: '1.00 - 1.25 g/L', color: A, desc: 'Pre-diabete potentiel. Contrôle medical conseille.' },
+  { zone: 'Pre-alerte', range: '1.20 - 1.40 g/L', color: O, desc: 'Risque élevé. Bilan sanguin recommandé rapidement.' },
   { zone: 'Alerte', range: '> 1.26 g/L', color: R, desc: 'Risque important. Bilan sanguin urgent.' },
 ];
 
 const GLYCEMIA_EXPLANATIONS: Record<string, { icon: string; color: string; title: string; desc: string; ranges: { label: string; value: string; color: string }[]; tip: string }> = {
   estimation: {
     icon: 'ri-pulse-line', color: '#A78BFA',
-    title: 'Glycemie estimee',
-    desc: "Votre glycemie est estimee en combinant les donnees de votre bracelet (frequence cardiaque, variabilite, temperature, activite) avec un modele d'intelligence artificielle entraine sur des milliers de profils metaboliques. Le resultat est une approximation indicative, pas un diagnostic medical.",
+    title: 'Glycémie estimee',
+    desc: "Votre glycémie est estimee en combinant les donnees de votre bracelet (frequence cardiaque, variabilite, temperature, activite) avec un modele d'intelligence artificielle entraine sur des milliers de profils metaboliques. Le résultat est une approximation indicative, pas un diagnostic medical.",
     ranges: [
       { label: 'Normal', value: '0.70 - 0.99 g/L', color: G },
       { label: 'Normal haut', value: '0.90 - 1.05 g/L', color: GL_H },
@@ -30,12 +30,12 @@ const GLYCEMIA_EXPLANATIONS: Record<string, { icon: string; color: string; title
       { label: 'Pre-alerte', value: '1.20 - 1.40 g/L', color: O },
       { label: 'Alerte', value: '> 1.26 g/L', color: R },
     ],
-    tip: "Pour obtenir une valeur exacte, faites un bilan sanguin (glycemie a jeun) prescrit par votre medecin. Notre estimation s'affine avec chaque calibration capillaire.",
+    tip: "Pour obtenir une valeur exacte, faites un bilan sanguin (glycémie a jeun) prescrit par votre medecin. Notre estimation s'affine avec chaque calibration capillaire.",
   },
   fiabilite: {
     icon: 'ri-line-chart-line', color: '#60A5FA',
     title: 'Fiabilite de l\'estimation',
-    desc: "Le score de fiabilite reflète la precision de l'estimation glycemique. Il augmente avec : le nombre de donnees captees par le bracelet, le nombre de calibrations capillaires realisees, et la regularite du port du bracelet. Sans calibration, l'estimation reste tres approximative.",
+    desc: "Le score de fiabilite reflète la precision de l'estimation glycemique. Il augmente avec : le nombre de donnees captees par le bracelet, le nombre de calibrations capillaires realisees, et la régularité du port du bracelet. Sans calibration, l'estimation reste très approximative.",
     ranges: [
       { label: 'Insuffisante', value: '< 15%', color: R },
       { label: 'Initiale', value: '15 - 29%', color: A },
@@ -47,17 +47,17 @@ const GLYCEMIA_EXPLANATIONS: Record<string, { icon: string; color: string; title
   calibration: {
     icon: 'ri-drop-fill', color: '#EF4444',
     title: 'Calibration capillaire',
-    desc: "La calibration consiste a mesurer votre glycemie reelle via une goutte de sang au bout du doigt (lecteur de glycemie). En comparant cette valeur reelle aux donnees estimees par le bracelet, notre algorithme s'ajuste et affine ses predictions pour votre profil unique.",
+    desc: "La calibration consiste a mesurer votre glycémie reelle via une goutte de sang au bout du doigt (lecteur de glycémie). En comparant cette valeur reelle aux donnees estimees par le bracelet, notre algorithme s'ajuste et affine ses predictions pour votre profil unique.",
     ranges: [
       { label: 'Idealement a jeun', value: 'Le matin', color: P },
       { label: 'Apres repas', value: '2h apres', color: A },
       { label: 'Frequence', value: '1x / mois', color: G },
     ],
-    tip: "Privilegiez les mesures a jeun le matin pour des valeurs de reference. Indiquez toujours le contexte (a jeun, apres repas) pour une meilleure calibration. Nettoyez votre doigt avant la piqure.",
+    tip: "Privilegiez les mesures a jeun le matin pour des valeurs de reference. Indiquez toujours le contexte (a jeun, après repas) pour une meilleure calibration. Nettoyez votre doigt avant la piqure.",
   },
 };
 
-export default function GlycemiaDetailPage() {
+export default function GlycemiaDétailPage() {
   const { token } = useAuth();
   const router = useRouter();
   const [data, setData] = useState<any>(null);
@@ -112,7 +112,7 @@ export default function GlycemiaDetailPage() {
           <div style={{ position: 'relative', zIndex: 2, padding: '70px 20px 70px', maxWidth: 480, margin: '0 auto' } as any}>
             <div data-testid="back-button" onClick={() => router.back()} style={{ width: 44, height: 44, borderRadius: 14, background: 'rgba(255,255,255,0.12)', border: '1px solid rgba(255,255,255,0.15)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}><i className="ri-arrow-left-line" style={{ fontSize: 18, color: '#FFF' }} /></div>
             <div style={{ textAlign: 'center', marginTop: 12 } as any}>
-              <div style={{ fontSize: 22, fontWeight: 900, color: '#FFF', marginTop: 8 }}>Glycemie</div>
+              <div style={{ fontSize: 22, fontWeight: 900, color: '#FFF', marginTop: 8 }}>Glycémie</div>
               <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.5)' }}>Estimation et suivi glycemique</div>
             </div>
             {/* Calendar — identical to activity-detail / minceur */}
@@ -128,7 +128,7 @@ export default function GlycemiaDetailPage() {
           {!loading && data && (
             <>
               {/* Nora Glycemia Analysis */}
-              <NoraButton label="Analyse glycemique" sublabel="Analyse par Nora de votre glycemie" onClick={() => setShowNoraGlycemia(true)} />
+              <NoraButton label="Analyse glycemique" sublabel="Analyse par Nora de votre glycémie" onClick={() => setShowNoraGlycemia(true)} />
 
               {/* STATS: Plus haut / Plus bas / Moyenne for selected day */}
               {(() => {
@@ -177,7 +177,7 @@ export default function GlycemiaDetailPage() {
               <div data-testid="glycemia-estimation-card" style={{ padding: '20px', borderRadius: 18, background: '#F4F4F5', marginBottom: 14 } as any}>
                 <div style={{ textAlign: 'center', marginBottom: 16 } as any}>
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, marginBottom: 8 } as any}>
-                    <div style={{ fontSize: 11, fontWeight: 700, color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: 1.5 }}>Glycemie Estimee</div>
+                    <div style={{ fontSize: 11, fontWeight: 700, color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: 1.5 }}>Glycémie Estimee</div>
                     <div data-testid="explain-estimation-btn" onClick={() => setExplainKey('estimation')} style={{ width: 26, height: 26, borderRadius: 999, background: '#FFF', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', boxShadow: '0 1px 4px rgba(0,0,0,0.06)' } as any}>
                       <i className="ri-information-line" style={{ fontSize: 13, color: P }} />
                     </div>
@@ -294,7 +294,7 @@ export default function GlycemiaDetailPage() {
                 </div>
                 <div style={{ fontSize: 12, color: '#6B7280', lineHeight: 1.7, marginBottom: 14, padding: '10px 12px', borderRadius: 12, background: `${P}08`, border: `1px solid ${P}15` } as any}>
                   <i className="ri-information-line" style={{ fontSize: 13, color: P, marginRight: 6 }} />
-                  Saisissez votre glycemie capillaire (piqure au doigt) <strong style={{ color: '#111' }}>1 fois par mois</strong> pour ameliorer la precision de l'estimation.
+                  Saisissez votre glycémie capillaire (piqure au doigt) <strong style={{ color: '#111' }}>1 fois par mois</strong> pour améliorer la precision de l'estimation.
                 </div>
 
                 {/* Calibration graph */}
@@ -361,7 +361,7 @@ export default function GlycemiaDetailPage() {
                   </div>
                 </div>
                 <div style={{ textAlign: 'center', marginBottom: 28 } as any}>
-                  <div style={{ fontSize: 22, fontWeight: 900, color: '#FFF' }}>Historique glycemie</div>
+                  <div style={{ fontSize: 22, fontWeight: 900, color: '#FFF' }}>Historique glycémie</div>
                   <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.4)', marginTop: 4 }}>{calibrations.length} mesure{calibrations.length > 1 ? 's' : ''}</div>
                 </div>
                 <div style={{ borderRadius: 22, background: 'rgba(0,0,0,0.25)', border: '1px solid rgba(255,255,255,0.1)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', padding: '12px 16px' } as any}>
@@ -438,7 +438,7 @@ export default function GlycemiaDetailPage() {
         );
       })()}
 
-      {showNoraGlycemia && <NoraOverlay token={token} endpoint="/api/nora/page-analysis?context=glycemia" title="Analyse glycemique" subtitle="Analyse par Nora de votre glycemie" onClose={() => setShowNoraGlycemia(false)} />}
+      {showNoraGlycemia && <NoraOverlay token={token} endpoint="/api/nora/page-analysis?context=glycemia" title="Analyse glycemique" subtitle="Analyse par Nora de votre glycémie" onClose={() => setShowNoraGlycemia(false)} />}
     </div>
   );
 }

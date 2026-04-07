@@ -11,7 +11,7 @@ const DIFF_COLORS: Record<string, string> = { facile: '#10B981', moyen: '#F59E0B
 const DIFF_LABELS: Record<string, string> = { facile: 'Facile', moyen: 'Moyen', difficile: 'Difficile' };
 const INP: any = { width: '100%', padding: '12px 14px', borderRadius: 12, background: '#F4F4F5', border: '1px solid #E5E7EB', color: '#111', fontSize: 14, outline: 'none', fontFamily: 'inherit', boxSizing: 'border-box' };
 
-export default function ProExerciseDetailPage() {
+export default function ProExerciseDétailPage() {
   const { token } = useAuth();
   const router = useRouter();
   const params = useLocalSearchParams();
@@ -195,7 +195,7 @@ export default function ProExerciseDetailPage() {
         <div style={{ flex: 1, overflowY: 'auto', WebkitOverflowScrolling: 'touch', padding: '0 16px 120px' } as any}>
           <div style={{ padding: '20px 0 12px', display: 'flex', alignItems: 'center', gap: 12 } as any}>
             <div data-testid="create-back-btn" onClick={() => router.back()} style={{ width: 40, height: 40, borderRadius: 999, background: CARD2, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}><i className="ri-arrow-left-line" style={{ fontSize: 18, color: T }} /></div>
-            <div style={{ fontSize: 20, fontWeight: 900, color: T }}>Creer un exercice</div>
+            <div style={{ fontSize: 20, fontWeight: 900, color: T }}>Créer un exercice</div>
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 14, marginTop: 8 } as any}>
             <div><div style={{ fontSize: 12, fontWeight: 700, color: T2, marginBottom: 6 }}>Nom de l'exercice *</div><input data-testid="create-title" value={createForm.title} onChange={(e: any) => setCreateForm(p => ({ ...p, title: e.target.value }))} placeholder="Ex: Developpe couche" style={cInp} /></div>
@@ -208,7 +208,7 @@ export default function ProExerciseDetailPage() {
               <div style={{ flex: 1 }}><div style={{ fontSize: 12, fontWeight: 700, color: T2, marginBottom: 6 }}>Repos (s)</div><input type="number" value={createForm.rest_seconds} onChange={(e: any) => setCreateForm(p => ({ ...p, rest_seconds: parseInt(e.target.value) || 0 }))} style={cInp} /></div>
             </div>
           </div>
-          <div data-testid="create-submit-btn" onClick={handleCreateExercise} style={{ marginTop: 24, padding: '16px', borderRadius: 999, background: BTN_BG, textAlign: 'center', cursor: 'pointer', fontSize: 15, fontWeight: 800, color: BTN_TEXT, opacity: creating ? 0.5 : 1 } as any}>{creating ? 'Creation...' : 'Creer et ajouter'}</div>
+          <div data-testid="create-submit-btn" onClick={handleCreateExercise} style={{ marginTop: 24, padding: '16px', borderRadius: 999, background: BTN_BG, textAlign: 'center', cursor: 'pointer', fontSize: 15, fontWeight: 800, color: BTN_TEXT, opacity: creating ? 0.5 : 1 } as any}>{creating ? 'Création...' : 'Créer et ajouter'}</div>
         </div>
       </div>
     );
@@ -266,7 +266,7 @@ export default function ProExerciseDetailPage() {
                     </div>
                     <div style={{ display: 'flex', gap: 8, padding: '10px 12px', borderTop: '1px solid #E5E7EB' } as any}>
                       <div onClick={() => { setEditing(false); initParams(ex); }} style={{ flex: 1, padding: '10px', borderRadius: 10, background: '#E5E7EB', textAlign: 'center', cursor: 'pointer', fontSize: 12, fontWeight: 700, color: '#6B7280' } as any}>Annuler</div>
-                      <div data-testid="save-params-btn" onClick={saveParams} style={{ flex: 1, padding: '10px', borderRadius: 10, background: accent, textAlign: 'center', cursor: 'pointer', fontSize: 12, fontWeight: 800, color: '#FFF', opacity: savingParams ? 0.5 : 1 } as any}>{savingParams ? '...' : 'Enregistrer'}</div>
+                      <div data-testid="save-params-btn" onClick={saveParams} style={{ flex: 1, padding: '10px', borderRadius: 10, background: accent, textAlign: 'center', cursor: 'pointer', fontSize: 12, fontWeight: 800, color: '#FFF', opacity: savingParams ? 0.5 : 1 } as any}>{savingParams ? '...' : 'Enregistrér'}</div>
                     </div>
                   </>
                 ) : (
@@ -293,7 +293,7 @@ export default function ProExerciseDetailPage() {
                         <div style={{ fontSize: 16, fontWeight: 700, color: '#D1D5DB', marginTop: 2 }}>Non defini</div>
                       )}
                     </div>
-                    {weightSaved && <span style={{ fontSize: 11, fontWeight: 700, color: '#10B981' }}>Enregistre !</span>}
+                    {weightSaved && <span style={{ fontSize: 11, fontWeight: 700, color: '#10B981' }}>Enregistré !</span>}
                     <div data-testid="edit-weight-btn" onClick={() => setEditingWeight(!editingWeight)} style={{ width: 36, height: 36, borderRadius: 10, background: editingWeight ? accent : '#E5E7EB', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}>
                       <i className={editingWeight ? 'ri-close-line' : 'ri-edit-line'} style={{ fontSize: 14, color: editingWeight ? '#FFF' : '#9CA3AF' }} />
                     </div>

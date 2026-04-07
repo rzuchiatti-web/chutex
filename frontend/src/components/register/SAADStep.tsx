@@ -10,7 +10,7 @@ export default function SAADStep({ form, u }: { form: RegisterForm; u: UpdateFn 
       <div style={{ borderRadius: 22, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', padding: '20px 18px', marginBottom: 16 } as any}>
         <div style={{ fontSize: 12, fontWeight: 700, color: 'rgba(255,255,255,0.4)', marginBottom: 12 }}>Structure</div>
         <GI label="Nom de la structure" value={form.structure_name} onChange={(e: any) => u('structure_name', e.target.value)} placeholder="Ex: SAAD Aide a Domicile Loire" />
-        <GI label="Numero SIRET" value={form.siret} onChange={(e: any) => u('siret', e.target.value)} placeholder="14 chiffres" />
+        <GI label="Numéro SIRET" value={form.siret} onChange={(e: any) => u('siret', e.target.value)} placeholder="14 chiffres" />
         <GI label="Adresse de la structure" value={form.saad_address} onChange={(e: any) => u('saad_address', e.target.value)} placeholder="12 rue de la Paix" />
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 } as any}>
           <GI label="Code postal" value={form.saad_postal_code} onChange={(e: any) => u('saad_postal_code', e.target.value)} placeholder="75002" />

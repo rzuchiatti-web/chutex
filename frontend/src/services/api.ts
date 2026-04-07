@@ -99,7 +99,7 @@ async function _doFetch(endpoint: string, options: RequestInit, token?: string |
     return response.json();
   } catch (e: any) {
     if (e.message && (e.message.includes('Failed to fetch') || e.message.includes('Network') || e.message.includes('fetch') || e.message.includes('Load failed'))) {
-      throw new Error('Erreur de connexion. Verifiez votre connexion internet.');
+      throw new Error('Erreur de connexion. Vérifiéz votre connexion internet.');
     }
     throw e;
   }

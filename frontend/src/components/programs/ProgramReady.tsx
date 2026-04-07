@@ -51,9 +51,9 @@ export const ProgramReady = ({
     <div style={{ marginBottom: 32 } as any}>
       {[
         { icon: 'ri-calendar-check-line', text: '1 mission par jour basee sur la science' },
-        { icon: 'ri-robot-2-line', text: 'Analyse IA Nora personnalisee chaque jour' },
+        { icon: 'ri-robot-2-line', text: 'Analyse IA Nora personnalisée chaque jour' },
         { icon: 'ri-bar-chart-box-line', text: 'Bilans hebdomadaires et bilan final avant/apres' },
-        { icon: 'ri-heart-pulse-line', text: 'Comparaison de vos donnees de sante debut vs fin' },
+        { icon: 'ri-heart-pulse-line', text: 'Comparaison de vos données de santé début vs fin' },
         ...(mode !== 'solo' ? [{ icon: 'ri-team-line', text: 'Progression visible avec vos amis' }] : []),
       ].map((item, i) => (
         <div key={i} style={{
@@ -82,7 +82,7 @@ export const ProgramReady = ({
         boxShadow: `0 6px 28px ${clr}35`, transition: 'all 200ms ease',
         opacity: hasActiveConflict ? 0.4 : 1,
       } as any}>
-      {starting ? 'Lancement...' : mode !== 'solo' ? 'Creer l\'equipe et commencer' : 'Lancer le programme'}
+      {starting ? 'Lancement...' : mode !== 'solo' ? 'Créer l\'equipe et commencer' : 'Lancer le programme'}
     </div>
   </div>
   );

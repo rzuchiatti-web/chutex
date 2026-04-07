@@ -27,7 +27,7 @@ export const BRACELET_METRICS: HealthMetric[] = [
   { id: 'sleep_interruptions', name: 'Interruptions', unit: 'fois', category: 'Sommeil', device: 'bracelet', icon: 'alert-circle', iconLib: 'Ionicons', color: '#EF4444', description: 'Nombre de réveils pendant la nuit. Moins de 2 interruptions indique un sommeil de qualité.', normalRange: { min: 0, max: 2 } },
   { id: 'temperature', name: 'Température', unit: '°C', category: 'Vital', device: 'bracelet', icon: 'thermometer', iconLib: 'Ionicons', color: '#F97316', description: 'Température corporelle. Normale: 36.1-37.2°C. Au-dessus de 38°C peut indiquer de la fièvre.', normalRange: { min: 36.1, max: 37.2 }, isKey: true },
   { id: 'calories', name: 'Dépenses énergétiques', unit: 'kcal', category: 'Activité', device: 'bracelet', icon: 'flame', iconLib: 'Ionicons', color: '#DC2626', description: 'Calories brûlées dans la journée incluant le métabolisme de base et l\'activité physique.', normalRange: { min: 1500, max: 3000 } },
-  { id: 'steps', name: 'Pas', unit: 'pas', category: 'Activité', device: 'bracelet', icon: 'footsteps', iconLib: 'Ionicons', color: '#22C55E', description: 'Nombre de pas effectués. L\'OMS recommande 8000-10000 pas par jour pour un adulte.', normalRange: { min: 5000, max: 10000 }, isKey: true },
+  { id: 'steps', name: 'Pas', unit: 'pas', category: 'Activité', device: 'bracelet', icon: 'footsteps', iconLib: 'Ionicons', color: '#22C55E', description: 'Nombre de pas effectués. L\'OMS recommandé 8000-10000 pas par jour pour un adulte.', normalRange: { min: 5000, max: 10000 }, isKey: true },
 ];
 
 export const SCALE_METRICS: HealthMetric[] = [
@@ -103,12 +103,12 @@ export const getMetricsByDevice = (device: 'bracelet' | 'scale') =>
 
 export const getKeyMetrics = () => ALL_METRICS.filter(m => m.isKey);
 
-export const getMetricCategories = (device: 'bracelet' | 'scale') => {
+export const getMetricCatégories = (device: 'bracelet' | 'scale') => {
   const metrics = getMetricsByDevice(device);
-  const categories: { [key: string]: HealthMetric[] } = {};
+  const catégories: { [key: string]: HealthMetric[] } = {};
   metrics.forEach(m => {
-    if (!categories[m.category]) categories[m.category] = [];
-    categories[m.category].push(m);
+    if (!catégories[m.category]) catégories[m.category] = [];
+    catégories[m.category].push(m);
   });
-  return categories;
+  return catégories;
 };

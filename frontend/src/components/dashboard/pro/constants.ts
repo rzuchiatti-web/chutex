@@ -50,7 +50,7 @@ export const MUSCLE_GROUPS = [
 
 export const EQUIPMENT_LIST = [
   'Aucun', 'Halteres', 'Barre', 'Kettlebell', 'Elastique', 'Machine guidee',
-  'Poulie', 'TRX / Sangles', 'Medecine ball', 'Banc', 'Swiss ball',
+  'Poulie', 'TRX / Sangles', 'Médecine ball', 'Banc', 'Swiss ball',
   'Corde a sauter', 'Tapis', 'Roue abdominale', 'Barre de traction',
   'Step', 'Bosu', 'Anneaux', 'Gilet leste', 'Foam roller',
 ];

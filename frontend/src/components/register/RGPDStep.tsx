@@ -6,7 +6,7 @@ export default function RGPDStep() {
       <div style={{ textAlign: 'center', marginBottom: 24 } as any}>
         <div style={{ fontSize: 22, fontWeight: 900, color: '#FFF', marginBottom: 6 }}>Protection de vos donnees</div>
         <div style={{ width: 40, height: 1, background: 'rgba(255,255,255,0.15)', margin: '0 auto 12px' } as any} />
-        <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', lineHeight: 1.6 }}>Vos informations de sante sont traitees avec le plus haut niveau de securite et stockees sur des serveurs francais certifies.</div>
+        <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', lineHeight: 1.6 }}>Vos informations de sante sont traitees avec le plus haut niveau de sécurité et stockees sur des serveurs francais certifies.</div>
       </div>
       {[
         { icon: 'ri-server-line', title: 'Hebergement HDS Classe 6' },

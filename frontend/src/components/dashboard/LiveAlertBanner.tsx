@@ -15,7 +15,7 @@ const STAGES = [
 
 const ALERT_TYPE_LABELS: Record<string, string> = {
   sos: 'SOS - URGENCE',
-  fall: 'Chute detectee',
+  fall: 'Chute détectée',
   health_anomaly: 'Anomalie sante',
   threshold: 'Seuil depasse',
   geofence: 'Sortie safe zone',
@@ -27,7 +27,7 @@ const ALERT_TYPE_LABELS: Record<string, string> = {
 const STAGE_MESSAGES: Record<string, string> = {
   alert_triggered: 'Alerte en cours de traitement...',
   notifying_guardians: 'Les gardiens sont notifies',
-  ai_calling: 'Appel IA au beneficiaire...',
+  ai_calling: 'Appel IA au bénéficiaire...',
   guardian_responding: 'Un gardien a pris en charge',
   intervention_active: 'Intervention en cours',
   resolved: 'Alerte resolue',
@@ -118,7 +118,7 @@ function LiveTrackingMap({ alertId, benLoc, ivLoc, stageColor, etaMinutes, dista
             marginTop: 4, padding: '2px 8px', borderRadius: 6,
             background: 'rgba(10,10,20,0.85)', border: '1px solid rgba(255,255,255,0.15)',
           } as any}>
-            <span style={{ fontSize: 9, fontWeight: 700, color: '#FFF' }}>Beneficiaire</span>
+            <span style={{ fontSize: 9, fontWeight: 700, color: '#FFF' }}>Bénéficiaire</span>
           </div>
         </div>
         {/* Intervenant indicator */}

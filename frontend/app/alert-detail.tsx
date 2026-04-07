@@ -4,7 +4,7 @@ import { useRouter, useLocalSearchParams } from 'expo-router';
 import NativePageView from '../src/components/NativePageView';
 import FullScreenLoader from '../src/components/FullScreenLoader';
 
-export default function AlertDetailScreen() {
+export default function AlertDétailScreen() {
   const router = useRouter();
   const { alertId } = useLocalSearchParams<{ alertId: string }>();
 

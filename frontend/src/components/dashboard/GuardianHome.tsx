@@ -184,16 +184,16 @@ export default function GuardianHome({ token, user }: { token: string; user: any
               <video autoPlay loop muted playsInline style={{ width: 44, height: 44, borderRadius: 14, objectFit: 'contain', flexShrink: 0, pointerEvents: 'none' } as any} src="https://customer-assets.emergentagent.com/job_ba3a5789-c8f1-4b12-b5d8-478a7f99aaea/artifacts/b6eh1r76_Nora_video.mp4" />
               <div style={{ flex: 1 } as any}>
                 <div style={{ fontSize: 14, fontWeight: 800, color: '#FFF' }}>Demander a Nora</div>
-                <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.4)', marginTop: 1 }}>Questions sante sur vos beneficiaires</div>
+                <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.4)', marginTop: 1 }}>Questions sante sur vos bénéficiaires</div>
               </div>
               <i className="ri-arrow-right-s-line" style={{ fontSize: 18, color: 'rgba(255,255,255,0.25)' }} />
             </div>
 
             {/* Section header — same as "Mes gardiens" in BeneficiaryHome */}
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 } as any}>
-              <div style={{ fontSize: 20, fontWeight: 900, color: textColor, letterSpacing: '-0.3px' }}>Mes beneficiaires</div>
+              <div style={{ fontSize: 20, fontWeight: 900, color: textColor, letterSpacing: '-0.3px' }}>Mes bénéficiaires</div>
             </div>
-            <div style={{ fontSize: 13, color: subColor, marginBottom: 16, lineHeight: '1.45' }}>Retrouvez l'ensemble de vos beneficiaires que vous suivez au quotidien.</div>
+            <div style={{ fontSize: 13, color: subColor, marginBottom: 16, lineHeight: '1.45' }}>Retrouvez l'ensemble de vos bénéficiaires que vous suivez au quotidien.</div>
 
             {/* Beneficiary cards — "Mes Gardiens" style */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: 10 } as any}>
@@ -209,7 +209,7 @@ export default function GuardianHome({ token, user }: { token: string; user: any
                     <div style={{ flex: 1 } as any}>
                       <div style={{ fontSize: 15, fontWeight: 700, color: textColor }}>{b.name}</div>
                       <div style={{ fontSize: 12, color: subColor, marginTop: 2 }}>
-                        {b.date_of_birth && !isNaN(new Date(b.date_of_birth).getTime()) ? `${Math.floor((Date.now() - new Date(b.date_of_birth).getTime()) / (1000 * 60 * 60 * 24 * 365))} ans` : 'Beneficiaire'}
+                        {b.date_of_birth && !isNaN(new Date(b.date_of_birth).getTime()) ? `${Math.floor((Date.now() - new Date(b.date_of_birth).getTime()) / (1000 * 60 * 60 * 24 * 365))} ans` : 'Bénéficiaire'}
                       </div>
                     </div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 6 } as any}>
@@ -237,7 +237,7 @@ export default function GuardianHome({ token, user }: { token: string; user: any
                   )}
                 </div>
               ))}
-              {bens.length === 0 && <div style={{ padding: '20px', borderRadius: 18, background: cardBg, textAlign: 'center' } as any}><div style={{ fontSize: 13, color: subColor }}>Aucun beneficiaire pour le moment</div></div>}
+              {bens.length === 0 && <div style={{ padding: '20px', borderRadius: 18, background: cardBg, textAlign: 'center' } as any}><div style={{ fontSize: 13, color: subColor }}>Aucun bénéficiaire pour le moment</div></div>}
             </div>
 
             {/* Add beneficiary button — inside beneficiary section */}
@@ -352,7 +352,7 @@ export default function GuardianHome({ token, user }: { token: string; user: any
                 onClick={async () => {
                   if (!linkPhone.trim() || linkingBen) return;
                   const phoneClean = linkPhone.trim().replace(/[\s.\-]/g, '');
-                  if (phoneClean.length < 10) { setLinkMessage('Erreur : Numero invalide (min 10 chiffres)'); return; }
+                  if (phoneClean.length < 10) { setLinkMessage('Erreur : Numéro invalide (min 10 chiffres)'); return; }
                   setLinkingBen(true);
                   setLinkMessage('');
                   try {
@@ -471,19 +471,19 @@ export default function GuardianHome({ token, user }: { token: string; user: any
                 setIbanSaving(true); setIbanMsg(null);
                 try {
                   await apiFetch('/api/pro/payment-config', { method: 'PUT', body: JSON.stringify(ibanForm) }, token);
-                  setIbanMsg({ type: 'ok', text: 'IBAN enregistre avec succes !' });
+                  setIbanMsg({ type: 'ok', text: 'IBAN enregistré avec succes !' });
                   apiFetch('/api/pro/payment-dashboard', {}, token).then(d => setPaymentDash(d)).catch(() => {});
                 } catch (e: any) {
                   setIbanMsg({ type: 'err', text: e.message || 'Erreur lors de la sauvegarde' });
                 } finally { setIbanSaving(false); }
               }} style={{ padding: '16px', borderRadius: 14, textAlign: 'center', cursor: ibanForm.account_holder && ibanForm.iban ? 'pointer' : 'default', background: ibanForm.account_holder && ibanForm.iban ? '#10B981' : 'rgba(255,255,255,0.06)', color: ibanForm.account_holder && ibanForm.iban ? '#FFF' : 'rgba(255,255,255,0.3)', fontSize: 15, fontWeight: 800, opacity: ibanSaving ? 0.5 : 1, transition: 'all 0.15s' } as any}>
-                {ibanSaving ? 'Enregistrement...' : 'Enregistrer'}
+                {ibanSaving ? 'Enregistrément...' : 'Enregistrér'}
               </div>
 
               <div style={{ textAlign: 'center', marginTop: 20 } as any}>
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 } as any}>
                   <i className="ri-shield-check-line" style={{ fontSize: 13, color: 'rgba(255,255,255,0.25)' }} />
-                  <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.25)' }}>Vos donnees bancaires sont securisees</span>
+                  <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.25)' }}>Vos donnees bancaires sont sécurisées</span>
                 </div>
               </div>
             </div>
@@ -518,7 +518,7 @@ export default function GuardianHome({ token, user }: { token: string; user: any
         </View>
         <View style={{ flexDirection: 'row', gap: 10 }}>
           {[
-            { val: bens.length, label: 'Beneficiaires' },
+            { val: bens.length, label: 'Bénéficiaires' },
             { val: activeAlerts.length, label: 'Alertes' },
             { val: pendingInterventions.length, label: 'Interventions' },
           ].map((s, i) => (
@@ -561,7 +561,7 @@ export default function GuardianHome({ token, user }: { token: string; user: any
       {activeAlertsG.map((a: any) => {
         const myIntervention = a.intervention?.assigned_to === user.id;
         const hasIntervenant = a.intervener_info || a.intervention?.assigned_to;
-        const isDispatch = a.incident_state === 'CARE_DISPATCHED' || a.teleassistance_status === 'CARE_DISPATCHED';
+        const isDispatch = a.incident_state === 'CARE_DISPATCHED' || a.téléassistance_status === 'CARE_DISPATCHED';
         const interventionId = a.intervention?.id;
         return (
           <View key={a.id}>
@@ -654,7 +654,7 @@ export default function GuardianHome({ token, user }: { token: string; user: any
             </View>
           </View>
           <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingTop: 10, borderTopWidth: 1, borderTopColor: '#F3F4F6' }}>
-            <Text style={{ fontSize: 11, color: '#6B7280' }}>45 EUR HT / beneficiaire / mois</Text>
+            <Text style={{ fontSize: 11, color: '#6B7280' }}>45 EUR HT / bénéficiaire / mois</Text>
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
               <View style={{ width: 6, height: 6, borderRadius: 3, backgroundColor: paymentDash?.iban_configured ? '#10B981' : '#F59E0B' }} />
               <Text style={{ fontSize: 11, fontWeight: '600', color: paymentDash?.iban_configured ? '#10B981' : '#F59E0B' }}>
@@ -666,7 +666,7 @@ export default function GuardianHome({ token, user }: { token: string; user: any
       )}
 
       {/* Beneficiary Cards */}
-      <SectionHeader title="Mes beneficiaires" />
+      <SectionHeader title="Mes bénéficiaires" />
       {bens.map((b: any) => (
         <TouchableOpacity key={b.id} testID={`beneficiary-card-${b.id}`} onPress={() => router.push({ pathname: '/beneficiary-detail', params: { beneficiaryId: b.id } })}>
           <Card style={{ padding: 18 }}>
@@ -693,8 +693,8 @@ export default function GuardianHome({ token, user }: { token: string; user: any
       {bens.length === 0 && (
         <Card style={{ alignItems: 'center', padding: 32 }}>
           <Icon name="people-outline" size={40} color="#9CA3AF" />
-          <Text style={{ fontSize: 15, fontWeight: '700', color: '#111827', marginTop: 12 }}>Aucun beneficiaire</Text>
-          <Text style={{ fontSize: 12, color: '#6B7280', marginTop: 4, textAlign: 'center' }}>Ajoutez un beneficiaire pour veiller sur lui</Text>
+          <Text style={{ fontSize: 15, fontWeight: '700', color: '#111827', marginTop: 12 }}>Aucun bénéficiaire</Text>
+          <Text style={{ fontSize: 12, color: '#6B7280', marginTop: 4, textAlign: 'center' }}>Ajoutez un bénéficiaire pour veiller sur lui</Text>
         </Card>
       )}
 
@@ -711,8 +711,8 @@ export default function GuardianHome({ token, user }: { token: string; user: any
                 <Icon name="close" size={22} color="#6B7280" />
               </TouchableOpacity>
             </View>
-            <Text style={{ fontSize: 13, color: '#6B7280', marginBottom: 20, lineHeight: 20 }}>Entrez le numero de telephone de votre proche. S'il a un compte, il recevra une notification pour accepter.</Text>
-            <Text style={{ fontSize: 10, fontWeight: '700', color: '#6B7280', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 6 }}>Numero de telephone</Text>
+            <Text style={{ fontSize: 13, color: '#6B7280', marginBottom: 20, lineHeight: 20 }}>Entrez le numéro de telephone de votre proche. S'il a un compte, il recevra une notification pour accepter.</Text>
+            <Text style={{ fontSize: 10, fontWeight: '700', color: '#6B7280', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 6 }}>Numéro de telephone</Text>
             <TextInput value={linkPhone} onChangeText={setLinkPhone} placeholder="06 12 34 56 78" keyboardType="phone-pad" style={{ borderWidth: 1, borderColor: '#E5E7EB', borderRadius: 12, padding: 14, fontSize: 16, fontWeight: '600', color: '#111827', marginBottom: 14 }} />
             <Text style={{ fontSize: 10, fontWeight: '700', color: '#6B7280', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 6 }}>Lien de parente (optionnel)</Text>
             <TextInput value={linkRelationship} onChangeText={setLinkRelationship} placeholder="Ex: Fils, Fille, Voisin..." style={{ borderWidth: 1, borderColor: '#E5E7EB', borderRadius: 12, padding: 14, fontSize: 15, color: '#111827', marginBottom: 20 }} />
@@ -727,7 +727,7 @@ export default function GuardianHome({ token, user }: { token: string; user: any
               onPress={async () => {
                 if (!linkPhone.trim() || linkingBen) return;
                 const phoneClean = linkPhone.trim().replace(/[\s.\-]/g, '');
-                if (phoneClean.length < 10) { setLinkMessage('Erreur : Numero invalide (min 10 chiffres)'); return; }
+                if (phoneClean.length < 10) { setLinkMessage('Erreur : Numéro invalide (min 10 chiffres)'); return; }
                 setLinkingBen(true); setLinkMessage('');
                 try {
                   const res = await apiFetch('/api/guardian/link-with-phone', { method: 'POST', body: JSON.stringify({ phone: linkPhone.trim(), relationship: linkRelationship.trim() }) }, token);
@@ -752,7 +752,7 @@ export default function GuardianHome({ token, user }: { token: string; user: any
       <MiniTuto id="guardian-intro" triggerLabel="Guide du gardien" steps={[
         { title: 'Votre role', text: 'Vous veillez sur vos proches a distance avec des notifications instantanees.', icon: 'shield-outline' },
         { title: 'Alertes', text: 'Quand une alerte se declenche, vous pouvez intervenir ou suivre l\'intervenant.', icon: 'alert-circle-outline' },
-        { title: 'Ajouter', text: 'Entrez le numero de telephone de votre proche pour lui envoyer une invitation a rejoindre votre espace gardien.', icon: 'person-add-outline' },
+        { title: 'Ajouter', text: 'Entrez le numéro de telephone de votre proche pour lui envoyer une invitation a rejoindre votre espace gardien.', icon: 'person-add-outline' },
       ]} />
     </ScrollView>
   );

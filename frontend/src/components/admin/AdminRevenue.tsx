@@ -72,7 +72,7 @@ export default function AdminRevenue({ data, mob }: { data: any; mob: boolean })
             <thead>
               <tr style={{ borderBottom: '2px solid #F1F5F9' }}>
                 <th style={{ textAlign: 'left', padding: '8px 10px', color: '#64748B', fontWeight: 600, fontSize: 10, textTransform: 'uppercase', letterSpacing: 0.5 }}>Date</th>
-                <th style={{ textAlign: 'left', padding: '8px 10px', color: '#64748B', fontWeight: 600, fontSize: 10, textTransform: 'uppercase', letterSpacing: 0.5 }}>Beneficiaire</th>
+                <th style={{ textAlign: 'left', padding: '8px 10px', color: '#64748B', fontWeight: 600, fontSize: 10, textTransform: 'uppercase', letterSpacing: 0.5 }}>Bénéficiaire</th>
                 <th style={{ textAlign: 'right', padding: '8px 10px', color: '#64748B', fontWeight: 600, fontSize: 10, textTransform: 'uppercase', letterSpacing: 0.5 }}>HT</th>
                 <th style={{ textAlign: 'right', padding: '8px 10px', color: '#64748B', fontWeight: 600, fontSize: 10, textTransform: 'uppercase', letterSpacing: 0.5 }}>TTC</th>
                 <th style={{ textAlign: 'center', padding: '8px 10px', color: '#64748B', fontWeight: 600, fontSize: 10, textTransform: 'uppercase', letterSpacing: 0.5 }}>Statut</th>

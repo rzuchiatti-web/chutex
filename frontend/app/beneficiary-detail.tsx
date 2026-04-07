@@ -13,7 +13,7 @@ const IMG_BRACELET = 'https://customer-assets.emergentagent.com/job_8afdc991-0ab
 const IMG_SCALE = 'https://customer-assets.emergentagent.com/job_8afdc991-0ab2-4687-a2a5-438b9a5f0711/artifacts/dwmw2i8r_Balance_connecte_Vita_chutex.svg';
 const IMG_VEST = 'https://customer-assets.emergentagent.com/job_8afdc991-0ab2-4687-a2a5-438b9a5f0711/artifacts/ljh1zzu3_Gilet_Elder_airbag_Chutex.svg';
 
-export default function BeneficiaryDetailScreen() {
+export default function BeneficiaryDétailScreen() {
   const localParams = useLocalSearchParams<{ beneficiaryId: string | string[] }>();
   const globalParams = useGlobalSearchParams<{ beneficiaryId?: string | string[] }>();
   const webBeneficiaryId = (() => { try { if (typeof window !== 'undefined' && window.location?.search) return new URLSearchParams(window.location.search).get('beneficiaryId') || ''; if (typeof globalThis !== 'undefined' && (globalThis as any)?.location?.search) return new URLSearchParams((globalThis as any).location.search).get('beneficiaryId') || ''; } catch { return ''; } return ''; })();
@@ -85,7 +85,7 @@ export default function BeneficiaryDetailScreen() {
   useEffect(() => { if (!activeBid) return; const iv = setInterval(async () => { try { const g = await apiFetch(`/api/guardian/beneficiary/${activeBid}/geofence`, {}, token); setGeoZones(Array.isArray(g?.zones) ? g.zones : []); setGeoLocation(g?.current_location || null); } catch {} }, 25000); return () => clearInterval(iv); }, [activeBid, token]);
 
   if (loading) return <FullScreenLoader />;
-  if (!data) return <SafeAreaView style={{ flex: 1, backgroundColor: isDark ? '#000' : '#F5F5F5', justifyContent: 'center', alignItems: 'center' }}><Text style={{ color: isDark ? 'rgba(255,255,255,0.5)' : 'rgba(0,0,0,0.4)' }}>Beneficiaire non trouve</Text></SafeAreaView>;
+  if (!data) return <SafeAreaView style={{ flex: 1, backgroundColor: isDark ? '#000' : '#F5F5F5', justifyContent: 'center', alignItems: 'center' }}><Text style={{ color: isDark ? 'rgba(255,255,255,0.5)' : 'rgba(0,0,0,0.4)' }}>Bénéficiaire non trouve</Text></SafeAreaView>;
   if (Platform.OS !== 'web') return <NativePageView path={`/beneficiary-detail?beneficiaryId=${activeBid || ''}`} />;
 
   const v = data.latest_vitals || {};
@@ -111,7 +111,7 @@ export default function BeneficiaryDetailScreen() {
     { label: 'Pouls', val: v.heart_rate || null, unit: 'bpm', icon: 'ri-heart-pulse-line', color: '#EF4444' },
     { label: 'SpO2', val: v.spo2 || null, unit: '%', icon: 'ri-drop-line', color: '#3B82F6' },
     { label: 'Tension', val: tensionVal, unit: 'mmHg', icon: 'ri-pulse-line', color: '#8B5CF6' },
-    { label: 'Temperature', val: (v.temperature && v.temperature > 30) ? v.temperature : null, unit: '\u00b0C', icon: 'ri-temp-hot-line', color: '#F97316' },
+    { label: 'Température', val: (v.temperature && v.temperature > 30) ? v.temperature : null, unit: '\u00b0C', icon: 'ri-temp-hot-line', color: '#F97316' },
   ];
 
   const healthSharing = data.data_sharing_prefs?.health_sharing || 'all';
@@ -191,7 +191,7 @@ export default function BeneficiaryDetailScreen() {
                 }
               </div>
               <div style={{ fontSize: 24, fontWeight: 800, color: '#FFF', letterSpacing: -0.5, lineHeight: 1.15 }} data-testid="beneficiary-firstname-value">{firstName} <span data-testid="beneficiary-lastname-value">{lastName}</span></div>
-              <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.55)', fontWeight: 500, marginTop: 4 }}>Fiche beneficiaire</div>
+              <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.55)', fontWeight: 500, marginTop: 4 }}>Fiche bénéficiaire</div>
             </div>
             {/* SLIDE TO CALL */}
             {data.phone && (
@@ -256,13 +256,13 @@ export default function BeneficiaryDetailScreen() {
           <div style={{ height: 1, background: C.sep, margin: '8px 0' } as any} />
 
           {/* ── 3. DONNEES DE SANTE (conditionnelles selon autorisations) ── */}
-          <div style={SL}>Donnees de sante</div>
+          <div style={SL}>Données de santé</div>
 
           {healthSharing === 'none' ? (
             <div data-testid="health-no-access" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10, padding: '32px 20px', borderRadius: 18, background: C.row, border: `1px solid ${C.sep}`, marginBottom: 12 } as any}>
               <i className="ri-eye-off-line" style={{ fontSize: 28, color: C.muted }} />
               <span style={{ fontSize: 14, fontWeight: 700, color: C.sub }}>Acces restreint</span>
-              <span style={{ fontSize: 12, color: C.muted, textAlign: 'center' }}>Le beneficiaire n'a pas autorise le partage de ses donnees de sante.</span>
+              <span style={{ fontSize: 12, color: C.muted, textAlign: 'center' }}>Le bénéficiaire n'a pas autorisé le partage de ses données de santé.</span>
             </div>
           ) : (
             <>
@@ -284,7 +284,7 @@ export default function BeneficiaryDetailScreen() {
 
               {/* ── 4. ACTIVITE PHYSIQUE - only with full access ── */}
               {showFullHealth && activityMetrics.length > 0 && (<>
-                <div style={SL}>Activite physique</div>
+                <div style={SL}>Activité physique</div>
                 <div style={{ display: 'grid', gridTemplateColumns: `repeat(${activityMetrics.length}, 1fr)`, gap: 1, borderRadius: 14, overflow: 'hidden', border: `1px solid ${C.sep}`, marginBottom: 12 } as any}>
                   {activityMetrics.map((m, i) => (
                     <div key={i} data-testid={`beneficiary-activity-card-${m.label.toLowerCase()}`} style={{ padding: '14px 10px', background: C.row, textAlign: 'center', borderRight: i < activityMetrics.length - 1 ? `1px solid ${C.sep}` : 'none' } as any}>
@@ -301,14 +301,14 @@ export default function BeneficiaryDetailScreen() {
                 <div data-testid="view-health-page-btn" onClick={() => router.push({ pathname: '/health-readonly' as any, params: { beneficiaryId: activeBid } })} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10, padding: '14px 0', borderRadius: 999, background: isDark ? '#FFF' : '#111', cursor: 'pointer', marginBottom: 4, transition: 'opacity 0.15s' } as any}
                   onMouseEnter={(e: any) => e.currentTarget.style.opacity = '0.85'} onMouseLeave={(e: any) => e.currentTarget.style.opacity = '1'}>
                   <i className="ri-dna-line" style={{ fontSize: 18, color: isDark ? '#111' : '#FFF' }} />
-                  <span style={{ fontSize: 14, fontWeight: 700, color: isDark ? '#111' : '#FFF', letterSpacing: 0.2 }}>Voir la page sante</span>
+                  <span style={{ fontSize: 14, fontWeight: 700, color: isDark ? '#111' : '#FFF', letterSpacing: 0.2 }}>Voir la page santé</span>
                 </div>
               )}
 
               {!showFullHealth && (
                 <div data-testid="health-vitals-only-notice" style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '10px 14px', borderRadius: 14, background: 'rgba(59,130,246,0.06)', border: '1px solid rgba(59,130,246,0.12)', marginBottom: 4 } as any}>
                   <i className="ri-information-line" style={{ fontSize: 14, color: '#3B82F6', flexShrink: 0 }} />
-                  <span style={{ fontSize: 11, color: '#3B82F6', fontWeight: 500 }}>Acces limite aux donnees vitales uniquement</span>
+                  <span style={{ fontSize: 11, color: '#3B82F6', fontWeight: 500 }}>Accès limité aux données vitales uniquement</span>
                 </div>
               )}
             </>
@@ -339,11 +339,11 @@ export default function BeneficiaryDetailScreen() {
 
           {/* ── 6. PREFERENCES ── */}
           {guardianPerms && (<>
-            <div style={SL}>Mes preferences</div>
+            <div style={SL}>Mes préférences</div>
             <div style={{ fontSize: 11, color: C.sub, marginBottom: 8 }}>Notifications pour {firstName}.</div>
             {[
               { key: 'guardian_alerts_enabled', icon: 'ri-alarm-warning-line', label: 'Alertes' },
-              { key: 'guardian_health_enabled', icon: 'ri-heart-pulse-line', label: 'Donnees de sante' },
+              { key: 'guardian_health_enabled', icon: 'ri-heart-pulse-line', label: 'Données de santé' },
               { key: 'guardian_location_accepted', icon: 'ri-map-pin-line', label: 'Localisation' },
             ].map((pf, pi) => (
               <div key={pf.key} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px 0', borderBottom: pi < 2 ? `1px solid ${C.sep}` : 'none' } as any}>
@@ -353,7 +353,7 @@ export default function BeneficiaryDetailScreen() {
             ))}
             {guardianPerms.guardian_alerts_enabled && guardianPerms.alerts_enabled && (<>
               <div onClick={() => setExpandedPerm(expandedPerm === 'alerts' ? null : 'alerts')} style={{ fontSize: 11, color: C.sub, fontWeight: 600, cursor: 'pointer', padding: '8px 0', display: 'flex', alignItems: 'center', gap: 4 } as any}><i className={expandedPerm === 'alerts' ? 'ri-arrow-up-s-line' : 'ri-arrow-down-s-line'} style={{ fontSize: 14 }} />{expandedPerm === 'alerts' ? 'Masquer' : 'Personnaliser les alertes'}</div>
-              {expandedPerm === 'alerts' && <div>{Object.entries(guardianPerms.guardian_alert_types || {}).map(([k, val]: [string, any]) => { const lbl: Record<string, string> = { fall: 'Chute', heart_rate: 'Freq. cardiaque', inactivity: 'Inactivite', sos_manual: 'SOS', temperature: 'Temperature', spo2: 'SpO2', blood_pressure: 'Tension', weight: 'Poids', pulse: 'Pouls' }; const bg = guardianPerms.alert_types?.[k]; return (<div key={k} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '7px 0', borderBottom: `1px solid ${C.sep}` } as any}><span style={{ flex: 1, fontSize: 12, color: bg ? C.text : C.muted, fontWeight: 500 }}>{lbl[k] || k}{!bg ? ' (non partage)' : ''}</span><div onClick={() => { if (!bg) return; const n2 = { ...guardianPerms.guardian_alert_types, [k]: !val }; setGuardianPerms((p: any) => ({ ...p, guardian_alert_types: n2 })); apiFetch(`/api/guardian-permissions/${user?.id}/${activeBid}/guardian`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ guardian_alert_types: n2 }) }, token).catch(() => {}); }} style={{ width: 36, height: 20, borderRadius: 10, background: (val && bg) ? '#10B981' : C.toggleBg, cursor: bg ? 'pointer' : 'default', position: 'relative', transition: 'background 0.2s', opacity: bg ? 1 : 0.3 } as any}><div style={{ width: 14, height: 14, borderRadius: 7, background: '#FFF', position: 'absolute', top: 3, left: (val && bg) ? 19 : 3, transition: 'left 0.2s' } as any} /></div></div>); })}</div>}
+              {expandedPerm === 'alerts' && <div>{Object.entries(guardianPerms.guardian_alert_types || {}).map(([k, val]: [string, any]) => { const lbl: Record<string, string> = { fall: 'Chute', heart_rate: 'Fréq. cardiaque', inactivity: 'Inactivité', sos_manual: 'SOS', temperature: 'Température', spo2: 'SpO2', blood_pressure: 'Tension', weight: 'Poids', pulse: 'Pouls' }; const bg = guardianPerms.alert_types?.[k]; return (<div key={k} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '7px 0', borderBottom: `1px solid ${C.sep}` } as any}><span style={{ flex: 1, fontSize: 12, color: bg ? C.text : C.muted, fontWeight: 500 }}>{lbl[k] || k}{!bg ? ' (non partagé)' : ''}</span><div onClick={() => { if (!bg) return; const n2 = { ...guardianPerms.guardian_alert_types, [k]: !val }; setGuardianPerms((p: any) => ({ ...p, guardian_alert_types: n2 })); apiFetch(`/api/guardian-permissions/${user?.id}/${activeBid}/guardian`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ guardian_alert_types: n2 }) }, token).catch(() => {}); }} style={{ width: 36, height: 20, borderRadius: 10, background: (val && bg) ? '#10B981' : C.toggleBg, cursor: bg ? 'pointer' : 'default', position: 'relative', transition: 'background 0.2s', opacity: bg ? 1 : 0.3 } as any}><div style={{ width: 14, height: 14, borderRadius: 7, background: '#FFF', position: 'absolute', top: 3, left: (val && bg) ? 19 : 3, transition: 'left 0.2s' } as any} /></div></div>); })}</div>}
             </>)}
           </>)}
 
@@ -393,13 +393,13 @@ export default function BeneficiaryDetailScreen() {
 
           {/* ── 8. ZONES DE SECURITE — refonte complete ── */}
           <div style={{ ...SL, display: 'flex', alignItems: 'center', justifyContent: 'space-between' } as any}>
-            <span>Zones de securite</span>
+            <span>Zones de sécurité</span>
             <div data-testid="zone-help-btn" onClick={() => setShowZoneHelp(true)} style={{ width: 20, height: 20, borderRadius: 10, border: `1px solid ${C.sep}`, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}><i className="ri-question-line" style={{ fontSize: 11, color: C.muted }} /></div>
           </div>
 
           {/* explainer */}
           <div style={{ fontSize: 12, color: C.sub, lineHeight: 1.6, marginBottom: 14 }}>
-            Les zones sont centrees sur la position actuelle de {firstName}. Pour creer une zone autour du domicile, activez-la lorsque {firstName} s'y trouve. Vous serez alerte si {firstName} sort du perimetre.
+            Les zones sont centrees sur la position actuelle de {firstName}. Pour créer une zone autour du domicile, activez-la lorsque {firstName} s'y trouve. Vous serez alerte si {firstName} sort du perimetre.
           </div>
 
           {/* map — large + prominent */}
@@ -437,9 +437,9 @@ export default function BeneficiaryDetailScreen() {
           <div data-testid="beneficiary-safezone-open-create-popup-btn" onClick={openCreateZonePopup} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, padding: '13px 0', borderRadius: 14, border: `1.5px dashed ${hasGeo ? 'rgba(16,185,129,0.4)' : C.sep}`, cursor: hasGeo ? 'pointer' : 'not-allowed', opacity: hasGeo ? 1 : 0.4, transition: 'background 0.15s' } as any}
             onMouseEnter={(e: any) => { if (hasGeo) e.currentTarget.style.background = 'rgba(16,185,129,0.04)'; }} onMouseLeave={(e: any) => e.currentTarget.style.background = 'transparent'}>
             <i className="ri-add-circle-line" style={{ fontSize: 18, color: hasGeo ? '#10B981' : C.muted }} />
-            <span style={{ fontSize: 13, fontWeight: 600, color: hasGeo ? '#10B981' : C.muted }}>Ajouter une zone de securite</span>
+            <span style={{ fontSize: 13, fontWeight: 600, color: hasGeo ? '#10B981' : C.muted }}>Ajouter une zone de sécurité</span>
           </div>
-          {!hasGeo && <div style={{ fontSize: 11, color: C.faint, textAlign: 'center', marginTop: 6 }}>Localisation requise pour creer une zone</div>}
+          {!hasGeo && <div style={{ fontSize: 11, color: C.faint, textAlign: 'center', marginTop: 6 }}>Localisation requise pour créer une zone</div>}
 
         </div>
       </div>
@@ -458,8 +458,8 @@ export default function BeneficiaryDetailScreen() {
             <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.6)', lineHeight: 1.7, paddingBottom: 20, borderBottom: '1px solid rgba(255,255,255,0.15)' }}>La zone est centree sur la position actuelle de votre proche. Pour proteger un lieu (domicile, parc...), creez la zone lorsque votre proche s'y trouve.</div>
 
             {[
-              { icon: 'ri-crosshair-2-line', c: '#3B82F6', t: 'Position actuelle', d: 'La zone se cree autour de la ou se trouve votre proche en ce moment.' },
-              { icon: 'ri-notification-3-line', c: '#F59E0B', t: 'Alertes automatiques', d: 'Vous etes prevenu immediatement si votre proche sort du perimetre.' },
+              { icon: 'ri-crosshair-2-line', c: '#3B82F6', t: 'Position actuelle', d: 'La zone se créé autour de la ou se trouve votre proche en ce moment.' },
+              { icon: 'ri-notification-3-line', c: '#F59E0B', t: 'Alertes automatiques', d: 'Vous etes prevenu immédiatement si votre proche sort du perimetre.' },
               { icon: 'ri-settings-4-line', c: '#10B981', t: 'Rayon ajustable', d: 'Adaptez la taille selon le lieu : 300m a 2km recommande.' },
             ].map((item, i) => (
               <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: 12, padding: '20px 0', borderBottom: i < 2 ? '1px solid rgba(255,255,255,0.15)' : 'none' } as any}>
@@ -485,7 +485,7 @@ export default function BeneficiaryDetailScreen() {
             {/* title */}
             <div style={{ fontSize: 20, fontWeight: 800, color: '#FFF', marginBottom: 6 }} data-testid="safezone-form-modal-title">{geoEditingId ? 'Modifier la zone' : 'Nouvelle zone de securite'}</div>
             <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.5)', marginBottom: 6, lineHeight: 1.5 }} data-testid="safezone-form-center-info">Centree sur la position actuelle de {firstName}.</div>
-            <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)', marginBottom: 24, lineHeight: 1.5 }}>Pour proteger un lieu precis, assurez-vous que {firstName} s'y trouve avant de creer la zone.</div>
+            <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)', marginBottom: 24, lineHeight: 1.5 }}>Pour proteger un lieu precis, assurez-vous que {firstName} s'y trouve avant de créer la zone.</div>
             {/* name */}
             <div style={{ marginBottom: 16 } as any}>
               <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 6 }}>Nom de la zone</div>
@@ -495,13 +495,13 @@ export default function BeneficiaryDetailScreen() {
             <div style={{ marginBottom: 28 } as any}>
               <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 6 }}>Rayon du perimetre (metres)</div>
               <input data-testid="safezone-form-radius-input" value={geoFormRadius} onChange={(e: any) => setGeoFormRadius(e.target.value)} placeholder="300" style={{ width: '100%', padding: '12px 14px', borderRadius: 12, border: '1px solid rgba(255,255,255,0.1)', background: 'rgba(255,255,255,0.06)', color: '#FFF', fontSize: 14, outline: 'none', boxSizing: 'border-box', fontWeight: 500 } as any} />
-              <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)', marginTop: 6 }}>Recommande : 300m a 2000m selon les habitudes</div>
+              <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)', marginTop: 6 }}>Recommandé : 300m a 2000m selon les habitudes</div>
             </div>
             {/* actions */}
             <div style={{ display: 'flex', gap: 10 } as any}>
               <div data-testid="safezone-form-cancel-btn" onClick={() => { setGeoFormOpen(false); setGeoEditingId(null); }} style={{ flex: 1, padding: '13px', borderRadius: 14, cursor: 'pointer', textAlign: 'center', border: '1px solid rgba(255,255,255,0.12)', fontSize: 14, fontWeight: 600, color: 'rgba(255,255,255,0.7)', transition: 'background 0.15s' } as any}
                 onMouseEnter={(e: any) => e.currentTarget.style.background = 'rgba(255,255,255,0.06)'} onMouseLeave={(e: any) => e.currentTarget.style.background = 'transparent'}>Annuler</div>
-              <div data-testid="safezone-form-save-btn" onClick={saveGeoForm} style={{ flex: 1, padding: '13px', borderRadius: 14, cursor: geoFormSaving ? 'wait' : 'pointer', textAlign: 'center', background: '#FFF', fontSize: 14, fontWeight: 700, color: '#111', opacity: geoFormSaving ? 0.6 : 1, transition: 'opacity 0.15s' } as any}>{geoFormSaving ? '...' : (geoEditingId ? 'Enregistrer' : 'Creer la zone')}</div>
+              <div data-testid="safezone-form-save-btn" onClick={saveGeoForm} style={{ flex: 1, padding: '13px', borderRadius: 14, cursor: geoFormSaving ? 'wait' : 'pointer', textAlign: 'center', background: '#FFF', fontSize: 14, fontWeight: 700, color: '#111', opacity: geoFormSaving ? 0.6 : 1, transition: 'opacity 0.15s' } as any}>{geoFormSaving ? '...' : (geoEditingId ? 'Enregistrér' : 'Créer la zone')}</div>
             </div>
           </div>
         </div>

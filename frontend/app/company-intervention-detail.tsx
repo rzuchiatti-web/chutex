@@ -25,7 +25,7 @@ function FullMap({ benLat, benLng, ivLat, ivLng, benName, ivName }: any) {
 
 const makeCall = (phone: string) => { if (phone) Linking.openURL(`tel:${phone}`); };
 
-export default function CompanyInterventionDetail() {
+export default function CompanyInterventionDétail() {
   const { colors, isDark } = useTheme();
   const { interventionId } = useLocalSearchParams<{ interventionId: string }>();
   const { token, user } = useAuth();
@@ -47,7 +47,7 @@ export default function CompanyInterventionDetail() {
     setSubmitting(true);
     try {
       await apiFetch(`/api/interventions/${interventionId}/complete`, { method: 'POST', body: JSON.stringify(report) }, token);
-      Alert.alert('Intervention terminee', 'Le rapport a ete enregistre et l\'alerte est resolue.');
+      Alert.alert('Intervention terminee', 'Le rapport a été enregistré et l\'alerte est resolue.');
       fetchData();
       setShowReport(false);
     } catch (e: any) { Alert.alert('Erreur', e.message); } finally { setSubmitting(false); }
@@ -90,7 +90,7 @@ export default function CompanyInterventionDetail() {
               <View style={{ width: 48, height: 48, borderRadius: 24, backgroundColor: '#E8F5E9', justifyContent: 'center', alignItems: 'center' }}><Icon name="checkmark-circle" size={24} color="#4CAF50" /></View>
               <View style={{ flex: 1 }}>
                 <Text style={{ fontSize: 11, fontWeight: '800', color: '#10B981', letterSpacing: 0.5 }}>INTERVENTION TERMINEE</Text>
-                <Text style={{ fontSize: 16, fontWeight: '900', color: '#111827', marginTop: 4 }}>{alert_data?.alert_type === 'sos' ? 'SOS - Urgence' : alert_data?.alert_type === 'fall' ? 'Chute detectee' : 'Alerte'}</Text>
+                <Text style={{ fontSize: 16, fontWeight: '900', color: '#111827', marginTop: 4 }}>{alert_data?.alert_type === 'sos' ? 'SOS - Urgence' : alert_data?.alert_type === 'fall' ? 'Chute détectée' : 'Alerte'}</Text>
                 <Text style={{ fontSize: 12, color: '#6B7280', marginTop: 2 }}>{iv.alert_message || alert_data?.message}</Text>
               </View>
             </View>
@@ -122,7 +122,7 @@ export default function CompanyInterventionDetail() {
           <GC>
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 14 }}>
               <View style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: '#E1F5FE', justifyContent: 'center', alignItems: 'center' }}><Icon name="person" size={18} color="#0288D1" /></View>
-              <Text style={{ fontSize: 16, fontWeight: '800', color: '#111827' }}>Beneficiaire</Text>
+              <Text style={{ fontSize: 16, fontWeight: '800', color: '#111827' }}>Bénéficiaire</Text>
             </View>
             <IR icon="person-outline" label="Nom" value={ben.name || iv.beneficiary_name} color="#0288D1" />
             <IR icon="call-outline" label="Telephone" value={ben.phone} />
@@ -130,7 +130,7 @@ export default function CompanyInterventionDetail() {
             <IR icon="fitness-outline" label="Pathologies" value={ben.medical_conditions} color="#E53935" />
             <IR icon="warning-outline" label="Allergies" value={ben.allergies} color="#FF9800" />
             <IR icon="water-outline" label="Gr. sanguin" value={ben.blood_type} />
-            <IR icon="person-circle-outline" label="Medecin" value={ben.doctor_name} />
+            <IR icon="person-circle-outline" label="Médecin" value={ben.doctor_name} />
             <IR icon="call-outline" label="Contact urgence" value={ben.emergency_contact_name ? `${ben.emergency_contact_name} (${ben.emergency_contact_phone || ''})` : ''} color="#E53935" />
           </GC>
           {/* Intervenant */}
@@ -229,7 +229,7 @@ export default function CompanyInterventionDetail() {
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, backgroundColor: '#FFEBEE', borderRadius: 14, padding: 14, marginBottom: 14 }}>
             <Icon name={alert_data?.alert_type === 'fall' ? 'trending-down' : 'alert-circle'} size={20} color="#E53935" />
             <View style={{ flex: 1 }}>
-              <Text style={{ fontSize: 13, fontWeight: '800', color: '#E53935' }}>{alert_data?.alert_type === 'sos' ? 'SOS - Urgence' : alert_data?.alert_type === 'fall' ? 'Chute detectee' : 'Alerte'}</Text>
+              <Text style={{ fontSize: 13, fontWeight: '800', color: '#E53935' }}>{alert_data?.alert_type === 'sos' ? 'SOS - Urgence' : alert_data?.alert_type === 'fall' ? 'Chute détectée' : 'Alerte'}</Text>
               <Text style={{ fontSize: 11, color: '#C62828' }}>{iv.alert_message || alert_data?.message}</Text>
             </View>
           </View>
@@ -268,7 +268,7 @@ export default function CompanyInterventionDetail() {
               {ben.medical_conditions && <Text style={{ fontSize: 12, color: '#111827' }}><Text style={{ fontWeight: '700' }}>Pathologies:</Text> {ben.medical_conditions}</Text>}
               {ben.allergies && <Text style={{ fontSize: 12, color: '#111827' }}><Text style={{ fontWeight: '700' }}>Allergies:</Text> {ben.allergies}</Text>}
               {ben.blood_type && <Text style={{ fontSize: 12, color: '#111827' }}><Text style={{ fontWeight: '700' }}>Groupe:</Text> {ben.blood_type}</Text>}
-              {ben.doctor_name && <Text style={{ fontSize: 12, color: '#111827' }}><Text style={{ fontWeight: '700' }}>Medecin:</Text> {ben.doctor_name}</Text>}
+              {ben.doctor_name && <Text style={{ fontSize: 12, color: '#111827' }}><Text style={{ fontWeight: '700' }}>Médecin:</Text> {ben.doctor_name}</Text>}
             </View>
           )}
 
@@ -332,7 +332,7 @@ export default function CompanyInterventionDetail() {
                 placeholder="Decrivez la situation a votre arrivee..." multiline value={report.description} onChangeText={v => setReport({...report, description: v})} />
               <Text style={{ fontSize: 12, color: '#6B7280', marginBottom: 4 }}>Actions effectuees</Text>
               <TextInput style={{ borderWidth: 1, borderColor: '#E0E0E0', borderRadius: 12, padding: 12, fontSize: 14, minHeight: 60, textAlignVertical: 'top', marginBottom: 12 }}
-                placeholder="Ex: Aide au relevage, verification constantes..." multiline value={report.actions_taken} onChangeText={v => setReport({...report, actions_taken: v})} />
+                placeholder="Ex: Aide au relevage, vérification constantes..." multiline value={report.actions_taken} onChangeText={v => setReport({...report, actions_taken: v})} />
               <TouchableOpacity style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 12 }}
                 onPress={() => setReport({...report, follow_up_needed: !report.follow_up_needed})}>
                 <Icon name={report.follow_up_needed ? 'checkbox' : 'square-outline'} size={22} color={report.follow_up_needed ? '#FF9800' : '#888'} />

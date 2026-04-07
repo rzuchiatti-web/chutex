@@ -190,7 +190,7 @@ export default function HealthReadonlyScreen() {
             { key: 'heart_rate', val: d.heart_rate > 0 ? d.heart_rate : '--', unit: 'bpm', label: 'Rythme cardiaque', status: d.heart_rate > 0 ? 'Mesure recente' : 'Aucune donnee', icon: 'ri-heart-pulse-line', color: '#EF4444' },
             { key: 'spo2', val: d.spo2 > 0 ? `${d.spo2}` : '--', unit: '%', label: 'Saturation O2', status: d.spo2 > 0 ? 'Mesure recente' : 'Aucune donnee', icon: 'ri-drop-line', color: '#6366F1' },
             { key: 'blood_pressure', val: d.blood_pressure?.systolic > 0 && d.blood_pressure?.diastolic > 0 ? `${d.blood_pressure.systolic}/${d.blood_pressure.diastolic}` : '--/--', unit: 'mmHg', label: 'Pression arterielle', status: d.blood_pressure?.systolic > 0 ? 'Mesure recente' : 'Aucune donnee', icon: 'ri-water-flash-line', color: '#8B5CF6' },
-            { key: 'temperature', val: d.temperature > 0 ? `${d.temperature}` : '--', unit: '\u00B0C', label: 'Temperature', status: d.temperature > 0 ? 'Mesure recente' : 'Aucune donnee', icon: 'ri-temp-hot-line', color: '#F59E0B' },
+            { key: 'temperature', val: d.temperature > 0 ? `${d.temperature}` : '--', unit: '\u00B0C', label: 'Température', status: d.temperature > 0 ? 'Mesure recente' : 'Aucune donnee', icon: 'ri-temp-hot-line', color: '#F59E0B' },
           ].map((v, i) => (
             <div key={i} data-testid={`readonly-vital-${v.key}`} onClick={() => goToMetric(v.key)}
               style={{ padding: '12px 14px 10px', borderRadius: 18, background: cardBg, cursor: 'pointer', transition: 'transform 0.12s' } as any}
@@ -288,7 +288,7 @@ export default function HealthReadonlyScreen() {
             <div style={{ flex: 1 } as any}><div style={{ fontSize: 14, fontWeight: 800, color: textColor }}>Historique ECG</div><div style={{ fontSize: 10, color: subColor }}>Electrocardiogramme</div></div>
           </div>
           <div style={{ padding: '0 16px' } as any}>
-            <div style={{ textAlign: 'center', padding: '12px 0', fontSize: 11, color: subColor }}>Aucun ECG enregistre</div>
+            <div style={{ textAlign: 'center', padding: '12px 0', fontSize: 11, color: subColor }}>Aucun ECG enregistré</div>
           </div>
         </div>
 

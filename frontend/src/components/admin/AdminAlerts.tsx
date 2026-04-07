@@ -42,7 +42,7 @@ export default function AdminAlerts({ alerts, active, ivs, analytics, token, mob
                 <i className={a.type === 'sos' ? 'ri-phone-line' : a.type === 'fall' ? 'ri-arrow-down-circle-line' : 'ri-alert-line'} style={{ fontSize: 19, color: '#EF4444' }} />
               </div>
               <div style={{ flex: 1, minWidth: 0 } as any}>
-                <div style={{ fontSize: 14, fontWeight: 700, color: '#1E293B' }}>{a.beneficiary_name || 'Beneficiaire'}</div>
+                <div style={{ fontSize: 14, fontWeight: 700, color: '#1E293B' }}>{a.beneficiary_name || 'Bénéficiaire'}</div>
                 <div style={{ fontSize: 12, color: '#64748B', marginTop: 2 }}>{a.message || a.type}</div>
               </div>
               <div style={{ textAlign: 'right', flexShrink: 0 } as any}>
@@ -59,7 +59,7 @@ export default function AdminAlerts({ alerts, active, ivs, analytics, token, mob
         <div className="adm-card" style={{ padding: 0, overflow: 'hidden' }}>
           <div style={{ overflowX: 'auto' } as any}>
             <table className="adm-table" style={{ minWidth: mob ? 600 : 'auto' } as any}>
-              <thead><tr><th>Beneficiaire</th><th>Type</th><th>Message</th><th>Date</th><th>Statut</th></tr></thead>
+              <thead><tr><th>Bénéficiaire</th><th>Type</th><th>Message</th><th>Date</th><th>Statut</th></tr></thead>
               <tbody>
                 {alerts.slice(0, 30).map((a: any, i: number) => (
                   <tr key={i}>
@@ -81,7 +81,7 @@ export default function AdminAlerts({ alerts, active, ivs, analytics, token, mob
         <div className="adm-card" style={{ padding: 0, overflow: 'hidden' }}>
           <div style={{ overflowX: 'auto' } as any}>
             <table className="adm-table" style={{ minWidth: mob ? 600 : 'auto' } as any}>
-              <thead><tr><th>Intervenant</th><th>Beneficiaire</th><th>Statut</th><th>Date</th></tr></thead>
+              <thead><tr><th>Intervenant</th><th>Bénéficiaire</th><th>Statut</th><th>Date</th></tr></thead>
               <tbody>
                 {ivs.slice(0, 30).map((iv: any, i: number) => {
                   const sc: any = { pending_acceptance: ['#F59E0B', '#FFFBEB'], en_route: ['#3B82F6', '#EFF6FF'], completed: ['#10B981', '#F0FDF4'], cancelled: ['#94A3B8', '#F8FAFC'] };

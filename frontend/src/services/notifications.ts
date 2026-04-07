@@ -79,7 +79,7 @@ export async function registerForPushNotifications(apiUrl: string, token: string
 
     if (Platform.OS === 'android') {
       await N.setNotificationChannelAsync('sos', { name: 'Alertes SOS', importance: N.AndroidImportance.MAX, vibrationPattern: [0, 250, 250, 250], sound: 'default' });
-      await N.setNotificationChannelAsync('health', { name: 'Seuils de sante', importance: N.AndroidImportance.HIGH, sound: 'default' });
+      await N.setNotificationChannelAsync('health', { name: 'Seuils de santé', importance: N.AndroidImportance.HIGH, sound: 'default' });
       await N.setNotificationChannelAsync('reminders', { name: 'Rappels', importance: N.AndroidImportance.DEFAULT, sound: 'default' });
       await N.setNotificationChannelAsync('battery', { name: 'Batterie', importance: N.AndroidImportance.LOW });
     }
@@ -189,7 +189,7 @@ export function startReminderChecker(reminders: any[], token?: string) {
 // ─── Alert Notifications ───
 export function notifyAlert(alertType: string, message: string) {
   const titles: Record<string, string> = {
-    sos: 'SOS - URGENCE', fall: 'Chute detectee', anomaly: 'Anomalie detectee',
+    sos: 'SOS - URGENCE', fall: 'Chute détectée', anomaly: 'Anomalie détectée',
     intervention: 'Intervention requise', guardian_request: 'Demande de gardien',
   };
   sendLocalNotification(titles[alertType] || 'Alerte CHUTEX', message);

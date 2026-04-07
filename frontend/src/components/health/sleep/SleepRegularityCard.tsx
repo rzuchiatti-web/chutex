@@ -68,7 +68,7 @@ export default function SleepRegularityCard({ sleepData, onExplain }: Props) {
       </svg>
       <div style={{ display: 'flex', justifyContent: 'center', gap: 20, marginTop: 8 } as any}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 6 } as any}><div style={{ width: 10, height: 3, borderRadius: 2, background: '#6366F1' } as any} /><span style={{ fontSize: 10, color: '#6B7280', fontWeight: 600 }}>Coucher</span></div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 6 } as any}><div style={{ width: 10, height: 3, borderRadius: 2, background: '#F59E0B' } as any} /><span style={{ fontSize: 10, color: '#6B7280', fontWeight: 600 }}>Reveil</span></div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6 } as any}><div style={{ width: 10, height: 3, borderRadius: 2, background: '#F59E0B' } as any} /><span style={{ fontSize: 10, color: '#6B7280', fontWeight: 600 }}>Réveil</span></div>
       </div>
     </div>
   );

@@ -1,7 +1,7 @@
 import React from 'react';
 
-export const ROLES: any = { beneficiary: 'Beneficiaire', guardian: 'Gardien', admin: 'Admin', teleassistance: 'Teleassistance', prescriber_company: 'SAAD' };
-export const RCOL: any = { beneficiary: '#2563EB', guardian: '#059669', admin: '#7C3AED', teleassistance: '#D97706', prescriber_company: '#EA580C' };
+export const ROLES: any = { beneficiary: 'Bénéficiaire', guardian: 'Gardien', admin: 'Admin', téléassistance: 'Téléassistance', prescriber_company: 'SAAD' };
+export const RCOL: any = { beneficiary: '#2563EB', guardian: '#059669', admin: '#7C3AED', téléassistance: '#D97706', prescriber_company: '#EA580C' };
 
 export function Card({ children, ...props }: any) {
   return <div {...props} style={{ background: '#FFF', borderRadius: 12, border: '1px solid #E5E7EB', padding: 16, ...props.style }}>{children}</div>;

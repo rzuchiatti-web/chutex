@@ -8,7 +8,7 @@ import { Card, HeroCard, SectionHeader, LanguageFlagButton } from './SharedUI';
 import { Icon } from '../WebIcon';
 import { BG_IMAGES } from './constants';
 
-export default function TeleassistanceHome({ token, user }: { token: string; user: any }) {
+export default function TéléassistanceHome({ token, user }: { token: string; user: any }) {
   const router = useRouter();
   const { t } = useI18n();
   const [alerts, setAlerts] = useState<any[]>([]);
@@ -21,7 +21,7 @@ export default function TeleassistanceHome({ token, user }: { token: string; use
     try {
       const [a, su, esc] = await Promise.all([
         apiFetch('/api/alerts', {}, token).catch(() => []),
-        apiFetch('/api/teleassistance/subscribers', {}, token).catch(() => []),
+        apiFetch('/api/téléassistance/subscribers', {}, token).catch(() => []),
         apiFetch('/api/escalation/active', {}, token).catch(() => []),
       ]);
       setAlerts(a); setSubs(su); setActiveEscalations(esc);
@@ -37,7 +37,7 @@ export default function TeleassistanceHome({ token, user }: { token: string; use
 
   if (Platform.OS === 'web') {
     return (
-      <div data-testid="teleassistance-dashboard" style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, display: 'flex', flexDirection: 'column', fontFamily: 'Inter, system-ui, sans-serif', overflow: 'hidden' } as any}>
+      <div data-testid="téléassistance-dashboard" style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, display: 'flex', flexDirection: 'column', fontFamily: 'Inter, system-ui, sans-serif', overflow: 'hidden' } as any}>
         <img src={BG_DASH} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 } as any} />
         <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.45)', zIndex: 1 } as any} />
         <div style={{ flex: 1, overflowY: 'auto', position: 'relative', zIndex: 5, padding: '70px 20px 100px', WebkitOverflowScrolling: 'touch' } as any} data-animate>

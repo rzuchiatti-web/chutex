@@ -9,7 +9,7 @@ import NativePageView from '../src/components/NativePageView';
 
 const BG = 'https://customer-assets.emergentagent.com/job_8afdc991-0ab2-4687-a2a5-438b9a5f0711/artifacts/j2b92wwx_ChatGPT%20Image%2017%20f%C3%A9vr.%202026%2C%2015_59_23.png';
 
-export default function SubscriberDetailScreen() {
+export default function SubscriberDétailScreen() {
   const { subscriberId } = useLocalSearchParams<{ subscriberId: string }>();
   const { token } = useAuth();
   const router = useRouter();
@@ -37,7 +37,7 @@ export default function SubscriberDetailScreen() {
     data.blood_type && { icon: 'ri-drop-line', label: 'Groupe sanguin', value: data.blood_type },
     data.medical_conditions && { icon: 'ri-heart-pulse-line', label: 'Pathologies', value: data.medical_conditions },
     data.allergies && { icon: 'ri-alarm-warning-line', label: 'Allergies', value: data.allergies },
-    data.doctor_name && { icon: 'ri-stethoscope-line', label: 'Medecin', value: data.doctor_name },
+    data.doctor_name && { icon: 'ri-stethoscope-line', label: 'Médecin', value: data.doctor_name },
     data.emergency_contact_name && { icon: 'ri-shield-user-line', label: 'Contact urgence', value: `${data.emergency_contact_name}${data.emergency_contact_phone ? ` — ${data.emergency_contact_phone}` : ''}` },
   ].filter(Boolean);
 

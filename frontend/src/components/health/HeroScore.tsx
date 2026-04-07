@@ -179,7 +179,7 @@ export default function HeroScore({ bioAge, realAge, status, statusColor, ai, su
             )}
             {bodyAgeNora?.factors_negative?.length > 0 && (
               <div style={{ borderRadius: 20, background: 'rgba(245,158,11,0.04)', border: '1px solid rgba(245,158,11,0.1)', padding: '16px', marginBottom: 14 } as any}>
-                <div style={{ fontSize: 10, fontWeight: 700, color: '#F59E0B', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 10 }}>A ameliorer</div>
+                <div style={{ fontSize: 10, fontWeight: 700, color: '#F59E0B', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 10 }}>A améliorer</div>
                 {bodyAgeNora.factors_negative.map((f: string, i: number) => (
                   <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '6px 0' } as any}>
                     <i className="ri-alert-line" style={{ fontSize: 14, color: '#F59E0B' }} />

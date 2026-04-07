@@ -57,7 +57,7 @@ export function ProModals(props: ProModalsProps) {
         {exerciseTemplates.length === 0 ? (
           <div style={{ textAlign: 'center', padding: '24px', color: '#9CA3AF', fontSize: 13 } as any}>
             Aucun exercice dans la bibliotheque.<br/>
-            <span onClick={() => { setModal(null); setTab('library'); }} style={{ color: AC, cursor: 'pointer', fontWeight: 700, marginTop: 8, display: 'inline-block' }}>Creer un exercice</span>
+            <span onClick={() => { setModal(null); setTab('library'); }} style={{ color: AC, cursor: 'pointer', fontWeight: 700, marginTop: 8, display: 'inline-block' }}>Créer un exercice</span>
           </div>
         ) : !modalCtx ? (
           <>
@@ -109,7 +109,7 @@ export function ProModals(props: ProModalsProps) {
               <div style={{ flex: 1 }}><label style={LBL}>Repos (s)</label><input type="number" value={editExForm.rest_seconds} onChange={(e: any) => setEditExForm({ ...editExForm, rest_seconds: +e.target.value })} style={INP} /></div>
             </div>
             <div data-testid="edit-ex-submit" onClick={(editExForm.days || []).length > 0 ? props.updateAssignedExercise : undefined} style={GBTN((editExForm.days || []).length > 0, saving)}>
-              {saving ? 'Enregistrement...' : 'Enregistrer les modifications'}
+              {saving ? 'Enregistrément...' : 'Enregistrér les modifications'}
             </div>
           </>
         )}
@@ -125,7 +125,7 @@ export function ProModals(props: ProModalsProps) {
             <div style={{ marginBottom: 14 }}><label style={LBL}>Heure</label><input type="time" value={editRemForm.time || ''} onChange={(e: any) => setEditRemForm({ ...editRemForm, time: e.target.value })} style={INP} /></div>
             <div style={{ marginBottom: 14 }}><label style={LBL}>Dosage</label><input type="text" value={editRemForm.dosage || ''} onChange={(e: any) => setEditRemForm({ ...editRemForm, dosage: e.target.value })} style={INP} /></div>
             <div data-testid="edit-rem-submit" onClick={(editRemForm.days || []).length > 0 ? props.updateAssignedReminder : undefined} style={GBTN((editRemForm.days || []).length > 0, saving)}>
-              {saving ? 'Enregistrement...' : 'Enregistrer les modifications'}
+              {saving ? 'Enregistrément...' : 'Enregistrér les modifications'}
             </div>
           </>
         )}
@@ -139,7 +139,7 @@ export function ProModals(props: ProModalsProps) {
             <div style={{ fontSize: 12, color: '#9CA3AF', marginBottom: 18 }}>{(editMealForm.meal_type || '').replace('_', ' ')}</div>
             <div style={{ marginBottom: 16 }}><label style={LBL}>Jours de la semaine</label><DaysPicker selected={editMealForm.days || []} onChange={days => setEditMealForm({ ...editMealForm, days })} accent={AC} /></div>
             <div data-testid="edit-meal-submit" onClick={(editMealForm.days || []).length > 0 ? props.updateAssignedMeal : undefined} style={GBTN((editMealForm.days || []).length > 0, saving)}>
-              {saving ? 'Enregistrement...' : 'Enregistrer les modifications'}
+              {saving ? 'Enregistrément...' : 'Enregistrér les modifications'}
             </div>
           </>
         )}
@@ -150,7 +150,7 @@ export function ProModals(props: ProModalsProps) {
         {(() => { const compTemplates = reminderTemplates.filter(t => t.reminder_type !== 'hydration'); return compTemplates.length === 0 ? (
           <div style={{ textAlign: 'center', padding: '24px', color: '#9CA3AF', fontSize: 13 } as any}>
             Aucun complement dans la bibliotheque.<br/>
-            <span onClick={() => { setModal(null); setTab('library'); }} style={{ color: '#F59E0B', cursor: 'pointer', fontWeight: 700, marginTop: 8, display: 'inline-block' }}>Creer un complement</span>
+            <span onClick={() => { setModal(null); setTab('library'); }} style={{ color: '#F59E0B', cursor: 'pointer', fontWeight: 700, marginTop: 8, display: 'inline-block' }}>Créer un complement</span>
           </div>
         ) : !modalCtx ? (
           <>
@@ -209,7 +209,7 @@ export function ProModals(props: ProModalsProps) {
         {(() => { const hydrationTpls = reminderTemplates.filter(t => t.reminder_type === 'hydration'); return hydrationTpls.length === 0 ? (
           <div style={{ textAlign: 'center', padding: '24px', color: '#9CA3AF', fontSize: 13 } as any}>
             Aucun rappel hydratation dans la bibliotheque.<br/>
-            <span onClick={() => { setModal(null); setTab('library'); }} style={{ color: '#38BDF8', cursor: 'pointer', fontWeight: 700, marginTop: 8, display: 'inline-block' }}>Creer un rappel hydratation</span>
+            <span onClick={() => { setModal(null); setTab('library'); }} style={{ color: '#38BDF8', cursor: 'pointer', fontWeight: 700, marginTop: 8, display: 'inline-block' }}>Créer un rappel hydratation</span>
           </div>
         ) : !modalCtx ? (
           <>
@@ -254,7 +254,7 @@ export function ProModals(props: ProModalsProps) {
         {mealTemplates.length === 0 ? (
           <div style={{ textAlign: 'center', padding: '24px', color: '#9CA3AF', fontSize: 13 } as any}>
             Aucun repas dans la bibliotheque.<br/>
-            <span onClick={() => { setModal(null); setTab('library'); }} style={{ color: '#10B981', cursor: 'pointer', fontWeight: 700, marginTop: 8, display: 'inline-block' }}>Creer un repas</span>
+            <span onClick={() => { setModal(null); setTab('library'); }} style={{ color: '#10B981', cursor: 'pointer', fontWeight: 700, marginTop: 8, display: 'inline-block' }}>Créer un repas</span>
           </div>
         ) : !modalCtx ? (
           <>
@@ -331,16 +331,16 @@ export function ProModals(props: ProModalsProps) {
           <div style={{ flex: 1 }}><label style={LBL}>Lip. (g)</label><input type="number" value={mealForm.lipides} onChange={(e: any) => setMealForm({ ...mealForm, lipides: +e.target.value })} style={INP} /></div>
         </div>
         <div style={{ marginBottom: 14 }}><label style={LBL}>Notes</label><input value={mealForm.notes} onChange={(e: any) => setMealForm({ ...mealForm, notes: e.target.value })} style={INP} placeholder="Conseils, variantes..." /></div>
-        <div data-testid="meal-submit" onClick={mealForm.title || mealForm.ingredients.some((i: any) => i.name) ? props.createMealTemplate : undefined} style={GBTN(!!mealForm.title || mealForm.ingredients.some((i: any) => !!i.name), saving)}>{saving ? 'Enregistrement...' : editingTemplateId ? 'Modifier dans la bibliotheque' : 'Enregistrer dans la bibliotheque'}</div>
+        <div data-testid="meal-submit" onClick={mealForm.title || mealForm.ingredients.some((i: any) => i.name) ? props.createMealTemplate : undefined} style={GBTN(!!mealForm.title || mealForm.ingredients.some((i: any) => !!i.name), saving)}>{saving ? 'Enregistrément...' : editingTemplateId ? 'Modifier dans la bibliotheque' : 'Enregistrér dans la bibliotheque'}</div>
       </GlassModal>
 
       {/* New Reminder (Complement / Hydratation enrichie) */}
       <GlassModal open={modal === 'new-rem'} onClose={() => setModal(null)} title={editingTemplateId ? (remForm.reminder_type === 'hydration' ? 'Modifier hydratation' : 'Modifier complement') : (remForm.reminder_type === 'hydration' ? 'Nouvelle hydratation' : 'Nouveau complement')}>
         {remForm.reminder_type === 'hydration' ? (
           <>
-            <div style={{ marginBottom: 14 }}><label style={LBL}>Categorie</label>
+            <div style={{ marginBottom: 14 }}><label style={LBL}>Catégorie</label>
               <select value={remForm.category || ''} onChange={(e: any) => setRemForm({ ...remForm, category: e.target.value })} style={SEL}>
-                <option value="">Choisir une categorie...</option>
+                <option value="">Choisir une catégorie...</option>
                 {HYDRATION_CATEGORIES.map(t => <option key={t} value={t}>{t}</option>)}
               </select>
             </div>
@@ -379,7 +379,7 @@ export function ProModals(props: ProModalsProps) {
             <div style={{ marginBottom: 14 }}><label style={LBL}>Notes / Preparation</label>
               <input value={remForm.notes || ''} onChange={(e: any) => setRemForm({ ...remForm, notes: e.target.value })} style={INP} placeholder="Ex: Mixer tous les ingredients avec des glacons" />
             </div>
-            <div data-testid="rem-submit" onClick={remForm.title ? props.createReminderTemplate : undefined} style={GBTN(!!remForm.title, saving)}>{saving ? 'Enregistrement...' : editingTemplateId ? 'Modifier dans la bibliotheque' : 'Enregistrer dans la bibliotheque'}</div>
+            <div data-testid="rem-submit" onClick={remForm.title ? props.createReminderTemplate : undefined} style={GBTN(!!remForm.title, saving)}>{saving ? 'Enregistrément...' : editingTemplateId ? 'Modifier dans la bibliotheque' : 'Enregistrér dans la bibliotheque'}</div>
           </>
         ) : (
           <>
@@ -390,7 +390,7 @@ export function ProModals(props: ProModalsProps) {
               </select>
             </div>
             {remForm.title === 'Autre' && (
-              <div style={{ marginBottom: 14 }}><label style={LBL}>Nom personnalise</label><input value={remForm.notes} onChange={(e: any) => setRemForm({ ...remForm, notes: e.target.value })} style={INP} placeholder="Nom du complement" /></div>
+              <div style={{ marginBottom: 14 }}><label style={LBL}>Nom personnalisé</label><input value={remForm.notes} onChange={(e: any) => setRemForm({ ...remForm, notes: e.target.value })} style={INP} placeholder="Nom du complement" /></div>
             )}
             <div style={{ marginBottom: 14 }}><label style={LBL}>Description</label>
               <input value={remForm.description || ''} onChange={(e: any) => setRemForm({ ...remForm, description: e.target.value })} style={INP} placeholder="Description du complement" />
@@ -404,7 +404,7 @@ export function ProModals(props: ProModalsProps) {
             <div style={{ marginBottom: 14 }}><label style={LBL}>Notes</label>
               <input value={remForm.notes || ''} onChange={(e: any) => setRemForm({ ...remForm, notes: e.target.value })} style={INP} placeholder="Conseils de prise..." />
             </div>
-            <div data-testid="rem-submit" onClick={remForm.title ? props.createReminderTemplate : undefined} style={GBTN(!!remForm.title, saving)}>{saving ? 'Enregistrement...' : editingTemplateId ? 'Modifier dans la bibliotheque' : 'Enregistrer dans la bibliotheque'}</div>
+            <div data-testid="rem-submit" onClick={remForm.title ? props.createReminderTemplate : undefined} style={GBTN(!!remForm.title, saving)}>{saving ? 'Enregistrément...' : editingTemplateId ? 'Modifier dans la bibliotheque' : 'Enregistrér dans la bibliotheque'}</div>
           </>
         )}
       </GlassModal>
@@ -413,7 +413,7 @@ export function ProModals(props: ProModalsProps) {
       <GlassModal open={modal === 'new-ex-tpl'} onClose={() => setModal(null)} title={editingTemplateId ? "Modifier l'exercice" : "Nouvel exercice"}>
         <ImagePicker value={exTplForm.image} onChange={url => setExTplForm({ ...exTplForm, image: url })} token={token} />
         <div style={{ marginBottom: 14 }}><label style={LBL}>Titre</label><input data-testid="extpl-title" value={exTplForm.title} onChange={(e: any) => setExTplForm({ ...exTplForm, title: e.target.value })} style={INP} placeholder="Ex: Squat bulgare" /></div>
-        <div style={{ marginBottom: 14 }}><label style={LBL}>Description</label><textarea value={exTplForm.description} onChange={(e: any) => setExTplForm({ ...exTplForm, description: e.target.value })} style={{ ...INP, height: 70, resize: 'none' } as any} placeholder="Instructions detaillees..." /></div>
+        <div style={{ marginBottom: 14 }}><label style={LBL}>Description</label><textarea value={exTplForm.description} onChange={(e: any) => setExTplForm({ ...exTplForm, description: e.target.value })} style={{ ...INP, height: 70, resize: 'none' } as any} placeholder="Instructions détaillées..." /></div>
         {/* Video upload */}
         <div style={{ marginBottom: 14 }}>
           <label style={LBL}>Video explicative</label>
@@ -447,7 +447,7 @@ export function ProModals(props: ProModalsProps) {
           )}
         </div>
         <div style={{ display: 'flex', gap: 10, marginBottom: 14 } as any}>
-          <div style={{ flex: 1 }}><label style={LBL}>Categorie</label><select value={exTplForm.category} onChange={(e: any) => setExTplForm({ ...exTplForm, category: e.target.value })} style={SEL}><option value="general">General</option><option value="force">Force</option><option value="cardio">Cardio</option><option value="mobilite">Mobilite</option><option value="equilibre">Equilibre</option><option value="souplesse">Souplesse</option></select></div>
+          <div style={{ flex: 1 }}><label style={LBL}>Catégorie</label><select value={exTplForm.category} onChange={(e: any) => setExTplForm({ ...exTplForm, category: e.target.value })} style={SEL}><option value="general">General</option><option value="force">Force</option><option value="cardio">Cardio</option><option value="mobilite">Mobilite</option><option value="equilibre">Equilibre</option><option value="souplesse">Souplesse</option></select></div>
           <div style={{ flex: 1 }}><label style={LBL}>Difficulte</label><select value={exTplForm.difficulty} onChange={(e: any) => setExTplForm({ ...exTplForm, difficulty: e.target.value })} style={SEL}><option value="facile">Facile</option><option value="moyen">Moyen</option><option value="difficile">Difficile</option></select></div>
         </div>
         {/* Multi-select Muscle Groups */}
@@ -498,7 +498,7 @@ export function ProModals(props: ProModalsProps) {
             </div>
           ))}
         </div>
-        <div data-testid="extpl-submit" onClick={exTplForm.title ? props.createExerciseTemplate : undefined} style={GBTN(!!exTplForm.title, saving)}>{saving ? 'Enregistrement...' : editingTemplateId ? 'Modifier dans la bibliotheque' : 'Enregistrer dans la bibliotheque'}</div>
+        <div data-testid="extpl-submit" onClick={exTplForm.title ? props.createExerciseTemplate : undefined} style={GBTN(!!exTplForm.title, saving)}>{saving ? 'Enregistrément...' : editingTemplateId ? 'Modifier dans la bibliotheque' : 'Enregistrér dans la bibliotheque'}</div>
       </GlassModal>
     </>
   );

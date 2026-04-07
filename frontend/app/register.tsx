@@ -33,7 +33,7 @@ export default function RegisterScreen() {
   const [step, setStep] = useState(0);
   const [error, setError] = useState('');
   const [submitting, setSubmitting] = useState(false);
-  const [phoneVerified, setPhoneVerified] = useState(false);
+  const [phoneVérifiéd, setPhoneVérifiéd] = useState(false);
   const [showBiometric, setShowBiometric] = useState(false);
   const [showNora, setShowNora] = useState(false);
   const [lang, setLang] = useState('fr');
@@ -71,7 +71,7 @@ export default function RegisterScreen() {
   const canNext = () => {
     if (step === 0) return !!role;
     if (step === 1) return true; // RGPD info
-    if (step === 3) return phoneVerified; // SMS verify - auto-advances
+    if (step === 3) return phoneVérifiéd; // SMS verify - auto-advances
     if (role === 'prescriber_company') {
       if (step === 2) return form.structure_name.trim() && form.siret.trim() && form.saad_director_name.trim() && form.phone.trim().length >= 6 && form.password.length >= 6 && form.password === form.confirmPassword && form.acceptTerms;
       return true;
@@ -134,9 +134,9 @@ export default function RegisterScreen() {
   const isLastStep = (role === 'beneficiary' && step === BEN_STEPS) || (role === 'guardian' && step === GUARD_STEPS) || (role === 'prescriber_company' && step === SAAD_STEPS);
   const isVerifyStep = step === 3;
 
-  // After phone verification (step 3 → 4), check for contract pre-fill
+  // After phone vérification (step 3 → 4), check for contract pre-fill
   useEffect(() => {
-    if (step === 4 && role === 'beneficiary' && phoneVerified) {
+    if (step === 4 && role === 'beneficiary' && phoneVérifiéd) {
       const ph = getFullPhone();
       apiFetch(`/api/auth/contract-prefill/${encodeURIComponent(ph)}`).then((res: any) => {
         if (res?.has_contract && res?.prefill) {
@@ -157,7 +157,7 @@ export default function RegisterScreen() {
         }
       }).catch(() => {});
     }
-  }, [step, phoneVerified]);
+  }, [step, phoneVérifiéd]);
 
   if (Platform.OS !== 'web') return <NativePageView path="/register" />;
 
@@ -217,7 +217,7 @@ export default function RegisterScreen() {
           {step === 1 && <RGPDStep />}
           {step === 2 && role === 'prescriber_company' && <SAADStep form={form} u={u} />}
           {step === 2 && role !== 'prescriber_company' && <PhonePasswordStep form={form} u={u} />}
-          {step === 3 && <VerifyPhoneStep phone={getFullPhone()} onVerified={() => { setPhoneVerified(true); if (role === 'prescriber_company') handleRegister(); else setStep(4); }} />}
+          {step === 3 && <VerifyPhoneStep phone={getFullPhone()} onVérifiéd={() => { setPhoneVérifiéd(true); if (role === 'prescriber_company') handleRegister(); else setStep(4); }} />}
           {step === 4 && role === 'beneficiary' && <BeneficiaryInfoStep form={form} u={u} />}
           {step === 5 && role === 'beneficiary' && <MedicalStep form={form} u={u} toggleArr={toggleArr} />}
           {step === 6 && role === 'beneficiary' && <AntecedentsStep form={form} u={u} toggleArr={toggleArr} />}
@@ -226,7 +226,7 @@ export default function RegisterScreen() {
           {step > 0 && !isVerifyStep && (
             <div style={{ marginTop: 24 } as any}>
               <div data-testid="register-next-btn" onClick={() => { if (!canNext()) return; setError(''); if (isLastStep) handleRegister(); else setStep(step + 1); }} style={{ padding: '16px', borderRadius: 999, background: canNext() ? 'rgba(255,255,255,0.12)' : 'rgba(0,0,0,0.15)', border: `1px solid ${canNext() ? 'rgba(255,255,255,0.2)' : 'rgba(255,255,255,0.06)'}`, backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', cursor: canNext() ? 'pointer' : 'not-allowed', textAlign: 'center', fontSize: 15, fontWeight: 800, color: canNext() ? '#FFF' : 'rgba(255,255,255,0.25)', opacity: submitting ? 0.6 : 1 } as any}>
-                {submitting ? 'Creation en cours...' : isLastStep ? 'Creer mon compte' : 'Continuer'}
+                {submitting ? 'Création en cours...' : isLastStep ? 'Créer mon compte' : 'Continuer'}
               </div>
             </div>
           )}

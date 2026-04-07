@@ -28,8 +28,8 @@ const CONTRACT_TEXT = `CONTRAT DE TELEASSISTANCE CHUTEX CARE
 Article 1 - Objet
 Le present contrat a pour objet la mise a disposition d'un service de teleassistance 24h/24, 7j/7, comprenant la fourniture d'equipements connectes (bracelet Elio et/ou gilet Elder) et l'acces a la plateforme de surveillance Chutex Care.
 
-Article 2 - Duree
-Le contrat est conclu pour une duree indeterminee. Il peut etre resilie a tout moment par l'une ou l'autre des parties moyennant un preavis de 30 jours.
+Article 2 - Durée
+Le contrat est conclu pour une durée indeterminee. Il peut etre resilie a tout moment par l'une ou l'autre des parties moyennant un preavis de 30 jours.
 
 Article 3 - Equipements fournis
 Les equipements restent la propriete de Chutex Innovation et doivent etre restitues en cas de resiliation. Le beneficiaire s'engage a en prendre soin et a signaler tout dysfonctionnement.
@@ -38,7 +38,7 @@ Article 4 - Service de teleassistance
 Le service comprend : la reception des alertes 24h/24, le contact telephonique avec le beneficiaire, l'alerte des personnes designees, le declenchement des secours si necessaire.
 
 Article 5 - Tarification
-Le prix mensuel est fixe selon la formule choisie. Le prelevement est effectue mensuellement par carte bancaire ou prelevement SEPA. Le service ouvre droit a un credit d'impot de 50% au titre des services a la personne.
+Le prix mensuel est fixe selon la formule choisie. Le prélèvement est effectue mensuellement par carte bancaire ou prélèvement SEPA. Le service ouvre droit a un credit d'impot de 50% au titre des services a la personne.
 
 Article 6 - Protection des donnees
 Les donnees personnelles collectees sont traitees conformement au RGPD. Le beneficiaire dispose d'un droit d'acces, de rectification et de suppression de ses donnees.
@@ -111,7 +111,7 @@ export default function SubscriptionPage() {
         setCheckoutUrl(c.checkout_url);
         window.location.href = c.checkout_url;
       } else {
-        setError('Erreur lors de la creation du paiement');
+        setError('Erreur lors de la création du paiement');
       }
     } catch (e: any) { setError(e.message); }
     setLoading(false);
@@ -130,7 +130,7 @@ export default function SubscriptionPage() {
 
   if (Platform.OS !== 'web') return <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#FFF' }}><Text style={{ color: '#000', fontSize: 16 }}>Ouvrez dans un navigateur.</Text></View>;
 
-  const STEPS = ['Formule', 'Decouvrir', 'Beneficiaire', 'Logement', 'Gardiens', 'Livraison', 'Contrat & Paiement', 'Confirmation'];
+  const STEPS = ['Formule', 'Decouvrir', 'Bénéficiaire', 'Logement', 'Gardiens', 'Livraison', 'Contrat & Paiement', 'Confirmation'];
   const canNext = () => { if (step === 1) return !!selectedPlan; if (step === 3) return !!(ben.first_name && ben.last_name && ben.phone && subType); if (step === 4) return !!housing.type; if (step === 5) return guardians.length > 0 && !!(guardians[0].first_name && guardians[0].phone) && consent; return true; };
 
   const Chip = ({ on, children, onClick }: any) => <div onClick={onClick} style={{ padding: '8px 16px', borderRadius: C.pill, background: on ? `${V}12` : '#FFF', border: `1.5px solid ${on ? V : C.border}`, cursor: 'pointer', fontSize: 13, fontWeight: 600, color: on ? V : C.muted, transition: 'all 0.15s' }}>{children}</div>;
@@ -138,7 +138,7 @@ export default function SubscriptionPage() {
 
   const renderStep = () => {
     switch (step) {
-      case 1: return (<div><div style={{ textAlign: 'center', marginBottom: 36 }}><div style={{ fontSize: 12, fontWeight: 700, color: V, letterSpacing: 2, textTransform: 'uppercase', marginBottom: 8 }}>Teleassistance Chutex Care</div><div style={{ fontSize: 26, fontWeight: 900, color: C.text, marginBottom: 6 }}>Choisissez votre formule</div><div style={{ fontSize: 14, color: C.muted }}>Protection et tranquillite pour vos proches, 24h/24.</div></div>
+      case 1: return (<div><div style={{ textAlign: 'center', marginBottom: 36 }}><div style={{ fontSize: 12, fontWeight: 700, color: V, letterSpacing: 2, textTransform: 'uppercase', marginBottom: 8 }}>Téléassistance Chutex Care</div><div style={{ fontSize: 26, fontWeight: 900, color: C.text, marginBottom: 6 }}>Choisissez votre formule</div><div style={{ fontSize: 14, color: C.muted }}>Protection et tranquillite pour vos proches, 24h/24.</div></div>
         {plans.map(p => { const img = p.id === 'bracelet' ? IMG_BRACELET : IMG_GILET; const on = selectedPlan === p.id; return (
           <div key={p.id} data-testid={`plan-${p.id}`} onClick={() => { setSelectedPlan(p.id); setStep(2); }} style={{ padding: 0, borderRadius: C.r, background: '#FFF', border: `2px solid ${on ? V : C.border}`, cursor: 'pointer', marginBottom: 16, overflow: 'hidden', transition: 'all 0.2s', boxShadow: on ? `0 0 0 3px ${V}20` : '0 2px 8px rgba(0,0,0,0.04)' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 16, padding: '20px' }}>
@@ -147,7 +147,7 @@ export default function SubscriptionPage() {
                 <div style={{ fontSize: 16, fontWeight: 800, color: C.text, marginBottom: 4 }}>{p.name}</div>
                 <div style={{ fontSize: 13, color: C.muted, marginBottom: 8, lineHeight: 1.4 }}>{p.description}</div>
                 <div style={{ fontSize: 22, fontWeight: 900, color: V }}>{p.price.toFixed(2).replace('.', ',')} <span style={{ fontSize: 12, fontWeight: 500, color: C.muted }}>EUR/mois</span></div>
-                <div style={{ fontSize: 12, color: C.green, fontWeight: 600 }}>soit {p.price_after_credit.toFixed(2).replace('.', ',')} EUR apres credit d'impot*</div>
+                <div style={{ fontSize: 12, color: C.green, fontWeight: 600 }}>soit {p.price_after_credit.toFixed(2).replace('.', ',')} EUR après credit d'impot*</div>
               </div>
             </div>
           </div>); })}
@@ -158,12 +158,12 @@ export default function SubscriptionPage() {
           <div style={{ width: 120, height: 120, borderRadius: 24, background: C.card, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', marginBottom: 16 }}><img src={selectedPlan === 'bracelet' ? IMG_BRACELET : IMG_GILET} alt="" style={{ width: '75%', height: '75%', objectFit: 'contain' } as any} /></div>
           <div style={{ fontSize: 22, fontWeight: 900, color: C.text, marginBottom: 4 }}>{plan.name}</div>
           <div style={{ fontSize: 32, fontWeight: 900, color: V }}>{plan.price.toFixed(2).replace('.', ',')} <span style={{ fontSize: 14, color: C.muted }}>EUR/mois</span></div>
-          <div style={{ fontSize: 13, color: C.green, fontWeight: 600 }}>soit {plan.price_after_credit.toFixed(2).replace('.', ',')} EUR/mois apres credit d'impot 50%</div>
+          <div style={{ fontSize: 13, color: C.green, fontWeight: 600 }}>soit {plan.price_after_credit.toFixed(2).replace('.', ',')} EUR/mois après credit d'impot 50%</div>
         </div>
         <div style={{ background: C.card, borderRadius: C.r, padding: 20, marginBottom: 16 }}>
           <div style={{ fontSize: 14, fontWeight: 800, color: C.text, marginBottom: 14 }}>Votre protection au quotidien</div>
           {[
-            { icon: '🔔', title: 'Teleassistance 24h/24, 7j/7', desc: 'Une equipe de professionnels a votre ecoute jour et nuit, prete a intervenir en cas de besoin.' },
+            { icon: '🔔', title: 'Téléassistance 24h/24, 7j/7', desc: 'Une equipe de professionnels a votre ecoute jour et nuit, prete a intervenir en cas de besoin.' },
             { icon: '📲', title: 'Detection de chute automatique', desc: 'Le bracelet detecte les chutes et envoie une alerte meme si vous ne pouvez pas appuyer sur le bouton.' },
             { icon: '❤️', title: 'Suivi cardiaque en continu', desc: 'Frequence cardiaque, SpO2, tension — toutes vos constantes suivies et partagees avec vos proches.' },
             { icon: '🆘', title: 'Bouton SOS', desc: 'Un simple appui pour alerter instantanement la plateforme et vos gardiens.' },
@@ -184,7 +184,7 @@ export default function SubscriptionPage() {
         </div></div>) : null;
 
       case 3: return (<div>
-        <div style={{ fontSize: 20, fontWeight: 800, color: C.text, marginBottom: 4 }}>Beneficiaire</div>
+        <div style={{ fontSize: 20, fontWeight: 800, color: C.text, marginBottom: 4 }}>Bénéficiaire</div>
         <div style={{ fontSize: 13, color: C.muted, marginBottom: 20 }}>Pour qui souscrivez-vous ?</div>
         <div style={{ display: 'flex', gap: 10, marginBottom: 20 }}>
           {[{v:'self',l:'Pour moi-meme'},{v:'relative',l:'Pour un proche'}].map(o => (
@@ -211,7 +211,7 @@ export default function SubscriptionPage() {
         <div style={{ display: 'flex', gap: 10, marginBottom: 20 }}>{HOUSING_TYPES.map(t => <Chip key={t} on={housing.type===t} onClick={() => setHousing({...housing, type: t})}>{t}</Chip>)}</div>
         {housing.type && (<div style={{ background: C.card, borderRadius: C.r, padding: 20 }}>
           {housing.type === 'Appartement' && (<><div style={row}><div style={{flex:1}}><label style={lbl}>Etage</label><input value={housing.floor} onChange={e => setHousing({...housing, floor: e.target.value})} style={inp} placeholder="RDC, 1er, 2e..." /></div><div style={{flex:1}}><label style={lbl}>Porte / Batiment</label><input value={housing.door} onChange={e => setHousing({...housing, door: e.target.value})} style={inp} placeholder="Porte droite, Bat. B" /></div></div><div style={{height:12}} /><label style={lbl}>Code d'acces immeuble</label><input value={housing.access_code} onChange={e => setHousing({...housing, access_code: e.target.value})} style={inp} placeholder="1234A ou digicode" /><div style={{height:16}} /></>)}
-          {housing.type === 'Residence senior' && (<><label style={lbl}>Numero de chambre / logement</label><input value={housing.door} onChange={e => setHousing({...housing, door: e.target.value})} style={inp} placeholder="Chambre 12, Logement B3..." /><div style={{height:12}} /><label style={lbl}>Code d'acces residence</label><input value={housing.access_code} onChange={e => setHousing({...housing, access_code: e.target.value})} style={inp} placeholder="Code ou badge" /><div style={{height:16}} /></>)}
+          {housing.type === 'Residence senior' && (<><label style={lbl}>Numéro de chambre / logement</label><input value={housing.door} onChange={e => setHousing({...housing, door: e.target.value})} style={inp} placeholder="Chambre 12, Logement B3..." /><div style={{height:12}} /><label style={lbl}>Code d'acces residence</label><input value={housing.access_code} onChange={e => setHousing({...housing, access_code: e.target.value})} style={inp} placeholder="Code ou badge" /><div style={{height:16}} /></>)}
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '14px 0', borderTop: `1px solid ${C.border}` }}>
             <div><div style={{ fontSize: 14, fontWeight: 700, color: C.text }}>Coffre a cles</div><div style={{ fontSize: 12, color: C.muted }}>Facilite l'acces des secours</div></div>
             <div style={{ display: 'flex', gap: 8 }}>{[{v:true,l:'Oui'},{v:false,l:'Non'}].map(o => <Chip key={String(o.v)} on={housing.key_safe===o.v} onClick={() => setHousing({...housing, key_safe: o.v, key_safe_sell:false})}>{o.l}</Chip>)}</div>
@@ -243,7 +243,7 @@ export default function SubscriptionPage() {
             <div style={{height:10}} />
             <div style={row}><div style={{flex:2}}><label style={lbl}>Ville</label><input value={g.city} onChange={e=>{const u=[...guardians];u[i]={...u[i],city:e.target.value};setGuardians(u)}} style={inp} placeholder="Ville" /></div><div style={{flex:1}}><label style={lbl}>Code postal</label><input value={g.postal_code} onChange={e=>{const u=[...guardians];u[i]={...u[i],postal_code:e.target.value};setGuardians(u)}} style={inp} placeholder="75001" /></div></div>
             <div style={{height:10}} />
-            <label style={lbl}>Lien avec le beneficiaire<span style={req}>*</span></label>
+            <label style={lbl}>Lien avec le bénéficiaire<span style={req}>*</span></label>
             <select value={g.relationship} onChange={e=>{const u=[...guardians];u[i]={...u[i],relationship:e.target.value};setGuardians(u)}} style={sel}><option value="">Choisir...</option>{RELS.map(r => <option key={r} value={r}>{r}</option>)}</select>
             <div style={{height:10}} />
             <div style={{ display: 'flex', gap: 12 }}>
@@ -286,7 +286,7 @@ export default function SubscriptionPage() {
         <div style={{height:16}} />
         <label style={lbl}>Personne a facturer</label>
         <div style={{ display: 'flex', gap: 10, marginBottom: 16, flexWrap: 'wrap' }}>
-          <Chip on={billing.person==='beneficiary'} onClick={()=>setBilling({...billing,person:'beneficiary',guardian_index:0})}>{ben.first_name||'Beneficiaire'}</Chip>
+          <Chip on={billing.person==='beneficiary'} onClick={()=>setBilling({...billing,person:'beneficiary',guardian_index:0})}>{ben.first_name||'Bénéficiaire'}</Chip>
           {guardians.map((g,i)=><Chip key={i} on={billing.person==='guardian'&&billing.guardian_index===i} onClick={()=>setBilling({...billing,person:'guardian',guardian_index:i})}>{g.first_name||`Gardien ${i+1}`}</Chip>)}
         </div>
         <div style={{ background: C.card, borderRadius: C.r, padding: 16, marginBottom: 16 }}>
@@ -302,7 +302,7 @@ export default function SubscriptionPage() {
             <div style={{ fontSize: 12, color: C.muted }}>Vous allez etre redirige vers la page de paiement securisee.</div>
           </div>
           <div data-testid="confirm-pay-btn" onClick={handleConfirmPayment} style={{ padding: 16, borderRadius: C.pill, background: loading ? C.card : V, color: '#FFF', cursor: loading ? 'wait' : 'pointer', textAlign: 'center', fontSize: 15, fontWeight: 800, opacity: loading ? 0.6 : 1, boxShadow: loading ? 'none' : `0 4px 14px ${V}40` }}>{loading ? 'Traitement en cours...' : `Payer ${plan?.price.toFixed(2).replace('.',',')} EUR/mois`}</div>
-          <div style={{ textAlign: 'center', marginTop: 8, fontSize: 11, color: C.light }}>Abonnement mensuel — CB ou prelevement SEPA</div>
+          <div style={{ textAlign: 'center', marginTop: 8, fontSize: 11, color: C.light }}>Abonnement mensuel — CB ou prélèvement SEPA</div>
         </div>)}
         {paymentDone && <div style={{ padding: 16, borderRadius: C.r, background: `${C.green}10`, border: `1px solid ${C.green}30`, textAlign: 'center', marginBottom: 16 }}><span style={{ fontSize: 14, fontWeight: 700, color: C.green }}>Paiement confirme !</span></div>}
         {error && <div style={{ padding: 12, borderRadius: 10, background: '#FEF2F2', border: '1px solid #FECACA', marginBottom: 14, fontSize: 13, color: '#DC2626', textAlign: 'center' }}>{error}</div>}

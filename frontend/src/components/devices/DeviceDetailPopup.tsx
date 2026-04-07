@@ -14,7 +14,7 @@ interface DeviceDetailPopupProps {
   onScaleWeighing: () => void;
 }
 
-export function DeviceDetailPopup({ deviceType, device, weighings, removing, onClose, onRemove, onLaunchScan, onScaleWeighing }: DeviceDetailPopupProps) {
+export function DeviceDétailPopup({ deviceType, device, weighings, removing, onClose, onRemove, onLaunchScan, onScaleWeighing }: DeviceDetailPopupProps) {
   const router = useRouter();
   const meta = DEVICE_META[deviceType];
   const isVest = deviceType === 'vest';

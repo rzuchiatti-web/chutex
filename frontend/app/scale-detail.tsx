@@ -33,7 +33,7 @@ function MiniChart({ data, color, width: chartW, height: chartH }: { data: numbe
 
 const bodyTypeLabel = (t: number) => ['', 'Maigre', 'Mince', 'Normal', 'Muscle+', 'Athletique', 'Costaud', 'Enrobe', 'Obese', 'Obese+'][Math.min(Math.max(Math.round(t), 1), 9)];
 
-export default function ScaleDetailScreen() {
+export default function ScaleDétailScreen() {
   const { colors, isDark } = useTheme();
   const { token, user } = useAuth();
   const router = useRouter();
@@ -155,7 +155,7 @@ export default function ScaleDetailScreen() {
       apiFetch('/api/devices/scale/link', { method: 'POST', body: JSON.stringify({ mac: deviceId, name: deviceName }) }, token).catch(() => {});
     } else {
       setBleState('idle');
-      Alert.alert('Erreur', 'Impossible de se connecter a la balance. Verifiez qu\'elle est allumee et a proximite.');
+      Alert.alert('Erreur', 'Impossible de se connecter a la balance. Vérifiéz qu\'elle est allumee et a proximite.');
     }
   };
 
@@ -184,9 +184,9 @@ export default function ScaleDetailScreen() {
     if (wDiff > 3) alerts.push(`Variation de poids importante : ${wDiff > 0 ? '+' : ''}${(measurement.weight - prev.weight).toFixed(1)} kg`);
     const fatDiff = Math.abs((measurement.body_fat_pct || 0) - (prev.body_fat_pct || 0));
     if (fatDiff > 3) alerts.push(`Masse grasse : variation de ${fatDiff.toFixed(1)}%`);
-    if (measurement.bmi > 30) alerts.push(`IMC eleve (${measurement.bmi}) - Consultez votre medecin`);
+    if (measurement.bmi > 30) alerts.push(`IMC élevé (${measurement.bmi}) - Consultez votre medecin`);
     if (measurement.bmi < 18.5) alerts.push(`IMC faible (${measurement.bmi}) - Consultez votre medecin`);
-    if (measurement.visceral_fat > 12) alerts.push(`Graisse viscerale elevee (${measurement.visceral_fat})`);
+    if (measurement.visceral_fat > 12) alerts.push(`Graisse viscerale élevée (${measurement.visceral_fat})`);
     if (alerts.length > 0) {
       Alert.alert('Alerte Sante', alerts.join('\n\n'), [{ text: 'Compris', style: 'default' }]);
     }
@@ -415,7 +415,7 @@ export default function ScaleDetailScreen() {
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4, marginTop: 6 }}>
                 <Icon name={diff('weight') > 0 ? 'trending-up' : 'trending-down'} size={16} color={diff('weight') > 0 ? '#E53935' : '#4CAF50'} />
                 <Text style={{ fontSize: 13, fontWeight: '700', color: diff('weight') > 0 ? '#E53935' : '#4CAF50' }}>{diff('weight') > 0 ? '+' : ''}{diff('weight').toFixed(1)} kg</Text>
-                <Text style={{ fontSize: 11, color: '#6B7280' }}>vs precedent</Text>
+                <Text style={{ fontSize: 11, color: '#6B7280' }}>vs précédent</Text>
               </View>
             )}
           </GC>
@@ -466,7 +466,7 @@ export default function ScaleDetailScreen() {
             </GC>
           )}
 
-          {/* Detailed metrics - ALL 30+ displayed always */}
+          {/* Détailed metrics - ALL 30+ displayed always */}
           <GC>
             <Text style={{ fontSize: 13, fontWeight: '800', color: '#111827', marginBottom: 4 }}>Composition corporelle complete</Text>
             <Text style={{ fontSize: 10, color: '#6B7280', marginBottom: 12 }}>{[
@@ -489,13 +489,13 @@ export default function ScaleDetailScreen() {
               { icon: 'nutrition-outline', label: 'Proteines', value: latest.protein_pct, unit: '%', color: '#FF5722' },
               { icon: 'heart-outline', label: 'Graisse viscerale', value: latest.visceral_fat, unit: '', color: '#E91E63' },
               { icon: 'layers-outline', label: 'Graisse sous-cutanee', value: latest.subcutaneous_fat, unit: '%', color: '#795548' },
-              { icon: 'heart-outline', label: 'Metabolisme basal', value: latest.basal_metabolism, unit: 'kcal', color: '#E91E63' },
+              { icon: 'heart-outline', label: 'Métabolisme basal', value: latest.basal_metabolism, unit: 'kcal', color: '#E91E63' },
               { icon: 'person-outline', label: 'Age corporel', value: latest.body_age, unit: 'ans', color: '#9C27B0' },
               { icon: 'star-outline', label: 'Score sante', value: latest.health_score, unit: '/100', color: '#FFB300' },
               { icon: 'body-outline', label: 'Masse maigre', value: latest.lean_body_mass, unit: 'kg', color: '#009688' },
               { icon: 'trophy-outline', label: 'Poids ideal', value: latest.ideal_weight, unit: 'kg', color: '#10B981' },
-              { icon: 'trending-up-outline', label: 'Controle graisse', value: latest.fat_control_kg, unit: 'kg', color: '#FF9800' },
-              { icon: 'fitness-outline', label: 'Controle muscle', value: latest.muscle_control_kg, unit: 'kg', color: '#10B981' },
+              { icon: 'trending-up-outline', label: 'Contrôle graisse', value: latest.fat_control_kg, unit: 'kg', color: '#FF9800' },
+              { icon: 'fitness-outline', label: 'Contrôle muscle', value: latest.muscle_control_kg, unit: 'kg', color: '#10B981' },
               { icon: 'options-outline', label: 'Type corporel', value: latest.body_type ? bodyTypeLabel(latest.body_type) : null, unit: '', color: '#607D8B' },
               { icon: 'bar-chart-outline', label: 'Niveau d\'obesite', value: latest.obesity_level, unit: '', color: '#FF5722' },
               { icon: 'pulse-outline', label: 'Frequence cardiaque', value: latest.heart_rate, unit: 'bpm', color: '#E53935' },
@@ -577,7 +577,7 @@ export default function ScaleDetailScreen() {
             {foundDevices.length === 0 && bleState !== 'scanning' && bleState !== 'connecting' && (
               <View style={{ alignItems: 'center', paddingVertical: 24 }}>
                 <Icon name="search-outline" size={36} color="#CCC" />
-                <Text style={{ fontSize: 13, color: '#6B7280', marginTop: 8, textAlign: 'center' }}>Aucune balance trouvee. Verifiez qu'elle est allumee.</Text>
+                <Text style={{ fontSize: 13, color: '#6B7280', marginTop: 8, textAlign: 'center' }}>Aucune balance trouvee. Vérifiéz qu'elle est allumee.</Text>
                 <TouchableOpacity onPress={startScan} style={{ backgroundColor: '#2196F3', borderRadius: 9999, paddingVertical: 10, paddingHorizontal: 24, marginTop: 12 }}>
                   <Text style={{ color: '#FFF', fontSize: 13, fontWeight: '700' }}>Relancer la recherche</Text>
                 </TouchableOpacity>

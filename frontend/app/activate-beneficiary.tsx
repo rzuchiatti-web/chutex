@@ -43,7 +43,7 @@ export default function ActivateBeneficiaryScreen() {
         emergency_contact_name: ecName, emergency_contact_phone: ecPhone, doctor_name: doctorName,
       }) }, token);
       await refreshUser();
-      Alert.alert('Espace beneficiaire active', 'Votre espace beneficiaire est maintenant accessible.');
+      Alert.alert('Espace bénéficiaire activé', 'Votre espace bénéficiaire est maintenant accessible.');
       router.back();
     } catch (e: any) { Alert.alert('Erreur', e.message); } finally { setSaving(false); }
   };
@@ -110,7 +110,7 @@ export default function ActivateBeneficiaryScreen() {
             <Text style={{ fontSize: 18, fontWeight: '700', color: '#111827', marginBottom: 20 }}>Informations medicales</Text>
             <WebInput label="Allergies connues" val={allergies} onChange={setAllergies} placeholder="Penicilline, arachides..." />
             <WebInput label="Pathologies" val={medConditions} onChange={setMedConditions} placeholder="Diabete, hypertension..." />
-            <WebInput label="Medecin traitant" val={doctorName} onChange={setDoctorName} placeholder="Dr. Dupont" />
+            <WebInput label="Médecin traitant" val={doctorName} onChange={setDoctorName} placeholder="Dr. Dupont" />
             <Text style={{ fontSize: 16, fontWeight: '700', color: '#111827', marginTop: 8, marginBottom: 16 }}>Contact d'urgence</Text>
             <WebInput label="Nom du contact" val={ecName} onChange={setEcName} placeholder="Marie Dupont" />
             <WebInput label="Telephone urgence" val={ecPhone} onChange={setEcPhone} placeholder="06 98 76 54 32" type="tel" />

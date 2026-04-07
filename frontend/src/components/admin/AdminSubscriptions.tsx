@@ -33,8 +33,8 @@ export default function AdminSubscriptions({ subs, prescs, invites, rgpd, emails
         <div>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 } as any}>
             <span style={{ fontSize: 14, fontWeight: 700, color: '#1E293B' }}>Abonnements ({subs.length})</span>
-            <div onClick={() => { const ph = prompt('Telephone beneficiaire'); if (ph) apiFetch('/api/admin/subscriptions', { method: 'POST', body: JSON.stringify({ beneficiary_phone: ph, subscription_type: 'care', source: 'admin' }) }, token).then(() => { alert('Cree'); load(); }).catch((e: any) => alert(e.message)); }} className="adm-btn" style={{ background: '#7C3AED', color: '#FFF' }}>
-              <i className="ri-add-line" style={{ fontSize: 14 }} />Creer
+            <div onClick={() => { const ph = prompt('Telephone bénéficiaire'); if (ph) apiFetch('/api/admin/subscriptions', { method: 'POST', body: JSON.stringify({ beneficiary_phone: ph, subscription_type: 'care', source: 'admin' }) }, token).then(() => { alert('Cree'); load(); }).catch((e: any) => alert(e.message)); }} className="adm-btn" style={{ background: '#7C3AED', color: '#FFF' }}>
+              <i className="ri-add-line" style={{ fontSize: 14 }} />Créer
             </div>
           </div>
           <div className="adm-card" style={{ padding: 0, overflow: 'hidden' }}>
@@ -63,7 +63,7 @@ export default function AdminSubscriptions({ subs, prescs, invites, rgpd, emails
         <div className="adm-card" style={{ padding: 0, overflow: 'hidden' }}>
           <div style={{ overflowX: 'auto' } as any}>
             <table className="adm-table" style={{ minWidth: mob ? 500 : 'auto' } as any}>
-              <thead><tr><th>Beneficiaire</th><th>Prescripteur</th><th>Statut</th><th>Date</th></tr></thead>
+              <thead><tr><th>Bénéficiaire</th><th>Prescripteur</th><th>Statut</th><th>Date</th></tr></thead>
               <tbody>
                 {prescs.slice(0, 30).map((p: any, i: number) => (
                   <tr key={i}>

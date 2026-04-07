@@ -138,7 +138,7 @@ export default function AuthScreen() {
                     <div style={{ width: 56, height: 56, borderRadius: 16, background: forgotStep === 2 ? 'rgba(16,185,129,0.1)' : 'rgba(245,158,11,0.1)', border: `1px solid ${forgotStep === 2 ? 'rgba(16,185,129,0.2)' : 'rgba(245,158,11,0.2)'}`, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', marginBottom: 14 } as any}>
                       <i className={forgotStep === 0 ? 'ri-lock-unlock-line' : forgotStep === 1 ? 'ri-shield-keyhole-line' : 'ri-check-line'} style={{ fontSize: 28, color: forgotStep === 2 ? '#10B981' : '#F59E0B' }} />
                     </div>
-                    <div style={{ fontSize: 22, fontWeight: 900, color: '#FFF', marginBottom: 8 }}>{forgotStep === 0 ? t('forgot_password_title') : forgotStep === 1 ? t('verification_code_title') : t('new_password_title')}</div>
+                    <div style={{ fontSize: 22, fontWeight: 900, color: '#FFF', marginBottom: 8 }}>{forgotStep === 0 ? t('forgot_password_title') : forgotStep === 1 ? t('vérification_code_title') : t('new_password_title')}</div>
                     <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.35)', lineHeight: 1.5 }}>{forgotStep === 0 ? t('enter_phone_sms') : forgotStep === 1 ? t('enter_6digit') : t('choose_new_pw')}</div>
                     {/* Step dots */}
                     <div style={{ display: 'flex', justifyContent: 'center', gap: 6, marginTop: 14 } as any}>

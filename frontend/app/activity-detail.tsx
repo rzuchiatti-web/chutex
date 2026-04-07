@@ -96,7 +96,7 @@ function HorizontalCalendar({ selectedDate, onSelect }: { selectedDate: Date; on
   );
 }
 
-export default function ActivityDetailPage() {
+export default function ActivityDétailPage() {
   const { token } = useAuth();
   const router = useRouter();
   const [d, setD] = useState<any>(null);
@@ -195,7 +195,7 @@ export default function ActivityDetailPage() {
     recPct = Math.max(10, Math.min(100, s));
   }
   const recCol = recPct >= 80 ? G : recPct >= 60 ? CY : recPct >= 40 ? A : R;
-  const recLabel = recPct >= 80 ? 'Optimale' : recPct >= 60 ? 'Bonne' : recPct >= 40 ? 'Moderee' : 'Faible';
+  const recLabel = recPct >= 80 ? 'Optimale' : recPct >= 60 ? 'Bonne' : recPct >= 40 ? 'Modérée' : 'Faible';
   const recMinutes = Math.round((100 - recPct) * 14.4);
   const recH = Math.floor(recMinutes / 60);
   const recM = recMinutes % 60;
@@ -215,8 +215,8 @@ export default function ActivityDetailPage() {
             <div style={{ display: 'flex', alignItems: 'center', gap: 14 } as any}>
               <div data-testid="back-button" onClick={() => router.back()} style={{ width: 44, height: 44, borderRadius: 999, background: 'rgba(255,255,255,0.12)', border: '1px solid rgba(255,255,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', flexShrink: 0 } as any}><i className="ri-arrow-left-line" style={{ fontSize: 18, color: '#FFF' }} /></div>
               <div style={{ flex: 1, textAlign: 'center' } as any}>
-                <div style={{ fontSize: 22, fontWeight: 900, color: '#FFF' }}>Activite du jour</div>
-                <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.5)', marginTop: 4 }}>Suivi de votre activite physique</div>
+                <div style={{ fontSize: 22, fontWeight: 900, color: '#FFF' }}>Activité du jour</div>
+                <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.5)', marginTop: 4 }}>Suivi de votre activité physique</div>
               </div>
               <div style={{ width: 44 } as any} />
             </div>
@@ -233,7 +233,7 @@ export default function ActivityDetailPage() {
           {!loading && (
             <>
               {/* Nora Activity Analysis */}
-              <NoraButton label="Analyse de l'activite" sublabel="Analyse par Nora de votre activite physique" onClick={() => setShowNoraActivity(true)} />
+              <NoraButton label="Analyse de l'activité" sublabel="Analyse par Nora de votre activité physique" onClick={() => setShowNoraActivity(true)} />
 
               {/* ── STREAK ── */}
               {st.current_streak > 0 && <div style={{ textAlign: 'center', marginBottom: 14 } as any}><div style={{ display: 'inline-flex', alignItems: 'center', gap: 5, padding: '4px 12px', borderRadius: 999, background: 'rgba(245,158,11,0.1)' } as any}><i className="ri-fire-fill" style={{ fontSize: 11, color: A }} /><span style={{ fontSize: 11, fontWeight: 900, color: A }}>{st.current_streak}j consecutifs</span></div></div>}
@@ -280,7 +280,7 @@ export default function ActivityDetailPage() {
               <div data-testid="card-recovery" style={{ borderRadius: 18, background: '#F4F4F5', padding: '16px 18px', marginBottom: 10 } as any}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 14 } as any}>
                   <i className="ri-battery-charge-line" style={{ fontSize: 14, color: recCol }} />
-                  <span style={{ fontSize: 13, fontWeight: 800, color: '#111' }}>Recuperation</span>
+                  <span style={{ fontSize: 13, fontWeight: 800, color: '#111' }}>Récupération</span>
                   <div onClick={() => setExplainMetric('recovery')} style={{ width: 28, height: 28, borderRadius: 999, background: '#FFF', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', flexShrink: 0, marginLeft: 'auto' } as any}><i className="ri-information-line" style={{ fontSize: 14, color: recCol }} /></div>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 16 } as any}>
@@ -292,7 +292,7 @@ export default function ActivityDetailPage() {
                       <span style={{ fontSize: 12, fontWeight: 700, color: recCol }}>{recLabel}</span>
                     </div>
                     <div style={{ fontSize: 12, color: '#6B7280', lineHeight: 1.6 }}>
-                      {recPct >= 80 ? 'Votre corps est bien repose. Vous pouvez vous entrainer intensement.' : recPct >= 60 ? 'Recuperation correcte. Activite moderee conseillee.' : recPct >= 40 ? 'Recuperation en cours. Privilegiez la marche douce.' : 'Repos necessaire. Evitez les efforts intenses.'}
+                      {recPct >= 80 ? 'Votre corps est bien reposé. Vous pouvez vous entraîner intensément.' : recPct >= 60 ? 'Récupération correcte. Activité modérée conseillée.' : recPct >= 40 ? 'Récupération en cours. Privilégiez la marche douce.' : 'Repos nécessaire. Évitez les efforts intenses.'}
                     </div>
                   </div>
                 </div>
@@ -320,7 +320,7 @@ export default function ActivityDetailPage() {
                       <span style={{ fontSize: 10, color: '#9CA3AF' }}>ml/kg/min</span>
                     </div>
                     <div style={{ fontSize: 12, color: '#6B7280', lineHeight: 1.6 }}>
-                      {vo2 >= 40 ? 'Votre capacite aerobique est excellente pour votre age.' : vo2 >= 30 ? 'Bonne capacite aerobique. Continuez vos efforts.' : vo2 >= 20 ? 'Capacite aerobique moyenne. L\'exercice regulier l\'ameliorera.' : vo2 > 0 ? 'Capacite aerobique a ameliorer. La marche quotidienne vous aidera.' : 'Mesure en attente de donnees suffisantes.'}
+                      {vo2 >= 40 ? 'Votre capacité aérobique est excellente pour votre age.' : vo2 >= 30 ? 'Bonne capacité aérobique. Continuez vos efforts.' : vo2 >= 20 ? 'Capacité aérobique moyenne. L\'exercice régulier l\'améliorera.' : vo2 > 0 ? 'Capacité aérobique a améliorer. La marche quotidienne vous aidera.' : 'Mesure en attente de données suffisantes.'}
                     </div>
                   </div>
                 </div>
@@ -435,11 +435,11 @@ export default function ActivityDetailPage() {
           {/* ── POPUP EXPLICATIVE (clean dark style) ── */}
           {explainMetric && (() => {
             const explanations: Record<string, { icon: string; color: string; title: string; desc: string; ranges: { label: string; value: string; color: string }[]; tip: string }> = {
-              steps: { icon: 'ri-footprint-line', color: G, title: 'Nombre de pas', desc: "Le nombre de pas quotidien est un indicateur cle de votre activite physique. L'objectif recommande pour les seniors est de 6000 pas par jour.", ranges: [{ label: 'Sedentaire', value: '< 3 000', color: R }, { label: 'Actif', value: '3 000 - 6 000', color: A }, { label: 'Tres actif', value: '> 6 000', color: G }], tip: 'Essayez d\'augmenter progressivement de 500 pas par semaine. Chaque pas compte !' },
-              calories: { icon: 'ri-fire-line', color: A, title: 'Calories brulees', desc: "Les calories depensees par votre activite physique, hors metabolisme de base. Un objectif de 300 kcal/jour est recommande.", ranges: [{ label: 'Faible', value: '< 150 kcal', color: R }, { label: 'Modere', value: '150 - 300 kcal', color: A }, { label: 'Actif', value: '> 300 kcal', color: G }], tip: '30 minutes de marche rapide brulent environ 150 kcal. La regularite compte plus que l\'intensite.' },
-              distance_km: { icon: 'ri-route-line', color: B, title: 'Distance parcourue', desc: "La distance quotidienne reflete votre mobilite globale. Un objectif de 4 km/jour est adapte aux seniors actifs.", ranges: [{ label: 'Faible', value: '< 2 km', color: R }, { label: 'Modere', value: '2 - 4 km', color: A }, { label: 'Actif', value: '> 4 km', color: G }], tip: 'Variez vos itineraires pour maintenir la motivation. La marche en exterieur est benefique pour le moral.' },
-              recovery: { icon: 'ri-battery-charge-line', color: CY, title: 'Recuperation', desc: "Indique si votre corps a suffisamment recupere pour un nouvel effort. Base sur le sommeil, le stress et la frequence cardiaque.", ranges: [{ label: 'Faible', value: '< 40%', color: R }, { label: 'Moderee', value: '40 - 60%', color: A }, { label: 'Bonne', value: '60 - 80%', color: CY }, { label: 'Optimale', value: '> 80%', color: G }], tip: 'Un bon sommeil et une hydratation suffisante sont les cles d\'une recuperation optimale.' },
-              vo2: { icon: 'ri-lungs-line', color: G, title: 'VO2 Max', desc: "La quantite maximale d'oxygene que votre corps peut utiliser pendant l'effort. C'est le meilleur indicateur de votre forme cardiovasculaire.", ranges: [{ label: 'Faible', value: '< 20', color: R }, { label: 'Moyen', value: '20 - 30', color: A }, { label: 'Bon', value: '30 - 40', color: CY }, { label: 'Excellent', value: '> 40', color: G }], tip: 'Le VO2 Max peut s\'ameliorer a tout age avec un entrainement regulier en endurance (marche rapide, velo, natation).' },
+              steps: { icon: 'ri-footprint-line', color: G, title: 'Nombre de pas', desc: "Le nombre de pas quotidien est un indicateur clé de votre activité physique. L'objectif recommandé pour les seniors est de 6000 pas par jour.", ranges: [{ label: 'Sédentaire', value: '< 3 000', color: R }, { label: 'Actif', value: '3 000 - 6 000', color: A }, { label: 'Très actif', value: '> 6 000', color: G }], tip: 'Essayez d\'augmenter progressivement de 500 pas par semaine. Chaque pas compte !' },
+              calories: { icon: 'ri-fire-line', color: A, title: 'Calories brûlées', desc: "Les calories dépensées par votre activité physique, hors métabolisme de base. Un objectif de 300 kcal/jour est recommandé.", ranges: [{ label: 'Faible', value: '< 150 kcal', color: R }, { label: 'Modéré', value: '150 - 300 kcal', color: A }, { label: 'Actif', value: '> 300 kcal', color: G }], tip: '30 minutes de marche rapide brûlent environ 150 kcal. La régularité compte plus que l\'intensité.' },
+              distance_km: { icon: 'ri-route-line', color: B, title: 'Distance parcourue', desc: "La distance quotidienne reflete votre mobilite globale. Un objectif de 4 km/jour est adapte aux seniors actifs.", ranges: [{ label: 'Faible', value: '< 2 km', color: R }, { label: 'Modéré', value: '2 - 4 km', color: A }, { label: 'Actif', value: '> 4 km', color: G }], tip: 'Variez vos itineraires pour maintenir la motivation. La marche en exterieur est benefique pour le moral.' },
+              recovery: { icon: 'ri-battery-charge-line', color: CY, title: 'Récupération', desc: "Indique si votre corps a suffisamment récupéré pour un nouvel effort. Basé sur le sommeil, le stress et la fréquence cardiaque.", ranges: [{ label: 'Faible', value: '< 40%', color: R }, { label: 'Modérée', value: '40 - 60%', color: A }, { label: 'Bonne', value: '60 - 80%', color: CY }, { label: 'Optimale', value: '> 80%', color: G }], tip: 'Un bon sommeil et une hydratation suffisante sont les cles d\'une recuperation optimale.' },
+              vo2: { icon: 'ri-lungs-line', color: G, title: 'VO2 Max', desc: "La quantite maximale d'oxygene que votre corps peut utiliser pendant l'effort. C'est le meilleur indicateur de votre forme cardiovasculaire.", ranges: [{ label: 'Faible', value: '< 20', color: R }, { label: 'Moyen', value: '20 - 30', color: A }, { label: 'Bon', value: '30 - 40', color: CY }, { label: 'Excellent', value: '> 40', color: G }], tip: 'Le VO2 Max peut s\'améliorer a tout age avec un entraînement regulier en endurance (marche rapide, velo, natation).' },
             };
             const e = explanations[explainMetric] || explanations.steps;
             return (
@@ -471,7 +471,7 @@ export default function ActivityDetailPage() {
         </div>
       </div>
       <style dangerouslySetInnerHTML={{ __html: `@keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}@keyframes popIn{from{opacity:0;transform:scale(0.95) translateY(20px)}to{opacity:1;transform:scale(1) translateY(0)}}@keyframes slideUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}` }} />
-      {showNoraActivity && <NoraOverlay token={token} endpoint="/api/nora/page-analysis?context=activity" title="Analyse activite" subtitle="Analyse par Nora de votre activite physique" onClose={() => setShowNoraActivity(false)} />}
+      {showNoraActivity && <NoraOverlay token={token} endpoint="/api/nora/page-analysis?context=activity" title="Analyse activité" subtitle="Analyse par Nora de votre activité physique" onClose={() => setShowNoraActivity(false)} />}
 
       {/* ── POPUP AJOUT EXERCICE ── */}
       {showAddExercise && (
@@ -485,7 +485,7 @@ export default function ActivityDetailPage() {
             </div>
             <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)', marginBottom: 24, lineHeight: 1.5 }}>Choisissez dans la bibliotheque ou creez le votre.</div>
 
-            {/* Bouton creer un exercice personnalise */}
+            {/* Bouton créer un exercice personnalise */}
             <div data-testid="create-custom-exercise-btn" onClick={() => { setShowAddExercise(false); router.push({ pathname: '/pro-exercise-detail' as any, params: { mode: 'create-self' } }); }}
               style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '16px 18px', borderRadius: 18, background: 'rgba(239,68,68,0.12)', border: '1.5px solid rgba(239,68,68,0.25)', marginBottom: 20, cursor: 'pointer', transition: 'background 0.15s' } as any}
               onMouseEnter={(e: any) => { e.currentTarget.style.background = 'rgba(239,68,68,0.18)'; }}
@@ -494,8 +494,8 @@ export default function ActivityDetailPage() {
                 <i className="ri-add-line" style={{ fontSize: 22, color: '#EF4444' }} />
               </div>
               <div>
-                <div style={{ fontSize: 15, fontWeight: 800, color: '#FFF' }}>Creer un exercice</div>
-                <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', marginTop: 2 }}>Exercice personnalise</div>
+                <div style={{ fontSize: 15, fontWeight: 800, color: '#FFF' }}>Créer un exercice</div>
+                <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', marginTop: 2 }}>Exercice personnalisé</div>
               </div>
               <i className="ri-arrow-right-s-line" style={{ fontSize: 20, color: 'rgba(255,255,255,0.3)', marginLeft: 'auto' }} />
             </div>

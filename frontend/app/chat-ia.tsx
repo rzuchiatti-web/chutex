@@ -47,18 +47,18 @@ export default function ChatIAScreen() {
   const hasMessages = messages.length > 0;
   const selectedBenName = beneficiaries.find(b => b.id === selectedBen)?.name?.split(' ')[0] || '';
   const descText = isGuardian
-    ? `Selectionnez un beneficiaire et posez vos questions sur sa sante.`
-    : 'Votre assistante sante personnelle. Comment puis-je vous aider aujourd\'hui ?';
+    ? `Sélectionnez un bénéficiaire et posez vos questions sur sa santé.`
+    : 'Votre assistante santé personnelle. Comment puis-je vous aider aujourd\'hui ?';
 
   const presetQuestions = isGuardian
     ? [
         `Comment va ${selectedBenName || 'mon proche'} aujourd'hui ?`,
         `Y a-t-il eu des alertes pour ${selectedBenName || 'mon proche'} ?`,
-        `Fais-moi un bilan sante de ${selectedBenName || 'mon proche'}`,
+        `Fais-moi un bilan santé de ${selectedBenName || 'mon proche'}`,
       ]
     : [
         'Comment ai-je dormi cette nuit ?',
-        'Peux-tu me faire un bilan de sante ?',
+        'Peux-tu me faire un bilan de santé ?',
         'Quels exercices me recommandes-tu ?',
         'Ajuste mes calories pour la journee',
       ];

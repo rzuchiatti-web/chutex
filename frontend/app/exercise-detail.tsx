@@ -14,7 +14,7 @@ const CAT: Record<string, { icon: string; label: string; color: string; img: str
   equilibre: { icon: 'ri-walk-line', label: 'Equilibre', color: B, img: 'https://static.prod-images.emergentagent.com/jobs/151f0047-e744-48e3-8d63-62902a0935f7/images/05d45697f644e6b656496155421c6e39c60b73d67f7fb18522a76692b56fa394.png' },
 };
 
-export default function ExerciseDetailPage() {
+export default function ExerciseDétailPage() {
   const { token } = useAuth();
   const router = useRouter();
   const { index } = useLocalSearchParams();
@@ -71,7 +71,7 @@ export default function ExerciseDetailPage() {
                     <div style={{ flex: 1, padding: '14px 12px', textAlign: 'center', borderRight: '1px solid rgba(255,255,255,0.04)' } as any}>
                       <i className="ri-timer-line" style={{ fontSize: 18, color: G, display: 'block', marginBottom: 4 }} />
                       <div style={{ fontSize: 18, fontWeight: 900, color: '#FFF' }}>{ex.duration}</div>
-                      <div style={{ fontSize: 8, color: 'rgba(255,255,255,0.25)', fontWeight: 700, textTransform: 'uppercase' }}>Duree</div>
+                      <div style={{ fontSize: 8, color: 'rgba(255,255,255,0.25)', fontWeight: 700, textTransform: 'uppercase' }}>Durée</div>
                     </div>
                     {ex.calories_burned > 0 && (
                       <div style={{ flex: 1, padding: '14px 12px', textAlign: 'center', borderRight: '1px solid rgba(255,255,255,0.04)' } as any}>
@@ -117,7 +117,7 @@ export default function ExerciseDetailPage() {
                     <i className="ri-shield-check-line" style={{ fontSize: 16, color: intC }} />
                   </div>
                   <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)', lineHeight: 1.5 }}>
-                    {int === 'leger' ? 'Exercice doux, adapte a tous les niveaux.' : int === 'modere' ? 'Effort controle, ecoutez votre corps.' : 'Exercice soutenu, avec precaution.'} Arretez en cas de douleur ou d'essoufflement.
+                    {int === 'leger' ? 'Exercice doux, adapte a tous les niveaux.' : int === 'modere' ? 'Effort contrôle, ecoutez votre corps.' : 'Exercice soutenu, avec precaution.'} Arretez en cas de douleur ou d'essoufflement.
                   </div>
                 </div>
               </>

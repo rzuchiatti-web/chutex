@@ -78,7 +78,7 @@ const BG_DEFAULT = 'https://customer-assets.emergentagent.com/job_9950a869-9328-
 const BG_VIOLET = 'https://customer-assets.emergentagent.com/job_8afdc991-0ab2-4687-a2a5-438b9a5f0711/artifacts/v6obzpez_ChatGPT%20Image%2018%20f%C3%A9vr.%202026%2C%2012_28_20.png';
 const BG_RED = 'https://customer-assets.emergentagent.com/job_443c9c6e-0feb-4920-a358-fe7cc1a6289b/artifacts/mhh7xwy3_ChatGPT%20Image%2017%20f%C3%A9vr.%202026%2C%2014_08_43.png';
 
-export default function HealthDetailScreen() {
+export default function HealthDétailScreen() {
   const params = useLocalSearchParams<{ metricId: string; beneficiaryId?: string }>();
   const { token } = useAuth();
   const router = useRouter();
@@ -250,7 +250,7 @@ export default function HealthDetailScreen() {
                 <div onClick={() => { try { router.back(); } catch { router.push('/(tabs)/health' as any); } }} style={{ width: 44, height: 44, borderRadius: 999, background: 'rgba(255,255,255,0.12)', border: '1px solid rgba(255,255,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', flexShrink: 0 } as any}><i className="ri-arrow-left-line" style={{ fontSize: 18, color: '#FFF' }} /></div>
                 <div style={{ flex: 1, textAlign: 'center' } as any}>
                   <div style={{ fontSize: 22, fontWeight: 900, color: '#FFF' }}>Sommeil</div>
-                  <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)', marginTop: 4 }}>Analyse detaillee de votre nuit</div>
+                  <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)', marginTop: 4 }}>Analyse détaillée de votre nuit</div>
                 </div>
                 <div style={{ width: 44 } as any} />
               </div>
@@ -279,7 +279,7 @@ export default function HealthDetailScreen() {
                 <div style={{ padding: '40px 20px', textAlign: 'center', borderRadius: 18, background: '#F4F4F5', marginBottom: 14 } as any}>
                   <i className="ri-moon-line" style={{ fontSize: 40, color: '#D1D5DB', marginBottom: 12, display: 'block' }} />
                   <div style={{ fontSize: 15, fontWeight: 700, color: '#111', marginBottom: 6 }}>Aucune donnee de sommeil</div>
-                  <div style={{ fontSize: 12, color: '#9CA3AF', lineHeight: 1.5 }}>Portez votre bracelet Elio pendant la nuit pour obtenir une analyse detaillee.</div>
+                  <div style={{ fontSize: 12, color: '#9CA3AF', lineHeight: 1.5 }}>Portez votre bracelet Elio pendant la nuit pour obtenir une analyse détaillée.</div>
                 </div>
               );
               const nightData = sleepNightData;
@@ -319,12 +319,12 @@ export default function HealthDetailScreen() {
               </div>
               {[
                 { icon: 'ri-moon-line', color: '#818CF8', title: 'Sommeil Leger', text: "Phase de transition entre l'eveil et le sommeil profond. Represente environ 50% d'une nuit normale." },
-                { icon: 'ri-moon-fill', color: '#4338CA', title: 'Sommeil Profond', text: 'Phase la plus reparatrice. Le corps se regenere, le systeme immunitaire se renforce. Objectif : 15-20%.' },
+                { icon: 'ri-moon-fill', color: '#4338CA', title: 'Sommeil Profond', text: 'Phase la plus reparatrice. Le corps se regenere, le système immunitaire se renforce. Objectif : 15-20%.' },
                 { icon: 'ri-eye-line', color: '#C4B5FD', title: 'Sommeil REM', text: 'Phase des reves. Le cerveau consolide la memoire et traite les emotions. Objectif : 20-25%.' },
-                { icon: 'ri-alarm-line', color: '#F87171', title: "Phases d'eveil", text: 'Micro-reveils naturels entre les cycles. 2-4 par nuit est normal.' },
-                { icon: 'ri-star-line', color: '#F59E0B', title: 'Qualite du sommeil', text: "Score calcule a partir de la duree, sommeil profond/REM et interruptions. Au-dessus de 80% : excellent." },
-                { icon: 'ri-battery-charge-line', color: '#10B981', title: 'Dette de sommeil', text: 'Difference entre sommeil effectif et besoin recommande (7h30). Se cumule sur 7 jours.' },
-                { icon: 'ri-lungs-line', color: '#60A5FA', title: "Risque d'apnee", text: "Estimation basee sur les interruptions et la qualite. Consultez un medecin si le risque est eleve." },
+                { icon: 'ri-alarm-line', color: '#F87171', title: "Phases d'eveil", text: 'Micro-réveils naturels entre les cycles. 2-4 par nuit est normal.' },
+                { icon: 'ri-star-line', color: '#F59E0B', title: 'Qualité du sommeil', text: "Score calcule a partir de la durée, sommeil profond/REM et interruptions. Au-dessus de 80% : excellent." },
+                { icon: 'ri-battery-charge-line', color: '#10B981', title: 'Dette de sommeil', text: 'Difference entre sommeil effectif et besoin recommandé (7h30). Se cumule sur 7 jours.' },
+                { icon: 'ri-lungs-line', color: '#60A5FA', title: "Risque d'apnee", text: "Estimation basee sur les interruptions et la qualite. Consultez un medecin si le risque est élevé." },
               ].map((item, i) => (
                 <div key={i} style={{ display: 'flex', gap: 14, padding: '14px 0', borderBottom: i < 6 ? '1px solid rgba(255,255,255,0.06)' : 'none', animation: `slideUp 0.4s ease ${0.15 + i * 0.05}s both` } as any}>
                   <div style={{ width: 36, height: 36, borderRadius: 12, background: `${item.color}18`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}>

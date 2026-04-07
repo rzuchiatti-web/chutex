@@ -6,7 +6,7 @@ export default function GuardianInfoStep({ form, u }: { form: RegisterForm; u: U
   return (
     <>
       <div style={{ fontSize: 24, fontWeight: 900, color: '#FFF', marginBottom: 6 }}>Vos informations</div>
-      <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.35)', marginBottom: 24 }}>Pour personnaliser votre espace gardien</div>
+      <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.35)', marginBottom: 24 }}>Pour personnalisér votre espace gardien</div>
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 } as any}>
         <GI label="Prenom" placeholder="Claire" value={form.firstName} onChange={(e: any) => u('firstName', e.target.value)} />
         <GI label="Nom" placeholder="Martin" value={form.name} onChange={(e: any) => u('name', e.target.value)} />

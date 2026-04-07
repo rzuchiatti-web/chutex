@@ -134,7 +134,7 @@ export function DeviceManagement({ token }: { token: string }) {
           />
         )}
 
-        {/* Device Detail Popup */}
+        {/* Device Détail Popup */}
         {selectedDevice && deviceMap[selectedDevice] && (
           <DeviceDetailPopup
             deviceType={selectedDevice}

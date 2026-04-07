@@ -176,7 +176,7 @@ export default function CompanyHome({ token, user }: { token: string; user: any 
 
                   {[
                     { k: 'oneshot', title: 'Commission unique', sub: '100 EUR par bracelet prescrit, 200 EUR bracelet + gilet', detail: 'Versement unique a la validation de la souscription', icon: 'ri-coin-line', color: '#F59E0B' },
-                    { k: 'monthly', title: 'Commission mensuelle', sub: '8 EUR/mois par bracelet, 15 EUR/mois bracelet + gilet', detail: 'Versement recurrent chaque mois tant que le beneficiaire est abonne', icon: 'ri-loop-right-line', color: '#A78BFA' },
+                    { k: 'monthly', title: 'Commission mensuelle', sub: '8 EUR/mois par bracelet, 15 EUR/mois bracelet + gilet', detail: 'Versement récurrent chaque mois tant que le bénéficiaire est abonne', icon: 'ri-loop-right-line', color: '#A78BFA' },
                   ].map(o => (
                     <div key={o.k} onClick={() => setCommissionChoice(o.k)} data-testid={`commission-${o.k}`} style={{ padding: '16px 18px', borderRadius: 20, background: commissionChoice === o.k ? 'rgba(124,58,237,0.08)' : 'rgba(255,255,255,0.03)', border: `1.5px solid ${commissionChoice === o.k ? 'rgba(124,58,237,0.4)' : 'rgba(255,255,255,0.06)'}`, cursor: 'pointer', marginBottom: 10, transition: 'all 0.2s' } as any}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 14 } as any}>
@@ -205,7 +205,7 @@ export default function CompanyHome({ token, user }: { token: string; user: any 
                     <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.3)', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 12 }}>Simulation pour 10 prescriptions bracelet</div>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 } as any}>
                       <div>
-                        <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)' }}>{commissionChoice === 'oneshot' ? 'Gain unique' : 'Gain mensuel recurrent'}</div>
+                        <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)' }}>{commissionChoice === 'oneshot' ? 'Gain unique' : 'Gain mensuel récurrent'}</div>
                         <div style={{ fontSize: 28, fontWeight: 900, color: '#FFF', letterSpacing: -1 }}>{commissionChoice === 'oneshot' ? '1 000' : '80'} EUR</div>
                       </div>
                       <div style={{ textAlign: 'right' } as any}>
@@ -260,7 +260,7 @@ export default function CompanyHome({ token, user }: { token: string; user: any 
                   {/* Benefits */}
                   <div style={{ marginBottom: 24 } as any}>
                     {[
-                      { icon: 'ri-shield-check-line', text: 'Paiements securises par Stripe', color: '#10B981' },
+                      { icon: 'ri-shield-check-line', text: 'Paiements sécurisés par Stripe', color: '#10B981' },
                       { icon: 'ri-time-line', text: 'Versements automatiques chaque mois', color: '#3B82F6' },
                       { icon: 'ri-eye-line', text: 'Suivi des commissions en temps reel', color: '#A78BFA' },
                     ].map((b, i) => (
@@ -282,7 +282,7 @@ export default function CompanyHome({ token, user }: { token: string; user: any 
                     } catch (e: any) { alert(e.message || 'Erreur'); }
                     setStripeLoading(false);
                   }} style={{ padding: '17px', borderRadius: 999, background: stripeLoading ? 'rgba(255,255,255,0.05)' : 'linear-gradient(135deg, #10B981, #059669)', color: '#FFF', cursor: stripeLoading ? 'wait' : 'pointer', textAlign: 'center', fontSize: 16, fontWeight: 800, opacity: stripeLoading ? 0.5 : 1, boxShadow: '0 4px 16px rgba(16,185,129,0.3)', marginBottom: 12 } as any}>
-                    {stripeLoading ? 'Creation en cours...' : 'Connecter mon compte bancaire'}
+                    {stripeLoading ? 'Création en cours...' : 'Connecter mon compte bancaire'}
                   </div>
                   <div onClick={() => setShowStripeSetup(false)} style={{ textAlign: 'center', fontSize: 13, color: 'rgba(255,255,255,0.3)', cursor: 'pointer', padding: 8 } as any}>Je le ferai plus tard</div>
                 </>)}
@@ -343,7 +343,7 @@ export default function CompanyHome({ token, user }: { token: string; user: any 
                 </div>
 
                 {/* IBAN status */}
-                {user.saad_registered && <div style={{ padding: '14px 16px', borderRadius: 16, background: 'rgba(16,185,129,0.08)', border: '1px solid rgba(16,185,129,0.15)', display: 'flex', alignItems: 'center', gap: 12 } as any}><i className="ri-shield-check-line" style={{ fontSize: 18, color: '#10B981' }} /><div style={{ flex: 1 } as any}><div style={{ fontSize: 13, fontWeight: 700, color: '#10B981' }}>Compte bancaire enregistre</div><div style={{ fontSize: 10, color: 'rgba(255,255,255,0.3)', marginTop: 2 }}>Vos commissions sont versees automatiquement via Mollie</div></div></div>}
+                {user.saad_registered && <div style={{ padding: '14px 16px', borderRadius: 16, background: 'rgba(16,185,129,0.08)', border: '1px solid rgba(16,185,129,0.15)', display: 'flex', alignItems: 'center', gap: 12 } as any}><i className="ri-shield-check-line" style={{ fontSize: 18, color: '#10B981' }} /><div style={{ flex: 1 } as any}><div style={{ fontSize: 13, fontWeight: 700, color: '#10B981' }}>Compte bancaire enregistré</div><div style={{ fontSize: 10, color: 'rgba(255,255,255,0.3)', marginTop: 2 }}>Vos commissions sont versees automatiquement via Mollie</div></div></div>}
                 {!user.saad_registered && <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', textAlign: 'center', padding: '12px 0' } as any}>Configurez votre IBAN dans l'onglet Profil pour recevoir vos commissions</div>}
               </div>
             </div>

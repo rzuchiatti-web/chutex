@@ -38,7 +38,7 @@ export function RemindersSection({ reminders, C, glass, isDark, setEditReminder,
         {[
           { type: 'hydration', label: 'Hydratation', img: REMINDER_IMAGES.hydration, color: '#38BDF8', desc: 'Pensez a boire regulierement' },
           { type: 'medication', label: 'Traitement', img: REMINDER_IMAGES.medication, color: '#F59E0B', desc: 'Suivi de votre traitement' },
-          { type: 'alarm', label: 'Alarmes', img: REMINDER_IMAGES.alarm, color: '#EF4444', desc: 'Vos alarmes personnalisees' },
+          { type: 'alarm', label: 'Alarmes', img: REMINDER_IMAGES.alarm, color: '#EF4444', desc: 'Vos alarmes personnalisées' },
         ].map((cat) => {
           const catRems = reminders.filter((r: any) => r.reminder_type === cat.type);
           const activeCount = catRems.filter((r: any) => r.active).length;

@@ -35,10 +35,10 @@ export function SleepAlarmSection({ sleepAlarm, alarmTime, setAlarmTime, editing
   const wakeM = parseInt((alarmTime || '07:00').split(':')[1]) || 0;
 
   const factors = [
-    { label: 'Qualite du sommeil', icon: 'ri-moon-clear-fill', color: '#A78BFA', active: adjustments.includes('Sommeil recent insuffisant'), desc: 'Phases profondes et REM' },
-    { label: 'Niveau de stress', icon: 'ri-mental-health-line', color: '#F59E0B', active: adjustments.includes('Stress eleve'), desc: 'Cortisol et variabilite cardiaque' },
-    { label: 'Recuperation', icon: 'ri-heart-pulse-line', color: '#EF4444', active: adjustments.includes('Recuperation faible'), desc: 'VFC et frequence au repos' },
-    { label: 'Activite physique', icon: 'ri-run-line', color: '#10B981', active: adjustments.includes('Activite physique intense'), desc: 'Depense energetique du jour' },
+    { label: 'Qualité du sommeil', icon: 'ri-moon-clear-fill', color: '#A78BFA', active: adjustments.includes('Sommeil recent insuffisant'), desc: 'Phases profondes et REM' },
+    { label: 'Niveau de stress', icon: 'ri-mental-health-line', color: '#F59E0B', active: adjustments.includes('Stress élevé'), desc: 'Cortisol et variabilite cardiaque' },
+    { label: 'Récupération', icon: 'ri-heart-pulse-line', color: '#EF4444', active: adjustments.includes('Récupération faible'), desc: 'VFC et frequence au repos' },
+    { label: 'Activité physique', icon: 'ri-run-line', color: '#10B981', active: adjustments.includes('Activité physique intense'), desc: 'Depense energetique du jour' },
   ];
 
   const handleSave = async () => {
@@ -77,7 +77,7 @@ export function SleepAlarmSection({ sleepAlarm, alarmTime, setAlarmTime, editing
             <span style={{ fontSize: 26, fontWeight: 900, color: C.text, fontVariantNumeric: 'tabular-nums' } as any}>{s.wake_time || alarmTime}</span>
             <div style={{ display: 'flex', alignItems: 'center', gap: 4, justifyContent: 'center', marginTop: 3 } as any}>
               <span style={{ width: 5, height: 5, borderRadius: 3, background: '#10B981' } as any} />
-              <span style={{ fontSize: 9, fontWeight: 800, color: '#10B981', textTransform: 'uppercase', letterSpacing: 0.5 }}>Alarme activee</span>
+              <span style={{ fontSize: 9, fontWeight: 800, color: '#10B981', textTransform: 'uppercase', letterSpacing: 0.5 }}>Alarme activée</span>
             </div>
           </div>
         </div>
@@ -103,14 +103,14 @@ export function SleepAlarmSection({ sleepAlarm, alarmTime, setAlarmTime, editing
             {/* Title */}
             <div style={{ textAlign: 'center', marginBottom: 28 } as any}>
               <div style={{ fontSize: 22, fontWeight: 900, color: '#FFF' }}>Votre sommeil ce soir</div>
-              <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.3)', marginTop: 4 }}>Definissez votre heure de reveil, nous calculons le meilleur moment pour vous coucher</div>
+              <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.3)', marginTop: 4 }}>Definissez votre heure de réveil, nous calculons le meilleur moment pour vous coucher</div>
             </div>
 
             {/* === MAIN SECTION : Wake time → dotted → Bedtime === */}
             <div style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 20, padding: '20px 16px', marginBottom: 24 } as any}>
 
               {/* Wake time label */}
-              <div style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.4)', textAlign: 'center', marginBottom: 8 }}>A quelle heure vous reveillez-vous ?</div>
+              <div style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.4)', textAlign: 'center', marginBottom: 8 }}>A quelle heure vous réveillez-vous ?</div>
 
               {/* Wheel picker */}
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, marginBottom: 16 } as any}>
@@ -127,7 +127,7 @@ export function SleepAlarmSection({ sleepAlarm, alarmTime, setAlarmTime, editing
 
               {/* Bedtime result */}
               <div style={{ textAlign: 'center', marginTop: 8 } as any}>
-                <div style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.4)', marginBottom: 6 }}>Heure de coucher recommandee</div>
+                <div style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.4)', marginBottom: 6 }}>Heure de coucher recommandée</div>
                 <div style={{ fontSize: 44, fontWeight: 900, color: '#FFF', fontVariantNumeric: 'tabular-nums', lineHeight: 1 }}>{s.bedtime || '22:00'}</div>
                 <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)', marginTop: 6 }}>
                   Soit {(s.sleep_need_hours || 7)}h{(s.sleep_need_minutes || 30) > 0 ? `${s.sleep_need_minutes || 30}min` : ''} de sommeil optimal
@@ -138,7 +138,7 @@ export function SleepAlarmSection({ sleepAlarm, alarmTime, setAlarmTime, editing
 
             {/* === WEEKDAY SELECTOR === */}
             <div style={{ marginBottom: 24 } as any}>
-              <div style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.4)', textAlign: 'center', marginBottom: 10 }}>Jours de reveil</div>
+              <div style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.4)', textAlign: 'center', marginBottom: 10 }}>Jours de réveil</div>
               <div style={{ display: 'flex', justifyContent: 'center', gap: 6 } as any}>
                 {[
                   { day: 1, label: 'L' },
@@ -161,7 +161,7 @@ export function SleepAlarmSection({ sleepAlarm, alarmTime, setAlarmTime, editing
 
             {/* Save — above factors */}
             <div data-testid="save-alarm-btn" onClick={handleSave} style={{ padding: '16px', borderRadius: 999, background: '#FFF', textAlign: 'center', cursor: 'pointer', fontSize: 15, fontWeight: 800, color: '#111', opacity: saving ? 0.5 : 1, marginBottom: 24 } as any}>
-              {saving ? 'Enregistrement...' : 'Enregistrer'}
+              {saving ? 'Enregistrément...' : 'Enregistrér'}
             </div>
 
             {/* Factors */}

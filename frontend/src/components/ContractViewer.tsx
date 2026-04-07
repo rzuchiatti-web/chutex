@@ -13,7 +13,7 @@ export default function ContractViewer({ show, onClose, subData, isCare }: Contr
   const ct = subData?.contract || {};
   const sub = subData?.subscription;
   const contractNumber = ct.contract_number || 'CHX-' + (sub?.id || 'XXXXXX').slice(-6).toUpperCase();
-  const planLabel = ct.plan_label || (isCare ? 'Chutex Care — Teleassistance 24/7' : 'Bracelet Elio — Suivi sante');
+  const planLabel = ct.plan_label || (isCare ? 'Chutex Care — Téléassistance 24/7' : 'Bracelet Elio — Suivi santé');
   const price = ct.price_monthly || (isCare ? 39.90 : 24.90);
   const priceCredit = ct.price_after_credit;
   const startDate = subData?.start_date || sub?.created_at;
@@ -91,7 +91,7 @@ export default function ContractViewer({ show, onClose, subData, isCare }: Contr
               </div>
               <div>
                 <div style={{ fontSize: 16, fontWeight: 800, color: '#FFF' }}>{planLabel}</div>
-                <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)' }}>Contrat a duree indeterminee</div>
+                <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)' }}>Contrat a durée indeterminee</div>
               </div>
             </div>
             <InfoRow label="Date de souscription" value={formattedDate} />
@@ -105,7 +105,7 @@ export default function ContractViewer({ show, onClose, subData, isCare }: Contr
 
           <ArticleTitle num="Article 1" title="Objet du contrat" />
           <Paragraph>
-            Le present contrat a pour objet la mise a disposition par Chutex Innovation d'un service de {isCare ? 'teleassistance et de suivi sante a domicile' : 'suivi sante connecte'} au benefice du souscripteur, comprenant la fourniture d'equipements connectes et l'acces a la plateforme Chutex.
+            Le present contrat a pour objet la mise à disposition par Chutex Innovation d'un service de {isCare ? 'téléassistance et de suivi santé à domicile' : 'suivi santé connecté'} au bénéfice du souscripteur, comprenant la fourniture d'équipements connectés et l'accès à la plateforme Chutex.
           </Paragraph>
 
           <ArticleTitle num="Article 2" title="Description des prestations" />
@@ -114,11 +114,11 @@ export default function ContractViewer({ show, onClose, subData, isCare }: Contr
               <Paragraph>Dans le cadre de l'abonnement Chutex Care, le prestataire s'engage a fournir :</Paragraph>
               <BulletList items={[
                 'Un bracelet connecte Elio V8 avec detection automatique de chute, bouton SOS, suivi cardiaque, SpO2, temperature et GPS',
-                'Un service de teleassistance 24h/24 et 7j/7 avec plateau d\'ecoute professionnel',
+                'Un service de téléassistance 24h/24 et 7j/7 avec plateau d\'ecoute professionnel',
                 'La gestion des interventions d\'urgence avec envoi de secours si necessaire',
-                'Le suivi sante en temps reel avec alertes automatiques aux gardiens designes',
-                'L\'acces a l\'application mobile Chutex pour le beneficiaire et ses gardiens',
-                'Les programmes de prevention sante personnalises par intelligence artificielle',
+                'Le suivi santé en temps réel avec alertes automatiques aux gardiens désignés',
+                'L\'acces a l\'application mobile Chutex pour le bénéficiaire et ses gardiens',
+                'Les programmes de prévention santé personnalisés par intelligence artificielle',
                 'Un service de teleconsultation medicale',
               ]} />
             </>
@@ -127,16 +127,16 @@ export default function ContractViewer({ show, onClose, subData, isCare }: Contr
               <Paragraph>Dans le cadre de l'abonnement Bracelet Elio, le prestataire s'engage a fournir :</Paragraph>
               <BulletList items={[
                 'Un bracelet connecte Elio V8 avec suivi cardiaque, SpO2, temperature et detection de chute',
-                'L\'acces a l\'application mobile Chutex pour la visualisation des donnees de sante',
-                'Les programmes de prevention sante personnalises par intelligence artificielle',
-                'L\'historique complet des donnees de sante',
+                'L\'acces a l\'application mobile Chutex pour la visualisation des données de santé',
+                'Les programmes de prévention santé personnalisés par intelligence artificielle',
+                'L\'historique complet des données de santé',
               ]} />
             </>
           )}
 
-          <ArticleTitle num="Article 3" title="Equipements fournis" />
+          <ArticleTitle num="Article 3" title="Équipements fournis" />
           <Paragraph>
-            Les equipements mis a disposition dans le cadre du present contrat restent la propriete exclusive de Chutex Innovation. Le souscripteur s'engage a en prendre soin et a les restituer en bon etat en cas de resiliation du contrat.
+            Les équipements mis a disposition dans le cadre du present contrat restent la propriete exclusive de Chutex Innovation. Le souscripteur s'engage a en prendre soin et a les restituer en bon etat en cas de resiliation du contrat.
           </Paragraph>
           <BulletList items={[
             'Bracelet connecte Elio V8',
@@ -148,7 +148,7 @@ export default function ContractViewer({ show, onClose, subData, isCare }: Contr
           <div style={{ padding: '14px', borderRadius: 14, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.06)', marginBottom: 8, ...glass } as any}>
             <InfoRow label="Mensualite" value={`${price.toFixed(2).replace('.', ',')} EUR/mois`} />
             {priceCredit && <InfoRow label="Apres credit d'impot 50%" value={`${priceCredit.toFixed(2).replace('.', ',')} EUR/mois`} />}
-            <InfoRow label="Frequence" value="Prelevement mensuel" />
+            <InfoRow label="Fréquence" value="Prélèvement mensuel" />
             <InfoRow label="Moyen de paiement" value="Carte bancaire (Stripe)" />
           </div>
           {isCare && (
@@ -157,9 +157,9 @@ export default function ContractViewer({ show, onClose, subData, isCare }: Contr
             </Paragraph>
           )}
 
-          <ArticleTitle num="Article 5" title="Duree et resiliation" />
+          <ArticleTitle num="Article 5" title="Durée et resiliation" />
           <Paragraph>
-            Le present contrat est conclu pour une duree indeterminee. Il prend effet a la date de souscription indiquee ci-dessus.
+            Le present contrat est conclu pour une durée indeterminee. Il prend effet a la date de souscription indiquee ci-dessus.
           </Paragraph>
           <Paragraph>
             Chaque partie peut resilier le contrat a tout moment, sous reserve du respect d'un preavis de 30 (trente) jours. La demande de resiliation peut etre effectuee :
@@ -167,15 +167,15 @@ export default function ContractViewer({ show, onClose, subData, isCare }: Contr
           <BulletList items={[
             'Depuis l\'application Chutex (rubrique Mon abonnement)',
             'Par email a contact@chutex-innovation.com',
-            'Par courrier recommande avec accuse de reception',
+            'Par courrier recommandé avec accuse de reception',
           ]} />
           <Paragraph>
-            En cas de resiliation, le souscripteur s'engage a restituer l'ensemble des equipements mis a disposition dans un delai de 30 jours ouvrables. Le numero de suivi du colis de retour devra etre communique a contact@chutex-innovation.com.
+            En cas de resiliation, le souscripteur s'engage a restituer l'ensemble des équipements mis a disposition dans un delai de 30 jours ouvrables. Le numéro de suivi du colis de retour devra etre communique a contact@chutex-innovation.com.
           </Paragraph>
 
           <ArticleTitle num="Article 6" title="Protection des donnees personnelles" />
           <Paragraph>
-            Chutex Innovation s'engage a traiter les donnees personnelles du souscripteur et du beneficiaire conformement au Reglement General sur la Protection des Donnees (RGPD). Les donnees de sante collectees par les equipements connectes sont stockees de maniere securisee et ne sont accessibles qu'au beneficiaire, a ses gardiens designes et, en cas d'urgence, au plateau de teleassistance.
+            Chutex Innovation s'engage a traiter les données personnelles du souscripteur et du bénéficiaire conformément au Règlement Général sur la Protection des Données (RGPD). Les données de santé collectées par les équipements connectés sont stockées de manière sécurisée et ne sont accessibles qu'au bénéficiaire, à ses gardiens désignés et, en cas d'urgence, au plateau de téléassistance.
           </Paragraph>
           <Paragraph>
             Le souscripteur dispose d'un droit d'acces, de rectification, d'effacement et de portabilite de ses donnees. Pour exercer ces droits, il peut contacter le Delegue a la Protection des Donnees a l'adresse dpo@chutex-innovation.com.
@@ -183,11 +183,11 @@ export default function ContractViewer({ show, onClose, subData, isCare }: Contr
 
           <ArticleTitle num="Article 7" title="Responsabilites" />
           <Paragraph>
-            Chutex Innovation s'engage a assurer la continuite du service dans les meilleures conditions. Toutefois, le prestataire ne saurait etre tenu responsable en cas d'interruption du service due a un cas de force majeure, a une defaillance du reseau mobile ou internet, ou a une utilisation non conforme des equipements.
+            Chutex Innovation s'engage a assurer la continuite du service dans les meilleures conditions. Toutefois, le prestataire ne saurait etre tenu responsable en cas d'interruption du service due a un cas de force majeure, a une defaillance du reseau mobile ou internet, ou a une utilisation non conforme des équipements.
           </Paragraph>
           {isCare && (
             <Paragraph>
-              Le service de teleassistance ne se substitue en aucun cas aux services d'urgence (SAMU, pompiers). En cas de detection d'une situation d'urgence, le plateau d'ecoute contactera les services competents.
+              Le service de téléassistance ne se substitue en aucun cas aux services d'urgence (SAMU, pompiers). En cas de detection d'une situation d'urgence, le plateau d'ecoute contactera les services competents.
             </Paragraph>
           )}
 

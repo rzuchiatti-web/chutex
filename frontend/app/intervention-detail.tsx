@@ -14,7 +14,7 @@ const GlassCard = ({ children, style }: any) => (
   <View style={[{ backgroundColor: '#FFFFFF', borderRadius: 24, borderWidth: 1, borderColor: 'rgba(0,0,0,0.06)', padding: 18, marginBottom: 12, ...glass }, style]}>{children}</View>
 );
 
-export default function InterventionDetailScreen() {
+export default function InterventionDétailScreen() {
   const { colors } = useTheme();
   const { interventionId } = useLocalSearchParams<{ interventionId: string }>();
   const { token, user } = useAuth();
@@ -59,7 +59,7 @@ export default function InterventionDetailScreen() {
     try {
       const answers = qcmQuestions.map(q => ({ question_id: q.id, question: q.question, answer: qcmAnswers[q.id] }));
       await apiFetch('/api/intervention/close', { method: 'POST', body: JSON.stringify({ intervention_id: interventionId, answers, notes: closeNotes }) }, token);
-      Alert.alert('Intervention cloturee', 'Le compte-rendu a ete enregistre.');
+      Alert.alert('Intervention cloturee', 'Le compte-rendu a été enregistré.');
       setShowQCM(false);
       fetchIntervention();
     } catch (e: any) { Alert.alert('Erreur', e.message); } finally { setClosing(false); }

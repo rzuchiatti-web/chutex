@@ -63,7 +63,7 @@ const requestWebLocationPermission = async (): Promise<PermissionResult> => {
     return {
       granted: true,
       status: 'granted',
-      message: 'Localisation activee.',
+      message: 'Localisation activée.',
       source: 'web',
     };
   } catch {
@@ -71,7 +71,7 @@ const requestWebLocationPermission = async (): Promise<PermissionResult> => {
     return {
       granted: false,
       status: 'denied',
-      message: 'Autorisation refusee. Activez la localisation dans les reglages du navigateur.',
+      message: 'Autorisation refusee. Activez la localisation dans les réglages du navigateur.',
       source: 'web',
     };
   }
@@ -105,7 +105,7 @@ const requestNativeLocationPermission = async (): Promise<PermissionResult> => {
     return {
       granted: true,
       status: 'granted',
-      message: 'Localisation toujours activee.',
+      message: 'Localisation toujours activée.',
       source: 'native',
     };
   } catch {
@@ -113,7 +113,7 @@ const requestNativeLocationPermission = async (): Promise<PermissionResult> => {
     return {
       granted: false,
       status: 'blocked',
-      message: 'Impossible de demander la localisation. Ouvrez les reglages de l app.',
+      message: 'Impossible de demander la localisation. Ouvrez les réglages de l app.',
       source: 'native',
     };
   }
@@ -130,7 +130,7 @@ export const ensureFirstLaunchLocationPermission = async (): Promise<PermissionR
     return {
       granted: true,
       status: 'granted',
-      message: 'Localisation deja activee.',
+      message: 'Localisation déjà activée.',
       source: Platform.OS === 'web' ? 'web' : 'native',
     };
   }
@@ -139,7 +139,7 @@ export const ensureFirstLaunchLocationPermission = async (): Promise<PermissionR
     return {
       granted: false,
       status: 'denied',
-      message: 'Localisation desactivee. Activez-la dans les reglages.',
+      message: 'Localisation désactivée. Activez-la dans les réglages.',
       source: Platform.OS === 'web' ? 'web' : 'native',
     };
   }

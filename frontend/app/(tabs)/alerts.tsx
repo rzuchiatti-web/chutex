@@ -17,14 +17,14 @@ const STATE_LABEL: Record<string, string> = {
 
 /* Clean alert type label */
 const getAlertLabel = (t: string) => {
-  if (t === 'fall') return 'Chute detectee (gilet)';
+  if (t === 'fall') return 'Chute détectée (gilet)';
   if (t === 'manual_app') return 'Bouton SOS (application)';
   if (t === 'manual_bracelet') return 'Pression manuelle (bracelet)';
   if (t === 'sos') return 'Bouton SOS';
-  if (t === 'heart_rate' || t === 'health_anomaly') return 'Anomalie de sante detectee';
-  if (t === 'spo2') return 'Anomalie de sante detectee';
+  if (t === 'heart_rate' || t === 'health_anomaly') return 'Anomalie de santé détectée';
+  if (t === 'spo2') return 'Anomalie de santé détectée';
   if (t === 'threshold') return 'Depassement de seuil';
-  if (t === 'inactivity') return 'Inactivite detectee';
+  if (t === 'inactivity') return 'Inactivité detectee';
   if (t === 'geofence' || t === 'geofence_exit') return 'Sortie de safe zone';
   return t || 'Alerte';
 };
@@ -41,19 +41,19 @@ function AnomalyCard({ alert }: { alert: any }) {
   const items: any[] = [];
   if (vd.heart_rate || td.heart_rate_max) items.push({ label: 'Pouls', value: vd.heart_rate ? `${vd.heart_rate} bpm` : '?', threshold: td.heart_rate_max ? `Seuil : ${td.heart_rate_max} bpm` : '', icon: 'ri-heart-pulse-line', color: '#EF4444' });
   if (vd.spo2 || td.spo2_min) items.push({ label: 'SpO2', value: vd.spo2 ? `${vd.spo2}%` : '?', threshold: td.spo2_min ? `Seuil min : ${td.spo2_min}%` : '', icon: 'ri-lungs-line', color: '#3B82F6' });
-  if (vd.temperature || td.temperature_max) items.push({ label: 'Temperature', value: vd.temperature ? `${vd.temperature}°C` : '?', threshold: td.temperature_max ? `Seuil : ${td.temperature_max}°C` : '', icon: 'ri-temp-hot-line', color: '#F59E0B' });
+  if (vd.temperature || td.temperature_max) items.push({ label: 'Température', value: vd.temperature ? `${vd.temperature}°C` : '?', threshold: td.temperature_max ? `Seuil : ${td.temperature_max}°C` : '', icon: 'ri-temp-hot-line', color: '#F59E0B' });
   if (items.length === 0 && !hasVitalData) {
     // Fallback: show a generic anomaly message from the alert message
     return (
       <div style={{ padding: '12px 16px', borderRadius: 16, background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.2)', marginBottom: 10 } as any}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8 } as any}><i className="ri-alert-line" style={{ fontSize: 16, color: '#EF4444' }} /><span style={{ fontSize: 12, fontWeight: 700, color: '#EF4444', textTransform: 'uppercase' }}>Anomalie detectee</span></div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 } as any}><i className="ri-alert-line" style={{ fontSize: 16, color: '#EF4444' }} /><span style={{ fontSize: 12, fontWeight: 700, color: '#EF4444', textTransform: 'uppercase' }}>Anomalie détectée</span></div>
         <div style={{ fontSize: 14, color: '#FFF', marginTop: 6, lineHeight: 1.4 }}>{msg}</div>
       </div>
     );
   }
   return (
     <div style={{ padding: '14px 16px', borderRadius: 20, background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.15)', marginBottom: 10 } as any}>
-      <div style={{ fontSize: 10, fontWeight: 600, color: '#EF4444', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 10 }}>Anomalie detectee</div>
+      <div style={{ fontSize: 10, fontWeight: 600, color: '#EF4444', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 10 }}>Anomalie détectée</div>
       {items.map((item, i) => (
         <div key={i}>
           {i > 0 && <div style={{ height: 1, background: 'rgba(255,255,255,0.06)', margin: '8px 0' } as any} />}
@@ -79,17 +79,17 @@ function ExplainerPage({ onClose, role }: { onClose: () => void; role: string })
 
   const saadSteps = [
     { icon: 'ri-alarm-warning-line', title: 'Detection de l\'alerte', desc: 'Un beneficiaire de votre structure declenche une alerte (chute, anomalie cardiaque, bouton SOS). Votre tableau de bord SAAD est notifie en temps reel.', color: '#EF4444' },
-    { icon: 'ri-headphone-line', title: 'Prise en charge teleassistance', desc: 'Le plateau Chutex Care appelle immediatement le beneficiaire. En tant que SAAD, vous suivez le statut de l\'alerte en direct sur votre dashboard.', color: '#F59E0B' },
+    { icon: 'ri-headphone-line', title: 'Prise en charge teleassistance', desc: 'Le plateau Chutex Care appelle immédiatement le beneficiaire. En tant que SAAD, vous suivez le statut de l\'alerte en direct sur votre dashboard.', color: '#F59E0B' },
     { icon: 'ri-user-star-line', title: 'Dispatch intervenant', desc: 'Si une intervention physique est necessaire, un de vos intervenants Care est mobilise. Vous pouvez voir quel intervenant est assigne et suivre son deplacement.', color: '#8B5CF6' },
     { icon: 'ri-file-text-line', title: 'Rapport et suivi', desc: 'L\'intervenant redige un rapport de cloture. Vous accedez a tous les rapports depuis l\'onglet "Cloturees" pour le suivi qualite et la facturation.', color: '#3B82F6' },
-    { icon: 'ri-bar-chart-box-line', title: 'Statistiques et pilotage', desc: 'Suivez le taux de resolution, le temps moyen d\'intervention et la disponibilite de vos intervenants pour optimiser votre service.', color: '#10B981' },
+    { icon: 'ri-bar-chart-box-line', title: 'Statistiques et pilotage', desc: 'Suivez le taux de resolution, le temps moyen d\'intervention et la disponibilité de vos intervenants pour optimiser votre service.', color: '#10B981' },
   ];
   const defaultSteps = [
     { icon: 'ri-alarm-warning-line', title: 'Declenchement', desc: 'Une alerte se declenche automatiquement via un appareil connecte (chute, anomalie cardiaque) ou manuellement par le bouton SOS du beneficiaire.', color: '#EF4444' },
-    { icon: 'ri-phone-line', title: 'Appel automatique', desc: 'Le plateau de teleassistance Chutex Care est immediatement notifie. Un operateur appelle le beneficiaire pour evaluer la situation.', color: '#F59E0B' },
+    { icon: 'ri-phone-line', title: 'Appel automatique', desc: 'Le plateau de teleassistance Chutex Care est immédiatement notifie. Un operateur appelle le beneficiaire pour evaluer la situation.', color: '#F59E0B' },
     { icon: 'ri-group-line', title: 'Notification des gardiens', desc: 'Tous les gardiens du beneficiaire recoivent une notification en temps reel avec les details de l\'alerte.', color: '#3B82F6' },
     { icon: 'ri-map-pin-range-line', title: 'Envoi d\'un intervenant', desc: 'Si necessaire, un intervenant Care est envoye sur place. Il peut etre suivi en temps reel sur la carte par les gardiens.', color: '#8B5CF6' },
-    { icon: 'ri-file-text-line', title: 'Rapport de cloture', desc: 'L\'alerte est cloturee avec un rapport detaille : etat du beneficiaire, actions realisees et notes.', color: '#10B981' },
+    { icon: 'ri-file-text-line', title: 'Rapport de cloture', desc: 'L\'alerte est cloturee avec un rapport détaillé : etat du beneficiaire, actions realisees et notes.', color: '#10B981' },
   ];
   const steps = isSAAD ? saadSteps : defaultSteps;
 
@@ -97,24 +97,24 @@ function ExplainerPage({ onClose, role }: { onClose: () => void; role: string })
     { icon: 'ri-building-line', role: 'Votre role (SAAD)', actions: ['Superviser toutes les alertes de vos beneficiaires', 'Gerer et affecter les intervenants', 'Acceder aux rapports de cloture', 'Piloter le taux de resolution', 'Facturer les interventions'], color: '#D4845A' },
     { icon: 'ri-user-star-line', role: 'Intervenants', actions: ['Accepter ou refuser une intervention', 'Se deplacer chez le beneficiaire', 'Rediger le rapport d\'intervention', 'Signaler une urgence medicale'], color: '#8B5CF6' },
     { icon: 'ri-shield-check-line', role: 'Gardiens', actions: ['Recevoir les notifications d\'alerte', 'Suivre l\'intervenant en temps reel', 'Cloturer l\'alerte si necessaire'], color: '#3B82F6' },
-    { icon: 'ri-headphone-line', role: 'Teleassistance', actions: ['Gerer le flux d\'appels entrants', 'Escalader les situations critiques', 'Coordonner avec vos intervenants'], color: '#10B981' },
+    { icon: 'ri-headphone-line', role: 'Téléassistance', actions: ['Gerer le flux d\'appels entrants', 'Escalader les situations critiques', 'Coordonner avec vos intervenants'], color: '#10B981' },
   ];
   const defaultRoles = [
-    { icon: 'ri-user-heart-line', role: 'Beneficiaire', actions: ['Declencher un SOS', 'Recevoir l\'appel du plateau', 'Cloturer l\'alerte a tout moment'], color: '#EF4444' },
+    { icon: 'ri-user-heart-line', role: 'Bénéficiaire', actions: ['Declencher un SOS', 'Recevoir l\'appel du plateau', 'Cloturer l\'alerte a tout moment'], color: '#EF4444' },
     { icon: 'ri-shield-check-line', role: 'Gardien', actions: ['Recevoir les notifications', 'Suivre l\'intervenant en temps reel', 'Cloturer l\'alerte'], color: '#3B82F6' },
     { icon: 'ri-first-aid-kit-line', role: 'Intervenant Care', actions: ['Accepter une intervention', 'Se rendre sur place', 'Rediger le rapport'], color: '#8B5CF6' },
-    { icon: 'ri-headphone-line', role: 'Teleassistance', actions: ['Gerer le flux d\'appels', 'Escalader les situations critiques', 'Coordonner les intervenants'], color: '#10B981' },
+    { icon: 'ri-headphone-line', role: 'Téléassistance', actions: ['Gerer le flux d\'appels', 'Escalader les situations critiques', 'Coordonner les intervenants'], color: '#10B981' },
   ];
   const roles = isSAAD ? saadRoles : defaultRoles;
 
   const saadFaq = [
     { q: 'Comment affecter un intervenant a une alerte ?', a: 'Depuis le detail de l\'alerte, cliquez sur "Assigner un intervenant" pour choisir parmi vos intervenants disponibles.' },
-    { q: 'Comment suivre la performance de mes intervenants ?', a: 'Le dashboard SAAD affiche le taux de resolution, le nombre d\'interventions et la disponibilite de chaque intervenant.' },
+    { q: 'Comment suivre la performance de mes intervenants ?', a: 'Le dashboard SAAD affiche le taux de resolution, le nombre d\'interventions et la disponibilité de chaque intervenant.' },
     { q: 'Les gardiens peuvent-ils cloturer une alerte ?', a: 'Oui, les gardiens peuvent cloturer une alerte depuis leur espace. Le rapport sera alors visible dans votre suivi.' },
     { q: 'Comment facturer les interventions ?', a: 'Chaque alerte cloturee avec intervention genere un rapport exploitable pour la facturation. Exportez-les depuis l\'onglet Cloturees.' },
   ];
   const defaultFaq = [
-    { q: 'Que se passe-t-il si je declenche un SOS par erreur ?', a: 'Vous pouvez cloturer l\'alerte immediatement depuis l\'application. Le plateau sera notifie de l\'annulation.' },
+    { q: 'Que se passe-t-il si je declenche un SOS par erreur ?', a: 'Vous pouvez cloturer l\'alerte immédiatement depuis l\'application. Le plateau sera notifie de l\'annulation.' },
     { q: 'Combien de temps avant l\'arrivee d\'un intervenant ?', a: 'Le delai depend de votre localisation. En zone urbaine, comptez 15 a 30 minutes en moyenne.' },
     { q: 'Puis-je voir la position de l\'intervenant ?', a: 'Oui, les gardiens peuvent suivre l\'intervenant en temps reel sur la carte de l\'application.' },
     { q: 'Les alertes sont-elles archivees ?', a: 'Oui, toutes les alertes cloturees restent accessibles avec leur rapport dans l\'onglet "Cloturees".' },
@@ -193,11 +193,11 @@ function ReportPage({ alert, role, token, onClose, onDone }: { alert: any; role:
 
   const isBeneficiary = role === 'beneficiary';
   const reportQuestions = isBeneficiary ? [
-    { id: 'reason', label: 'Pourquoi cloturez-vous cette alerte ?', options: ['Fausse alerte / Erreur de manipulation', 'Je vais bien, pas besoin d\'aide', 'L\'aide est deja arrivee', 'Autre raison'] },
+    { id: 'reason', label: 'Pourquoi cloturez-vous cette alerte ?', options: ['Fausse alerte / Erreur de manipulation', 'Je vais bien, pas besoin d\'aide', 'L\'aide est déjà arrivee', 'Autre raison'] },
   ] : [
     { id: 'situation', label: 'La situation est-elle maitrisee ?', options: ['Oui, situation resolue', 'Partiellement, surveillance necessaire', 'Non, necessite un suivi'] },
     { id: 'actions', label: 'Actions realisees', options: ['Levee de doute telephonique', 'Intervention physique au domicile', 'Contact avec les secours (SAMU/Pompiers)', 'Contact avec le medecin traitant', 'Aucune action necessaire'] },
-    { id: 'condition', label: 'Etat du beneficiaire', options: ['Stable - pas de blessure', 'Blessure legere - soins apportes', 'Necessitant un suivi medical', 'Hospitalisation necessaire'] },
+    { id: 'condition', label: 'Etat du beneficiaire', options: ['Stable - pas de blessure', 'Blessure légère - soins apportes', 'Necessitant un suivi medical', 'Hospitalisation necessaire'] },
   ];
   const allAnswered = reportQuestions.every(q => reportAnswers[q.id]);
 
@@ -243,7 +243,7 @@ function ReportPage({ alert, role, token, onClose, onDone }: { alert: any; role:
         ))}
         <div style={{ marginBottom: 16 } as any}>
           <div style={{ fontSize: 14, fontWeight: 700, color: '#FFF', marginBottom: 8 }}>{isBeneficiary ? 'Un commentaire ?' : 'Note personnalisee'}</div>
-          <textarea value={reportText} onChange={(e: any) => setReportText(e.target.value)} placeholder={isBeneficiary ? 'Optionnel...' : 'Details supplementaires...'}
+          <textarea value={reportText} onChange={(e: any) => setReportText(e.target.value)} placeholder={isBeneficiary ? 'Optionnel...' : 'Détails supplementaires...'}
             style={{ width: '100%', minHeight: isBeneficiary ? 80 : 100, padding: '14px 16px', borderRadius: 16, background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)', color: '#FFF', fontSize: 14, fontFamily: 'inherit', resize: 'none', outline: 'none', boxSizing: 'border-box' } as any} />
         </div>
         <div onClick={submit} data-testid="confirm-report-btn" style={{
@@ -395,7 +395,7 @@ function AlertDetailWeb({ alert, onClose, role, token, onRefresh, user }: { aler
           <div style={{ width: 56, height: 56, borderRadius: 999, background: 'linear-gradient(135deg, #D4845A, #E8A87C)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', marginBottom: 10 } as any}>
             <i className="ri-user-heart-line" style={{ fontSize: 28, color: '#FFF' }} />
           </div>
-          <div style={{ fontSize: 26, fontWeight: 800, color: '#FFF', marginBottom: 4 }}>{alert.beneficiary_name || 'Beneficiaire'}</div>
+          <div style={{ fontSize: 26, fontWeight: 800, color: '#FFF', marginBottom: 4 }}>{alert.beneficiary_name || 'Bénéficiaire'}</div>
           <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.55)' }}>{new Date(alert.created_at).toLocaleString('fr-FR', { day: '2-digit', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</div>
         </div>
 
@@ -495,7 +495,7 @@ function AlertDetailWeb({ alert, onClose, role, token, onRefresh, user }: { aler
                 onSlideComplete={() => setShowReport(true)}
               />
             )}
-            {/* Teleassistance / Admin actions */}
+            {/* Téléassistance / Admin actions */}
             {(role === 'teleassistance' || role === 'admin') && (
               <div style={{ display: 'flex', gap: 10 } as any}>
                 <div onClick={() => {
@@ -533,14 +533,14 @@ function BeneficiaireCard({ ben }: { ben: any }) {
     (ben.height_cm || ben.weight_kg) && { icon: 'ri-ruler-line', label: 'Morphologie', value: [ben.height_cm && `${ben.height_cm} cm`, ben.weight_kg && `${ben.weight_kg} kg`].filter(Boolean).join(' - ') },
     ben.medical_conditions && { icon: 'ri-heart-pulse-line', label: 'Pathologies', value: ben.medical_conditions, color: '#F59E0B', highlight: true },
     ben.allergies && { icon: 'ri-alarm-warning-line', label: 'Allergies', value: ben.allergies, color: '#EF4444', highlight: true },
-    ben.doctor_name && { icon: 'ri-stethoscope-line', label: 'Medecin traitant', value: ben.doctor_name + (ben.doctor_phone ? ` — ${ben.doctor_phone}` : ''), phone: ben.doctor_phone },
+    ben.doctor_name && { icon: 'ri-stethoscope-line', label: 'Médecin traitant', value: ben.doctor_name + (ben.doctor_phone ? ` — ${ben.doctor_phone}` : ''), phone: ben.doctor_phone },
     ben.emergency_contact_name && { icon: 'ri-shield-user-line', label: 'Contact d\'urgence', value: ben.emergency_contact_name + (ben.emergency_contact_phone ? ` — ${ben.emergency_contact_phone}` : ''), phone: ben.emergency_contact_phone },
     ben.address && { icon: 'ri-map-pin-line', label: 'Adresse', value: ben.address },
   ].filter(Boolean) as any[];
 
   return (
     <div style={{ padding: '14px 16px', borderRadius: 20, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', marginBottom: 10 } as any}>
-      <div style={{ fontSize: 10, fontWeight: 600, color: 'rgba(255,255,255,0.35)', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 10 }}>Fiche beneficiaire</div>
+      <div style={{ fontSize: 10, fontWeight: 600, color: 'rgba(255,255,255,0.35)', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 10 }}>Fiche bénéficiaire</div>
       <div style={{ display: 'flex', alignItems: 'center', gap: 12 } as any}>
         <div style={{ width: 44, height: 44, borderRadius: 999, background: 'linear-gradient(135deg, #D4845A, #E8A87C)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}>
           <span style={{ fontSize: 18, fontWeight: 800, color: '#FFF' }}>{(ben.name || '?').charAt(0)}</span>
@@ -887,7 +887,7 @@ function ProMessaging({ token, user }: { token: string; user: any }) {
             </div>
           ) : (
             conversations.map((convo) => {
-              const otherName = convo.beneficiary_name || convo.professional_name || 'Beneficiaire';
+              const otherName = convo.beneficiary_name || convo.professional_name || 'Bénéficiaire';
               const lastMsg = convo.last_message || '';
               const lastTime = convo.last_message_at ? new Date(convo.last_message_at).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }) : '';
               const unread = convo.unread_count || 0;
@@ -934,7 +934,7 @@ function ProMessaging({ token, user }: { token: string; user: any }) {
               <span style={{ fontSize: 16, fontWeight: 800, color: accentColor }}>{(activeConvo.beneficiary_name || activeConvo.professional_name || '?').charAt(0)}</span>
             </div>
             <div style={{ flex: 1 }}>
-              <div style={{ fontSize: 15, fontWeight: 700, color: '#111' }}>{activeConvo.beneficiary_name || activeConvo.professional_name || 'Beneficiaire'}</div>
+              <div style={{ fontSize: 15, fontWeight: 700, color: '#111' }}>{activeConvo.beneficiary_name || activeConvo.professional_name || 'Bénéficiaire'}</div>
               <div style={{ fontSize: 11, color: '#9CA3AF' }}>En ligne</div>
             </div>
           </div>
@@ -1092,7 +1092,7 @@ export default function AlertsScreen() {
                 <div onClick={() => setSelectedAlert(alert)} style={{ cursor: 'pointer' } as any}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 10 } as any}>
                     <div>
-                      <div style={{ fontSize: 18, fontWeight: 800, color: '#FFF' }}>{alert.beneficiary_name || 'Beneficiaire'}</div>
+                      <div style={{ fontSize: 18, fontWeight: 800, color: '#FFF' }}>{alert.beneficiary_name || 'Bénéficiaire'}</div>
                       <div style={{ fontSize: 12, color: 'rgba(255,255,255,.7)', marginTop: 2 }}>Le {new Date(alert.created_at).toLocaleString('fr-FR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</div>
                     </div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '4px 10px', borderRadius: 999, background: isActive ? 'rgba(239,68,68,0.25)' : 'rgba(16,185,129,0.25)', flexShrink: 0 } as any}>

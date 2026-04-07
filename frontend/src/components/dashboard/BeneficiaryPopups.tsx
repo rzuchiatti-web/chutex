@@ -118,7 +118,7 @@ export function LanguagePopup({ show, onClose, lang, setLang }: any) {
         <div style={{ textAlign: 'center', marginBottom: 28 } as any}>
           <div style={{ width: 56, height: 56, borderRadius: 16, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', marginBottom: 14 } as any}><i className="ri-global-line" style={{ fontSize: 26, color: 'rgba(255,255,255,0.6)' }} /></div>
           <div style={{ fontSize: 22, fontWeight: 900, color: '#FFF' }}>Langue</div>
-          <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.3)', marginTop: 4 }}>Selectionnez votre langue</div>
+          <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.3)', marginTop: 4 }}>Sélectionnéz votre langue</div>
         </div>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 6 } as any}>
           {languages.map(l => (
@@ -257,8 +257,8 @@ export function ReminderCRUDPopup({ show, editReminder, setEditReminder, onClose
 
             {/* Dosage / Volume — conditional on type */}
             <div style={{ padding: '16px 20px', borderBottom: '1px solid rgba(255,255,255,0.06)' } as any}>
-              <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 8 }}>{popupType === 'medication' ? 'Dosage / Posologie' : popupType === 'hydration' ? 'Volume' : 'Details'}</div>
-              <input value={editingData?.dosage || ''} onChange={(e: any) => setEditReminder({ ...editReminder, _editingData: { ...editingData, dosage: e.target.value } })} placeholder={popupType === 'medication' ? 'Ex: 1 comprime, 500mg, 2x/jour' : popupType === 'hydration' ? 'Ex: 300ml, 1 grand verre' : 'Ex: 15 minutes, intensite legere'} style={{ width: '100%', padding: '12px 16px', borderRadius: 12, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', color: '#FFF', fontSize: 14, fontFamily: 'inherit', boxSizing: 'border-box', outline: 'none' } as any} />
+              <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 8 }}>{popupType === 'medication' ? 'Dosage / Posologie' : popupType === 'hydration' ? 'Volume' : 'Détails'}</div>
+              <input value={editingData?.dosage || ''} onChange={(e: any) => setEditReminder({ ...editReminder, _editingData: { ...editingData, dosage: e.target.value } })} placeholder={popupType === 'medication' ? 'Ex: 1 comprime, 500mg, 2x/jour' : popupType === 'hydration' ? 'Ex: 300ml, 1 grand verre' : 'Ex: 15 minutes, intensité légère'} style={{ width: '100%', padding: '12px 16px', borderRadius: 12, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', color: '#FFF', fontSize: 14, fontFamily: 'inherit', boxSizing: 'border-box', outline: 'none' } as any} />
             </div>
 
             {/* Description / Notes */}
@@ -436,7 +436,7 @@ export function ReminderCRUDPopup({ show, editReminder, setEditReminder, onClose
                                   ))}
                                 </div>
                               )}
-                              {s.source === 'pro' && <div style={{ fontSize: 9, color: accent, fontWeight: 700, marginBottom: 8 }}>Recommande par votre coach</div>}
+                              {s.source === 'pro' && <div style={{ fontSize: 9, color: accent, fontWeight: 700, marginBottom: 8 }}>Recommandé par votre coach</div>}
                               <div data-testid={`add-suggestion-${si}`} onClick={async () => {
                                 try {
                                   await apiFetch('/api/reminders', { method: 'POST', body: JSON.stringify({ reminder_type: popupType, title: s.title, time: '08:00', days: ['lun','mar','mer','jeu','ven','sam','dim'], notes: s.description || '', dosage: s.dosage || '', volume: s.volume || '', benefits: s.benefits || '', ingredients: JSON.stringify(s.ingredients || []), active: true }) }, token);
@@ -468,7 +468,7 @@ export function ReminderCRUDPopup({ show, editReminder, setEditReminder, onClose
                 onMouseEnter={(e: any) => { e.currentTarget.style.opacity = '0.85'; }}
                 onMouseLeave={(e: any) => { e.currentTarget.style.opacity = '1'; }}>
                 <i className="ri-add-line" style={{ fontSize: 18, color: '#111' }} />
-                <span style={{ fontSize: 14, fontWeight: 700, color: '#111' }}>Creer un rappel personnalise</span>
+                <span style={{ fontSize: 14, fontWeight: 700, color: '#111' }}>Créer un rappel personnalisé</span>
               </div>
               <div data-testid="browse-library-btn" onClick={() => setShowLibrary(!showLibrary)} style={{ padding: '14px', borderRadius: 999, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, transition: 'opacity 0.15s' } as any}
                 onMouseEnter={(e: any) => { e.currentTarget.style.opacity = '0.85'; }}
@@ -530,12 +530,12 @@ export function AddGuardianPopup({ show, onClose, phone, setPhone, relationship,
           <div onClick={onClose} style={{ width: 36, height: 36, borderRadius: 10, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}><i className="ri-close-line" style={{ fontSize: 18, color: 'rgba(255,255,255,0.6)' }} /></div>
         </div>
         <div style={{ marginBottom: 24 } as any}>
-          <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(79,195,247,0.5)', letterSpacing: 2, textTransform: 'uppercase', marginBottom: 6 }}>Beneficiaire &middot; Gardien</div>
+          <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(79,195,247,0.5)', letterSpacing: 2, textTransform: 'uppercase', marginBottom: 6 }}>Bénéficiaire &middot; Gardien</div>
           <div style={{ fontSize: 26, fontWeight: 900, color: '#FFF', marginBottom: 8, lineHeight: 1.1 }}>Ajouter un<br/>gardien</div>
-          <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', lineHeight: 1.6 }}>Entrez le numero de telephone de votre gardien.</div>
+          <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', lineHeight: 1.6 }}>Entrez le numéro de telephone de votre gardien.</div>
         </div>
         <div style={{ marginBottom: 24 } as any}>
-          <div style={{ fontSize: 9, fontWeight: 700, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 8 }}>Numero de telephone</div>
+          <div style={{ fontSize: 9, fontWeight: 700, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 8 }}>Numéro de telephone</div>
           <PhoneInputWithPrefix value={phone} onChangeText={setPhone} prefix={phonePrefix} onPrefixChange={setPhonePrefix} placeholder="6 12 34 56 78" />
         </div>
         <div style={{ marginBottom: 24 } as any}>
@@ -564,7 +564,7 @@ export function AddGuardianPopup({ show, onClose, phone, setPhone, relationship,
         <div onClick={async () => {
           if (!phone.trim() || isLoading) return;
           const phoneClean = phone.trim().replace(/[\s.\-]/g, '');
-          if (phoneClean.length < 10) { setMsg('Erreur : Numero invalide (min 10 chiffres)'); return; }
+          if (phoneClean.length < 10) { setMsg('Erreur : Numéro invalide (min 10 chiffres)'); return; }
           setIsLoading(true); setMsg('');
           try {
             const res = await apiFetch('/api/beneficiary/invite-guardian', { method: 'POST', body: JSON.stringify({ phone: phone.trim(), relationship: relationship.trim() }) }, token);
@@ -650,9 +650,9 @@ export function GuardianActivationPopup({ show, onClose, step, setStep, alertSms
               <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.45)', lineHeight: 1.6 }}>Activez votre espace aidant pour veiller sur vos proches</div>
             </div>
             {[
-              { icon: 'ri-eye-line', color: '#22D3EE', title: 'Suivi en temps reel', desc: 'Consultez les donnees de sante et la localisation de vos proches' },
+              { icon: 'ri-eye-line', color: '#22D3EE', title: 'Suivi en temps reel', desc: 'Consultez les données de santé et la localisation de vos proches' },
               { icon: 'ri-alarm-warning-line', color: '#EF4444', title: 'Alertes instantanees', desc: 'Recevez les alertes SOS, chutes et anomalies par SMS et email' },
-              { icon: 'ri-heart-pulse-line', color: '#10B981', title: 'Rapports de sante', desc: 'Acces aux rapports detailles et recommandations du Coach IA' },
+              { icon: 'ri-heart-pulse-line', color: '#10B981', title: 'Rapports de sante', desc: 'Acces aux rapports détaillés et recommandations du Coach IA' },
               { icon: 'ri-route-line', color: '#F59E0B', title: 'Interventions coordonnees', desc: 'Participez a la chaine de secours en cas d\'alerte' },
             ].map((f, i) => (
               <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: 14, padding: '12px 0', borderTop: i > 0 ? '1px solid rgba(255,255,255,0.04)' : 'none' } as any}>

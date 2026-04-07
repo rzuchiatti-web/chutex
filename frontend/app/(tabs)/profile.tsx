@@ -212,17 +212,17 @@ export default function ProfileScreen() {
   }, [token, user?.role, user?.active_role]);
 
   const fetchNotifPrefs = useCallback(async () => {
-    try { setNotifPrefs(await apiFetch('/api/push/preferences', {}, token)); } catch {}
+    try { setNotifPrefs(await apiFetch('/api/push/préférences', {}, token)); } catch {}
   }, [token]);
   
   const toggleNotifPref = async (key: string, value: boolean) => {
     setNotifPrefs({ ...notifPrefs, [key]: value });
     setSavingNotif(true);
-    try { await apiFetch('/api/push/preferences', { method: 'PUT', body: JSON.stringify({ [key]: value }) }, token); } catch {} finally { setSavingNotif(false); }
+    try { await apiFetch('/api/push/préférences', { method: 'PUT', body: JSON.stringify({ [key]: value }) }, token); } catch {} finally { setSavingNotif(false); }
   };
 
   const testPush = async () => {
-    try { await apiFetch('/api/push/test', { method: 'POST' }, token); Alert.alert('Notification envoyee', 'Verifiez votre appareil !'); } catch (e: any) { Alert.alert('Erreur', e.message); }
+    try { await apiFetch('/api/push/test', { method: 'POST' }, token); Alert.alert('Notification envoyee', 'Vérifiéz votre appareil !'); } catch (e: any) { Alert.alert('Erreur', e.message); }
   };
 
   const [isDark, setIsDark] = React.useState(() => typeof localStorage !== 'undefined' ? localStorage.getItem('chutex_dark') === '1' : false);
@@ -308,7 +308,7 @@ const BG_PROFILE = 'https://customer-assets.emergentagent.com/job_9950a869-9328-
   const effectiveRole = user.active_role || user.role;
   const isBen = effectiveRole === 'beneficiary';
   const isGuardian = effectiveRole === 'guardian' || effectiveRole === 'professional';
-  const roleName = isBen ? t('beneficiary') : isGuardian ? t('guardian') : effectiveRole === 'teleassistance' ? 'Teleassistance' : effectiveRole === 'admin' ? 'Administrateur' : 'Company';
+  const roleName = isBen ? t('beneficiary') : isGuardian ? t('guardian') : effectiveRole === 'teleassistance' ? 'Téléassistance' : effectiveRole === 'admin' ? 'Administrateur' : 'Company';
   const otherRole = isBen ? 'gardien' : 'beneficiaire';
   const hasOther = (effectiveRole === 'prescriber_company' || effectiveRole === 'admin' || effectiveRole === 'teleassistance') ? false
     : isBen ? user.has_guardian_space : (user.has_beneficiary_space || user.role === 'beneficiary');
@@ -356,7 +356,7 @@ const BG_PROFILE = 'https://customer-assets.emergentagent.com/job_9950a869-9328-
                     }
                   }
                 }} style={{ padding: '7px 16px', borderRadius: 999, cursor: 'pointer', transition: 'all 0.25s ease', background: effectiveRole === 'beneficiary' ? '#FFF' : 'transparent', boxShadow: effectiveRole === 'beneficiary' ? '0 2px 8px rgba(0,0,0,0.15)' : 'none' } as any}>
-                  <span style={{ fontSize: 11, fontWeight: 700, color: effectiveRole === 'beneficiary' ? '#111' : 'rgba(255,255,255,0.5)' }}>Beneficiaire</span>
+                  <span style={{ fontSize: 11, fontWeight: 700, color: effectiveRole === 'beneficiary' ? '#111' : 'rgba(255,255,255,0.5)' }}>Bénéficiaire</span>
                 </div>
                 <div onClick={async () => {
                   if (effectiveRole !== 'guardian' && effectiveRole !== 'professional') {
@@ -563,7 +563,7 @@ const BG_PROFILE = 'https://customer-assets.emergentagent.com/job_9950a869-9328-
                   <div style={{ padding: '14px 16px', borderRadius: 16, background: 'rgba(16,185,129,0.08)', border: '1px solid rgba(16,185,129,0.15)', display: 'flex', alignItems: 'center', gap: 12, marginBottom: 12 } as any}>
                     <i className="ri-shield-check-line" style={{ fontSize: 18, color: '#10B981' }} />
                     <div style={{ flex: 1 } as any}>
-                      <div style={{ fontSize: 13, fontWeight: 700, color: '#10B981' }}>Compte bancaire enregistre</div>
+                      <div style={{ fontSize: 13, fontWeight: 700, color: '#10B981' }}>Compte bancaire enregistré</div>
                       <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.3)', marginTop: 2 }}>Vos commissions seront versees automatiquement</div>
                     </div>
                   </div>
@@ -571,7 +571,7 @@ const BG_PROFILE = 'https://customer-assets.emergentagent.com/job_9950a869-9328-
                   <div style={{ padding: '14px 16px', borderRadius: 16, background: 'rgba(16,185,129,0.08)', border: '1px solid rgba(16,185,129,0.15)', display: 'flex', alignItems: 'center', gap: 12, marginBottom: 12 } as any}>
                     <i className="ri-shield-check-line" style={{ fontSize: 18, color: '#10B981' }} />
                     <div style={{ flex: 1 } as any}>
-                      <div style={{ fontSize: 13, fontWeight: 700, color: '#10B981' }}>Compte enregistre</div>
+                      <div style={{ fontSize: 13, fontWeight: 700, color: '#10B981' }}>Compte enregistré</div>
                       <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.3)', marginTop: 2 }}>Vous pouvez mettre a jour votre IBAN ci-dessous</div>
                     </div>
                   </div>
@@ -584,10 +584,10 @@ const BG_PROFILE = 'https://customer-assets.emergentagent.com/job_9950a869-9328-
                     await apiFetch('/api/saad/onboarding', { method: 'POST', body: JSON.stringify({ saad_id: user.id, company_name: user.structure_name || user.name, email: user.email || '', iban: ibanInput, commission_type: 'fixed' }) }, token);
                     setIbanSaved(true);
                     await refreshUser();
-                    window.alert('IBAN enregistre avec succes !');
+                    window.alert('IBAN enregistré avec succes !');
                   } catch (e: any) { window.alert('Erreur: ' + (e.message || 'Echec')); }
                   finally { setIbanSaving(false); }
-                }} style={{ padding: '17px', borderRadius: 999, background: ibanInput.length >= 15 ? 'linear-gradient(135deg, #10B981, #059669)' : 'rgba(255,255,255,0.06)', color: ibanInput.length >= 15 ? '#FFF' : 'rgba(255,255,255,0.3)', cursor: ibanInput.length >= 15 ? 'pointer' : 'default', textAlign: 'center', fontSize: 16, fontWeight: 800, boxShadow: ibanInput.length >= 15 ? '0 4px 16px rgba(16,185,129,0.3)' : 'none', transition: 'all 0.2s' } as any}>{ibanSaving ? 'Enregistrement...' : 'Enregistrer mon IBAN'}</div>
+                }} style={{ padding: '17px', borderRadius: 999, background: ibanInput.length >= 15 ? 'linear-gradient(135deg, #10B981, #059669)' : 'rgba(255,255,255,0.06)', color: ibanInput.length >= 15 ? '#FFF' : 'rgba(255,255,255,0.3)', cursor: ibanInput.length >= 15 ? 'pointer' : 'default', textAlign: 'center', fontSize: 16, fontWeight: 800, boxShadow: ibanInput.length >= 15 ? '0 4px 16px rgba(16,185,129,0.3)' : 'none', transition: 'all 0.2s' } as any}>{ibanSaving ? 'Enregistrément...' : 'Enregistrér mon IBAN'}</div>
               </div>
             </div>
           )}
@@ -653,7 +653,7 @@ const BG_PROFILE = 'https://customer-assets.emergentagent.com/job_9950a869-9328-
               { val: editEmergencyName, set: setEditEmergencyName, label: 'Contact d\'urgence (nom)', icon: 'ri-alarm-warning-line' },
               { val: editEmergencyPhone, set: setEditEmergencyPhone, label: 'Contact d\'urgence (tel)', icon: 'ri-phone-line' },
               ...(isBen ? [
-                { val: editDoctor, set: setEditDoctor, label: 'Medecin traitant', icon: 'ri-stethoscope-line' },
+                { val: editDoctor, set: setEditDoctor, label: 'Médecin traitant', icon: 'ri-stethoscope-line' },
               ] : []),
             ]).map((f: any, i: number) => (
               <div key={i} style={{ marginBottom: 12 } as any}>
@@ -663,7 +663,7 @@ const BG_PROFILE = 'https://customer-assets.emergentagent.com/job_9950a869-9328-
             ))}
             <div style={{ display: 'flex', gap: 10, marginTop: 16 } as any}>
               <div onClick={() => setEditMode(false)} style={{ flex: 1, padding: '14px', borderRadius: 999, textAlign: 'center', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', color: 'rgba(255,255,255,0.6)', fontWeight: 700, cursor: 'pointer' } as any}>{t('cancel')}</div>
-              <div onClick={saveProfile} style={{ flex: 1, padding: '14px', borderRadius: 999, textAlign: 'center', background: 'rgba(255,255,255,0.15)', border: '1px solid rgba(255,255,255,0.2)', color: '#FFF', fontWeight: 700, cursor: 'pointer' } as any}>{saving ? '...' : 'Enregistrer'}</div>
+              <div onClick={saveProfile} style={{ flex: 1, padding: '14px', borderRadius: 999, textAlign: 'center', background: 'rgba(255,255,255,0.15)', border: '1px solid rgba(255,255,255,0.2)', color: '#FFF', fontWeight: 700, cursor: 'pointer' } as any}>{saving ? '...' : 'Enregistrér'}</div>
             </div>
           </ProfileGlassPopup>
 
@@ -704,12 +704,12 @@ const BG_PROFILE = 'https://customer-assets.emergentagent.com/job_9950a869-9328-
 
           <ProfileGlassPopup visible={showNotifPrefs} onClose={() => setShowNotifPrefs(false)}>
             <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.35)', letterSpacing: 2, textTransform: 'uppercase', marginBottom: 16 }}>Notifications</div>
-            <div style={{ fontSize: 22, fontWeight: 800, color: '#FFF', marginBottom: 6 }}>Preferences</div>
-            <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', marginBottom: 20, lineHeight: 1.5 }}>{effectiveRole === 'prescriber_company' ? 'Choisissez les notifications que vous souhaitez recevoir pour votre structure.' : 'Activez ou desactivez les types de notifications.'}</div>
+            <div style={{ fontSize: 22, fontWeight: 800, color: '#FFF', marginBottom: 6 }}>Préférences</div>
+            <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', marginBottom: 20, lineHeight: 1.5 }}>{effectiveRole === 'prescriber_company' ? 'Choisissez les notifications que vous souhaitez recevoir pour votre structure.' : 'Activez ou désactivéz les types de notifications.'}</div>
             {notifPrefs ? (effectiveRole === 'prescriber_company' ? [
               { key: 'intervention_new', label: 'Nouvelle intervention Care', desc: 'Quand un intervenant est sollicite', icon: 'ri-first-aid-kit-line', color: '#8B5CF6' },
               { key: 'intervention_done', label: 'Intervention terminee', desc: 'Quand un intervenant cloture son rapport', icon: 'ri-check-double-line', color: '#10B981' },
-              { key: 'prescription_new', label: 'Nouvelle prescription', desc: 'Quand un gardien cree une prescription', icon: 'ri-file-text-line', color: '#F59E0B' },
+              { key: 'prescription_new', label: 'Nouvelle prescription', desc: 'Quand un gardien créé une prescription', icon: 'ri-file-text-line', color: '#F59E0B' },
               { key: 'prescription_validated', label: 'Prescription validee', desc: 'Quand un beneficiaire souscrit', icon: 'ri-checkbox-circle-line', color: '#10B981' },
               { key: 'alert_new', label: 'Nouvelle alerte', desc: 'Quand une alerte est declenchee', icon: 'ri-alarm-warning-line', color: '#EF4444' },
               { key: 'alert_resolved', label: 'Alerte cloturee', desc: 'Quand une alerte est resolue', icon: 'ri-shield-check-line', color: '#3B82F6' },
@@ -937,7 +937,7 @@ const BG_PROFILE = 'https://customer-assets.emergentagent.com/job_9950a869-9328-
                   <div style={{ padding: '14px 16px', borderRadius: 16, background: 'rgba(167,139,250,0.06)', border: '1px solid rgba(167,139,250,0.15)', textAlign: 'left', marginBottom: 16 } as any}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 10 } as any}>
                       <i className="ri-information-line" style={{ fontSize: 16, color: '#A78BFA', flexShrink: 0 }} />
-                      <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.5)', lineHeight: 1.5 }}>Cette fonctionnalite est activee automatiquement sur l'application mobile iOS et Android lors de votre premiere connexion.</span>
+                      <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.5)', lineHeight: 1.5 }}>Cette fonctionnalité est activée automatiquement sur l'application mobile iOS et Android lors de votre premiere connexion.</span>
                     </div>
                   </div>
                   <div onClick={() => setShowFaceId(false)} style={{ padding: '14px', borderRadius: 999, background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.15)', cursor: 'pointer', fontSize: 14, fontWeight: 700, color: '#FFF' } as any}>Compris</div>

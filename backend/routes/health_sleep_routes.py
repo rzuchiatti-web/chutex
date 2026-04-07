@@ -196,7 +196,7 @@ async def get_sleep_history(user=Depends(get_current_user)):
             "start_time": n.get("start_time", ""),
             "stages": n["stages"],  # Real minute-by-minute stages for hypnogram
         })
-    return history[-7:]
+    return history[-30:]
 
 
 @router.get("/health/sleep/analysis")

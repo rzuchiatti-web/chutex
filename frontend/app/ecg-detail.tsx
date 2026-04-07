@@ -42,7 +42,7 @@ function ECGWaveform({ data, color = '#FFFFFF', w = 360, h = 120 }: { data?: num
   );
 }
 
-export default function ECGDetailScreen() {
+export default function ECGDétailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const { token } = useAuth();
   const router = useRouter();
@@ -76,8 +76,8 @@ export default function ECGDetailScreen() {
   if (!ecg) {
     return (
       <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', fontFamily: "'Inter', system-ui, sans-serif", background: '#0A0A1A' } as any}>
-        <div style={{ fontSize: 18, fontWeight: 800, color: '#FFF', marginBottom: 8 }}>Aucun ECG enregistre</div>
-        <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.4)', marginBottom: 24 }}>Effectuez un ECG pour voir les resultats ici.</div>
+        <div style={{ fontSize: 18, fontWeight: 800, color: '#FFF', marginBottom: 8 }}>Aucun ECG enregistré</div>
+        <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.4)', marginBottom: 24 }}>Effectuez un ECG pour voir les résultats ici.</div>
         <div onClick={() => router.push('/ecg' as any)} style={{ padding: '12px 24px', borderRadius: 14, background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)', cursor: 'pointer', fontSize: 14, fontWeight: 700, color: '#FFF' } as any}>Faire un ECG</div>
       </div>
     );
@@ -94,7 +94,7 @@ export default function ECGDetailScreen() {
     { label: 'Rythme sinusal', ok: isNormal || bpm === 0, desc: bpm > 0 ? `Frequence: ${bpm} bpm` : 'En attente de donnees' },
     { label: 'Fibrillation auriculaire', ok: true, desc: 'Aucune fibrillation detectee' },
     { label: 'Bradycardie', ok: bpm === 0 || bpm >= 50, desc: bpm > 0 && bpm < 50 ? 'Frequence basse detectee' : 'Frequence normale' },
-    { label: 'Tachycardie', ok: bpm === 0 || bpm <= 100, desc: bpm > 100 ? 'Frequence elevee detectee' : 'Frequence normale' },
+    { label: 'Tachycardie', ok: bpm === 0 || bpm <= 100, desc: bpm > 100 ? 'Frequence élevée detectee' : 'Frequence normale' },
   ];
   const allNormal = checks.every(c => c.ok);
 
@@ -128,7 +128,7 @@ export default function ECGDetailScreen() {
           <ECGWaveform data={waveformData.length > 10 ? waveformData : undefined} color="#FFFFFF" />
           <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 8 } as any}>
             <span style={{ fontSize: 9, color: 'rgba(255,255,255,0.2)' }}>25mm/s</span>
-            <span style={{ fontSize: 9, color: 'rgba(255,255,255,0.2)' }}>Duree: {ecg.duration_sec || 30}s {isRealData ? `— ${waveformData.length} pts` : ''}</span>
+            <span style={{ fontSize: 9, color: 'rgba(255,255,255,0.2)' }}>Durée: {ecg.duration_sec || 30}s {isRealData ? `— ${waveformData.length} pts` : ''}</span>
             <span style={{ fontSize: 9, color: 'rgba(255,255,255,0.2)' }}>10mm/mV</span>
           </div>
         </div>
@@ -172,7 +172,7 @@ export default function ECGDetailScreen() {
 
         {/* Checklist */}
         <div data-testid="ecg-detail-checks" style={{ borderRadius: 18, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', padding: '16px', marginBottom: 14 } as any}>
-          <div style={{ fontSize: 13, fontWeight: 800, color: '#FFF', marginBottom: 12 }}>Verification automatique</div>
+          <div style={{ fontSize: 13, fontWeight: 800, color: '#FFF', marginBottom: 12 }}>Vérification automatique</div>
           {checks.map((c, i) => (
             <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '8px 0', borderTop: i > 0 ? '1px solid rgba(255,255,255,0.04)' : 'none' } as any}>
               <div style={{ width: 24, height: 24, borderRadius: 7, background: c.ok ? 'rgba(16,185,129,0.12)' : 'rgba(239,68,68,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}>
@@ -195,13 +195,13 @@ export default function ECGDetailScreen() {
             <div style={{ fontSize: 14, fontWeight: 800, color: '#FFF' }}>Qu'est-ce qu'un ECG ?</div>
           </div>
           <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.45)', lineHeight: 1.7 }}>
-            L'electrocardiogramme (ECG) enregistre l'activite electrique de votre coeur. Chaque battement produit un signal electrique qui traverse le coeur et le fait se contracter. Le trace permet de detecter des anomalies du rythme cardiaque comme la fibrillation auriculaire, les blocs auriculo-ventriculaires ou les arythmies.
+            L'electrocardiogramme (ECG) enregistré l'activite electrique de votre coeur. Chaque battement produit un signal electrique qui traverse le coeur et le fait se contracter. Le trace permet de detecter des anomalies du rythme cardiaque comme la fibrillation auriculaire, les blocs auriculo-ventriculaires ou les arythmies.
           </div>
           <div style={{ marginTop: 12, display: 'flex', gap: 8 } as any}>
             {[
               { label: 'Onde P', desc: 'Contraction des oreillettes', color: '#38BDF8' },
               { label: 'Complexe QRS', desc: 'Contraction des ventricules', color: '#10B981' },
-              { label: 'Onde T', desc: 'Recuperation des ventricules', color: '#F59E0B' },
+              { label: 'Onde T', desc: 'Récupération des ventricules', color: '#F59E0B' },
             ].map((w, i) => (
               <div key={i} style={{ flex: 1, padding: '8px 6px', borderRadius: 10, background: `${w.color}10`, textAlign: 'center' } as any}>
                 <div style={{ fontSize: 11, fontWeight: 800, color: w.color }}>{w.label}</div>

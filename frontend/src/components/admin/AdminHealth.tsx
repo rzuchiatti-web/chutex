@@ -10,7 +10,7 @@ export default function AdminHealth({ data, token, mob }: any) {
       <div style={{ display: 'grid', gridTemplateColumns: mob ? '1fr' : '1fr 1fr 1fr', gap: 14, marginBottom: 24 } as any}>
         <div className="adm-card" style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
           <div style={{ width: 42, height: 42, borderRadius: 12, background: '#EFF6FF', display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}><i className="ri-user-heart-line" style={{ fontSize: 19, color: '#3B82F6' }} /></div>
-          <div><div style={{ fontSize: 24, fontWeight: 800, color: '#1E293B', lineHeight: 1 }}>{bens.length}</div><div style={{ fontSize: 10, color: '#94A3B8', marginTop: 2 }}>Beneficiaires suivis</div></div>
+          <div><div style={{ fontSize: 24, fontWeight: 800, color: '#1E293B', lineHeight: 1 }}>{bens.length}</div><div style={{ fontSize: 10, color: '#94A3B8', marginTop: 2 }}>Bénéficiaires suivis</div></div>
         </div>
         <div className="adm-card" style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
           <div style={{ width: 42, height: 42, borderRadius: 12, background: '#F0FDF4', display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}><i className="ri-heart-pulse-line" style={{ fontSize: 19, color: '#10B981' }} /></div>
@@ -18,20 +18,20 @@ export default function AdminHealth({ data, token, mob }: any) {
         </div>
         <div className="adm-card" style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
           <div style={{ width: 42, height: 42, borderRadius: 12, background: '#F5F3FF', display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}><i className="ri-flask-line" style={{ fontSize: 19, color: '#7C3AED' }} /></div>
-          <div><div style={{ fontSize: 24, fontWeight: 800, color: '#1E293B', lineHeight: 1 }}>{bens.filter((b: any) => b.latest_glycemia).length}</div><div style={{ fontSize: 10, color: '#94A3B8', marginTop: 2 }}>Estimation glycemie</div></div>
+          <div><div style={{ fontSize: 24, fontWeight: 800, color: '#1E293B', lineHeight: 1 }}>{bens.filter((b: any) => b.latest_glycemia).length}</div><div style={{ fontSize: 10, color: '#94A3B8', marginTop: 2 }}>Estimation glycémie</div></div>
         </div>
       </div>
 
       {bens.length === 0 ? (
         <div className="adm-card" style={{ textAlign: 'center', padding: 40, color: '#94A3B8' }}>
           <i className="ri-heart-pulse-line" style={{ fontSize: 40, marginBottom: 12, display: 'block', opacity: 0.4 }} />
-          Aucun beneficiaire
+          Aucun bénéficiaire
         </div>
       ) : (
         <div className="adm-card" style={{ padding: 0, overflow: 'hidden' }}>
           <div style={{ overflowX: 'auto' } as any}>
             <table className="adm-table" style={{ minWidth: mob ? 700 : 'auto' } as any}>
-              <thead><tr><th>Beneficiaire</th><th>FC</th><th>HRV</th><th>SpO2</th><th>Pas</th><th>Glycemie</th><th>Zone</th><th>Confiance</th></tr></thead>
+              <thead><tr><th>Bénéficiaire</th><th>FC</th><th>HRV</th><th>SpO2</th><th>Pas</th><th>Glycémie</th><th>Zone</th><th>Confiance</th></tr></thead>
               <tbody>
                 {bens.map((b: any, i: number) => {
                   const r = b.latest_reading?.data || {};

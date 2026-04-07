@@ -113,12 +113,12 @@ export function OnboardingChecklist({ items, title }: { items: { label: string; 
 
 /* ===== HELP CENTER - FAQ + guides ===== */
 const FAQ_GENERAL = [
-  { q: "Comment fonctionne l'alerte SOS ?", a: "Appuyez sur le bouton rouge SOS. Vos gardiens sont immediatement alertes par notification, SMS et email. Si vous avez un abonnement Care, la teleassistance vous appelle pour verifier votre etat et coordonner les secours si necessaire." },
+  { q: "Comment fonctionne l'alerte SOS ?", a: "Appuyez sur le bouton rouge SOS. Vos gardiens sont immédiatement alertes par notification, SMS et email. Si vous avez un abonnement Care, la téléassistance vous appelle pour vérifier votre etat et coordonner les secours si necessaire." },
   { q: "Comment changer de langue ?", a: "Cliquez sur le drapeau dans le header de votre dashboard ou allez dans Profil > Langue. 7 langues sont disponibles : francais, anglais, allemand, espagnol, italien, portugais et neerlandais." },
-  { q: "Qui peut voir mes donnees de sante ?", a: "Seuls vos gardiens designes et les operateurs de teleassistance (si abonnement Care) ont acces a vos donnees. Vous controlez le partage dans les reglages de confidentialite." },
+  { q: "Qui peut voir mes données de santé ?", a: "Seuls vos gardiens designes et les operateurs de téléassistance (si abonnement Care) ont acces a vos donnees. Vous contrôlez le partage dans les réglages de confidentialite." },
   { q: "Comment modifier mon profil ?", a: "Allez dans l'onglet Profil, puis cliquez sur 'Modifier le profil'. Vous pouvez mettre a jour vos informations personnelles, votre photo et votre dossier medical." },
   { q: "Comment contacter le support ?", a: "Depuis le Profil, cliquez sur 'Support' pour envoyer un email a support@chutex.fr. Vous pouvez aussi demander a Nora qui repondra a vos questions sur l'application." },
-  { q: "Qui est Nora ?", a: "Nora est votre assistante medicale IA personnelle. Elle connait vos donnees de sante en temps reel et peut repondre a vos questions, analyser vos constantes et vous donner des recommandations personnalisees." },
+  { q: "Qui est Nora ?", a: "Nora est votre assistante medicale IA personnelle. Elle connait vos données de santé en temps reel et peut repondre a vos questions, analyser vos constantes et vous donner des recommandations personnalisées." },
 ];
 
 const FAQ_BENEFICIARY = [
@@ -126,33 +126,33 @@ const FAQ_BENEFICIARY = [
   { q: "Comment faire une pesee ?", a: "Depuis la page Sante, cliquez sur 'Nouvelle pesee'. Suivez le parcours guide : placez la balance sur un sol dur, montez pieds nus et tenez le manche. La mesure dure 15 secondes." },
   { q: "Comment realiser un ECG ?", a: "Depuis la page Sante, cliquez sur 'Realiser un ECG'. L'app vous guide : asseyez-vous, respirez calmement pendant 15s, placez votre doigt sur le capteur du bracelet et attendez 30 secondes." },
   { q: "Que signifient les zones de couleur sur mes donnees ?", a: "Vert = zone normale, Bleu = en dessous de la normale, Rouge = au dessus de la normale. Le marqueur rond indique votre valeur actuelle sur la barre." },
-  { q: "Comment ajouter un gardien ?", a: "Sur votre dashboard, faites defiler jusqu'a la section 'Mes gardiens', puis cliquez le bouton '+'. Entrez le numero de telephone de votre proche et choisissez le type de lien (famille ou professionnel)." },
-  { q: "Comment fonctionnent les rappels ?", a: "Cliquez sur une categorie de rappel (hydratation, traitement, alarme) sur le dashboard. Vous pouvez ajouter, modifier l'heure et les jours, activer/desactiver chaque rappel." },
-  { q: "Qu'est-ce que le morning briefing ?", a: "A chaque connexion, Nora vous accueille avec un resume personnalise de votre etat de sante, vos objectifs du jour et des recommandations basees sur vos donnees recentes." },
-  { q: "Comment comprendre mon age biologique ?", a: "L'age biologique est calcule a partir de votre composition corporelle, vos constantes et votre activite. Un age bio inferieur a votre age reel signifie que votre corps est en meilleure sante que la moyenne." },
-  { q: "Comment activer l'espace gardien ?", a: "Sur le dashboard beneficiaire, cliquez sur 'Devenir aidant'. Suivez les etapes pour configurer vos alertes SMS et email, puis activez votre espace gardien." },
+  { q: "Comment ajouter un gardien ?", a: "Sur votre dashboard, faites defiler jusqu'a la section 'Mes gardiens', puis cliquez le bouton '+'. Entrez le numéro de telephone de votre proche et choisissez le type de lien (famille ou professionnel)." },
+  { q: "Comment fonctionnent les rappels ?", a: "Cliquez sur une catégorie de rappel (hydratation, traitement, alarme) sur le dashboard. Vous pouvez ajouter, modifier l'heure et les jours, activer/désactivér chaque rappel." },
+  { q: "Qu'est-ce que le morning briefing ?", a: "A chaque connexion, Nora vous accueille avec un resume personnalisé de votre etat de sante, vos objectifs du jour et des recommandations basees sur vos donnees recentes." },
+  { q: "Comment comprendre mon age biologique ?", a: "L'age biologique est calcule a partir de votre composition corporelle, vos constantes et votre activité. Un age bio inférieur a votre age reel signifie que votre corps est en meilleure sante que la moyenne." },
+  { q: "Comment activer l'espace gardien ?", a: "Sur le dashboard bénéficiaire, cliquez sur 'Devenir aidant'. Suivez les etapes pour configurer vos alertes SMS et email, puis activez votre espace gardien." },
 ];
 
 const FAQ_GUARDIAN = [
-  { q: "Comment ajouter un beneficiaire ?", a: "Sur votre dashboard gardien, cliquez 'Ajouter un beneficiaire'. Entrez le numero de telephone de votre proche. S'il a deja un compte, il recevra une invitation. Sinon, un SMS lui sera envoye." },
-  { q: "Comment suivre la sante de mes proches ?", a: "Cliquez sur la fiche d'un beneficiaire pour voir ses constantes en temps reel (FC, SpO2, tension, temperature), ses alertes et son historique de sante." },
-  { q: "Comment recevoir les alertes ?", a: "Les alertes sont envoyees automatiquement par notification push, SMS et email selon vos preferences. Configurez-les dans votre espace gardien lors de l'activation." },
-  { q: "Qu'est-ce qu'une intervention ?", a: "Quand une alerte se declenche, le systeme peut vous demander d'intervenir si vous etes le gardien le plus proche. Vous pouvez accepter la mission et vous rendre sur place." },
-  { q: "Comment fonctionne le suivi en temps reel ?", a: "Quand un intervenant accepte une mission, vous pouvez suivre sa position sur la carte en temps reel, comme une course de VTC. Vous voyez sa progression vers le beneficiaire." },
-  { q: "Comment discuter avec Nora en tant que gardien ?", a: "Cliquez sur la carte Nora IA. En espace gardien, Nora connait les donnees de tous vos beneficiaires et peut vous aider sur les alertes, interventions et le fonctionnement de l'espace." },
+  { q: "Comment ajouter un bénéficiaire ?", a: "Sur votre dashboard gardien, cliquez 'Ajouter un bénéficiaire'. Entrez le numéro de telephone de votre proche. S'il a déjà un compte, il recevra une invitation. Sinon, un SMS lui sera envoye." },
+  { q: "Comment suivre la sante de mes proches ?", a: "Cliquez sur la fiche d'un bénéficiaire pour voir ses constantes en temps reel (FC, SpO2, tension, temperature), ses alertes et son historique de sante." },
+  { q: "Comment recevoir les alertes ?", a: "Les alertes sont envoyees automatiquement par notification push, SMS et email selon vos préférences. Configurez-les dans votre espace gardien lors de l'activation." },
+  { q: "Qu'est-ce qu'une intervention ?", a: "Quand une alerte se declenche, le système peut vous demander d'intervenir si vous etes le gardien le plus proche. Vous pouvez accepter la mission et vous rendre sur place." },
+  { q: "Comment fonctionne le suivi en temps reel ?", a: "Quand un intervenant accepte une mission, vous pouvez suivre sa position sur la carte en temps reel, comme une course de VTC. Vous voyez sa progression vers le bénéficiaire." },
+  { q: "Comment discuter avec Nora en tant que gardien ?", a: "Cliquez sur la carte Nora IA. En espace gardien, Nora connait les donnees de tous vos bénéficiaires et peut vous aider sur les alertes, interventions et le fonctionnement de l'espace." },
   { q: "Comment me rattacher a une structure SAAD ?", a: "Votre structure SAAD vous enverra une invitation. Vous la verrez sur votre dashboard gardien. Acceptez-la pour etre rattache et recevoir les missions d'intervention." },
-  { q: "Comment basculer entre beneficiaire et gardien ?", a: "Cliquez sur votre avatar en haut du dashboard. Le menu vous permet de switcher entre vos espaces beneficiaire et gardien." },
+  { q: "Comment basculer entre bénéficiaire et gardien ?", a: "Cliquez sur votre avatar en haut du dashboard. Le menu vous permet de switcher entre vos espaces bénéficiaire et gardien." },
 ];
 
 const FAQ_SAAD = [
-  { q: "Comment gerer mes intervenants ?", a: "Depuis votre dashboard SAAD, cliquez sur 'Intervention Care'. Vous verrez la liste de vos intervenants, leur disponibilite et leurs missions en cours." },
-  { q: "Comment fonctionne le systeme de prescriptions ?", a: "Les prescripteurs rattaches a votre structure prescrivent Care Watch a leurs patients. Chaque souscription validee genere une commission. Suivez les stats dans la section Prescriptions." },
+  { q: "Comment gerer mes intervenants ?", a: "Depuis votre dashboard SAAD, cliquez sur 'Intervention Care'. Vous verrez la liste de vos intervenants, leur disponibilité et leurs missions en cours." },
+  { q: "Comment fonctionne le système de prescriptions ?", a: "Les prescripteurs rattaches a votre structure prescrivent Care Watch a leurs patients. Chaque souscription validee genere une commission. Suivez les stats dans la section Prescriptions." },
   { q: "Comment voir le classement des prescripteurs ?", a: "Le classement mensuel est affiche sur votre dashboard dans la section 'Challenge prescripteurs'. Les 3 premiers recoivent les primes configurees." },
   { q: "Comment configurer les recompenses ?", a: "En tant qu'admin, allez dans le Back-Office > Recompenses. Definissez les montants pour le 1er, 2e et 3e prescripteur du mois." },
   { q: "Comment rattacher un gardien a ma structure ?", a: "Depuis le Back-Office, allez dans Intervenants > Inviter. Entrez l'email ou le telephone du professionnel. Il recevra une invitation pour se rattacher a votre SAAD." },
-  { q: "Comment suivre les alertes de mes beneficiaires ?", a: "Toutes les alertes remontent sur votre dashboard avec le taux de resolution. Cliquez sur une alerte pour voir les details, l'historique des interventions et le statut." },
-  { q: "Comment gerer mes agences ?", a: "Depuis le dashboard SAAD, vous voyez le nombre d'agences. Cliquez sur la section Structure pour gerer vos agences, ajouter des intervenants par agence et suivre l'activite." },
-  { q: "Comment voir les rapports de sante ?", a: "Pour chaque beneficiaire rattache, vous pouvez consulter un rapport de sante complet avec l'analyse IA de Nora, les constantes et les recommandations." },
+  { q: "Comment suivre les alertes de mes bénéficiaires ?", a: "Toutes les alertes remontent sur votre dashboard avec le taux de resolution. Cliquez sur une alerte pour voir les details, l'historique des interventions et le statut." },
+  { q: "Comment gerer mes agences ?", a: "Depuis le dashboard SAAD, vous voyez le nombre d'agences. Cliquez sur la section Structure pour gerer vos agences, ajouter des intervenants par agence et suivre l'activité." },
+  { q: "Comment voir les rapports de sante ?", a: "Pour chaque bénéficiaire rattache, vous pouvez consulter un rapport de sante complet avec l'analyse IA de Nora, les constantes et les recommandations." },
 ];
 
 export function HelpCenter({ visible, onClose, role }: { visible: boolean; onClose: () => void; role?: string }) {
@@ -163,7 +163,7 @@ export function HelpCenter({ visible, onClose, role }: { visible: boolean; onClo
   const tabs = [
     { id: 'general', label: 'General', data: FAQ_GENERAL },
     ...(role === 'guardian' ? [{ id: 'guardian', label: 'Gardien', data: FAQ_GUARDIAN }] : []),
-    ...(role === 'beneficiary' || !role ? [{ id: 'beneficiary', label: 'Beneficiaire', data: FAQ_BENEFICIARY }] : []),
+    ...(role === 'beneficiary' || !role ? [{ id: 'beneficiary', label: 'Bénéficiaire', data: FAQ_BENEFICIARY }] : []),
     ...(role === 'prescriber_company' || role === 'admin' ? [{ id: 'saad', label: 'SAAD', data: FAQ_SAAD }] : []),
   ];
 
@@ -202,7 +202,7 @@ export function HelpCenter({ visible, onClose, role }: { visible: boolean; onClo
               {expanded === i && <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.55)', lineHeight: 1.6, marginTop: 10, marginLeft: 26 }}>{f.a}</div>}
             </div>
           ))}
-          {filtered.length === 0 && <div style={{ textAlign: 'center', padding: '30px 0', color: 'rgba(255,255,255,0.3)', fontSize: 14 }}>Aucun resultat</div>}
+          {filtered.length === 0 && <div style={{ textAlign: 'center', padding: '30px 0', color: 'rgba(255,255,255,0.3)', fontSize: 14 }}>Aucun résultat</div>}
           {/* Contact */}
           <div style={{ marginTop: 24, padding: '18px', borderRadius: 18, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', textAlign: 'center' } as any}>
             <i className="ri-mail-line" style={{ fontSize: 22, color: 'rgba(255,255,255,0.4)' }} />

@@ -239,7 +239,7 @@ export default function DorsiBilanPage() {
       if (msg.includes('401') || msg.includes('Token') || msg.includes('expire')) {
         alert('Votre session a expire. Veuillez vous reconnecter.');
       } else {
-        alert(msg || 'Erreur lors de la creation du programme. Veuillez reessayer.');
+        alert(msg || 'Erreur lors de la création du programme. Veuillez reessayer.');
       }
     }
   }, [bilanResult, token, router]);
@@ -405,7 +405,7 @@ export default function DorsiBilanPage() {
             <div style={{ ...G, marginBottom: 16, padding: 20, opacity: 0.85 } as any}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 14 } as any}>
                 <div style={{ width: 8, height: 8, borderRadius: 4, background: '#22D3EE' } as any} />
-                <span style={{ fontSize: 13, fontWeight: 800, color: '#FFF' }}>Bilan precedent</span>
+                <span style={{ fontSize: 13, fontWeight: 800, color: '#FFF' }}>Bilan précédent</span>
                 <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.3)', marginLeft: 'auto' }}>{previousBilan.created_at ? new Date(previousBilan.created_at).toLocaleDateString('fr-FR') : ''}</span>
               </div>
               <RadarChart allBilans={[{ ...previousBilan, _color: '#22D3EE' }]} />
@@ -459,7 +459,7 @@ export default function DorsiBilanPage() {
 
           {allBilans.length > 0 && (
             <div style={{ marginTop: 20, fontSize: 12, color: 'rgba(255,255,255,0.35)' }}>
-              Prochain bilan recommande dans 10 jours
+              Prochain bilan recommandé dans 10 jours
             </div>
           )}
         </div>

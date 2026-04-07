@@ -34,7 +34,7 @@ function stepIcon(text: string): { icon: string; color: string } {
 
 const INP_STYLE: any = { width: '100%', padding: '12px 14px', borderRadius: 12, background: '#F4F4F5', border: '1px solid #E5E7EB', color: '#111', fontSize: 13, outline: 'none', fontFamily: 'inherit', boxSizing: 'border-box' };
 
-export default function MealDetailPage() {
+export default function MealDétailPage() {
   const { token } = useAuth();
   const router = useRouter();
   const params = useLocalSearchParams();

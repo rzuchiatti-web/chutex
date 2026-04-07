@@ -70,7 +70,7 @@ export function PairingStepsPopup({ deviceType, step, onSetStep, onClose, onLaun
             <div style={{ display: 'flex', alignItems: 'center', gap: 10 } as any}>
               <i className="ri-information-line" style={{ fontSize: 16, color: meta.color, flexShrink: 0 }} />
               <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', lineHeight: 1.5 }}>
-                {macInput ? `Recherche ciblee sur: ${macInput}` : 'Sans adresse MAC, la recherche detectera votre bracelet Elio a proximite automatiquement.'}
+                {macInput ? `Recherche ciblée sur: ${macInput}` : 'Sans adresse MAC, la recherche détectera votre bracelet Elio à proximité automatiquement.'}
               </span>
             </div>
           </div>
@@ -145,7 +145,7 @@ export function BleScanningPopup({ deviceType, bleError, onClose }: BleScanningP
           </div>
         </div>
         <div style={{ fontSize: 18, fontWeight: 900, color: '#FFF', marginBottom: 8 }}>Recherche en cours...</div>
-        <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.4)', marginBottom: 12 }}>Selectionnez votre {meta.name} dans la popup Bluetooth</div>
+        <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.4)', marginBottom: 12 }}>Sélectionnéz votre {meta.name} dans la popup Bluetooth</div>
         {bleError && <div style={{ fontSize: 12, color: '#F59E0B', marginBottom: 16 }}>{bleError}</div>}
         <div onClick={onClose} style={{ padding: '14px', borderRadius: 999, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', cursor: 'pointer', textAlign: 'center', fontSize: 14, fontWeight: 700, color: 'rgba(255,255,255,0.5)' } as any}>Annuler</div>
       </div>

@@ -14,11 +14,11 @@ const CONTEXT_META: Record<string, { label: string; icon: string; color: string 
   minceur: { label: 'Minceur', icon: 'ri-scales-3-line', color: A },
   activity: { label: 'Activite', icon: 'ri-run-line', color: CY },
   sleep: { label: 'Sommeil', icon: 'ri-moon-line', color: P },
-  glycemia: { label: 'Glycemie', icon: 'ri-drop-line', color: R },
+  glycemia: { label: 'Glycémie', icon: 'ri-drop-line', color: R },
   heart_rate: { label: 'Rythme cardiaque', icon: 'ri-heart-line', color: R },
   spo2: { label: 'Oxygene', icon: 'ri-lungs-line', color: B },
   blood_pressure: { label: 'Tension', icon: 'ri-stethoscope-line', color: P },
-  temperature: { label: 'Temperature', icon: 'ri-temp-hot-line', color: A },
+  temperature: { label: 'Température', icon: 'ri-temp-hot-line', color: A },
   general: { label: 'Analyse generale', icon: 'ri-brain-line', color: P },
 };
 

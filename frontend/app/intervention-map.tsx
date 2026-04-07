@@ -75,7 +75,7 @@ export default function InterventionMapScreen() {
           html: '<div style="width:40px;height:40px;border-radius:50%;background:#EF4444;border:3px solid #FFF;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 16px rgba(239,68,68,0.6)"><i class="ri-user-heart-line" style="font-size:18px;color:#FFF"></i></div>',
           className: '', iconSize: [40, 40], iconAnchor: [20, 20],
         });
-        L.marker([benLoc.latitude, benLoc.longitude], { icon: benIcon }).addTo(map).bindPopup(`<b>${iv.beneficiary_name || 'Beneficiaire'}</b>`);
+        L.marker([benLoc.latitude, benLoc.longitude], { icon: benIcon }).addTo(map).bindPopup(`<b>${iv.beneficiary_name || 'Bénéficiaire'}</b>`);
 
         // Intervener marker
         const intLoc = iv.intervener_location || {};
@@ -229,7 +229,7 @@ export default function InterventionMapScreen() {
 
           {/* FICHE BENEFICIAIRE */}
           <div style={{ padding: '12px 14px', borderRadius: 16, background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)', marginBottom: 8, backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)' } as any}>
-            <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.3)', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 6 }}>Fiche beneficiaire</div>
+            <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.3)', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 6 }}>Fiche bénéficiaire</div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 6 } as any}>
               <div style={{ width: 38, height: 38, borderRadius: 999, background: 'linear-gradient(135deg, #D4845A, #E8A87C)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}><span style={{ fontSize: 16, fontWeight: 800, color: '#FFF' }}>{(ben.name || iv.beneficiary_name || '?').charAt(0)}</span></div>
               <div style={{ flex: 1 } as any}><div style={{ fontSize: 14, fontWeight: 800, color: '#FFF' }}>{ben.name || iv.beneficiary_name}</div>{ben.date_of_birth && <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.4)' }}>Ne(e) le {ben.date_of_birth}</div>}</div>

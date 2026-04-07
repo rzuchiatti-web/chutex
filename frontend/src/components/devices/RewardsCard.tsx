@@ -91,7 +91,7 @@ function RewardsCard({ token }: { token: string }) {
                 </View>
               ))}
               <View style={{ backgroundColor: 'rgba(0,0,0,0.03)', borderRadius: 14, padding: 14, marginTop: 16 }}>
-                <Text style={{ fontSize: 13, fontWeight: '800', color: '#111827', marginBottom: 6 }}>Regles du programme</Text>
+                <Text style={{ fontSize: 13, fontWeight: '800', color: '#111827', marginBottom: 6 }}>Réglés du programme</Text>
                 <Text style={{ fontSize: 12, color: '#555', lineHeight: 18 }}>Les 3 meilleurs prescripteurs du mois recoivent une prime versee debut du mois suivant. Le classement est base sur le nombre de prescriptions validees. Seules les prescriptions du mois en cours comptent.</Text>
               </View>
               {data.history?.length > 0 && (

@@ -47,7 +47,7 @@ const parseBraceletResponse = (dv: DataView) => {
       result.blood_glucose_mgdl = Math.round(result.blood_glucose_mmol * 18.0);
     }
   } else if (cmd === 0x26 && len >= 5) {
-    // Temperature: 3-NTC
+    // Température: 3-NTC
     const tRaw = dv.getUint8(1) | (dv.getUint8(2) << 8);
     result.temperature = tRaw / 10.0;
     if (len >= 5) {
@@ -124,13 +124,13 @@ export function useBleConnection(token: string, fetchDevices: () => Promise<void
 
     if (!hasWebBle && !hasNativeBridge && !hasNativeBle) {
       setBleStatus('error');
-      setBleError('Bluetooth non disponible. Verifiez que le Bluetooth est active sur votre appareil.');
+      setBleError('Bluetooth non disponible. Vérifiez que le Bluetooth est active sur votre appareil.');
       return;
     }
 
     // ── Native BLE via react-native-ble-plx (iOS/Android) ──
     if (hasNativeBle && deviceType === 'bracelet') {
-      setBleError('Recherche de votre bracelet V6...');
+      setBleError('Recherche de votre bracelet Elio...');
       let foundDevice: { id: string; name: string; mac: string } | null = null;
 
       await scanForBracelet((device) => {
@@ -142,7 +142,7 @@ export function useBleConnection(token: string, fetchDevices: () => Promise<void
 
       if (!foundDevice) {
         setBleStatus('error');
-        setBleError('Bracelet V6 non detecte. Assurez-vous qu\'il est allume et a proximite.');
+        setBleError('Bracelet Elio non détecté. Assurez-vous qu\'il est allumé et à proximité.');
         return;
       }
 
@@ -223,7 +223,7 @@ export function useBleConnection(token: string, fetchDevices: () => Promise<void
           handled = true;
           window.removeEventListener('ble_result', handler);
           setBleStatus('error');
-          setBleError(`Appareil ${DEVICE_META[deviceType].name} non detecte. Verifiez qu'il est allume et a proximite.`);
+          setBleError(`Appareil ${DEVICE_META[deviceType].name} non détecté. Vérifiéz qu'il est allume et à proximité.`);
         }
       }, 30000);
       return;

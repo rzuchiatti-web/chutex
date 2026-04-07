@@ -75,7 +75,7 @@ export default function CompanyAgencyScreen() {
   const inviteGuardian = async () => {
     if (!invitePhone.trim()) return;
     const phoneClean = invitePhone.trim().replace(/[\s.\-]/g, '');
-    if (phoneClean.length < 10) { setInviteMsg('Erreur : Numero invalide (min 10 chiffres)'); return; }
+    if (phoneClean.length < 10) { setInviteMsg('Erreur : Numéro invalide (min 10 chiffres)'); return; }
     setSaving(true); setInviteMsg('');
     try {
       const res = await apiFetch('/api/company/invite-guardian', { method: 'POST', body: JSON.stringify({ phone: invitePhone.trim() }) }, token);
@@ -370,7 +370,7 @@ export default function CompanyAgencyScreen() {
 
             <div style={{ display: 'flex', gap: 8, marginBottom: 16 } as any}>
               {[
-                { icon: 'ri-heart-pulse-line', val: selectedGuardian.professional_beneficiaries || 0, label: 'Beneficiaires', color: '#10B981' },
+                { icon: 'ri-heart-pulse-line', val: selectedGuardian.professional_beneficiaries || 0, label: 'Bénéficiaires', color: '#10B981' },
                 { icon: 'ri-file-text-line', val: selectedGuardian.prescriptions_count || 0, label: 'Prescriptions', color: '#F59E0B' },
               ].map((s, i) => (
                 <div key={i} style={{ flex: 1, padding: '12px 8px', borderRadius: 14, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(0,0,0,0.06)', textAlign: 'center' } as any}>
@@ -399,7 +399,7 @@ export default function CompanyAgencyScreen() {
                   <i className="ri-building-line" style={{ fontSize: 14 }} />{ag.name}
                 </div>
               ))}
-              {agencies.length === 0 && <div style={{ fontSize: 11, color: '#9CA3AF', textAlign: 'center', padding: 8 }}>Aucune agence creee. Creez-en une d'abord.</div>}
+              {agencies.length === 0 && <div style={{ fontSize: 11, color: '#9CA3AF', textAlign: 'center', padding: 8 }}>Aucune agence créée. Creez-en une d'abord.</div>}
             </div>
 
             <div onClick={() => { if (window.confirm(`Retirer ${selectedGuardian.name} de la structure ?`)) { removeGuardian(selectedGuardian.link_id); setSelectedGuardian(null); } }}

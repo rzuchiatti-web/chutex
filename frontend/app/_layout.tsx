@@ -249,10 +249,10 @@ function NativeFullApp() {
               </Text>
               <View style={st.locationGuideActions}>
                 <TouchableOpacity testID="native-location-open-settings-button" style={st.locationGuideSecondaryBtn} onPress={() => openSystemLocationSettings()}>
-                  <Text style={st.locationGuideSecondaryBtnText}>Ouvrir Reglages</Text>
+                  <Text style={st.locationGuideSecondaryBtnText}>Ouvrir Réglages</Text>
                 </TouchableOpacity>
                 <TouchableOpacity testID="native-location-retry-button" style={st.locationGuidePrimaryBtn} onPress={retryLocationPermission}>
-                  <Text style={st.locationGuidePrimaryBtnText}>{locationRetrying ? 'Verification...' : 'Reessayer'}</Text>
+                  <Text style={st.locationGuidePrimaryBtnText}>{locationRetrying ? 'Vérification...' : 'Reessayer'}</Text>
                 </TouchableOpacity>
               </View>
             </View>

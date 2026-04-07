@@ -70,7 +70,7 @@ export default function NoraHealthOverlay({ token, onClose }: { token: string | 
         {phase === 'intro' && (
           <div style={{ textAlign: 'center', animation: 'noraTextIn 0.6s ease 0.3s both' } as any}>
             <div style={{ fontSize: 18, fontWeight: 800, color: '#FFF' }}>Nora analyse...</div>
-            <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.25)', marginTop: 8 }}>Votre bilan de sante general</div>
+            <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.25)', marginTop: 8 }}>Votre bilan de santé general</div>
           </div>
         )}
 

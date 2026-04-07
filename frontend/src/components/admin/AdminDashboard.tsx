@@ -1,7 +1,7 @@
 import React from 'react';
 
-const RCOL: any = { beneficiary: '#3B82F6', guardian: '#10B981', admin: '#7C3AED', teleassistance: '#F59E0B', prescriber_company: '#F97316' };
-const RLAB: any = { beneficiary: 'Beneficiaire', guardian: 'Gardien', admin: 'Admin', teleassistance: 'Teleassistance', prescriber_company: 'SAAD' };
+const RCOL: any = { beneficiary: '#3B82F6', guardian: '#10B981', admin: '#7C3AED', téléassistance: '#F59E0B', prescriber_company: '#F97316' };
+const RLAB: any = { beneficiary: 'Bénéficiaire', guardian: 'Gardien', admin: 'Admin', teleassistance: 'Téléassistance', prescriber_company: 'SAAD' };
 
 function KPI({ icon, label, value, color, bg, sub, onClick }: any) {
   return (
@@ -95,7 +95,7 @@ export default function AdminDashboard({ users, active, subs, ivs, kpi, analytic
           <div className="adm-section-title">Types d'alertes</div>
           {Object.entries(kpi?.alert_types || {}).map(([type, count]: any) => {
             const icons: any = { sos: 'ri-phone-line', fall: 'ri-arrow-down-circle-line', anomaly: 'ri-error-warning-line', inactivity: 'ri-zzz-line' };
-            const labels: any = { sos: 'SOS', fall: 'Chute', anomaly: 'Anomalie', inactivity: 'Inactivite' };
+            const labels: any = { sos: 'SOS', fall: 'Chute', anomaly: 'Anomalie', inactivity: 'Inactivité' };
             const colors: any = { sos: '#EF4444', fall: '#F97316', anomaly: '#F59E0B', inactivity: '#6366F1' };
             return (
               <div key={type} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '8px 0' } as any}>

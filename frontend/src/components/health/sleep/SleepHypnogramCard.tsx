@@ -49,7 +49,7 @@ export default function SleepHypnogramCard({ sleepSession, nightDeepMin, nightLi
         <span style={{ fontSize: 12, fontWeight: 700, color: '#111' }}>Interruptions</span>
         <span style={{ fontSize: 18, fontWeight: 900, color: nightInterruptions <= 2 ? '#10B981' : nightInterruptions <= 4 ? '#F59E0B' : '#EF4444', marginLeft: 'auto' }}>{nightInterruptions}</span>
         <span style={{ fontSize: 10, fontWeight: 700, color: nightInterruptions <= 2 ? '#10B981' : nightInterruptions <= 4 ? '#F59E0B' : '#EF4444' }}>
-          {nightInterruptions <= 2 ? 'Bon' : nightInterruptions <= 4 ? 'Modere' : 'Eleve'}
+          {nightInterruptions <= 2 ? 'Bon' : nightInterruptions <= 4 ? 'Modéré' : 'Élevé'}
         </span>
         <div onClick={() => onExplain('interruptions')} style={{ width: 24, height: 24, borderRadius: 999, background: '#FFF', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', flexShrink: 0 } as any}>
           <i className="ri-information-line" style={{ fontSize: 12, color: '#9CA3AF' }} />

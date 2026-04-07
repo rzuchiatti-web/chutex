@@ -23,7 +23,7 @@ const DATA_GROUPS = [
     { k: 'intracellular_water_kg', l: 'Eau intracellulaire', u: 'kg', icon: 'ri-drop-line', c: '#22D3EE' },
     { k: 'extracellular_water_kg', l: 'Eau extracellulaire', u: 'kg', icon: 'ri-drop-line', c: '#0EA5E9' },
   ]},
-  { title: 'Graisse detaillee', keys: [
+  { title: 'Graisse détaillée', keys: [
     { k: 'visceral_fat', l: 'Graisse viscerale', u: '', icon: 'ri-fire-line', c: '#EF4444' },
     { k: 'subcutaneous_fat_pct', l: 'Graisse sous-cutanee', u: '%', icon: 'ri-droplet-line', c: '#F59E0B' },
     { k: 'trunk_fat_kg', l: 'Graisse du tronc', u: 'kg', icon: 'ri-body-scan-line', c: '#F97316' },
@@ -33,8 +33,8 @@ const DATA_GROUPS = [
     { k: 'skeletal_muscle_pct', l: 'Muscle squelettique', u: '%', icon: 'ri-shield-check-line', c: '#10B981' },
     { k: 'skeletal_muscle_quality', l: 'Qualite musculaire', u: '/100', icon: 'ri-award-line', c: '#22D3EE' },
   ]},
-  { title: 'Metabolisme', keys: [
-    { k: 'basal_metabolism', l: 'Metabolisme de base', u: 'kcal', icon: 'ri-fire-line', c: '#F59E0B' },
+  { title: 'Métabolisme', keys: [
+    { k: 'basal_metabolism', l: 'Métabolisme de base', u: 'kcal', icon: 'ri-fire-line', c: '#F59E0B' },
     { k: 'recommended_calories', l: 'Apport recommande', u: 'kcal', icon: 'ri-restaurant-line', c: '#F97316' },
     { k: 'body_age', l: 'Age corporel', u: 'ans', icon: 'ri-timer-line', c: '#A78BFA' },
     { k: 'body_type', l: 'Type corporel', u: '', icon: 'ri-body-scan-line', c: '#38BDF8' },

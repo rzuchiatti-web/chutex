@@ -6,7 +6,7 @@ import { Colors } from '../../constants/colors';
 import { apiFetch } from '../../services/api';
 import { s, BG_TA, BG_RED_TA } from './teleconsultStyles';
 
-export function TeleassistanceDashboard({ token }: { token: string }) {
+export function TéléassistanceDashboard({ token }: { token: string }) {
   const [incidents, setIncidents] = useState<any[]>([]);
   const [stats, setStats] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -60,11 +60,11 @@ export function TeleassistanceDashboard({ token }: { token: string }) {
 
   if (Platform.OS === 'web') {
     return (
-      <div data-testid="teleassistance-page" style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, display: 'flex', flexDirection: 'column', fontFamily: 'Inter, system-ui, sans-serif', overflow: 'hidden' } as any}>
+      <div data-testid="téléassistance-page" style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, display: 'flex', flexDirection: 'column', fontFamily: 'Inter, system-ui, sans-serif', overflow: 'hidden' } as any}>
         <img src={BG_TA} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 } as any} />
         <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 1 } as any} />
         <div style={{ position: 'relative', padding: '70px 20px 14px', zIndex: 5, textAlign: 'center' } as any}>
-          <div style={{ fontSize: 26, fontWeight: 800, color: '#FFF', marginBottom: 4 }}>Teleassistance IA</div>
+          <div style={{ fontSize: 26, fontWeight: 800, color: '#FFF', marginBottom: 4 }}>Téléassistance IA</div>
           <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)' }}>Plateau d'ecoute — Protocole d'escalade</div>
           <div style={{ display: 'inline-flex', borderRadius: 999, padding: 4, background: 'rgba(255,255,255,0.12)', border: '1px solid rgba(255,255,255,0.15)', marginTop: 14 } as any}>
             <div onClick={() => setTab('active')} style={{ padding: '10px 20px', borderRadius: 999, cursor: 'pointer', background: tab === 'active' ? '#FFF' : 'transparent', color: tab === 'active' ? '#111' : 'rgba(255,255,255,0.8)', fontSize: 13, fontWeight: 700 } as any}>En cours ({activeIncidents.length})</div>
@@ -88,7 +88,7 @@ export function TeleassistanceDashboard({ token }: { token: string }) {
   return (
     <ScrollView contentContainerStyle={[s.sc, { paddingBottom: 80 }]} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => { setRefreshing(true); fetchData(); }} />}>
       <Text style={{ fontSize: 24, fontWeight: '900', color: '#111827', marginBottom: 4 }}>Plateau d'ecoute IA</Text>
-      <Text style={{ fontSize: 12, color: '#6B7280', marginBottom: 16 }}>CARE WATCH - Teleassistance automatisee</Text>
+      <Text style={{ fontSize: 12, color: '#6B7280', marginBottom: 16 }}>CARE WATCH - Téléassistance automatisee</Text>
 
       {stats && (
         <View style={{ flexDirection: 'row', gap: 8, marginBottom: 16 }}>
@@ -125,7 +125,7 @@ export function TeleassistanceDashboard({ token }: { token: string }) {
             <TouchableOpacity onPress={() => setSelectedIncident(null)}><Icon name="close-circle" size={24} color="#888" /></TouchableOpacity>
           </View>
           <View style={{ backgroundColor: 'rgba(0,0,0,0.03)', borderRadius: 12, padding: 12, marginBottom: 10 }}>
-            <Text style={{ fontSize: 9, fontWeight: '700', color: '#6B7280', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 6 }}>Beneficiaire</Text>
+            <Text style={{ fontSize: 9, fontWeight: '700', color: '#6B7280', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 6 }}>Bénéficiaire</Text>
             <Text style={{ fontSize: 15, fontWeight: '800', color: '#111827' }}>{selectedIncident.beneficiary_name}</Text>
             <Text style={{ fontSize: 11, color: '#555', marginTop: 2 }}>{selectedIncident.beneficiary_phone}</Text>
             {selectedIncident.beneficiary_address && <Text style={{ fontSize: 11, color: '#555' }}>{selectedIncident.beneficiary_address}</Text>}

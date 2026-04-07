@@ -12,7 +12,7 @@ export default function DailyObjectives({ plan, ai, analysisPhase, showPopup, se
           {analysisPhase && (
             <div style={{ textAlign: 'center', marginBottom: 14 } as any}>
               <span style={{ display: 'inline-flex', padding: '4px 14px', borderRadius: 999, background: 'rgba(245,158,11,0.12)', border: '1px solid rgba(245,158,11,0.25)', fontSize: 10, fontWeight: 700, color: '#F59E0B', textTransform: 'uppercase', marginBottom: 6 }}>En apprentissage</span>
-              <div style={{ fontSize: 11, color: 'rgba(245,158,11,0.5)', fontStyle: 'italic' }}>Le score sante IA complet sera disponible apres 7 jours d'analyse.</div>
+              <div style={{ fontSize: 11, color: 'rgba(245,158,11,0.5)', fontStyle: 'italic' }}>Le score santé IA complet sera disponible après 7 jours d'analyse.</div>
             </div>
           )}
           <div style={{ fontSize: 16, fontWeight: 800, color: '#FFF', marginBottom: 14 }}>Objectifs journaliers</div>

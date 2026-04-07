@@ -94,7 +94,7 @@ export default function DocumentsTab({ token, mob }: { token: string; mob: boole
 
       {/* Patent Documents */}
       {patentDocs.length > 0 && (
-        <Card title="Brevets Glycemie" icon="ri-award-line">
+        <Card title="Brevets Glycémie" icon="ri-award-line">
           <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
             {patentDocs.map(doc => (
               <div key={doc.filename} data-testid={`doc-${doc.filename}`} style={{

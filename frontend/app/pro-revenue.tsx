@@ -189,7 +189,7 @@ export default function ProRevenuePage() {
                       <span style={{ fontSize: 12, fontWeight: 700, color: '#111' }}>Grille tarifaire</span>
                     </div>
                     {[
-                      { label: 'Teleassistance (Bracelet)', sub: '50 € souscription + 5 €/mois', icon: 'ri-shield-check-line', color: '#10B981' },
+                      { label: 'Téléassistance (Bracelet)', sub: '50 € souscription + 5 €/mois', icon: 'ri-shield-check-line', color: '#10B981' },
                       { label: 'Bracelet + Gilet', sub: '100 € souscription + 10 €/mois', icon: 'ri-shirt-line', color: '#3B82F6' },
                       { label: 'Abonnement Standard', sub: '50 € souscription', icon: 'ri-star-line', color: '#F59E0B' },
                     ].map((tier, ti) => (
@@ -272,7 +272,7 @@ export default function ProRevenuePage() {
                   {ibanMsg && <div style={{ padding: '10px 14px', borderRadius: 12, background: ibanMsg.includes('jour') ? '#10B98108' : '#EF444408', marginTop: 12, fontSize: 12, fontWeight: 600, color: ibanMsg.includes('jour') ? '#10B981' : '#EF4444', textAlign: 'center' } as any}>{ibanMsg}</div>}
 
                   <div data-testid="save-iban-btn" onClick={saveIban} style={{ marginTop: 18, padding: '16px', borderRadius: 16, background: '#111', textAlign: 'center', cursor: ibanSaving ? 'wait' : 'pointer', opacity: ibanSaving ? 0.6 : 1 } as any}>
-                    <span style={{ fontSize: 15, fontWeight: 800, color: '#FFF' }}>{ibanSaving ? 'Enregistrement...' : 'Enregistrer'}</span>
+                    <span style={{ fontSize: 15, fontWeight: 800, color: '#FFF' }}>{ibanSaving ? 'Enregistrément...' : 'Enregistrér'}</span>
                   </div>
                 </>
               )}

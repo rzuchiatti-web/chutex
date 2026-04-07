@@ -31,7 +31,7 @@ function getRecoveryInfo(recovery: number, stress: number, sleepQuality: number,
   }
   if (pct >= 80) return { level: 'optimal', pct, color: '#10B981', barColor: '#10B981', label: 'Optimale', note: 'Pret pour l\'effort' };
   if (pct >= 60) return { level: 'bon', pct, color: '#22D3EE', barColor: '#22D3EE', label: 'Bonne', note: 'En bonne forme' };
-  if (pct >= 40) return { level: 'modere', pct, color: '#F59E0B', barColor: '#F59E0B', label: 'Moyenne', note: 'Activite moderee' };
+  if (pct >= 40) return { level: 'modere', pct, color: '#F59E0B', barColor: '#F59E0B', label: 'Moyenne', note: 'Activité moderee' };
   return { level: 'faible', pct, color: '#EF4444', barColor: '#EF4444', label: 'Faible', note: 'Repos conseille' };
 }
 
@@ -53,7 +53,7 @@ export default function ActivityCard({ steps, calories, distance, recovery = 0, 
         <div style={{ padding: '10px 16px 14px' } as any}>
           {/* Title centered */}
           <div style={{ textAlign: 'center', marginBottom: 12 } as any}>
-            <div style={{ fontSize: 16, fontWeight: 900, color: '#FFF', marginBottom: 4 }}>Activite Physique</div>
+            <div style={{ fontSize: 16, fontWeight: 900, color: '#FFF', marginBottom: 4 }}>Activité Physique</div>
             {st.current_streak > 0 && (
               <div style={{ display: 'inline-flex', alignItems: 'center', gap: 4, padding: '3px 10px', borderRadius: 999, background: 'rgba(245,158,11,0.15)', border: '1px solid rgba(245,158,11,0.25)' } as any}>
                 <i className="ri-fire-fill" style={{ fontSize: 11, color: '#F59E0B' }} />
@@ -91,7 +91,7 @@ export default function ActivityCard({ steps, calories, distance, recovery = 0, 
             <div style={{ flexShrink: 0, display: 'flex', alignItems: 'center', gap: 6 } as any}>
               <i className="ri-battery-charge-line" style={{ fontSize: 16, color: ri.color }} />
               <div>
-                <div style={{ fontSize: 8, fontWeight: 700, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: 0.5 }}>Recuperation</div>
+                <div style={{ fontSize: 8, fontWeight: 700, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: 0.5 }}>Récupération</div>
                 <div style={{ fontSize: 18, fontWeight: 900, color: ri.color, lineHeight: 1.1 }}>{ri.pct > 0 ? `${ri.pct}%` : '--'}</div>
               </div>
             </div>

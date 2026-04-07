@@ -27,7 +27,7 @@ export default function AdminDevices({ data, token, mob }: any) {
       {devices.length === 0 ? (
         <div className="adm-card" style={{ textAlign: 'center', padding: 40, color: '#94A3B8' }}>
           <i className="ri-cpu-line" style={{ fontSize: 40, marginBottom: 12, display: 'block', opacity: 0.4 }} />
-          Aucun appareil enregistre
+          Aucun appareil enregistré
         </div>
       ) : (
         <>

@@ -23,10 +23,10 @@ export function SubscriptionGate({ subscription, children, feature }: Props) {
             </div>
             <div style={{ fontSize: 15, fontWeight: 800, color: '#FFF', marginBottom: 6 }}>Abonnement requis</div>
             <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.5)', lineHeight: 1.5, marginBottom: 14 }}>
-              {feature === 'vitals' && 'Souscrivez un abonnement bracelet pour acceder a vos donnees de sante en temps reel.'}
+              {feature === 'vitals' && 'Souscrivez un abonnement bracelet pour accéder à vos données de santé en temps réel.'}
               {feature === 'sync' && 'Un abonnement actif est necessaire pour synchroniser votre bracelet.'}
-              {feature === 'health' && 'Activez votre abonnement pour consulter vos rapports de sante detailles.'}
-              {!feature && 'Un abonnement Standard ou Care est necessaire pour utiliser les fonctionnalites du bracelet.'}
+              {feature === 'health' && 'Activez votre abonnement pour consulter vos rapports de santé détaillés.'}
+              {!feature && 'Un abonnement Standard ou Care est necessaire pour utiliser les fonctionnalités du bracelet.'}
             </div>
             <a href="/subscription" style={{ display: 'block', padding: '12px 20px', borderRadius: 999, background: '#7C3AED', color: '#FFF', fontSize: 13, fontWeight: 700, textDecoration: 'none', boxShadow: '0 4px 14px rgba(124,58,237,0.3)' } as any}>
               Souscrire un abonnement
@@ -46,7 +46,7 @@ export function SubscriptionGate({ subscription, children, feature }: Props) {
         <View style={{ padding: 24, borderRadius: 22, backgroundColor: 'rgba(0,0,0,0.9)', alignItems: 'center', maxWidth: 280 }}>
           <Text style={{ fontSize: 15, fontWeight: '800', color: '#FFF', marginBottom: 6 }}>Abonnement requis</Text>
           <Text style={{ fontSize: 12, color: 'rgba(255,255,255,0.5)', textAlign: 'center', lineHeight: 18, marginBottom: 14 }}>
-            Un abonnement Standard ou Care est necessaire pour utiliser les fonctionnalites du bracelet.
+            Un abonnement Standard ou Care est necessaire pour utiliser les fonctionnalités du bracelet.
           </Text>
         </View>
       </View>
@@ -66,7 +66,7 @@ export function SubscriptionBanner({ subscription, onSubscribe }: { subscription
         </div>
         <div style={{ flex: 1 } as any}>
           <div style={{ fontSize: 13, fontWeight: 700, color: '#FFF' }}>Activez votre bracelet</div>
-          <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.45)' }}>Souscrivez un abonnement pour utiliser toutes les fonctionnalites.</div>
+          <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.45)' }}>Souscrivez un abonnement pour utiliser toutes les fonctionnalités.</div>
         </div>
         <div style={{ padding: '6px 14px', borderRadius: 999, background: '#7C3AED', fontSize: 11, fontWeight: 700, color: '#FFF', flexShrink: 0 } as any}>Souscrire</div>
       </div>

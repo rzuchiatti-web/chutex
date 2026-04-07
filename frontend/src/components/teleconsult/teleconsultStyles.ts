@@ -10,13 +10,13 @@ export const confirmAction = (title: string, message: string, onConfirm: () => v
 };
 
 export const getCleanLabel = (alertType: string, message?: string) => {
-  if (alertType === 'fall') return 'Chute detectee';
+  if (alertType === 'fall') return 'Chute détectée';
   if (alertType === 'sos') return 'SOS';
-  if (alertType === 'heart_rate' || alertType === 'health_anomaly') return 'Anomalie de sante detectee';
-  if (alertType === 'spo2') return 'Anomalie de sante detectee';
-  if (alertType === 'inactivity') return 'Inactivite detectee';
+  if (alertType === 'heart_rate' || alertType === 'health_anomaly') return 'Anomalie de santé détectée';
+  if (alertType === 'spo2') return 'Anomalie de santé détectée';
+  if (alertType === 'inactivity') return 'Inactivité détectée';
   if (message) {
-    if (message.toLowerCase().includes('chute')) return 'Chute detectee';
+    if (message.toLowerCase().includes('chute')) return 'Chute détectée';
     if (message.toLowerCase().includes('sos')) return 'SOS';
   }
   return alertType || 'Alerte';
