@@ -1,8 +1,9 @@
 import React, { createContext, useContext, useState, useEffect, useMemo, ReactNode } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { getLocales } from 'expo-localization';
+import { medicalT } from './medicalTranslations';
 
-const T: Record<string, Record<string, string>> = {
+const _BASE: Record<string, Record<string, string>> = {
   FR: {
     home: 'Accueil', health: 'Sante', alerts: 'Alertes', devices: 'Appareils', profile: 'Profil', programs: 'Programmes',
     hello: 'Bonjour', online: 'En ligne', sos: 'SOS', sos_sub: "Appuyez en cas d'urgence",
@@ -1687,6 +1688,12 @@ const T: Record<string, Record<string, string>> = {
     day_sun: 'Zo',
   },
 };
+
+// Merge base translations with medical/long-text translations
+const T: Record<string, Record<string, string>> = {};
+for (const lang of Object.keys(_BASE)) {
+  T[lang] = { ..._BASE[lang], ...(medicalT[lang] || {}) };
+}
 
 const FLAGS = [
   { code: 'FR', flag: '\u{1F1EB}\u{1F1F7}', label: 'Francais', color: '#002395' },

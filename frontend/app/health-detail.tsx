@@ -15,65 +15,53 @@ import SleepDebtCard from '../src/components/health/sleep/SleepDebtCard';
 import SleepRegularityCard from '../src/components/health/sleep/SleepRegularityCard';
 import SleepExplainPopup from '../src/components/health/sleep/SleepExplainPopup';
 
-const SECTIONS: Record<string, { title: string; color: string; img: string; metrics: { key: string; label: string; unit: string; explain: string }[] }> = {
-  cardio: {
-    title: 'Santé cardiaque', color: '#EF4444',
-    img: 'https://customer-assets.emergentagent.com/job_92308143-f99e-4bad-8264-e3775a214313/artifacts/8x2d3bbk_hearth%20red%20app%20healthbeat%20Chutex.png',
-    metrics: [
-      { key: 'heart_rate', label: 'Fréquence cardiaque', unit: 'bpm', explain: 'Le nombre de battements par minute au repos. Un pouls entre 60 et 80 bpm est considéré comme sain.' },
-      { key: 'hrv', label: 'Variabilité cardiaque (HRV)', unit: 'ms', explain: 'Mesure la variation entre les battements. Un HRV élevé indique une bonne capacité d\'adaptation au stress.' },
-      { key: 'bp_display', label: 'Tension artérielle', unit: 'mmHg', explain: 'Pression du sang dans les artères. Une tension normale est autour de 120/80 mmHg.' },
-      { key: 'spo2', label: 'Saturation en oxygène (SpO2)', unit: '%', explain: 'Taux d\'oxygène dans le sang. Au-dessus de 95% est normal.' },
-      { key: 'temperature', label: 'Température corporelle', unit: '°C', explain: 'La température normale est entre 36.5 et 37.5°C. Des variations peuvent indiquer une inflammation ou infection.' },
-    ],
-  },
-  metabolism: {
-    title: 'Santé métabolique', color: '#F59E0B',
-    img: 'https://customer-assets.emergentagent.com/job_92308143-f99e-4bad-8264-e3775a214313/artifacts/5vzwu43l_m%C3%A9tabolique.png',
-    metrics: [
-      { key: 'glycemia', label: 'Glycémie', unit: 'g/L', explain: 'Taux de sucre dans le sang. À jeun, une glycémie normale est entre 0.7 et 1.1 g/L.' },
-      { key: 'bmi', label: 'Indice de masse corporelle (IMC)', unit: '', explain: 'Rapport poids/taille. Normal entre 18.5 et 25. Au-dessus de 25 : surpoids.' },
-      { key: 'visceral_fat', label: 'Graisse viscérale', unit: '', explain: 'Graisse autour des organes internes. Un indice inférieur à 10 est sain.' },
-      { key: 'basal_metabolism', label: 'Métabolisme de base (BMR)', unit: 'kcal', explain: 'Énergie dépensée au repos pour maintenir les fonctions vitales.' },
-      { key: 'recommended_calories', label: 'Apport calorique recommandé', unit: 'kcal', explain: 'Calories à consommer par jour pour maintenir votre poids actuel.' },
-      { key: 'waist_hip_ratio', label: 'Ratio taille-hanche', unit: '', explain: 'Indicateur de répartition des graisses. Inférieur à 0.90 (homme) ou 0.85 (femme) est idéal.' },
-      { key: 'body_age', label: 'Âge corporel', unit: 'ans', explain: 'Âge biologique estimé basé sur votre composition corporelle.' },
-      { key: 'ideal_weight', label: 'Poids idéal', unit: 'kg', explain: 'Poids optimal calculé selon votre taille et votre morphologie.' },
-    ],
-  },
-  sleep: {
-    title: 'Sommeil', color: '#A78BFA',
-    img: 'https://customer-assets.emergentagent.com/job_92308143-f99e-4bad-8264-e3775a214313/artifacts/xtzgjs5s_sommeil.png',
-    metrics: [],
-  },
-  activity: {
-    title: 'Santé physique & Activité', color: '#10B981',
-    img: 'https://customer-assets.emergentagent.com/job_92308143-f99e-4bad-8264-e3775a214313/artifacts/75gbxosw_physique.png',
-    metrics: [
-      { key: 'steps', label: 'Nombre de pas', unit: 'pas', explain: 'Objectif recommandé : 6000 à 10000 pas par jour pour maintenir une bonne santé.' },
-      { key: 'calories', label: 'Dépense énergétique', unit: 'kcal', explain: 'Calories brûlées par l\'activité physique aujourd\'hui.' },
-      { key: 'distance_km', label: 'Distance parcourue', unit: 'km', explain: 'Distance totale estimée à partir du nombre de pas.' },
-      { key: 'vo2_max', label: 'VO2 Max', unit: 'ml/kg/min', explain: 'Capacité aérobique maximale. Plus elle est élevée, meilleure est votre condition physique.' },
-      { key: 'stress_level', label: 'Niveau de stress', unit: '/100', explain: 'Indice de stress mesuré par la variabilité cardiaque. Plus bas est mieux.' },
-      { key: 'recovery_score', label: 'Score de récupération', unit: '/100', explain: 'Capacité de votre corps à récupérer. Un score élevé indique une bonne récupération.' },
-    ],
-  },
-  composition: {
-    title: 'Composition corporelle', color: '#F97316',
-    img: 'https://customer-assets.emergentagent.com/job_92308143-f99e-4bad-8264-e3775a214313/artifacts/3yq7hxyr_composition%281%29.png',
-    metrics: [
-      { key: 'weight', label: 'Poids', unit: 'kg', explain: 'Votre poids total. À interpréter avec la composition corporelle.' },
-      { key: 'body_fat_pct', label: 'Pourcentage de graisse', unit: '%', explain: 'Part de graisse dans le corps. Normal : 15-25% homme, 20-30% femme.' },
-      { key: 'muscle_pct', label: 'Pourcentage musculaire', unit: '%', explain: 'Part de muscle dans le corps. Plus il est élevé, meilleur est le métabolisme.' },
-      { key: 'water_pct', label: 'Taux d\'hydratation', unit: '%', explain: 'Pourcentage d\'eau dans le corps. Normal entre 50% et 65%.' },
-      { key: 'bone_mass_kg', label: 'Masse osseuse', unit: 'kg', explain: 'Poids des minéraux osseux. Important pour prévenir l\'ostéoporose.' },
-      { key: 'protein_pct', label: 'Taux de protéine', unit: '%', explain: 'Pourcentage de protéines. Important pour la réparation musculaire.' },
-      { key: 'skeletal_muscle_pct', label: 'Muscle squelettique', unit: '%', explain: 'Muscles attachés aux os, responsables du mouvement.' },
-      { key: 'subcutaneous_fat_pct', label: 'Graisse sous-cutanée', unit: '%', explain: 'Graisse située juste sous la peau.' },
-      { key: 'trunk_fat_kg', label: 'Graisse du tronc', unit: 'kg', explain: 'Graisse accumulée dans la région abdominale.' },
-    ],
-  },
+// SECTIONS defined as a function to use t() for i18n
+const METRIC_EXPLAIN_MAP: Record<string, string> = {
+  heart_rate: 'explain_heart_rate', hrv: 'explain_hrv', bp_display: 'explain_bp',
+  spo2: 'explain_spo2', temperature: 'explain_temperature', glycemia: 'explain_glycemia',
+  bmi: 'explain_bmi', visceral_fat: 'explain_visceral_fat', basal_metabolism: 'explain_basal_metabolism',
+  recommended_calories: 'explain_recommended_calories', waist_hip_ratio: 'explain_waist_hip',
+  body_age: 'explain_body_age', ideal_weight: 'explain_ideal_weight', steps: 'explain_steps',
+  calories: 'explain_calories', distance_km: 'explain_distance', vo2_max: 'explain_vo2',
+  stress_level: 'explain_stress', recovery_score: 'explain_recovery', weight: 'explain_weight',
+  body_fat_pct: 'explain_body_fat', muscle_pct: 'explain_muscle', water_pct: 'explain_water',
+  bone_mass_kg: 'explain_bone_mass', protein_pct: 'explain_protein',
+  skeletal_muscle_pct: 'explain_skeletal_muscle', subcutaneous_fat_pct: 'explain_subcutaneous_fat',
+  trunk_fat_kg: 'explain_trunk_fat',
 };
+const METRIC_LABEL_MAP: Record<string, string> = {
+  heart_rate: 'heart_rate', hrv: 'label_hrv_long', bp_display: 'label_bp_display',
+  spo2: 'label_spo2_long', temperature: 'label_temperature_long', glycemia: 'glycemia',
+  bmi: 'label_bmi_long', visceral_fat: 'visceral_fat', basal_metabolism: 'label_basal_metabolism',
+  recommended_calories: 'label_recommended_calories', waist_hip_ratio: 'label_waist_hip_ratio',
+  body_age: 'label_body_age', ideal_weight: 'label_ideal_weight', steps: 'daily_steps',
+  calories: 'label_calories_burn', distance_km: 'label_distance_km', vo2_max: 'vo2_title',
+  stress_level: 'label_stress_level', recovery_score: 'label_recovery_score', weight: 'weight',
+  body_fat_pct: 'label_body_fat_pct', muscle_pct: 'label_muscle_pct', water_pct: 'label_water_pct',
+  bone_mass_kg: 'label_bone_mass_kg', protein_pct: 'label_protein_pct',
+  skeletal_muscle_pct: 'label_skeletal_muscle_pct', subcutaneous_fat_pct: 'label_subcutaneous_fat_pct',
+  trunk_fat_kg: 'label_trunk_fat_kg',
+};
+const SECTION_DEFS = [
+  { id: 'cardio', titleKey: 'section_cardio', color: '#EF4444', img: 'https://customer-assets.emergentagent.com/job_92308143-f99e-4bad-8264-e3775a214313/artifacts/8x2d3bbk_hearth%20red%20app%20healthbeat%20Chutex.png',
+    metricKeys: ['heart_rate','hrv','bp_display','spo2','temperature'], units: ['bpm','ms','mmHg','%','°C'] },
+  { id: 'metabolism', titleKey: 'section_metabolism', color: '#F59E0B', img: 'https://customer-assets.emergentagent.com/job_92308143-f99e-4bad-8264-e3775a214313/artifacts/5vzwu43l_m%C3%A9tabolique.png',
+    metricKeys: ['glycemia','bmi','visceral_fat','basal_metabolism','recommended_calories','waist_hip_ratio','body_age','ideal_weight'], units: ['g/L','','','kcal','kcal','','ans','kg'] },
+  { id: 'sleep', titleKey: 'section_sleep', color: '#A78BFA', img: 'https://customer-assets.emergentagent.com/job_92308143-f99e-4bad-8264-e3775a214313/artifacts/xtzgjs5s_sommeil.png', metricKeys: [], units: [] },
+  { id: 'activity', titleKey: 'section_activity', color: '#10B981', img: 'https://customer-assets.emergentagent.com/job_92308143-f99e-4bad-8264-e3775a214313/artifacts/75gbxosw_physique.png',
+    metricKeys: ['steps','calories','distance_km','vo2_max','stress_level','recovery_score'], units: ['pas','kcal','km','ml/kg/min','/100','/100'] },
+  { id: 'composition', titleKey: 'section_composition', color: '#F97316', img: 'https://customer-assets.emergentagent.com/job_92308143-f99e-4bad-8264-e3775a214313/artifacts/3yq7hxyr_composition%281%29.png',
+    metricKeys: ['weight','body_fat_pct','muscle_pct','water_pct','bone_mass_kg','protein_pct','skeletal_muscle_pct','subcutaneous_fat_pct','trunk_fat_kg'], units: ['kg','%','%','%','kg','%','%','%','kg'] },
+];
+function buildSections(t: (k: string) => string) {
+  const out: Record<string, { title: string; color: string; img: string; metrics: { key: string; label: string; unit: string; explain: string }[] }> = {};
+  for (const s of SECTION_DEFS) {
+    out[s.id] = { title: t(s.titleKey), color: s.color, img: s.img, metrics: s.metricKeys.map((mk, i) => ({
+      key: mk, label: t(METRIC_LABEL_MAP[mk] || mk), unit: s.units[i] || '', explain: t(METRIC_EXPLAIN_MAP[mk] || mk),
+    })) };
+  }
+  return out;
+}
 
 const BG_DEFAULT = 'https://customer-assets.emergentagent.com/job_9950a869-9328-4a4b-abf4-a6fb213a3b47/artifacts/iklovqya_background_beneficiary.svg';
 const BG_VIOLET = 'https://customer-assets.emergentagent.com/job_8afdc991-0ab2-4687-a2a5-438b9a5f0711/artifacts/v6obzpez_ChatGPT%20Image%2018%20f%C3%A9vr.%202026%2C%2012_28_20.png';
@@ -210,6 +198,7 @@ export default function HealthDétailScreen() {
     })();
   }, [token, beneficiaryId]);
 
+  const SECTIONS = buildSections(t);
   const sec = SECTIONS[metricId || ''] || SECTIONS.cardio;
   const d = report?.data || {};
   const subs = report?.subscores || {};

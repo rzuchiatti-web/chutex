@@ -11,57 +11,64 @@ const P = '#A78BFA', G = '#10B981', GL_H = '#84CC16', A = '#F59E0B', O = '#F9731
 const META_IMG = 'https://customer-assets.emergentagent.com/job_92308143-f99e-4bad-8264-e3775a214313/artifacts/5vzwu43l_m%C3%A9tabolique.png';
 const BG = 'https://customer-assets.emergentagent.com/job_443c9c6e-0feb-4920-a358-fe7cc1a6289b/artifacts/mhh7xwy3_ChatGPT%20Image%2017%20f%C3%A9vr.%202026%2C%2014_08_43.png';
 
-const ZONES_V2 = [
-  { zone: 'Normal', range: '0.70 - 0.99 g/L', color: G, desc: 'Métabolisme glucidique sain.' },
-  { zone: 'Normal haut', range: '0.90 - 1.05 g/L', color: GL_H, desc: 'Partie supérieure de la norme. Surveillance recommandée.' },
-  { zone: 'Vigilance', range: '1.00 - 1.25 g/L', color: A, desc: 'Pre-diabete potentiel. Contrôle medical conseille.' },
-  { zone: 'Pre-alerte', range: '1.20 - 1.40 g/L', color: O, desc: 'Risque élevé. Bilan sanguin recommandé rapidement.' },
-  { zone: 'Alerte', range: '> 1.26 g/L', color: R, desc: 'Risque important. Bilan sanguin urgent.' },
-];
+// ZONES_V2 and GLYCEMIA_EXPLANATIONS are built dynamically using t()
+function buildZones(t: (k: string) => string) {
+  return [
+    { zone: t('glyc_zone_normal'), range: '0.70 - 0.99 g/L', color: G, desc: t('glyc_desc_normal') },
+    { zone: t('glyc_zone_normal_high'), range: '0.90 - 1.05 g/L', color: GL_H, desc: t('glyc_desc_normal_high') },
+    { zone: t('glyc_zone_vigilance'), range: '1.00 - 1.25 g/L', color: A, desc: t('glyc_desc_vigilance') },
+    { zone: t('glyc_zone_prealert'), range: '1.20 - 1.40 g/L', color: O, desc: t('glyc_desc_prealert') },
+    { zone: t('glyc_zone_alert'), range: '> 1.26 g/L', color: R, desc: t('glyc_desc_alert') },
+  ];
+}
 
-const GLYCEMIA_EXPLANATIONS: Record<string, { icon: string; color: string; title: string; desc: string; ranges: { label: string; value: string; color: string }[]; tip: string }> = {
-  estimation: {
-    icon: 'ri-pulse-line', color: '#A78BFA',
-    title: 'Glycémie estimee',
-    desc: "Votre glycémie est estimee en combinant les donnees de votre bracelet (frequence cardiaque, variabilite, temperature, activite) avec un modele d'intelligence artificielle entraine sur des milliers de profils metaboliques. Le résultat est une approximation indicative, pas un diagnostic medical.",
-    ranges: [
-      { label: 'Normal', value: '0.70 - 0.99 g/L', color: G },
-      { label: 'Normal haut', value: '0.90 - 1.05 g/L', color: GL_H },
-      { label: 'Vigilance', value: '1.00 - 1.25 g/L', color: A },
-      { label: 'Pre-alerte', value: '1.20 - 1.40 g/L', color: O },
-      { label: 'Alerte', value: '> 1.26 g/L', color: R },
-    ],
-    tip: "Pour obtenir une valeur exacte, faites un bilan sanguin (glycémie a jeun) prescrit par votre medecin. Notre estimation s'affine avec chaque calibration capillaire.",
-  },
-  fiabilite: {
-    icon: 'ri-line-chart-line', color: '#60A5FA',
-    title: 'Fiabilite de l\'estimation',
-    desc: "Le score de fiabilite reflète la precision de l'estimation glycemique. Il augmente avec : le nombre de donnees captees par le bracelet, le nombre de calibrations capillaires realisees, et la régularité du port du bracelet. Sans calibration, l'estimation reste très approximative.",
-    ranges: [
-      { label: 'Insuffisante', value: '< 15%', color: R },
-      { label: 'Initiale', value: '15 - 29%', color: A },
-      { label: 'En amelioration', value: '30 - 44%', color: GL_H },
-      { label: 'Fiable', value: '45%+', color: G },
-    ],
-    tip: "Portez votre bracelet en continu et realisez une calibration capillaire (piqure au doigt) une fois par mois. Chaque calibration ameliore significativement la precision du modele.",
-  },
-  calibration: {
-    icon: 'ri-drop-fill', color: '#EF4444',
-    title: 'Calibration capillaire',
-    desc: "La calibration consiste a mesurer votre glycémie reelle via une goutte de sang au bout du doigt (lecteur de glycémie). En comparant cette valeur reelle aux donnees estimees par le bracelet, notre algorithme s'ajuste et affine ses predictions pour votre profil unique.",
-    ranges: [
-      { label: 'Idealement a jeun', value: 'Le matin', color: P },
-      { label: 'Apres repas', value: '2h apres', color: A },
-      { label: 'Frequence', value: '1x / mois', color: G },
-    ],
-    tip: "Privilegiez les mesures a jeun le matin pour des valeurs de reference. Indiquez toujours le contexte (a jeun, après repas) pour une meilleure calibration. Nettoyez votre doigt avant la piqure.",
-  },
-};
+function buildGlycExplanations(t: (k: string) => string): Record<string, { icon: string; color: string; title: string; desc: string; ranges: { label: string; value: string; color: string }[]; tip: string }> {
+  return {
+    estimation: {
+      icon: 'ri-pulse-line', color: '#A78BFA',
+      title: t('glyc_estimation_title'),
+      desc: t('glyc_estimation_desc'),
+      ranges: [
+        { label: t('glyc_zone_normal'), value: '0.70 - 0.99 g/L', color: G },
+        { label: t('glyc_zone_normal_high'), value: '0.90 - 1.05 g/L', color: GL_H },
+        { label: t('glyc_zone_vigilance'), value: '1.00 - 1.25 g/L', color: A },
+        { label: t('glyc_zone_prealert'), value: '1.20 - 1.40 g/L', color: O },
+        { label: t('glyc_zone_alert'), value: '> 1.26 g/L', color: R },
+      ],
+      tip: t('glyc_estimation_tip'),
+    },
+    fiabilite: {
+      icon: 'ri-line-chart-line', color: '#60A5FA',
+      title: t('glyc_reliability_title'),
+      desc: t('glyc_reliability_desc'),
+      ranges: [
+        { label: t('glyc_rel_r1'), value: '< 15%', color: R },
+        { label: t('glyc_rel_r2'), value: '15 - 29%', color: A },
+        { label: t('glyc_rel_r3'), value: '30 - 44%', color: GL_H },
+        { label: t('glyc_rel_r4'), value: '45%+', color: G },
+      ],
+      tip: t('glyc_reliability_tip'),
+    },
+    calibration: {
+      icon: 'ri-drop-fill', color: '#EF4444',
+      title: t('glyc_calibration_title'),
+      desc: t('glyc_calibration_desc'),
+      ranges: [
+        { label: t('glyc_cal_r1'), value: t('glyc_cal_r1v'), color: P },
+        { label: t('glyc_cal_r2'), value: t('glyc_cal_r2v'), color: A },
+        { label: t('glyc_cal_r3'), value: t('glyc_cal_r3v'), color: G },
+      ],
+      tip: t('glyc_calibration_tip'),
+    },
+  };
+}
 
 export default function GlycemiaDétailPage() {
   const { token } = useAuth();
   const { t } = useI18n();
   const router = useRouter();
+  const ZONES_V2 = buildZones(t);
+  const GLYCEMIA_EXPLANATIONS = buildGlycExplanations(t);
   const [data, setData] = useState<any>(null);
   const [calibrations, setCalibrations] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
