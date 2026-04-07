@@ -12,24 +12,29 @@ Application de téléassistance et suivi santé connecté (bracelet Elio V8, bal
 
 ## Complété (Avril 2026)
 
-### Système i18n — Couverture complète (toutes phases)
-- **1352+ appels t()** dans l'application
-- **~950 clés i18n × 7 langues = ~6650 traductions**
-- 3 fichiers de traductions: I18nContext.tsx (base ~490), medicalTranslations.ts (~300), appTranslations.ts (~160)
-- **533+ remplacements bulk** via 4 passes de scripts Python dans 70+ fichiers
-- GlassTabBar.tsx refactoré avec getTabConfigs(t) + getGuardianTabs(user, t) = **tabs traduits dynamiquement**
-- useI18n ajouté à 19+ composants manquants
-- Toutes les sections principales traduites: Onboarding, Login, Dashboard, Santé, Profil, Alertes, Dispositifs, Abonnement, Exercices, Sommeil, Activité, Nora, Minceur, Glycémie, Prescriptions, Interventions
+### Système i18n — Couverture complète
+- 1352+ appels t(), ~950 clés × 7 langues = ~6650 traductions
+- 3 fichiers de traductions: I18nContext.tsx (~490), medicalTranslations.ts (~300), appTranslations.ts (~160)
+- 533+ remplacements bulk via scripts Python dans 70+ fichiers
+- GlassTabBar.tsx refactoré avec getTabConfigs(t) — tabs traduits dynamiquement
+- useI18n ajouté à 19+ composants
+- Détection automatique locale (expo-localization) + sélecteur 7 drapeaux
 
-### Sessions précédentes
-- 120+ fichiers corrigés pour les accents français
+### Intégrations connectées (déjà opérationnelles)
+- Bracelet Elio V8 : BLE temps réel, vitals, sommeil, activité
+- Balance Vita : pesée 8 électrodes, composition corporelle
+- Gilet Elder : connexion BLE, détection chute airbag, posture, température thoracique
+- IA Nora : GPT-5.2, analyses santé, briefing matinal
+
+### Historique
+- Accents français corrigés (120+ fichiers)
 - V6 → Elio, bouton latéral supprimé
 - Historique sommeil: 7 → 30 jours
 
-## Backlog P2
-- Déploiement serveur TCP J2358
-- Intégration complète gilet connecté
-- Signature Électronique Admin
-- Système de parrainage Gardiens
-- Flux essai gratuit 7 jours
-- Intégration test urinaire Vivoo
+## Issues connues
+- Bracelet date BCD 2017 (hardware, TIME_SYNC inefficace)
+
+## Backlog
+- P1 : Flux d'essai gratuit de 30 jours pour les bénéficiaires
+- P2 : Déploiement serveur TCP J2358
+- P2 : Intégration test urinaire Vivoo
