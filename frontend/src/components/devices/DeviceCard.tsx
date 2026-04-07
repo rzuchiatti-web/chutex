@@ -13,9 +13,10 @@ interface DeviceCardProps {
   onSelectDevice: (dt: string) => void;
   onScaleWeighing: () => void;
   onRefresh?: () => void;
+  isDark?: boolean;
 }
 
-export function DeviceCard({ deviceType: dt, device, subscription, weighings, token, onStartPairing, onSelectDevice, onScaleWeighing, onRefresh }: DeviceCardProps) {
+export function DeviceCard({ deviceType: dt, device, subscription, weighings, token, onStartPairing, onSelectDevice, onScaleWeighing, onRefresh, isDark }: DeviceCardProps) {
   const router = useRouter();
   const [syncing, setSyncing] = useState(false);
   const meta = DEVICE_META[dt];
@@ -32,7 +33,7 @@ export function DeviceCard({ deviceType: dt, device, subscription, weighings, to
   const statusActive = dt === 'vest' ? vestActive : realConnected;
 
   return (
-    <div data-testid={`device-card-${dt}`} style={{ borderRadius: 20, marginBottom: 14, overflow: 'hidden', background: '#F4F4F5', padding: '20px' } as any}>
+    <div data-testid={`device-card-${dt}`} style={{ borderRadius: 20, marginBottom: 14, overflow: 'hidden', background: isDark ? 'rgba(255,255,255,0.06)' : '#F4F4F5', padding: '20px', border: isDark ? '1px solid rgba(255,255,255,0.08)' : 'none' } as any}>
       <style dangerouslySetInnerHTML={{ __html: `@keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}` }} />
       {/* Device image — inside grey card */}
       <div style={{ position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '16px 0', minHeight: 130, cursor: isAssociated ? 'pointer' : 'default' } as any} onClick={() => isAssociated && onSelectDevice(dt)}>
@@ -46,8 +47,8 @@ export function DeviceCard({ deviceType: dt, device, subscription, weighings, to
       </div>
 
       {/* Name + description */}
-      <div style={{ fontSize: 18, fontWeight: 800, color: '#111', marginBottom: 4, textAlign: 'center' }}>{meta.name}</div>
-      <div style={{ fontSize: 12, color: '#6B7280', lineHeight: 1.5, marginBottom: 16, textAlign: 'center' }}>{meta.desc}</div>
+      <div style={{ fontSize: 18, fontWeight: 800, color: isDark ? '#FFF' : '#111', marginBottom: 4, textAlign: 'center' }}>{meta.name}</div>
+      <div style={{ fontSize: 12, color: isDark ? 'rgba(255,255,255,0.45)' : '#6B7280', lineHeight: 1.5, marginBottom: 16, textAlign: 'center' }}>{meta.desc}</div>
 
       {/* Actions */}
       {showActions ? (
@@ -55,7 +56,7 @@ export function DeviceCard({ deviceType: dt, device, subscription, weighings, to
           {isAssociated && (
             <>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 } as any}>
-                <span style={{ fontSize: 12, fontWeight: 600, color: '#9CA3AF' }}><i className="ri-battery-line" style={{ fontSize: 14, marginRight: 6 }} />Batterie</span>
+                <span style={{ fontSize: 12, fontWeight: 600, color: isDark ? 'rgba(255,255,255,0.4)' : '#9CA3AF' }}><i className="ri-battery-line" style={{ fontSize: 14, marginRight: 6 }} />Batterie</span>
                 <span style={{ fontSize: 14, fontWeight: 800, color: realBattery > 50 ? '#10B981' : realBattery > 20 ? '#F59E0B' : realBattery > 0 ? '#EF4444' : '#9CA3AF' }}>{realBattery > 0 ? `${realBattery}%` : '--'}</span>
               </div>
               {realBattery > 0 && (
@@ -90,18 +91,18 @@ export function DeviceCard({ deviceType: dt, device, subscription, weighings, to
                 Bilan lombaire
               </div>
             )}
-            <div data-testid={`detail-${dt}-btn`} onClick={() => onSelectDevice(dt)} style={{ padding: '12px 14px', borderRadius: 999, cursor: 'pointer', background: '#FFF', border: '1px solid #E5E7EB', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 13, fontWeight: 700, color: '#111' } as any}>
+            <div data-testid={`detail-${dt}-btn`} onClick={() => onSelectDevice(dt)} style={{ padding: '12px 14px', borderRadius: 999, cursor: 'pointer', background: isDark ? 'rgba(255,255,255,0.08)' : '#FFF', border: isDark ? '1px solid rgba(255,255,255,0.12)' : '1px solid #E5E7EB', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 13, fontWeight: 700, color: isDark ? '#FFF' : '#111' } as any}>
               <i className="ri-information-line" style={{ fontSize: 14 }} />
             </div>
           </div>
         </div>
       ) : (
         <div style={{ display: 'flex', gap: 8 } as any}>
-          <div data-testid={`connect-${dt}-btn`} onClick={() => dt === 'scale' ? onScaleWeighing() : onStartPairing(dt)} style={{ flex: 1, padding: '13px 16px', borderRadius: 999, cursor: 'pointer', background: '#111', color: '#FFF', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, fontSize: 14, fontWeight: 700, opacity: needsSub ? 0.5 : 1 } as any}>
+          <div data-testid={`connect-${dt}-btn`} onClick={() => dt === 'scale' ? onScaleWeighing() : onStartPairing(dt)} style={{ flex: 1, padding: '13px 16px', borderRadius: 999, cursor: 'pointer', background: isDark ? '#FFF' : '#111', color: isDark ? '#111' : '#FFF', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, fontSize: 14, fontWeight: 700, opacity: needsSub ? 0.5 : 1 } as any}>
             {dt !== 'scale' && <i className="ri-bluetooth-line" style={{ fontSize: 16 }} />}
-            {dt === 'scale' ? 'Nouvelle pesee' : 'Associer'}
+            {dt === 'scale' ? 'Nouvelle pesee' : 'Connecter'}
           </div>
-          <div onClick={() => window.open(meta.link, '_blank')} style={{ flex: 1, padding: '13px 16px', borderRadius: 999, cursor: 'pointer', background: '#FFF', border: '1px solid #E5E7EB', color: '#111', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, fontSize: 14, fontWeight: 600 } as any}>
+          <div onClick={() => window.open(meta.link, '_blank')} style={{ flex: 1, padding: '13px 16px', borderRadius: 999, cursor: 'pointer', background: isDark ? 'rgba(255,255,255,0.08)' : '#FFF', border: isDark ? '1px solid rgba(255,255,255,0.12)' : '1px solid #E5E7EB', color: isDark ? '#FFF' : '#111', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, fontSize: 14, fontWeight: 600 } as any}>
             <i className="ri-external-link-line" style={{ fontSize: 14 }} />Decouvrir
           </div>
         </div>
@@ -109,3 +110,4 @@ export function DeviceCard({ deviceType: dt, device, subscription, weighings, to
     </div>
   );
 }
+

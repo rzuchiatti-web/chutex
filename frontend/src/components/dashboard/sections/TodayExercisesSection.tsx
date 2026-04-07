@@ -62,9 +62,10 @@ export function TodayExercisesSection({ todayExercises, C, glass }: any) {
           </div>
         );
       })}
-      <div onClick={() => router.push('/activity-detail' as any)} data-testid="view-activity-btn" style={{ marginTop: 12, padding: '14px', borderRadius: 999, background: '#111', textAlign: 'center', cursor: 'pointer', fontSize: 14, fontWeight: 800, color: '#FFF', transition: 'opacity 0.15s' } as any}
+      <div onClick={() => router.push('/activity-detail' as any)} data-testid="view-activity-btn" style={{ marginTop: 12, padding: '14px', borderRadius: 999, background: C.text === '#FFF' ? '#FFF' : '#111', textAlign: 'center', cursor: 'pointer', fontSize: 14, fontWeight: 800, color: C.text === '#FFF' ? '#111' : '#FFF', transition: 'opacity 0.15s', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 } as any}
         onMouseEnter={(e: any) => { e.currentTarget.style.opacity = '0.85'; }}
         onMouseLeave={(e: any) => { e.currentTarget.style.opacity = '1'; }}>
+        <i className="ri-run-line" style={{ fontSize: 16 }} />
         Voir mon activite
       </div>
     </div>

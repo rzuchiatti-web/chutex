@@ -531,7 +531,7 @@ export default function DorsiProgramPage() {
       <div style={{ position: 'absolute', inset: 0, overflowY: 'auto', padding: '70px 20px 120px', WebkitOverflowScrolling: 'touch', zIndex: 5 } as any}>
         {/* Header */}
         <div style={{ display: 'flex', alignItems: 'center', padding: '20px 0 16px', gap: 12 } as any}>
-          <div data-testid="back-btn" onClick={() => view === 'game' ? backToCalendar() : router.back()} style={{ width: 40, height: 40, borderRadius: 12, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}>
+          <div data-testid="back-btn" onClick={() => view === 'game' ? backToCalendar() : router.back()} style={{ width: 44, height: 44, borderRadius: 999, background: 'rgba(255,255,255,0.12)', border: '1px solid rgba(255,255,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}>
             <i className="ri-arrow-left-s-line" style={{ fontSize: 20, color: '#FFF' }} />
           </div>
           <div style={{ flex: 1 } as any}>
@@ -584,7 +584,7 @@ export default function DorsiProgramPage() {
 
             {/* ═══ INFO POPUP ═══ */}
             {showInfo && (
-              <div onClick={() => setShowInfo('')} style={{ position: 'fixed', inset: 0, zIndex: 999, background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(12px)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 } as any}>
+              <div onClick={() => setShowInfo('')} style={{ position: 'fixed', inset: 0, zIndex: 999, background: 'rgba(0,0,0,0.78)', backdropFilter: 'blur(32px)', WebkitBackdropFilter: 'blur(32px)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20, animation: 'glassIn 0.3s ease' } as any}>
                 <div onClick={(e: any) => e.stopPropagation()} style={{ ...GLASS, padding: 24, maxWidth: 360, width: '100%' } as any}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 } as any}>
                     <span style={{ fontSize: 16, fontWeight: 800, color: '#FFF' }}>
@@ -823,7 +823,7 @@ export default function DorsiProgramPage() {
           </div>
         )}
       </div>
-      <style dangerouslySetInnerHTML={{ __html: '@keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.3}}' }} />
+      <style dangerouslySetInnerHTML={{ __html: '@keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.3}}@keyframes glassIn{from{opacity:0}to{opacity:1}}' }} />
     </div>
   );
 }

@@ -138,7 +138,7 @@ function MeasureGauge({ direction, onComplete, bleAngles, bleConnected, tareAngl
         <div style={{ position: 'absolute', left: 110 - 18 + moveX, top: 110 - 18 + moveY, width: 36, height: 36, borderRadius: '50%', background: done ? '#10B981' : running ? '#F97316' : 'rgba(255,255,255,0.12)', border: `3px solid ${done ? '#10B981' : running ? '#FFF' : 'rgba(255,255,255,0.2)'}`, display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all 0.15s', boxShadow: running ? '0 0 24px rgba(249,115,22,0.5)' : 'none' } as any}>
           <i className={direction.icon} style={{ fontSize: 16, color: '#FFF' }} />
         </div>
-        <div style={{ position: 'absolute', bottom: 6, left: '50%', transform: 'translateX(-50%)', fontSize: 32, fontWeight: 900, color: '#FFF' } as any}>{pct}%</div>
+        <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', fontSize: 32, fontWeight: 900, color: '#FFF', pointerEvents: 'none' } as any}>{pct}%</div>
       </div>
       {!done && !running && <div onClick={start} style={{ ...BTN }} data-testid={`measure-${direction.key}`}>{t('dorsi_measure')}</div>}
       {!done && !running && bleConnected && <div style={{ fontSize: 10, color: '#10B981', marginTop: 6, fontWeight: 600 }}>Coussin connecte — mesure reelle</div>}
@@ -282,14 +282,16 @@ export default function DorsiBilanPage() {
         <div style={{ ...G, marginBottom: 20 } as any}>
           <i className={ble.connected ? 'ri-bluetooth-connect-fill' : 'ri-bluetooth-line'} style={{ fontSize: 40, color: '#FFF', display: 'block', marginBottom: 16 }} />
           <h2 style={{ fontSize: 20, fontWeight: 900, color: '#FFF', margin: '0 0 8px' }}>{ble.connected ? `${ble.deviceName} ${t('dorsi_connected')}` : t('dorsi_connect')}</h2>
-          {!ble.connected && <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)', margin: '0 0 16px' }}>{t('dorsi_continue_without')}.</p>}
+          {!ble.connected && <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)', margin: '0 0 16px' }}>Connectez votre coussin pour commencer le bilan.</p>}
           {!ble.connected && <div onClick={ble.connect} style={{ ...BTN, marginBottom: 12 }} data-testid="ble-connect-btn">{ble.connecting ? '...' : t('dorsi_connect_cushion')}</div>}
           {ble.connected && ble.battery >= 0 && <div style={{ fontSize: 13, color: '#10B981', marginBottom: 16 }}>Batterie {ble.battery}%</div>}
           {ble.connected && ble.battery < 0 && <div style={{ fontSize: 13, color: '#10B981', marginBottom: 16 }}>Connecte</div>}
         </div>
-        <div onClick={() => setStep(2)} style={{ ...BTN, background: ble.connected ? '#FFF' : 'rgba(255,255,255,0.15)', color: ble.connected ? '#1a1a2e' : '#FFF' } as any} data-testid="skip-ble-btn">
-          {ble.connected ? t('dorsi_continue') : t('dorsi_continue_without')}
-        </div>
+        {ble.connected && (
+          <div onClick={() => setStep(2)} style={BTN} data-testid="skip-ble-btn">
+            {t('dorsi_continue')}
+          </div>
+        )}
       </div>
     );
 
@@ -318,11 +320,6 @@ export default function DorsiBilanPage() {
           <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.5)', textTransform: 'uppercase', letterSpacing: 2, marginBottom: 6 }}>{t('dorsi_direction')} {dirIdx + 1}/4</div>
           <h2 style={{ fontSize: 22, fontWeight: 900, color: '#FFF', margin: '0 0 4px' }}>{dir.label}</h2>
           <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.4)', margin: '0 0 12px' }}>{dir.desc}</p>
-
-          {/* Movement illustration */}
-          <div style={{ ...G, padding: 0, marginBottom: 12, overflow: 'hidden', position: 'relative' } as any}>
-            <img src={dir.img} alt={dir.label} style={{ width: '100%', height: 180, objectFit: 'contain', display: 'block', background: 'rgba(0,0,0,0.2)' } as any} />
-          </div>
 
           {/* Posture reminders */}
           {!dirMeasured && (
@@ -477,7 +474,7 @@ export default function DorsiBilanPage() {
       <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.15)', zIndex: 1 } as any} />
       <div style={{ position: 'absolute', inset: 0, overflowY: 'auto', padding: '0 20px 120px', WebkitOverflowScrolling: 'touch', zIndex: 5 } as any}>
         <div style={{ display: 'flex', alignItems: 'center', padding: '20px 0 12px', gap: 12 } as any}>
-          <div data-testid="back-btn" onClick={() => step > 0 && step < 7 ? setStep(Math.max(0, step - 1)) : router.back()} style={{ width: 40, height: 40, borderRadius: 12, background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}>
+          <div data-testid="back-btn" onClick={() => step > 0 && step < 7 ? setStep(Math.max(0, step - 1)) : router.back()} style={{ width: 44, height: 44, borderRadius: 999, background: 'rgba(255,255,255,0.12)', border: '1px solid rgba(255,255,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' } as any}>
             <i className="ri-arrow-left-s-line" style={{ fontSize: 20, color: '#FFF' }} />
           </div>
           <div style={{ flex: 1 } as any}>

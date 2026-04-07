@@ -22,6 +22,10 @@ export function DeviceManagement({ token }: { token: string }) {
   const [showNoSubPopup, setShowNoSubPopup] = useState(false);
   const [showWeighing, setShowWeighing] = useState(false);
   const [selectedDevice, setSelectedDevice] = useState<string | null>(null);
+  const [isDark] = useState(() => {
+    if (typeof localStorage !== 'undefined') return localStorage.getItem('chutex_dark') === '1';
+    return false;
+  });
 
   const handleStartPairing = (dt: string) => {
     if (dt === 'bracelet' && !subscription?.can_use_bracelet) {
@@ -55,21 +59,21 @@ export function DeviceManagement({ token }: { token: string }) {
   /* ── Web rendering ── */
   if (Platform.OS === 'web') {
     return (
-      <div data-testid="devices-page" style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', fontFamily: 'Inter, system-ui, sans-serif', overflow: 'hidden', background: '#FFF' } as any}>
+      <div data-testid="devices-page" style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', fontFamily: 'Inter, system-ui, sans-serif', overflow: 'hidden', background: isDark ? '#000' : '#FFF' } as any}>
         <div style={{ flex: 1, overflowY: 'auto', WebkitOverflowScrolling: 'touch' } as any}>
 
           {/* HEADER — black bg image, centered title */}
-          <div style={{ position: 'relative', zIndex: 1, minHeight: 220 } as any}>
+          <div style={{ position: 'relative', zIndex: 1, minHeight: 240 } as any}>
             <img src={BG_BLACK} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 } as any} />
             <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.25)', zIndex: 1 } as any} />
-            <div style={{ position: 'relative', zIndex: 2, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: 220, padding: '70px 20px 30px', textAlign: 'center' } as any}>
+            <div style={{ position: 'relative', zIndex: 2, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: 240, padding: '70px 20px 44px', textAlign: 'center' } as any}>
               <div style={{ fontSize: 24, fontWeight: 900, color: '#FFF', marginBottom: 8 }}>Dispositifs connectes</div>
               <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.5)' }}>Gerez vos dispositifs de sante Chutex</div>
             </div>
           </div>
 
-          {/* WHITE CONTENT CARD */}
-          <div style={{ padding: '24px 16px 120px', marginTop: -24, borderRadius: '24px 24px 0 0', background: '#FFF', position: 'relative', zIndex: 10, maxWidth: 480, margin: '-24px auto 0', width: '100%' } as any}>
+          {/* CONTENT CARD */}
+          <div style={{ padding: '24px 16px 120px', marginTop: -24, borderRadius: '24px 24px 0 0', background: isDark ? 'linear-gradient(to bottom, #1a1a1e 0%, #000 100%)' : '#FFF', position: 'relative', zIndex: 10, maxWidth: 480, margin: '-24px auto 0', width: '100%' } as any}>
             {ALL_DEVICE_TYPES.map(dt => (
               <DeviceCard
                 key={dt}
@@ -82,6 +86,7 @@ export function DeviceManagement({ token }: { token: string }) {
                 onSelectDevice={setSelectedDevice}
                 onScaleWeighing={openWeighingFlow}
                 onRefresh={fetchDevices}
+                isDark={isDark}
               />
             ))}
           </div>
