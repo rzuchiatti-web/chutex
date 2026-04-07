@@ -1196,15 +1196,15 @@ async def get_daily_report(user=Depends(get_current_user), force: bool = False):
         if rd.get("blood_pressure"): d["blood_pressure"] = rd["blood_pressure"]
     # Fallback: use device document fields (V8 stores per-metric in last_* fields)
     if bracelet_dev:
-        if d["heart_rate"] == 0 and bracelet_dev.get("last_heart_rate", 0) > 0:
+        if bracelet_dev.get("last_heart_rate", 0) > d["heart_rate"]:
             d["heart_rate"] = bracelet_dev["last_heart_rate"]
-        if d["spo2"] == 0 and bracelet_dev.get("last_spo2", 0) > 0:
+        if bracelet_dev.get("last_spo2", 0) > d["spo2"]:
             d["spo2"] = bracelet_dev["last_spo2"]
-        if d["temperature"] == 0 and bracelet_dev.get("last_temperature", 0) > 30:
+        if bracelet_dev.get("last_temperature", 0) > 30 and (d["temperature"] == 0 or bracelet_dev["last_temperature"] > d["temperature"]):
             d["temperature"] = bracelet_dev["last_temperature"]
-        if d["steps"] == 0 and bracelet_dev.get("last_steps", 0) > 0:
+        if bracelet_dev.get("last_steps", 0) > d["steps"]:
             d["steps"] = bracelet_dev["last_steps"]
-        if d["calories"] == 0 and bracelet_dev.get("last_calories", 0) > 0:
+        if bracelet_dev.get("last_calories", 0) > d["calories"]:
             d["calories"] = bracelet_dev["last_calories"]
         if d["blood_pressure"]["systolic"] == 0 and bracelet_dev.get("last_systolic", 0) > 0:
             d["blood_pressure"] = {"systolic": bracelet_dev["last_systolic"], "diastolic": bracelet_dev.get("last_diastolic", 0)}
