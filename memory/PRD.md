@@ -8,30 +8,29 @@
 ## BLE Sync Pipeline
 ```
 Bracelet BLE → POST /api/bracelet/v8/push → Backend Save → WebSocket ble_sync → Frontend clearApiCache() + fetchData()
+→ Also dispatches ble_vitals CustomEvent for live pulse on metric-detail
 ```
 
 ## Completed (2026-04-07)
 
-### P1 Fixes
-- **Poids & IMC**: Backend fallback profil user (75kg → BMI 24.5), frontend minceurData.current?.weight fix, barre progression corrigée
-- **Validation exercice**: clearApiCache() après complétion
-- **Rappels/Notifications**: WebSocket reminder_alert temps réel, banner in-app, push + vibration
-- **Gilet BLE**: Timeout 25s scan natif, plus de boucle infinie
+### Jeux Dorsi - Visual Enhancement (5 jeux)
+- **Moutons**: Gradient radial bg (#0f1923→#060a0f), curseur avec glow cyan (shadowBlur=20), anneau extérieur
+- **Bulles**: Deep space gradient (#130f25→#060410), curseur glow violet
+- **Proprioception**: Gradient radial vert (#0a1a15→#060a0f), balle glow + anneau pulse animé (sin wave)
+- **Serpent**: Bg sombre + grille néon orange, nourriture glow, segments ronds avec trail lumineux
+- **Labyrinthe**: Bg sombre + grille rose, murs néon glow, objectif pulse animé
 
-### Batch UI/UX
-- Bouton "Voir mon activité" blanc avec icône en dark mode
-- Page Devices dark mode complet
-- Dorsi Bilan: pas de "continuer sans coussin", pas d'images phases, % centré, boutons ronds
-- Dorsi Programme: bouton retour rond, popup info glass renforcé
-- Instructions bracelet: charge >20%, positionnement 1 doigt du poignet
+### Pouls Temps Réel via WebSocket
+- NotificationCenter dispatch `ble_vitals` CustomEvent quand ble_sync arrive avec heart_rate
+- metric-detail écoute `ble_vitals` pour mise à jour instantanée (en plus du polling 10s)
+- Badge "bpm en direct" avec point pulsant dans le header
 
-### P1 Nouvelles features
-- **Minceur**: Streak badge sous le poids dans le header
-- **Pouls temps réel**: Badge "bpm en direct" avec polling /api/devices toutes les 10s sur page metric-detail heart_rate
-- **Dorsi jeux**: Coussin connecté obligatoire (alert si non connecté), historique 11 bilans avec barres d'évolution (Avant/Arrière/Gauche/Droite)
-- **WiFi Balance Lefu**: Déjà implémenté (scale-detail.tsx + configureScaleWifi)
+### P1 Fixes (session précédente)
+- Poids/IMC: fallback profil, progress bar corrigée
+- Exercice: clearApiCache après complétion
+- Rappels: WebSocket reminder_alert temps réel
+- Gilet BLE: timeout 25s scan
+- Dorsi: coussin obligatoire, historique bilans
 
 ## Upcoming Tasks
-- P1: Jeux Dorsi - ajouter complexité/profondeur visuelle à 5 jeux
-- P2: Pouls en temps réel - améliorer avec WebSocket au lieu de polling
 - P2: Deploiement TCP J2358, Gilet complet, Signature, Parrainage, Essai 7j, Vivoo
