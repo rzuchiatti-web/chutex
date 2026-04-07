@@ -128,7 +128,7 @@ export default function HealthDetailScreen() {
   // Find sleep data for the selected date
   const getSleepForDate = (dt: Date) => {
     if (!sleepData || sleepData.length === 0) return null;
-    const dateStr = dt.toISOString().split('T')[0];
+    const dateStr = `${dt.getFullYear()}-${String(dt.getMonth() + 1).padStart(2, '0')}-${String(dt.getDate()).padStart(2, '0')}`;
     const match = sleepData.find((s: any) => s.date?.startsWith(dateStr));
     if (!match) return null;
 
@@ -174,7 +174,7 @@ export default function HealthDetailScreen() {
   // Auto-select latest date with sleep data if today has none
   useEffect(() => {
     if (metricId === 'sleep' && sleepData && sleepData.length > 0) {
-      const todayStr = new Date().toISOString().split('T')[0];
+      const todayStr = `${new Date().getFullYear()}-${String(new Date().getMonth() + 1).padStart(2, '0')}-${String(new Date().getDate()).padStart(2, '0')}`;
       const hasToday = sleepData.some((s: any) => s.date?.startsWith(todayStr));
       if (!hasToday) {
         const latest = sleepData[sleepData.length - 1];
