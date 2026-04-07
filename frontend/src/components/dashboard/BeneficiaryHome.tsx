@@ -476,13 +476,18 @@ export function BeneficiaryHome({ token, user }: { token: string; user: any }) {
                   </div>
                 )}
                 {hasGoal && (() => {
-                  const currentW = minceurData.current_weight || 0;
-                  const diff = currentW - wg.target_kg;
-                  const lost = diff > 0 ? diff : 0;
-                  const progressPct = diff > 0 ? Math.max(5, Math.min(95, 100 - (diff / (diff + 2)) * 100)) : (diff < 0 ? Math.max(5, 50) : 100);
+                  const currentW = minceurData.current?.weight || 0;
+                  const targetW = wg.target_kg || 0;
+                  const diff = currentW > 0 ? currentW - targetW : 0;
+                  // Progress: 0% when far from goal, 100% when reached
+                  // Use starting weight to compute real progress
+                  const startW = minceurData.weight_stats?.max_weight || currentW || 0;
+                  const totalToLose = startW - targetW;
+                  const alreadyLost = startW - currentW;
+                  const progressPct = currentW > 0 && totalToLose > 0 ? Math.max(2, Math.min(98, Math.round((alreadyLost / totalToLose) * 100))) : (currentW > 0 && currentW <= targetW ? 100 : 2);
                   const createdDate = wg.created_at ? new Date(wg.created_at).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' }) : '';
                   return (
-                  <div style={{ borderTop: '1px solid #E5E7EB', padding: '16px 18px' } as any}>
+                  <div style={{ borderTop: `1px solid ${C.sep}`, padding: '16px 18px' } as any}>
                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 } as any}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 6 } as any}>
                         <i className="ri-scales-line" style={{ fontSize: 14, color: '#3B82F6' }} />
@@ -495,10 +500,10 @@ export function BeneficiaryHome({ token, user }: { token: string; user: any }) {
                     </div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 10 } as any}>
                       <div style={{ textAlign: 'center' } as any}>
-                        <div style={{ fontSize: 24, fontWeight: 900, color: '#111', lineHeight: 1 }}>{currentW > 0 ? currentW : '--'}</div>
-                        <div style={{ fontSize: 8, fontWeight: 700, color: '#9CA3AF', textTransform: 'uppercase', marginTop: 2 }}>Actuel</div>
+                        <div style={{ fontSize: 24, fontWeight: 900, color: C.text, lineHeight: 1 }}>{currentW > 0 ? currentW : '--'}</div>
+                        <div style={{ fontSize: 8, fontWeight: 700, color: C.sub, textTransform: 'uppercase', marginTop: 2 }}>Actuel</div>
                       </div>
-                      <div style={{ flex: 1, position: 'relative', height: 8, borderRadius: 4, background: '#E5E7EB', overflow: 'hidden' } as any}>
+                      <div style={{ flex: 1, position: 'relative', height: 8, borderRadius: 4, background: isDark ? 'rgba(255,255,255,0.08)' : '#E5E7EB', overflow: 'hidden' } as any}>
                         <div style={{ height: '100%', borderRadius: 4, background: 'linear-gradient(90deg, #60A5FA, #3B82F6)', width: `${progressPct}%`, transition: 'width 0.8s ease' } as any} />
                       </div>
                       <div style={{ textAlign: 'center' } as any}>
@@ -506,11 +511,14 @@ export function BeneficiaryHome({ token, user }: { token: string; user: any }) {
                         <div style={{ fontSize: 8, fontWeight: 700, color: '#3B82F6', textTransform: 'uppercase', marginTop: 2 }}>Cible</div>
                       </div>
                     </div>
-                    {lost > 0 && (
+                    {diff > 0 && (
                       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4 } as any}>
                         <i className="ri-arrow-down-line" style={{ fontSize: 12, color: '#10B981' }} />
-                        <span style={{ fontSize: 11, fontWeight: 700, color: '#10B981' }}>-{lost.toFixed(1)}kg restants</span>
+                        <span style={{ fontSize: 11, fontWeight: 700, color: '#10B981' }}>-{diff.toFixed(1)}kg restants</span>
                       </div>
+                    )}
+                    {currentW === 0 && (
+                      <div style={{ textAlign: 'center', fontSize: 11, color: C.sub }}>Pesez-vous pour suivre votre progression</div>
                     )}
                   </div>
                   );

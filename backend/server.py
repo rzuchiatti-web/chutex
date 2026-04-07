@@ -705,6 +705,20 @@ async def _check_reminder_vibrations():
                 color="#F97316",
             )
 
+            # Send real-time WebSocket notification for in-app confirmation
+            try:
+                from ws_manager import ws_manager
+                await ws_manager.send_to_user(uid, {
+                    "type": "reminder_alert",
+                    "reminder_id": rem_id,
+                    "title": title,
+                    "body": body,
+                    "reminder_type": rem_type,
+                    "time": rem_time,
+                })
+            except Exception:
+                pass
+
             # Mark as vibrated
             await db.reminder_vibrations.insert_one({
                 "reminder_id": rem_id, "user_id": uid,

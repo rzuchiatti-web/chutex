@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Platform } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useAuth } from '../src/context/AuthContext';
-import { apiFetch } from '../src/services/api';
+import { apiFetch, clearApiCache } from '../src/services/api';
 import { StatEditor, WeightChart } from '../src/components/exercises/WeightChart';
 import { WorkoutPopup } from '../src/components/exercises/WorkoutPopup';
 
@@ -105,6 +105,7 @@ export default function ProExerciseDetailPage() {
       if (mode === 'assigned' && assignmentId) await apiFetch(`/api/pro/exercises/${assignmentId}/complete`, { method: 'POST', body: JSON.stringify({ status, pain_level: painLevel || null, patient_notes: notes }) }, token);
       else if (programId && sessionId) await apiFetch(`/api/pro/sessions/${programId}/${sessionId}/complete`, { method: 'POST', body: JSON.stringify({ status, pain_level: painLevel || null, patient_notes: notes }) }, token);
       if (status === 'done') setCompleted(true);
+      clearApiCache();
     } catch {} finally { setCompleting(false); }
   };
 

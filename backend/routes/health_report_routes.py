@@ -1345,6 +1345,17 @@ async def get_daily_report(user=Depends(get_current_user), force: bool = False):
         rec_stress = max(0, 100 - stress_val) if stress_val > 0 else 50
         rec_deep = min(100, deep_pct * 5) if deep_pct > 0 else 0
         d["recovery_score"] = round(max(0, min(100, rec_hrv * 0.4 + rec_sleep * 0.3 + rec_stress * 0.15 + rec_deep * 0.15)))
+
+    # Use profile weight/height to compute BMI if no scale data
+    if d.get("weight", 0) == 0 and d.get("bmi", 0) == 0:
+        profile_w = float(user.get("weight_kg", 0) or 0)
+        profile_h = float(user.get("height_cm", 0) or 0)
+        if profile_w > 0:
+            d["weight"] = profile_w
+            if profile_h > 0:
+                h_m = profile_h / 100
+                d["bmi"] = round(profile_w / (h_m * h_m), 1)
+
     if scale_reading and scale_reading.get("data"):
         sd = scale_reading["data"]
         for k in ["weight", "bmi", "body_fat_pct", "muscle_pct", "water_pct", "visceral_fat", "body_age", "bone_mass_kg", "basal_metabolism", "protein_pct"]:

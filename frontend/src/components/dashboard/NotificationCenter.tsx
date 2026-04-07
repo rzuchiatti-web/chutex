@@ -71,6 +71,25 @@ export function useNotifications(token: string | null, onBleSync?: () => void) {
               clearApiCache();
               if (bleSyncRef.current) bleSyncRef.current();
             }
+            // Reminder alert — show in-app confirmation immediately
+            if (data.type === 'reminder_alert') {
+              const reminderNotif: Notification = {
+                id: data.reminder_id || `rem-${Date.now()}`,
+                type: 'reminder',
+                title: data.title || 'Rappel',
+                body: data.body || '',
+                icon: data.reminder_type === 'medication' ? 'ri-capsule-line' : data.reminder_type === 'hydration' ? 'ri-drop-line' : 'ri-notification-3-line',
+                color: '#F97316',
+                read: false,
+                created_at: new Date().toISOString(),
+              };
+              setNotifications(prev => [reminderNotif, ...prev].slice(0, 50));
+              setUnreadCount(prev => prev + 1);
+              setLiveBanner(reminderNotif);
+              if (bannerTimer.current) clearTimeout(bannerTimer.current);
+              bannerTimer.current = setTimeout(() => setLiveBanner(null), 8000);
+              sendLocalNotification(reminderNotif.title, reminderNotif.body);
+            }
           } catch {}
         };
         ws.onclose = () => {
