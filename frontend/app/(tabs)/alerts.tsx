@@ -191,7 +191,6 @@ function ReportPage({ alert, role, token, onClose, onDone }: { alert: any; role:
   const [reportText, setReportText] = useState('');
   const [reportAnswers, setReportAnswers] = useState<Record<string, string>>({});
   const user = useAuth().user;
-  const { t } = useI18n();
 
   const isBeneficiary = role === 'beneficiary';
   const reportQuestions = isBeneficiary ? [
@@ -320,7 +319,6 @@ function IntervenantPopup({ person, onClose }: { person: any; onClose: () => voi
    ------------------------------------------------------------------ */
 function AlertDetailWeb({ alert, onClose, role, token, onRefresh, user }: { alert: any; onClose: () => void; role: string; token: string; onRefresh: () => void; user: any }) {
   const router = useRouter();
-  const { t } = useI18n();
   const [alertDetail, setAlertDetail] = useState<any>(null);
   const [showReport, setShowReport] = useState(false);
   const [showIntervenantPopup, setShowIntervenantPopup] = useState(false);
@@ -630,7 +628,6 @@ function InterventionCard({ iv, hasAssigned, alert, onOpenPopup }: { iv: any; ha
 }
 
 function ResolvedSection({ alert, alertDetail }: { alert: any; alertDetail: any }) {
-  const { t } = useI18n();
   const ivReport = alert.intervention_report || alertDetail?.interventions?.[0]?.report;
   const G: any = { borderRadius: 20, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', marginBottom: 10, padding: '14px 16px' };
   return (

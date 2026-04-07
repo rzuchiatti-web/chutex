@@ -3,6 +3,7 @@ import React from 'react';
 import { GI, INPUT_STYLE, RegisterForm, UpdateFn, CheckboxGrid, YesNoToggle } from './RegisterUI';
 
 export default function MedicalStep({ form, u, toggleArr }: { form: RegisterForm; u: UpdateFn; toggleArr: (k: string, v: string) => void }) {
+  const { t } = useI18n();
   const handleConditionToggle = (c: string) => {
     if (c === t('none_female')) u('medical_conditions', [t('none_female')]);
     else toggleArr('medical_conditions', c);

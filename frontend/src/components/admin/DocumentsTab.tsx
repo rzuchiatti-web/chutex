@@ -1,3 +1,4 @@
+import { useI18n } from '../../context/I18nContext';
 import React, { useState, useEffect } from 'react';
 import { apiFetch } from '../../services/api';
 import { Card } from '../admin/AdminUI';
@@ -9,6 +10,7 @@ interface Doc {
 }
 
 export default function DocumentsTab({ token, mob }: { token: string; mob: boolean }) {
+  const { t } = useI18n();
   const [docs, setDocs] = useState<Doc[]>([]);
   const [loading, setLoading] = useState(true);
   const [exporting, setExporting] = useState('');

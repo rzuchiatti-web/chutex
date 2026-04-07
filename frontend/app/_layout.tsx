@@ -1,3 +1,4 @@
+import { useI18n } from '../src/context/I18nContext';
 import React, { useEffect, useRef, useState } from 'react';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
@@ -16,6 +17,7 @@ import FullScreenLoader from '../src/components/FullScreenLoader';
  * BLE V8 protocol is handled natively via bleV8Bridge module.
  */
 function NativeFullApp() {
+  const { t } = useI18n();
   const WebView = require('react-native-webview').default;
   const { PermissionsAndroid } = require('react-native');
   const backendUrl = process.env.EXPO_PUBLIC_BACKEND_URL || '';

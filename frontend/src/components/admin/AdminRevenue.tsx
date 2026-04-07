@@ -1,9 +1,11 @@
+import { useI18n } from '../../context/I18nContext';
 import React from 'react';
 
 const MONTH_LABELS: Record<string, string> = { Jan: 'Jan', Feb: 'Fev', Mar: 'Mar', Apr: 'Avr', May: 'Mai', Jun: 'Juin', Jul: 'Juil', Aug: 'Aout', Sep: 'Sep', Oct: 'Oct', Nov: 'Nov', Dec: 'Dec' };
 const formatLabel = (m: string) => { const parts = m.split(' '); return (MONTH_LABELS[parts[0]] || parts[0]) + (parts[1] ? ` ${parts[1]}` : ''); };
 
 export default function AdminRevenue({ data, mob }: { data: any; mob: boolean }) {
+  const { t } = useI18n();
   if (!data) return <div style={{ padding: 40, textAlign: 'center', color: '#94A3B8' } as any}><i className="ri-loader-4-line ri-spin" style={{ fontSize: 24 }} /></div>;
 
   const months = data.revenue_by_month || [];

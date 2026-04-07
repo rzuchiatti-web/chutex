@@ -28,6 +28,7 @@ const GUARD_STEPS = 4;
 const SAAD_STEPS = 3;
 
 export default function RegisterScreen() {
+  const { t } = useI18n();
   const router = useRouter();
   const { login, token } = useAuth();
   const [role, setRole] = useState('');

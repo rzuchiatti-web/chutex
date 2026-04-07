@@ -151,7 +151,6 @@ function MeasureGauge({ direction, onComplete, bleAngles, bleConnected, tareAngl
 
 // ── Pain Slider ──
 function PainSlider({ value, onChange }: { value: number; onChange: (v: number) => void }) {
-  const { t } = useI18n();
   return (
     <div style={{ ...G, marginTop: 16 } as any}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 } as any}>
@@ -168,7 +167,6 @@ export default function DorsiBilanPage() {
   const { token } = useAuth();
   const router = useRouter();
   const ble = useSharedDorsiBLE();
-  const { t } = useI18n();
   // Steps: 0=intro, 1=connect, 2=tare, 3-6=direction+pain (4 dirs), 7=results
   const [step, setStep] = useState(0);
   const [data, setData] = useState<Record<string, { mobility: number; pain: number }>>({});

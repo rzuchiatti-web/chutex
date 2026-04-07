@@ -1,3 +1,4 @@
+import { useI18n } from '../../context/I18nContext';
 import React from 'react';
 import { Platform } from 'react-native';
 
@@ -11,6 +12,7 @@ const portalMount = (node: React.ReactNode) => {
 const POP: any = { position: 'fixed', inset: 0, zIndex: 99990, backdropFilter: 'blur(32px)', WebkitBackdropFilter: 'blur(32px)', background: 'rgba(0,0,0,0.55)', overflowY: 'scroll', WebkitOverflowScrolling: 'touch' };
 
 function ProfileGlassPopup({ visible, onClose, children }: any) {
+  const { t } = useI18n();
   if (!visible) return null;
   return portalMount(
     <div style={POP as any}>

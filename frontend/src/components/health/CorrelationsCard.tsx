@@ -1,3 +1,4 @@
+import { useI18n } from '../../context/I18nContext';
 import React, { useState, useEffect } from 'react';
 import { apiFetch } from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
@@ -48,6 +49,7 @@ const SIMPLE_LABELS: Record<string, { text: string; icon: string; color: string 
 };
 
 function getSimpleLabel(corr: Correlation) {
+  const { t } = useI18n();
   const key = `${corr.metric_a}|${corr.metric_b}`;
   return SIMPLE_LABELS[key] || { text: corr.label, icon: 'ri-links-line', color: '#F59E0B' };
 }

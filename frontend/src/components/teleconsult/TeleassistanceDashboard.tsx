@@ -8,6 +8,7 @@ import { apiFetch } from '../../services/api';
 import { s, BG_TA, BG_RED_TA } from './teleconsultStyles';
 
 export function TéléassistanceDashboard({ token }: { token: string }) {
+  const { t } = useI18n();
   const [incidents, setIncidents] = useState<any[]>([]);
   const [stats, setStats] = useState<any>(null);
   const [loading, setLoading] = useState(true);

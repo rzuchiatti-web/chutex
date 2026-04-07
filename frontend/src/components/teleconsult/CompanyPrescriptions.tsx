@@ -1,3 +1,4 @@
+import { useI18n } from '../../context/I18nContext';
 import { Icon } from '../WebIcon';
 import FullScreenLoader from '../FullScreenLoader';
 import React, { useState, useEffect, useCallback } from 'react';
@@ -6,6 +7,7 @@ import { Colors } from '../../constants/colors';
 import { apiFetch } from '../../services/api';
 
 export function CompanyPrescriptions({ token }: { token: string }) {
+  const { t } = useI18n();
   const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);

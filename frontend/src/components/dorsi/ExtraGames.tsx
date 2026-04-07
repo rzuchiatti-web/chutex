@@ -1,9 +1,11 @@
+import { useI18n } from '../../context/I18nContext';
 import React, { useState, useEffect, useRef } from 'react';
 
 const GAME_CANVAS: any = { borderRadius: 16, border: '1px solid rgba(255,255,255,0.1)', width: '100%', maxWidth: 360, aspectRatio: '360/400' };
 const DPAD_BTN: any = { borderRadius: 12, background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' };
 
 function useGameTimer(onFinish: (s: number) => void, scoreRef: React.MutableRefObject<number>, gameOverRef: React.MutableRefObject<boolean>) {
+  const { t } = useI18n();
   const [timeLeft, setTimeLeft] = useState(60);
   const [gameOver, setGameOver] = useState(false);
   useEffect(() => {

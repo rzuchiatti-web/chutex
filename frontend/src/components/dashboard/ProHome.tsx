@@ -1,3 +1,4 @@
+import { useI18n } from '../../context/I18nContext';
 import React, { useState, useEffect, useCallback } from 'react';
 import { Platform, ScrollView, RefreshControl, TouchableOpacity, Text, View } from 'react-native';
 import { useRouter } from 'expo-router';
@@ -11,6 +12,7 @@ const C = {
 };
 
 function StatCard({ icon, value, label, color }: any) {
+  const { t } = useI18n();
   return (
     <div style={{ flex: 1, padding: '18px 14px', borderRadius: 18, background: C.card, border: `1px solid ${C.border}`, textAlign: 'center' } as any}>
       <i className={icon} style={{ fontSize: 22, color, marginBottom: 8, display: 'block' }} />

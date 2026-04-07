@@ -9,6 +9,7 @@ import { apiFetch } from '../../services/api';
 import { getCleanLabel, BG_VIOLET, BG_GREEN } from './teleconsultStyles';
 
 export function CompanyInterventionsTab({ token }: { token: string }) {
+  const { t } = useI18n();
   const router = useRouter();
   const [interventions, setInterventions] = useState<any[]>([]);
   const [intervenants, setIntervenants] = useState<any[]>([]);

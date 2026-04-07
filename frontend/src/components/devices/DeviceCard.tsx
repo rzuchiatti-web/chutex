@@ -1,3 +1,4 @@
+import { useI18n } from '../../context/I18nContext';
 import React, { useState } from 'react';
 import { useRouter } from 'expo-router';
 import { DEVICE_META } from './constants';
@@ -17,6 +18,7 @@ interface DeviceCardProps {
 }
 
 export function DeviceCard({ deviceType: dt, device, subscription, weighings, token, onStartPairing, onSelectDevice, onScaleWeighing, onRefresh, isDark }: DeviceCardProps) {
+  const { t } = useI18n();
   const router = useRouter();
   const [syncing, setSyncing] = useState(false);
   const meta = DEVICE_META[dt];

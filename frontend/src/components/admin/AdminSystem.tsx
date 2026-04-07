@@ -1,7 +1,9 @@
+import { useI18n } from '../../context/I18nContext';
 import React, { useState } from 'react';
 import { apiFetch } from '../../services/api';
 
 export default function AdminSystem({ actC, ivC, shop, users, alerts, token, load, mob }: any) {
+  const { t } = useI18n();
   const [tab, setTab] = useState<'activation' | 'intervention' | 'shopify' | 'info'>('activation');
 
   const tabs = [

@@ -1,3 +1,4 @@
+import { useI18n } from '../../context/I18nContext';
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import ReactDOM from 'react-dom';
 import { apiFetch } from '../../services/api';
@@ -15,6 +16,7 @@ interface Activity {
 interface Props { token: string | null; }
 
 export default function TeamActivityToast({ token }: Props) {
+  const { t } = useI18n();
   const [queue, setQueue] = useState<Activity[]>([]);
   const [current, setCurrent] = useState<Activity | null>(null);
   const [visible, setVisible] = useState(false);

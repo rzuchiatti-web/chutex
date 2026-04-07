@@ -1,3 +1,4 @@
+import { useI18n } from '../../context/I18nContext';
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { apiFetch, clearApiCache } from '../../services/api';
 import { sendLocalNotification, requestNotificationPermission } from '../../services/notifications';
@@ -17,6 +18,7 @@ interface Notification {
 }
 
 export function useNotifications(token: string | null, onBleSync?: () => void) {
+  const { t } = useI18n();
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [liveBanner, setLiveBanner] = useState<Notification | null>(null);

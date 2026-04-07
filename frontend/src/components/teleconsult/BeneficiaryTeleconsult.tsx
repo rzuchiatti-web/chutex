@@ -1,3 +1,4 @@
+import { useI18n } from '../../context/I18nContext';
 import { Icon } from '../WebIcon';
 import FullScreenLoader from '../FullScreenLoader';
 import React, { useState, useEffect } from 'react';
@@ -7,6 +8,7 @@ import { apiFetch } from '../../services/api';
 import { s, BG_BLUE } from './teleconsultStyles';
 
 export function BeneficiaryTeleconsult({ token }: { token: string }) {
+  const { t } = useI18n();
   const [questions, setQuestions] = useState<any[]>([]);
   const [answers, setAnswers] = useState<any>({});
   const [step, setStep] = useState(0);

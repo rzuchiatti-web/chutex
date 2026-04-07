@@ -1,7 +1,9 @@
+import { useI18n } from '../../../context/I18nContext';
 import React, { useState } from 'react';
 import { API, uploadImage, DAYS_FR } from './constants';
 
 export function GlassModal({ open, onClose, title, children }: { open: boolean; onClose: () => void; title: string; children: React.ReactNode }) {
+  const { t } = useI18n();
   if (!open) return null;
   return (
     <div data-testid="glass-modal" onClick={onClose} style={{ position: 'fixed', inset: 0, zIndex: 9999, display: 'flex', alignItems: 'flex-end', justifyContent: 'center', backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)', background: 'rgba(0,0,0,0.35)' } as any}>

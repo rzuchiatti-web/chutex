@@ -49,6 +49,7 @@ const ROLE_CONTENT: Record<string, { lines: string[]; features: { icon: string; 
 };
 
 export default function NoraPresentationStep({ role, userName, onContinue }: { role: string; userName: string; onContinue: () => void }) {
+  const { t } = useI18n();
   const [phase, setPhase] = useState(0); // 0=greeting, 1..N=lines, N+1..=cards, final=done
   const [visibleCards, setVisibleCards] = useState(0);
   const [done, setDone] = useState(false);

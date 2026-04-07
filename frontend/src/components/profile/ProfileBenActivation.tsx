@@ -1,3 +1,4 @@
+import { useI18n } from '../../context/I18nContext';
 import React, { useState } from 'react';
 import { Platform, Alert } from 'react-native';
 
@@ -20,6 +21,7 @@ interface Props {
 }
 
 export function ProfileBenActivation({ show, onClose, user, apiFetch, token, refreshUser }: Props) {
+  const { t } = useI18n();
   const [benStep, setBenStep] = useState(1);
   const [benError, setBenError] = useState('');
   const [benSaving, setBenSaving] = useState(false);

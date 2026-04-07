@@ -1,3 +1,4 @@
+import { useI18n } from '../../context/I18nContext';
 import React, { useState } from 'react';
 
 const AVATARS_BEN = [
@@ -15,6 +16,7 @@ const AVATARS_GUARD = [
 ];
 
 function AvatarRow({ items }: { items: any[] }) {
+  const { t } = useI18n();
   return (
     <div style={{ display: 'flex', justifyContent: 'center', gap: 12, marginBottom: 18 } as any}>
       {items.map((a, i) => (

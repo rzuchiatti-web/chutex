@@ -27,6 +27,7 @@ const PROG_IMAGES: Record<string, string> = {
 };
 
 export default function ProgramsTab() {
+  const { t } = useI18n();
   const { token } = useAuth();
   const router = useRouter();
   const [activeProgram, setActiveProgram] = useState<any>(null);

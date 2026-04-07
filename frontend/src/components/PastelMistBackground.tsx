@@ -1,7 +1,9 @@
+import { useI18n } from '../context/I18nContext';
 import { useEffect } from 'react';
 import { Platform } from 'react-native';
 
 export function PastelMistBackground() {
+  const { t } = useI18n();
   useEffect(() => {
     if (Platform.OS !== 'web' || typeof document === 'undefined') return;
 

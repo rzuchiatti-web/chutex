@@ -28,6 +28,7 @@ interface Props {
 }
 
 export function ProfileMedicalPopup({ visible, onClose, medForm, setMedForm, medSaving, setMedSaving, medSaved, setMedSaved, apiFetch, token }: Props) {
+  const { t } = useI18n();
   if (!visible || Platform.OS !== 'web') return null;
 
   return portalMount(

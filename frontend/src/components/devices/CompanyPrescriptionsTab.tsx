@@ -17,6 +17,7 @@ import { PageExplainer } from '../HelpSystem';
 import { confirmAction } from './constants';
 
 function CompanyPrescriptionsTab({ token, user }: { token: string; user: any }) {
+  const { t } = useI18n();
   const router = useRouter();
   const [dashData, setDashData] = useState<any>(null);
   const [prescribers, setPrescribers] = useState<any[]>([]);

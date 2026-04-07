@@ -1,3 +1,4 @@
+import { useI18n } from '../../context/I18nContext';
 import { Icon } from '../WebIcon';
 import FullScreenLoader from '../FullScreenLoader';
 import React, { useState, useEffect, useCallback } from 'react';
@@ -8,6 +9,7 @@ import { apiFetch } from '../../services/api';
 import { s, confirmAction, BG_VIOLET as BG_ADM_IV } from './teleconsultStyles';
 
 export function AdminIntervenants({ token }: { token: string }) {
+  const { t } = useI18n();
   const router = useRouter();
   const [codes, setCodes] = useState<any[]>([]);
   const [providers, setProviders] = useState<any[]>([]);

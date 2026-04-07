@@ -1,3 +1,4 @@
+import { useI18n } from '../../context/I18nContext';
 import React, { useState } from 'react';
 import { GlassOverlay } from './GlassOverlay';
 import { DEVICE_META } from './constants';
@@ -14,6 +15,7 @@ interface PairingStepsProps {
 }
 
 export function PairingStepsPopup({ deviceType, step, onSetStep, onClose, onLaunchScan, onScaleWeighing, targetMac, onSetTargetMac }: PairingStepsProps) {
+  const { t } = useI18n();
   const meta = DEVICE_META[deviceType];
   const isBracelet = deviceType === 'bracelet';
   const steps = meta.steps;

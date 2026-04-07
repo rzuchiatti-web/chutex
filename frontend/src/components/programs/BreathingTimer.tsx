@@ -1,3 +1,4 @@
+import { useI18n } from '../../context/I18nContext';
 import React, { useState, useEffect, useRef } from 'react';
 
 interface Props {
@@ -9,6 +10,7 @@ interface Props {
 }
 
 export default function BreathingTimer({ pattern, durationSec, color, onComplete, onClose }: Props) {
+  const { t } = useI18n();
   const parts = pattern.split('-').map(Number);
   const inhale = parts[0] || 4;
   const hold = parts.length === 3 ? parts[1] : 0;

@@ -1,3 +1,4 @@
+import { useI18n } from '../../context/I18nContext';
 import { Icon, MCIcon } from '../WebIcon';
 import { PhoneInputWithPrefix } from '../PhoneInputWithPrefix';
 import FullScreenLoader from '../FullScreenLoader';
@@ -16,6 +17,7 @@ import { PageExplainer } from '../HelpSystem';
 import { confirmAction } from './constants';
 
 function AdminPrescripteurs({ token }: { token: string }) {
+  const { t } = useI18n();
   const router = useRouter();
   const [codes, setCodes] = useState<any[]>([]);
   const [prescriptions, setPrescriptions] = useState<any[]>([]);

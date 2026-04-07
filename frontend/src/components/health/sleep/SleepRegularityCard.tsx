@@ -1,3 +1,4 @@
+import { useI18n } from '../../../context/I18nContext';
 import React from 'react';
 
 interface Props {
@@ -6,6 +7,7 @@ interface Props {
 }
 
 export default function SleepRegularityCard({ sleepData, onExplain }: Props) {
+  const { t } = useI18n();
   const last7 = sleepData.slice(-7);
   const W = 380, H = 160, LM = 40, RM = 10, TM = 20, BM = 28;
   const gW = W - LM - RM, gH = H - TM - BM;

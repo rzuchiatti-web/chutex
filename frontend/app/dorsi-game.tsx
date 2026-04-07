@@ -27,6 +27,7 @@ const GAMES: Record<string, { name: string; icon: string; color: string; desc: s
 
 /* ── HUD ── */
 function HUD({ score, timeLeft, combo, bestScore, gameName, gameColor, onBack }: any) {
+  const { t } = useI18n();
   const pct = (timeLeft / 60) * 100;
   const urg = timeLeft < 10;
   return (

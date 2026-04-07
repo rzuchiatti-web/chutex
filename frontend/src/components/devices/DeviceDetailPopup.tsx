@@ -1,3 +1,4 @@
+import { useI18n } from '../../context/I18nContext';
 import React from 'react';
 import { useRouter } from 'expo-router';
 import { GlassOverlay } from './GlassOverlay';
@@ -15,6 +16,7 @@ interface DeviceDetailPopupProps {
 }
 
 export function DeviceDétailPopup({ deviceType, device, weighings, removing, onClose, onRemove, onLaunchScan, onScaleWeighing }: DeviceDetailPopupProps) {
+  const { t } = useI18n();
   const router = useRouter();
   const meta = DEVICE_META[deviceType];
   const isVest = deviceType === 'vest';

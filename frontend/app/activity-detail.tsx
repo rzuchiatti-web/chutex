@@ -19,6 +19,7 @@ const EX_IMG: Record<string, string> = {
 };
 
 function GaugeRing({ pct, color, size = 56, children }: { pct: number; color: string; size?: number; children?: any }) {
+  const { t } = useI18n();
   const r = (size - 5) / 2, circ = 2 * Math.PI * r;
   return (
     <div style={{ width: size, height: size, position: 'relative' } as any}>

@@ -1,8 +1,10 @@
+import { useI18n } from '../../context/I18nContext';
 import React from 'react';
 import { GI, RegisterForm, UpdateFn, AcceptTerms, HowFoundGrid } from './RegisterUI';
 import { CountryPicker } from '../GlassPickers';
 
 export default function GuardianInfoStep({ form, u }: { form: RegisterForm; u: UpdateFn }) {
+  const { t } = useI18n();
   return (
     <>
       <div style={{ fontSize: 24, fontWeight: 900, color: '#FFF', marginBottom: 6 }}>Vos informations</div>

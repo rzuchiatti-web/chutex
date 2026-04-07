@@ -1,3 +1,4 @@
+import { useI18n } from '../../context/I18nContext';
 import React, { useState } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, Platform, StyleSheet } from 'react-native';
 import { useRouter } from 'expo-router';
@@ -15,6 +16,7 @@ import { DeviceDetailPopup } from './DeviceDetailPopup';
 import { NoSubscriptionPopup } from './NoSubscriptionPopup';
 
 export function DeviceManagement({ token }: { token: string }) {
+  const { t } = useI18n();
   const router = useRouter();
   const { deviceMap, loading, subscription, weighings, dashData, removing, fetchDevices, removeDevice } = useDeviceData(token);
   const ble = useBleConnection(token, fetchDevices);
