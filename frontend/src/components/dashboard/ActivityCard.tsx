@@ -1,5 +1,6 @@
 import React from 'react';
 import { useRouter } from 'expo-router';
+import { useI18n } from '../../context/I18nContext';
 
 const BG_GREEN = 'https://customer-assets.emergentagent.com/job_443c9c6e-0feb-4920-a358-fe7cc1a6289b/artifacts/1lq6xl58_ChatGPT%20Image%2017%20f%C3%A9vr.%202026%2C%2008_54_55.png';
 const MUSCLE_IMG = 'https://customer-assets.emergentagent.com/job_92308143-f99e-4bad-8264-e3775a214313/artifacts/75gbxosw_physique.png';
@@ -37,6 +38,7 @@ function getRecoveryInfo(recovery: number, stress: number, sleepQuality: number,
 
 export default function ActivityCard({ steps, calories, distance, recovery = 0, stress = 0, sleepQuality = 0, heartRate = 0, streak, stepGoal = 6000, calGoal = 300, beneficiaryId }: ActivityCardProps) {
   const router = useRouter();
+  const { t } = useI18n();
   const st = streak || { current_streak: 0, max_streak: 0, badge: null, objectives_today: [] };
   const ri = getRecoveryInfo(recovery, stress, sleepQuality, heartRate);
 
@@ -53,11 +55,11 @@ export default function ActivityCard({ steps, calories, distance, recovery = 0, 
         <div style={{ padding: '10px 16px 14px' } as any}>
           {/* Title centered */}
           <div style={{ textAlign: 'center', marginBottom: 12 } as any}>
-            <div style={{ fontSize: 16, fontWeight: 900, color: '#FFF', marginBottom: 4 }}>Activité Physique</div>
+            <div style={{ fontSize: 16, fontWeight: 900, color: '#FFF', marginBottom: 4 }}>{t('activity')}</div>
             {st.current_streak > 0 && (
               <div style={{ display: 'inline-flex', alignItems: 'center', gap: 4, padding: '3px 10px', borderRadius: 999, background: 'rgba(245,158,11,0.15)', border: '1px solid rgba(245,158,11,0.25)' } as any}>
                 <i className="ri-fire-fill" style={{ fontSize: 11, color: '#F59E0B' }} />
-                <span style={{ fontSize: 11, fontWeight: 900, color: '#F59E0B' }}>{st.current_streak} jours</span>
+                <span style={{ fontSize: 11, fontWeight: 900, color: '#F59E0B' }}>{st.current_streak} {t('days_label')}</span>
               </div>
             )}
           </div>
@@ -65,9 +67,9 @@ export default function ActivityCard({ steps, calories, distance, recovery = 0, 
           {/* 3 metrics with icons */}
           <div style={{ display: 'flex', gap: 6, marginBottom: 10 } as any}>
             {[
-              { label: 'Pas', value: steps, goal: stepGoal, color: '#10B981', icon: 'ri-footprint-line' },
-              { label: 'Calories', value: calories, goal: calGoal, color: '#F59E0B', icon: 'ri-fire-line' },
-              { label: 'Distance', value: distance, goal: 4, unit: 'km', color: '#38BDF8', icon: 'ri-route-line' },
+              { label: t('steps'), value: steps, goal: stepGoal, color: '#10B981', icon: 'ri-footprint-line' },
+              { label: t('calories_burned'), value: calories, goal: calGoal, color: '#F59E0B', icon: 'ri-fire-line' },
+              { label: t('distance'), value: distance, goal: 4, unit: 'km', color: '#38BDF8', icon: 'ri-route-line' },
             ].map((m, i) => {
               const pct = m.goal > 0 ? Math.min(100, Math.round((m.value / m.goal) * 100)) : 0;
               const hasData = m.value > 0;

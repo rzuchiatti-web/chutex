@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, useMemo, ReactNode } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { getLocales } from 'expo-localization';
 
 const T: Record<string, Record<string, string>> = {
   FR: {
@@ -978,7 +979,20 @@ export const useI18n = () => useContext(I18nContext);
 
 export const I18nProvider = ({ children }: { children: ReactNode }) => {
   const [lang, setLangState] = useState('FR');
-  useEffect(() => { AsyncStorage.getItem('chutex_lang').then(l => { if (l) { const up = l.toUpperCase(); if (T[up]) setLangState(up); } }).catch(() => {}); }, []);
+  useEffect(() => {
+    AsyncStorage.getItem('chutex_lang').then(saved => {
+      if (saved) { const up = saved.toUpperCase(); if (T[up]) setLangState(up); return; }
+      // Auto-detect device locale
+      try {
+        const locales = getLocales();
+        if (locales && locales.length > 0) {
+          const code = (locales[0].languageCode || 'fr').toUpperCase();
+          const mapped = code === 'FR' ? 'FR' : code === 'EN' ? 'EN' : code === 'DE' ? 'DE' : code === 'ES' ? 'ES' : code === 'IT' ? 'IT' : code === 'PT' ? 'PT' : code === 'NL' ? 'NL' : 'FR';
+          setLangState(mapped);
+        }
+      } catch {}
+    }).catch(() => {});
+  }, []);
   const setLang = (l: string) => { const up = l.toUpperCase(); setLangState(up); AsyncStorage.setItem('chutex_lang', up).catch(() => {}); };
   const t = (key: string) => T[lang]?.[key] || T['FR']?.[key] || key;
   const value = useMemo(() => ({ lang, setLang, t, flags: FLAGS }), [lang]);

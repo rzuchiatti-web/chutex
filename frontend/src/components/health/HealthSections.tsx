@@ -1,24 +1,26 @@
 import React from 'react';
 import { useRouter } from 'expo-router';
+import { useI18n } from '../../context/I18nContext';
 
 interface Props { d: any; subs: any; beneficiaryId?: string; }
 
 export default function HealthSections({ d, subs, beneficiaryId }: Props) {
   const router = useRouter();
+  const { t } = useI18n();
   const isDark = typeof localStorage !== 'undefined' ? localStorage.getItem('chutex_dark') === '1' : false;
 
   const sections = [
-    { id: 'cardio', label: 'Cardiologie', sub: 'Rythme, tension, SpO2', icon: 'ri-heart-pulse-line', color: '#EF4444', metrics: [
-      { k: 'heart_rate', l: 'FC', u: 'bpm' }, { k: 'spo2', l: 'SpO2', u: '%' }, { k: 'temperature', l: 'Temp', u: '°C' }
+    { id: 'cardio', label: t('cardiology'), sub: 'Rythme, tension, SpO2', icon: 'ri-heart-pulse-line', color: '#EF4444', metrics: [
+      { k: 'heart_rate', l: 'FC', u: t('bpm') }, { k: 'spo2', l: 'SpO2', u: '%' }, { k: 'temperature', l: 'Temp', u: '°C' }
     ]},
-    { id: 'metabolism', label: 'Métabolisme', sub: 'Glycémie, IMC, BMR', icon: 'ri-flask-line', color: '#F59E0B', metrics: [
+    { id: 'metabolism', label: t('metabolism_section'), sub: t('glycemia') + ', IMC, BMR', icon: 'ri-flask-line', color: '#F59E0B', metrics: [
       { k: 'glycemia', l: 'Glyc.', u: 'g/L' }, { k: 'bmi', l: 'IMC', u: '' }, { k: 'basal_metabolism', l: 'BMR', u: 'kcal' }
     ]},
-    { id: 'activity', label: 'Condition physique', sub: 'VO2 max, stress, récupération', icon: 'ri-run-line', color: '#10B981', metrics: [
-      { k: 'vo2_max', l: 'VO2', u: '' }, { k: 'stress_level', l: 'Stress', u: '' }, { k: 'recovery_score', l: 'Récup.', u: '' }
+    { id: 'activity', label: t('physical_condition'), sub: 'VO2 max, stress, ' + t('recovery'), icon: 'ri-run-line', color: '#10B981', metrics: [
+      { k: 'vo2_max', l: 'VO2', u: '' }, { k: 'stress_level', l: 'Stress', u: '' }, { k: 'recovery_score', l: t('recovery'), u: '' }
     ]},
-    { id: 'composition', label: 'Composition corporelle', sub: 'Graisse, muscle, hydratation', icon: 'ri-body-scan-line', color: '#F97316', metrics: [
-      { k: 'body_fat_pct', l: 'Graisse', u: '%' }, { k: 'muscle_pct', l: 'Muscle', u: '%' }, { k: 'water_pct', l: 'Eau', u: '%' }
+    { id: 'composition', label: t('body_comp'), sub: t('body_fat') + ', ' + t('muscle_mass') + ', ' + t('hydration_level'), icon: 'ri-body-scan-line', color: '#F97316', metrics: [
+      { k: 'body_fat_pct', l: t('body_fat'), u: '%' }, { k: 'muscle_pct', l: t('muscle_mass'), u: '%' }, { k: 'water_pct', l: t('hydration_level'), u: '%' }
     ]},
   ];
 
