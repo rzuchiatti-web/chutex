@@ -347,35 +347,21 @@ export default function HealthDetailScreen() {
 
       <div style={{ flex: 1, overflowY: 'auto', position: 'relative', zIndex: 5, padding: '70px 20px 100px', WebkitOverflowScrolling: 'touch' } as any}>
 
-        {/* Back */}
+        {/* Back — round button */}
         <div onClick={() => {
           if (isReadonly && beneficiaryId) {
             router.push({ pathname: '/health-readonly' as any, params: { beneficiaryId } });
           } else {
             try { router.back(); } catch { router.push('/(tabs)/health' as any); }
           }
-        }} style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '8px 14px', borderRadius: 999, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', cursor: 'pointer', marginBottom: 20 } as any}>
-          <i className="ri-arrow-left-line" style={{ fontSize: 16, color: 'rgba(255,255,255,0.6)' }} />
-          <span style={{ fontSize: 12, fontWeight: 600, color: 'rgba(255,255,255,0.6)' }}>Retour</span>
+        }} style={{ width: 44, height: 44, borderRadius: 999, background: 'rgba(255,255,255,0.12)', border: '1px solid rgba(255,255,255,0.15)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', marginBottom: 20 } as any}>
+          <i className="ri-arrow-left-line" style={{ fontSize: 18, color: '#FFF' }} />
         </div>
 
         {/* Hero — category image */}
         <div style={{ textAlign: 'center', marginBottom: 0, position: 'relative', zIndex: 2 } as any}>
           <img src={sec.img} alt="" style={{ width: 200, height: 200, objectFit: 'contain', margin: '0 auto', display: 'block', filter: 'drop-shadow(0 16px 40px rgba(0,0,0,0.5))', position: 'relative', zIndex: 3, marginBottom: -50 } as any} />
         </div>
-
-        {/* Nora Analysis for this section */}
-        {sectionAi && (() => {
-          const ai = sectionAi;
-          const parts: string[] = [];
-          if (ai.recommendation) parts.push(ai.recommendation);
-          if (ai.correlations?.length) parts.push(ai.correlations.slice(0, 3).join(' '));
-          if (ai.whats_good?.length) parts.push('Points forts : ' + ai.whats_good.slice(0, 2).join('. '));
-          if (ai.watch_out?.length) parts.push('A surveiller : ' + ai.watch_out.slice(0, 2).join('. '));
-          const text = parts.join(' ');
-          if (!text) return null;
-          return <NoraCard title={`Analyse ${sec.title.toLowerCase()}`} text={text} />;
-        })()}
 
         {/* Metrics list */}
         {sec.metrics.map((m) => {

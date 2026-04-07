@@ -34,7 +34,7 @@ export default function HealthSections({ d, subs, beneficiaryId }: Props) {
           onMouseLeave={(e: any) => { e.currentTarget.style.transform = ''; }}
         >
           <div style={{ width: 70, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '8px 0 8px 12px' } as any}>
-            <img src={sec.img} alt={sec.label} style={{ height: 52, objectFit: 'contain', filter: 'drop-shadow(0 3px 10px rgba(0,0,0,0.35))' } as any} />
+            <img src={sec.img} alt={sec.label} style={{ height: 52, objectFit: 'contain' } as any} />
           </div>
           <div style={{ flex: 1, padding: '16px 0' } as any}>
             <div style={{ fontSize: 15, fontWeight: 800, color: textColor, marginBottom: 3 }}>{sec.label}</div>

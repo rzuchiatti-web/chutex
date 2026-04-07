@@ -537,7 +537,7 @@ async def push_bracelet_data(request_body: dict, user=Depends(get_current_user))
 async def get_bracelet_status(user=Depends(get_current_user)):
     """Get bracelet connection status and latest vitals"""
     device = await db.devices.find_one(
-        {"user_id": user['id'], "device_type": "bracelet"}, {"_id": 0}
+        {"user_id": user['id'], "device_type": "bracelet", "removed": {"$ne": True}}, {"_id": 0}
     )
     is_connected = False
     if device and device.get('last_sync'):

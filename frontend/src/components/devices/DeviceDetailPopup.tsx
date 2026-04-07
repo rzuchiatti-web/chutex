@@ -92,7 +92,7 @@ export function DeviceDetailPopup({ deviceType, device, weighings, removing, onC
       </div>
 
       {/* Remove button */}
-      <div onClick={() => onRemove(device.id, deviceType)} style={{ padding: '12px', borderRadius: 999, background: 'rgba(239,68,68,0.06)', border: '1px solid rgba(239,68,68,0.12)', cursor: 'pointer', textAlign: 'center', fontSize: 12, fontWeight: 600, color: 'rgba(239,68,68,0.5)' } as any}>
+      <div onClick={() => onRemove(device.id, deviceType)} style={{ padding: '14px', borderRadius: 999, background: 'rgba(239,68,68,0.12)', border: '1.5px solid rgba(239,68,68,0.25)', cursor: 'pointer', textAlign: 'center', fontSize: 13, fontWeight: 700, color: '#EF4444' } as any}>
         {removing ? 'Suppression...' : "Supprimer l'appareil"}
       </div>
     </GlassOverlay>
