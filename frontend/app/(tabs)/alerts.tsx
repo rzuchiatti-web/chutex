@@ -188,6 +188,7 @@ function ExplainerPage({ onClose, role }: { onClose: () => void; role: string })
    REPORT PAGE  — Rapport de cloture
    ------------------------------------------------------------------ */
 function ReportPage({ alert, role, token, onClose, onDone }: { alert: any; role: string; token: string; onClose: () => void; onDone: () => void }) {
+  const { t } = useI18n();
   const [reportText, setReportText] = useState('');
   const [reportAnswers, setReportAnswers] = useState<Record<string, string>>({});
   const user = useAuth().user;
@@ -267,6 +268,7 @@ function ReportPage({ alert, role, token, onClose, onDone }: { alert: any; role:
    INTERVENANT POPUP  — ultra-glass overlay
    ------------------------------------------------------------------ */
 function IntervenantPopup({ person, onClose }: { person: any; onClose: () => void }) {
+  const { t } = useI18n();
   const dn = person?.name || 'Intervenant';
   const rows = [
     person?.phone && { icon: 'ri-phone-line', label: t('phone_label'), value: person.phone, phone: true },
@@ -318,6 +320,7 @@ function IntervenantPopup({ person, onClose }: { person: any; onClose: () => voi
    DETAIL PAGE  — Full-screen alert detail (web)
    ------------------------------------------------------------------ */
 function AlertDetailWeb({ alert, onClose, role, token, onRefresh, user }: { alert: any; onClose: () => void; role: string; token: string; onRefresh: () => void; user: any }) {
+  const { t } = useI18n();
   const router = useRouter();
   const [alertDetail, setAlertDetail] = useState<any>(null);
   const [showReport, setShowReport] = useState(false);
@@ -526,6 +529,7 @@ function AlertDetailWeb({ alert, onClose, role, token, onRefresh, user }: { aler
    ------------------------------------------------------------------ */
 
 function BeneficiaireCard({ ben }: { ben: any }) {
+  const { t } = useI18n();
   const rows = [
     ben.date_of_birth && { icon: 'ri-calendar-line', label: t('date_of_birth'), value: ben.date_of_birth },
     ben.gender && { icon: 'ri-user-line', label: t('gender'), value: ben.gender },
@@ -589,6 +593,7 @@ function BeneficiaireCard({ ben }: { ben: any }) {
 }
 
 function InterventionCard({ iv, hasAssigned, alert, onOpenPopup }: { iv: any; hasAssigned: boolean; alert: any; onOpenPopup: () => void }) {
+  const { t } = useI18n();
   const structure = iv.structure_name || iv.company_name || alert.intervener_info?.structure;
   const displayName = hasAssigned ? (iv.assigned_name || iv.intervenant_profile?.name || 'Intervenant') : (structure || 'Intervention Care');
   const statusLabel = iv.status === 'completed' ? 'Terminee' : iv.status === 'in_progress' ? t('in_progress') : iv.status === 'en_route' ? 'En route' : iv.status === 'pending_acceptance' ? 'En attente d\'acceptation' : iv.status || '';
@@ -628,6 +633,7 @@ function InterventionCard({ iv, hasAssigned, alert, onOpenPopup }: { iv: any; ha
 }
 
 function ResolvedSection({ alert, alertDetail }: { alert: any; alertDetail: any }) {
+  const { t } = useI18n();
   const ivReport = alert.intervention_report || alertDetail?.interventions?.[0]?.report;
   const G: any = { borderRadius: 20, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', marginBottom: 10, padding: '14px 16px' };
   return (
@@ -991,6 +997,7 @@ function ProMessaging({ token, user }: { token: string; user: any }) {
    ======================================================================== */
 export default function AlertsScreen() {
   const { token, user } = useAuth();
+  const { t } = useI18n();
   const router = useRouter();
   const { preselect } = useLocalSearchParams<{ preselect?: string }>();
   const r = user?.active_role || user?.role || '';

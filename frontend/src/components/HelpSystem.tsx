@@ -158,6 +158,7 @@ const FAQ_SAAD = [
 ];
 
 export function HelpCenter({ visible, onClose, role }: { visible: boolean; onClose: () => void; role?: string }) {
+  const { t } = useI18n();
   const [search, setSearch] = useState('');
   const [expanded, setExpanded] = useState<number | null>(null);
   const [activeTab, setActiveTab] = useState('general');

@@ -149,6 +149,7 @@ function StartScreen({ meta, bestScore, onStart, ble, scoreHistory }: any) {
 }
 
 function EndScreen({ score, bestScore, isNew, meta, onReplay, onBack }: any) {
+  const { t } = useI18n();
   return (
     <div style={{ position: 'absolute', inset: 0, background: BG, display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 30 } as any}>
       <div style={{ textAlign: 'center', padding: 32 } as any}>

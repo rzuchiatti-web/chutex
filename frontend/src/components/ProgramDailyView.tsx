@@ -120,6 +120,7 @@ function RatingInput({ max, color, onRate }: { max: number; color: string; onRat
 
 /* ── Full-screen Exercise Popup ── */
 function ExercisePopup({ task, steps, color, category, alreadyDone, onComplete, onClose }: { task: string; steps: any[]; color: string; category?: string; alreadyDone?: boolean; onComplete: (rating: number, notes?: Record<string, string>) => void; onClose: () => void }) {
+  const { t } = useI18n();
   const [currentStep, setCurrentStep] = useState(0);
   const [finished, setFinished] = useState(false);
   const [notes, setNotes] = useState<Record<string, string>>({});

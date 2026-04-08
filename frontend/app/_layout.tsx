@@ -265,6 +265,7 @@ function NativeFullApp() {
 }
 
 function WebLocationPermissionGate() {
+  const { t } = useI18n();
   const [visible, setVisible] = useState(false);
   const [message, setMessage] = useState('');
   const [retrying, setRetrying] = useState(false);

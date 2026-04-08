@@ -32,6 +32,7 @@ function AvatarRow({ items }: { items: any[] }) {
 }
 
 export default function RoleSelection({ onSelect }: { onSelect: (role: string) => void }) {
+  const { t } = useI18n();
   const [showHelp, setShowHelp] = useState(false);
 
   return (

@@ -99,6 +99,7 @@ function HorizontalCalendar({ selectedDate, onSelect }: { selectedDate: Date; on
 }
 
 export default function ActivityDétailPage() {
+  const { t } = useI18n();
   const { token } = useAuth();
   const router = useRouter();
   const [d, setD] = useState<any>(null);

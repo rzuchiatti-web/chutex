@@ -44,6 +44,7 @@ interface RGPDProps {
 }
 
 export function RGPDPopup({ visible, onClose, rgpdRight, setRgpdRight, rgpdMsg, setRgpdMsg, rgpdSending, setRgpdSending, rgpdSent, setRgpdSent, rgpdRef, setRgpdRef, apiFetch, token }: RGPDProps) {
+  const { t } = useI18n();
   if (!visible) return null;
   const Alert = require('react-native').Alert;
   return (

@@ -12,6 +12,7 @@ const NORA_VIDEO = 'https://customer-assets.emergentagent.com/job_ba3a5789-c8f1-
 const BLUE_BG = 'https://customer-assets.emergentagent.com/job_443c9c6e-0feb-4920-a358-fe7cc1a6289b/artifacts/v5t9l2mb_ChatGPT%20Image%2017%20f%C3%A9vr.%202026%2C%2014_10_07.png';
 
 function NoraAnalysisOverlay({ text: initialText, onClose, history, current, bodyComp }: { text: string; onClose: () => void; history?: any[]; current?: any; bodyComp?: any }) {
+  const { t } = useI18n();
   const { token } = useAuth();
   const [phase, setPhase] = useState<'intro' | 'typing' | 'done'>('intro');
   const [typed, setTyped] = useState('');

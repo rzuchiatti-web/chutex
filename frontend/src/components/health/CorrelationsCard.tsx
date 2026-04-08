@@ -77,6 +77,7 @@ function MiniSparkline({ data, color }: { data: (number | null)[]; color: string
 }
 
 export default function CorrelationsCard() {
+  const { t } = useI18n();
   const { token } = useAuth();
   const [insights, setInsights] = useState<string[]>([]);
   const [correlations, setCorrelations] = useState<Correlation[]>([]);
