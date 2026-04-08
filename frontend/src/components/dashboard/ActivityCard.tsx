@@ -34,75 +34,95 @@ export default function ActivityCard({ steps, calories, distance, recovery = 0, 
   const { t } = useI18n();
   const { colors } = useTheme();
   const isDark = colors.background !== '#FFFFFF';
-  // SAME cardBg as the 4 vital cards in health.tsx
-  const cardBg = isDark ? 'rgba(255,255,255,0.06)' : '#FFFFFF';
-  const textColor = isDark ? '#FFF' : '#111';
-  const subColor = isDark ? 'rgba(255,255,255,0.35)' : 'rgba(0,0,0,0.35)';
 
   const st = streak || { current_streak: 0, max_streak: 0, badge: null, objectives_today: [] };
   const ri = getRecoveryInfo(recovery, stress, sleepQuality, heartRate);
-  const pct = (v: number, g: number) => g > 0 ? Math.min(100, Math.round((v / g) * 100)) : 0;
-  const fv = (v: number) => v % 1 !== 0 ? v.toFixed(1) : v.toLocaleString();
+  const stepPct = stepGoal > 0 ? Math.min(100, Math.round((steps / stepGoal) * 100)) : 0;
+
+  // Use exact same bg as the 4 vital cards in health.tsx line 232
+  const BG = isDark ? 'rgba(255,255,255,0.06)' : '#F3F4F6';
 
   return (
     <div data-testid="activity-card" onClick={() => router.push({ pathname: '/activity-detail' as any, params: beneficiaryId ? { beneficiaryId } : {} })}
-      style={{ borderRadius: 18, background: cardBg, cursor: 'pointer', marginBottom: 14, padding: '14px 16px', transition: 'transform 0.15s' } as any}
+      style={{
+        borderRadius: 18,
+        backgroundColor: BG,
+        cursor: 'pointer',
+        marginBottom: 14,
+        overflow: 'hidden',
+        transition: 'transform 0.15s',
+      } as any}
       onMouseEnter={(e: any) => { e.currentTarget.style.transform = 'translateY(-2px)'; }}
       onMouseLeave={(e: any) => { e.currentTarget.style.transform = ''; }}>
 
-      {/* Row 1: icon + label + muscle image + arrow — same layout as vital cards header */}
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 } as any}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 6 } as any}>
-          <i className="ri-run-line" style={{ fontSize: 13, color: '#10B981' }} />
-          <span style={{ fontSize: 10, fontWeight: 700, color: subColor }}>{t('activity')}</span>
-          {st.current_streak > 0 && (
-            <span style={{ fontSize: 9, fontWeight: 700, color: '#F59E0B', marginLeft: 4 }}><i className="ri-fire-fill" style={{ fontSize: 9, color: '#F59E0B' }} /> {st.current_streak}j</span>
-          )}
-        </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8 } as any}>
-          <img src={MUSCLE_IMG} alt="" style={{ width: 28, height: 28, objectFit: 'contain' } as any} />
-          <i className="ri-arrow-right-s-line" style={{ fontSize: 14, color: isDark ? 'rgba(255,255,255,0.15)' : 'rgba(0,0,0,0.12)' }} />
-        </div>
-      </div>
-
-      {/* Row 2: Big steps number — same style as vital card big value */}
-      <div style={{ display: 'flex', alignItems: 'baseline', gap: 4, marginBottom: 12 } as any}>
-        <span style={{ fontSize: 28, fontWeight: 900, color: textColor, lineHeight: 1, letterSpacing: -0.5 }}>{steps > 0 ? steps.toLocaleString() : '--'}</span>
-        <span style={{ fontSize: 11, fontWeight: 500, color: subColor }}>pas</span>
-        <div style={{ flex: 1, height: 3, borderRadius: 2, background: isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.06)', overflow: 'hidden', marginLeft: 10 } as any}>
-          <div style={{ height: '100%', borderRadius: 2, width: `${pct(steps, stepGoal)}%`, background: '#10B981', transition: 'width 0.5s' } as any} />
-        </div>
-        <span style={{ fontSize: 10, fontWeight: 700, color: '#10B981', marginLeft: 4 }}>{pct(steps, stepGoal)}%</span>
-      </div>
-
-      {/* Row 3: Calories + Distance — two small metrics side by side */}
-      <div style={{ display: 'flex', gap: 12, marginBottom: 12 } as any}>
-        {[
-          { icon: 'ri-fire-line', label: t('calories_burned'), value: calories, unit: 'kcal', color: '#F59E0B', p: pct(calories, calGoal) },
-          { icon: 'ri-route-line', label: t('distance'), value: distance, unit: 'km', color: '#38BDF8', p: pct(distance, 4) },
-        ].map((m, i) => (
-          <div key={i} style={{ flex: 1, display: 'flex', alignItems: 'center', gap: 8 } as any}>
-            <i className={m.icon} style={{ fontSize: 12, color: m.color }} />
-            <div style={{ flex: 1 } as any}>
-              <div style={{ display: 'flex', alignItems: 'baseline', gap: 3 } as any}>
-                <span style={{ fontSize: 16, fontWeight: 900, color: m.value > 0 ? textColor : (isDark ? 'rgba(255,255,255,0.12)' : 'rgba(0,0,0,0.1)'), lineHeight: 1 }}>{m.value > 0 ? fv(m.value) : '--'}</span>
-                <span style={{ fontSize: 9, color: subColor }}>{m.unit}</span>
-              </div>
-              <div style={{ fontSize: 9, color: m.color, fontWeight: 600, marginTop: 1 }}>{m.label}</div>
-            </div>
+      {/* ── Header row ── */}
+      <div style={{ padding: '14px 16px 0', display: 'flex', alignItems: 'center', gap: 10 } as any}>
+        <img src={MUSCLE_IMG} alt="" style={{ width: 40, height: 40, objectFit: 'contain', flexShrink: 0 } as any} />
+        <div style={{ flex: 1 } as any}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6 } as any}>
+            <span style={{ fontSize: 14, fontWeight: 800, color: isDark ? '#FFF' : '#111' }}>{t('activity')}</span>
+            {st.current_streak > 0 && (
+              <span style={{ fontSize: 10, fontWeight: 700, color: '#F59E0B' }}>
+                <i className="ri-fire-fill" style={{ fontSize: 10, marginRight: 2 }} />{st.current_streak}j
+              </span>
+            )}
           </div>
-        ))}
+          <div style={{ fontSize: 10, fontWeight: 600, color: isDark ? 'rgba(255,255,255,0.35)' : 'rgba(0,0,0,0.35)', marginTop: 1 }}>Suivi quotidien</div>
+        </div>
+        <i className="ri-arrow-right-s-line" style={{ fontSize: 16, color: isDark ? 'rgba(255,255,255,0.15)' : 'rgba(0,0,0,0.12)' }} />
       </div>
 
-      {/* Row 4: Recovery — subtle bottom line */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 8, paddingTop: 10, borderTop: isDark ? '1px solid rgba(255,255,255,0.04)' : '1px solid rgba(0,0,0,0.04)' } as any}>
-        <i className="ri-battery-charge-line" style={{ fontSize: 12, color: ri.color }} />
-        <span style={{ fontSize: 9, fontWeight: 600, color: subColor }}>Recuperation</span>
-        <div style={{ flex: 1, height: 3, borderRadius: 2, background: isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.06)', overflow: 'hidden' } as any}>
-          <div style={{ height: '100%', borderRadius: 2, width: `${ri.pct}%`, background: ri.color, transition: 'width 0.5s' } as any} />
+      {/* ── Big steps value ── */}
+      <div style={{ padding: '14px 16px 0' } as any}>
+        <div style={{ display: 'flex', alignItems: 'flex-end', gap: 4 } as any}>
+          <span style={{ fontSize: 32, fontWeight: 900, color: isDark ? '#FFF' : '#111', lineHeight: 1, letterSpacing: -1 }}>{steps > 0 ? steps.toLocaleString() : '--'}</span>
+          <span style={{ fontSize: 12, fontWeight: 500, color: isDark ? 'rgba(255,255,255,0.35)' : 'rgba(0,0,0,0.35)', paddingBottom: 3 }}>pas</span>
         </div>
-        <span style={{ fontSize: 12, fontWeight: 900, color: ri.pct > 0 ? ri.color : subColor }}>{ri.pct > 0 ? `${ri.pct}%` : '--'}</span>
-        <span style={{ fontSize: 9, fontWeight: 600, color: ri.color }}>{ri.label}</span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 8 } as any}>
+          <div style={{ flex: 1, height: 4, borderRadius: 2, backgroundColor: isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.08)', overflow: 'hidden' } as any}>
+            <div style={{ height: '100%', borderRadius: 2, width: `${stepPct}%`, backgroundColor: '#10B981', transition: 'width 0.5s' } as any} />
+          </div>
+          <span style={{ fontSize: 11, fontWeight: 800, color: '#10B981', flexShrink: 0 }}>{stepPct}%</span>
+        </div>
+      </div>
+
+      {/* ── Calories + Distance row ── */}
+      <div style={{ padding: '14px 16px 0', display: 'flex', gap: 0 } as any}>
+        {/* Calories */}
+        <div style={{ flex: 1, display: 'flex', alignItems: 'center', gap: 8 } as any}>
+          <i className="ri-fire-line" style={{ fontSize: 14, color: '#F59E0B' }} />
+          <div>
+            <div style={{ display: 'flex', alignItems: 'flex-end', gap: 3 } as any}>
+              <span style={{ fontSize: 18, fontWeight: 900, color: isDark ? '#FFF' : '#111', lineHeight: 1 }}>{calories > 0 ? (calories % 1 !== 0 ? calories.toFixed(1) : calories) : '--'}</span>
+              <span style={{ fontSize: 10, fontWeight: 500, color: isDark ? 'rgba(255,255,255,0.35)' : 'rgba(0,0,0,0.35)', paddingBottom: 1 }}>kcal</span>
+            </div>
+            <div style={{ fontSize: 10, fontWeight: 600, color: '#F59E0B', marginTop: 1 }}>{t('calories_burned')}</div>
+          </div>
+        </div>
+        {/* Distance */}
+        <div style={{ flex: 1, display: 'flex', alignItems: 'center', gap: 8 } as any}>
+          <i className="ri-route-line" style={{ fontSize: 14, color: '#38BDF8' }} />
+          <div>
+            <div style={{ display: 'flex', alignItems: 'flex-end', gap: 3 } as any}>
+              <span style={{ fontSize: 18, fontWeight: 900, color: isDark ? '#FFF' : '#111', lineHeight: 1 }}>{distance > 0 ? (distance % 1 !== 0 ? distance.toFixed(1) : distance) : '--'}</span>
+              <span style={{ fontSize: 10, fontWeight: 500, color: isDark ? 'rgba(255,255,255,0.35)' : 'rgba(0,0,0,0.35)', paddingBottom: 1 }}>km</span>
+            </div>
+            <div style={{ fontSize: 10, fontWeight: 600, color: '#38BDF8', marginTop: 1 }}>{t('distance')}</div>
+          </div>
+        </div>
+      </div>
+
+      {/* ── Recovery bar ── */}
+      <div style={{ padding: '14px 16px', marginTop: 4, borderTop: isDark ? '1px solid rgba(255,255,255,0.05)' : '1px solid rgba(0,0,0,0.05)' } as any}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 } as any}>
+          <i className="ri-battery-charge-line" style={{ fontSize: 14, color: ri.color, flexShrink: 0 }} />
+          <span style={{ fontSize: 11, fontWeight: 600, color: isDark ? 'rgba(255,255,255,0.35)' : 'rgba(0,0,0,0.35)', flexShrink: 0 }}>Recuperation</span>
+          <div style={{ flex: 1, height: 4, borderRadius: 2, backgroundColor: isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.08)', overflow: 'hidden' } as any}>
+            <div style={{ height: '100%', borderRadius: 2, width: `${ri.pct}%`, backgroundColor: ri.color, transition: 'width 0.5s' } as any} />
+          </div>
+          <span style={{ fontSize: 13, fontWeight: 900, color: ri.pct > 0 ? ri.color : (isDark ? 'rgba(255,255,255,0.12)' : 'rgba(0,0,0,0.1)'), flexShrink: 0 }}>{ri.pct > 0 ? `${ri.pct}%` : '--'}</span>
+          <span style={{ fontSize: 10, fontWeight: 700, color: ri.color, flexShrink: 0 }}>{ri.label}</span>
+        </div>
       </div>
     </div>
   );
