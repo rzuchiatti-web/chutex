@@ -37,6 +37,11 @@ export default function AuthScreen() {
   const selectedPfx = PREFIXES.find((p: any) => p.value === prefix) || PREFIXES[0];
 
   useEffect(() => {
+    // On web preview, skip onboarding automatically
+    if (Platform.OS === 'web') {
+      setReady(true);
+      return;
+    }
     AsyncStorage.getItem('chutex_onboarding_done').then((onb) => {
       if (!onb) router.replace('/onboarding'); else setReady(true);
     }).catch(() => setReady(true));
