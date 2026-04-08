@@ -35,7 +35,8 @@ function smooth(pts: { x: number; y: number }[], t = 0.3): string {
 }
 
 /* ── Horizontal Calendar ── */
-function HorizontalCalendar({ selectedDate, onSelect }: { selectedDate: Date; onSelect: (d: Date) => void }) {
+function HorizontalCalendar({ selectedDate, onSelect, months }: { selectedDate: Date; onSelect: (d: Date) => void; months?: string[] }) {
+  const MONTHS_FR = months || MONTHS_FR_DEFAULT;
   const [viewMonth, setViewMonth] = useState(selectedDate.getMonth());
   const [viewYear, setViewYear] = useState(selectedDate.getFullYear());
   const dates = useMemo(() => {
@@ -434,7 +435,7 @@ export default function MetricDétailScreen() {
               )}
             </div>
             {/* Horizontal Calendar */}
-            <HorizontalCalendar selectedDate={selectedDate} onSelect={handleDateSelect} />
+            <HorizontalCalendar selectedDate={selectedDate} onSelect={handleDateSelect} months={MONTHS_FR} />
           </div>
         </div>
 
