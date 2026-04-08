@@ -251,52 +251,39 @@ export default function HealthScreen() {
           <div style={{ height: 1, background: sepColor, margin: '12px 0 16px' } as any} />
 
           {/* 4b. Activity Card */}
-          {(() => {
-            const stepPlan = filteredPlan.find((p: any) => p.key === 'steps');
-            const sGoal = stepPlan ? parseInt(stepPlan.value) || 6000 : 6000;
-            return <ActivityCard steps={d.steps || 0} calories={d.calories || 0} distance={d.distance_km || 0} recovery={d.recovery_score || 0} stress={d.stress_level || 0} sleepQuality={d.sleep_quality || 0} heartRate={d.heart_rate || 0} streak={activityStreak} stepGoal={sGoal} />;
-          })()}
+          <ActivityCard steps={d.steps || 0} calories={d.calories || 0} distance={d.distance_km || 0} recovery={d.recovery_score || 0} stress={d.stress_level || 0} sleepQuality={d.sleep_quality || 0} heartRate={d.heart_rate || 0} streak={activityStreak} stepGoal={(() => { const stepPlan = filteredPlan.find((p: any) => p.key === 'steps'); return stepPlan ? parseInt(stepPlan.value) || 6000 : 6000; })()} />
 
           <div style={{ height: 1, background: 'rgba(255,255,255,0.08)', margin: '12px 0 16px' } as any} />
           <SleepCard d={d} />
 
           <div style={{ height: 1, background: sepColor, margin: '12px 0 16px' } as any} />
 
-          {/* Poids & Nutrition */}
+          {/* Poids & Nutrition — fond gris, pas d'image */}
           <div data-testid="weight-nutrition-card" onClick={() => router.push('/minceur' as any)}
-            style={{ borderRadius: 18, overflow: 'hidden', marginBottom: 14, cursor: 'pointer', position: 'relative', transition: 'transform 0.15s', border: isDark ? '1.5px solid rgba(255,255,255,0.25)' : '1.5px solid rgba(0,0,0,0.08)', boxShadow: isDark ? '0 0 30px rgba(255,255,255,0.08), 0 8px 40px rgba(0,0,0,0.5)' : '0 4px 20px rgba(0,0,0,0.08)' } as any}
+            style={{ borderRadius: 18, overflow: 'hidden', marginBottom: 14, cursor: 'pointer', background: cardBg, border: isDark ? '1px solid rgba(255,255,255,0.08)' : '1px solid rgba(0,0,0,0.06)', transition: 'transform 0.15s' } as any}
             onMouseEnter={(e: any) => { e.currentTarget.style.transform = 'translateY(-1px)'; }}
             onMouseLeave={(e: any) => { e.currentTarget.style.transform = ''; }}>
-            <img src="https://customer-assets.emergentagent.com/job_443c9c6e-0feb-4920-a358-fe7cc1a6289b/artifacts/v5t9l2mb_ChatGPT%20Image%2017%20f%C3%A9vr.%202026%2C%2014_10_07.png" alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0 } as any} />
-            <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.4)', zIndex: 1 } as any} />
-            <div style={{ position: 'relative', zIndex: 2 } as any}>
-              <div style={{ padding: '16px 16px 10px', display: 'flex', alignItems: 'center', gap: 10 } as any}>
-                <div style={{ width: 40, height: 40, borderRadius: 12, background: 'rgba(255,255,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}><i className="ri-scales-3-line" style={{ fontSize: 20, color: '#FFF' }} /></div>
-                <div>
-                  <div style={{ fontSize: 15, fontWeight: 900, color: '#FFF', marginBottom: 2 }}>{t('weight_nutrition')}</div>
-                  <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.4)' }}>Repas, exercices, objectif</div>
+            <div style={{ padding: '16px 16px 10px', display: 'flex', alignItems: 'center', gap: 10 } as any}>
+              <div style={{ width: 40, height: 40, borderRadius: 12, background: 'rgba(245,158,11,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}><i className="ri-scales-3-line" style={{ fontSize: 20, color: '#F59E0B' }} /></div>
+              <div style={{ flex: 1 } as any}>
+                <div style={{ fontSize: 15, fontWeight: 900, color: textColor, marginBottom: 2 }}>{t('weight_nutrition')}</div>
+                <div style={{ fontSize: 10, color: subColor }}>Repas, exercices, objectif</div>
+              </div>
+              <i className="ri-arrow-right-s-line" style={{ fontSize: 18, color: subColor }} />
+            </div>
+            <div style={{ padding: '6px 16px 14px', display: 'flex', gap: 6 } as any}>
+              {[
+                { label: t('weight'), val: d.weight, unit: 'kg', color: '#F59E0B' },
+                { label: 'Graisse', val: weighings[0]?.body_fat_pct, unit: '%', color: '#F97316' },
+                { label: 'Muscle', val: weighings[0]?.muscle_pct, unit: '%', color: '#10B981' },
+              ].map((m, i) => (
+                <div key={i} style={{ flex: 1, padding: '10px 6px', borderRadius: 12, background: isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.03)', textAlign: 'center' } as any}>
+                  <div style={{ fontSize: 20, fontWeight: 900, color: Number(m.val || 0) > 0 ? textColor : (isDark ? 'rgba(255,255,255,0.15)' : 'rgba(0,0,0,0.12)'), lineHeight: 1 }}>
+                    {Number(m.val || 0) > 0 ? m.val : '--'}<span style={{ fontSize: 9, color: subColor }}>{m.unit}</span>
+                  </div>
+                  <div style={{ fontSize: 9, color: m.color, fontWeight: 700, marginTop: 3 }}>{m.label}</div>
                 </div>
-              </div>
-              <div style={{ padding: '10px 16px 14px' } as any}>
-                <div style={{ display: 'flex', gap: 6 } as any}>
-                  {[
-                    { label: t('weight'), val: d.weight, unit: 'kg', color: '#F59E0B' },
-                    { label: 'Graisse', val: weighings[0]?.body_fat_pct, unit: '%', color: '#F97316' },
-                    { label: 'Muscle', val: weighings[0]?.muscle_pct, unit: '%', color: '#10B981' },
-                  ].map((m, i) => (
-                    <div key={i} style={{ flex: 1, padding: '8px 6px', borderRadius: 10, background: 'rgba(0,0,0,0.2)', textAlign: 'center' } as any}>
-                      <div style={{ fontSize: 18, fontWeight: 900, color: Number(m.val || 0) > 0 ? '#FFF' : 'rgba(255,255,255,0.15)', lineHeight: 1 }}>
-                        {Number(m.val || 0) > 0 ? m.val : '--'}<span style={{ fontSize: 8, color: 'rgba(255,255,255,0.25)' }}>{m.unit}</span>
-                      </div>
-                      <div style={{ fontSize: 8, color: m.color, fontWeight: 700, marginTop: 2 }}>{m.label}</div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-              <div style={{ padding: '8px 16px', background: 'rgba(0,0,0,0.15)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' } as any}>
-                <span style={{ fontSize: 8, color: 'rgba(255,255,255,0.2)' }}>Suivi quotidien personnalise</span>
-                <span style={{ fontSize: 9, fontWeight: 700, color: '#60A5FA' }}>Voir le detail <i className="ri-arrow-right-s-line" style={{ fontSize: 10 }} /></span>
-              </div>
+              ))}
             </div>
           </div>
 
@@ -312,44 +299,88 @@ export default function HealthScreen() {
 
           <div style={{ height: 1, background: sepColor, margin: '12px 0 16px' } as any} />
 
-          {/* Pesee card */}
-          <div style={{ borderRadius: 18, background: cardBg, marginBottom: 14, overflow: 'hidden' } as any}>
-            <div data-testid="action-weighing" onClick={() => setWeighingStep(1)} style={{ padding: '12px 16px', display: 'flex', alignItems: 'center', gap: 14, cursor: 'pointer', borderBottom: `1px solid ${sepColor}` } as any}>
-              <div style={{ width: 40, height: 40, borderRadius: 12, background: 'rgba(245,158,11,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}><i className="ri-scales-3-line" style={{ fontSize: 20, color: '#F59E0B' }} /></div>
-              <div style={{ flex: 1 } as any}><div style={{ fontSize: 14, fontWeight: 800, color: textColor }}>{t('new_weighing_label')}</div><div style={{ fontSize: 10, color: subColor }}>Balance 8 electrodes</div></div>
-              <div style={{ padding: '8px 14px', borderRadius: 999, background: isDark ? '#FFF' : '#1A1A2E', display: 'flex', alignItems: 'center', gap: 6 } as any}><i className="ri-scales-3-line" style={{ fontSize: 14, color: isDark ? '#111' : '#FFF' }} /><span style={{ fontSize: 11, fontWeight: 700, color: isDark ? '#111' : '#FFF' }}>Lancer</span></div>
+          {/* ═══ SECTION PESEE — style dashboard ═══ */}
+          <div style={{ marginBottom: 14 } as any}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 } as any}>
+              <div>
+                <div style={{ fontSize: 15, fontWeight: 900, color: textColor }}>{t('new_weighing_label')}</div>
+                <div style={{ fontSize: 10, color: subColor, marginTop: 2 }}>Balance 8 electrodes</div>
+              </div>
+              <div data-testid="action-weighing" onClick={() => setWeighingStep(1)} style={{ padding: '8px 16px', borderRadius: 999, background: isDark ? '#FFF' : '#1A1A2E', display: 'flex', alignItems: 'center', gap: 6, cursor: 'pointer' } as any}>
+                <i className="ri-scales-3-line" style={{ fontSize: 14, color: isDark ? '#111' : '#FFF' }} />
+                <span style={{ fontSize: 11, fontWeight: 700, color: isDark ? '#111' : '#FFF' }}>Lancer</span>
+              </div>
             </div>
-            <div style={{ padding: '0 16px' } as any}>
-              {weighings.length === 0 && <div style={{ textAlign: 'center', padding: '12px 0', fontSize: 11, color: subColor }}>{t('no_weighing_data')}</div>}
-              {weighings.slice(0, 3).map((w: any, i: number) => (
-                <div key={i} onClick={() => router.push({ pathname: '/weighing-report' as any, params: { id: w.id } })} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 0', borderTop: i > 0 ? `1px solid ${sepColor}` : 'none', cursor: 'pointer' } as any}>
-                  <div style={{ flex: 1 } as any}><span style={{ fontSize: 14, fontWeight: 800, color: textColor }}>{w.weight} kg</span><span style={{ fontSize: 10, color: subColor, marginLeft: 8 }}>{new Date(w.date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })}</span></div>
-                  <span style={{ padding: '2px 8px', borderRadius: 999, background: w.status === 'Bonne' ? 'rgba(16,185,129,0.12)' : 'rgba(245,158,11,0.12)', fontSize: 9, fontWeight: 700, color: w.status === 'Bonne' ? '#10B981' : '#F59E0B' }}>{w.status}</span>
-                  <i className="ri-arrow-right-s-line" style={{ fontSize: 14, color: subColor }} />
+            {weighings.length === 0 && (
+              <div style={{ padding: '24px 16px', borderRadius: 16, background: cardBg, textAlign: 'center' } as any}>
+                <i className="ri-scales-3-line" style={{ fontSize: 28, color: subColor, opacity: 0.3 }} />
+                <div style={{ fontSize: 12, color: subColor, marginTop: 8 }}>{t('no_weighing_data')}</div>
+              </div>
+            )}
+            {weighings.slice(0, 3).map((w: any, i: number) => (
+              <div key={i} onClick={() => router.push({ pathname: '/weighing-report' as any, params: { id: w.id } })}
+                style={{ padding: '12px 14px', borderRadius: 14, background: cardBg, marginBottom: 8, display: 'flex', alignItems: 'center', gap: 12, cursor: 'pointer', transition: 'transform 0.1s' } as any}
+                onMouseEnter={(e: any) => { e.currentTarget.style.transform = 'translateY(-1px)'; }}
+                onMouseLeave={(e: any) => { e.currentTarget.style.transform = ''; }}>
+                <div style={{ width: 36, height: 36, borderRadius: 10, background: 'rgba(245,158,11,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}>
+                  <i className="ri-scales-3-line" style={{ fontSize: 16, color: '#F59E0B' }} />
                 </div>
-              ))}
-            </div>
+                <div style={{ flex: 1 } as any}>
+                  <span style={{ fontSize: 15, fontWeight: 800, color: textColor }}>{w.weight} kg</span>
+                  <span style={{ fontSize: 10, color: subColor, marginLeft: 8 }}>{new Date(w.date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', year: 'numeric' })}</span>
+                </div>
+                <span style={{ padding: '3px 10px', borderRadius: 999, background: w.status === 'Bonne' ? 'rgba(16,185,129,0.12)' : 'rgba(245,158,11,0.12)', fontSize: 10, fontWeight: 700, color: w.status === 'Bonne' ? '#10B981' : '#F59E0B' }}>{w.status}</span>
+                <i className="ri-arrow-right-s-line" style={{ fontSize: 16, color: subColor }} />
+              </div>
+            ))}
+            {weighings.length > 3 && (
+              <div onClick={() => router.push('/scale-detail' as any)} style={{ textAlign: 'center', padding: '10px 0', cursor: 'pointer' } as any}>
+                <span style={{ fontSize: 12, fontWeight: 700, color: '#60A5FA' }}>Voir plus ({weighings.length} pesees) <i className="ri-arrow-right-s-line" style={{ fontSize: 12 }} /></span>
+              </div>
+            )}
           </div>
 
           <div style={{ height: 1, background: sepColor, margin: '12px 0 16px' } as any} />
 
-          {/* ECG card */}
-          <div style={{ borderRadius: 18, background: cardBg, marginBottom: 14, overflow: 'hidden' } as any}>
-            <div data-testid="action-ecg" onClick={() => router.push('/ecg' as any)} style={{ padding: '12px 16px', display: 'flex', alignItems: 'center', gap: 14, cursor: 'pointer', borderBottom: `1px solid ${sepColor}` } as any}>
-              <div style={{ width: 40, height: 40, borderRadius: 12, background: 'rgba(239,68,68,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}><i className="ri-pulse-line" style={{ fontSize: 20, color: '#EF4444' }} /></div>
-              <div style={{ flex: 1 } as any}><div style={{ fontSize: 14, fontWeight: 800, color: textColor }}>Realiser un ECG</div><div style={{ fontSize: 10, color: subColor }}>{t('ecg_full')}</div></div>
-              <div style={{ padding: '8px 14px', borderRadius: 999, background: isDark ? '#FFF' : '#1A1A2E', display: 'flex', alignItems: 'center', gap: 6 } as any}><i className="ri-pulse-line" style={{ fontSize: 14, color: isDark ? '#111' : '#FFF' }} /><span style={{ fontSize: 11, fontWeight: 700, color: isDark ? '#111' : '#FFF' }}>Lancer</span></div>
+          {/* ═══ SECTION ECG — style dashboard ═══ */}
+          <div style={{ marginBottom: 14 } as any}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 } as any}>
+              <div>
+                <div style={{ fontSize: 15, fontWeight: 900, color: textColor }}>Electrocardiogramme</div>
+                <div style={{ fontSize: 10, color: subColor, marginTop: 2 }}>{t('ecg_full')}</div>
+              </div>
+              <div data-testid="action-ecg" onClick={() => router.push('/ecg' as any)} style={{ padding: '8px 16px', borderRadius: 999, background: isDark ? '#FFF' : '#1A1A2E', display: 'flex', alignItems: 'center', gap: 6, cursor: 'pointer' } as any}>
+                <i className="ri-pulse-line" style={{ fontSize: 14, color: isDark ? '#111' : '#FFF' }} />
+                <span style={{ fontSize: 11, fontWeight: 700, color: isDark ? '#111' : '#FFF' }}>Lancer</span>
+              </div>
             </div>
-            <div style={{ padding: '0 16px' } as any}>
-              {(!report?.ecg_history || report.ecg_history.length === 0) && <div style={{ textAlign: 'center', padding: '12px 0', fontSize: 11, color: subColor }}>Aucun ECG</div>}
-              {(report?.ecg_history || []).slice(0, 3).map((e: any, i: number) => (
-                <div key={i} onClick={() => router.push({ pathname: '/ecg-detail' as any, params: { id: e.id } })} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 0', borderTop: i > 0 ? `1px solid ${sepColor}` : 'none', cursor: 'pointer' } as any}>
-                  <div style={{ flex: 1 } as any}><span style={{ fontSize: 13, fontWeight: 700, color: textColor }}>{e.result || 'Rythme sinusal'}</span><span style={{ fontSize: 10, color: subColor, marginLeft: 8 }}>{e.bpm || '--'} bpm</span></div>
-                  <span style={{ padding: '2px 8px', borderRadius: 999, background: e.normal !== false ? 'rgba(16,185,129,0.12)' : 'rgba(239,68,68,0.12)', fontSize: 9, fontWeight: 700, color: e.normal !== false ? '#10B981' : '#EF4444' }}>{e.normal !== false ? 'Normal' : 'Anomalie'}</span>
-                  <i className="ri-arrow-right-s-line" style={{ fontSize: 14, color: subColor }} />
+            {(!report?.ecg_history || report.ecg_history.length === 0) && (
+              <div style={{ padding: '24px 16px', borderRadius: 16, background: cardBg, textAlign: 'center' } as any}>
+                <i className="ri-pulse-line" style={{ fontSize: 28, color: subColor, opacity: 0.3 }} />
+                <div style={{ fontSize: 12, color: subColor, marginTop: 8 }}>Aucun ECG enregistre</div>
+              </div>
+            )}
+            {(report?.ecg_history || []).slice(0, 3).map((e: any, i: number) => (
+              <div key={i} onClick={() => router.push({ pathname: '/ecg-detail' as any, params: { id: e.id } })}
+                style={{ padding: '12px 14px', borderRadius: 14, background: cardBg, marginBottom: 8, display: 'flex', alignItems: 'center', gap: 12, cursor: 'pointer', transition: 'transform 0.1s' } as any}
+                onMouseEnter={(e: any) => { e.currentTarget.style.transform = 'translateY(-1px)'; }}
+                onMouseLeave={(e: any) => { e.currentTarget.style.transform = ''; }}>
+                <div style={{ width: 36, height: 36, borderRadius: 10, background: 'rgba(239,68,68,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}>
+                  <i className="ri-pulse-line" style={{ fontSize: 16, color: '#EF4444' }} />
                 </div>
-              ))}
-            </div>
+                <div style={{ flex: 1 } as any}>
+                  <span style={{ fontSize: 14, fontWeight: 700, color: textColor }}>{e.result || 'Rythme sinusal'}</span>
+                  <span style={{ fontSize: 10, color: subColor, marginLeft: 8 }}>{e.bpm || '--'} bpm</span>
+                </div>
+                <span style={{ padding: '3px 10px', borderRadius: 999, background: e.normal !== false ? 'rgba(16,185,129,0.12)' : 'rgba(239,68,68,0.12)', fontSize: 10, fontWeight: 700, color: e.normal !== false ? '#10B981' : '#EF4444' }}>{e.normal !== false ? 'Normal' : 'Anomalie'}</span>
+                <i className="ri-arrow-right-s-line" style={{ fontSize: 16, color: subColor }} />
+              </div>
+            ))}
+            {(report?.ecg_history || []).length > 3 && (
+              <div onClick={() => router.push('/ecg-history' as any)} style={{ textAlign: 'center', padding: '10px 0', cursor: 'pointer' } as any}>
+                <span style={{ fontSize: 12, fontWeight: 700, color: '#60A5FA' }}>Voir plus ({report.ecg_history.length} ECG) <i className="ri-arrow-right-s-line" style={{ fontSize: 12 }} /></span>
+              </div>
+            )}
           </div>
 
           <div style={{ height: 1, background: sepColor, margin: '12px 0 16px' } as any} />
