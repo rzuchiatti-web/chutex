@@ -94,6 +94,7 @@ const RelationshipPicker = ({ value, onChange, relationships, label }: any) => {
 };
 
 export default function LinkScreen() {
+  const { t } = useI18n();
   const { user, token } = useAuth();
   const router = useRouter();
   const isBeneficiary = user?.role === 'beneficiary' || user?.active_role === 'beneficiary';

@@ -1,5 +1,6 @@
 import React from 'react';
 import { PrefixPicker } from '../GlassPickers';
+import { useI18n } from '../../context/I18nContext';
 
 interface ProgramInviteProps {
   clr: string;
@@ -20,6 +21,7 @@ export const ProgramInvite = ({
   clr, isDark = true, inviteCode, invitePhone, setInvitePhone, invitePrefix, setInvitePrefix,
   inviteMsg, inviteLoading, invitedFriends, onInvite, onContinue,
 }: ProgramInviteProps) => {
+  const { t } = useI18n();
   const T = isDark ? '#FFF' : '#1A1A2E';
   const S = isDark ? 'rgba(255,255,255,0.4)' : 'rgba(0,0,0,0.45)';
   const S2 = isDark ? 'rgba(255,255,255,0.3)' : 'rgba(0,0,0,0.3)';
