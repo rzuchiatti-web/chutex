@@ -3,6 +3,8 @@ import { useRouter } from 'expo-router';
 import { useI18n } from '../../context/I18nContext';
 import { useTheme } from '../../context/ThemeContext';
 
+const MUSCLE_IMG = 'https://customer-assets.emergentagent.com/job_92308143-f99e-4bad-8264-e3775a214313/artifacts/75gbxosw_physique.png';
+
 interface ActivityCardProps {
   steps: number;
   calories: number;
@@ -60,19 +62,19 @@ export default function ActivityCard({ steps, calories, distance, recovery = 0, 
       onMouseEnter={(e: any) => { e.currentTarget.style.transform = 'translateY(-1px)'; }}
       onMouseLeave={(e: any) => { e.currentTarget.style.transform = ''; }}>
 
-      {/* Header */}
+      {/* Header with muscle image */}
       <div style={{ padding: '14px 16px 10px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' } as any}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10 } as any}>
-          <div style={{ width: 36, height: 36, borderRadius: 10, background: 'rgba(16,185,129,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center' } as any}>
-            <i className="ri-run-line" style={{ fontSize: 18, color: '#10B981' }} />
-          </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12 } as any}>
+          <img src={MUSCLE_IMG} alt="" style={{ width: 44, height: 44, objectFit: 'contain', filter: 'drop-shadow(0 4px 8px rgba(0,0,0,0.3))' } as any} />
           <div>
             <div style={{ fontSize: 15, fontWeight: 900, color: textColor }}>{t('activity')}</div>
-            {st.current_streak > 0 && (
-              <div style={{ display: 'flex', alignItems: 'center', gap: 3, marginTop: 1 } as any}>
+            {st.current_streak > 0 ? (
+              <div style={{ display: 'flex', alignItems: 'center', gap: 3, marginTop: 2 } as any}>
                 <i className="ri-fire-fill" style={{ fontSize: 10, color: '#F59E0B' }} />
                 <span style={{ fontSize: 10, fontWeight: 700, color: '#F59E0B' }}>{st.current_streak} {t('days_label')}</span>
               </div>
+            ) : (
+              <div style={{ fontSize: 10, color: subColor, marginTop: 2 }}>Suivi quotidien</div>
             )}
           </div>
         </div>
