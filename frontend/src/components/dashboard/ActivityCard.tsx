@@ -42,19 +42,16 @@ export default function ActivityCard({ steps, calories, distance, recovery = 0, 
   const { colors } = useTheme();
   const isDark = colors.background !== '#FFFFFF';
   const cardBg = isDark ? 'rgba(255,255,255,0.06)' : '#FFFFFF';
-  const textColor = isDark ? '#FFF' : '#111';
-  const subColor = isDark ? 'rgba(255,255,255,0.4)' : 'rgba(0,0,0,0.4)';
-  const sepColor = isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.06)';
-  const metricBg = isDark ? 'rgba(255,255,255,0.04)' : 'rgba(0,0,0,0.02)';
+  const txt = isDark ? '#FFF' : '#111';
+  const sub = isDark ? 'rgba(255,255,255,0.35)' : 'rgba(0,0,0,0.35)';
+  const sep = isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.06)';
+  const dim = isDark ? 'rgba(255,255,255,0.12)' : 'rgba(0,0,0,0.1)';
 
   const st = streak || { current_streak: 0, max_streak: 0, badge: null, objectives_today: [] };
   const ri = getRecoveryInfo(recovery, stress, sleepQuality, heartRate);
 
-  const metrics = [
-    { label: t('steps'), value: steps, goal: stepGoal, unit: '', color: '#10B981', icon: 'ri-footprint-line' },
-    { label: t('calories_burned'), value: calories, goal: calGoal, unit: 'kcal', color: '#F59E0B', icon: 'ri-fire-line' },
-    { label: t('distance'), value: distance, goal: 4, unit: 'km', color: '#38BDF8', icon: 'ri-route-line' },
-  ];
+  const fmt = (v: number) => v % 1 !== 0 ? v.toFixed(1) : v.toLocaleString();
+  const pct = (v: number, g: number) => g > 0 ? Math.min(100, Math.round((v / g) * 100)) : 0;
 
   return (
     <div data-testid="activity-card" onClick={() => router.push({ pathname: '/activity-detail' as any, params: beneficiaryId ? { beneficiaryId } : {} })}
@@ -62,67 +59,66 @@ export default function ActivityCard({ steps, calories, distance, recovery = 0, 
       onMouseEnter={(e: any) => { e.currentTarget.style.transform = 'translateY(-1px)'; }}
       onMouseLeave={(e: any) => { e.currentTarget.style.transform = ''; }}>
 
-      {/* Header with muscle image */}
-      <div style={{ padding: '14px 16px 10px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' } as any}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12 } as any}>
-          <img src={MUSCLE_IMG} alt="" style={{ width: 44, height: 44, objectFit: 'contain', filter: 'drop-shadow(0 4px 8px rgba(0,0,0,0.3))' } as any} />
-          <div>
-            <div style={{ fontSize: 15, fontWeight: 900, color: textColor }}>{t('activity')}</div>
-            {st.current_streak > 0 ? (
-              <div style={{ display: 'flex', alignItems: 'center', gap: 3, marginTop: 2 } as any}>
-                <i className="ri-fire-fill" style={{ fontSize: 10, color: '#F59E0B' }} />
-                <span style={{ fontSize: 10, fontWeight: 700, color: '#F59E0B' }}>{st.current_streak} {t('days_label')}</span>
-              </div>
-            ) : (
-              <div style={{ fontSize: 10, color: subColor, marginTop: 2 }}>Suivi quotidien</div>
-            )}
+      {/* Top: image + title + arrow */}
+      <div style={{ display: 'flex', alignItems: 'center', padding: '16px 16px 12px', gap: 14 } as any}>
+        <img src={MUSCLE_IMG} alt="" style={{ width: 48, height: 48, objectFit: 'contain', flexShrink: 0 } as any} />
+        <div style={{ flex: 1 } as any}>
+          <div style={{ fontSize: 16, fontWeight: 900, color: txt, lineHeight: 1.2 }}>{t('activity')}</div>
+          <div style={{ fontSize: 11, color: sub, marginTop: 2 }}>
+            {st.current_streak > 0 ? (<><i className="ri-fire-fill" style={{ fontSize: 10, color: '#F59E0B', marginRight: 3 }} /><span style={{ color: '#F59E0B', fontWeight: 700 }}>{st.current_streak} {t('days_label')}</span></>) : 'Suivi quotidien'}
           </div>
         </div>
-        <i className="ri-arrow-right-s-line" style={{ fontSize: 18, color: subColor }} />
+        <i className="ri-arrow-right-s-line" style={{ fontSize: 20, color: sub }} />
       </div>
 
-      <div style={{ height: 1, background: sepColor, margin: '0 16px' } as any} />
+      <div style={{ height: 1, background: sep } as any} />
 
-      {/* 3 Metrics row */}
-      <div style={{ padding: '12px 16px', display: 'flex', gap: 8 } as any}>
-        {metrics.map((m, i) => {
-          const pct = m.goal > 0 ? Math.min(100, Math.round((m.value / m.goal) * 100)) : 0;
-          const hasData = m.value > 0;
+      {/* Metrics: 3 rows — clean aligned list */}
+      <div style={{ padding: '0' } as any}>
+        {[
+          { icon: 'ri-footprint-line', label: t('steps'), value: steps, goal: stepGoal, unit: '', color: '#10B981' },
+          { icon: 'ri-fire-line', label: t('calories_burned'), value: calories, goal: calGoal, unit: 'kcal', color: '#F59E0B' },
+          { icon: 'ri-route-line', label: t('distance'), value: distance, goal: 4, unit: 'km', color: '#38BDF8' },
+        ].map((m, i) => {
+          const p = pct(m.value, m.goal);
+          const has = m.value > 0;
           return (
-            <div key={i} style={{ flex: 1, padding: '10px 8px', borderRadius: 12, background: metricBg, textAlign: 'center' } as any}>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4, marginBottom: 6 } as any}>
-                <i className={m.icon} style={{ fontSize: 12, color: m.color }} />
-                <span style={{ fontSize: 9, fontWeight: 700, color: subColor, textTransform: 'uppercase', letterSpacing: 0.3 }}>{m.label}</span>
+            <div key={i} style={{ display: 'flex', alignItems: 'center', padding: '11px 16px', borderTop: i > 0 ? `1px solid ${sep}` : 'none', gap: 12 } as any}>
+              <div style={{ width: 32, height: 32, borderRadius: 8, background: `${m.color}15`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}>
+                <i className={m.icon} style={{ fontSize: 15, color: m.color }} />
               </div>
-              <div style={{ fontSize: 22, fontWeight: 900, color: hasData ? textColor : (isDark ? 'rgba(255,255,255,0.12)' : 'rgba(0,0,0,0.1)'), lineHeight: 1 }}>
-                {hasData ? (typeof m.value === 'number' && m.value % 1 !== 0 ? m.value.toFixed(1) : m.value.toLocaleString()) : '--'}
+              <div style={{ flex: 1, minWidth: 0 } as any}>
+                <div style={{ fontSize: 11, fontWeight: 600, color: sub }}>{m.label}</div>
+                <div style={{ height: 3, borderRadius: 2, background: sep, overflow: 'hidden', marginTop: 4 } as any}>
+                  <div style={{ height: '100%', borderRadius: 2, width: `${p}%`, background: m.color, transition: 'width 0.5s' } as any} />
+                </div>
               </div>
-              {m.unit && <div style={{ fontSize: 9, color: subColor, marginTop: 2 }}>{m.unit}</div>}
-              <div style={{ height: 3, borderRadius: 2, background: isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.06)', overflow: 'hidden', marginTop: 6 } as any}>
-                <div style={{ height: '100%', borderRadius: 2, width: `${pct}%`, background: m.color, transition: 'width 0.5s' } as any} />
+              <div style={{ textAlign: 'right', flexShrink: 0 } as any}>
+                <span style={{ fontSize: 18, fontWeight: 900, color: has ? txt : dim, lineHeight: 1 }}>{has ? fmt(m.value) : '--'}</span>
+                {m.unit && <span style={{ fontSize: 9, color: sub, marginLeft: 2 }}>{m.unit}</span>}
+                <div style={{ fontSize: 9, color: m.color, fontWeight: 700, marginTop: 1 }}>{p}%</div>
               </div>
-              <div style={{ fontSize: 8, color: subColor, marginTop: 3 }}>{pct}%</div>
             </div>
           );
         })}
       </div>
 
-      <div style={{ height: 1, background: sepColor, margin: '0 16px' } as any} />
+      <div style={{ height: 1, background: sep } as any} />
 
-      {/* Recovery bar */}
-      <div style={{ padding: '10px 16px 12px', display: 'flex', alignItems: 'center', gap: 12 } as any}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexShrink: 0 } as any}>
-          <i className="ri-battery-charge-line" style={{ fontSize: 16, color: ri.color }} />
-          <div>
-            <div style={{ fontSize: 9, fontWeight: 700, color: subColor, textTransform: 'uppercase', letterSpacing: 0.5 }}>Recuperation</div>
-            <div style={{ fontSize: 18, fontWeight: 900, color: ri.color, lineHeight: 1.1 }}>{ri.pct > 0 ? `${ri.pct}%` : '--'}</div>
+      {/* Recovery row */}
+      <div style={{ display: 'flex', alignItems: 'center', padding: '11px 16px', gap: 12 } as any}>
+        <div style={{ width: 32, height: 32, borderRadius: 8, background: `${ri.color}15`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 } as any}>
+          <i className="ri-battery-charge-line" style={{ fontSize: 15, color: ri.color }} />
+        </div>
+        <div style={{ flex: 1, minWidth: 0 } as any}>
+          <div style={{ fontSize: 11, fontWeight: 600, color: sub }}>Recuperation</div>
+          <div style={{ height: 3, borderRadius: 2, background: sep, overflow: 'hidden', marginTop: 4 } as any}>
+            <div style={{ height: '100%', borderRadius: 2, width: `${ri.pct}%`, background: ri.color, transition: 'width 0.5s' } as any} />
           </div>
         </div>
-        <div style={{ flex: 1 } as any}>
-          <div style={{ height: 6, borderRadius: 3, background: isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.06)', overflow: 'hidden' } as any}>
-            <div style={{ height: '100%', borderRadius: 3, width: `${ri.pct}%`, background: ri.color, transition: 'width 0.5s' } as any} />
-          </div>
-          <div style={{ fontSize: 9, color: ri.color, fontWeight: 700, marginTop: 2, textAlign: 'right' }}>{ri.label}</div>
+        <div style={{ textAlign: 'right', flexShrink: 0 } as any}>
+          <span style={{ fontSize: 18, fontWeight: 900, color: ri.pct > 0 ? ri.color : dim, lineHeight: 1 }}>{ri.pct > 0 ? `${ri.pct}%` : '--'}</span>
+          <div style={{ fontSize: 9, color: ri.color, fontWeight: 700, marginTop: 1 }}>{ri.label}</div>
         </div>
       </div>
     </div>
