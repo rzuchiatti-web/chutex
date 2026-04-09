@@ -1,7 +1,7 @@
 # Test Credentials - Chutex Care
 
 ## Website
-- URL Preview: https://premium-clinic-4.preview.emergentagent.com
+- URL Preview: https://chutex-premium.preview.emergentagent.com
 - Auth: Same accounts as mobile app (shared MongoDB)
 
 ## Test Accounts (App + Website shared)

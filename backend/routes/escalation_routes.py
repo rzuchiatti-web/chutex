@@ -372,7 +372,7 @@ async def auto_escalation_protocol(alert: dict):
         await db.alerts.update_one({"id": alert['id']}, {"$set": {"teleassistance_status": "ai_calling", "escalation_id": esc['id']}})
 
         # Build base URL for audio
-        base_url = os.environ.get("APP_URL", "https://premium-clinic-4.preview.emergentagent.com")
+        base_url = os.environ.get("APP_URL", "https://chutex-premium.preview.emergentagent.com")
 
         # STEP 1: Call beneficiary with ElevenLabs voice + speech recognition
         ben_phone = norm_phone(ben.get('phone', ''))

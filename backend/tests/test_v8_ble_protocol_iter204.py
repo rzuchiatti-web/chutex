@@ -12,7 +12,7 @@ import pytest
 import httpx
 import os
 
-API_URL = os.environ.get("REACT_APP_BACKEND_URL", "https://premium-clinic-4.preview.emergentagent.com")
+API_URL = os.environ.get("REACT_APP_BACKEND_URL", "https://chutex-premium.preview.emergentagent.com")
 PHONE = "+33651245918"
 PASSWORD = "test123"
 
