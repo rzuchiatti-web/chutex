@@ -90,60 +90,32 @@ function ReviewCard({ review, lang }) {
 function SectionTitle({ overline, title }) {
   return (
     <div className="mb-14 md:mb-16 flex justify-center">
-      <div className="relative px-10 md:px-20 py-10 md:py-12 max-w-3xl w-full">
-        {/* Corner brackets — dark clinical frame */}
-        <div className="absolute top-0 left-0 w-8 h-8 border-t border-l border-slate-900/20" />
-        <div className="absolute top-0 right-0 w-8 h-8 border-t border-r border-slate-900/20" />
-        <div className="absolute bottom-0 left-0 w-8 h-8 border-b border-l border-slate-900/20" />
-        <div className="absolute bottom-0 right-0 w-8 h-8 border-b border-r border-slate-900/20" />
-
-        {/* Scanning line — dark */}
-        <div className="absolute inset-x-8 top-0 bottom-0 overflow-hidden pointer-events-none">
-          <div className="absolute left-0 right-0 h-px bg-gradient-to-r from-transparent via-slate-900/15 to-transparent animate-scan" />
+      <div className="relative max-w-3xl w-full text-center">
+        {/* 3D rotating ring behind title */}
+        <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[280px] h-[280px] md:w-[380px] md:h-[380px] pointer-events-none">
+          <div className="absolute inset-0 rounded-full border border-slate-900/[0.04] animate-spin-very-slow" />
+          <div className="absolute inset-3 rounded-full border border-dashed border-slate-900/[0.06] animate-spin-reverse" />
+          <div className="absolute inset-8 rounded-full border border-slate-900/[0.03]" style={{ animation: 'spin-tilt 12s linear infinite' }} />
+          {/* Orbiting dot */}
+          <div className="absolute inset-0 animate-spin-very-slow">
+            <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 w-2 h-2 rounded-full bg-slate-900/20 shadow-[0_0_8px_rgba(0,0,0,0.08)]" />
+          </div>
         </div>
 
-        {/* Crosshair marks */}
-        <div className="absolute top-1/2 left-0 -translate-y-1/2 w-3 h-px bg-slate-900/15" />
-        <div className="absolute top-1/2 right-0 -translate-y-1/2 w-3 h-px bg-slate-900/15" />
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 h-3 w-px bg-slate-900/15" />
-        <div className="absolute bottom-0 left-1/2 -translate-x-1/2 h-3 w-px bg-slate-900/15" />
-
-        {/* Content */}
-        <div className="text-center relative">
-          {/* Status bar */}
-          <div className="flex items-center justify-center gap-3 mb-5">
-            <div className="flex items-center gap-1.5">
-              <span className="relative flex h-[6px] w-[6px]">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-slate-900/30 opacity-60" />
-                <span className="relative inline-flex rounded-full h-[6px] w-[6px] bg-slate-900/50" />
-              </span>
-              <div className="h-px w-6 bg-slate-900/10" />
-            </div>
-            <p className="text-[10px] font-mono font-semibold uppercase tracking-[0.35em] text-slate-500">
+        {/* Content — above the rings */}
+        <div className="relative z-10 py-10 md:py-14">
+          {/* Overline with horizontal rule wings */}
+          <div className="flex items-center justify-center gap-4 mb-5">
+            <div className="h-px w-14 md:w-20 bg-gradient-to-r from-transparent to-slate-900/15" />
+            <p className="text-[10px] font-mono font-semibold uppercase tracking-[0.35em] text-slate-400">
               {overline}
             </p>
-            <div className="flex items-center gap-1.5">
-              <div className="h-px w-6 bg-slate-900/10" />
-              <div className="flex gap-[2px] items-end h-[10px]">
-                {[35, 65, 100, 80, 45, 25].map((h, i) => (
-                  <div key={i} className="w-[1.5px] rounded-full bg-slate-900/20" style={{ height: `${h}%` }} />
-                ))}
-              </div>
-            </div>
+            <div className="h-px w-14 md:w-20 bg-gradient-to-l from-transparent to-slate-900/15" />
           </div>
 
-          <h2 className="text-3xl md:text-[2.6rem] text-slate-900 tracking-[-0.03em] leading-tight" style={{ fontWeight: 380 }}>
+          <h2 className="text-3xl md:text-[2.7rem] text-slate-900 tracking-[-0.03em] leading-tight" style={{ fontWeight: 380 }}>
             {title}
           </h2>
-
-          {/* Bottom data line */}
-          <div className="flex items-center justify-center gap-2 mt-5">
-            <div className="h-[1.5px] w-5 bg-slate-900/15 rounded-full" />
-            <div className="h-[1.5px] w-2 bg-slate-900/10 rounded-full" />
-            <div className="w-1 h-1 rounded-full bg-slate-900/20" />
-            <div className="h-[1.5px] w-2 bg-slate-900/10 rounded-full" />
-            <div className="h-[1.5px] w-5 bg-slate-900/15 rounded-full" />
-          </div>
         </div>
       </div>
     </div>

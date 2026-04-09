@@ -66,3 +66,24 @@ h1, h2, h3, h4, h5, h6 {
 .animate-scan {
   animation: scan 3s ease-in-out infinite;
 }
+
+@keyframes spin-very-slow {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+.animate-spin-very-slow {
+  animation: spin-very-slow 25s linear infinite;
+}
+
+@keyframes spin-reverse {
+  from { transform: rotate(360deg); }
+  to { transform: rotate(0deg); }
+}
+.animate-spin-reverse {
+  animation: spin-reverse 35s linear infinite;
+}
+
+@keyframes spin-tilt {
+  0% { transform: rotateX(60deg) rotateZ(0deg); }
+  100% { transform: rotateX(60deg) rotateZ(360deg); }
+}
