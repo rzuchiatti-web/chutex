@@ -89,17 +89,43 @@ function ReviewCard({ review, lang }) {
 
 function SectionTitle({ overline, title }) {
   return (
-    <div className="mb-14 md:mb-16 text-center relative">
-      {/* Subtle grid background */}
-      <div className="absolute inset-0 -top-8 -bottom-4 mx-auto max-w-xl opacity-[0.03] pointer-events-none"
-        style={{ backgroundImage: 'radial-gradient(circle, #000 1px, transparent 1px)', backgroundSize: '24px 24px' }} />
-      <div className="relative">
-        <p className="text-[11px] font-medium tracking-[0.4em] text-emerald-700/50 uppercase mb-4">
-          {'[ '}{overline}{' ]'}
-        </p>
-        <h2 className="text-3xl md:text-[2.6rem] text-slate-900 tracking-[-0.03em] leading-[1.15]" style={{ fontWeight: 350 }}>
-          {title}
-        </h2>
+    <div className="mb-14 md:mb-16 flex justify-center">
+      <div className="relative px-10 md:px-16 py-8 md:py-10 max-w-2xl w-full">
+        {/* Corner brackets — medical scan frame */}
+        <div className="absolute top-0 left-0 w-6 h-6 border-t-[1.5px] border-l-[1.5px] border-emerald-500/40 rounded-tl-sm" />
+        <div className="absolute top-0 right-0 w-6 h-6 border-t-[1.5px] border-r-[1.5px] border-emerald-500/40 rounded-tr-sm" />
+        <div className="absolute bottom-0 left-0 w-6 h-6 border-b-[1.5px] border-l-[1.5px] border-emerald-500/40 rounded-bl-sm" />
+        <div className="absolute bottom-0 right-0 w-6 h-6 border-b-[1.5px] border-r-[1.5px] border-emerald-500/40 rounded-br-sm" />
+
+        {/* Scanning line animation */}
+        <div className="absolute inset-x-6 top-0 bottom-0 overflow-hidden pointer-events-none">
+          <div className="absolute left-0 right-0 h-px bg-gradient-to-r from-transparent via-emerald-400/30 to-transparent animate-scan" />
+        </div>
+
+        {/* Content */}
+        <div className="text-center relative">
+          {/* Status row */}
+          <div className="flex items-center justify-center gap-2.5 mb-5">
+            <span className="relative flex h-2 w-2">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-40" />
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
+            </span>
+            <p className="text-[10px] font-mono font-semibold uppercase tracking-[0.3em] text-slate-400">
+              {overline}
+            </p>
+            <div className="flex gap-[3px] items-end h-3">
+              <div className="w-[2px] h-[40%] bg-emerald-500/30 rounded-full" />
+              <div className="w-[2px] h-[70%] bg-emerald-500/40 rounded-full" />
+              <div className="w-[2px] h-full bg-emerald-500/50 rounded-full" />
+              <div className="w-[2px] h-[55%] bg-emerald-500/35 rounded-full" />
+              <div className="w-[2px] h-[25%] bg-emerald-500/20 rounded-full" />
+            </div>
+          </div>
+
+          <h2 className="text-3xl md:text-4xl text-slate-900 tracking-[-0.025em] leading-tight" style={{ fontWeight: 380 }}>
+            {title}
+          </h2>
+        </div>
       </div>
     </div>
   )
