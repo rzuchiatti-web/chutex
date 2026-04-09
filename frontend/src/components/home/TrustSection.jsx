@@ -89,33 +89,24 @@ function ReviewCard({ review, lang }) {
 
 function SectionTitle({ overline, title }) {
   return (
-    <div className="mb-14 md:mb-16 flex justify-center">
-      <div className="relative max-w-3xl w-full text-center">
-        {/* 3D rotating ring behind title */}
-        <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[280px] h-[280px] md:w-[380px] md:h-[380px] pointer-events-none">
-          <div className="absolute inset-0 rounded-full border border-slate-900/[0.04] animate-spin-very-slow" />
-          <div className="absolute inset-3 rounded-full border border-dashed border-slate-900/[0.06] animate-spin-reverse" />
-          <div className="absolute inset-8 rounded-full border border-slate-900/[0.03]" style={{ animation: 'spin-tilt 12s linear infinite' }} />
-          {/* Orbiting dot */}
-          <div className="absolute inset-0 animate-spin-very-slow">
-            <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 w-2 h-2 rounded-full bg-slate-900/20 shadow-[0_0_8px_rgba(0,0,0,0.08)]" />
-          </div>
-        </div>
+    <div className="mb-14 md:mb-16 max-w-[1780px] mx-auto px-6 md:px-12">
+      <div className="relative pl-8 md:pl-10 border-l-[2px] border-slate-900/10">
+        {/* Accent notch on the vertical line */}
+        <div className="absolute left-[-1px] top-0 w-[2px] h-8 bg-slate-900/60" />
+        <div className="absolute left-[-1px] top-10 w-[2px] h-1 bg-slate-900/30" />
+        <div className="absolute left-[-1px] top-12 w-[2px] h-1 bg-slate-900/15" />
 
-        {/* Content — above the rings */}
-        <div className="relative z-10 py-10 md:py-14">
-          {/* Overline with horizontal rule wings */}
-          <div className="flex items-center justify-center gap-4 mb-5">
-            <div className="h-px w-14 md:w-20 bg-gradient-to-r from-transparent to-slate-900/15" />
-            <p className="text-[10px] font-mono font-semibold uppercase tracking-[0.35em] text-slate-400">
-              {overline}
-            </p>
-            <div className="h-px w-14 md:w-20 bg-gradient-to-l from-transparent to-slate-900/15" />
-          </div>
+        <p className="text-[10px] font-mono font-semibold uppercase tracking-[0.35em] text-slate-400 mb-3">
+          {overline}
+        </p>
+        <h2 className="text-4xl md:text-5xl lg:text-[3.5rem] text-slate-900 tracking-[-0.03em] leading-[1.1]" style={{ fontWeight: 350 }}>
+          {title}
+        </h2>
 
-          <h2 className="text-3xl md:text-[2.7rem] text-slate-900 tracking-[-0.03em] leading-tight" style={{ fontWeight: 380 }}>
-            {title}
-          </h2>
+        {/* Horizontal rule accent */}
+        <div className="mt-6 flex items-center gap-2">
+          <div className="h-px w-16 bg-slate-900/20" />
+          <div className="h-px w-4 bg-slate-900/10" />
         </div>
       </div>
     </div>
@@ -131,7 +122,7 @@ export default function TrustSection() {
   return (
     <section data-testid="trust-section" className="py-20 md:py-28 overflow-hidden">
       {/* Reviews */}
-      <div className="max-w-[1780px] mx-auto px-6 md:px-12">
+      <div>
         <SectionTitle
           overline={lang === 'fr' ? 'Témoignages' : 'Testimonials'}
           title={lang === 'fr' ? 'La confiance de nos utilisateurs' : 'Trusted by our users'}
@@ -149,7 +140,7 @@ export default function TrustSection() {
 
       {/* Partners */}
       <div className="mt-24 md:mt-32">
-        <div className="max-w-[1780px] mx-auto px-6 md:px-12">
+        <div>
           <SectionTitle
             overline={lang === 'fr' ? 'Partenaires' : 'Partners'}
             title={lang === 'fr' ? 'Ils nous font confiance' : 'They trust us'}
