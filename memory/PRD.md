@@ -1,87 +1,53 @@
 # Chutex Care - PRD
 
 ## Vision
-Site web premium "clinique digitale de prévention", ultra optimisé à la conversion. Frontend React (Vite) connecté au backend FastAPI existant + Shopify backend pour les commandes physiques.
+Site web ultra-premium "clinique digitale de prévention", inspiré du style kora.framer.media. Frontend React (Vite) connecté au backend FastAPI existant.
 
 ## Architecture Technique
 - **Frontend** : React (Vite) + Tailwind CSS + React Router + Framer Motion, port 3000
 - **Backend** : FastAPI existant (MongoDB, auth, Mollie), port 8001
-- **Shopify** : Backend commandes physiques via API Storefront
 - **i18n** : Géolocalisation auto (ipapi.co) + langue navigateur en fallback, FR/EN
-- **Design** : Swiss & High-Contrast, fonts Outfit + Work Sans, glassmorphism header
+- **Design** : Inspiré Kora, floating pill header, glass morphism, counter animations
 
-## Offres Commerciales
-
-### Produits physiques (Shopify Checkout)
-1. Gilet airbag Elder — 879€ TTC
-2. Balance Vita — 229€ TTC
-3. Recharge airbag lot de 2 — 119.8€ TTC
-4. Socle de recharge Elio (Bluetooth/4G) — 29.9€ TTC
-5. Câble de recharge Elder — 29.9€ TTC
-6. Câble de charge USB-C — 14.9€ TTC
-
-### Abonnements (Mollie)
-7. Bracelet Elio Standard — 24.9€/mois ou 249€/an
-8. Bracelet Elio Sport — 99€/mois
-9. Bracelet Elio Physio — 99€/mois
-10. Téléassistance — 39.9€/mois + 50% crédit d'impôt
-
-## Pages du site
-
-### FAIT - Page d'accueil (v2 - redesign premium)
-- Hero plein écran (image login app) avec overlay sombre, titre blanc centré, "prévention" en gradient bleu
-- Header glassmorphism : transparent/blanc sur hero → glass blanc/noir en scroll
-- Icônes : Recherche, Compte, Panier (badge)
-- Sélecteur langue avec drapeaux (FR/EN) via flagcdn.com
-- Animations hover futuristes (glow, scale, underline animé)
-- Logo switch blanc/noir selon scroll
-- Barre logos magasins partenaires (Decathlon, RedCare, etc.)
-- Grille bento produits (Elder, Elio, Vita) avec prix
-- Chiffres clés (0.08s, 36h, 50m, 10+ jours)
-- Section application (App Store + Google Play)
-- Témoignages (3 profils)
+## FAIT - Page d'accueil (v3 - style Kora)
+- Hero plein écran (banner login app) avec overlay, titre éditorial, "prévention" gradient bleu, CTA, "Trusted by 10,000+ families", logos partenaires
+- Header floating pill glass : toujours sombre, logo blanc toujours visible, nav links dans le pill
+- Mobile : hamburger glass rond (gauche) | Logo blanc centré | Panier glass rond (droite)
+- Boutons séparés glass : drapeau/devise, recherche, compte, panier (badge)
+- Section ScrollText : animation mot-par-mot au scroll (Framer Motion useScroll/useTransform)
+- Section Avant/Après : carte beige "Sans Chutex" vs carte sombre "Avec Chutex"
+- Produits numérotés (01 Elder, 02 Elio, 03 Vita) avec layouts alternés, features grid, prix, témoignage embarqué
+- Comment ça marche : 4 phases (Commandez → Activez → Connectez → Protégez)
+- Stats dark avec compteurs animés (0.08s, 36h, 50m, 10,000+)
+- Section App (App Store/Google Play)
+- Témoignages
 - Section CTA finale dark
 - Footer dark complet
-- Responsive mobile-first + menu hamburger
-- i18n FR/EN avec géolocalisation auto
+- i18n FR/EN avec drapeaux
 
-### À FAIRE - Pages principales
-1. **Bracelet Elio** — Landing page + abonnements
-2. **Gilet Elder** — Landing page + CTA acheter
-3. **Balance Vita** — Landing page + CTA acheter
-4. **Téléassistance** — Présentation service + CTA souscrire
-5. **L'application** — Présentation fonctionnalités app
-6. **Accessoires** — Socle, câbles, recharges
-7. **Espace Pro** — Page professionnels
+## À FAIRE
+### P1 - Landing pages
+1. Bracelet Elio — Landing + abonnements
+2. Gilet Elder — Landing + CTA acheter
+3. Balance Vita — Landing + CTA acheter
+4. Téléassistance — Service + CTA souscrire
+5. L'Application — Fonctionnalités app
+6. Accessoires — Socle, câbles, recharges
+7. Espace Pro — Professionnels
 
-### À FAIRE - Pages partenaires
-8. **Devenir Coach partenaire** — Formulaire inscription
-9. **Devenir Physio partenaire** — Formulaire inscription
-10. **Devenir SAAD partenaire** — Formulaire inscription
+### P1 - Pages partenaires
+8. Coach partenaire — Formulaire
+9. Physio partenaire — Formulaire
+10. SAAD partenaire — Formulaire
 
-### À FAIRE - Tunnel de conversion
-11. **Souscription Elio** — Choix formule → Infos → Paiement Mollie
-12. **Souscription Téléassistance** — Choix → Infos → Paiement Mollie
-13. **Achat produit** — Panier → Shopify Checkout
+### P1 - Tunnel conversion
+11. Souscription Elio → Paiement Mollie
+12. Souscription Téléassistance → Paiement Mollie
+13. Achat produit → Shopify Checkout
 
-### À FAIRE - Pages utilitaires
-14. **Connexion** — Login unifié (même compte que l'app)
-15. **FAQ**
-16. **Mentions légales / CGV / CGU**
-17. **Contact**
+### P2 - Utilitaires
+14. Connexion unifiée (même compte app)
+15. FAQ, CGV/CGU, Contact
 
-## Stack Technique
-- React 19 + Vite 6 + Tailwind CSS 3.4
-- React Router 7
-- Framer Motion 11
-- Lucide React (icônes)
-- i18n custom (Context API)
-- Flags: flagcdn.com
-
-## Style
-- Premium, clinique digital, médical
-- Couleurs : Primary #0055FF, BG #FAFAFA, Dark footer #0F172A
-- Typographie : Outfit (headings), Work Sans (body)
-- Header : Glassmorphism avec backdrop-blur
-- Hover : Glow effects, scale, animated underlines
-- Pas de fioritures, focus clarté + confiance + conversion
+## Stack
+React 19 + Vite 6 + Tailwind 3.4 + React Router 7 + Framer Motion 11 + Lucide React
