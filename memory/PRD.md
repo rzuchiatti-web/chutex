@@ -8,7 +8,7 @@ Site web premium "clinique digitale de prévention", ultra optimisé à la conve
 - **Backend** : FastAPI existant (MongoDB, auth, Mollie), port 8001
 - **Shopify** : Backend commandes physiques via API Storefront
 - **i18n** : Géolocalisation auto (ipapi.co) + langue navigateur en fallback, FR/EN
-- **Design** : Swiss & High-Contrast (Archetype 4), fonts Outfit + Work Sans
+- **Design** : Swiss & High-Contrast, fonts Outfit + Work Sans, glassmorphism header
 
 ## Offres Commerciales
 
@@ -28,22 +28,25 @@ Site web premium "clinique digitale de prévention", ultra optimisé à la conve
 
 ## Pages du site
 
-### FAIT - Page d'accueil
-- Hero section avec slogan + CTA
-- Barre logos magasins partenaires (Decathlon, RedCare, Quirumed, Castorama, Stadium, MediaMarkt, Reha Team, Hobbybox, Farmaline)
+### FAIT - Page d'accueil (v2 - redesign premium)
+- Hero plein écran (image login app) avec overlay sombre, titre blanc centré, "prévention" en gradient bleu
+- Header glassmorphism : transparent/blanc sur hero → glass blanc/noir en scroll
+- Icônes : Recherche, Compte, Panier (badge)
+- Sélecteur langue avec drapeaux (FR/EN) via flagcdn.com
+- Animations hover futuristes (glow, scale, underline animé)
+- Logo switch blanc/noir selon scroll
+- Barre logos magasins partenaires (Decathlon, RedCare, etc.)
 - Grille bento produits (Elder, Elio, Vita) avec prix
 - Chiffres clés (0.08s, 36h, 50m, 10+ jours)
 - Section application (App Store + Google Play)
 - Témoignages (3 profils)
-- Section CTA finale
-- Footer dark complet (Produits, Entreprise, Légal, Réseaux sociaux)
-- Header glassmorphism sticky + sélecteur langue/devise
-- Responsive mobile-first
-- Animations scroll (Framer Motion)
+- Section CTA finale dark
+- Footer dark complet
+- Responsive mobile-first + menu hamburger
 - i18n FR/EN avec géolocalisation auto
 
 ### À FAIRE - Pages principales
-1. **Bracelet Elio** — Landing page + abonnements (Standard/Sport/Physio)
+1. **Bracelet Elio** — Landing page + abonnements
 2. **Gilet Elder** — Landing page + CTA acheter
 3. **Balance Vita** — Landing page + CTA acheter
 4. **Téléassistance** — Présentation service + CTA souscrire
@@ -62,7 +65,7 @@ Site web premium "clinique digitale de prévention", ultra optimisé à la conve
 13. **Achat produit** — Panier → Shopify Checkout
 
 ### À FAIRE - Pages utilitaires
-14. **Connexion** — Login unifié
+14. **Connexion** — Login unifié (même compte que l'app)
 15. **FAQ**
 16. **Mentions légales / CGV / CGU**
 17. **Contact**
@@ -73,9 +76,12 @@ Site web premium "clinique digitale de prévention", ultra optimisé à la conve
 - Framer Motion 11
 - Lucide React (icônes)
 - i18n custom (Context API)
+- Flags: flagcdn.com
 
 ## Style
 - Premium, clinique digital, médical
 - Couleurs : Primary #0055FF, BG #FAFAFA, Dark footer #0F172A
 - Typographie : Outfit (headings), Work Sans (body)
+- Header : Glassmorphism avec backdrop-blur
+- Hover : Glow effects, scale, animated underlines
 - Pas de fioritures, focus clarté + confiance + conversion
