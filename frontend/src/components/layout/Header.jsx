@@ -136,23 +136,59 @@ export default function Header() {
 
       <AnimatePresence>
         {mobileOpen && (
-          <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}
-            data-testid="mobile-menu" className="lg:hidden mx-4 mt-3 bg-black/40 backdrop-blur-2xl rounded-2xl border border-white/15 shadow-2xl">
-            <div className="px-5 py-5 space-y-1">
-              {navLinks.map((link) => (
-                <a key={link.label} href={link.href} onClick={() => setMobileOpen(false)}
-                  className="block text-[15px] font-medium text-white/70 hover:text-white hover:bg-white/10 rounded-xl px-3 py-2.5 transition-all">
-                  {link.label}
-                </a>
-              ))}
-              <div className="pt-3 mt-2 border-t border-white/10 flex flex-wrap items-center gap-2">
-                {LANGS.slice(0, 4).map((l) => (
-                  <button key={l.code} onClick={() => { setLang(l.code); setMobileOpen(false) }}
-                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-all ${lang === l.code ? 'bg-white/20 text-white' : 'text-white/40'}`}>
-                    <img src={l.flag} alt={l.code} className="w-4 h-auto rounded-[1px]" /> {l.label}
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[90] lg:hidden">
+            <div className="absolute inset-0 bg-black/50 backdrop-blur-2xl" onClick={() => setMobileOpen(false)} />
+            <div className="relative pt-20 px-4">
+              <motion.div initial={{ opacity: 0, y: -15 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -15 }}
+                transition={{ duration: 0.3 }}
+                data-testid="mobile-menu" className="w-full max-w-sm mx-auto">
+
+                {/* Nav links */}
+                <div className="space-y-1 mb-6">
+                  {navLinks.map((link, i) => (
+                    <motion.a key={link.label} href={link.href}
+                      initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: 0.05 * i }}
+                      onClick={() => setMobileOpen(false)}
+                      className="block text-[17px] font-medium text-white/70 hover:text-white py-3 border-b border-white/10 transition-all">
+                      {link.label}
+                    </motion.a>
+                  ))}
+                </div>
+
+                {/* Search + Account */}
+                <div className="space-y-2 mb-6">
+                  <button onClick={() => { setMobileOpen(false); setTimeout(() => setSearchOpen(true), 200) }}
+                    data-testid="mobile-search-btn"
+                    className="group relative flex items-center gap-3 w-full py-3.5 px-5 rounded-full text-white/60 text-sm font-medium overflow-hidden transition-all">
+                    <span className="absolute inset-0 bg-white/[0.06] backdrop-blur-xl border border-white/15 rounded-full group-hover:bg-white/10 transition-all" />
+                    <Search size={16} strokeWidth={1.5} className="relative" />
+                    <span className="relative">{lang === 'fr' ? 'Rechercher' : 'Search'}</span>
                   </button>
-                ))}
-              </div>
+                  <button onClick={() => { setMobileOpen(false); setTimeout(() => setAuthOpen(true), 200) }}
+                    data-testid="mobile-account-btn"
+                    className="group relative flex items-center gap-3 w-full py-3.5 px-5 rounded-full text-white/60 text-sm font-medium overflow-hidden transition-all">
+                    <span className="absolute inset-0 bg-white/[0.06] backdrop-blur-xl border border-white/15 rounded-full group-hover:bg-white/10 transition-all" />
+                    <User size={16} strokeWidth={1.5} className="relative" />
+                    <span className="relative">{lang === 'fr' ? 'Mon compte' : 'My account'}</span>
+                  </button>
+                </div>
+
+                {/* Languages */}
+                <div className="flex flex-wrap items-center gap-2">
+                  {LANGS.slice(0, 4).map((l) => (
+                    <button key={l.code} onClick={() => { setLang(l.code); setMobileOpen(false) }}
+                      className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-all ${lang === l.code ? 'bg-white/20 text-white' : 'text-white/30'}`}>
+                      <img src={l.flag} alt={l.code} className="w-4 h-auto rounded-[1px]" /> {l.label}
+                    </button>
+                  ))}
+                </div>
+
+                <div className="flex justify-center mt-8">
+                  <span className="text-white/15 text-[10px] tracking-widest">ESC</span>
+                </div>
+              </motion.div>
             </div>
           </motion.div>
         )}
