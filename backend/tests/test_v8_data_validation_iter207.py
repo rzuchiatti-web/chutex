@@ -16,7 +16,7 @@ import os
 
 BASE_URL = os.environ.get("REACT_APP_BACKEND_URL", "").rstrip("/")
 if not BASE_URL:
-    BASE_URL = "https://multilang-health-app.preview.emergentagent.com"
+    BASE_URL = "https://premium-clinic-4.preview.emergentagent.com"
 
 # Test credentials
 TEST_PHONE = "+33651245918"

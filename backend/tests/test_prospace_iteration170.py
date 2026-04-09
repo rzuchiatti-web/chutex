@@ -13,7 +13,7 @@ import pytest
 import requests
 import os
 
-BASE_URL = os.environ.get('EXPO_PUBLIC_BACKEND_URL', 'https://multilang-health-app.preview.emergentagent.com')
+BASE_URL = os.environ.get('EXPO_PUBLIC_BACKEND_URL', 'https://premium-clinic-4.preview.emergentagent.com')
 
 class TestProSpaceCalendarFeatures:
     """Test ProSpace calendar and edit features"""

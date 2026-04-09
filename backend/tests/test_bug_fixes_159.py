@@ -7,7 +7,7 @@ import pytest
 import requests
 import os
 
-BASE_URL = os.environ.get('EXPO_PUBLIC_BACKEND_URL', 'https://multilang-health-app.preview.emergentagent.com').rstrip('/')
+BASE_URL = os.environ.get('EXPO_PUBLIC_BACKEND_URL', 'https://premium-clinic-4.preview.emergentagent.com').rstrip('/')
 
 class TestBugFixes159:
     """Test the 3 bug fixes"""

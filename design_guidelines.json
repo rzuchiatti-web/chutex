@@ -1,108 +1,136 @@
 {
-  "project_name": "Chutex Care Redesign",
-  "design_philosophy": {
-    "theme": "Digital Clinic",
-    "mood": "Sophisticated, Sterile but Warm, Premium, Clarity",
-    "mode": "Light Mode ONLY",
-    "core_principles": [
-      "No Gimmicks (Remove ECG animations, remove mesh blobs)",
-      "Information Density over Decoration",
-      "Softened Clinical (Warm Grays instead of cold blues)",
-      "Tactile Depth (Subtle shadows, crisp borders)"
-    ]
-  },
-  "palette": {
-    "background": "#F8FAFC",
-    "surface": "#FFFFFF",
-    "surface_secondary": "#F1F5F9",
-    "text_primary": "#0F172A",
-    "text_secondary": "#64748B",
-    "text_tertiary": "#94A3B8",
-    "primary": "#0F766E",
-    "primary_soft": "#CCFBF1",
-    "accent_alert": "#EF4444",
-    "accent_warning": "#F59E0B",
-    "accent_success": "#10B981",
-    "accent_info": "#0EA5E9",
-    "border_subtle": "rgba(0,0,0,0.06)"
+  "project_name": "Chutex Care",
+  "theme": "light",
+  "archetype": "Archetype 4: Swiss & High-Contrast",
+  "design_philosophy": "Ultra premium digital medical clinic. No frills, high trust, conversion-optimized. Emotionally grounded in longevity, vitality, and prevention. Design uses strict grid alignment, stark contrasts, and Swiss typography to convey medical precision and premium quality.",
+  "colors": {
+    "background": "#FAFAFA",
+    "foreground": "#0A0A0A",
+    "primary": "#0055FF",
+    "primary_foreground": "#FFFFFF",
+    "secondary": "#F3F4F6",
+    "secondary_foreground": "#111827",
+    "accent": "#E0F2FE",
+    "accent_foreground": "#0369A1",
+    "border": "#E5E7EB",
+    "card": "#FFFFFF",
+    "card_foreground": "#0A0A0A",
+    "muted": "#F9FAFB",
+    "muted_foreground": "#6B7280"
   },
   "typography": {
-    "font_family": "Inter, system-ui, sans-serif",
-    "styles": {
-      "h1": { "fontSize": 28, "fontWeight": "800", "letterSpacing": -1, "color": "#0F172A" },
-      "h2": { "fontSize": 20, "fontWeight": "700", "letterSpacing": -0.5, "color": "#1E293B" },
-      "h3": { "fontSize": 16, "fontWeight": "600", "letterSpacing": -0.3, "color": "#334155" },
-      "body": { "fontSize": 14, "fontWeight": "400", "color": "#64748B", "lineHeight": 1.5 },
-      "caption": { "fontSize": 12, "fontWeight": "500", "color": "#94A3B8", "textTransform": "uppercase", "letterSpacing": 0.5 },
-      "number_big": { "fontSize": 32, "fontWeight": "800", "letterSpacing": -1.5, "color": "#0F172A" }
+    "heading_font": "Outfit",
+    "body_font": "Work Sans",
+    "h1": "text-5xl md:text-6xl lg:text-7xl font-light tracking-tighter leading-tight text-slate-900",
+    "h2": "text-3xl md:text-4xl font-medium tracking-tight text-slate-900",
+    "h3": "text-xl md:text-2xl font-medium tracking-tight text-slate-900",
+    "body": "text-base md:text-lg text-slate-600 leading-relaxed font-normal",
+    "overline": "text-xs md:text-sm uppercase tracking-[0.2em] font-semibold text-slate-500",
+    "anti_patterns": "Do not use Inter. Never center-align long paragraphs."
+  },
+  "spacing_and_layout": {
+    "philosophy": "Generous spacing (p-8 to p-24) to create a premium, uncrowded feel.",
+    "grid_system": "Use The 'Control Room' Grid for stats, and The 'Tetris' Grid for product highlights.",
+    "section_padding": "py-20 md:py-32",
+    "container": "max-w-7xl mx-auto px-6 md:px-12",
+    "radius": "rounded-none md:rounded-lg",
+    "borders": "1px solid #E5E7EB for cards and grid boundaries to expose the structural skeleton."
+  },
+  "components": {
+    "header": {
+      "style": "Glassmorphism (backdrop-blur-xl bg-white/70) with a delicate 1px border-b border-gray-200. Sticky top.",
+      "behavior": "Includes Language/Currency auto-detect toggle via geolocation (UI representation), Navigation links (Bracelet Elio, Gilet Elder, Balance Vita, Teleassistance), and primary CTA."
+    },
+    "hero": {
+      "style": "Full height or 80vh minimum. Left-aligned typography over a subtle background or split-screen with the hero image. Use a stark, bold H1. CTA should be high-contrast Primary color.",
+      "image_overlay": "If text overlaps image, use max bg-black/30 or gradient overlay to ensure text contrast while keeping image visible."
+    },
+    "product_bento_grid": {
+      "style": "Asymmetric bento grid (Tetris Mode). 1 large hero product (col-span-12 md:col-span-8), 2 secondary products (col-span-12 md:col-span-4). No heavy shadows, just 1px subtle borders."
+    },
+    "stats_section": {
+      "style": "Grid Borders ('Technical' look). border-collapse style layout, huge typography for numbers (text-6xl+ font-light). Conveys extreme trust and medical validation."
+    },
+    "testimonials": {
+      "style": "Clean, typographic approach. Avoid traditional 'cards'. Use large quote marks, italic serif accents for the quote text, strict alignment."
+    },
+    "footer": {
+      "style": "Dark mode contrast (bg-slate-950 text-white) to signal the end of the page. Massive padding (py-24). Simple, strict grid for links."
     }
   },
-  "component_styles": {
-    "DashboardContainer": {
-      "background": "#F8FAFC",
-      "instructions": "Remove the 'clinic-mesh' divs and SVG noise. Use a clean, solid background."
+  "interactions_and_motion": {
+    "hover": "Subtle -translate-y-1 and shadow-lg on interactive cards. Always explicitly set hover:text colors.",
+    "scroll": "Use Framer Motion for staggered fade-up entrances for grids. Keep animations smooth, clinical, and precise."
+  },
+  "media": {
+    "hero_longevity": {
+      "url": "https://static.prod-images.emergentagent.com/jobs/48e5eb31-c61a-4fb1-be42-94e61a127565/images/d955d4a583939baecfe98a46249fde1ce2d0262a8b03eb39cb0719970a34cb71.png",
+      "alt": "Elegant healthy mature woman in modern home",
+      "usage": "Hero section background or right-split image"
     },
-    "Header": {
-      "background": "rgba(255,255,255,0.9)",
-      "backdropFilter": "blur(20px)",
-      "borderBottom": "1px solid rgba(0,0,0,0.05)",
-      "boxShadow": "none",
-      "padding": "20px 24px",
-      "marginBottom": "24px",
-      "instructions": "Remove the purple linear-gradient. Use black text for high contrast. Remove the ECG SVG animation completely."
+    "product_elio": {
+      "url": "https://static.prod-images.emergentagent.com/jobs/48e5eb31-c61a-4fb1-be42-94e61a127565/images/157ff20c12cccdbbde2f266c2cd14dda245fa780ea2a26dbb6081c3c2ddaaeef.png",
+      "alt": "Elio Smart Bracelet",
+      "usage": "Product highlights section - Elio card"
     },
-    "GlassCard": {
-      "background": "#FFFFFF",
-      "borderRadius": "24px",
-      "border": "1px solid rgba(0,0,0,0.04)",
-      "boxShadow": "0 10px 30px -10px rgba(0,0,0,0.05)",
-      "padding": "24px",
-      "transition": "transform 0.2s ease, box-shadow 0.2s ease",
-      "hover_transform": "translateY(-4px)",
-      "hover_shadow": "0 20px 40px -10px rgba(0,0,0,0.08)"
+    "product_elder": {
+      "url": "https://static.prod-images.emergentagent.com/jobs/48e5eb31-c61a-4fb1-be42-94e61a127565/images/6d0ff09bcea707fa3b7d41998c8589bfd40558c6c6d600e7882fe73aa671692b.png",
+      "alt": "Elder Airbag Vest",
+      "usage": "Product highlights section - Elder card"
     },
-    "SOSButton": {
-      "background": "#FEF2F2",
-      "border": "1px solid #FECACA",
-      "color": "#EF4444",
-      "borderRadius": "20px",
-      "boxShadow": "0 4px 12px rgba(239, 68, 68, 0.1)",
-      "instructions": "Make it distinct but not alarming. Use a soft red background with deep red text."
+    "product_vita": {
+      "url": "https://static.prod-images.emergentagent.com/jobs/48e5eb31-c61a-4fb1-be42-94e61a127565/images/99cc1301d04c1c60a23347cfabdb0335b694b42162bb12541d38ea6638ebb23d.png",
+      "alt": "Vita Smart Scale",
+      "usage": "Product highlights section - Vita card"
     },
-    "NoraAI_Card": {
-      "background": "linear-gradient(135deg, #F0F9FF 0%, #E0F2FE 100%)",
-      "border": "1px solid #BAE6FD",
-      "instructions": "Replace the video background with this subtle gradient. It feels more 'medical' and less 'marketing'."
+    "store_logos": {
+      "instruction": "Render these as a grayscale marquee or flex row. Use actual text with matching brand font styles if external images fail, but attempt these standard URLs first.",
+      "logos": [
+        {
+          "name": "Decathlon",
+          "url": "https://upload.wikimedia.org/wikipedia/commons/3/39/Decathlon_Logo.svg"
+        },
+        {
+          "name": "MediaMarkt",
+          "url": "https://upload.wikimedia.org/wikipedia/commons/a/ae/Media_Markt_logo.svg"
+        },
+        {
+          "name": "Castorama",
+          "url": "https://upload.wikimedia.org/wikipedia/commons/4/47/Castorama_logo.svg"
+        },
+        {
+          "name": "RedCare",
+          "url": "https://upload.wikimedia.org/wikipedia/commons/e/e0/Redcare_Pharmacy_Logo.svg"
+        },
+        {
+          "name": "Quirumed",
+          "url": "",
+          "fallback_text": "QUIRUMED"
+        },
+        {
+          "name": "Stadium",
+          "url": "",
+          "fallback_text": "STADIUM"
+        }
+      ]
     }
   },
-  "assets": {
-    "images": {
-      "user_avatar_placeholder": "https://i.pravatar.cc/150?u=a042581f4e29026704d",
-      "guardian_avatars": [
-        "https://i.pravatar.cc/150?u=a042581f4e29026024d",
-        "https://i.pravatar.cc/150?u=a042581f4e29026704d",
-        "https://i.pravatar.cc/150?u=1"
-      ],
-      "nora_icon": "ri-sparkling-2-line"
-    }
+  "icons": {
+    "library": "lucide-react",
+    "style": "Thin stroke (1.5px), sharp and clinical."
   },
-  "implementation_steps": [
-    "Open /app/frontend/app/(tabs)/index.tsx",
-    "Locate the Web specific block (if Platform.OS === 'web')",
-    "Step 1: CLEANUP. Remove the <div className='clinic-mesh'> and the SVG noise div.",
-    "Step 2: HEADER. Change the header background from purple gradient to white/glass. Remove the ECG <svg>. Change text color to dark slate (#0F172A).",
-    "Step 3: CARDS. Update the 'style' props of cards to remove Neumorphic shadows (6px 6px...) and replace with 'Clean Clinical' shadows (0 10px 30px...). Increase padding to 24px.",
-    "Step 4: OBJECTIVES. Redesign the grid items. Remove the heavy borders. Use white cards with very subtle borders.",
-    "Step 5: NORA. Replace the video background in CopilotCard with a soft blue gradient.",
-    "Step 6: TYPOGRAPHY. Apply 'letterSpacing: -0.5px' to all headers (objectives, section titles) to make it look premium.",
-    "Step 7: SOS. Redesign the SOS button to be 'Soft Red' (bg-red-50) instead of white.",
-    "CRITICAL: Do not break the 'onClick' handlers or 'data-testid' attributes."
-  ],
-  "universal_guidelines": [
-    "Use 'Inter' font everywhere.",
-    "Avoid gradients for text.",
-    "Use 24px border radius for all cards.",
-    "Use 16px border radius for buttons.",
-    "Spacing should be generous (gap: 16px or 24px)."
+  "testing": {
+    "attributes": "All interactive elements, buttons, and major sections MUST include 'data-testid' attributes (e.g., data-testid='hero-cta-button', data-testid='product-elio-card')."
+  },
+  "instructions_to_main_agent": [
+    "Use standard Tailwind classes. Do NOT write custom CSS unless absolutely necessary.",
+    "Ensure 'Outfit' and 'Work Sans' fonts are imported from Google Fonts in index.html or global CSS.",
+    "Implement language/currency auto-detect as a visual UI element in the header (e.g., 'FR / EUR' dropdown) with a mock geolocation hook or just a static representation.",
+    "For the partner logos, if any image URLs return 404, fallback to rendering the brand name in a clean, bold, uppercase sans-serif text (e.g., <span className='font-black text-xl tracking-widest text-gray-400'>DECATHLON</span>). Do NOT use generic image placeholders.",
+    "Maintain high contrast. The site must feel like an ultra-premium, modern medical facility. Do not use generic Vercel/Stripe 'SaaS' looks.",
+    "Use pure HTML/Tailwind for the marketing layout, avoiding rigid generic UI library cards. Build the bento grid manually with divs.",
+    "Ensure the hero image uses the provided URL and spans elegantly, with text highly readable via gradient overlays or split-screen.",
+    "Add hover animations to interactive elements explicitly.",
+    "Include a strong dark footer to cap the visual experience."
   ]
 }
