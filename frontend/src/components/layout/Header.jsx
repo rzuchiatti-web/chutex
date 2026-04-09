@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
-import { Menu, X, Search, ShoppingBag, User, ChevronDown } from 'lucide-react'
+import { Menu, X, Search, ShoppingCart, User, ChevronDown } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useI18n } from '../../i18n/I18nContext'
 import SearchOverlay from '../SearchOverlay'
@@ -66,7 +66,7 @@ export default function Header() {
       data-testid="main-header"
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
         scrolled
-          ? 'bg-white/70 backdrop-blur-2xl shadow-[0_1px_0_0_rgba(0,0,0,0.06)]'
+          ? 'backdrop-blur-2xl bg-white/40'
           : 'bg-transparent'
       }`}
     >
@@ -145,20 +145,17 @@ export default function Header() {
               ))}
               <button data-testid="cart-icon" onClick={() => setCartOpen(true)}
                 className={`relative p-2.5 transition-all duration-500 ${txtBase} ${txtHover}`}>
-                <ShoppingBag size={19} strokeWidth={1.5} />
+                <ShoppingCart size={19} strokeWidth={1.5} />
                 <span className={`absolute -top-0.5 -right-0.5 w-4 h-4 text-[9px] font-bold rounded-full flex items-center justify-center transition-all duration-500 ${badgeBg}`}>{cartCount}</span>
               </button>
             </div>
           </motion.div>
-          <motion.div initial={{ scaleX: 0 }} animate={{ scaleX: 1 }}
-            transition={{ duration: 1, delay: 0.6, ease: [0.22, 1, 0.36, 1] }}
-            className={`mt-4 h-px origin-left transition-all duration-500 ${lineColor}`} />
         </div>
       </div>
 
       {/* MOBILE */}
       <div className={`flex lg:hidden items-center justify-between px-4 pt-4 pb-3 transition-all duration-500 ${
-        scrolled ? 'bg-white/70 backdrop-blur-2xl' : ''
+        scrolled ? 'backdrop-blur-2xl bg-white/40' : ''
       }`}>
         <motion.button initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.5, delay: 0.3 }}
           data-testid="mobile-menu-toggle" onClick={() => setMobileOpen(!mobileOpen)}
@@ -180,7 +177,7 @@ export default function Header() {
               ? 'bg-slate-900/5 border-slate-200/60 text-slate-800'
               : 'bg-white/10 border-white/20 text-white'
           }`}>
-          <ShoppingBag size={17} strokeWidth={1.5} />
+          <ShoppingCart size={17} strokeWidth={1.5} />
           <span className={`absolute -top-1 -right-1 w-4 h-4 text-[9px] font-bold rounded-full flex items-center justify-center transition-all duration-500 ${badgeBg}`}>{cartCount}</span>
         </motion.button>
       </div>
