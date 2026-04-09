@@ -125,8 +125,8 @@ const translations = {
       overline: 'Digital Prevention Clinic',
       title: 'Building a future where longevity, vitality, and health are driven by',
       titleHighlight: 'prevention.',
-      subtitle: "Chutex Care develops connected medical devices that anticipate risks, protect daily, and guide every individual towards a longer, healthier life.",
-      cta: 'Discover our solutions',
+      subtitle: "The connected health ecosystem, dedicated to your peace of mind and that of your loved ones.",
+      cta: 'Our solutions',
       ctaSecondary: 'Learn more',
     },
     logos: {
