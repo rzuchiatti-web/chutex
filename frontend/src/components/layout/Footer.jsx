@@ -99,7 +99,7 @@ export default function Footer() {
   ]
 
   return (
-    <footer data-testid="main-footer" className="relative overflow-hidden">
+    <footer data-testid="main-footer" className="relative overflow-hidden bg-[#FAFAFA]">
       {/* Background */}
       <div className="absolute inset-0">
         <img src={FOOTER_BG} alt="" className="w-full h-full object-cover" />
