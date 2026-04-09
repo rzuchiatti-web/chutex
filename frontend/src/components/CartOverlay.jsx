@@ -1,20 +1,18 @@
-import { X, Minus, Plus, Trash2, ArrowRight, ShoppingBag, Truck } from 'lucide-react'
+import { X, Minus, Plus, Trash2, ArrowRight, ShoppingBag, Check } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useCart } from '../cart/CartContext'
 import { useI18n } from '../i18n/I18nContext'
 
 function getDeliveryDate(lang) {
   const now = new Date()
-  let days = 3
   const d = new Date(now)
   let added = 0
-  while (added < days) {
+  while (added < 3) {
     d.setDate(d.getDate() + 1)
     if (d.getDay() === 0) continue
     added++
   }
-  const opts = { weekday: 'long', day: 'numeric', month: 'long' }
-  return d.toLocaleDateString(lang === 'fr' ? 'fr-FR' : 'en-US', opts)
+  return d.toLocaleDateString(lang === 'fr' ? 'fr-FR' : 'en-US', { weekday: 'long', day: 'numeric', month: 'long' })
 }
 
 const TEXTS = {
@@ -22,13 +20,13 @@ const TEXTS = {
     title: 'Votre panier', empty: 'Votre panier est vide',
     emptyDesc: 'Découvrez nos dispositifs de prévention.', back: "Retour à l'accueil",
     subtotal: 'Sous-total', shipping: 'Livraison', total: 'Total', checkout: 'Passer commande',
-    freeShipping: 'Livraison offerte', deliveryBy: 'Livraison estimée le',
+    freeShipping: 'Livraison offerte', freeLabel: 'Offerte', deliveryBy: 'Livraison estimée le',
   },
   en: {
     title: 'Your cart', empty: 'Your cart is empty',
     emptyDesc: 'Discover our prevention devices.', back: 'Back to home',
     subtotal: 'Subtotal', shipping: 'Shipping', total: 'Total', checkout: 'Checkout',
-    freeShipping: 'Free shipping', deliveryBy: 'Estimated delivery',
+    freeShipping: 'Free shipping included', freeLabel: 'Free', deliveryBy: 'Estimated delivery',
   },
 }
 
@@ -50,7 +48,6 @@ export default function CartOverlay({ isOpen, onClose }) {
               exit={{ opacity: 0, y: 20 }} transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
               className="w-full max-w-xl">
 
-              {/* Title + close */}
               <div className="flex items-center justify-between mb-10">
                 <div className="flex items-center gap-4">
                   <h2 className="text-white text-2xl font-semibold tracking-tight">{tx.title}</h2>
@@ -75,7 +72,6 @@ export default function CartOverlay({ isOpen, onClose }) {
                 </div>
               ) : (
                 <>
-                  {/* Items */}
                   <div className="border-t border-white/10">
                     {items.map((item) => (
                       <div key={item.id} className="flex gap-5 py-6 border-b border-white/10" data-testid={`cart-item-${item.id}`}>
@@ -107,26 +103,22 @@ export default function CartOverlay({ isOpen, onClose }) {
                     ))}
                   </div>
 
-                  {/* Free shipping badge */}
+                  {/* Free shipping — premium animated banner */}
                   <div className="py-6 border-b border-white/10">
-                    <div className="flex items-center gap-4">
+                    <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-emerald-500/10 via-emerald-400/5 to-transparent border border-emerald-500/15 px-5 py-4">
                       <motion.div
-                        animate={{ x: [0, 6, 0] }}
-                        transition={{ duration: 2.5, repeat: Infinity, ease: 'easeInOut' }}
-                        className="w-10 h-10 rounded-full bg-white/[0.06] border border-white/10 flex items-center justify-center flex-shrink-0"
-                      >
-                        <Truck size={18} className="text-white/60" strokeWidth={1.5} />
-                      </motion.div>
-                      <div>
-                        <div className="flex items-center gap-2">
-                          <span className="text-white text-sm font-semibold">{tx.freeShipping}</span>
-                          <motion.span
-                            animate={{ opacity: [0.4, 1, 0.4] }}
-                            transition={{ duration: 2, repeat: Infinity }}
-                            className="inline-block w-1.5 h-1.5 rounded-full bg-emerald-400"
-                          />
+                        className="absolute inset-0 bg-gradient-to-r from-transparent via-emerald-400/10 to-transparent"
+                        animate={{ x: ['-100%', '200%'] }}
+                        transition={{ duration: 3, repeat: Infinity, ease: 'linear' }}
+                      />
+                      <div className="relative flex items-center gap-4">
+                        <div className="w-10 h-10 rounded-full bg-emerald-500/20 border border-emerald-500/20 flex items-center justify-center flex-shrink-0">
+                          <Check size={18} className="text-emerald-400" strokeWidth={2.5} />
                         </div>
-                        <p className="text-white/30 text-xs mt-0.5">{tx.deliveryBy} <span className="text-white/60">{deliveryDate}</span></p>
+                        <div>
+                          <p className="text-white text-sm font-semibold">{tx.freeShipping}</p>
+                          <p className="text-white/40 text-xs mt-0.5">{tx.deliveryBy} <span className="text-white/70 font-medium">{deliveryDate}</span></p>
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -139,7 +131,7 @@ export default function CartOverlay({ isOpen, onClose }) {
                     </div>
                     <div className="flex justify-between">
                       <span className="text-white/30 text-sm">{tx.shipping}</span>
-                      <span className="text-white/60 text-sm">0€</span>
+                      <span className="text-emerald-400 text-sm font-medium">{tx.freeLabel}</span>
                     </div>
                     <div className="border-t border-white/10 pt-5 flex justify-between items-baseline">
                       <span className="text-white text-base font-semibold">{tx.total}</span>
@@ -147,7 +139,6 @@ export default function CartOverlay({ isOpen, onClose }) {
                     </div>
                   </div>
 
-                  {/* Checkout */}
                   <button data-testid="cart-checkout"
                     className="group relative w-full py-4 rounded-full text-white text-[15px] font-semibold overflow-hidden transition-all duration-500 hover:shadow-[0_0_30px_rgba(255,255,255,0.1)]">
                     <span className="absolute inset-0 bg-white/10 backdrop-blur-xl border border-white/20 rounded-full group-hover:bg-white/[0.18] transition-all duration-500" />
