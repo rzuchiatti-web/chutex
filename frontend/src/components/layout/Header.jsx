@@ -30,11 +30,12 @@ export default function Header() {
   const currentFlag = LANGS.find(l => l.code === lang)?.flag || LANGS[0].flag
 
   const navLinks = [
-    { label: t('nav.elio'), href: '#products' },
-    { label: t('nav.elder'), href: '#products' },
-    { label: t('nav.vita'), href: '#products' },
-    { label: t('nav.teleassistance'), href: '#' },
-    { label: t('nav.partners'), href: '#' },
+    { label: t('nav.elio'), href: '/produits/elio' },
+    { label: t('nav.vita'), href: '/produits/vita' },
+    { label: t('nav.elder'), href: '/produits/elder' },
+    { label: t('nav.teleassistance'), href: '/teleassistance' },
+    { label: t('nav.accessories'), href: '/produits/accessoires' },
+    { label: t('nav.app'), href: '/application' },
   ]
 
   return (
@@ -61,7 +62,7 @@ export default function Header() {
                   initial={{ opacity: 0, y: -8 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.4, delay: 0.4 + i * 0.05 }}
-                  className="relative text-[13px] font-medium px-5 py-2 text-white/80 transition-all duration-400 hover:text-white group whitespace-nowrap">
+                  className="relative text-[12px] font-medium px-3.5 py-2 text-white/80 transition-all duration-400 hover:text-white group whitespace-nowrap">
                   {link.label}
                   <span className="absolute -bottom-0.5 left-1/2 -translate-x-1/2 h-px w-0 group-hover:w-full bg-gradient-to-r from-transparent via-white/60 to-transparent transition-all duration-500" />
                 </motion.a>
@@ -140,8 +141,7 @@ export default function Header() {
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
             className="fixed inset-0 z-[90] lg:hidden">
             <div className="absolute inset-0 bg-black/50 backdrop-blur-2xl" onClick={() => setMobileOpen(false)} />
-            <div className="relative px-6 pt-6 h-full flex flex-col">
-              {/* Top: logo left + close right */}
+            <div className="relative px-6 pt-6 h-full flex flex-col overflow-y-auto">
               <div className="flex items-center justify-between mb-10">
                 <img src="/images/logo_white.png" alt="Chutex Care" className="h-14 w-auto brightness-0 invert" />
                 <button onClick={() => setMobileOpen(false)}
@@ -150,7 +150,6 @@ export default function Header() {
                 </button>
               </div>
 
-              {/* Nav links */}
               <div className="space-y-0 mb-8">
                 {navLinks.map((link, i) => (
                   <motion.a key={link.label} href={link.href}
@@ -163,7 +162,6 @@ export default function Header() {
                 ))}
               </div>
 
-              {/* 3 round buttons: Search, Account, Language */}
               <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}
                 className="flex items-center justify-center gap-4">
                 <button onClick={() => { setMobileOpen(false); setTimeout(() => setSearchOpen(true), 200) }}
@@ -183,7 +181,6 @@ export default function Header() {
                 </button>
               </motion.div>
 
-              {/* Language list */}
               <AnimatePresence>
                 {mobileLangOpen && (
                   <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }}
