@@ -232,8 +232,9 @@ export default function Footer() {
         <div className="max-w-[1780px] mx-auto px-6 md:px-12 lg:px-16 py-8">
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-8">
 
-            {/* Left: Contact + Socials */}
+            {/* Left: Logo + Contact + Socials */}
             <div>
+              <img src="/images/logo_white.png" alt="Chutex Care" className="h-10 w-auto mb-5 brightness-0 invert" data-testid="footer-logo" />
               <p className="text-[14px] text-white/50 mb-5">
                 {t('footer.contactUs')}{' '}
                 <a

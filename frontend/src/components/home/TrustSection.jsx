@@ -89,15 +89,15 @@ function ReviewCard({ review, lang }) {
 
 function SectionTitle({ overline, title }) {
   return (
-    <div className="mb-12 md:mb-14">
-      <div className="flex items-center gap-4 mb-5">
-        <div className="h-px w-8 bg-slate-300" />
+    <div className="mb-12 md:mb-14 text-center">
+      <div className="flex items-center justify-center gap-4 mb-5">
+        <div className="h-px w-12 bg-slate-300" />
         <p className="text-[11px] font-semibold uppercase tracking-[0.25em] text-slate-400">
           {overline}
         </p>
-        <div className="h-px flex-1 bg-slate-200/60" />
+        <div className="h-px w-12 bg-slate-300" />
       </div>
-      <h2 className="text-2xl md:text-[2rem] font-semibold text-slate-900 tracking-[-0.02em] leading-tight">
+      <h2 className="text-3xl md:text-4xl font-semibold text-slate-900 tracking-[-0.02em] leading-tight">
         {title}
       </h2>
     </div>

@@ -7,7 +7,6 @@ const AVATARS = [
   { src: 'https://static.prod-images.emergentagent.com/jobs/48e5eb31-c61a-4fb1-be42-94e61a127565/images/3439dd0836f467adcc8782ea08082082f3b3f90fffc81eb1e964b3d01bdb1c53.png', alt: 'Dr.' },
   { src: 'https://static.prod-images.emergentagent.com/jobs/48e5eb31-c61a-4fb1-be42-94e61a127565/images/e215d56ef9cb97f16ba7ae9f035a65d73ffc2325fb06520f0c3794cdd04bf265.png', alt: 'Dr.' },
   { src: 'https://static.prod-images.emergentagent.com/jobs/48e5eb31-c61a-4fb1-be42-94e61a127565/images/4b57083f0f23152c0cd8ba94fc8b689887adb285a808cbea99e2f9730cd5f279.png', alt: 'Dr.' },
-  { src: 'https://images.unsplash.com/photo-1594824476967-48c8b964273f?w=200&h=200&fit=crop&crop=faces', alt: 'Dr.' },
 ]
 
 const PARTNER_LOGOS = [
