@@ -138,11 +138,21 @@ export default function TrustSection() {
       {/* Partners */}
       <div className="mt-24 md:mt-32">
         <div>
-          <SectionTitle
-            overline={lang === 'fr' ? 'Partenaires' : 'Partners'}
-            title={lang === 'fr' ? 'Ils nous font confiance' : 'They trust us'}
-            subtitle={lang === 'fr' ? 'Disponible chez les distributeurs santé et sport en Europe.' : 'Available at health and sports distributors across Europe.'}
-          />
+          <div className="mb-12 md:mb-14 max-w-[1780px] mx-auto px-6 md:px-12 text-center">
+            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-slate-100 mb-5">
+              <div className="w-1.5 h-1.5 rounded-full bg-slate-900/40" />
+              <p className="text-[10px] font-medium uppercase tracking-[0.15em] text-slate-500">
+                {lang === 'fr' ? 'Partenaires' : 'Partners'}
+              </p>
+            </div>
+            <h2 className="text-3xl md:text-4xl text-slate-900 tracking-[-0.025em] leading-tight font-semibold mb-3">
+              {lang === 'fr' ? 'Ils nous font confiance' : 'They trust us'}
+            </h2>
+            <p className="text-[15px] text-slate-400 leading-relaxed max-w-lg mx-auto">
+              {lang === 'fr' ? 'Disponible chez les distributeurs santé et sport en Europe.' : 'Available at health and sports distributors across Europe.'}
+            </p>
+            <div className="h-px w-full bg-slate-200 mt-8" />
+          </div>
         </div>
 
         {/* Logos marquee with fade edges */}
