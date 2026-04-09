@@ -4,6 +4,7 @@ import { Menu, X, Search, ShoppingBag, User, ChevronDown } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useI18n } from '../../i18n/I18nContext'
 import SearchOverlay from '../SearchOverlay'
+import AuthOverlay from '../AuthOverlay'
 
 const LANGS = [
   { code: 'fr', flag: 'https://flagcdn.com/24x18/fr.png', label: 'Français' },
@@ -20,6 +21,7 @@ export default function Header() {
   const [mobileOpen, setMobileOpen] = useState(false)
   const [langOpen, setLangOpen] = useState(false)
   const [searchOpen, setSearchOpen] = useState(false)
+  const [authOpen, setAuthOpen] = useState(false)
   const currentFlag = LANGS.find(l => l.code === lang)?.flag || LANGS[0].flag
 
   const navLinks = [
@@ -91,7 +93,7 @@ export default function Header() {
 
               <div className="w-px h-5 bg-white/20" />
 
-              {[{ icon: Search, tid: 'search-icon', action: () => setSearchOpen(true) }, { icon: User, tid: 'account-icon', action: null }].map(({ icon: Icon, tid, action }) => (
+              {[{ icon: Search, tid: 'search-icon', action: () => setSearchOpen(true) }, { icon: User, tid: 'account-icon', action: () => setAuthOpen(true) }].map(({ icon: Icon, tid, action }) => (
                 <button key={tid} data-testid={tid} onClick={action}
                   className="p-2.5 text-white/80 hover:text-white transition-all duration-300">
                   <Icon size={19} strokeWidth={1.5} />
@@ -153,6 +155,7 @@ export default function Header() {
       </AnimatePresence>
 
       <SearchOverlay isOpen={searchOpen} onClose={() => setSearchOpen(false)} />
+      <AuthOverlay isOpen={authOpen} onClose={() => setAuthOpen(false)} />
     </header>
   )
 }

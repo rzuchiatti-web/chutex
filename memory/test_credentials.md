@@ -1,13 +1,14 @@
 # Test Credentials - Chutex Care
 
 ## Website
-- Pas d'authentification requise pour le site marketing
 - URL Preview: https://premium-clinic-4.preview.emergentagent.com
+- Auth: Same accounts as mobile app (shared MongoDB)
 
-## Backend API (existant)
+## Test Accounts (App + Website shared)
+- Bénéficiaire: phone 0600000001 / email test@chutex.com / password testpass123
+- Gardien: phone 0600000002 / email gardien@chutex.com / password testpass123
+
+## Backend API
 - MongoDB: localhost:27017, DB: vitallink_db
 - Backend: port 8001
-
-## Comptes test (App Mobile - EN PAUSE)
-- Bénéficiaire: 0600000001 / testpass123
-- Gardien: 0600000002 / testpass123
+- Auth endpoints: POST /api/auth/login, POST /api/auth/register, GET /api/auth/me
