@@ -90,16 +90,13 @@ function ReviewCard({ review, lang }) {
 function SectionTitle({ overline, title }) {
   return (
     <div className="mb-12 md:mb-14 text-center">
-      <div className="flex items-center justify-center gap-4 mb-5">
-        <div className="h-px w-12 bg-slate-300" />
-        <p className="text-[11px] font-semibold uppercase tracking-[0.25em] text-slate-400">
-          {overline}
-        </p>
-        <div className="h-px w-12 bg-slate-300" />
-      </div>
-      <h2 className="text-3xl md:text-4xl font-semibold text-slate-900 tracking-[-0.02em] leading-tight">
+      <p className="text-[10px] font-semibold uppercase tracking-[0.3em] text-slate-400/70 mb-3">
+        {overline}
+      </p>
+      <h2 className="text-3xl md:text-4xl font-light text-slate-900 tracking-[-0.03em] leading-tight">
         {title}
       </h2>
+      <div className="mx-auto mt-5 w-10 h-[1.5px] bg-slate-900/20 rounded-full" />
     </div>
   )
 }
@@ -138,15 +135,13 @@ export default function TrustSection() {
           />
         </div>
 
-        {/* Logos marquee with fade edges — contained width */}
-        <div className="max-w-5xl mx-auto relative">
-          {/* Left fade */}
-          <div className="absolute left-0 top-0 bottom-0 w-24 md:w-40 bg-gradient-to-r from-white to-transparent z-10 pointer-events-none" />
-          {/* Right fade */}
-          <div className="absolute right-0 top-0 bottom-0 w-24 md:w-40 bg-gradient-to-l from-white to-transparent z-10 pointer-events-none" />
+        {/* Logos marquee with fade edges */}
+        <div className="max-w-7xl mx-auto relative">
+          <div className="absolute left-0 top-0 bottom-0 w-20 md:w-32 bg-gradient-to-r from-white to-transparent z-10 pointer-events-none" />
+          <div className="absolute right-0 top-0 bottom-0 w-20 md:w-32 bg-gradient-to-l from-white to-transparent z-10 pointer-events-none" />
 
           <div className="overflow-hidden">
-            <div className="flex items-center gap-20 md:gap-28 animate-marquee-logos">
+            <div className="flex items-center gap-12 md:gap-16 animate-marquee-logos">
               {logosRepeated.map((logo, i) => (
                 <img
                   key={i}
