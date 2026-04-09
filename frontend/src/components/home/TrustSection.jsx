@@ -62,25 +62,28 @@ const PARTNER_LOGOS = [
   { name: 'Identités', url: '/partners/identites.png' },
 ]
 
-function ReviewCard({ review, lang }) {
+function ReviewCard({ review, lang, mobile }) {
   const tx = review[lang] || review.fr
+  const sizeClass = mobile
+    ? 'w-[220px] h-[300px] rounded-xl'
+    : 'w-[280px] md:w-[320px] h-[420px] md:h-[480px] rounded-2xl'
   return (
-    <div className="flex-shrink-0 w-[280px] md:w-[320px] h-[420px] md:h-[480px] rounded-2xl overflow-hidden relative group" data-testid="review-card">
+    <div className={`flex-shrink-0 ${sizeClass} overflow-hidden relative group`} data-testid="review-card">
       <img src={review.image} alt={tx.name} className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
       {/* Top: stars only */}
-      <div className="absolute top-0 left-0 right-0 p-4 bg-gradient-to-b from-black/40 to-transparent">
+      <div className="absolute top-0 left-0 right-0 p-3 md:p-4 bg-gradient-to-b from-black/40 to-transparent">
         <div className="flex gap-0.5">
           {[1,2,3,4,5].map(i => (
-            <Star key={i} size={11} className="text-white fill-white" />
+            <Star key={i} size={mobile ? 9 : 11} className="text-white fill-white" />
           ))}
         </div>
       </div>
       {/* Bottom gradient with text */}
-      <div className="absolute bottom-0 left-0 right-0 p-5 bg-gradient-to-t from-black/80 via-black/50 to-transparent pt-24">
-        <p className="text-white/90 text-[13px] leading-[1.6] mb-4 line-clamp-3">"{tx.quote}"</p>
+      <div className={`absolute bottom-0 left-0 right-0 ${mobile ? 'p-3 pt-16' : 'p-5 pt-24'} bg-gradient-to-t from-black/80 via-black/50 to-transparent`}>
+        <p className={`text-white/90 ${mobile ? 'text-[11px] leading-[1.5] mb-2 line-clamp-2' : 'text-[13px] leading-[1.6] mb-4 line-clamp-3'}`}>"{tx.quote}"</p>
         <div>
-          <p className="text-white text-sm font-semibold">{tx.name}</p>
-          <p className="text-white/50 text-xs mt-0.5">{tx.role}</p>
+          <p className={`text-white font-semibold ${mobile ? 'text-xs' : 'text-sm'}`}>{tx.name}</p>
+          <p className={`text-white/50 mt-0.5 ${mobile ? 'text-[10px]' : 'text-xs'}`}>{tx.role}</p>
         </div>
       </div>
     </div>
@@ -126,12 +129,26 @@ export default function TrustSection() {
         />
       </div>
 
-      {/* Scrolling review cards */}
+      {/* Scrolling review cards — desktop: single row, mobile: two rows opposite */}
       <div className="relative">
-        <div className="flex gap-5 animate-marquee-reviews pl-6">
+        {/* Desktop: single row */}
+        <div className="hidden md:flex gap-5 animate-marquee-reviews pl-6">
           {doubled.map((review, i) => (
-            <ReviewCard key={i} review={review} lang={lang} />
+            <ReviewCard key={`d-${i}`} review={review} lang={lang} />
           ))}
+        </div>
+        {/* Mobile: two rows, opposite directions */}
+        <div className="md:hidden space-y-4">
+          <div className="flex gap-3 animate-marquee-reviews-mobile">
+            {doubled.map((review, i) => (
+              <ReviewCard key={`m1-${i}`} review={review} lang={lang} mobile />
+            ))}
+          </div>
+          <div className="flex gap-3 animate-marquee-reviews-mobile-reverse">
+            {[...doubled].reverse().map((review, i) => (
+              <ReviewCard key={`m2-${i}`} review={review} lang={lang} mobile />
+            ))}
+          </div>
         </div>
       </div>
 
@@ -161,7 +178,7 @@ export default function TrustSection() {
           <div className="absolute right-0 top-0 bottom-0 w-20 md:w-32 bg-gradient-to-l from-white to-transparent z-10 pointer-events-none" />
 
           <div className="overflow-hidden">
-            <div className="flex items-center gap-8 md:gap-16 animate-marquee-logos">
+            <div className="flex items-center gap-6 md:gap-16 animate-marquee-logos">
               {logosRepeated.map((logo, i) => (
                 <img
                   key={i}

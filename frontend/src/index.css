@@ -48,6 +48,26 @@ h1, h2, h3, h4, h5, h6 {
   animation-play-state: paused;
 }
 
+.animate-marquee-reviews-mobile {
+  animation: marquee-reviews 12s linear infinite;
+  touch-action: pan-x;
+}
+.animate-marquee-reviews-mobile:active {
+  animation-play-state: paused;
+}
+
+@keyframes marquee-reviews-reverse {
+  0% { transform: translateX(-50%); }
+  100% { transform: translateX(0); }
+}
+.animate-marquee-reviews-mobile-reverse {
+  animation: marquee-reviews-reverse 14s linear infinite;
+  touch-action: pan-x;
+}
+.animate-marquee-reviews-mobile-reverse:active {
+  animation-play-state: paused;
+}
+
 .animate-marquee-logos {
   animation: marquee-logos 14s linear infinite;
   touch-action: pan-x;
@@ -55,6 +75,12 @@ h1, h2, h3, h4, h5, h6 {
 .animate-marquee-logos:hover,
 .animate-marquee-logos:active {
   animation-play-state: paused;
+}
+
+@media (max-width: 767px) {
+  .animate-marquee-logos {
+    animation-duration: 8s;
+  }
 }
 
 @keyframes scan {
