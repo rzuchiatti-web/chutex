@@ -43,7 +43,7 @@ export default function Header() {
             <div className="flex items-center">
               <Link to="/" data-testid="header-logo" className="group">
                 <img src="/images/logo_white.png" alt="Chutex Care"
-                  className="h-11 w-auto brightness-0 invert transition-all duration-700 group-hover:opacity-70" />
+                  className="h-14 w-auto brightness-0 invert transition-all duration-700 group-hover:opacity-70" />
               </Link>
             </div>
 
@@ -134,7 +134,7 @@ export default function Header() {
         </motion.button>
         <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.2 }}>
           <Link to="/" data-testid="header-logo-mobile" className="absolute left-1/2 -translate-x-1/2">
-            <img src="/images/logo_white.png" alt="Chutex Care" className="h-10 w-auto brightness-0 invert" />
+            <img src="/images/logo_white.png" alt="Chutex Care" className="h-12 w-auto brightness-0 invert" />
           </Link>
         </motion.div>
         <motion.button

@@ -115,16 +115,16 @@ export default function Hero() {
             <div className="flex -space-x-2.5">
               {AVATARS.map((av, i) => (
                 <img key={i} src={av.src} alt={av.alt}
-                  className="w-12 h-12 md:w-14 md:h-14 rounded-full object-cover border-[2.5px] border-white/30 shadow-xl" />
+                  className="w-14 h-14 md:w-[68px] md:h-[68px] rounded-full object-cover border-[2.5px] border-white/30 shadow-xl" />
               ))}
             </div>
             <div className="flex flex-col gap-1.5">
               <div className="flex gap-[3px]">
                 {[1,2,3,4,5].map(i => (
-                  <Star key={i} size={14} className="text-emerald-400 fill-emerald-400" />
+                  <Star key={i} size={16} className="text-emerald-400 fill-emerald-400" />
                 ))}
               </div>
-              <span className="text-white/60 text-xs md:text-[13px] font-medium">{tx.rec}</span>
+              <span className="text-white/70 text-sm md:text-base font-semibold">{tx.rec}</span>
             </div>
           </motion.div>
 
@@ -133,7 +133,7 @@ export default function Hero() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 1, delay: 1.7 }}
-            className="max-w-xl overflow-hidden relative"
+            className="max-w-3xl overflow-hidden relative"
             style={{
               maskImage: 'linear-gradient(to right, transparent 0%, black 8%, black 92%, transparent 100%)',
               WebkitMaskImage: 'linear-gradient(to right, transparent 0%, black 8%, black 92%, transparent 100%)',
@@ -142,7 +142,7 @@ export default function Hero() {
             <div className="flex animate-marquee items-center gap-10">
               {[...PARTNER_LOGOS, ...PARTNER_LOGOS, ...PARTNER_LOGOS].map((logo, i) => (
                 <img key={`${logo.name}-${i}`} src={logo.url} alt={logo.name}
-                  className="h-4 md:h-5 w-auto object-contain mix-blend-screen opacity-70 flex-shrink-0" />
+                  className="h-5 md:h-7 w-auto object-contain mix-blend-screen opacity-70 flex-shrink-0" />
               ))}
             </div>
           </motion.div>
