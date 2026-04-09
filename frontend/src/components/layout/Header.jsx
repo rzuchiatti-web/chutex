@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import { Menu, X, Search, ShoppingBag, User, ChevronDown } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useI18n } from '../../i18n/I18nContext'
+import SearchOverlay from '../SearchOverlay'
 
 const LANGS = [
   { code: 'fr', flag: 'https://flagcdn.com/24x18/fr.png', label: 'Français' },
@@ -18,6 +19,7 @@ export default function Header() {
   const { t, lang, setLang, currency } = useI18n()
   const [mobileOpen, setMobileOpen] = useState(false)
   const [langOpen, setLangOpen] = useState(false)
+  const [searchOpen, setSearchOpen] = useState(false)
   const currentFlag = LANGS.find(l => l.code === lang)?.flag || LANGS[0].flag
 
   const navLinks = [
@@ -52,7 +54,7 @@ export default function Header() {
                   initial={{ opacity: 0, y: -8 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.4, delay: 0.4 + i * 0.05 }}
-                  className="relative text-[13px] font-medium px-3 py-2 text-white/80 transition-all duration-400 hover:text-white group whitespace-nowrap">
+                  className="relative text-[13px] font-medium px-5 py-2 text-white/80 transition-all duration-400 hover:text-white group whitespace-nowrap">
                   {link.label}
                   <span className="absolute -bottom-0.5 left-1/2 -translate-x-1/2 h-px w-0 group-hover:w-full bg-gradient-to-r from-transparent via-white/60 to-transparent transition-all duration-500" />
                 </motion.a>
@@ -89,8 +91,8 @@ export default function Header() {
 
               <div className="w-px h-5 bg-white/20" />
 
-              {[{ icon: Search, tid: 'search-icon' }, { icon: User, tid: 'account-icon' }].map(({ icon: Icon, tid }) => (
-                <button key={tid} data-testid={tid}
+              {[{ icon: Search, tid: 'search-icon', action: () => setSearchOpen(true) }, { icon: User, tid: 'account-icon', action: null }].map(({ icon: Icon, tid, action }) => (
+                <button key={tid} data-testid={tid} onClick={action}
                   className="p-2.5 text-white/80 hover:text-white transition-all duration-300">
                   <Icon size={19} strokeWidth={1.5} />
                 </button>
@@ -149,6 +151,8 @@ export default function Header() {
           </motion.div>
         )}
       </AnimatePresence>
+
+      <SearchOverlay isOpen={searchOpen} onClose={() => setSearchOpen(false)} />
     </header>
   )
 }

@@ -114,24 +114,6 @@ export default function Hero() {
               <span className="text-white text-sm md:text-base font-semibold">{tx.rec}</span>
             </div>
           </motion.div>
-
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 1, delay: 1.7 }}
-            className="w-full md:w-1/2 overflow-hidden relative"
-            style={{
-              maskImage: 'linear-gradient(to right, black 0%, black 85%, transparent 100%)',
-              WebkitMaskImage: 'linear-gradient(to right, black 0%, black 85%, transparent 100%)',
-            }}
-          >
-            <div className="flex animate-marquee items-center gap-12">
-              {[...PARTNER_LOGOS, ...PARTNER_LOGOS, ...PARTNER_LOGOS, ...PARTNER_LOGOS].map((logo, i) => (
-                <img key={`${logo.name}-${i}`} src={logo.url} alt={logo.name}
-                  className="h-7 md:h-9 w-auto object-contain mix-blend-screen opacity-80 flex-shrink-0" />
-              ))}
-            </div>
-          </motion.div>
         </div>
       </div>
     </section>
