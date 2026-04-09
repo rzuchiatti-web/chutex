@@ -23,6 +23,9 @@ const TITLES = {
     line1: 'Construire un avenir',
     line2: 'où la longévité, la vitalité et la santé',
     line3: 'sont portées par la prévention.',
+    mLine1: 'Construire un avenir où',
+    mLine2: 'la longévité, la vitalité et',
+    mLine3: 'la santé sont portées par la prévention.',
     subtitle1: "Un écosystème de santé connecté et intelligent,",
     subtitle2: "conçu pour anticiper, protéger et accompagner",
     subtitle3: "chaque instant de vie avec sérénité.",
@@ -33,6 +36,9 @@ const TITLES = {
     line1: 'Building a future',
     line2: 'where longevity, vitality, and health',
     line3: 'are driven by prevention.',
+    mLine1: 'Building a future where',
+    mLine2: 'longevity, vitality, and health',
+    mLine3: 'are driven by prevention.',
     subtitle1: "A connected and intelligent health ecosystem,",
     subtitle2: "designed to anticipate, protect and accompany",
     subtitle3: "every moment of life with peace of mind.",
@@ -59,11 +65,10 @@ export default function Hero() {
           initial={{ opacity: 0, y: 40 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 1.2, delay: 0.5, ease: [0.22, 1, 0.36, 1] }}
-          className="text-[15px] sm:text-xl md:text-[clamp(1.4rem,3.2vw,2.8rem)] font-semibold tracking-[-0.02em] leading-[1.25] text-white mb-6 md:mb-7 max-w-3xl"
+          className="font-semibold tracking-[-0.02em] leading-[1.25] text-white mb-6 md:mb-7 max-w-3xl"
         >
-          {tx.line1}<br />
-          {tx.line2}<br />
-          {tx.line3}
+          <span className="hidden md:block text-[clamp(1.4rem,3.2vw,2.8rem)]">{tx.line1}<br />{tx.line2}<br />{tx.line3}</span>
+          <span className="md:hidden text-[22px]">{tx.mLine1}<br />{tx.mLine2}<br />{tx.mLine3}</span>
         </motion.h1>
 
         <motion.p
