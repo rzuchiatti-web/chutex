@@ -87,39 +87,24 @@ function ReviewCard({ review, lang }) {
   )
 }
 
-function SectionTitle({ overline, title }) {
+function SectionTitle({ overline, title, subtitle }) {
   return (
-    <div className="mb-14 md:mb-16 max-w-[1780px] mx-auto px-6 md:px-12">
-      {/* Top construction line */}
-      <div className="flex items-center gap-0 mb-10">
-        <div className="h-px flex-1 bg-slate-200" />
-        <div className="h-2 w-px bg-slate-300" />
-        <div className="h-px w-8 bg-slate-300" />
-        <div className="h-2 w-px bg-slate-300" />
-        <div className="px-5">
-          <p className="text-[9px] font-mono font-medium uppercase tracking-[0.4em] text-slate-400">
-            {overline}
-          </p>
-        </div>
-        <div className="h-2 w-px bg-slate-300" />
-        <div className="h-px w-8 bg-slate-300" />
-        <div className="h-2 w-px bg-slate-300" />
-        <div className="h-px flex-1 bg-slate-200" />
+    <div className="mb-12 md:mb-14 max-w-[1780px] mx-auto px-6 md:px-12">
+      <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-slate-100 mb-5">
+        <div className="w-1.5 h-1.5 rounded-full bg-slate-900/40" />
+        <p className="text-[10px] font-medium uppercase tracking-[0.15em] text-slate-500">
+          {overline}
+        </p>
       </div>
-
-      {/* Title */}
-      <h2 className="text-center text-4xl md:text-5xl lg:text-[3.5rem] text-slate-900 tracking-[-0.035em] leading-[1.08]" style={{ fontWeight: 300 }}>
+      <h2 className="text-3xl md:text-4xl text-slate-900 tracking-[-0.025em] leading-tight font-semibold mb-3">
         {title}
       </h2>
-
-      {/* Bottom construction line */}
-      <div className="flex items-center justify-center gap-0 mt-10">
-        <div className="h-px w-12 bg-slate-200" />
-        <div className="h-1.5 w-px bg-slate-300" />
-        <div className="h-px w-3 bg-slate-300" />
-        <div className="h-1.5 w-px bg-slate-300" />
-        <div className="h-px w-12 bg-slate-200" />
-      </div>
+      {subtitle && (
+        <p className="text-[15px] text-slate-400 leading-relaxed max-w-lg">
+          {subtitle}
+        </p>
+      )}
+      <div className="h-px w-full bg-slate-200 mt-8" />
     </div>
   )
 }
@@ -137,6 +122,7 @@ export default function TrustSection() {
         <SectionTitle
           overline={lang === 'fr' ? 'Témoignages' : 'Testimonials'}
           title={lang === 'fr' ? 'La confiance de nos utilisateurs' : 'Trusted by our users'}
+          subtitle={lang === 'fr' ? 'Des milliers de familles nous font confiance au quotidien.' : 'Thousands of families trust us every day.'}
         />
       </div>
 
@@ -155,6 +141,7 @@ export default function TrustSection() {
           <SectionTitle
             overline={lang === 'fr' ? 'Partenaires' : 'Partners'}
             title={lang === 'fr' ? 'Ils nous font confiance' : 'They trust us'}
+            subtitle={lang === 'fr' ? 'Disponible chez les distributeurs santé et sport en Europe.' : 'Available at health and sports distributors across Europe.'}
           />
         </div>
 
