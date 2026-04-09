@@ -1,5 +1,6 @@
 import { useI18n } from '../../i18n/I18nContext'
 import { Star } from 'lucide-react'
+import Marquee from 'react-fast-marquee'
 
 const REVIEWS = [
   {
@@ -61,9 +62,6 @@ const PARTNER_LOGOS = [
   { name: 'Farmaline', url: '/partners/farmaline.png' },
   { name: 'Identités', url: '/partners/identites.png' },
 ]
-
-// Repeat logos enough to always exceed viewport width
-const LOGOS_SET = [...PARTNER_LOGOS, ...PARTNER_LOGOS, ...PARTNER_LOGOS]
 
 function ReviewCard({ review, lang, mobile }) {
   const tx = review[lang] || review.fr
