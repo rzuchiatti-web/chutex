@@ -62,6 +62,9 @@ const PARTNER_LOGOS = [
   { name: 'Identités', url: '/partners/identites.png' },
 ]
 
+// Repeat logos enough to always exceed viewport width
+const LOGOS_SET = [...PARTNER_LOGOS, ...PARTNER_LOGOS, ...PARTNER_LOGOS]
+
 function ReviewCard({ review, lang, mobile }) {
   const tx = review[lang] || review.fr
   const sizeClass = mobile
