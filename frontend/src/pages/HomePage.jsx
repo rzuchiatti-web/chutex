@@ -7,6 +7,7 @@ import Stats from '../components/home/Stats'
 import AppSection from '../components/home/AppSection'
 import Testimonials from '../components/home/Testimonials'
 import CTASection from '../components/home/CTASection'
+import TrustSection from '../components/home/TrustSection'
 
 export default function HomePage() {
   return (
@@ -20,6 +21,7 @@ export default function HomePage() {
       <AppSection />
       <Testimonials />
       <CTASection />
+      <TrustSection />
     </div>
   )
 }

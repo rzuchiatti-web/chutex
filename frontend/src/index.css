@@ -28,3 +28,27 @@ h1, h2, h3, h4, h5, h6 {
   background-color: #0055FF;
   color: white;
 }
+
+@keyframes marquee-reviews {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+@keyframes marquee-logos {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+.animate-marquee-reviews {
+  animation: marquee-reviews 40s linear infinite;
+}
+.animate-marquee-reviews:hover {
+  animation-play-state: paused;
+}
+
+.animate-marquee-logos {
+  animation: marquee-logos 25s linear infinite;
+}
+.animate-marquee-logos:hover {
+  animation-play-state: paused;
+}
