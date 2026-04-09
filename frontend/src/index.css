@@ -50,7 +50,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .animate-marquee-reviews {
-  animation: marquee-reviews 15s linear infinite;
+  animation: marquee-reviews 20s linear infinite;
   touch-action: pan-x;
 }
 .animate-marquee-reviews:hover,
@@ -59,7 +59,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .animate-marquee-mobile-right {
-  animation: marquee-right 8s linear infinite;
+  animation: marquee-right 12s linear infinite;
   touch-action: pan-x;
 }
 .animate-marquee-mobile-right:active {
@@ -67,7 +67,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .animate-marquee-mobile-left {
-  animation: marquee-left 9s linear infinite;
+  animation: marquee-left 13s linear infinite;
   touch-action: pan-x;
 }
 .animate-marquee-mobile-left:active {

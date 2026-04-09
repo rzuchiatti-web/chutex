@@ -197,16 +197,16 @@ export default function TrustSection() {
 
           <div className="overflow-hidden">
             <div className="flex w-max animate-marquee-logos">
-              <div className="flex items-center gap-6 md:gap-16 shrink-0 pr-6 md:pr-16">
+              <div className="flex items-center gap-8 md:gap-20 shrink-0 pr-8 md:pr-20">
                 {PARTNER_LOGOS.map((logo, i) => (
                   <img key={`la-${i}`} src={logo.url} alt={logo.name}
-                    className="h-10 md:h-14 w-auto flex-shrink-0 opacity-70 hover:opacity-100 transition-opacity duration-300" />
+                    className="h-12 md:h-16 w-auto flex-shrink-0 opacity-70 hover:opacity-100 transition-opacity duration-300" />
                 ))}
               </div>
-              <div className="flex items-center gap-6 md:gap-16 shrink-0 pr-6 md:pr-16">
+              <div className="flex items-center gap-8 md:gap-20 shrink-0 pr-8 md:pr-20">
                 {PARTNER_LOGOS.map((logo, i) => (
                   <img key={`lb-${i}`} src={logo.url} alt={logo.name}
-                    className="h-10 md:h-14 w-auto flex-shrink-0 opacity-70 hover:opacity-100 transition-opacity duration-300" />
+                    className="h-12 md:h-16 w-auto flex-shrink-0 opacity-70 hover:opacity-100 transition-opacity duration-300" />
                 ))}
               </div>
             </div>
