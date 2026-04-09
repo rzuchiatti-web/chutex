@@ -65,7 +65,7 @@ const PARTNER_LOGOS = [
 function ReviewCard({ review, lang, mobile }) {
   const tx = review[lang] || review.fr
   const sizeClass = mobile
-    ? 'w-[220px] h-[300px] rounded-xl'
+    ? 'w-[200px] h-[260px] rounded-xl'
     : 'w-[280px] md:w-[320px] h-[420px] md:h-[480px] rounded-2xl'
   return (
     <div className={`flex-shrink-0 ${sizeClass} overflow-hidden relative group`} data-testid="review-card">
@@ -115,8 +115,15 @@ function SectionTitle({ overline, title, subtitle }) {
 export default function TrustSection() {
   const { lang } = useI18n()
 
-  const doubled = [...REVIEWS, ...REVIEWS]
-  const logosRepeated = [...PARTNER_LOGOS, ...PARTNER_LOGOS, ...PARTNER_LOGOS, ...PARTNER_LOGOS]
+  // Desktop: all reviews doubled for seamless loop
+  const allDoubled = [...REVIEWS, ...REVIEWS, ...REVIEWS]
+  // Mobile: split into 2 groups of 5, each tripled for seamless loop
+  const row1Source = REVIEWS.slice(0, 5)
+  const row2Source = REVIEWS.slice(5, 10)
+  const mobileRow1 = [...row1Source, ...row1Source, ...row1Source, ...row1Source]
+  const mobileRow2 = [...row2Source, ...row2Source, ...row2Source, ...row2Source]
+  // Logos: lots of copies for seamless loop
+  const logosRepeated = [...PARTNER_LOGOS, ...PARTNER_LOGOS, ...PARTNER_LOGOS, ...PARTNER_LOGOS, ...PARTNER_LOGOS, ...PARTNER_LOGOS, ...PARTNER_LOGOS, ...PARTNER_LOGOS]
 
   return (
     <section data-testid="trust-section" className="py-20 md:py-28 overflow-hidden">
@@ -130,22 +137,22 @@ export default function TrustSection() {
       </div>
 
       {/* Scrolling review cards — desktop: single row, mobile: two rows opposite */}
-      <div className="relative">
+      <div className="relative overflow-hidden">
         {/* Desktop: single row */}
         <div className="hidden md:flex gap-5 animate-marquee-reviews pl-6">
-          {doubled.map((review, i) => (
+          {allDoubled.map((review, i) => (
             <ReviewCard key={`d-${i}`} review={review} lang={lang} />
           ))}
         </div>
-        {/* Mobile: two rows, opposite directions */}
-        <div className="md:hidden space-y-4">
+        {/* Mobile: two rows, opposite directions, 5 different each */}
+        <div className="md:hidden space-y-3">
           <div className="flex gap-3 animate-marquee-reviews-mobile">
-            {doubled.map((review, i) => (
+            {mobileRow1.map((review, i) => (
               <ReviewCard key={`m1-${i}`} review={review} lang={lang} mobile />
             ))}
           </div>
           <div className="flex gap-3 animate-marquee-reviews-mobile-reverse">
-            {[...doubled].reverse().map((review, i) => (
+            {mobileRow2.map((review, i) => (
               <ReviewCard key={`m2-${i}`} review={review} lang={lang} mobile />
             ))}
           </div>

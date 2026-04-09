@@ -31,16 +31,16 @@ h1, h2, h3, h4, h5, h6 {
 
 @keyframes marquee-reviews {
   0% { transform: translateX(0); }
-  100% { transform: translateX(-50%); }
+  100% { transform: translateX(-33.333%); }
 }
 
 @keyframes marquee-logos {
   0% { transform: translateX(0); }
-  100% { transform: translateX(-50%); }
+  100% { transform: translateX(-12.5%); }
 }
 
 .animate-marquee-reviews {
-  animation: marquee-reviews 22s linear infinite;
+  animation: marquee-reviews 18s linear infinite;
   touch-action: pan-x;
 }
 .animate-marquee-reviews:hover,
@@ -48,20 +48,24 @@ h1, h2, h3, h4, h5, h6 {
   animation-play-state: paused;
 }
 
+@keyframes marquee-mobile {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-25%); }
+}
 .animate-marquee-reviews-mobile {
-  animation: marquee-reviews 12s linear infinite;
+  animation: marquee-mobile 10s linear infinite;
   touch-action: pan-x;
 }
 .animate-marquee-reviews-mobile:active {
   animation-play-state: paused;
 }
 
-@keyframes marquee-reviews-reverse {
-  0% { transform: translateX(-50%); }
+@keyframes marquee-mobile-reverse {
+  0% { transform: translateX(-25%); }
   100% { transform: translateX(0); }
 }
 .animate-marquee-reviews-mobile-reverse {
-  animation: marquee-reviews-reverse 14s linear infinite;
+  animation: marquee-mobile-reverse 12s linear infinite;
   touch-action: pan-x;
 }
 .animate-marquee-reviews-mobile-reverse:active {
@@ -69,7 +73,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .animate-marquee-logos {
-  animation: marquee-logos 14s linear infinite;
+  animation: marquee-logos 6s linear infinite;
   touch-action: pan-x;
 }
 .animate-marquee-logos:hover,
@@ -79,7 +83,7 @@ h1, h2, h3, h4, h5, h6 {
 
 @media (max-width: 767px) {
   .animate-marquee-logos {
-    animation-duration: 8s;
+    animation-duration: 4s;
   }
 }
 
