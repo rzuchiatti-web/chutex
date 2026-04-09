@@ -5,6 +5,8 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { useI18n } from '../../i18n/I18nContext'
 import SearchOverlay from '../SearchOverlay'
 import AuthOverlay from '../AuthOverlay'
+import CartOverlay from '../CartOverlay'
+import { useCart } from '../../cart/CartContext'
 
 const LANGS = [
   { code: 'fr', flag: 'https://flagcdn.com/24x18/fr.png', label: 'Français' },
@@ -22,6 +24,8 @@ export default function Header() {
   const [langOpen, setLangOpen] = useState(false)
   const [searchOpen, setSearchOpen] = useState(false)
   const [authOpen, setAuthOpen] = useState(false)
+  const [cartOpen, setCartOpen] = useState(false)
+  const { count: cartCount } = useCart()
   const currentFlag = LANGS.find(l => l.code === lang)?.flag || LANGS[0].flag
 
   const navLinks = [
@@ -99,10 +103,10 @@ export default function Header() {
                   <Icon size={19} strokeWidth={1.5} />
                 </button>
               ))}
-              <button data-testid="cart-icon"
+              <button data-testid="cart-icon" onClick={() => setCartOpen(true)}
                 className="relative p-2.5 text-white/80 hover:text-white transition-all duration-300">
                 <ShoppingBag size={19} strokeWidth={1.5} />
-                <span className="absolute -top-0.5 -right-0.5 w-4 h-4 bg-white text-slate-900 text-[9px] font-bold rounded-full flex items-center justify-center">0</span>
+                <span className="absolute -top-0.5 -right-0.5 w-4 h-4 bg-white text-slate-900 text-[9px] font-bold rounded-full flex items-center justify-center">{cartCount}</span>
               </button>
             </div>
           </motion.div>
@@ -123,10 +127,10 @@ export default function Header() {
           <img src="/images/logo_white.png" alt="Chutex Care" className="h-12 w-auto brightness-0 invert" />
         </Link>
         <motion.button initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.5, delay: 0.3 }}
-          data-testid="cart-icon-mobile"
+          data-testid="cart-icon-mobile" onClick={() => setCartOpen(true)}
           className="relative w-11 h-11 rounded-full bg-white/10 backdrop-blur-xl border border-white/20 flex items-center justify-center text-white">
           <ShoppingBag size={17} strokeWidth={1.5} />
-          <span className="absolute -top-1 -right-1 w-4 h-4 bg-white text-slate-900 text-[9px] font-bold rounded-full flex items-center justify-center">0</span>
+          <span className="absolute -top-1 -right-1 w-4 h-4 bg-white text-slate-900 text-[9px] font-bold rounded-full flex items-center justify-center">{cartCount}</span>
         </motion.button>
       </div>
 
@@ -156,6 +160,7 @@ export default function Header() {
 
       <SearchOverlay isOpen={searchOpen} onClose={() => setSearchOpen(false)} />
       <AuthOverlay isOpen={authOpen} onClose={() => setAuthOpen(false)} />
+      <CartOverlay isOpen={cartOpen} onClose={() => setCartOpen(false)} />
     </header>
   )
 }
