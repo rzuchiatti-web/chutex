@@ -1,16 +1,14 @@
-# Chutex Care - Site Web + Tunnel de Vente - PRD
+# Chutex Care - PRD
 
 ## Vision
-Site web premium, clinique digital et médical, ultra optimisé à la conversion. Frontend custom React connecté au backend FastAPI existant + Shopify backend pour les commandes physiques.
+Site web premium "clinique digitale de prévention", ultra optimisé à la conversion. Frontend React (Vite) connecté au backend FastAPI existant + Shopify backend pour les commandes physiques.
 
 ## Architecture Technique
-- **Frontend** : React (même repo Emergent, port 3000 séparé ou intégré)
-- **Backend** : FastAPI existant (MongoDB, auth, Mollie)
+- **Frontend** : React (Vite) + Tailwind CSS + React Router + Framer Motion, port 3000
+- **Backend** : FastAPI existant (MongoDB, auth, Mollie), port 8001
 - **Shopify** : Backend commandes physiques via API Storefront
-  - Client ID : e1d16a76a2dc1f0856fec59cfacc75d5
-  - Secret : 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
-- **Paiement** : Shopify Checkout pour les produits physiques, Mollie pour les abonnements
-- **i18n** : Géolocalisation auto de la langue + monnaie locale, changement manuel possible
+- **i18n** : Géolocalisation auto (ipapi.co) + langue navigateur en fallback, FR/EN
+- **Design** : Swiss & High-Contrast (Archetype 4), fonts Outfit + Work Sans
 
 ## Offres Commerciales
 
@@ -23,49 +21,61 @@ Site web premium, clinique digital et médical, ultra optimisé à la conversion
 6. Câble de charge USB-C — 14.9€ TTC
 
 ### Abonnements (Mollie)
-7. Bracelet Elio Standard — 24.9€/mois ou 249€/an (sans engagement)
-8. Bracelet Elio Sport — 99€/mois (suivi coach sportif, sans engagement)
-9. Bracelet Elio Physio — 99€/mois (suivi kiné/ostéo, sans engagement)
-10. Téléassistance — 39.9€/mois + 50% crédit d'impôt (sans engagement)
+7. Bracelet Elio Standard — 24.9€/mois ou 249€/an
+8. Bracelet Elio Sport — 99€/mois
+9. Bracelet Elio Physio — 99€/mois
+10. Téléassistance — 39.9€/mois + 50% crédit d'impôt
 
 ## Pages du site
 
-### Pages principales
-1. **Accueil** — Hero, proposition de valeur, CTA, chiffres clés, témoignages
-2. **Bracelet Elio** — Présentation produit + abonnements (Standard/Sport/Physio) + CTA souscrire
-3. **Gilet Elder** — Présentation produit + CTA acheter
-4. **Balance Vita** — Présentation produit + CTA acheter
-5. **Téléassistance** — Présentation du service + CTA souscrire
-6. **L'application** — Présentation des fonctionnalités de l'app (dashboard, Nora IA, suivi santé, alertes)
-7. **Accessoires** — Socle, câbles, recharges airbag
-8. **Espace Pro** — Page pour les professionnels (Coach, Physio, SAAD)
+### FAIT - Page d'accueil
+- Hero section avec slogan + CTA
+- Barre logos magasins partenaires (Decathlon, RedCare, Quirumed, Castorama, Stadium, MediaMarkt, Reha Team, Hobbybox, Farmaline)
+- Grille bento produits (Elder, Elio, Vita) avec prix
+- Chiffres clés (0.08s, 36h, 50m, 10+ jours)
+- Section application (App Store + Google Play)
+- Témoignages (3 profils)
+- Section CTA finale
+- Footer dark complet (Produits, Entreprise, Légal, Réseaux sociaux)
+- Header glassmorphism sticky + sélecteur langue/devise
+- Responsive mobile-first
+- Animations scroll (Framer Motion)
+- i18n FR/EN avec géolocalisation auto
 
-### Pages partenaires
-9. **Devenir Coach partenaire** — Présentation + formulaire inscription
-10. **Devenir Physio partenaire** — Présentation + formulaire inscription
-11. **Devenir SAAD partenaire** — Présentation + formulaire inscription
+### À FAIRE - Pages principales
+1. **Bracelet Elio** — Landing page + abonnements (Standard/Sport/Physio)
+2. **Gilet Elder** — Landing page + CTA acheter
+3. **Balance Vita** — Landing page + CTA acheter
+4. **Téléassistance** — Présentation service + CTA souscrire
+5. **L'application** — Présentation fonctionnalités app
+6. **Accessoires** — Socle, câbles, recharges
+7. **Espace Pro** — Page professionnels
 
-### Tunnel de conversion
-12. **Souscription Elio** — Choix formule → Infos → Paiement Mollie
-13. **Souscription Téléassistance** — Choix → Infos bénéficiaire → Logement → Gardiens → Paiement Mollie
-14. **Achat produit** — Panier → Shopify Checkout
+### À FAIRE - Pages partenaires
+8. **Devenir Coach partenaire** — Formulaire inscription
+9. **Devenir Physio partenaire** — Formulaire inscription
+10. **Devenir SAAD partenaire** — Formulaire inscription
 
-### Pages utilitaires
-15. **Connexion** — Login unifié (bénéficiaire, gardien, coach, physio, SAAD)
-16. **Création de compte** — Par rôle
-17. **FAQ**
-18. **Mentions légales / CGV / CGU**
-19. **Contact**
+### À FAIRE - Tunnel de conversion
+11. **Souscription Elio** — Choix formule → Infos → Paiement Mollie
+12. **Souscription Téléassistance** — Choix → Infos → Paiement Mollie
+13. **Achat produit** — Panier → Shopify Checkout
 
-## Fonctionnalités techniques
-- Géolocalisation automatique → langue + monnaie locale
-- Changement manuel langue/monnaie
-- SEO optimisé (meta tags, structured data, sitemap)
-- Responsive (mobile-first)
-- Tracking conversion (analytics)
-- Connexion directe avec le backend existant (même API, même base users)
+### À FAIRE - Pages utilitaires
+14. **Connexion** — Login unifié
+15. **FAQ**
+16. **Mentions légales / CGV / CGU**
+17. **Contact**
+
+## Stack Technique
+- React 19 + Vite 6 + Tailwind CSS 3.4
+- React Router 7
+- Framer Motion 11
+- Lucide React (icônes)
+- i18n custom (Context API)
 
 ## Style
 - Premium, clinique digital, médical
-- Ultra optimisé conversion
-- Pas de fioritures, focus sur la clarté et la confiance
+- Couleurs : Primary #0055FF, BG #FAFAFA, Dark footer #0F172A
+- Typographie : Outfit (headings), Work Sans (body)
+- Pas de fioritures, focus clarté + confiance + conversion
