@@ -1,40 +1,85 @@
 import { motion } from 'framer-motion'
-import { ArrowUpRight } from 'lucide-react'
+import { ArrowRight } from 'lucide-react'
 import { useI18n } from '../../i18n/I18nContext'
 
 const PRODUCTS = [
   {
-    key: 'elder',
-    num: '01',
-    image: 'https://chutex-innovation.com/cdn/shop/files/chutex-elder-airbag-vest-made-in-france-front-side.png?v=1752931654&width=1200',
-    features: {
-      fr: ['Déclenchement en 0.08s', 'Protection dos, tête, bassin, hanches', 'Alerte chute automatique', 'Géolocalisation connectée', '36h d\'autonomie', 'Certification EPI Cat. II'],
-      en: ['0.08s deployment', 'Back, head, pelvis, hip protection', 'Automatic fall alert', 'Connected geolocation', '36h battery life', 'PPE Cat. II certified'],
-    },
-    quote: { fr: 'L\'alerte automatique en cas de chute nous a déjà sauvé une fois.', en: 'The automatic fall alert already saved us once.' },
-    quoteAuthor: 'Marie L.',
-  },
-  {
     key: 'elio',
-    num: '02',
     image: 'https://chutex-innovation.com/cdn/shop/files/elio_bracelet_health_connected_chutex_1.jpg?v=1760010576&width=1200',
-    features: {
-      fr: ['Suivi cardiaque continu', 'Température, SpO2, tension', 'Analyse du sommeil', 'Alertes préventives', '10 jours d\'autonomie', 'Étanche 50m'],
-      en: ['Continuous heart monitoring', 'Temperature, SpO2, blood pressure', 'Sleep analysis', 'Preventive alerts', '10 days battery', 'Waterproof 50m'],
+    href: '/produits/elio',
+    color: 'from-slate-900/90 via-slate-900/60',
+    fr: {
+      badge: 'Sans engagement',
+      name: 'Bracelet Elio',
+      type: 'Bracelet connecté',
+      price: '24.9€',
+      unit: '/mois',
+      desc: 'Suivi santé continu : fréquence cardiaque, température, sommeil, activité. Alertes préventives en temps réel.',
+      features: ['Suivi cardiaque', 'SpO2 & température', 'Analyse du sommeil', '10 jours d\'autonomie'],
+      cta: 'Découvrir Elio',
     },
-    quote: { fr: 'Mon médecin peut anticiper les problèmes avant qu\'ils ne surviennent.', en: 'My doctor can anticipate problems before they arise.' },
-    quoteAuthor: 'Jean-Pierre D.',
+    en: {
+      badge: 'No commitment',
+      name: 'Elio Bracelet',
+      type: 'Smart bracelet',
+      price: '€24.9',
+      unit: '/month',
+      desc: 'Continuous health monitoring: heart rate, temperature, sleep, activity. Real-time preventive alerts.',
+      features: ['Heart monitoring', 'SpO2 & temperature', 'Sleep analysis', '10 days battery'],
+      cta: 'Discover Elio',
+    },
   },
   {
     key: 'vita',
-    num: '03',
     image: 'https://static.prod-images.emergentagent.com/jobs/48e5eb31-c61a-4fb1-be42-94e61a127565/images/99cc1301d04c1c60a23347cfabdb0335b694b42162bb12541d38ea6638ebb23d.png',
-    features: {
-      fr: ['Composition corporelle complète', 'Poids, masse musculaire, graisse', 'Suivi hydratation', 'Métabolisme basal', 'Connexion app Chutex', 'Multi-profils famille'],
-      en: ['Complete body composition', 'Weight, muscle mass, fat', 'Hydration tracking', 'Basal metabolism', 'Chutex app connected', 'Multi-family profiles'],
+    href: '/produits/vita',
+    color: 'from-slate-900/90 via-slate-900/60',
+    fr: {
+      badge: 'Nouveau',
+      name: 'Balance Vita',
+      type: 'Balance connectée',
+      price: '229€',
+      unit: ' TTC',
+      desc: 'Analyse complète de la composition corporelle. Suivi du poids, masse musculaire, hydratation, métabolisme.',
+      features: ['Composition corporelle', 'Masse musculaire', 'Hydratation', 'Multi-profils'],
+      cta: 'Découvrir Vita',
     },
-    quote: { fr: 'La téléassistance Chutex a amélioré notre suivi.', en: 'Chutex teleassistance improved our follow-up.' },
-    quoteAuthor: 'Sophie M.',
+    en: {
+      badge: 'New',
+      name: 'Vita Scale',
+      type: 'Smart scale',
+      price: '€229',
+      unit: ' incl. tax',
+      desc: 'Complete body composition analysis. Weight, muscle mass, hydration, metabolism tracking.',
+      features: ['Body composition', 'Muscle mass', 'Hydration', 'Multi-profiles'],
+      cta: 'Discover Vita',
+    },
+  },
+  {
+    key: 'elder',
+    image: 'https://chutex-innovation.com/cdn/shop/files/chutex-elder-airbag-vest-made-in-france-front-side.png?v=1752931654&width=1200',
+    href: '/produits/elder',
+    color: 'from-slate-900/90 via-slate-900/60',
+    fr: {
+      badge: 'Made in France',
+      name: 'Gilet Elder',
+      type: 'Gilet airbag',
+      price: '879€',
+      unit: ' TTC',
+      desc: 'Protection vitale du dos, de la tête, du bassin et des hanches. Déclenchement automatique en 0.08s.',
+      features: ['Déclenchement 0.08s', 'Protection intégrale', 'Alerte chute auto', '36h d\'autonomie'],
+      cta: 'Découvrir Elder',
+    },
+    en: {
+      badge: 'Made in France',
+      name: 'Elder Vest',
+      type: 'Airbag vest',
+      price: '€879',
+      unit: ' incl. tax',
+      desc: 'Vital protection for the back, head, pelvis, and hips. Automatic deployment in 0.08s.',
+      features: ['0.08s deployment', 'Full protection', 'Auto fall alert', '36h battery'],
+      cta: 'Discover Elder',
+    },
   },
 ]
 
@@ -42,85 +87,83 @@ export default function Products() {
   const { t, lang } = useI18n()
 
   return (
-    <section id="products" data-testid="products-section" className="py-20 md:py-32 bg-white">
-      <div className="max-w-7xl mx-auto px-6 md:px-12">
-        <motion.p
-          initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }}
-          className="text-xs uppercase tracking-[0.2em] font-semibold text-slate-400 mb-3"
-        >{t('products.overline')}</motion.p>
-        <motion.h2
-          initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
-          className="font-heading text-3xl md:text-4xl lg:text-5xl font-light tracking-tight text-slate-900 mb-16 md:mb-24 max-w-2xl"
-        >
-          {t('products.title')} <span className="italic text-primary">{t('products.titleHighlight')}</span>
-        </motion.h2>
+    <section id="products" data-testid="products-section" className="py-20 md:py-28 bg-white">
+      <div className="max-w-[1780px] mx-auto px-6 md:px-12">
+        {/* Title */}
+        <div className="mb-12 md:mb-14">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-slate-100 mb-5">
+            <div className="w-1.5 h-1.5 rounded-full bg-slate-900/40" />
+            <p className="text-[10px] font-medium uppercase tracking-[0.15em] text-slate-500">
+              {t('products.overline')}
+            </p>
+          </div>
+          <h2 className="text-3xl md:text-4xl text-slate-900 tracking-[-0.025em] leading-tight font-semibold mb-3">
+            {t('products.title')} {t('products.titleHighlight')}
+          </h2>
+          <div className="h-px w-full bg-slate-200 mt-8" />
+        </div>
 
-        <div className="space-y-20 md:space-y-32">
+        {/* Cards grid */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-5 md:gap-6">
           {PRODUCTS.map((product, idx) => {
-            const data = t(`products.${product.key}`)
-            const features = product.features[lang] || product.features.fr
-            const quote = product.quote[lang] || product.quote.fr
-            const isReversed = idx % 2 !== 0
-
+            const tx = product[lang] || product.fr
             return (
-              <motion.div
+              <motion.a
                 key={product.key}
-                data-testid={`product-${product.key}-card`}
-                initial={{ opacity: 0, y: 40 }}
+                href={product.href}
+                data-testid={`product-card-${product.key}`}
+                initial={{ opacity: 0, y: 30 }}
                 whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, margin: '-100px' }}
-                transition={{ duration: 0.8 }}
-                className={`grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16 items-center ${isReversed ? 'lg:[direction:rtl]' : ''}`}
+                viewport={{ once: true }}
+                transition={{ duration: 0.6, delay: idx * 0.1, ease: [0.22, 1, 0.36, 1] }}
+                className="group relative rounded-2xl md:rounded-3xl overflow-hidden bg-slate-100 h-[500px] md:h-[600px] lg:h-[680px] flex flex-col"
               >
-                <div className={isReversed ? 'lg:[direction:ltr]' : ''}>
-                  <div className="relative rounded-2xl overflow-hidden bg-slate-50 group">
-                    <img src={product.image} alt={data.name}
-                      className="w-full h-auto object-contain p-6 md:p-10 transition-transform duration-700 group-hover:scale-[1.03]" />
-                    <div className="absolute top-5 left-5">
-                      <span className="inline-flex items-center gap-1.5 bg-white/90 backdrop-blur-md rounded-full px-3 py-1.5 text-xs font-semibold text-primary border border-primary/10">
-                        {data.badge}
-                      </span>
-                    </div>
-                  </div>
+                {/* Product image */}
+                <div className="flex-1 relative overflow-hidden">
+                  <img
+                    src={product.image}
+                    alt={tx.name}
+                    className="absolute inset-0 w-full h-full object-contain p-8 md:p-10 transition-transform duration-700 group-hover:scale-105"
+                  />
                 </div>
 
-                <div className={isReversed ? 'lg:[direction:ltr]' : ''}>
-                  <div className="flex items-baseline gap-4 mb-4">
-                    <span className="font-heading text-6xl md:text-7xl font-extralight text-slate-200">{product.num}</span>
-                    <div>
-                      <h3 className="font-heading text-2xl md:text-3xl font-medium tracking-tight text-slate-900">{data.name}</h3>
-                      <p className="text-sm text-slate-400 font-medium">{data.type}</p>
+                {/* Top badge */}
+                <div className="absolute top-5 left-5">
+                  <span className="px-3 py-1 rounded-full text-[10px] font-semibold uppercase tracking-wider bg-white/90 text-slate-700 backdrop-blur-sm">
+                    {tx.badge}
+                  </span>
+                </div>
+
+                {/* Bottom info overlay */}
+                <div className="relative bg-slate-900 text-white p-6 md:p-7">
+                  {/* Type + Price row */}
+                  <div className="flex items-center justify-between mb-3">
+                    <p className="text-[11px] uppercase tracking-[0.15em] text-white/40">{tx.type}</p>
+                    <div className="flex items-baseline">
+                      <span className="text-xl font-bold">{tx.price}</span>
+                      <span className="text-xs text-white/40 ml-0.5">{tx.unit}</span>
                     </div>
                   </div>
 
-                  <p className="text-base text-slate-500 leading-relaxed mb-6">{data.desc}</p>
+                  {/* Name */}
+                  <h3 className="text-xl md:text-2xl font-semibold tracking-tight mb-2">{tx.name}</h3>
 
-                  <div className="grid grid-cols-2 gap-x-4 gap-y-2.5 mb-8">
-                    {features.map((feat, i) => (
-                      <div key={i} className="flex items-center gap-2">
-                        <div className="w-1 h-1 rounded-full bg-primary flex-shrink-0" />
-                        <span className="text-xs text-slate-500">{feat}</span>
-                      </div>
+                  {/* Features row */}
+                  <div className="flex flex-wrap gap-2 mb-4">
+                    {tx.features.map((f, i) => (
+                      <span key={i} className="text-[10px] px-2.5 py-1 rounded-full border border-white/15 text-white/50">
+                        {f}
+                      </span>
                     ))}
                   </div>
 
-                  <div className="flex items-end justify-between mb-6">
-                    <div>
-                      <span className="font-heading text-3xl md:text-4xl font-medium text-slate-900">{data.price}</span>
-                      <span className="text-sm text-slate-400 ml-1.5">{data.unit}</span>
-                    </div>
-                    <a href="#" className="group/btn inline-flex items-center gap-1.5 text-sm font-semibold text-primary hover:underline">
-                      {t('products.cta')}
-                      <ArrowUpRight size={15} strokeWidth={2} className="transition-transform group-hover/btn:translate-x-0.5 group-hover/btn:-translate-y-0.5" />
-                    </a>
-                  </div>
-
-                  <div className="border-t border-gray-100 pt-5">
-                    <p className="text-sm italic text-slate-400 leading-relaxed">"{quote}"</p>
-                    <p className="text-xs font-semibold text-slate-600 mt-2">{product.quoteAuthor}</p>
+                  {/* CTA */}
+                  <div className="flex items-center gap-2 text-white/70 group-hover:text-white transition-colors duration-300">
+                    <span className="text-sm font-medium">{tx.cta}</span>
+                    <ArrowRight size={14} strokeWidth={2} className="group-hover:translate-x-1 transition-transform duration-300" />
                   </div>
                 </div>
-              </motion.div>
+              </motion.a>
             )
           })}
         </div>
