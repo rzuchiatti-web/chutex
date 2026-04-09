@@ -12,7 +12,11 @@ function getDeliveryDate(lang) {
     if (d.getDay() === 0) continue
     added++
   }
-  return d.toLocaleDateString(lang === 'fr' ? 'fr-FR' : 'en-US', { weekday: 'long', day: 'numeric', month: 'long' })
+  const loc = lang === 'fr' ? 'fr-FR' : 'en-US'
+  const weekday = d.toLocaleDateString(loc, { weekday: 'long' })
+  const dayNum = d.getDate()
+  const month = d.toLocaleDateString(loc, { month: 'long' })
+  return { day: `${weekday} ${dayNum}`, rest: month }
 }
 
 const TEXTS = {
@@ -34,7 +38,9 @@ export default function CartOverlay({ isOpen, onClose }) {
   const { lang } = useI18n()
   const { items, removeItem, updateQuantity, total, count } = useCart()
   const tx = TEXTS[lang] || TEXTS.fr
-  const deliveryDate = getDeliveryDate(lang)
+  const delivery = getDeliveryDate(lang)
+  const deliveryDay = delivery.day
+  const deliveryRest = delivery.rest
 
   return (
     <AnimatePresence>
@@ -104,20 +110,26 @@ export default function CartOverlay({ isOpen, onClose }) {
                   </div>
 
                   {/* Free shipping — premium animated banner */}
-                  <div className="py-6 border-b border-white/10">
+                  <div className="py-5 border-b border-white/10">
                     <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-emerald-500/10 via-emerald-400/5 to-transparent border border-emerald-500/15 px-5 py-4">
                       <motion.div
                         className="absolute inset-0 bg-gradient-to-r from-transparent via-emerald-400/10 to-transparent"
                         animate={{ x: ['-100%', '200%'] }}
                         transition={{ duration: 3, repeat: Infinity, ease: 'linear' }}
                       />
-                      <div className="relative flex items-center gap-4">
-                        <div className="w-10 h-10 rounded-full bg-emerald-500/20 border border-emerald-500/20 flex items-center justify-center flex-shrink-0">
-                          <Check size={18} className="text-emerald-400" strokeWidth={2.5} />
+                      <div className="relative flex items-center justify-between">
+                        <div className="flex items-center gap-4">
+                          <div className="w-10 h-10 rounded-full bg-emerald-500/20 border border-emerald-500/20 flex items-center justify-center flex-shrink-0">
+                            <Check size={18} className="text-emerald-400" strokeWidth={2.5} />
+                          </div>
+                          <div>
+                            <p className="text-white text-sm font-semibold">{tx.freeShipping}</p>
+                            <p className="text-white/40 text-xs mt-0.5">{tx.deliveryBy}</p>
+                          </div>
                         </div>
-                        <div>
-                          <p className="text-white text-sm font-semibold">{tx.freeShipping}</p>
-                          <p className="text-white/40 text-xs mt-0.5">{tx.deliveryBy} <span className="text-white/70 font-medium">{deliveryDate}</span></p>
+                        <div className="text-right pl-4">
+                          <p className="text-white text-lg font-bold leading-tight">{deliveryDay}</p>
+                          <p className="text-white/50 text-xs">{deliveryRest}</p>
                         </div>
                       </div>
                     </div>
@@ -128,10 +140,6 @@ export default function CartOverlay({ isOpen, onClose }) {
                     <div className="flex justify-between">
                       <span className="text-white/30 text-sm">{tx.subtotal}</span>
                       <span className="text-white/60 text-sm">{total.toLocaleString()}€</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-white/30 text-sm">{tx.shipping}</span>
-                      <span className="text-emerald-400 text-sm font-medium">{tx.freeLabel}</span>
                     </div>
                     <div className="border-t border-white/10 pt-5 flex justify-between items-baseline">
                       <span className="text-white text-base font-semibold">{tx.total}</span>
