@@ -87,23 +87,44 @@ function ReviewCard({ review, lang }) {
   )
 }
 
-function SectionTitle({ overline, title }) {
+function SectionTitle({ overline, title, index = '01' }) {
   return (
-    <div className="mb-12 md:mb-14 text-center">
-      <div className="inline-flex flex-col items-center">
-        <div className="flex items-center gap-3 mb-6">
-          <div className="h-px w-16 bg-gradient-to-r from-transparent to-slate-300" />
-          <svg width="14" height="14" viewBox="0 0 14 14" fill="none" className="text-emerald-600/70">
-            <path d="M7 0v14M0 7h14" stroke="currentColor" strokeWidth="1.2" />
-          </svg>
-          <div className="h-px w-16 bg-gradient-to-l from-transparent to-slate-300" />
+    <div className="mb-14 md:mb-16">
+      <div className="flex items-start gap-6 md:gap-8 max-w-2xl mx-auto">
+        {/* Clinical index number */}
+        <div className="flex-shrink-0 pt-1">
+          <span className="text-[64px] md:text-[80px] font-extralight leading-none text-slate-200/70 tracking-tighter select-none" style={{ fontVariantNumeric: 'tabular-nums' }}>
+            {index}
+          </span>
         </div>
-        <p className="text-[10px] font-medium uppercase tracking-[0.35em] text-slate-400 mb-3">
-          {overline}
-        </p>
-        <h2 className="text-3xl md:text-4xl font-light text-slate-900 tracking-[-0.03em] leading-tight">
-          {title}
-        </h2>
+        {/* Content */}
+        <div className="pt-2">
+          {/* ECG pulse line + overline */}
+          <div className="flex items-center gap-3 mb-3">
+            <svg width="48" height="16" viewBox="0 0 48 16" fill="none" className="flex-shrink-0">
+              <path d="M0 8h12l3-6 4 12 3-6h8l2-4 3 8 2-4h11" stroke="url(#ecg-grad)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="animate-pulse" style={{ animationDuration: '2.5s' }} />
+              <defs>
+                <linearGradient id="ecg-grad" x1="0" y1="8" x2="48" y2="8">
+                  <stop stopColor="#10b981" stopOpacity="0.3" />
+                  <stop offset="0.5" stopColor="#10b981" />
+                  <stop offset="1" stopColor="#10b981" stopOpacity="0.3" />
+                </linearGradient>
+              </defs>
+            </svg>
+            <p className="text-[10px] font-mono font-medium uppercase tracking-[0.25em] text-emerald-600/60">
+              {overline}
+            </p>
+          </div>
+          {/* Title */}
+          <h2 className="text-2xl md:text-[2.2rem] font-normal text-slate-900 tracking-[-0.02em] leading-[1.2]">
+            {title}
+          </h2>
+          {/* Thin clinical bar */}
+          <div className="mt-4 flex items-center gap-2">
+            <div className="h-[2px] w-8 bg-emerald-500/50 rounded-full" />
+            <div className="h-[2px] w-3 bg-emerald-500/25 rounded-full" />
+          </div>
+        </div>
       </div>
     </div>
   )
@@ -122,6 +143,7 @@ export default function TrustSection() {
         <SectionTitle
           overline={lang === 'fr' ? 'Témoignages' : 'Testimonials'}
           title={lang === 'fr' ? 'La confiance de nos utilisateurs' : 'Trusted by our users'}
+          index="01"
         />
       </div>
 
@@ -140,6 +162,7 @@ export default function TrustSection() {
           <SectionTitle
             overline={lang === 'fr' ? 'Partenaires' : 'Partners'}
             title={lang === 'fr' ? 'Ils nous font confiance' : 'They trust us'}
+            index="02"
           />
         </div>
 
