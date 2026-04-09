@@ -46,13 +46,13 @@ export default function Header() {
               </Link>
             </div>
 
-            <nav className="flex justify-center items-center gap-1" data-testid="desktop-nav">
+            <nav className="flex justify-center items-center gap-0" data-testid="desktop-nav">
               {navLinks.map((link, i) => (
                 <motion.a key={link.label} href={link.href}
                   initial={{ opacity: 0, y: -8 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.4, delay: 0.4 + i * 0.05 }}
-                  className="relative text-[14px] font-medium px-4 py-2 text-white/80 transition-all duration-400 hover:text-white group">
+                  className="relative text-[13px] font-medium px-3 py-2 text-white/80 transition-all duration-400 hover:text-white group whitespace-nowrap">
                   {link.label}
                   <span className="absolute -bottom-0.5 left-1/2 -translate-x-1/2 h-px w-0 group-hover:w-full bg-gradient-to-r from-transparent via-white/60 to-transparent transition-all duration-500" />
                 </motion.a>

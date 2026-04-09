@@ -59,7 +59,7 @@ export default function Hero() {
           initial={{ opacity: 0, y: 40 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 1.2, delay: 0.5, ease: [0.22, 1, 0.36, 1] }}
-          className="text-[clamp(1.6rem,3.8vw,3.2rem)] font-semibold tracking-[-0.02em] leading-[1.25] text-white mb-7 max-w-3xl"
+          className="text-[clamp(1.4rem,3.2vw,2.8rem)] font-semibold tracking-[-0.02em] leading-[1.25] text-white mb-7 max-w-3xl"
         >
           {tx.line1}<br />
           {tx.line2}<br />
@@ -70,11 +70,9 @@ export default function Hero() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.9 }}
-          className="text-[14px] md:text-[15px] text-white/50 leading-[1.7] mb-9 max-w-lg"
+          className="text-[14px] md:text-[15px] text-white/50 leading-[1.7] mb-9 max-w-2xl"
         >
-          {tx.subtitle1}<br />
-          {tx.subtitle2}<br />
-          {tx.subtitle3}
+          {tx.subtitle1} {tx.subtitle2} {tx.subtitle3}
         </motion.p>
 
         <motion.div
