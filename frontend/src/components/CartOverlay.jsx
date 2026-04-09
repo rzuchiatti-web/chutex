@@ -128,20 +128,15 @@ export default function CartOverlay({ isOpen, onClose }) {
                           </div>
                         </div>
                         <div className="text-right pl-4">
-                          <p className="text-white text-lg font-bold leading-tight">{deliveryDay}</p>
-                          <p className="text-white/50 text-xs">{deliveryRest}</p>
+                          <p className="text-white text-lg font-bold leading-tight">{deliveryDay} {deliveryRest}</p>
                         </div>
                       </div>
                     </div>
                   </div>
 
-                  {/* Totals */}
-                  <div className="py-6 space-y-4">
-                    <div className="flex justify-between">
-                      <span className="text-white/30 text-sm">{tx.subtotal}</span>
-                      <span className="text-white/60 text-sm">{total.toLocaleString()}€</span>
-                    </div>
-                    <div className="border-t border-white/10 pt-5 flex justify-between items-baseline">
+                  {/* Total */}
+                  <div className="py-6">
+                    <div className="flex justify-between items-baseline">
                       <span className="text-white text-base font-semibold">{tx.total}</span>
                       <span className="text-white text-2xl font-bold">{total.toLocaleString()}€</span>
                     </div>
