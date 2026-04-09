@@ -59,7 +59,7 @@ export default function Hero() {
           initial={{ opacity: 0, y: 40 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 1.2, delay: 0.5, ease: [0.22, 1, 0.36, 1] }}
-          className="text-[clamp(1.4rem,3.2vw,2.8rem)] font-semibold tracking-[-0.02em] leading-[1.25] text-white mb-7 max-w-3xl"
+          className="text-[15px] sm:text-xl md:text-[clamp(1.4rem,3.2vw,2.8rem)] font-semibold tracking-[-0.02em] leading-[1.25] text-white mb-6 md:mb-7 max-w-3xl"
         >
           {tx.line1}<br />
           {tx.line2}<br />
@@ -81,7 +81,7 @@ export default function Hero() {
           transition={{ duration: 0.8, delay: 1.1 }}
         >
           <a href="#products" data-testid="hero-cta-button"
-            className="group relative inline-flex items-center gap-3 px-9 py-4 rounded-full text-[15px] font-semibold text-white overflow-hidden transition-all duration-700 hover:shadow-[0_0_40px_rgba(255,255,255,0.15)]">
+            className="group relative inline-flex items-center gap-2 md:gap-3 px-6 md:px-9 py-3 md:py-4 rounded-full text-[13px] md:text-[15px] font-semibold text-white overflow-hidden transition-all duration-700 hover:shadow-[0_0_40px_rgba(255,255,255,0.15)] whitespace-nowrap">
             <span className="absolute inset-0 bg-white/10 backdrop-blur-xl border border-white/25 rounded-full transition-all duration-700 group-hover:bg-white/[0.18] group-hover:border-white/35" />
             <span className="relative flex items-center gap-3">
               {tx.cta}
@@ -97,12 +97,12 @@ export default function Hero() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 1.4 }}
-            className="flex items-center gap-5 mb-6"
+            className="flex flex-col md:flex-row md:items-center gap-4 md:gap-5 mb-6"
           >
-            <div className="flex -space-x-3">
+            <div className="flex -space-x-2 md:-space-x-3">
               {AVATARS.map((av, i) => (
                 <img key={i} src={av.src} alt={av.alt}
-                  className="w-14 h-14 md:w-[72px] md:h-[72px] rounded-full object-cover border-[3px] border-white/30 shadow-xl" />
+                  className="w-11 h-11 md:w-[72px] md:h-[72px] rounded-full object-cover border-2 md:border-[3px] border-white/30 shadow-xl" />
               ))}
             </div>
             <div className="flex flex-col gap-1.5">
@@ -111,7 +111,7 @@ export default function Hero() {
                   <Star key={i} size={16} className="text-white fill-white" />
                 ))}
               </div>
-              <span className="text-white text-sm md:text-base font-semibold">{tx.rec}</span>
+              <span className="text-white text-xs md:text-base font-semibold leading-tight">{tx.rec}</span>
             </div>
           </motion.div>
         </div>

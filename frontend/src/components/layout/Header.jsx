@@ -143,7 +143,7 @@ export default function Header() {
             <div className="relative px-6 pt-6 h-full flex flex-col">
               {/* Top: logo left + close right */}
               <div className="flex items-center justify-between mb-10">
-                <img src="/images/logo_white.png" alt="Chutex Care" className="h-10 w-auto brightness-0 invert" />
+                <img src="/images/logo_white.png" alt="Chutex Care" className="h-14 w-auto brightness-0 invert" />
                 <button onClick={() => setMobileOpen(false)}
                   className="w-10 h-10 rounded-full bg-white/10 backdrop-blur-xl border border-white/15 flex items-center justify-center text-white/50 hover:text-white transition-all">
                   <X size={16} strokeWidth={1.5} />
