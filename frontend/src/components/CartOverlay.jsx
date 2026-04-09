@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react'
 import { X, Minus, Plus, Trash2, ArrowRight, ShoppingBag, Check } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useCart } from '../cart/CartContext'
@@ -42,17 +43,29 @@ export default function CartOverlay({ isOpen, onClose }) {
   const deliveryDay = delivery.day
   const deliveryRest = delivery.rest
 
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = 'hidden'
+    } else {
+      document.body.style.overflow = ''
+    }
+    return () => { document.body.style.overflow = '' }
+  }, [isOpen])
+
+  useEffect(() => {
+    const onKey = (e) => { if (e.key === 'Escape') onClose() }
+    if (isOpen) window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [isOpen, onClose])
+
   return (
     <AnimatePresence>
       {isOpen && (
-        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-          transition={{ duration: 0.3 }} className="fixed inset-0 z-[100]" data-testid="cart-overlay">
-          <div className="absolute inset-0 bg-black/50 backdrop-blur-2xl" onClick={onClose} />
-
-          <div className="relative flex items-start justify-center pt-[8vh] px-4">
+        <div className="fixed inset-0 z-[100] bg-black/60 backdrop-blur-3xl overflow-y-auto" data-testid="cart-overlay" onClick={onClose}>
+          <div className="flex items-start justify-center pt-[8vh] px-4 min-h-full pb-10">
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: 20 }} transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
-              className="w-full max-w-xl">
+              className="w-full max-w-xl" onClick={(e) => e.stopPropagation()}>
 
               <div className="flex items-center justify-between mb-10">
                 <div className="flex items-center gap-4">
@@ -158,7 +171,7 @@ export default function CartOverlay({ isOpen, onClose }) {
               </div>
             </motion.div>
           </div>
-        </motion.div>
+        </div>
       )}
     </AnimatePresence>
   )

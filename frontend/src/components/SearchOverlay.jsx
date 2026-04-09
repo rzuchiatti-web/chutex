@@ -72,25 +72,16 @@ export default function SearchOverlay({ isOpen, onClose }) {
   return (
     <AnimatePresence>
       {isOpen && (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          transition={{ duration: 0.3 }}
-          className="fixed inset-0 z-[100]"
-          data-testid="search-overlay"
-        >
-          {/* Blur background */}
-          <div className="absolute inset-0 bg-black/40 backdrop-blur-xl" onClick={onClose} />
+        <div className="fixed inset-0 z-[100] bg-black/60 backdrop-blur-3xl" data-testid="search-overlay" onClick={onClose}>
 
-          {/* Search container */}
-          <div className="relative flex items-start justify-center pt-[15vh] px-4">
+          <div className="flex items-start justify-center pt-[15vh] px-4">
             <motion.div
               initial={{ opacity: 0, y: -20, scale: 0.97 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: -20, scale: 0.97 }}
               transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
               className="w-full max-w-2xl"
+              onClick={(e) => e.stopPropagation()}
             >
               {/* Search input */}
               <div className="relative bg-white/10 backdrop-blur-2xl border border-white/20 rounded-2xl overflow-hidden shadow-2xl">
@@ -159,13 +150,12 @@ export default function SearchOverlay({ isOpen, onClose }) {
                 )}
               </div>
 
-              {/* Shortcut hint */}
               <div className="flex justify-center mt-4">
                 <span className="text-white/20 text-xs">ESC</span>
               </div>
             </motion.div>
           </div>
-        </motion.div>
+        </div>
       )}
     </AnimatePresence>
   )
