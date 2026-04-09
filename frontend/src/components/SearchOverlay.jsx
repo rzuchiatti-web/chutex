@@ -72,7 +72,7 @@ export default function SearchOverlay({ isOpen, onClose }) {
   return (
     <AnimatePresence>
       {isOpen && (
-        <div className="fixed inset-0 z-[100] bg-black/60 backdrop-blur-3xl" data-testid="search-overlay" onClick={onClose}>
+        <div className="fixed top-0 left-0 w-screen h-screen z-[100] bg-black/60 backdrop-blur-3xl" data-testid="search-overlay" onClick={onClose}>
 
           <div className="flex items-start justify-center pt-[15vh] px-4">
             <motion.div
