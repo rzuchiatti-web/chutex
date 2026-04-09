@@ -115,14 +115,6 @@ function SectionTitle({ overline, title, subtitle }) {
 export default function TrustSection() {
   const { lang } = useI18n()
 
-  // Seamless loop = exact duplicate, translateX(-50%)
-  const reviewsX2 = [...REVIEWS, ...REVIEWS]
-  const row1 = REVIEWS.slice(0, 5)
-  const row2 = REVIEWS.slice(5, 10)
-  const mobileRow1 = [...row1, ...row1]
-  const mobileRow2 = [...row2, ...row2]
-  const logosX2 = [...PARTNER_LOGOS, ...PARTNER_LOGOS]
-
   return (
     <section data-testid="trust-section" className="py-20 md:py-28 overflow-hidden">
       {/* Reviews */}
@@ -135,24 +127,45 @@ export default function TrustSection() {
       </div>
 
       {/* Scrolling review cards */}
-      <div className="relative overflow-hidden">
+      <div className="overflow-hidden">
         {/* Desktop */}
-        <div className="hidden md:flex gap-5 animate-marquee-reviews">
-          {reviewsX2.map((review, i) => (
-            <ReviewCard key={`d-${i}`} review={review} lang={lang} />
-          ))}
+        <div className="hidden md:flex w-max animate-marquee-reviews">
+          <div className="flex gap-5 shrink-0 pr-5">
+            {REVIEWS.map((review, i) => (
+              <ReviewCard key={`da-${i}`} review={review} lang={lang} />
+            ))}
+          </div>
+          <div className="flex gap-5 shrink-0 pr-5">
+            {REVIEWS.map((review, i) => (
+              <ReviewCard key={`db-${i}`} review={review} lang={lang} />
+            ))}
+          </div>
         </div>
         {/* Mobile: two rows opposite */}
         <div className="md:hidden space-y-3">
-          <div className="flex gap-3 animate-marquee-mobile-right">
-            {mobileRow1.map((review, i) => (
-              <ReviewCard key={`m1-${i}`} review={review} lang={lang} mobile />
-            ))}
+          <div className="flex w-max animate-marquee-mobile-right">
+            <div className="flex gap-3 shrink-0 pr-3">
+              {REVIEWS.slice(0, 5).map((review, i) => (
+                <ReviewCard key={`m1a-${i}`} review={review} lang={lang} mobile />
+              ))}
+            </div>
+            <div className="flex gap-3 shrink-0 pr-3">
+              {REVIEWS.slice(0, 5).map((review, i) => (
+                <ReviewCard key={`m1b-${i}`} review={review} lang={lang} mobile />
+              ))}
+            </div>
           </div>
-          <div className="flex gap-3 animate-marquee-mobile-left">
-            {mobileRow2.map((review, i) => (
-              <ReviewCard key={`m2-${i}`} review={review} lang={lang} mobile />
-            ))}
+          <div className="flex w-max animate-marquee-mobile-left">
+            <div className="flex gap-3 shrink-0 pr-3">
+              {REVIEWS.slice(5, 10).map((review, i) => (
+                <ReviewCard key={`m2a-${i}`} review={review} lang={lang} mobile />
+              ))}
+            </div>
+            <div className="flex gap-3 shrink-0 pr-3">
+              {REVIEWS.slice(5, 10).map((review, i) => (
+                <ReviewCard key={`m2b-${i}`} review={review} lang={lang} mobile />
+              ))}
+            </div>
           </div>
         </div>
       </div>
@@ -183,15 +196,19 @@ export default function TrustSection() {
           <div className="absolute right-0 top-0 bottom-0 w-20 md:w-32 bg-gradient-to-l from-white to-transparent z-10 pointer-events-none" />
 
           <div className="overflow-hidden">
-            <div className="flex items-center gap-6 md:gap-16 animate-marquee-logos">
-              {logosX2.map((logo, i) => (
-                <img
-                  key={i}
-                  src={logo.url}
-                  alt={logo.name}
-                  className="h-10 md:h-14 w-auto flex-shrink-0 opacity-70 hover:opacity-100 transition-opacity duration-300"
-                />
-              ))}
+            <div className="flex w-max animate-marquee-logos">
+              <div className="flex items-center gap-6 md:gap-16 shrink-0 pr-6 md:pr-16">
+                {PARTNER_LOGOS.map((logo, i) => (
+                  <img key={`la-${i}`} src={logo.url} alt={logo.name}
+                    className="h-10 md:h-14 w-auto flex-shrink-0 opacity-70 hover:opacity-100 transition-opacity duration-300" />
+                ))}
+              </div>
+              <div className="flex items-center gap-6 md:gap-16 shrink-0 pr-6 md:pr-16">
+                {PARTNER_LOGOS.map((logo, i) => (
+                  <img key={`lb-${i}`} src={logo.url} alt={logo.name}
+                    className="h-10 md:h-14 w-auto flex-shrink-0 opacity-70 hover:opacity-100 transition-opacity duration-300" />
+                ))}
+              </div>
             </div>
           </div>
         </div>
