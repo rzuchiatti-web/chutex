@@ -99,7 +99,7 @@ export default function Footer() {
   ]
 
   return (
-    <footer data-testid="main-footer" className="relative overflow-hidden bg-[#FAFAFA]">
+    <footer data-testid="main-footer" className="relative overflow-hidden bg-white">
       {/* Background */}
       <div className="absolute inset-0">
         <img src={FOOTER_BG} alt="" className="w-full h-full object-cover" />
@@ -109,7 +109,7 @@ export default function Footer() {
       {/* Curved separator */}
       <div className="relative z-10">
         <svg viewBox="0 0 1514 80" className="w-full block" preserveAspectRatio="none" style={{ marginBottom: '-1px' }}>
-          <path d="M0 80V0h1514v80C1514 80 1214 30 757 30S0 80 0 80Z" fill="#FAFAFA" />
+          <path d="M0 80V0h1514v80C1514 80 1214 30 757 30S0 80 0 80Z" fill="white" />
         </svg>
       </div>
 
