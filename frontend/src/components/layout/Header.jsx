@@ -29,92 +29,64 @@ export default function Header() {
     { label: t('nav.partners'), href: '#' },
   ]
 
+  const glassBase = scrolled
+    ? 'bg-slate-900/80 backdrop-blur-2xl border-white/10 shadow-2xl'
+    : 'bg-white/10 backdrop-blur-xl border-white/15'
+
   return (
-    <header data-testid="main-header" className="fixed top-0 left-0 right-0 z-50 px-4 md:px-8 pt-4 md:pt-5">
+    <header data-testid="main-header" className="fixed top-0 left-0 right-0 z-50">
+      {/* LOGO - centered, independent */}
+      <div className="absolute top-4 md:top-5 left-1/2 -translate-x-1/2 z-10">
+        <Link to="/" data-testid="header-logo">
+          <img src="/images/logo_white.png" alt="Chutex Care"
+            className="h-10 md:h-12 w-auto brightness-0 invert transition-transform duration-300 hover:scale-105" />
+        </Link>
+      </div>
+
       {/* DESKTOP */}
-      <div className="hidden lg:flex items-center justify-between">
-        <div className={`flex items-center gap-1 rounded-full px-4 py-2.5 border transition-all duration-500 ${
-          scrolled 
-            ? 'bg-slate-900/80 backdrop-blur-2xl border-white/10 shadow-2xl' 
-            : 'bg-white/10 backdrop-blur-xl border-white/15'
-        }`}>
-          <Link to="/" className="flex-shrink-0 mr-4" data-testid="header-logo">
-            <img src="/images/logo_white.png" alt="Chutex Care" className="h-9 w-auto brightness-0 invert" />
-          </Link>
+      <div className="hidden lg:flex items-center justify-between px-5 pt-4">
+        {/* LEFT - Nav pill */}
+        <div className={`flex items-center gap-0.5 rounded-full px-2 py-2 border transition-all duration-500 ${glassBase}`}>
           {navLinks.map((link) => (
-            <a
-              key={link.label}
-              href={link.href}
-              className={`relative font-body text-[13px] font-medium px-3.5 py-1.5 rounded-full transition-all duration-300 ${
-                scrolled
-                  ? 'text-white/70 hover:text-white hover:bg-white/10'
-                  : 'text-white/70 hover:text-white hover:bg-white/10'
-              }`}
-            >
-              {link.label}
+            <a key={link.label} href={link.href}
+              className="nav-link-hover relative font-body text-[13px] font-medium px-4 py-2 rounded-full text-white/70 hover:text-white transition-all duration-300 overflow-hidden group">
+              <span className="absolute inset-0 rounded-full bg-white/0 group-hover:bg-white/10 transition-all duration-500 scale-0 group-hover:scale-100 origin-center" />
+              <span className="relative">{link.label}</span>
             </a>
           ))}
         </div>
 
+        {/* RIGHT - Buttons */}
         <div className="flex items-center gap-2">
           <div className="relative">
-            <button
-              data-testid="lang-selector"
-              onClick={() => setLangOpen(!langOpen)}
-              className={`flex items-center gap-2 px-3.5 py-2.5 rounded-full border transition-all duration-500 ${
-                scrolled
-                  ? 'bg-slate-900/80 backdrop-blur-2xl border-white/10 text-white/80 shadow-2xl'
-                  : 'bg-white/10 backdrop-blur-xl border-white/15 text-white/80'
-              }`}
-            >
+            <button data-testid="lang-selector" onClick={() => setLangOpen(!langOpen)}
+              className={`flex items-center gap-2 px-3.5 py-2.5 rounded-full border transition-all duration-500 hover:scale-105 ${glassBase} text-white/80`}>
               <img src={FLAGS[lang]} alt={lang} className="w-[18px] h-auto rounded-[2px]" />
               <span className="text-xs font-semibold">{currency}</span>
               <ChevronDown size={11} strokeWidth={2.5} className={`transition-transform duration-200 ${langOpen ? 'rotate-180' : ''}`} />
             </button>
             {langOpen && (
-              <div className="absolute top-full right-0 mt-2 bg-white/95 backdrop-blur-2xl border border-gray-200/50 rounded-2xl shadow-2xl py-1.5 min-w-[150px] overflow-hidden">
+              <div className="absolute top-full right-0 mt-2 bg-white/95 backdrop-blur-2xl border border-gray-200/50 rounded-2xl shadow-2xl py-1.5 min-w-[150px]">
                 {Object.entries(FLAGS).map(([code, flag]) => (
-                  <button
-                    key={code}
-                    data-testid={`lang-option-${code}`}
+                  <button key={code} data-testid={`lang-option-${code}`}
                     onClick={() => { setLang(code); setLangOpen(false) }}
-                    className={`flex items-center gap-2.5 w-full text-left px-4 py-2 text-sm transition-all hover:bg-slate-50 ${
-                      lang === code ? 'text-primary font-semibold' : 'text-slate-600'
-                    }`}
-                  >
-                    <img src={flag} alt={code} className="w-[18px] h-auto rounded-[2px]" />
-                    {FLAG_LABELS[code]}
+                    className={`flex items-center gap-2.5 w-full text-left px-4 py-2 text-sm transition-all hover:bg-slate-50 ${lang === code ? 'text-primary font-semibold' : 'text-slate-600'}`}>
+                    <img src={flag} alt={code} className="w-[18px] h-auto rounded-[2px]" /> {FLAG_LABELS[code]}
                   </button>
                 ))}
               </div>
             )}
           </div>
 
-          {[
-            { icon: Search, testId: 'search-icon' },
-            { icon: User, testId: 'account-icon' },
-          ].map(({ icon: Icon, testId }) => (
-            <button
-              key={testId}
-              data-testid={testId}
-              className={`p-2.5 rounded-full border transition-all duration-500 hover:scale-105 ${
-                scrolled
-                  ? 'bg-slate-900/80 backdrop-blur-2xl border-white/10 text-white/70 hover:text-white shadow-2xl'
-                  : 'bg-white/10 backdrop-blur-xl border-white/15 text-white/70 hover:text-white'
-              }`}
-            >
+          {[{ icon: Search, tid: 'search-icon' }, { icon: User, tid: 'account-icon' }].map(({ icon: Icon, tid }) => (
+            <button key={tid} data-testid={tid}
+              className={`p-2.5 rounded-full border transition-all duration-500 hover:scale-110 hover:shadow-[0_0_15px_rgba(255,255,255,0.15)] ${glassBase} text-white/70 hover:text-white`}>
               <Icon size={17} strokeWidth={1.5} />
             </button>
           ))}
 
-          <button
-            data-testid="cart-icon"
-            className={`relative p-2.5 rounded-full border transition-all duration-500 hover:scale-105 ${
-              scrolled
-                ? 'bg-slate-900/80 backdrop-blur-2xl border-white/10 text-white/70 hover:text-white shadow-2xl'
-                : 'bg-white/10 backdrop-blur-xl border-white/15 text-white/70 hover:text-white'
-            }`}
-          >
+          <button data-testid="cart-icon"
+            className={`relative p-2.5 rounded-full border transition-all duration-500 hover:scale-110 hover:shadow-[0_0_15px_rgba(255,255,255,0.15)] ${glassBase} text-white/70 hover:text-white`}>
             <ShoppingBag size={17} strokeWidth={1.5} />
             <span className="absolute -top-1 -right-1 w-4 h-4 bg-primary text-white text-[9px] font-bold rounded-full flex items-center justify-center">0</span>
           </button>
@@ -122,23 +94,14 @@ export default function Header() {
       </div>
 
       {/* MOBILE */}
-      <div className="flex lg:hidden items-center justify-between">
-        <button
-          data-testid="mobile-menu-toggle"
-          onClick={() => setMobileOpen(!mobileOpen)}
-          className="w-11 h-11 rounded-full bg-white/10 backdrop-blur-xl border border-white/15 flex items-center justify-center text-white transition-all duration-300 hover:bg-white/20"
-        >
+      <div className="flex lg:hidden items-center justify-between px-4 pt-4">
+        <button data-testid="mobile-menu-toggle" onClick={() => setMobileOpen(!mobileOpen)}
+          className={`w-11 h-11 rounded-full border flex items-center justify-center text-white transition-all duration-300 hover:scale-105 ${glassBase}`}>
           {mobileOpen ? <X size={18} /> : <Menu size={18} />}
         </button>
 
-        <Link to="/" className="absolute left-1/2 -translate-x-1/2" data-testid="header-logo-mobile">
-          <img src="/images/logo_white.png" alt="Chutex Care" className="h-10 w-auto brightness-0 invert" />
-        </Link>
-
-        <button
-          data-testid="cart-icon-mobile"
-          className="relative w-11 h-11 rounded-full bg-white/10 backdrop-blur-xl border border-white/15 flex items-center justify-center text-white transition-all duration-300 hover:bg-white/20"
-        >
+        <button data-testid="cart-icon-mobile"
+          className={`relative w-11 h-11 rounded-full border flex items-center justify-center text-white transition-all duration-300 hover:scale-105 ${glassBase}`}>
           <ShoppingBag size={17} strokeWidth={1.5} />
           <span className="absolute -top-1 -right-1 w-4 h-4 bg-primary text-white text-[9px] font-bold rounded-full flex items-center justify-center">0</span>
         </button>
@@ -146,7 +109,7 @@ export default function Header() {
 
       {/* MOBILE MENU */}
       {mobileOpen && (
-        <div data-testid="mobile-menu" className="lg:hidden mt-3 bg-white/95 backdrop-blur-2xl rounded-2xl border border-gray-200/50 shadow-2xl overflow-hidden">
+        <div data-testid="mobile-menu" className="lg:hidden mx-4 mt-3 bg-white/95 backdrop-blur-2xl rounded-2xl border border-gray-200/50 shadow-2xl overflow-hidden">
           <div className="px-5 py-5 space-y-1">
             {navLinks.map((link) => (
               <a key={link.label} href={link.href} onClick={() => setMobileOpen(false)}
