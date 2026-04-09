@@ -52,7 +52,7 @@ export default function Hero() {
   const tx = TITLES[lang] || TITLES.fr
 
   return (
-    <section data-testid="hero-section" className="relative min-h-screen flex flex-col justify-between overflow-hidden">
+    <section data-testid="hero-section" className="relative h-screen flex flex-col justify-between overflow-hidden">
       <div className="absolute inset-0">
         <video autoPlay muted loop playsInline preload="auto" className="w-full h-full object-cover">
           <source src="https://cdn.prod.website-files.com/679d8b01c23ed7847fc5108f/681a5d6a393040f8a64f2175_topaz_hero-transcode.mp4" type="video/mp4" />
