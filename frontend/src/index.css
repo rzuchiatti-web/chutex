@@ -31,16 +31,26 @@ h1, h2, h3, h4, h5, h6 {
 
 @keyframes marquee-reviews {
   0% { transform: translateX(0); }
-  100% { transform: translateX(-33.333%); }
+  100% { transform: translateX(-50%); }
 }
 
 @keyframes marquee-logos {
   0% { transform: translateX(0); }
-  100% { transform: translateX(-12.5%); }
+  100% { transform: translateX(-50%); }
+}
+
+@keyframes marquee-right {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+@keyframes marquee-left {
+  0% { transform: translateX(-50%); }
+  100% { transform: translateX(0); }
 }
 
 .animate-marquee-reviews {
-  animation: marquee-reviews 18s linear infinite;
+  animation: marquee-reviews 15s linear infinite;
   touch-action: pan-x;
 }
 .animate-marquee-reviews:hover,
@@ -48,32 +58,24 @@ h1, h2, h3, h4, h5, h6 {
   animation-play-state: paused;
 }
 
-@keyframes marquee-mobile {
-  0% { transform: translateX(0); }
-  100% { transform: translateX(-25%); }
-}
-.animate-marquee-reviews-mobile {
-  animation: marquee-mobile 10s linear infinite;
+.animate-marquee-mobile-right {
+  animation: marquee-right 8s linear infinite;
   touch-action: pan-x;
 }
-.animate-marquee-reviews-mobile:active {
+.animate-marquee-mobile-right:active {
   animation-play-state: paused;
 }
 
-@keyframes marquee-mobile-reverse {
-  0% { transform: translateX(-25%); }
-  100% { transform: translateX(0); }
-}
-.animate-marquee-reviews-mobile-reverse {
-  animation: marquee-mobile-reverse 12s linear infinite;
+.animate-marquee-mobile-left {
+  animation: marquee-left 9s linear infinite;
   touch-action: pan-x;
 }
-.animate-marquee-reviews-mobile-reverse:active {
+.animate-marquee-mobile-left:active {
   animation-play-state: paused;
 }
 
 .animate-marquee-logos {
-  animation: marquee-logos 6s linear infinite;
+  animation: marquee-logos 8s linear infinite;
   touch-action: pan-x;
 }
 .animate-marquee-logos:hover,
@@ -83,7 +85,7 @@ h1, h2, h3, h4, h5, h6 {
 
 @media (max-width: 767px) {
   .animate-marquee-logos {
-    animation-duration: 4s;
+    animation-duration: 5s;
   }
 }
 

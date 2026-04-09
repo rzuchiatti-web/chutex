@@ -115,15 +115,13 @@ function SectionTitle({ overline, title, subtitle }) {
 export default function TrustSection() {
   const { lang } = useI18n()
 
-  // Desktop: all reviews doubled for seamless loop
-  const allDoubled = [...REVIEWS, ...REVIEWS, ...REVIEWS]
-  // Mobile: split into 2 groups of 5, each tripled for seamless loop
-  const row1Source = REVIEWS.slice(0, 5)
-  const row2Source = REVIEWS.slice(5, 10)
-  const mobileRow1 = [...row1Source, ...row1Source, ...row1Source, ...row1Source]
-  const mobileRow2 = [...row2Source, ...row2Source, ...row2Source, ...row2Source]
-  // Logos: lots of copies for seamless loop
-  const logosRepeated = [...PARTNER_LOGOS, ...PARTNER_LOGOS, ...PARTNER_LOGOS, ...PARTNER_LOGOS, ...PARTNER_LOGOS, ...PARTNER_LOGOS, ...PARTNER_LOGOS, ...PARTNER_LOGOS]
+  // Seamless loop = exact duplicate, translateX(-50%)
+  const reviewsX2 = [...REVIEWS, ...REVIEWS]
+  const row1 = REVIEWS.slice(0, 5)
+  const row2 = REVIEWS.slice(5, 10)
+  const mobileRow1 = [...row1, ...row1]
+  const mobileRow2 = [...row2, ...row2]
+  const logosX2 = [...PARTNER_LOGOS, ...PARTNER_LOGOS]
 
   return (
     <section data-testid="trust-section" className="py-20 md:py-28 overflow-hidden">
@@ -136,22 +134,22 @@ export default function TrustSection() {
         />
       </div>
 
-      {/* Scrolling review cards — desktop: single row, mobile: two rows opposite */}
+      {/* Scrolling review cards */}
       <div className="relative overflow-hidden">
-        {/* Desktop: single row */}
-        <div className="hidden md:flex gap-5 animate-marquee-reviews pl-6">
-          {allDoubled.map((review, i) => (
+        {/* Desktop */}
+        <div className="hidden md:flex gap-5 animate-marquee-reviews">
+          {reviewsX2.map((review, i) => (
             <ReviewCard key={`d-${i}`} review={review} lang={lang} />
           ))}
         </div>
-        {/* Mobile: two rows, opposite directions, 5 different each */}
+        {/* Mobile: two rows opposite */}
         <div className="md:hidden space-y-3">
-          <div className="flex gap-3 animate-marquee-reviews-mobile">
+          <div className="flex gap-3 animate-marquee-mobile-right">
             {mobileRow1.map((review, i) => (
               <ReviewCard key={`m1-${i}`} review={review} lang={lang} mobile />
             ))}
           </div>
-          <div className="flex gap-3 animate-marquee-reviews-mobile-reverse">
+          <div className="flex gap-3 animate-marquee-mobile-left">
             {mobileRow2.map((review, i) => (
               <ReviewCard key={`m2-${i}`} review={review} lang={lang} mobile />
             ))}
@@ -186,7 +184,7 @@ export default function TrustSection() {
 
           <div className="overflow-hidden">
             <div className="flex items-center gap-6 md:gap-16 animate-marquee-logos">
-              {logosRepeated.map((logo, i) => (
+              {logosX2.map((logo, i) => (
                 <img
                   key={i}
                   src={logo.url}
