@@ -90,41 +90,60 @@ function ReviewCard({ review, lang }) {
 function SectionTitle({ overline, title }) {
   return (
     <div className="mb-14 md:mb-16 flex justify-center">
-      <div className="relative px-10 md:px-16 py-8 md:py-10 max-w-2xl w-full">
-        {/* Corner brackets — medical scan frame */}
-        <div className="absolute top-0 left-0 w-6 h-6 border-t-[1.5px] border-l-[1.5px] border-emerald-500/40 rounded-tl-sm" />
-        <div className="absolute top-0 right-0 w-6 h-6 border-t-[1.5px] border-r-[1.5px] border-emerald-500/40 rounded-tr-sm" />
-        <div className="absolute bottom-0 left-0 w-6 h-6 border-b-[1.5px] border-l-[1.5px] border-emerald-500/40 rounded-bl-sm" />
-        <div className="absolute bottom-0 right-0 w-6 h-6 border-b-[1.5px] border-r-[1.5px] border-emerald-500/40 rounded-br-sm" />
+      <div className="relative px-10 md:px-20 py-10 md:py-12 max-w-3xl w-full">
+        {/* Corner brackets — dark clinical frame */}
+        <div className="absolute top-0 left-0 w-8 h-8 border-t border-l border-slate-900/20" />
+        <div className="absolute top-0 right-0 w-8 h-8 border-t border-r border-slate-900/20" />
+        <div className="absolute bottom-0 left-0 w-8 h-8 border-b border-l border-slate-900/20" />
+        <div className="absolute bottom-0 right-0 w-8 h-8 border-b border-r border-slate-900/20" />
 
-        {/* Scanning line animation */}
-        <div className="absolute inset-x-6 top-0 bottom-0 overflow-hidden pointer-events-none">
-          <div className="absolute left-0 right-0 h-px bg-gradient-to-r from-transparent via-emerald-400/30 to-transparent animate-scan" />
+        {/* Scanning line — dark */}
+        <div className="absolute inset-x-8 top-0 bottom-0 overflow-hidden pointer-events-none">
+          <div className="absolute left-0 right-0 h-px bg-gradient-to-r from-transparent via-slate-900/15 to-transparent animate-scan" />
         </div>
+
+        {/* Crosshair marks */}
+        <div className="absolute top-1/2 left-0 -translate-y-1/2 w-3 h-px bg-slate-900/15" />
+        <div className="absolute top-1/2 right-0 -translate-y-1/2 w-3 h-px bg-slate-900/15" />
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 h-3 w-px bg-slate-900/15" />
+        <div className="absolute bottom-0 left-1/2 -translate-x-1/2 h-3 w-px bg-slate-900/15" />
 
         {/* Content */}
         <div className="text-center relative">
-          {/* Status row */}
-          <div className="flex items-center justify-center gap-2.5 mb-5">
-            <span className="relative flex h-2 w-2">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-40" />
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
-            </span>
-            <p className="text-[10px] font-mono font-semibold uppercase tracking-[0.3em] text-slate-400">
+          {/* Status bar */}
+          <div className="flex items-center justify-center gap-3 mb-5">
+            <div className="flex items-center gap-1.5">
+              <span className="relative flex h-[6px] w-[6px]">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-slate-900/30 opacity-60" />
+                <span className="relative inline-flex rounded-full h-[6px] w-[6px] bg-slate-900/50" />
+              </span>
+              <div className="h-px w-6 bg-slate-900/10" />
+            </div>
+            <p className="text-[10px] font-mono font-semibold uppercase tracking-[0.35em] text-slate-500">
               {overline}
             </p>
-            <div className="flex gap-[3px] items-end h-3">
-              <div className="w-[2px] h-[40%] bg-emerald-500/30 rounded-full" />
-              <div className="w-[2px] h-[70%] bg-emerald-500/40 rounded-full" />
-              <div className="w-[2px] h-full bg-emerald-500/50 rounded-full" />
-              <div className="w-[2px] h-[55%] bg-emerald-500/35 rounded-full" />
-              <div className="w-[2px] h-[25%] bg-emerald-500/20 rounded-full" />
+            <div className="flex items-center gap-1.5">
+              <div className="h-px w-6 bg-slate-900/10" />
+              <div className="flex gap-[2px] items-end h-[10px]">
+                {[35, 65, 100, 80, 45, 25].map((h, i) => (
+                  <div key={i} className="w-[1.5px] rounded-full bg-slate-900/20" style={{ height: `${h}%` }} />
+                ))}
+              </div>
             </div>
           </div>
 
-          <h2 className="text-3xl md:text-4xl text-slate-900 tracking-[-0.025em] leading-tight" style={{ fontWeight: 380 }}>
+          <h2 className="text-3xl md:text-[2.6rem] text-slate-900 tracking-[-0.03em] leading-tight" style={{ fontWeight: 380 }}>
             {title}
           </h2>
+
+          {/* Bottom data line */}
+          <div className="flex items-center justify-center gap-2 mt-5">
+            <div className="h-[1.5px] w-5 bg-slate-900/15 rounded-full" />
+            <div className="h-[1.5px] w-2 bg-slate-900/10 rounded-full" />
+            <div className="w-1 h-1 rounded-full bg-slate-900/20" />
+            <div className="h-[1.5px] w-2 bg-slate-900/10 rounded-full" />
+            <div className="h-[1.5px] w-5 bg-slate-900/15 rounded-full" />
+          </div>
         </div>
       </div>
     </div>
