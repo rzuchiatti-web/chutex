@@ -90,42 +90,35 @@ function ReviewCard({ review, lang }) {
 function SectionTitle({ overline, title }) {
   return (
     <div className="mb-14 md:mb-16 max-w-[1780px] mx-auto px-6 md:px-12">
-      <div className="relative">
-        {/* Full-width thin line top */}
-        <div className="h-px w-full bg-slate-200 mb-8" />
-
-        {/* Layout: overline left | title right */}
-        <div className="flex flex-col md:flex-row md:items-end md:gap-16 lg:gap-24">
-          {/* Left column — overline + decorative */}
-          <div className="flex-shrink-0 md:w-48 lg:w-56 mb-4 md:mb-0">
-            <div className="flex items-center gap-3">
-              <div className="w-3 h-3 border border-slate-900/25 rounded-full flex items-center justify-center">
-                <div className="w-1 h-1 rounded-full bg-slate-900/40" />
-              </div>
-              <p className="text-[11px] font-mono font-medium uppercase tracking-[0.25em] text-slate-400">
-                {overline}
-              </p>
-            </div>
-            {/* Small tick marks */}
-            <div className="flex gap-[6px] mt-4 ml-1.5">
-              {[20, 14, 8, 5, 3].map((h, i) => (
-                <div key={i} className="w-px bg-slate-900/15" style={{ height: `${h}px` }} />
-              ))}
-            </div>
-          </div>
-
-          {/* Right column — title */}
-          <div className="flex-1">
-            <h2 className="text-4xl md:text-5xl lg:text-[3.5rem] text-slate-900 tracking-[-0.035em] leading-[1.08]" style={{ fontWeight: 300 }}>
-              {title}
-            </h2>
-          </div>
+      {/* Top construction line */}
+      <div className="flex items-center gap-0 mb-10">
+        <div className="h-px flex-1 bg-slate-200" />
+        <div className="h-2 w-px bg-slate-300" />
+        <div className="h-px w-8 bg-slate-300" />
+        <div className="h-2 w-px bg-slate-300" />
+        <div className="px-5">
+          <p className="text-[9px] font-mono font-medium uppercase tracking-[0.4em] text-slate-400">
+            {overline}
+          </p>
         </div>
+        <div className="h-2 w-px bg-slate-300" />
+        <div className="h-px w-8 bg-slate-300" />
+        <div className="h-2 w-px bg-slate-300" />
+        <div className="h-px flex-1 bg-slate-200" />
+      </div>
 
-        {/* Full-width thin line bottom */}
-        <div className="h-px w-full bg-slate-200 mt-8" />
-        {/* Accent short line below */}
-        <div className="h-px w-24 bg-slate-900/25 mt-[-1px]" />
+      {/* Title */}
+      <h2 className="text-center text-4xl md:text-5xl lg:text-[3.5rem] text-slate-900 tracking-[-0.035em] leading-[1.08]" style={{ fontWeight: 300 }}>
+        {title}
+      </h2>
+
+      {/* Bottom construction line */}
+      <div className="flex items-center justify-center gap-0 mt-10">
+        <div className="h-px w-12 bg-slate-200" />
+        <div className="h-1.5 w-px bg-slate-300" />
+        <div className="h-px w-3 bg-slate-300" />
+        <div className="h-1.5 w-px bg-slate-300" />
+        <div className="h-px w-12 bg-slate-200" />
       </div>
     </div>
   )
