@@ -1,40 +1,71 @@
-# Chutex Care - PRD
+# Chutex Care - Site Web + Tunnel de Vente - PRD
 
-## Problème Original
-Application de téléassistance et suivi santé connecté (bracelet Elio V8, balance Vita, gilet Elder). Pipeline BLE temps réel via bridge natif iOS. Zéro mock data.
+## Vision
+Site web premium, clinique digital et médical, ultra optimisé à la conversion. Frontend custom React connecté au backend FastAPI existant + Shopify backend pour les commandes physiques.
 
-## Architecture
-- Frontend: React Native / Expo (WebView iOS)
-- Backend: FastAPI + MongoDB
-- BLE: Bridge natif iOS (bleV8Bridge.ts)
-- IA: OpenAI GPT-5.2 via Emergent LLM Key (Nora)
-- i18n: I18nContext.tsx + medicalTranslations.ts + appTranslations.ts + expo-localization (7 langues)
+## Architecture Technique
+- **Frontend** : React (même repo Emergent, port 3000 séparé ou intégré)
+- **Backend** : FastAPI existant (MongoDB, auth, Mollie)
+- **Shopify** : Backend commandes physiques via API Storefront
+  - Client ID : e1d16a76a2dc1f0856fec59cfacc75d5
+  - Secret : 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
+- **Paiement** : Shopify Checkout pour les produits physiques, Mollie pour les abonnements
+- **i18n** : Géolocalisation auto de la langue + monnaie locale, changement manuel possible
 
-## Complété (Avril 2026)
+## Offres Commerciales
 
-### Système i18n — Couverture complète
-- 1352+ appels t(), ~950 clés × 7 langues = ~6650 traductions
-- 3 fichiers de traductions: I18nContext.tsx (~490), medicalTranslations.ts (~300), appTranslations.ts (~160)
-- 533+ remplacements bulk via scripts Python dans 70+ fichiers
-- GlassTabBar.tsx refactoré avec getTabConfigs(t) — tabs traduits dynamiquement
-- useI18n ajouté à 19+ composants
-- Détection automatique locale (expo-localization) + sélecteur 7 drapeaux
+### Produits physiques (Shopify Checkout)
+1. Gilet airbag Elder — 879€ TTC
+2. Balance Vita — 229€ TTC
+3. Recharge airbag lot de 2 — 119.8€ TTC
+4. Socle de recharge Elio (Bluetooth/4G) — 29.9€ TTC
+5. Câble de recharge Elder — 29.9€ TTC
+6. Câble de charge USB-C — 14.9€ TTC
 
-### Intégrations connectées (déjà opérationnelles)
-- Bracelet Elio V8 : BLE temps réel, vitals, sommeil, activité
-- Balance Vita : pesée 8 électrodes, composition corporelle
-- Gilet Elder : connexion BLE, détection chute airbag, posture, température thoracique
-- IA Nora : GPT-5.2, analyses santé, briefing matinal
+### Abonnements (Mollie)
+7. Bracelet Elio Standard — 24.9€/mois ou 249€/an (sans engagement)
+8. Bracelet Elio Sport — 99€/mois (suivi coach sportif, sans engagement)
+9. Bracelet Elio Physio — 99€/mois (suivi kiné/ostéo, sans engagement)
+10. Téléassistance — 39.9€/mois + 50% crédit d'impôt (sans engagement)
 
-### Historique
-- Accents français corrigés (120+ fichiers)
-- V6 → Elio, bouton latéral supprimé
-- Historique sommeil: 7 → 30 jours
+## Pages du site
 
-## Issues connues
-- Bracelet date BCD 2017 (hardware, TIME_SYNC inefficace)
+### Pages principales
+1. **Accueil** — Hero, proposition de valeur, CTA, chiffres clés, témoignages
+2. **Bracelet Elio** — Présentation produit + abonnements (Standard/Sport/Physio) + CTA souscrire
+3. **Gilet Elder** — Présentation produit + CTA acheter
+4. **Balance Vita** — Présentation produit + CTA acheter
+5. **Téléassistance** — Présentation du service + CTA souscrire
+6. **L'application** — Présentation des fonctionnalités de l'app (dashboard, Nora IA, suivi santé, alertes)
+7. **Accessoires** — Socle, câbles, recharges airbag
+8. **Espace Pro** — Page pour les professionnels (Coach, Physio, SAAD)
 
-## Backlog
-- P1 : Flux d'essai gratuit de 30 jours pour les bénéficiaires
-- P2 : Déploiement serveur TCP J2358
-- P2 : Intégration test urinaire Vivoo
+### Pages partenaires
+9. **Devenir Coach partenaire** — Présentation + formulaire inscription
+10. **Devenir Physio partenaire** — Présentation + formulaire inscription
+11. **Devenir SAAD partenaire** — Présentation + formulaire inscription
+
+### Tunnel de conversion
+12. **Souscription Elio** — Choix formule → Infos → Paiement Mollie
+13. **Souscription Téléassistance** — Choix → Infos bénéficiaire → Logement → Gardiens → Paiement Mollie
+14. **Achat produit** — Panier → Shopify Checkout
+
+### Pages utilitaires
+15. **Connexion** — Login unifié (bénéficiaire, gardien, coach, physio, SAAD)
+16. **Création de compte** — Par rôle
+17. **FAQ**
+18. **Mentions légales / CGV / CGU**
+19. **Contact**
+
+## Fonctionnalités techniques
+- Géolocalisation automatique → langue + monnaie locale
+- Changement manuel langue/monnaie
+- SEO optimisé (meta tags, structured data, sitemap)
+- Responsive (mobile-first)
+- Tracking conversion (analytics)
+- Connexion directe avec le backend existant (même API, même base users)
+
+## Style
+- Premium, clinique digital, médical
+- Ultra optimisé conversion
+- Pas de fioritures, focus sur la clarté et la confiance
