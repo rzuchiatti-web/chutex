@@ -90,15 +90,21 @@ function ReviewCard({ review, lang }) {
 function SectionTitle({ overline, title }) {
   return (
     <div className="mb-12 md:mb-14 text-center">
-      <div className="inline-flex items-center gap-3 mb-4 px-4 py-1.5 rounded-full border border-slate-200/80 bg-slate-50/50">
-        <div className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-        <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-slate-500">
+      <div className="inline-flex flex-col items-center">
+        <div className="flex items-center gap-3 mb-6">
+          <div className="h-px w-16 bg-gradient-to-r from-transparent to-slate-300" />
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none" className="text-emerald-600/70">
+            <path d="M7 0v14M0 7h14" stroke="currentColor" strokeWidth="1.2" />
+          </svg>
+          <div className="h-px w-16 bg-gradient-to-l from-transparent to-slate-300" />
+        </div>
+        <p className="text-[10px] font-medium uppercase tracking-[0.35em] text-slate-400 mb-3">
           {overline}
         </p>
+        <h2 className="text-3xl md:text-4xl font-light text-slate-900 tracking-[-0.03em] leading-tight">
+          {title}
+        </h2>
       </div>
-      <h2 className="block text-3xl md:text-4xl font-light text-slate-900 tracking-[-0.03em] leading-tight">
-        {title}
-      </h2>
     </div>
   )
 }
