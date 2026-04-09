@@ -90,13 +90,15 @@ function ReviewCard({ review, lang }) {
 function SectionTitle({ overline, title }) {
   return (
     <div className="mb-12 md:mb-14 text-center">
-      <p className="text-[10px] font-semibold uppercase tracking-[0.3em] text-slate-400/70 mb-3">
-        {overline}
-      </p>
-      <h2 className="text-3xl md:text-4xl font-light text-slate-900 tracking-[-0.03em] leading-tight">
+      <div className="inline-flex items-center gap-3 mb-4 px-4 py-1.5 rounded-full border border-slate-200/80 bg-slate-50/50">
+        <div className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+        <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-slate-500">
+          {overline}
+        </p>
+      </div>
+      <h2 className="block text-3xl md:text-4xl font-light text-slate-900 tracking-[-0.03em] leading-tight">
         {title}
       </h2>
-      <div className="mx-auto mt-5 w-10 h-[1.5px] bg-slate-900/20 rounded-full" />
     </div>
   )
 }
@@ -141,7 +143,7 @@ export default function TrustSection() {
           <div className="absolute right-0 top-0 bottom-0 w-20 md:w-32 bg-gradient-to-l from-white to-transparent z-10 pointer-events-none" />
 
           <div className="overflow-hidden">
-            <div className="flex items-center gap-12 md:gap-16 animate-marquee-logos">
+            <div className="flex items-center gap-8 md:gap-16 animate-marquee-logos">
               {logosRepeated.map((logo, i) => (
                 <img
                   key={i}

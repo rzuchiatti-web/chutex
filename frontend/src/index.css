@@ -40,15 +40,19 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .animate-marquee-reviews {
-  animation: marquee-reviews 40s linear infinite;
+  animation: marquee-reviews 22s linear infinite;
+  touch-action: pan-x;
 }
-.animate-marquee-reviews:hover {
+.animate-marquee-reviews:hover,
+.animate-marquee-reviews:active {
   animation-play-state: paused;
 }
 
 .animate-marquee-logos {
-  animation: marquee-logos 25s linear infinite;
+  animation: marquee-logos 14s linear infinite;
+  touch-action: pan-x;
 }
-.animate-marquee-logos:hover {
+.animate-marquee-logos:hover,
+.animate-marquee-logos:active {
   animation-play-state: paused;
 }
