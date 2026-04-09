@@ -90,24 +90,42 @@ function ReviewCard({ review, lang }) {
 function SectionTitle({ overline, title }) {
   return (
     <div className="mb-14 md:mb-16 max-w-[1780px] mx-auto px-6 md:px-12">
-      <div className="relative pl-8 md:pl-10 border-l-[2px] border-slate-900/10">
-        {/* Accent notch on the vertical line */}
-        <div className="absolute left-[-1px] top-0 w-[2px] h-8 bg-slate-900/60" />
-        <div className="absolute left-[-1px] top-10 w-[2px] h-1 bg-slate-900/30" />
-        <div className="absolute left-[-1px] top-12 w-[2px] h-1 bg-slate-900/15" />
+      <div className="relative">
+        {/* Full-width thin line top */}
+        <div className="h-px w-full bg-slate-200 mb-8" />
 
-        <p className="text-[10px] font-mono font-semibold uppercase tracking-[0.35em] text-slate-400 mb-3">
-          {overline}
-        </p>
-        <h2 className="text-4xl md:text-5xl lg:text-[3.5rem] text-slate-900 tracking-[-0.03em] leading-[1.1]" style={{ fontWeight: 350 }}>
-          {title}
-        </h2>
+        {/* Layout: overline left | title right */}
+        <div className="flex flex-col md:flex-row md:items-end md:gap-16 lg:gap-24">
+          {/* Left column — overline + decorative */}
+          <div className="flex-shrink-0 md:w-48 lg:w-56 mb-4 md:mb-0">
+            <div className="flex items-center gap-3">
+              <div className="w-3 h-3 border border-slate-900/25 rounded-full flex items-center justify-center">
+                <div className="w-1 h-1 rounded-full bg-slate-900/40" />
+              </div>
+              <p className="text-[11px] font-mono font-medium uppercase tracking-[0.25em] text-slate-400">
+                {overline}
+              </p>
+            </div>
+            {/* Small tick marks */}
+            <div className="flex gap-[6px] mt-4 ml-1.5">
+              {[20, 14, 8, 5, 3].map((h, i) => (
+                <div key={i} className="w-px bg-slate-900/15" style={{ height: `${h}px` }} />
+              ))}
+            </div>
+          </div>
 
-        {/* Horizontal rule accent */}
-        <div className="mt-6 flex items-center gap-2">
-          <div className="h-px w-16 bg-slate-900/20" />
-          <div className="h-px w-4 bg-slate-900/10" />
+          {/* Right column — title */}
+          <div className="flex-1">
+            <h2 className="text-4xl md:text-5xl lg:text-[3.5rem] text-slate-900 tracking-[-0.035em] leading-[1.08]" style={{ fontWeight: 300 }}>
+              {title}
+            </h2>
+          </div>
         </div>
+
+        {/* Full-width thin line bottom */}
+        <div className="h-px w-full bg-slate-200 mt-8" />
+        {/* Accent short line below */}
+        <div className="h-px w-24 bg-slate-900/25 mt-[-1px]" />
       </div>
     </div>
   )
