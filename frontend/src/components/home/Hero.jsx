@@ -23,7 +23,6 @@ const TITLES = {
     subtitle3: "chaque instant de vie avec sérénité.",
     cta: 'Découvrir nos solutions',
     rec: 'Recommandé par les professionnels de santé',
-    scrollTitle: 'La prévention,\nréinventée.',
   },
   en: {
     line1: 'Building a future',
@@ -37,13 +36,43 @@ const TITLES = {
     subtitle3: "every moment of life with peace of mind.",
     cta: 'Discover our solutions',
     rec: 'Recommended by healthcare professionals',
-    scrollTitle: 'Prevention,\nreinvented.',
   },
+}
+
+const SCROLL_WORDS = {
+  fr: [
+    'Anticiper.',
+    'Protéger.',
+    'Accompagner.',
+    'Chaque instant de vie.',
+  ],
+  en: [
+    'Anticipate.',
+    'Protect.',
+    'Accompany.',
+    'Every moment of life.',
+  ],
+}
+
+function ScrollWord({ word, scrollYProgress, startAt, endAt }) {
+  const opacity = useTransform(scrollYProgress, [startAt, startAt + 0.04, endAt - 0.02, endAt], [0, 1, 1, 0.3])
+  const y = useTransform(scrollYProgress, [startAt, startAt + 0.04], [30, 0])
+  const blur = useTransform(scrollYProgress, [startAt, startAt + 0.03], [8, 0])
+
+  return (
+    <motion.span
+      className="block text-white text-center text-4xl md:text-6xl lg:text-7xl font-light tracking-[-0.04em] leading-[1.2]"
+      style={{ opacity, y, filter: useTransform(blur, v => `blur(${v}px)`) }}
+    >
+      {word}
+    </motion.span>
+  )
 }
 
 export default function Hero() {
   const { lang } = useI18n()
   const tx = TITLES[lang] || TITLES.fr
+  const words = SCROLL_WORDS[lang] || SCROLL_WORDS.fr
   const containerRef = useRef(null)
 
   const { scrollYProgress } = useScroll({
@@ -51,23 +80,21 @@ export default function Hero() {
     offset: ['start start', 'end start']
   })
 
-  // Hero content fades out in first 40% of scroll
-  const heroOpacity = useTransform(scrollYProgress, [0, 0.35], [1, 0])
-  const heroY = useTransform(scrollYProgress, [0, 0.35], [0, -60])
+  // Phase 1 (0-20%): Hero content visible
+  const heroOpacity = useTransform(scrollYProgress, [0, 0.18], [1, 0])
+  const heroY = useTransform(scrollYProgress, [0, 0.18], [0, -50])
 
-  // Video blur increases from 40-100%
-  const videoBlur = useTransform(scrollYProgress, [0.2, 0.6], [0, 20])
-  const videoDarken = useTransform(scrollYProgress, [0.2, 0.6], [0.25, 0.55])
+  // Video effects across entire scroll
+  const videoBlur = useTransform(scrollYProgress, [0.1, 0.3], [0, 16])
+  const videoDarken = useTransform(scrollYProgress, [0.1, 0.35], [0.25, 0.6])
 
-  // Big title appears from 50-80%
-  const titleOpacity = useTransform(scrollYProgress, [0.4, 0.65], [0, 1])
-  const titleY = useTransform(scrollYProgress, [0.4, 0.65], [40, 0])
+  // Phase 2 (25-75%): Words reveal one by one
+  const wordsContainerOpacity = useTransform(scrollYProgress, [0.2, 0.25, 0.75, 0.82], [0, 1, 1, 0])
 
   return (
-    <section ref={containerRef} data-testid="hero-section" className="relative h-[200vh]">
-      {/* Sticky viewport container */}
+    <section ref={containerRef} data-testid="hero-section" className="relative h-[400vh]">
       <div className="sticky top-0 h-screen overflow-hidden">
-        {/* Video background */}
+        {/* Video */}
         <motion.div className="absolute inset-0" style={{ filter: useTransform(videoBlur, v => `blur(${v}px)`) }}>
           <video autoPlay muted loop playsInline preload="auto" className="w-full h-full object-cover">
             <source src="https://cdn.prod.website-files.com/679d8b01c23ed7847fc5108f/681a5d6a393040f8a64f2175_topaz_hero-transcode.mp4" type="video/mp4" />
@@ -75,7 +102,7 @@ export default function Hero() {
         </motion.div>
         <motion.div className="absolute inset-0 bg-black" style={{ opacity: videoDarken }} />
 
-        {/* Hero content — fades out on scroll */}
+        {/* Phase 1: Hero content */}
         <motion.div
           className="relative z-10 max-w-[1780px] mx-auto px-6 md:px-12 w-full h-full flex flex-col justify-between pt-28 pb-7 md:pb-9"
           style={{ opacity: heroOpacity, y: heroY }}
@@ -85,11 +112,9 @@ export default function Hero() {
               <span className="hidden md:block text-[clamp(1.4rem,3.2vw,2.8rem)]">{tx.line1}<br />{tx.line2}<br />{tx.line3}</span>
               <span className="md:hidden text-[22px]">{tx.mLine1}<br />{tx.mLine2}<br />{tx.mLine3}</span>
             </h1>
-
             <p className="text-[14px] md:text-[15px] text-white/50 leading-[1.7] mb-9 max-w-2xl">
               {tx.subtitle1} {tx.subtitle2} {tx.subtitle3}
             </p>
-
             <div>
               <a href="#products" data-testid="hero-cta-button"
                 className="group relative inline-flex items-center gap-2 md:gap-3 px-6 md:px-9 py-3 md:py-4 rounded-full text-[13px] md:text-[15px] font-semibold text-white overflow-hidden transition-all duration-700 hover:shadow-[0_0_40px_rgba(255,255,255,0.15)] whitespace-nowrap">
@@ -101,8 +126,6 @@ export default function Hero() {
               </a>
             </div>
           </div>
-
-          {/* Bottom: avatars + rating */}
           <div>
             <div className="flex flex-col md:flex-row md:items-center gap-4 md:gap-5">
               <div className="flex -space-x-2 md:-space-x-3">
@@ -113,9 +136,7 @@ export default function Hero() {
               </div>
               <div className="flex flex-col gap-1.5">
                 <div className="flex gap-1">
-                  {[1,2,3,4,5].map(i => (
-                    <Star key={i} size={16} className="text-white fill-white" />
-                  ))}
+                  {[1,2,3,4,5].map(i => <Star key={i} size={16} className="text-white fill-white" />)}
                 </div>
                 <span className="text-white text-xs md:text-base font-semibold leading-tight">{tx.rec}</span>
               </div>
@@ -123,14 +144,27 @@ export default function Hero() {
           </div>
         </motion.div>
 
-        {/* Scroll title — appears over blurred video */}
+        {/* Phase 2: Words reveal — centered, one by one */}
         <motion.div
           className="absolute inset-0 z-20 flex items-center justify-center pointer-events-none"
-          style={{ opacity: titleOpacity, y: titleY }}
+          style={{ opacity: wordsContainerOpacity }}
         >
-          <h2 className="text-white text-center text-5xl md:text-7xl lg:text-8xl font-light tracking-[-0.04em] leading-[1.1] whitespace-pre-line px-6">
-            {tx.scrollTitle}
-          </h2>
+          <div className="flex flex-col items-center gap-3 md:gap-4 px-6">
+            {words.map((word, i) => {
+              const segmentSize = 0.12
+              const start = 0.25 + i * segmentSize
+              const end = start + segmentSize + 0.04
+              return (
+                <ScrollWord
+                  key={i}
+                  word={word}
+                  scrollYProgress={scrollYProgress}
+                  startAt={start}
+                  endAt={Math.min(end, 0.78)}
+                />
+              )
+            })}
+          </div>
         </motion.div>
       </div>
     </section>
