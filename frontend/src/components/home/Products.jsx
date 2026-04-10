@@ -92,7 +92,7 @@ function ProductCard({ product, lang, reversed }) {
       <div className={`rounded-[2rem] bg-[#f2f2f2] overflow-hidden flex flex-col ${reversed ? 'md:flex-row-reverse' : 'md:flex-row'} items-stretch`}>
 
         {/* Image */}
-        <div className="md:w-[42%] relative flex items-center justify-center p-8 md:p-12 min-h-[300px] md:min-h-0">
+        <div className={`md:w-[42%] relative flex items-center justify-center p-8 md:p-12 min-h-[300px] md:min-h-0 ${reversed ? 'md:border-l' : 'md:border-r'} border-slate-300/40`}>
           <img
             src={product.image}
             alt={tx.name}
@@ -102,8 +102,8 @@ function ProductCard({ product, lang, reversed }) {
 
         {/* Content */}
         <div className="md:w-[58%] p-8 md:p-14 lg:p-16 flex flex-col justify-center">
-          {/* Tag */}
-          <div className="flex items-center gap-2.5 mb-6">
+          {/* Tag with bottom border */}
+          <div className="flex items-center gap-2.5 pb-5 border-b border-slate-300/40 mb-6">
             <Icon size={16} strokeWidth={1.5} className="text-slate-400" />
             <span className="text-[11px] uppercase tracking-[0.15em] text-slate-400 font-medium">{tx.tag}</span>
           </div>
@@ -113,13 +113,16 @@ function ProductCard({ product, lang, reversed }) {
             {tx.name}
           </h3>
 
-          {/* Headline — big, emotional */}
-          <p className="text-xl md:text-2xl text-slate-900/70 leading-[1.3] whitespace-pre-line mb-8" style={{ fontWeight: 350 }}>
+          {/* Headline */}
+          <p className="text-xl md:text-2xl text-slate-900/70 leading-[1.3] whitespace-pre-line mb-6" style={{ fontWeight: 350 }}>
             {tx.headline}
           </p>
 
+          {/* Separator */}
+          <div className="h-px w-full bg-slate-300/40 mb-6" />
+
           {/* 3 benefit points */}
-          <div className="space-y-3 mb-8">
+          <div className="space-y-3 mb-6">
             {tx.points.map((point, i) => (
               <div key={i} className="flex items-start gap-3">
                 <div className="w-5 h-5 rounded-full bg-slate-900 flex items-center justify-center flex-shrink-0 mt-0.5">
@@ -130,11 +133,14 @@ function ProductCard({ product, lang, reversed }) {
             ))}
           </div>
 
-          {/* Benefit text */}
-          <p className="text-[14px] text-slate-400 leading-[1.7] mb-10">{tx.benefit}</p>
+          {/* Separator */}
+          <div className="h-px w-full bg-slate-300/40 mb-6" />
 
-          {/* Price + CTA */}
-          <div className="flex flex-col sm:flex-row sm:items-center gap-4">
+          {/* Benefit text */}
+          <p className="text-[14px] text-slate-400 leading-[1.7] mb-8">{tx.benefit}</p>
+
+          {/* Price + CTA with top border */}
+          <div className="flex flex-col sm:flex-row sm:items-center gap-4 pt-6 border-t border-slate-300/40">
             <a href={product.href}
               className="group inline-flex items-center justify-center gap-2.5 px-8 py-4 rounded-full bg-slate-900 text-white text-[15px] font-semibold hover:bg-slate-800 transition-colors duration-300">
               {tx.cta}
