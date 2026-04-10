@@ -133,7 +133,7 @@ export default function AuthOverlay({ isOpen, onClose }) {
   return (
     <AnimatePresence>
       {isOpen && (
-        <div className="fixed top-0 left-0 w-screen h-screen z-[100] bg-black/65 overflow-y-auto" style={{backdropFilter: 'blur(100px)', WebkitBackdropFilter: 'blur(100px)'}} data-testid="auth-overlay" onClick={onClose}>
+        <div className="fixed top-0 left-0 w-screen h-screen z-[100] bg-[#1a120a]/60 overflow-y-auto" style={{backdropFilter: 'blur(100px)', WebkitBackdropFilter: 'blur(100px)'}} data-testid="auth-overlay" onClick={onClose}>
           <div className="flex items-start justify-center pt-[6vh] md:pt-[8vh] px-4 min-h-full pb-10">
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: 20 }} transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
