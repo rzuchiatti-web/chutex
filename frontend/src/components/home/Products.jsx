@@ -80,57 +80,56 @@ function ProductSlide({ product, lang }) {
   const Icon = product.icon
 
   return (
-    <div className={`w-full h-full ${product.bg} flex flex-col md:flex-row items-center`}>
-      {/* Image side */}
-      <div className="md:w-[45%] h-[40vh] md:h-full flex items-center justify-center p-8 md:p-16">
-        <img
-          src={product.image}
-          alt={tx.name}
-          className="max-h-[80%] max-w-[80%] object-contain"
-        />
-      </div>
+    <div className={`w-full h-full ${product.bg}`}>
+      <div className="h-full max-w-[1780px] mx-auto px-6 md:px-12 flex flex-col md:flex-row items-center">
 
-      {/* Content side */}
-      <div className="md:w-[55%] h-[60vh] md:h-full flex flex-col justify-center px-8 md:px-16 lg:px-20 md:border-l border-slate-300/40">
-        {/* Tag */}
-        <div className="flex items-center gap-2.5 pb-5 border-b border-slate-300/40 mb-8">
-          <Icon size={16} strokeWidth={1.5} className="text-slate-400" />
-          <span className="text-[11px] uppercase tracking-[0.15em] text-slate-400 font-medium">{tx.tag}</span>
+        {/* Image — big */}
+        <div className="md:w-[50%] h-[40vh] md:h-full flex items-center justify-center">
+          <img
+            src={product.image}
+            alt={tx.name}
+            className="max-h-[85%] max-w-[90%] object-contain"
+          />
         </div>
 
-        {/* Name */}
-        <h3 className="text-6xl md:text-7xl lg:text-8xl font-semibold text-slate-900 tracking-[-0.04em] leading-[0.9] mb-5">
-          {tx.name}
-        </h3>
+        {/* Content */}
+        <div className="md:w-[50%] h-[60vh] md:h-full flex flex-col justify-center py-8 md:py-0">
+          {/* Tag */}
+          <div className="flex items-center gap-2.5 mb-8">
+            <Icon size={15} strokeWidth={1.5} className="text-slate-400" />
+            <span className="text-[11px] uppercase tracking-[0.15em] text-slate-400 font-medium">{tx.tag}</span>
+          </div>
 
-        {/* Headline */}
-        <p className="text-xl md:text-2xl lg:text-3xl text-slate-900/60 leading-[1.25] whitespace-pre-line mb-10" style={{ fontWeight: 350 }}>
-          {tx.headline}
-        </p>
+          {/* Name */}
+          <h3 className="text-6xl md:text-7xl lg:text-[6rem] font-semibold text-slate-900 tracking-[-0.04em] leading-[0.9] mb-5">
+            {tx.name}
+          </h3>
 
-        {/* Separator */}
-        <div className="h-px w-full bg-slate-300/40 mb-8" />
+          {/* Headline */}
+          <p className="text-xl md:text-2xl lg:text-[1.7rem] text-slate-900/50 leading-[1.3] whitespace-pre-line mb-10" style={{ fontWeight: 350 }}>
+            {tx.headline}
+          </p>
 
-        {/* Points */}
-        <div className="space-y-4 mb-10">
-          {tx.points.map((point, i) => (
-            <div key={i} className="flex items-center gap-3">
-              <div className="w-5 h-5 rounded-full bg-slate-900 flex items-center justify-center flex-shrink-0">
-                <svg width="10" height="8" viewBox="0 0 10 8" fill="none"><path d="M1 4l2.5 3L9 1" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+          {/* Points separated by lines */}
+          <div className="mb-10">
+            {tx.points.map((point, i) => (
+              <div key={i}>
+                <div className="h-px w-full bg-slate-300/50" />
+                <p className="py-4 text-[15px] md:text-base text-slate-700 font-medium">{point}</p>
               </div>
-              <span className="text-[15px] md:text-base text-slate-700 font-medium">{point}</span>
-            </div>
-          ))}
-        </div>
+            ))}
+            <div className="h-px w-full bg-slate-300/50" />
+          </div>
 
-        {/* CTA + Price */}
-        <div className="flex flex-col sm:flex-row sm:items-center gap-4 pt-8 border-t border-slate-300/40">
-          <a href={product.href}
-            className="group inline-flex items-center justify-center gap-2.5 px-8 py-4 rounded-full bg-slate-900 text-white text-[15px] font-semibold hover:bg-slate-800 transition-colors duration-300">
-            {tx.cta}
-            <ArrowRight size={16} strokeWidth={2} className="group-hover:translate-x-0.5 transition-transform" />
-          </a>
-          <span className="text-sm text-slate-400 font-medium">{tx.price}</span>
+          {/* CTA + Price */}
+          <div className="flex items-center gap-5">
+            <a href={product.href}
+              className="inline-flex items-center gap-2.5 px-8 py-4 rounded-full bg-slate-900 text-white text-[15px] font-semibold hover:bg-slate-800 transition-colors duration-300">
+              {lang === 'fr' ? 'Découvrir' : 'Discover'}
+              <ArrowRight size={16} strokeWidth={2} />
+            </a>
+            <span className="text-sm text-slate-400">{tx.price}</span>
+          </div>
         </div>
       </div>
     </div>
@@ -175,25 +174,19 @@ export default function Products() {
 }
 
 function ProductPanel({ product, lang, scrollYProgress, start, active, end, isLast, index }) {
-  const opacity = useTransform(
-    scrollYProgress,
-    isLast
-      ? [start, active]
-      : [start, active, end - 0.05, end],
-    isLast
-      ? [0, 1]
-      : [0, 1, 1, 0]
-  )
+  // Each panel slides up from below and covers the previous one
   const y = useTransform(
     scrollYProgress,
     [start, active],
-    [60, 0]
+    ['100%', '0%']
   )
+  // First panel is always at 0
+  const isFirst = index === 0
 
   return (
     <motion.div
       className="absolute inset-0"
-      style={{ opacity, y, zIndex: index + 1 }}
+      style={isFirst ? { zIndex: index + 1 } : { y, zIndex: index + 1 }}
     >
       <ProductSlide product={product} lang={lang} />
     </motion.div>
