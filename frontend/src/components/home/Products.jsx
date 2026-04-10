@@ -9,14 +9,12 @@ const PRODUCTS = [
     image: 'https://chutex-innovation.com/cdn/shop/files/elio_bracelet_health_connected_chutex_1.jpg?v=1760010576&width=1200',
     href: '/produits/elio',
     icon: Heart,
-    bg: 'bg-[#f2f2f2]',
     fr: {
       tag: 'Sans engagement',
       name: 'Elio',
       headline: 'Il veille sur vous,\njour et nuit.',
       points: ['Surveillance continue 24h/24', 'Alertes instantanées aux proches', 'Détection précoce des risques'],
       price: 'À partir de 24.9€/mois',
-      cta: 'Protéger ma santé',
     },
     en: {
       tag: 'No commitment',
@@ -24,7 +22,6 @@ const PRODUCTS = [
       headline: 'It watches over you,\nday and night.',
       points: ['24/7 continuous monitoring', 'Instant alerts to loved ones', 'Early risk detection'],
       price: 'From €24.9/month',
-      cta: 'Protect my health',
     },
   },
   {
@@ -32,14 +29,12 @@ const PRODUCTS = [
     image: 'https://static.prod-images.emergentagent.com/jobs/48e5eb31-c61a-4fb1-be42-94e61a127565/images/99cc1301d04c1c60a23347cfabdb0335b694b42162bb12541d38ea6638ebb23d.png',
     href: '/produits/vita',
     icon: Activity,
-    bg: 'bg-[#eaeaea]',
     fr: {
       tag: 'Nouveau',
       name: 'Vita',
       headline: 'Comprenez votre corps.\nAgissez en conséquence.',
       points: ['Bilan corporel complet à chaque pesée', 'Données partagées avec votre médecin', 'Suivi des progrès dans le temps'],
       price: '229€ TTC',
-      cta: 'Comprendre mon corps',
     },
     en: {
       tag: 'New',
@@ -47,7 +42,6 @@ const PRODUCTS = [
       headline: 'Understand your body.\nAct on it.',
       points: ['Full body check at every weigh-in', 'Data shared with your doctor', 'Progress tracking over time'],
       price: '€229 incl. tax',
-      cta: 'Understand my body',
     },
   },
   {
@@ -55,14 +49,12 @@ const PRODUCTS = [
     image: 'https://chutex-innovation.com/cdn/shop/files/chutex-elder-airbag-vest-made-in-france-front-side.png?v=1752931654&width=1200',
     href: '/produits/elder',
     icon: Shield,
-    bg: 'bg-[#e5e5e5]',
     fr: {
       tag: 'Made in France',
       name: 'Elder',
       headline: 'Vous tombez.\nIl vous protège.',
       points: ['Protection automatique en 0.08s', 'Aucune action requise', 'Alerte immédiate aux proches'],
       price: '879€ TTC',
-      cta: 'Me protéger des chutes',
     },
     en: {
       tag: 'Made in France',
@@ -70,74 +62,102 @@ const PRODUCTS = [
       headline: 'You fall.\nIt protects you.',
       points: ['Automatic protection in 0.08s', 'No action required', 'Instant alert to loved ones'],
       price: '€879 incl. tax',
-      cta: 'Protect me from falls',
     },
   },
 ]
 
-function ProductSlide({ product, lang }) {
+function ProductView({ product, lang, scrollYProgress, index, total }) {
   const tx = product[lang] || product.fr
   const Icon = product.icon
+  const segment = 1 / total
+  const start = index * segment
+  const peak = start + segment * 0.15
+  const hold = start + segment * 0.75
+  const end = start + segment
+
+  const isFirst = index === 0
+  const isLast = index === total - 1
+
+  const opacity = useTransform(
+    scrollYProgress,
+    isFirst
+      ? (isLast ? [0, 0, 1, 1] : [0, 0, hold, end])
+      : (isLast ? [start, peak, 1, 1] : [start, peak, hold, end]),
+    isFirst
+      ? (isLast ? [1, 1, 1, 1] : [1, 1, 1, 0])
+      : (isLast ? [0, 1, 1, 1] : [0, 1, 1, 0])
+  )
+
+  const imageScale = useTransform(
+    scrollYProgress,
+    isFirst ? [0, 0.01] : [start, peak],
+    isFirst ? [1, 1] : [0.85, 1]
+  )
+
+  const textY = useTransform(
+    scrollYProgress,
+    isFirst ? [0, 0.01] : [start, peak],
+    isFirst ? [0, 0] : [30, 0]
+  )
+
+  const discover = lang === 'fr' ? 'Découvrir' : 'Discover'
 
   return (
-    <div className={`w-full h-full ${product.bg}`}>
-      <div className="h-full max-w-[1780px] mx-auto px-6 md:px-12 flex flex-col md:flex-row items-center">
+    <motion.div className="absolute inset-0 flex items-center" style={{ opacity }}>
+      <div className="w-full max-w-[1780px] mx-auto px-6 md:px-12 flex flex-col md:flex-row items-center gap-8 md:gap-16 lg:gap-24">
 
-        {/* Image — big */}
-        <div className="md:w-[50%] h-[40vh] md:h-full flex items-center justify-center">
-          <img
-            src={product.image}
-            alt={tx.name}
-            className="max-h-[85%] max-w-[90%] object-contain"
-          />
-        </div>
+        {/* Image */}
+        <motion.div className="md:w-[48%] flex justify-center" style={{ scale: imageScale }}>
+          <img src={product.image} alt={tx.name}
+            className="w-[280px] md:w-[400px] lg:w-[480px] h-auto object-contain" />
+        </motion.div>
 
         {/* Content */}
-        <div className="md:w-[50%] h-[60vh] md:h-full flex flex-col justify-center py-8 md:py-0">
+        <motion.div className="md:w-[52%]" style={{ y: textY }}>
           {/* Tag */}
-          <div className="flex items-center gap-2.5 mb-8">
-            <Icon size={15} strokeWidth={1.5} className="text-slate-400" />
-            <span className="text-[11px] uppercase tracking-[0.15em] text-slate-400 font-medium">{tx.tag}</span>
+          <div className="flex items-center gap-2 mb-6 md:mb-8">
+            <Icon size={14} strokeWidth={1.5} className="text-slate-400" />
+            <span className="text-[10px] uppercase tracking-[0.2em] text-slate-400 font-medium">{tx.tag}</span>
           </div>
 
           {/* Name */}
-          <h3 className="text-6xl md:text-7xl lg:text-[6rem] font-semibold text-slate-900 tracking-[-0.04em] leading-[0.9] mb-5">
+          <h3 className="text-[4rem] md:text-[5.5rem] lg:text-[7rem] font-semibold text-slate-900 tracking-[-0.05em] leading-[0.85] mb-4 md:mb-6">
             {tx.name}
           </h3>
 
           {/* Headline */}
-          <p className="text-xl md:text-2xl lg:text-[1.7rem] text-slate-900/50 leading-[1.3] whitespace-pre-line mb-10" style={{ fontWeight: 350 }}>
+          <p className="text-lg md:text-xl lg:text-2xl text-slate-400 leading-[1.35] whitespace-pre-line mb-8 md:mb-10" style={{ fontWeight: 350 }}>
             {tx.headline}
           </p>
 
           {/* Points separated by lines */}
-          <div className="mb-10">
+          <div className="mb-8 md:mb-10">
+            <div className="h-px bg-slate-200" />
             {tx.points.map((point, i) => (
               <div key={i}>
-                <div className="h-px w-full bg-slate-300/50" />
-                <p className="py-4 text-[15px] md:text-base text-slate-700 font-medium">{point}</p>
+                <p className="py-3.5 md:py-4 text-[14px] md:text-[15px] text-slate-600 font-medium">{point}</p>
+                <div className="h-px bg-slate-200" />
               </div>
             ))}
-            <div className="h-px w-full bg-slate-300/50" />
           </div>
 
           {/* CTA + Price */}
           <div className="flex items-center gap-5">
             <a href={product.href}
-              className="inline-flex items-center gap-2.5 px-8 py-4 rounded-full bg-slate-900 text-white text-[15px] font-semibold hover:bg-slate-800 transition-colors duration-300">
-              {lang === 'fr' ? 'Découvrir' : 'Discover'}
-              <ArrowRight size={16} strokeWidth={2} />
+              className="inline-flex items-center gap-2.5 px-7 md:px-8 py-3.5 md:py-4 rounded-full bg-slate-900 text-white text-[14px] md:text-[15px] font-semibold hover:bg-slate-800 transition-colors duration-300">
+              {discover}
+              <ArrowRight size={15} strokeWidth={2} />
             </a>
             <span className="text-sm text-slate-400">{tx.price}</span>
           </div>
-        </div>
+        </motion.div>
       </div>
-    </div>
+    </motion.div>
   )
 }
 
 export default function Products() {
-  const { t, lang } = useI18n()
+  const { lang } = useI18n()
   const containerRef = useRef(null)
   const count = PRODUCTS.length
 
@@ -147,48 +167,19 @@ export default function Products() {
   })
 
   return (
-    <section id="products" data-testid="products-section" ref={containerRef} style={{ height: `${count * 100}vh` }}>
+    <section id="products" data-testid="products-section" ref={containerRef} className="relative bg-[#f7f7f7]" style={{ height: `${(count + 0.5) * 100}vh` }}>
       <div className="sticky top-0 h-screen overflow-hidden">
-        {PRODUCTS.map((product, idx) => {
-          const start = idx / count
-          const active = (idx + 0.3) / count
-          const end = (idx + 1) / count
-
-          return (
-            <ProductPanel
-              key={product.key}
-              product={product}
-              lang={lang}
-              scrollYProgress={scrollYProgress}
-              start={start}
-              active={active}
-              end={end}
-              isLast={idx === count - 1}
-              index={idx}
-            />
-          )
-        })}
+        {PRODUCTS.map((product, idx) => (
+          <ProductView
+            key={product.key}
+            product={product}
+            lang={lang}
+            scrollYProgress={scrollYProgress}
+            index={idx}
+            total={count}
+          />
+        ))}
       </div>
     </section>
-  )
-}
-
-function ProductPanel({ product, lang, scrollYProgress, start, active, end, isLast, index }) {
-  // Each panel slides up from below and covers the previous one
-  const y = useTransform(
-    scrollYProgress,
-    [start, active],
-    ['100%', '0%']
-  )
-  // First panel is always at 0
-  const isFirst = index === 0
-
-  return (
-    <motion.div
-      className="absolute inset-0"
-      style={isFirst ? { zIndex: index + 1 } : { y, zIndex: index + 1 }}
-    >
-      <ProductSlide product={product} lang={lang} />
-    </motion.div>
   )
 }
