@@ -14,7 +14,7 @@ import json
 import asyncio
 import websockets
 
-BASE_URL = os.environ.get('REACT_APP_BACKEND_URL', 'https://vita-conversion.preview.emergentagent.com').rstrip('/')
+BASE_URL = os.environ.get('REACT_APP_BACKEND_URL', 'https://premium-clinic-web-1.preview.emergentagent.com').rstrip('/')
 
 # Admin credentials
 ADMIN_PHONE = "0600000001"

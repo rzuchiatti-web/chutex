@@ -460,7 +460,7 @@ async def send_saad_invitation(data: dict, user=Depends(get_current_user)):
     # Send invitation email
     from utils import send_email
     subject = f"Invitation CARE WATCH - Espace SAAD"
-    link = f"https://vita-conversion.preview.emergentagent.com/register?invite={invite_token}&role=prescriber_company"
+    link = f"https://premium-clinic-web-1.preview.emergentagent.com/register?invite={invite_token}&role=prescriber_company"
     html = f"""
     <h2>Bienvenue sur CARE WATCH</h2>
     <p>Bonjour {name or 'Madame, Monsieur'},</p>
