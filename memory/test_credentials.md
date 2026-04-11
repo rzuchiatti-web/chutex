@@ -1,7 +1,7 @@
 # Test Credentials - Chutex Care
 
 ## Website
-- URL Preview: https://chutex-premium.preview.emergentagent.com
+- URL Preview: https://vita-conversion.preview.emergentagent.com
 - Auth: Same accounts as mobile app (shared MongoDB)
 
 ## Test Accounts (App + Website shared)

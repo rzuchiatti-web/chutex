@@ -16,7 +16,7 @@ import pytest
 import requests
 import os
 
-BASE_URL = os.environ.get('EXPO_PUBLIC_BACKEND_URL', 'https://chutex-premium.preview.emergentagent.com').rstrip('/')
+BASE_URL = os.environ.get('EXPO_PUBLIC_BACKEND_URL', 'https://vita-conversion.preview.emergentagent.com').rstrip('/')
 
 # Test credentials
 TEST_EMAIL = "0651245918"
