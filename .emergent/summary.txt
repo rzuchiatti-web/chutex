@@ -1,198 +1,147 @@
 <analysis>**original_problem_statement**: 
-L'utilisateur souhaite finaliser l'intégration complète du bracelet V8 (Elio) avec de vraies données (suppression totale des mocks). L'objectif est de s'assurer que TOUTES les données biométriques remontent correctement, s'affichent avec leur historique sur les graphiques, et que les fonctionnalités matérielles (Vibrations pour rappels/alarmes, Reconnexion auto, Notifications Push) fonctionnent sans faille. 
-PRODUCT REQUIREMENTS : L'application iOS tourne dans une WebView. Le BLE doit être géré par un bridge natif. ZÉRO mock data. Tous les overlays/popups doivent respecter un padding top de 70px.
+L'utilisateur souhaite mettre en pause l'application mobile iOS (Expo) pour créer un **nouveau site web commercial ultra-premium** (tunnel de vente, landing pages) pour Chutex Care. Ce site web React remplace le front-end Shopify actuel, mais se connectera à la même base de données MongoDB que l'application mobile. Le style doit être Digital Clinic, médical, premium, ultra optimisé pour la conversion.
 
-**User's preferred language**: French (INSTRUCT NEXT AGENT: You MUST respond in the user's preferred language only, which is French).
+PRODUCT REQUIREMENTS : 
+- Design ultra-premium (glassmorphism, scroll cinématique, vidéos en arrière-plan).
+- Intégration d'overlays plein écran pour authentification, panier et recherche.
+- Connexion avec la base MongoDB existante.
+- Intégration future de l'API Shopify Storefront.
+- Pages requises : Accueil, produits (Elder, Elio, Vita), tunnels de souscription, pages partenaires, blog, FAQ.
+
+**User's preferred language**: French (INSTRUCT NEXT AGENT: You MUST automatically detect the user's primary language from their messages inside the <trajectory> tag and INSTRUCT next agent to respond in the user's preferred language only. **ALWAYS RESPOND IN FRENCH**).
 
 **what currently exists?** 
-Application full-stack (React Expo WebView / FastAPI). Une architecture de synchronisation en temps réel a été mise en place : le bridge BLE pousse les données via , le backend stocke, invalide le cache et notifie le frontend via WebSocket (). Le frontend vide son cache in-memory et recharge les données (), mettant à jour l'UI instantanément. Le Build 129 a été soumis sur TestFlight pour corriger un crash bloquant sur le Dashboard.
+Un frontend React (Vite + TailwindCSS + Framer Motion) sur le port 3000. 
+La page d'accueil dispose de sections hautement interactives :
+- Un **Header** glassmorphism dynamique au scroll.
+- Un **Hero** (400vh) avec animation scroll Kora-style (révélation textuelle mot par mot avec floutage vidéo).
+- Une section **Produits** (300vh) en cross-fade cinématique (chaque produit prend 100vh et fade in/out au scroll).
+- Une section **TrustSection** avec logos partenaires et avis clients en boucle infinie fluide via .
+- Un **Footer** océanique premium.
+- Des **Overlays** (Auth, Panier, Recherche) en plein écran flouté absolu.
 
 **Last working item**: 
-    - Last item agent was working: Batch 2 des corrections UI/UX demandées dans la liste massive de l'utilisateur (Alignement des headers et boutons retours ronds pour les pages , ,  et , correction du timezone pour le calendrier du sommeil, restauration de la carte Glycémie).
-    - Status: IN PROGRESS
+    - Last item agent was working: Refonte de la section **Produits ()** pour la transformer en une expérience de scroll cinématique plein écran. Chaque produit (Elio, Vita, Elder) apparaît successivement au scroll avec un effet de cross-fade fluide, des images massives, un copywriting orienté neuromarketing (bénéfices émotionnels), et un style Digital Clinic (lignes de séparation fines).
+    - Status: USER VERIFICATION PENDING (L'agent a terminé la tâche, mais l'utilisateur a juste envoyé wake up sans valider formellement la dernière itération).
     - Agent Testing Done: Y
-    - Which testing method agent to use? manual testing by python -c / grep / bash scripts pour vérifier l'état des DB et des rendus React.
+    - Which testing method agent to use? Screenshot tool (Frontend).
     - User Testing Done: N
 
 **All Pending/In progress Issue list**: 
-  Issue 1: Validation Build 129 (TestFlight) & Auto-Sync (P0)
-     - Attempted fixes: Réécriture du hook  pour écouter  via WebSocket et rafraîchir l'UI sans causer d'erreur Temporal Dead Zone (TDZ) avec .
-     - Next debug checklist: Attendre que l'utilisateur confirme que le Build 129 ne crashe plus sur le dashboard et que la synchronisation auto fonctionne sur iOS.
-     - Why fix this issue and what will be achieved with the fix?: Stabilité critique de l'app et synchronisation des données temps réel.
+  Issue 1: Validation de l'animation scroll des Produits (P0)
+     - Attempted fixes: L'agent est passé par un empilement classique, un slide-up, puis un cross-fade complet piloté par .
+     - Next debug checklist: Attendre le retour de l'utilisateur sur la fluidité de l'effet cross-fade des fiches produits.
+     - Why fix this issue and what will be achieved with the fix? Obtenir l'expérience premium exacte voulue par l'utilisateur avant d'enchaîner sur le reste de la page d'accueil.
      - Status: USER VERIFICATION PENDING
-     - Is recurring issue? Y ( crash d'initialisation sur les builds 123 à 127)
-     - Should Test frontend/backend/both after fix?: Frontend (TestFlight)
-     - Blocked on other issue: None
-
-  Issue 2: Rappels, Alarmes & Notifications Push (P1)
-     - Attempted fixes: None in this session for this specific bug.
-     - Next debug checklist: Vérifier pourquoi les rappels n'ont pas de confirmation directe in-app (nécessite de quitter la page), pourquoi la vibration a 20s de retard, et pourquoi le réveil/rappels n'envoient aucun Push.
-     - Why fix this issue and what will be achieved with the fix?: Fonctionnalité clé pour l'observance médicale.
-     - Status: NOT STARTED
-     - Is recurring issue? Y
-     - Should Test frontend/backend/both after fix?: Both
-
-  Issue 3: Cohérence des données Poids & IMC (P1)
-     - Attempted fixes: None yet.
-     - Next debug checklist: Carte objectif poids dashboard : afficher le poids actuel, corriger la barre de progression (à moitié pleine à tort). Page IMC : affiche une donnée mais la page détaillée dit pas de données.
-     - Why fix this issue and what will be achieved with the fix?: Fiabilité des données affichées.
-     - Status: NOT STARTED
      - Is recurring issue? N
-     - Should Test frontend/backend/both after fix?: Both
-
-  Issue 4: Validation d'exercice non reflétée (P1)
-     - Attempted fixes: None yet.
-     - Next debug checklist: Quand un exercice est validé, rafraîchir le dashboard et la pilule (0/1) de la section exercice.
-     - Status: NOT STARTED
-     - Is recurring issue? N
-     - Should Test frontend/backend/both after fix?: Frontend
-
-  Issue 5: Pouls en temps réel (Header) (P2)
-     - Attempted fixes: None yet.
-     - Next debug checklist: Implémenter l'affichage du pouls en direct dans le header de la page pouls (via un event listener BLE direct ou polling très rapide).
-     - Status: NOT STARTED
-     - Is recurring issue? N
-     - Should Test frontend/backend/both after fix?: Frontend
-
-  Issue 6: Gilet BLE (Vest) tourne en boucle (P1)
-     - Attempted fixes: None yet.
-     - Next debug checklist: Déboguer le bridge natif . L'utilisateur signale une recherche qui tourne en boucle infinie.
-     - Status: NOT STARTED
-     - Is recurring issue? Y
-     - Should Test frontend/backend/both after fix?: Frontend (Bridge natif iOS)
+     - Should Test frontend/backend/both after fix? Frontend
 
 **In progress Task List**: 
-  Task 1: Refonte UX Coussin Dorsi
-     - Where to resume: Implémenter les boutons Connecter et Découvrir sur la page devices. Sur la page bilan : enlever bouton continuer sans, enlever les 4 images de phases, corriger affichage pourcentage (hors du cercle). Page programme : bouton retour rond, bouton reconnecter.
-     - What will be achieved with this?: Une expérience Dorsi propre et fonctionnelle.
-     - Status: NOT STARTED
-     - Should Test frontend/backend/both after fix?: Frontend
-     - Blocked on something: None
-
-  Task 2: Refonte UX Popups et Headers
-     - Where to resume: Ajouter un effet glass sur toutes les popups d'explication (santé, sommeil, activité, poids). Page Devices : appliquer le dark mode, ajouter espace en bas du header.
-     - What will be achieved with this?: Cohérence visuelle (UI requirements).
+  Task 1: Construction de la structure complète de la page d'accueil
+     - Where to resume: Une fois les Produits validés, passer aux sections suivantes prévues : HowItWorks, Stats, AppSection, Téléassistance, Espace Professionnels.
+     - What will be achieved with this? Avoir la Home Page Digital Clinic 100% achevée et optimisée pour la conversion.
      - Status: IN PROGRESS
-     - Should Test frontend/backend/both after fix?: Frontend
-     - Blocked on something: None
-
-  Task 3: Refonte instructions de connexion Bracelet
-     - Where to resume: Modifier les textes des popups d'appairage. Demander charge >20% (clignotement vert) et positionnement à un doigt de largeur du poignet (sans serrer).
-     - Status: NOT STARTED
-     - Should Test frontend/backend/both after fix?: Frontend
+     - Should Test frontend/backend/both after fix? Frontend
+     - Blocked on something: Validation de la section Produits actuelle.
 
 **Upcoming and Future Tasks**
     Upcoming Tasks:
-    - P1: Jeux Dorsi : imposer le coussin connecté, ajouter complexité/profondeur visuelle à 5 jeux. Historique des bilans avec barre d'évolution.
-    - P1: Minceur / Poids : Enlever les boutons refresh et streak en haut à droite, placer le streak sous le poids.
-    - P1: Configuration WiFi balance Lefu.
+    - P0: Intégrer l'API Shopify Storefront pour remplacer le panier simulé.
+    - P1: Suite des sections Home : How it Works, Stats, Téléassistance, App Chutex, Espace Pros.
+    - P1: Créer les Landing Pages produits individuelles (Bracelet Elio, Gilet Elder, Balance Vita, Accessoires).
+    - P1: Créer les tunnels de souscription (Abonnements).
+    - P1: Créer les pages Professionnels détaillées (Coach, Physio, SAAD).
+    - P2: Pages SEO (Blog, FAQ, Contact, Légales).
+    
     Future Tasks:
-    - P2: Déploiement serveur TCP J2358.
-    - P2: Intégration complète gilet connecté (data monitoring complet).
-    - P2: Signature Électronique pour les documents Admin.
-    - P2: Système de parrainage pour les Gardiens.
-    - P2: Flux d'essai gratuit de 7 jours.
-    - P2: Intégration du test urinaire Vivoo.
+    - P2: Finaliser le redesign de l'App Mobile (actuellement en pause).
 
 **Completed work in this session**
-- Bug timezone sommeil : Fix de  pour que le calendrier ne casse pas (DONE)
-- Modèles d'exercices Pro accessibles aux bénéficiaires (DONE)
-- Parser BLE Chrome : Fix de l'offset HR (bytes[21]) pour Chrome Web Bluetooth (DONE)
-- Synchronisation UI temps réel : Pipeline WebSocket  →  →  (DONE)
-- Crash  in TDZ : Corrigé dans le Build 129 via une restructuration propre des hooks (DONE)
-- UI Dashboard : Carte calorie compatible dark mode, bouton Voir mon activité mis à jour (DONE)
-- UI Popups : Padding 70px (DONE)
-- UI Health Detail : Restauration de la carte glycémie, suppression des ombres, suppression de Nora dans les sous-sections (DONE)
-- UI Device Detail : Overlay noir ajouté, auto-reconnexion bloquée si le bracelet est supprimé (DONE)
-- Headers : Alignement du titre avec le bouton retour (devenu rond) sur Sommeil, Activité, Poids, Exercice (DONE)
-- Exercise Detail : Margin 70px, header agrandi, pillules stylisées intégrées au header (DONE)
+- Footer redesigné (Style ClearPath avec image océan abstract, 4 colonnes) (DONE)
+- Fix complet des Overlays Auth/Cart/Search (couverture 100vh parfaite, backdrop-blur réparé) (DONE)
+- TrustSection (Avis clients & Partenaires) avec intégration de  pour un défilement infini sans bug (DONE)
+- Hero Scroll Animation (400vh, révélation de 4 mots clés au scroll style Kora) (DONE)
+- Header dynamique (glassmorphism/noir au scroll, fond transparent sur la vidéo) (DONE)
+- Products Section transformée en expérience scroll plein écran avec cross-fade et neuromarketing copy (DONE)
+- Ajout complet des balises SEO dans  (DONE)
 
 **Earlier issues found/mentioned but not fixed**
-   Issue 1: Bouton Voir mon activité sur dashboard (Dark mode)
-   - Debug checklist: Le bouton reste noir avec texte noir en dark mode. Il doit devenir blanc avec un icône.
-   - Why to solve this issue and what will be achieved with this?: Lisibilité UI.
-   - Should Test frontend/backend/both after fix: Frontend
-   - Is recurring issue? N
-
-   Issue 2: Page Devices UI
-   - Debug checklist: Le texte du header est trop collé en bas. La page ne respecte pas le dark mode. Bouton de suppression rouge illisible sur l'ID de l'appareil.
-   - Should Test frontend/backend/both after fix: Frontend
+   - None. 
 
 **Known issue recurrence from previous fork**
-  - Issue recurrence in previous fork: Restrictions Web Bluetooth (Chrome). La reconnexion BLE silencieuse et en arrière-plan ne fonctionne que via le bridge natif iOS (TestFlight).
+  - Issue recurrence in previous fork: Boucle infinie du marquee (carrousels avis/partenaires) qui sautait.
   - Recurrence count: 3
-  - Status: RESOLVED (Architecture hybride gérée : natif auto, Chrome manuel via bouton).
+  - Status: RESOLVED (L'agent a installé la librairie  qui gère parfaitement les boucles infinies dynamiques en React).
 
 **Code Architecture**
-- **Frontend** : React Native / Expo ( sert de root natif).  et  gèrent la connexion BLE.  gère le WebSocket central.
-- **Backend** : FastAPI.  reçoit les push BLE, met à jour MongoDB, et déclenche  ().
+-  : React (Vite), port 3000.
+-  : , ,  (Contiennent la logique d'animation Framer Motion complexe).
+-  : , .
+-  : , , .
 
 **Key Technical Concepts**
-- **BLE Sync Pipeline** : Bracelet →  → Backend Save →  → Frontend  + .
+React Vite, TailwindCSS, Framer Motion (,  massivement utilisés pour les animations de la Home), , FastAPI, MongoDB. L'approche UI est extrêmement pointue : glassmorphism, lignes fines (cadre clinique), copy neuromarketing.
 
 **key DB schema**
-  - : , , , , etc.
-  - : Stockage granulaire des métriques par timestamp.
+  -  : Utilisée pour l'authentification cross-plateforme (App/Web).
 
 **changes in tech stack**
-  - Ajout d'une communication WebSocket  systématique après un push REST pour forcer le frontend à recharger l'UI sans délai.
+  - Ajout de la dépendance  pour gérer les défilements infinis sans bug mathématique.
 
 **All files of reference** 
--  (Point d'entrée du dashboard, gère le fetch principal).
--  (Écoute WS ).
--  (Gestion des connexions WS).
-- , ,  (Refonte des headers / boutons retour).
--  (Parser et endpoints de réception BLE).
+- 
+- 
+- 
+- 
+- 
+- 
+- 
+- 
 
 **Areas that need refactoring**: 
--  contient des agrégations MongoDB massives qui pourraient être extraites.
-- Le cache in-memory () nécessite  manuel pour éviter les données stales.
+-  contient encore des mock data. L'intégration Shopify Storefront sera nécessaire.
 
 **key api endpoints**
--  : Reçoit les données BLE, stocke, invalide le cache, notifie via WS.
--  : Liste les dispositifs avec leur statut (batterie, connecté).
--  : Canal temps réel.
+- , 
 
 **Critical Info for New Agent** 
-- Un **Build 129** vient d'être déployé sur TestFlight. L'utilisateur doit le tester pour valider que le dashboard ne crashe plus (problème d'ordre d'initialisation de ).
-- Le bracelet V8 remonte  et  s'il n'est pas porté en continu pendant au moins 30 secondes. Ce n'est pas un bug du code, c'est le comportement matériel (V8 firmware).
-- L'utilisateur a fourni une liste massive de 35+ retours UI/UX vers la fin de l'historique. Plusieurs ont été corrigés, mais référez-vous impérativement aux sections All Pending/In progress Issue list et In progress Task List ci-dessus pour la suite.
+- L'utilisateur est extrêmement exigeant sur le design, qu'il veut **Ultra-Premium, Digital Clinic, Cinématique**.
+- N'utilisez pas de designs basiques (pas de simples cartes ou boutons standards). Utilisez des lignes très fines (1px), un espacement aéré, des polices ultra-light ou massives pour les titres, et privilégiez les animations au scroll ().
+- **Neuromarketing** : Pour les descriptions de produits, l'utilisateur préfère les promesses claires et émotionnelles (ex: Vous tombez. Il vous protège.) plutôt que les listes de specs techniques ennuyeuses.
+- Ne pas introduire de couleurs en dehors de la palette validée (Noir, Gris très clair, Blanc, Vert Émeraude pour les accents santé, Orangé léger pour les overlays de la vidéo).
 
 **documents and test reports created in this job** 
-  -  (Mis à jour)
-  -  (Mis à jour)
-  - 
+  -  (Updated)
 
 **Last 10 User Messages and any pending HUMAN messages** 
-1. *User* : Reconnecter le bracelet ne marche pas bien, bouton Synchroniser lance le pairing, Expo Go QR code erreur.
-2. *Agent* : Corrige le bouton Synchroniser (invalide le cache) et explique que Expo Go ne gère pas le BLE natif (TestFlight requis).
-3. *User* : Souhaite que l'app iOS se reconnecte toute seule à l'ouverture et synchronise instantanément + exige architecture robuste.
-4. *Agent* : Constate l'absence de rechargement UI après push BLE. Implémente le WebSocket .
-5. *Agent* : Lance des builds TestFlight successifs (123 -> 127).
-6. *User* : Signale une erreur serveur/crash au chargement du dashboard.
-7. *Agent* : Identifie une erreur Temporal Dead Zone (TDZ) avec  appelé trop tôt dans le callback WebSocket. Corrige la logique.
-8. *Agent* : Lance le Build 129 avec  et le soumet à TestFlight.
-9. *User* : Fournit une liste de 35+ retours (LOT 1 à LOT 4) détaillant des ajustements UI (boutons, marges, popups), des problèmes Dorsi, des notifications de rappel absentes, etc.
-10. *Agent* : Corrige le timezone du calendrier sommeil, l'alignement des headers, l'overlay noir des devices et le dark mode des calories. Sauvegarde son progrès.
-*(Pending)* : Continuer le traitement de la liste de retours de l'utilisateur (Voir sections Pending Issues & Tasks).
+1. *User*: Demande des fiches dispositifs en plein écran avec des points forts qui s'affichent au scroll comme l'animation du hero.
+2. *User*: Demande d'enlever les ronds pour les points forts, de mettre des boutons noirs découvrir, et critique le changement de produit au scroll (pas premium).
+3. *User*: Rejette la transition slide-up (jugeant ça pas bien du tout, pas premium) et demande une refonte complète de la structure des cartes.
+4. *User*: wake up
+5. *Agent*: [Tool call: ask_human]
+6. *User*: [Attente de la réponse de l'utilisateur pour confirmer si la nouvelle transition en cross-fade (opacité + scale) lui convient].
 
 **Project Health Check:**
-- Broken: Notifications push de rappels/réveil manquantes. Vest connection loop.
-- Mocked: None.
+- Broken: Aucun
+- Mocked: Panier (, ).
 
 **3rd Party Integrations** 
-- OpenAI GPT-5.2 (Emergent LLM Key)
-- Expo Push Notifications
-- App Store Connect (EAS CLI)
+- Prévu : Shopify Storefront API (E-commerce).
+- Prévu : Mollie (Abonnements).
 
 **Testing status**
-  - Testing agent used after significant changes: YES (itération 210 pour le Backend/Sommeil).
+  - Testing agent used after significant changes: NO (Des dizaines de screenshots ont été utilisés car le besoin était 100% axé sur le design visuel ultra-fin).
   - Troubleshoot agent used after agent stuck in loop: NO.
-  - Test files created: .
-  - Known regressions: Crash UI sur TestFlight build 123-127 (Résolu via Build 129).
+  - Test files created: None custom.
+  - Known regressions: None.
 
 **Credentials to test flow:**
-Voir .
+Voir  (Authentification gérée par MongoDB).
 
 **What agent forgot to execute**
-L'agent a fait un travail exceptionnel d'architecture en liant le BLE au WebSocket, mais l'utilisateur a envoyé un pavé de 35 requêtes d'un coup. L'agent a commencé à les traiter en rafale, mais il reste de nombreuses corrections visuelles (Dorsi, Push notifications, IMC) explicitées dans le résumé.</analysis>
+Tout a été exécuté. Le processus était très itératif sur le design du Frontend. La prochaine étape logique est la validation du bloc Products actuel par l'utilisateur, puis l'avancement sur les sections How It Works et Stats de la Home.
+
+**Debugging checklist for current issue**
+    Issue: L'utilisateur a dit wake up après que l'agent ait poussé une itération de cross-fade pour les produits.
+    Frontend files to check:  (Lignes avec  et ).
+    Action: Attendre la réponse à  pour savoir s'il valide ce cross-fade, puis enchaîner sur la structure de la suite de la page d'accueil.</analysis>
