@@ -4,7 +4,7 @@ import { AuthProvider } from './auth/AuthContext'
 import { CartProvider } from './cart/CartContext'
 import Header from './components/layout/Header'
 import Footer from './components/layout/Footer'
-import HomePage from './pages/HomePage'
+import Home from './pages/HomePage'
 
 export default function App() {
   return (
@@ -16,7 +16,7 @@ export default function App() {
               <Header />
               <main className="flex-1">
                 <Routes>
-                  <Route path="/" element={<HomePage />} />
+                  <Route path="/" element={<Home />} />
                 </Routes>
               </main>
               <Footer />

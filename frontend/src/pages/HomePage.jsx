@@ -1,19 +1,23 @@
 import Hero from '../components/home/Hero'
 import Products from '../components/home/Products'
-import HowItWorks from '../components/home/HowItWorks'
-import Stats from '../components/home/Stats'
-import AppSection from '../components/home/AppSection'
-import CTASection from '../components/home/CTASection'
+import Mission from '../components/home/Mission'
+import Solutions from '../components/home/Solutions'
+import AppShowcase from '../components/home/AppShowcase'
+import Teleassistance from '../components/home/Teleassistance'
+import Professionals from '../components/home/Professionals'
 import TrustSection from '../components/home/TrustSection'
+import CTASection from '../components/home/CTASection'
 
 export default function HomePage() {
   return (
     <div data-testid="home-page">
       <Hero />
       <Products />
-      <HowItWorks />
-      <Stats />
-      <AppSection />
+      <Mission />
+      <Solutions />
+      <AppShowcase />
+      <Teleassistance />
+      <Professionals />
       <TrustSection />
       <CTASection />
     </div>
