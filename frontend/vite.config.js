@@ -8,12 +8,9 @@ export default defineConfig({
     port: 3000,
     strictPort: true,
     allowedHosts: true,
-    hmr: false,
-    headers: {
-      'Cache-Control': 'no-store, no-cache, must-revalidate, max-age=0',
-      'Pragma': 'no-cache',
-      'Expires': '0'
-    }
+    watch: {
+      ignored: ['**/node_modules/**', '**/.metro-cache/**', '**/.expo/**'],
+    },
   },
   envPrefix: ['VITE_', 'REACT_APP_']
 })
