@@ -15,11 +15,5 @@ export default defineConfig({
       'Expires': '0'
     }
   },
-  preview: {
-    host: '0.0.0.0',
-    port: 3000,
-    strictPort: true,
-    allowedHosts: true
-  },
   envPrefix: ['VITE_', 'REACT_APP_']
 })
