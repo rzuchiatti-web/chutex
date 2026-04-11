@@ -61,12 +61,14 @@ Nos Solutions | Professionnels | Ressources | Legal
 - **Nettoyage refactoring** -- Supprime fichiers hacks (HowItWorks, Stats, AppSection, BeforeAfter, ScrollText, Testimonials, StoreLogos), restaure vite.config.js (HMR reactif, watch ignore metro-cache) (11/04/2026)
 - **Testing complet** -- 29/29 tests passes, 100% frontend (11/04/2026)
 
+- **Elder Landing Page** -- /produits/elder : 9 sections (Hero dark, Stats glass, How It Works 3 etapes, Protection 4 zones, Technology 6 specs, Lifestyle parallax, Testimonials, Pricing 2 formules, FAQ 6 items + Final CTA). Header adaptatif (scroll threshold different home vs sous-pages). 30/30 tests passes (11/04/2026)
+
 ## A FAIRE
 ### P0 - Shopify Storefront API
 - Remplacer panier mocke par vrai checkout
 
 ### P1 - Landing Pages produits
-- Bracelet Elio (+ grille abonnements), Gilet Elder, Balance Vita, Accessoires
+- Bracelet Elio (+ grille abonnements), Balance Vita, Accessoires
 
 ### P1 - Pages professionnels
 - SAAD, Coach, Kine, Distributeur (tunnels d'inscription distincts)
