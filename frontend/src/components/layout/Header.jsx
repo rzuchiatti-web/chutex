@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useLocation } from 'react-router-dom'
 import { Menu, X, Search, ShoppingCart, User, ChevronDown } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useI18n } from '../../i18n/I18nContext'
@@ -20,6 +20,7 @@ const LANGS = [
 
 export default function Header() {
   const { t, lang, setLang, currency } = useI18n()
+  const location = useLocation()
   const [mobileOpen, setMobileOpen] = useState(false)
   const [langOpen, setLangOpen] = useState(false)
   const [searchOpen, setSearchOpen] = useState(false)
@@ -29,14 +30,17 @@ export default function Header() {
   const [scrolled, setScrolled] = useState(false)
   const { count: cartCount } = useCart()
   const currentFlag = LANGS.find(l => l.code === lang)?.flag || LANGS[0].flag
+  const isHome = location.pathname === '/'
 
   useEffect(() => {
     const onScroll = () => {
-      setScrolled(window.scrollY > window.innerHeight * 3.5)
+      const threshold = isHome ? window.innerHeight * 3.5 : window.innerHeight * 0.8
+      setScrolled(window.scrollY > threshold)
     }
+    onScroll()
     window.addEventListener('scroll', onScroll, { passive: true })
     return () => window.removeEventListener('scroll', onScroll)
-  }, [])
+  }, [isHome])
 
   const navLinks = [
     { label: t('nav.elio'), href: '/produits/elio' },

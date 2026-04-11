@@ -5,6 +5,7 @@ import { CartProvider } from './cart/CartContext'
 import Header from './components/layout/Header'
 import Footer from './components/layout/Footer'
 import Home from './pages/HomePage'
+import ElderPage from './pages/ElderPage'
 
 export default function App() {
   return (
@@ -17,6 +18,7 @@ export default function App() {
               <main className="flex-1">
                 <Routes>
                   <Route path="/" element={<Home />} />
+                  <Route path="/produits/elder" element={<ElderPage />} />
                 </Routes>
               </main>
               <Footer />
