@@ -65,12 +65,11 @@ Nos Solutions | Professionnels | Ressources | Legal
 
 - **Panier reel + Checkout Mollie** -- Panier avec localStorage, catalogue 4 produits (Elder, Elder+Teleassistance, Elio, Vita), selection taille, formulaire livraison, paiement Mollie (test mode), webhook de confirmation, page /commande/confirmation avec polling statut. API: GET /api/shop/products, POST /api/shop/checkout, GET /api/shop/order/{id}, POST /api/shop/mollie/webhook. 32/32 tests passes (13/04/2026)
 
-## A FAIRE
-### P0 - Connecter boutons "Ajouter au panier" sur les autres pages produits
-- Ajouter addToCart sur les cartes produits de la page d'accueil (Products section)
+- **Catalogue complet 14 produits** -- 4 categories (devices, subscriptions, bundles, accessories). Devices: Elder 879EUR, Vita 229EUR. Subscriptions Elio: Standard 24.9EUR/mois, Sport 29.9EUR/mois, Physio 34.9EUR/mois, Care 39.9EUR/mois. Bundles: Elder+Tele, Elio+Elder. Accessoires: cartouches helium x2/x4, chargeurs Elder/Elio, bracelet rechange, housse textile. API filtre par categorie. Homepage redirige vers landing pages (pas d'add to cart). 33/33 tests passes (13/04/2026)
 
+## A FAIRE
 ### P1 - Landing Pages produits
-- Bracelet Elio (+ grille abonnements), Balance Vita, Accessoires
+- Bracelet Elio (+ grille abonnements Standard/Sport/Physio/Care), Balance Vita, Accessoires & Recharges
 
 ### P1 - Pages professionnels
 - SAAD, Coach, Kine, Distributeur (tunnels d'inscription distincts)
