@@ -49,6 +49,7 @@ from routes.escalation_routes import router as escalation_router
 from routes.intervention_routes import router as intervention_router
 from routes.notification_routes import router as notification_router
 from routes.nora_routes import router as nora_router
+from routes.shop_routes import router as shop_router
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -95,6 +96,7 @@ api_router.include_router(pro_sub_router)
 api_router.include_router(pro_app_router)
 api_router.include_router(notification_router)
 api_router.include_router(nora_router)
+api_router.include_router(shop_router)
 
 app.include_router(api_router)
 app.add_middleware(CORSMiddleware, allow_credentials=True, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])

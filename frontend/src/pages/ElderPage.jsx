@@ -1,10 +1,11 @@
 import { useRef } from 'react'
 import { motion, useScroll, useTransform, useInView } from 'framer-motion'
 import { useI18n } from '../i18n/I18nContext'
+import { useCart } from '../cart/CartContext'
 import {
   Shield, Zap, Clock, Award, ChevronDown, ArrowRight,
   Battery, Cpu, Radio, Heart, MapPin, Bell,
-  ShieldCheck, Activity, AlertTriangle, Check, Plus, Minus
+  ShieldCheck, Activity, AlertTriangle, Check, Plus, Minus, ShoppingCart
 } from 'lucide-react'
 import { useState } from 'react'
 
@@ -336,9 +337,30 @@ function FaqItem({ q, a, index }) {
 
 export default function ElderPage() {
   const { lang } = useI18n()
+  const { addItem } = useCart()
   const tx = CONTENT[lang] || CONTENT.fr
   const heroRef = useRef(null)
   const lifestyleRef = useRef(null)
+  const [selectedSize, setSelectedSize] = useState('M')
+  const [addedFeedback, setAddedFeedback] = useState(null)
+
+  const sizes = ['S', 'M', 'L', 'XL']
+
+  const handleAddToCart = (productId, name, price, subscriptionPrice) => {
+    const variantId = `${productId}-${selectedSize.toLowerCase()}`
+    const variantLabel = lang === 'fr' ? `Taille ${selectedSize}` : `Size ${selectedSize}`
+    addItem({
+      id: productId,
+      name,
+      price,
+      subscription_price: subscriptionPrice || 0,
+      variant_id: variantId,
+      variant_label: variantLabel,
+      image: PRODUCT_IMG,
+    })
+    setAddedFeedback(productId)
+    setTimeout(() => setAddedFeedback(null), 2000)
+  }
 
   const { scrollYProgress: heroProgress } = useScroll({
     target: heroRef,
@@ -813,7 +835,12 @@ export default function ElderPage() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5 md:gap-6">
-            {tx.pricing.options.map((option, i) => (
+            {tx.pricing.options.map((option, i) => {
+              const productId = i === 0 ? 'elder-vest' : 'elder-teleassistance'
+              const price = 879
+              const subPrice = i === 1 ? 29.9 : 0
+              const isAdded = addedFeedback === productId
+              return (
               <motion.div
                 key={i}
                 initial={{ opacity: 0, y: 40 }}
@@ -837,9 +864,36 @@ export default function ElderPage() {
                 </h3>
                 <p className={`text-[13px] mb-6 ${option.highlighted ? 'text-white/40' : 'text-slate-400'}`}>{option.desc}</p>
 
-                <div className="flex items-baseline gap-1.5 mb-8">
+                <div className="flex items-baseline gap-1.5 mb-6">
                   <span className={`text-4xl md:text-5xl font-semibold tracking-tight ${option.highlighted ? 'text-white' : 'text-slate-900'}`}>{option.price}</span>
                   <span className={`text-[13px] ${option.highlighted ? 'text-white/40' : 'text-slate-400'}`}>{option.unit}</span>
+                </div>
+
+                {/* Size selector */}
+                <div className="mb-6">
+                  <span className={`text-[11px] uppercase tracking-[0.15em] font-medium mb-2 block ${option.highlighted ? 'text-white/30' : 'text-slate-400'}`}>
+                    {lang === 'fr' ? 'Taille' : 'Size'}
+                  </span>
+                  <div className="flex gap-2">
+                    {sizes.map(s => (
+                      <button
+                        key={s}
+                        onClick={() => setSelectedSize(s)}
+                        data-testid={`elder-size-${s.toLowerCase()}-${i}`}
+                        className={`w-10 h-10 rounded-xl text-[13px] font-semibold transition-all duration-300 ${
+                          selectedSize === s
+                            ? option.highlighted
+                              ? 'bg-white text-slate-900'
+                              : 'bg-slate-900 text-white'
+                            : option.highlighted
+                              ? 'bg-white/10 text-white/50 border border-white/10 hover:bg-white/15'
+                              : 'bg-slate-100 text-slate-400 hover:bg-slate-200'
+                        }`}
+                      >
+                        {s}
+                      </button>
+                    ))}
+                  </div>
                 </div>
 
                 <div className={`h-px mb-6 ${option.highlighted ? 'bg-white/10' : 'bg-slate-200'}`} />
@@ -855,16 +909,24 @@ export default function ElderPage() {
 
                 <button
                   data-testid={`elder-pricing-cta-${i}`}
-                  className={`w-full py-4 rounded-full text-[14px] font-semibold transition-all duration-300 ${
-                    option.highlighted
-                      ? 'bg-white text-slate-900 hover:bg-white/90'
-                      : 'bg-slate-900 text-white hover:bg-slate-800'
+                  onClick={() => handleAddToCart(productId, option.name, price, subPrice)}
+                  className={`w-full py-4 rounded-full text-[14px] font-semibold transition-all duration-300 flex items-center justify-center gap-2 ${
+                    isAdded
+                      ? 'bg-emerald-500 text-white'
+                      : option.highlighted
+                        ? 'bg-white text-slate-900 hover:bg-white/90'
+                        : 'bg-slate-900 text-white hover:bg-slate-800'
                   }`}
                 >
-                  {option.cta}
+                  {isAdded ? (
+                    <><Check size={16} strokeWidth={2} />{lang === 'fr' ? 'Ajouté !' : 'Added!'}</>
+                  ) : (
+                    <><ShoppingCart size={16} strokeWidth={1.5} />{option.cta}</>
+                  )}
                 </button>
               </motion.div>
-            ))}
+              )
+            })}
           </div>
         </div>
       </section>

@@ -6,6 +6,7 @@ import Header from './components/layout/Header'
 import Footer from './components/layout/Footer'
 import Home from './pages/HomePage'
 import ElderPage from './pages/ElderPage'
+import OrderConfirmationPage from './pages/OrderConfirmationPage'
 
 export default function App() {
   return (
@@ -19,6 +20,7 @@ export default function App() {
                 <Routes>
                   <Route path="/" element={<Home />} />
                   <Route path="/produits/elder" element={<ElderPage />} />
+                  <Route path="/commande/confirmation" element={<OrderConfirmationPage />} />
                 </Routes>
               </main>
               <Footer />
