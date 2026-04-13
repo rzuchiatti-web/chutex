@@ -18,8 +18,10 @@ mollie_client = MollieClient()
 mollie_client.set_api_key(MOLLIE_TEST_KEY or MOLLIE_API_KEY)
 
 PRODUCTS = {
+    # ─── GILET ELDER ───
     "elder-vest": {
         "id": "elder-vest",
+        "category": "devices",
         "name": "Gilet Elder",
         "name_en": "Elder Vest",
         "price": 879.00,
@@ -34,8 +36,9 @@ PRODUCTS = {
     },
     "elder-teleassistance": {
         "id": "elder-teleassistance",
-        "name": "Elder + Teleassistance",
-        "name_en": "Elder + Teleassistance",
+        "category": "bundles",
+        "name": "Elder + Teleassistance 24/7",
+        "name_en": "Elder + Teleassistance 24/7",
         "price": 879.00,
         "subscription_price": 29.90,
         "type": "hybrid",
@@ -47,18 +50,65 @@ PRODUCTS = {
             {"id": "elder-tele-xl", "label": "Taille XL", "label_en": "Size XL"},
         ],
     },
-    "elio-bracelet": {
-        "id": "elio-bracelet",
-        "name": "Bracelet Elio",
-        "name_en": "Elio Bracelet",
+
+    # ─── BRACELET ELIO — Abonnements ───
+    "elio-standard": {
+        "id": "elio-standard",
+        "category": "subscriptions",
+        "name": "Elio — Abonnement Standard",
+        "name_en": "Elio — Standard Plan",
         "price": 0,
         "subscription_price": 24.90,
         "type": "subscription",
+        "desc": "Suivi sante continu, alertes preventives, app Chutex.",
+        "desc_en": "Continuous health monitoring, preventive alerts, Chutex app.",
         "image": "https://chutex-innovation.com/cdn/shop/files/elio_bracelet_health_connected_chutex_1.jpg?v=1760010576&width=400",
         "variants": [],
     },
+    "elio-sport": {
+        "id": "elio-sport",
+        "category": "subscriptions",
+        "name": "Elio — Abonnement Sport",
+        "name_en": "Elio — Sport Plan",
+        "price": 0,
+        "subscription_price": 29.90,
+        "type": "subscription",
+        "desc": "Standard + coaching sportif, VO2max, recuperation, programmes personnalises.",
+        "desc_en": "Standard + sports coaching, VO2max, recovery, personalized programs.",
+        "image": "https://chutex-innovation.com/cdn/shop/files/elio_bracelet_health_connected_chutex_1.jpg?v=1760010576&width=400",
+        "variants": [],
+    },
+    "elio-physio": {
+        "id": "elio-physio",
+        "category": "subscriptions",
+        "name": "Elio — Abonnement Physio",
+        "name_en": "Elio — Physio Plan",
+        "price": 0,
+        "subscription_price": 34.90,
+        "type": "subscription",
+        "desc": "Standard + suivi reeducation, partage donnees kinesitherapeute, exercices guides.",
+        "desc_en": "Standard + rehabilitation tracking, physio data sharing, guided exercises.",
+        "image": "https://chutex-innovation.com/cdn/shop/files/elio_bracelet_health_connected_chutex_1.jpg?v=1760010576&width=400",
+        "variants": [],
+    },
+    "elio-care": {
+        "id": "elio-care",
+        "category": "subscriptions",
+        "name": "Elio — Abonnement Care",
+        "name_en": "Elio — Care Plan",
+        "price": 0,
+        "subscription_price": 39.90,
+        "type": "subscription",
+        "desc": "Tout inclus : teleassistance 24/7, geolocalisation, coordination secours, support prioritaire.",
+        "desc_en": "All-inclusive: 24/7 teleassistance, geolocation, emergency coordination, priority support.",
+        "image": "https://chutex-innovation.com/cdn/shop/files/elio_bracelet_health_connected_chutex_1.jpg?v=1760010576&width=400",
+        "variants": [],
+    },
+
+    # ─── BALANCE VITA ───
     "vita-scale": {
         "id": "vita-scale",
+        "category": "devices",
         "name": "Balance Vita",
         "name_en": "Vita Scale",
         "price": 229.00,
@@ -66,13 +116,118 @@ PRODUCTS = {
         "image": "https://static.prod-images.emergentagent.com/jobs/48e5eb31-c61a-4fb1-be42-94e61a127565/images/99cc1301d04c1c60a23347cfabdb0335b694b42162bb12541d38ea6638ebb23d.png",
         "variants": [],
     },
+
+    # ─── BUNDLES ───
+    "bundle-elio-elder": {
+        "id": "bundle-elio-elder",
+        "category": "bundles",
+        "name": "Pack Elio + Elder — Teleassistance 24/7",
+        "name_en": "Elio + Elder Bundle — 24/7 Teleassistance",
+        "price": 879.00,
+        "subscription_price": 79.90,
+        "type": "hybrid",
+        "desc": "Le pack complet : gilet airbag + bracelet + teleassistance 24/7.",
+        "desc_en": "The complete pack: airbag vest + bracelet + 24/7 teleassistance.",
+        "image": "https://chutex-innovation.com/cdn/shop/files/chutex-elder-airbag-vest-made-in-france-front-side.png?v=1752931654&width=400",
+        "variants": [
+            {"id": "bundle-elio-elder-s", "label": "Taille S (Gilet)", "label_en": "Size S (Vest)"},
+            {"id": "bundle-elio-elder-m", "label": "Taille M (Gilet)", "label_en": "Size M (Vest)"},
+            {"id": "bundle-elio-elder-l", "label": "Taille L (Gilet)", "label_en": "Size L (Vest)"},
+            {"id": "bundle-elio-elder-xl", "label": "Taille XL (Gilet)", "label_en": "Size XL (Vest)"},
+        ],
+    },
+
+    # ─── ACCESSOIRES & RECHARGES ───
+    "cartouche-helium-x2": {
+        "id": "cartouche-helium-x2",
+        "category": "accessories",
+        "name": "Cartouches d'helium (x2)",
+        "name_en": "Helium Cartridges (x2)",
+        "price": 39.90,
+        "type": "one-time",
+        "desc": "Lot de 2 cartouches de recharge pour les cellules airbag du gilet Elder.",
+        "desc_en": "Pack of 2 refill cartridges for Elder vest airbag cells.",
+        "image": "https://chutex-innovation.com/cdn/shop/files/chutex-elder-airbag-vest-made-in-france-front-side.png?v=1752931654&width=400",
+        "variants": [],
+    },
+    "cartouche-helium-x4": {
+        "id": "cartouche-helium-x4",
+        "category": "accessories",
+        "name": "Cartouches d'helium (x4)",
+        "name_en": "Helium Cartridges (x4)",
+        "price": 69.90,
+        "type": "one-time",
+        "desc": "Lot de 4 cartouches de recharge — prix avantageux.",
+        "desc_en": "Pack of 4 refill cartridges — best value.",
+        "image": "https://chutex-innovation.com/cdn/shop/files/chutex-elder-airbag-vest-made-in-france-front-side.png?v=1752931654&width=400",
+        "variants": [],
+    },
+    "chargeur-elder": {
+        "id": "chargeur-elder",
+        "category": "accessories",
+        "name": "Chargeur USB-C Elder",
+        "name_en": "Elder USB-C Charger",
+        "price": 19.90,
+        "type": "one-time",
+        "desc": "Chargeur de remplacement pour le gilet Elder.",
+        "desc_en": "Replacement charger for the Elder vest.",
+        "image": "https://chutex-innovation.com/cdn/shop/files/chutex-elder-airbag-vest-made-in-france-front-side.png?v=1752931654&width=400",
+        "variants": [],
+    },
+    "chargeur-elio": {
+        "id": "chargeur-elio",
+        "category": "accessories",
+        "name": "Chargeur magnetique Elio",
+        "name_en": "Elio Magnetic Charger",
+        "price": 14.90,
+        "type": "one-time",
+        "desc": "Chargeur magnetique de remplacement pour le bracelet Elio.",
+        "desc_en": "Replacement magnetic charger for the Elio bracelet.",
+        "image": "https://chutex-innovation.com/cdn/shop/files/elio_bracelet_health_connected_chutex_1.jpg?v=1760010576&width=400",
+        "variants": [],
+    },
+    "bracelet-elio-spare": {
+        "id": "bracelet-elio-spare",
+        "category": "accessories",
+        "name": "Bracelet Elio — Bracelet de rechange",
+        "name_en": "Elio — Spare Strap",
+        "price": 24.90,
+        "type": "one-time",
+        "desc": "Bracelet en silicone medical de rechange (3 couleurs).",
+        "desc_en": "Replacement medical silicone strap (3 colors).",
+        "image": "https://chutex-innovation.com/cdn/shop/files/elio_bracelet_health_connected_chutex_1.jpg?v=1760010576&width=400",
+        "variants": [
+            {"id": "bracelet-spare-noir", "label": "Noir", "label_en": "Black"},
+            {"id": "bracelet-spare-gris", "label": "Gris", "label_en": "Grey"},
+            {"id": "bracelet-spare-bleu", "label": "Bleu marine", "label_en": "Navy blue"},
+        ],
+    },
+    "housse-elder": {
+        "id": "housse-elder",
+        "category": "accessories",
+        "name": "Housse textile Elder",
+        "name_en": "Elder Textile Cover",
+        "price": 49.90,
+        "type": "one-time",
+        "desc": "Housse de remplacement lavable en machine pour le gilet Elder.",
+        "desc_en": "Machine-washable replacement cover for the Elder vest.",
+        "image": "https://chutex-innovation.com/cdn/shop/files/chutex-elder-airbag-vest-made-in-france-front-side.png?v=1752931654&width=400",
+        "variants": [
+            {"id": "housse-elder-s", "label": "Taille S", "label_en": "Size S"},
+            {"id": "housse-elder-m", "label": "Taille M", "label_en": "Size M"},
+            {"id": "housse-elder-l", "label": "Taille L", "label_en": "Size L"},
+            {"id": "housse-elder-xl", "label": "Taille XL", "label_en": "Size XL"},
+        ],
+    },
 }
 
 
 @router.get("/shop/products")
-async def get_products():
+async def get_products(category: str = ""):
     products = []
     for p in PRODUCTS.values():
+        if category and p.get("category") != category:
+            continue
         products.append({k: v for k, v in p.items()})
     return {"products": products}
 
@@ -236,9 +391,6 @@ async def shop_mollie_webhook(request: Request):
                 {"$set": {"status": "paid", "paid_at": now, "updated_at": now}}
             )
             logger.info(f"Shop order {order['order_id']} PAID")
-
-            if order.get("has_subscription"):
-                logger.info(f"Shop order {order['order_id']} has subscription — first payment completed, mandate created")
 
         elif payment.is_failed() or payment.is_expired() or payment.is_canceled():
             status = "failed" if payment.is_failed() else ("expired" if payment.is_expired() else "canceled")
