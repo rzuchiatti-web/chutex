@@ -63,9 +63,11 @@ Nos Solutions | Professionnels | Ressources | Legal
 
 - **Elder Landing Page** -- /produits/elder : 9 sections (Hero dark, Stats glass, How It Works 3 etapes, Protection 4 zones, Technology 6 specs, Lifestyle parallax, Testimonials, Pricing 2 formules, FAQ 6 items + Final CTA). Header adaptatif (scroll threshold different home vs sous-pages). 30/30 tests passes (11/04/2026)
 
+- **Panier reel + Checkout Mollie** -- Panier avec localStorage, catalogue 4 produits (Elder, Elder+Teleassistance, Elio, Vita), selection taille, formulaire livraison, paiement Mollie (test mode), webhook de confirmation, page /commande/confirmation avec polling statut. API: GET /api/shop/products, POST /api/shop/checkout, GET /api/shop/order/{id}, POST /api/shop/mollie/webhook. 32/32 tests passes (13/04/2026)
+
 ## A FAIRE
-### P0 - Shopify Storefront API
-- Remplacer panier mocke par vrai checkout
+### P0 - Connecter boutons "Ajouter au panier" sur les autres pages produits
+- Ajouter addToCart sur les cartes produits de la page d'accueil (Products section)
 
 ### P1 - Landing Pages produits
 - Bracelet Elio (+ grille abonnements), Balance Vita, Accessoires
