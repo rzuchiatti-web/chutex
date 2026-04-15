@@ -84,7 +84,7 @@ function DeviceCard({ device, lang, index }) {
           <img
             src={device.image}
             alt={tx.name}
-            className="absolute top-0 left-1/2 -translate-x-1/2 w-[80%] h-auto min-h-[130%] object-contain object-top"
+            className="absolute top-0 left-1/2 -translate-x-1/2 h-[140%] w-auto object-contain object-top"
           />
         </div>
       </div>
