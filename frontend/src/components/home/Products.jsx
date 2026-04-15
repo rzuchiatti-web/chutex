@@ -6,29 +6,29 @@ const DEVICES = [
     key: 'elio',
     href: '/produits/elio',
     image: '/images/products/elio-hero.webp',
-    fr: { badge: 'Bracelet de sante', name: 'Elio', tagline: "Le bracelet de sante\nle plus performant." },
-    en: { badge: 'Health bracelet', name: 'Elio', tagline: "The most advanced\nhealth bracelet." },
+    fr: { badge: 'Bracelet de sante', name: 'Elio', tagline: "Le bracelet de sante connecte\nle plus performant du marche." },
+    en: { badge: 'Health bracelet', name: 'Elio', tagline: "The most advanced connected\nhealth bracelet on the market." },
   },
   {
     key: 'vita',
     href: '/produits/vita',
     image: '/images/products/vita-card.webp',
-    fr: { badge: 'Balance de sante', name: 'Vita', tagline: "L'analyse corporelle\nla plus complete." },
-    en: { badge: 'Health scale', name: 'Vita', tagline: "The most complete\nbody analysis." },
+    fr: { badge: 'Balance de sante', name: 'Vita', tagline: "L'analyse corporelle la plus\ncomplete, directement chez vous." },
+    en: { badge: 'Health scale', name: 'Vita', tagline: "The most complete body\nanalysis, right at home." },
   },
   {
     key: 'elder',
     href: '/produits/elder',
     image: '/images/products/elder-card.webp',
-    fr: { badge: 'Gilet de protection', name: 'Elder', tagline: "Protection instantanee\ncontre les chutes." },
-    en: { badge: 'Protection vest', name: 'Elder', tagline: "Instant protection\nagainst falls." },
+    fr: { badge: 'Gilet de protection', name: 'Elder', tagline: "Protection instantanee et\nautomatique contre les chutes." },
+    en: { badge: 'Protection vest', name: 'Elder', tagline: "Instant and automatic\nprotection against falls." },
   },
   {
     key: 'dorsi',
     href: '/produits/dorsi',
     image: '/images/products/dorsi-card.webp',
-    fr: { badge: 'Coussin connecte', name: 'Dorsi', tagline: "Le premier coussin\nconnecte preventif." },
-    en: { badge: 'Smart cushion', name: 'Dorsi', tagline: "The first preventive\nsmart cushion." },
+    fr: { badge: 'Coussin connecte', name: 'Dorsi', tagline: "Le premier coussin connecte\nde prevention lombaire." },
+    en: { badge: 'Smart cushion', name: 'Dorsi', tagline: "The first connected cushion\nfor lumbar prevention." },
   },
 ]
 
@@ -62,7 +62,7 @@ function DeviceCard({ device, lang, index }) {
           <img
             src={device.image}
             alt={tx.name}
-            className="absolute top-[5%] left-[5%] w-[85%] h-auto max-h-[115%] object-contain object-left-top transition-transform duration-700 group-hover:scale-[1.03]"
+            className="absolute top-[3%] left-[5%] w-[90%] h-auto min-h-[120%] object-contain object-left-top transition-transform duration-700 group-hover:scale-[1.03]"
           />
         </div>
       </div>
@@ -84,7 +84,7 @@ function DeviceCard({ device, lang, index }) {
           <img
             src={device.image}
             alt={tx.name}
-            className="absolute top-0 left-1/2 -translate-x-1/2 w-[70%] h-auto object-contain object-top"
+            className="absolute top-0 left-1/2 -translate-x-1/2 w-[80%] h-auto min-h-[130%] object-contain object-top"
           />
         </div>
       </div>
