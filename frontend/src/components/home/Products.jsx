@@ -67,24 +67,24 @@ function DeviceCard({ device, lang, index }) {
         />
       </div>
 
-      {/* Mobile layout: text top + image bottom (4-col row) */}
-      <div className="sm:hidden flex flex-col h-full">
-        <div className="p-3 pb-1">
-          <span className="inline-block px-2 py-0.5 rounded-full bg-[#5B6CFF] text-white text-[8px] font-semibold tracking-wide mb-1.5">
+      {/* Mobile layout: text top + image bottom (1 card per row) */}
+      <div className="sm:hidden flex flex-col">
+        <div className="p-4 pb-0">
+          <span className="inline-block px-2.5 py-1 rounded-full bg-[#5B6CFF] text-white text-[10px] font-semibold tracking-wide mb-2">
             {tx.badge}
           </span>
-          <h3 className="text-[1.4rem] font-extrabold text-slate-900 tracking-[-0.03em] leading-[0.9] mb-1">
+          <h3 className="text-[2rem] font-extrabold text-slate-900 tracking-[-0.04em] leading-[0.88] mb-1.5">
             {tx.name}
           </h3>
-          <p className="text-[10px] text-slate-600 leading-[1.3] whitespace-pre-line font-semibold">
+          <p className="text-[13px] text-slate-600 leading-[1.35] whitespace-pre-line font-semibold">
             {tx.tagline}
           </p>
         </div>
-        <div className="flex-1 min-h-[130px] relative overflow-hidden">
+        <div className="h-[200px] relative overflow-hidden">
           <img
             src={device.image}
             alt={tx.name}
-            className="absolute bottom-0 left-1/2 -translate-x-1/2 h-[110%] w-auto object-contain transition-transform duration-700 group-hover:scale-[1.03]"
+            className="absolute bottom-0 right-0 h-[105%] w-auto max-w-[70%] object-contain object-right-bottom"
           />
         </div>
       </div>
@@ -133,8 +133,8 @@ export default function Products() {
           </motion.p>
         </div>
 
-        {/* Mobile: 4 columns in a row */}
-        <div className="grid grid-cols-4 gap-2 sm:hidden">
+        {/* Mobile: 1 card per row */}
+        <div className="grid grid-cols-1 gap-3 sm:hidden">
           {DEVICES.map((device, i) => (
             <DeviceCard key={device.key} device={device} lang={lang} index={i} />
           ))}
