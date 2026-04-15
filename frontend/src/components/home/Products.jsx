@@ -86,7 +86,7 @@ function DeviceCard({ device, lang, index }) {
         </div>
 
         {/* Image — centered, crops at bottom */}
-        <div className={`h-[260px] relative overflow-hidden ${device.key === 'dorsi' ? 'mx-10' : ''}`}>
+        <div className={`relative overflow-hidden ${device.key === 'dorsi' ? 'h-[200px] mx-10' : 'h-[260px]'}`}>
           <img
             src={device.image}
             alt={tx.name}
