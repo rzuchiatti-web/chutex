@@ -43,34 +43,37 @@ function DeviceCard({ device, lang, index }) {
       viewport={{ once: true }}
       transition={{ duration: 0.6, delay: index * 0.1 }}
       data-testid={`device-card-${device.key}`}
-      className="group relative bg-[#f0f0f3] rounded-[1.5rem] md:rounded-[2rem] overflow-hidden cursor-pointer hover:shadow-[0_12px_50px_-15px_rgba(0,0,0,0.1)] transition-all duration-500 flex flex-col"
+      className="group relative bg-[#f0f0f3] rounded-[1.5rem] md:rounded-[2rem] overflow-hidden cursor-pointer hover:shadow-[0_12px_50px_-15px_rgba(0,0,0,0.1)] transition-all duration-500"
     >
-      <div className="p-5 md:p-7 pb-0 flex flex-col flex-1">
-        {/* Badge pill */}
-        <div className="mb-3 md:mb-4">
-          <span className="inline-block px-3.5 py-1.5 rounded-full bg-[#5B6CFF] text-white text-[11px] md:text-[12px] font-semibold tracking-wide">
-            {tx.badge}
-          </span>
+      <div className="relative p-5 md:p-6 h-[280px] sm:h-[320px] md:h-[380px] flex">
+        {/* Text side */}
+        <div className="relative z-10 flex flex-col w-[55%] md:w-[50%]">
+          {/* Badge pill */}
+          <div className="mb-2 md:mb-3">
+            <span className="inline-block px-3 py-1 rounded-full bg-[#5B6CFF] text-white text-[10px] md:text-[11px] font-semibold tracking-wide">
+              {tx.badge}
+            </span>
+          </div>
+
+          {/* Name */}
+          <h3 className="text-[2.2rem] md:text-[3rem] lg:text-[3.5rem] font-bold text-slate-900 tracking-[-0.04em] leading-[0.9] mb-1.5 md:mb-2">
+            {tx.name}
+          </h3>
+
+          {/* Tagline */}
+          <p className="text-[13px] md:text-[15px] text-slate-500 leading-[1.4] whitespace-pre-line font-medium">
+            {tx.tagline}
+          </p>
         </div>
 
-        {/* Name */}
-        <h3 className="text-[2.5rem] md:text-[3.5rem] lg:text-[4rem] font-bold text-slate-900 tracking-[-0.04em] leading-[0.9] mb-2 md:mb-3">
-          {tx.name}
-        </h3>
-
-        {/* Tagline */}
-        <p className="text-[14px] md:text-[16px] text-slate-500 leading-[1.45] whitespace-pre-line font-medium">
-          {tx.tagline}
-        </p>
-      </div>
-
-      {/* Image container — overflows from bottom-right */}
-      <div className="relative h-[220px] md:h-[280px] lg:h-[320px] mt-auto overflow-hidden">
-        <img
-          src={device.image}
-          alt={tx.name}
-          className="absolute bottom-0 right-0 w-[85%] h-[110%] object-contain object-right-bottom transition-transform duration-700 group-hover:scale-105"
-        />
+        {/* Image side — positioned right, contained properly */}
+        <div className="absolute right-0 bottom-0 w-[55%] md:w-[55%] h-full flex items-end justify-end">
+          <img
+            src={device.image}
+            alt={tx.name}
+            className="max-w-full max-h-[95%] object-contain object-right-bottom transition-transform duration-700 group-hover:scale-[1.03]"
+          />
+        </div>
       </div>
     </motion.a>
   )
