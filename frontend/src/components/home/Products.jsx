@@ -47,8 +47,7 @@ function DeviceCard({ device, lang, index }) {
     >
       {/* Desktop: text left, image right */}
       <div className="hidden sm:flex relative h-[260px] lg:h-[300px]">
-        {/* Text — centered vertically */}
-        <div className="w-[45%] flex flex-col justify-center p-5 lg:p-7">
+        <div className="w-[45%] flex flex-col justify-center p-5 lg:p-7 relative z-10">
           <span className="inline-block self-start px-3 py-1 rounded-full bg-[#5B6CFF] text-white text-[10px] lg:text-[11px] font-semibold tracking-wide mb-3">
             {tx.badge}
           </span>
@@ -59,19 +58,18 @@ function DeviceCard({ device, lang, index }) {
             {tx.tagline}
           </p>
         </div>
-        {/* Image — right side, cropped at bottom */}
         <div className="w-[55%] relative overflow-hidden">
           <img
             src={device.image}
             alt={tx.name}
-            className="absolute bottom-[-5%] right-0 h-[110%] w-auto object-contain object-right-bottom transition-transform duration-700 group-hover:scale-[1.03]"
+            className="absolute top-[5%] right-0 w-[90%] h-auto max-h-[110%] object-contain object-right-top transition-transform duration-700 group-hover:scale-[1.03]"
           />
         </div>
       </div>
 
-      {/* Mobile: all centered, image cropped at bottom */}
-      <div className="sm:hidden flex flex-col items-center text-center">
-        <div className="pt-5 px-4">
+      {/* Mobile: centered text, image below cropped at bottom only */}
+      <div className="sm:hidden flex flex-col items-center text-center h-[320px]">
+        <div className="pt-5 px-4 pb-2">
           <span className="inline-block px-3 py-1 rounded-full bg-[#5B6CFF] text-white text-[10px] font-semibold tracking-wide mb-2">
             {tx.badge}
           </span>
@@ -82,12 +80,11 @@ function DeviceCard({ device, lang, index }) {
             {tx.tagline}
           </p>
         </div>
-        {/* Image centered, cropped at bottom */}
-        <div className="w-full h-[180px] relative overflow-hidden mt-2">
+        <div className="flex-1 w-full relative overflow-hidden">
           <img
             src={device.image}
             alt={tx.name}
-            className="absolute bottom-[-10%] left-1/2 -translate-x-1/2 h-[120%] w-auto object-contain"
+            className="absolute top-0 left-1/2 -translate-x-1/2 w-[75%] h-auto object-contain object-top"
           />
         </div>
       </div>
@@ -101,7 +98,6 @@ export default function Products() {
   return (
     <section id="products" data-testid="products-section" className="py-14 md:py-20 bg-white">
       <div className="max-w-[1780px] mx-auto px-4 md:px-12">
-        {/* Header */}
         <div className="mb-8 md:mb-10">
           <motion.div
             initial={{ opacity: 0 }}
@@ -136,7 +132,6 @@ export default function Products() {
           </motion.p>
         </div>
 
-        {/* 2x2 Grid (desktop) / 1 col (mobile) */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-4">
           {DEVICES.map((device, i) => (
             <DeviceCard key={device.key} device={device} lang={lang} index={i} />
