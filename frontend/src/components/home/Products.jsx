@@ -90,7 +90,7 @@ function DeviceCard({ device, lang, index }) {
           <img
             src={device.image}
             alt={tx.name}
-            className="absolute top-0 left-1/2 -translate-x-1/2 h-[140%] w-auto object-contain object-top"
+            className={`absolute top-0 left-1/2 -translate-x-1/2 object-contain object-top ${device.key === 'dorsi' ? 'w-[350%] h-auto' : 'h-[140%] w-auto'}`}
           />
         </div>
       </div>
