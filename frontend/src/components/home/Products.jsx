@@ -48,13 +48,13 @@ function DeviceCard({ device, lang, index }) {
       {/* Desktop: text left, image right */}
       <div className="hidden sm:flex relative h-[300px] lg:h-[360px]">
         <div className="w-[45%] flex flex-col justify-center p-7 lg:p-10 relative z-10">
-          <span className="inline-block self-start px-4 py-1.5 rounded-full bg-[#5B6CFF] text-white text-[11px] lg:text-[12px] font-semibold tracking-wide mb-4 lg:mb-5">
+          <span className="inline-block self-start px-5 py-2 rounded-full bg-[#5B6CFF] text-white text-[12px] lg:text-[13px] font-semibold tracking-wide mb-5 lg:mb-6">
             {tx.badge}
           </span>
           <h3 className="text-[2.8rem] lg:text-[3.5rem] xl:text-[4.5rem] font-extrabold text-slate-900 tracking-[-0.04em] leading-[0.88] mb-3 lg:mb-4">
             {tx.name}
           </h3>
-          <p className="text-[14px] lg:text-[16px] text-slate-600 leading-[1.45] whitespace-pre-line font-semibold">
+          <p className="text-[15px] lg:text-[17px] text-slate-600 leading-[1.5] whitespace-pre-line font-semibold">
             {tx.tagline}
           </p>
         </div>
@@ -62,7 +62,7 @@ function DeviceCard({ device, lang, index }) {
           <img
             src={device.image}
             alt={tx.name}
-            className="absolute top-[5%] right-0 w-[90%] h-auto max-h-[110%] object-contain object-right-top transition-transform duration-700 group-hover:scale-[1.03]"
+            className="absolute top-[5%] left-[5%] w-[85%] h-auto max-h-[115%] object-contain object-left-top transition-transform duration-700 group-hover:scale-[1.03]"
           />
         </div>
       </div>
