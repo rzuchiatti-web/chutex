@@ -72,8 +72,8 @@ function DeviceCard({ device, lang, index }) {
 
       {/* ── MOBILE ── */}
       <div className="sm:hidden">
-        {/* Text — left-aligned */}
-        <div className="pt-6 px-5 pb-3 text-left">
+        {/* Text — centered */}
+        <div className="pt-6 px-5 pb-3 text-center">
           <span className="inline-block px-4 py-1.5 rounded-full bg-[#5B6CFF] text-white text-[11px] font-semibold tracking-wide mb-4">
             {tx.badge}
           </span>
