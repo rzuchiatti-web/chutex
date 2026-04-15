@@ -45,32 +45,36 @@ function DeviceCard({ device, lang, index }) {
       data-testid={`device-card-${device.key}`}
       className="group relative bg-[#EEEEF1] rounded-2xl md:rounded-[1.8rem] overflow-hidden cursor-pointer hover:shadow-[0_8px_40px_-12px_rgba(0,0,0,0.1)] transition-all duration-500 block"
     >
-      {/* Desktop: text left, image right */}
-      <div className="hidden sm:flex relative h-[300px] lg:h-[360px]">
-        <div className="w-[45%] flex flex-col justify-center p-7 lg:p-10 relative z-10">
-          <span className="inline-block self-start px-5 py-2 rounded-full bg-[#5B6CFF] text-white text-[12px] lg:text-[13px] font-semibold tracking-wide mb-5 lg:mb-6">
+      {/* ── DESKTOP ── */}
+      <div className="hidden sm:block relative h-[300px] lg:h-[360px]">
+        {/* Text — vertically centered, left side */}
+        <div className="absolute top-0 left-0 h-full w-[40%] flex flex-col justify-center p-6 lg:p-8 z-10">
+          <span className="inline-block self-start px-4 py-1.5 rounded-full bg-[#5B6CFF] text-white text-[12px] lg:text-[13px] font-semibold tracking-wide mb-4 lg:mb-5">
             {tx.badge}
           </span>
-          <h3 className="text-[2.8rem] lg:text-[3.5rem] xl:text-[4.5rem] font-extrabold text-slate-900 tracking-[-0.04em] leading-[0.88] mb-3 lg:mb-4">
+          <h3 className="text-[2.5rem] lg:text-[3.2rem] xl:text-[4rem] font-extrabold text-slate-900 tracking-[-0.04em] leading-[0.88] mb-3">
             {tx.name}
           </h3>
-          <p className="text-[15px] lg:text-[17px] text-slate-600 leading-[1.5] whitespace-pre-line font-semibold">
+          <p className="text-[14px] lg:text-[16px] text-slate-600 leading-[1.45] whitespace-pre-line font-semibold">
             {tx.tagline}
           </p>
         </div>
-        <div className="w-[55%] relative overflow-hidden">
+
+        {/* Image — fills right 65%, anchored top, crops at bottom */}
+        <div className="absolute top-0 right-0 w-[65%] h-full overflow-hidden">
           <img
             src={device.image}
             alt={tx.name}
-            className="absolute top-[3%] left-[5%] w-[90%] h-auto min-h-[120%] object-contain object-left-top transition-transform duration-700 group-hover:scale-[1.03]"
+            className="w-full h-[130%] object-contain object-top transition-transform duration-700 group-hover:scale-[1.03]"
           />
         </div>
       </div>
 
-      {/* Mobile: centered text, image below cropped at bottom only */}
-      <div className="sm:hidden flex flex-col items-center text-center h-[380px]">
-        <div className="pt-5 px-4 pb-2">
-          <span className="inline-block px-3.5 py-1.5 rounded-full bg-[#5B6CFF] text-white text-[11px] font-semibold tracking-wide mb-2.5">
+      {/* ── MOBILE ── */}
+      <div className="sm:hidden">
+        {/* Text — centered */}
+        <div className="pt-6 px-5 pb-3 text-center">
+          <span className="inline-block px-4 py-1.5 rounded-full bg-[#5B6CFF] text-white text-[11px] font-semibold tracking-wide mb-4">
             {tx.badge}
           </span>
           <h3 className="text-[2.2rem] font-extrabold text-slate-900 tracking-[-0.04em] leading-[0.88] mb-2">
@@ -80,7 +84,9 @@ function DeviceCard({ device, lang, index }) {
             {tx.tagline}
           </p>
         </div>
-        <div className="flex-1 w-full relative overflow-hidden">
+
+        {/* Image — centered, crops at bottom */}
+        <div className="h-[260px] relative overflow-hidden">
           <img
             src={device.image}
             alt={tx.name}
