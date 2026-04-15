@@ -46,6 +46,7 @@ export default function Header() {
     { label: t('nav.elio'), href: '/produits/elio' },
     { label: t('nav.vita'), href: '/produits/vita' },
     { label: t('nav.elder'), href: '/produits/elder' },
+    { label: t('nav.dorsi'), href: '/produits/dorsi' },
     { label: t('nav.teleassistance'), href: '/teleassistance' },
     { label: t('nav.accessories'), href: '/produits/accessoires' },
     { label: t('nav.app'), href: '/application' },

@@ -117,6 +117,20 @@ PRODUCTS = {
         "variants": [],
     },
 
+    # ─── COUSSIN DORSI ───
+    "dorsi-cushion": {
+        "id": "dorsi-cushion",
+        "category": "devices",
+        "name": "Coussin Dorsi",
+        "name_en": "Dorsi Cushion",
+        "price": 349.00,
+        "type": "one-time",
+        "desc": "Coussin connecte de prevention lombaire. Bilan de mobilite, exercices guides, suivi progression.",
+        "desc_en": "Connected lumbar prevention cushion. Mobility assessment, guided exercises, progress tracking.",
+        "image": "/images/products/dorsi-card.webp",
+        "variants": [],
+    },
+
     # ─── BUNDLES ───
     "bundle-elio-elder": {
         "id": "bundle-elio-elder",
