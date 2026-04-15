@@ -45,46 +45,49 @@ function DeviceCard({ device, lang, index }) {
       data-testid={`device-card-${device.key}`}
       className="group relative bg-[#EEEEF1] rounded-2xl md:rounded-[1.8rem] overflow-hidden cursor-pointer hover:shadow-[0_8px_40px_-12px_rgba(0,0,0,0.1)] transition-all duration-500 block"
     >
-      {/* Desktop layout: text left + image right */}
-      <div className="hidden sm:block relative h-[280px] lg:h-[320px]">
-        {/* Text */}
-        <div className="absolute top-0 left-0 z-10 p-5 lg:p-6 w-[50%]">
-          <span className="inline-block px-3 py-1 rounded-full bg-[#5B6CFF] text-white text-[10px] lg:text-[11px] font-semibold tracking-wide mb-2 lg:mb-3">
+      {/* Desktop: text left, image right */}
+      <div className="hidden sm:flex relative h-[260px] lg:h-[300px]">
+        {/* Text — centered vertically */}
+        <div className="w-[45%] flex flex-col justify-center p-5 lg:p-7">
+          <span className="inline-block self-start px-3 py-1 rounded-full bg-[#5B6CFF] text-white text-[10px] lg:text-[11px] font-semibold tracking-wide mb-3">
             {tx.badge}
           </span>
-          <h3 className="text-[2.2rem] lg:text-[3rem] xl:text-[3.5rem] font-extrabold text-slate-900 tracking-[-0.04em] leading-[0.88] mb-1.5 lg:mb-2">
+          <h3 className="text-[2.2rem] lg:text-[3rem] xl:text-[3.5rem] font-extrabold text-slate-900 tracking-[-0.04em] leading-[0.88] mb-2">
             {tx.name}
           </h3>
           <p className="text-[13px] lg:text-[15px] text-slate-600 leading-[1.35] whitespace-pre-line font-semibold">
             {tx.tagline}
           </p>
         </div>
-        {/* Image — anchored bottom-right, allowed to crop at edges */}
-        <img
-          src={device.image}
-          alt={tx.name}
-          className="absolute bottom-0 right-0 h-[100%] w-auto max-w-[65%] object-contain object-right-bottom transition-transform duration-700 group-hover:scale-[1.03]"
-        />
+        {/* Image — right side, cropped at bottom */}
+        <div className="w-[55%] relative overflow-hidden">
+          <img
+            src={device.image}
+            alt={tx.name}
+            className="absolute bottom-[-5%] right-0 h-[110%] w-auto object-contain object-right-bottom transition-transform duration-700 group-hover:scale-[1.03]"
+          />
+        </div>
       </div>
 
-      {/* Mobile layout: text top + image bottom (1 card per row) */}
-      <div className="sm:hidden flex flex-col">
-        <div className="p-4 pb-0">
-          <span className="inline-block px-2.5 py-1 rounded-full bg-[#5B6CFF] text-white text-[10px] font-semibold tracking-wide mb-2">
+      {/* Mobile: all centered, image cropped at bottom */}
+      <div className="sm:hidden flex flex-col items-center text-center">
+        <div className="pt-5 px-4">
+          <span className="inline-block px-3 py-1 rounded-full bg-[#5B6CFF] text-white text-[10px] font-semibold tracking-wide mb-2">
             {tx.badge}
           </span>
           <h3 className="text-[2rem] font-extrabold text-slate-900 tracking-[-0.04em] leading-[0.88] mb-1.5">
             {tx.name}
           </h3>
-          <p className="text-[13px] text-slate-600 leading-[1.35] whitespace-pre-line font-semibold">
+          <p className="text-[12px] text-slate-600 leading-[1.35] whitespace-pre-line font-semibold">
             {tx.tagline}
           </p>
         </div>
-        <div className="h-[200px] relative overflow-hidden">
+        {/* Image centered, cropped at bottom */}
+        <div className="w-full h-[180px] relative overflow-hidden mt-2">
           <img
             src={device.image}
             alt={tx.name}
-            className="absolute bottom-0 right-0 h-[105%] w-auto max-w-[70%] object-contain object-right-bottom"
+            className="absolute bottom-[-10%] left-1/2 -translate-x-1/2 h-[120%] w-auto object-contain"
           />
         </div>
       </div>
@@ -133,15 +136,8 @@ export default function Products() {
           </motion.p>
         </div>
 
-        {/* Mobile: 1 card per row */}
-        <div className="grid grid-cols-1 gap-3 sm:hidden">
-          {DEVICES.map((device, i) => (
-            <DeviceCard key={device.key} device={device} lang={lang} index={i} />
-          ))}
-        </div>
-
-        {/* Desktop: 2x2 grid */}
-        <div className="hidden sm:grid sm:grid-cols-2 gap-4 md:gap-5">
+        {/* 2x2 Grid (desktop) / 1 col (mobile) */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-4">
           {DEVICES.map((device, i) => (
             <DeviceCard key={device.key} device={device} lang={lang} index={i} />
           ))}
