@@ -13,8 +13,8 @@ const DEVICES = [
     key: 'vita',
     href: '/produits/vita',
     image: '/images/products/vita-card.webp',
-    fr: { badge: 'Balance de sante', name: 'Vita', tagline: "Comprenez votre corps.\nAgissez en consequence." },
-    en: { badge: 'Health scale', name: 'Vita', tagline: "Understand your body.\nAct on it." },
+    fr: { badge: 'Balance de sante', name: 'Vita', tagline: "L'analyse corporelle\nla plus complete." },
+    en: { badge: 'Health scale', name: 'Vita', tagline: "The most complete\nbody analysis." },
   },
   {
     key: 'elder',
@@ -38,40 +38,53 @@ function DeviceCard({ device, lang, index }) {
   return (
     <motion.a
       href={device.href}
-      initial={{ opacity: 0, y: 40 }}
+      initial={{ opacity: 0, y: 30 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
-      transition={{ duration: 0.6, delay: index * 0.1 }}
+      transition={{ duration: 0.5, delay: index * 0.08 }}
       data-testid={`device-card-${device.key}`}
-      className="group relative bg-[#f0f0f3] rounded-[1.5rem] md:rounded-[2rem] overflow-hidden cursor-pointer hover:shadow-[0_12px_50px_-15px_rgba(0,0,0,0.1)] transition-all duration-500"
+      className="group relative bg-[#EEEEF1] rounded-2xl md:rounded-[1.8rem] overflow-hidden cursor-pointer hover:shadow-[0_8px_40px_-12px_rgba(0,0,0,0.1)] transition-all duration-500 block"
     >
-      <div className="relative p-5 md:p-6 h-[280px] sm:h-[320px] md:h-[380px] flex">
-        {/* Text side */}
-        <div className="relative z-10 flex flex-col w-[55%] md:w-[50%]">
-          {/* Badge pill */}
-          <div className="mb-2 md:mb-3">
-            <span className="inline-block px-3 py-1 rounded-full bg-[#5B6CFF] text-white text-[10px] md:text-[11px] font-semibold tracking-wide">
-              {tx.badge}
-            </span>
-          </div>
-
-          {/* Name */}
-          <h3 className="text-[2.2rem] md:text-[3rem] lg:text-[3.5rem] font-bold text-slate-900 tracking-[-0.04em] leading-[0.9] mb-1.5 md:mb-2">
+      {/* Desktop layout: text left + image right */}
+      <div className="hidden sm:block relative h-[280px] lg:h-[320px]">
+        {/* Text */}
+        <div className="absolute top-0 left-0 z-10 p-5 lg:p-6 w-[50%]">
+          <span className="inline-block px-3 py-1 rounded-full bg-[#5B6CFF] text-white text-[10px] lg:text-[11px] font-semibold tracking-wide mb-2 lg:mb-3">
+            {tx.badge}
+          </span>
+          <h3 className="text-[2.2rem] lg:text-[3rem] xl:text-[3.5rem] font-extrabold text-slate-900 tracking-[-0.04em] leading-[0.88] mb-1.5 lg:mb-2">
             {tx.name}
           </h3>
-
-          {/* Tagline */}
-          <p className="text-[13px] md:text-[15px] text-slate-500 leading-[1.4] whitespace-pre-line font-medium">
+          <p className="text-[13px] lg:text-[15px] text-slate-600 leading-[1.35] whitespace-pre-line font-semibold">
             {tx.tagline}
           </p>
         </div>
+        {/* Image — anchored bottom-right, allowed to crop at edges */}
+        <img
+          src={device.image}
+          alt={tx.name}
+          className="absolute bottom-0 right-0 h-[100%] w-auto max-w-[65%] object-contain object-right-bottom transition-transform duration-700 group-hover:scale-[1.03]"
+        />
+      </div>
 
-        {/* Image side — positioned right, contained properly */}
-        <div className="absolute right-0 bottom-0 w-[55%] md:w-[55%] h-full flex items-end justify-end">
+      {/* Mobile layout: text top + image bottom (4-col row) */}
+      <div className="sm:hidden flex flex-col h-full">
+        <div className="p-3 pb-1">
+          <span className="inline-block px-2 py-0.5 rounded-full bg-[#5B6CFF] text-white text-[8px] font-semibold tracking-wide mb-1.5">
+            {tx.badge}
+          </span>
+          <h3 className="text-[1.4rem] font-extrabold text-slate-900 tracking-[-0.03em] leading-[0.9] mb-1">
+            {tx.name}
+          </h3>
+          <p className="text-[10px] text-slate-600 leading-[1.3] whitespace-pre-line font-semibold">
+            {tx.tagline}
+          </p>
+        </div>
+        <div className="flex-1 min-h-[130px] relative overflow-hidden">
           <img
             src={device.image}
             alt={tx.name}
-            className="max-w-full max-h-[95%] object-contain object-right-bottom transition-transform duration-700 group-hover:scale-[1.03]"
+            className="absolute bottom-0 left-1/2 -translate-x-1/2 h-[110%] w-auto object-contain transition-transform duration-700 group-hover:scale-[1.03]"
           />
         </div>
       </div>
@@ -83,34 +96,52 @@ export default function Products() {
   const { lang } = useI18n()
 
   return (
-    <section id="products" data-testid="products-section" className="py-20 md:py-28 bg-white">
+    <section id="products" data-testid="products-section" className="py-14 md:py-20 bg-white">
       <div className="max-w-[1780px] mx-auto px-4 md:px-12">
         {/* Header */}
-        <div className="mb-10 md:mb-14">
+        <div className="mb-8 md:mb-10">
           <motion.div
             initial={{ opacity: 0 }}
             whileInView={{ opacity: 1 }}
             viewport={{ once: true }}
-            className="flex items-center gap-3 mb-5"
+            className="flex items-center gap-3 mb-4"
           >
             <div className="w-10 h-px bg-slate-900" />
             <span className="text-[11px] uppercase tracking-[0.25em] text-slate-400 font-medium">
-              {lang === 'fr' ? 'Nos dispositifs' : 'Our devices'}
+              {lang === 'fr' ? 'Ecosysteme de sante' : 'Health ecosystem'}
             </span>
           </motion.div>
           <motion.h2
-            initial={{ opacity: 0, y: 25 }}
+            initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-            className="text-3xl md:text-4xl lg:text-5xl font-semibold tracking-[-0.03em] text-slate-900"
+            transition={{ duration: 0.5 }}
+            className="text-2xl md:text-3xl lg:text-4xl font-semibold tracking-[-0.03em] text-slate-900 mb-2"
           >
-            {lang === 'fr' ? 'Technologies de prevention' : 'Prevention technologies'}
+            {lang === 'fr' ? "L'innovation au service de votre sante." : 'Innovation at the service of your health.'}
           </motion.h2>
+          <motion.p
+            initial={{ opacity: 0, y: 15 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5, delay: 0.05 }}
+            className="text-[14px] md:text-[15px] text-slate-400 max-w-lg"
+          >
+            {lang === 'fr'
+              ? 'Quatre dispositifs connectes pour anticiper, proteger et accompagner chaque instant de vie.'
+              : 'Four connected devices to anticipate, protect and support every moment of life.'}
+          </motion.p>
         </div>
 
-        {/* 2x2 Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-5">
+        {/* Mobile: 4 columns in a row */}
+        <div className="grid grid-cols-4 gap-2 sm:hidden">
+          {DEVICES.map((device, i) => (
+            <DeviceCard key={device.key} device={device} lang={lang} index={i} />
+          ))}
+        </div>
+
+        {/* Desktop: 2x2 grid */}
+        <div className="hidden sm:grid sm:grid-cols-2 gap-4 md:gap-5">
           {DEVICES.map((device, i) => (
             <DeviceCard key={device.key} device={device} lang={lang} index={i} />
           ))}
