@@ -6,29 +6,29 @@ const DEVICES = [
     key: 'elio',
     href: '/produits/elio',
     image: '/images/products/elio-hero.webp',
-    fr: { badge: 'Bracelet de sante', name: 'Elio', tagline: "Le bracelet de sante connecte\nle plus performant du marche." },
-    en: { badge: 'Health bracelet', name: 'Elio', tagline: "The most advanced connected\nhealth bracelet on the market." },
+    fr: { badge: 'Bracelet de sante', name: 'Elio', tagline: "Votre sante au poignet.\nSurveillance continue, 24h/24." },
+    en: { badge: 'Health bracelet', name: 'Elio', tagline: "Your health on your wrist.\nContinuous monitoring, 24/7." },
   },
   {
     key: 'vita',
     href: '/produits/vita',
     image: '/images/products/vita-card.webp',
-    fr: { badge: 'Balance de sante', name: 'Vita', tagline: "L'analyse corporelle la plus\ncomplete, directement chez vous." },
-    en: { badge: 'Health scale', name: 'Vita', tagline: "The most complete body\nanalysis, right at home." },
+    fr: { badge: 'Balance de sante', name: 'Vita', tagline: "Chaque pesee devient\nun bilan medical complet." },
+    en: { badge: 'Health scale', name: 'Vita', tagline: "Every weigh-in becomes\na complete medical check-up." },
   },
   {
     key: 'elder',
     href: '/produits/elder',
     image: '/images/products/elder-card.webp',
-    fr: { badge: 'Gilet de protection', name: 'Elder', tagline: "Protection instantanee et\nautomatique contre les chutes." },
-    en: { badge: 'Protection vest', name: 'Elder', tagline: "Instant and automatic\nprotection against falls." },
+    fr: { badge: 'Gilet de protection', name: 'Elder', tagline: "Vous tombez. Il vous protege.\nEn 0.08 seconde." },
+    en: { badge: 'Protection vest', name: 'Elder', tagline: "You fall. It protects you.\nIn 0.08 seconds." },
   },
   {
     key: 'dorsi',
     href: '/produits/dorsi',
     image: '/images/products/dorsi-card.webp',
-    fr: { badge: 'Coussin connecte', name: 'Dorsi', tagline: "Le premier coussin connecte\nde prevention lombaire." },
-    en: { badge: 'Smart cushion', name: 'Dorsi', tagline: "The first connected cushion\nfor lumbar prevention." },
+    fr: { badge: 'Coussin connecte', name: 'Dorsi', tagline: "Votre dos vous remerciera.\nPrevention lombaire intelligente." },
+    en: { badge: 'Smart cushion', name: 'Dorsi', tagline: "Your back will thank you.\nIntelligent lumbar prevention." },
   },
 ]
 
@@ -49,13 +49,13 @@ function DeviceCard({ device, lang, index }) {
       <div className="hidden sm:block relative h-[300px] lg:h-[360px]">
         {/* Text — centered horizontally + vertically */}
         <div className="absolute top-0 left-0 h-full w-[40%] flex flex-col justify-center items-center text-center p-6 lg:p-8 z-10">
-          <span className="inline-block px-4 py-1.5 rounded-full bg-[#5B6CFF] text-white text-[12px] lg:text-[13px] font-semibold tracking-wide mb-4 lg:mb-5">
+          <span className="inline-block px-5 py-2 rounded-full bg-[#5B6CFF] text-white text-[12px] lg:text-[14px] font-semibold tracking-wide mb-5 lg:mb-7">
             {tx.badge}
           </span>
-          <h3 className="text-[2.5rem] lg:text-[3.2rem] xl:text-[4rem] font-extrabold text-slate-900 tracking-[-0.04em] leading-[0.88] mb-3">
+          <h3 className="text-[3rem] lg:text-[3.8rem] xl:text-[4.5rem] font-extrabold text-slate-900 tracking-[-0.04em] leading-[0.85] mb-4 lg:mb-5">
             {tx.name}
           </h3>
-          <p className="text-[14px] lg:text-[16px] text-slate-600 leading-[1.45] whitespace-pre-line font-semibold">
+          <p className="text-[15px] lg:text-[17px] text-slate-600 leading-[1.5] whitespace-pre-line font-semibold">
             {tx.tagline}
           </p>
         </div>
