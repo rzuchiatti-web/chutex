@@ -47,9 +47,9 @@ function DeviceCard({ device, lang, index }) {
     >
       {/* ── DESKTOP ── */}
       <div className="hidden sm:block relative h-[300px] lg:h-[360px]">
-        {/* Text — vertically centered, left side */}
-        <div className="absolute top-0 left-0 h-full w-[40%] flex flex-col justify-center p-6 lg:p-8 z-10">
-          <span className="inline-block self-start px-4 py-1.5 rounded-full bg-[#5B6CFF] text-white text-[12px] lg:text-[13px] font-semibold tracking-wide mb-4 lg:mb-5">
+        {/* Text — top-left aligned */}
+        <div className="absolute top-0 left-0 w-[40%] p-6 lg:p-8 z-10">
+          <span className="inline-block px-4 py-1.5 rounded-full bg-[#5B6CFF] text-white text-[12px] lg:text-[13px] font-semibold tracking-wide mb-4 lg:mb-5">
             {tx.badge}
           </span>
           <h3 className="text-[2.5rem] lg:text-[3.2rem] xl:text-[4rem] font-extrabold text-slate-900 tracking-[-0.04em] leading-[0.88] mb-3">
@@ -60,12 +60,12 @@ function DeviceCard({ device, lang, index }) {
           </p>
         </div>
 
-        {/* Image — fills right 65%, anchored top, crops at bottom */}
-        <div className="absolute top-0 right-0 w-[65%] h-full overflow-hidden">
+        {/* Image — right side, with top margin, crops at bottom */}
+        <div className="absolute top-4 right-4 w-[58%] h-full overflow-hidden">
           <img
             src={device.image}
             alt={tx.name}
-            className="w-full h-[130%] object-contain object-top transition-transform duration-700 group-hover:scale-[1.03]"
+            className="w-full h-[120%] object-contain object-top transition-transform duration-700 group-hover:scale-[1.03]"
           />
         </div>
       </div>
