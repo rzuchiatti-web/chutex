@@ -6,7 +6,7 @@ import { useI18n } from '../../i18n/I18nContext'
 const PRODUCTS = [
   {
     key: 'elio',
-    image: 'https://chutex-innovation.com/cdn/shop/files/elio_bracelet_health_connected_chutex_1.jpg?v=1760010576&width=1200',
+    image: '/images/products/elio-hero.webp',
     href: '/produits/elio',
     icon: Heart,
     fr: {

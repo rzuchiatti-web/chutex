@@ -67,6 +67,8 @@ Nos Solutions | Professionnels | Ressources | Legal
 
 - **Catalogue complet 14 produits** -- 4 categories (devices, subscriptions, bundles, accessories). Devices: Elder 879EUR, Vita 229EUR. Subscriptions Elio: Standard 24.9EUR/mois, Sport 29.9EUR/mois, Physio 34.9EUR/mois, Care 39.9EUR/mois. Bundles: Elder+Tele, Elio+Elder. Accessoires: cartouches helium x2/x4, chargeurs Elder/Elio, bracelet rechange, housse textile. API filtre par categorie. Homepage redirige vers landing pages (pas d'add to cart). 33/33 tests passes (13/04/2026)
 
+- **Image Elio optimisee** -- SVG 5.3MB converti en WebP : hero 36KB (1200px), card 12KB (600px), thumb 4KB (300px). Compression 150x. References mises a jour dans Products.jsx, Solutions.jsx et shop_routes.py (15/04/2026)
+
 ## A FAIRE
 ### P1 - Landing Pages produits
 - Bracelet Elio (+ grille abonnements Standard/Sport/Physio/Care), Balance Vita, Accessoires & Recharges

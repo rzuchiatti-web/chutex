@@ -62,7 +62,7 @@ PRODUCTS = {
         "type": "subscription",
         "desc": "Suivi sante continu, alertes preventives, app Chutex.",
         "desc_en": "Continuous health monitoring, preventive alerts, Chutex app.",
-        "image": "https://chutex-innovation.com/cdn/shop/files/elio_bracelet_health_connected_chutex_1.jpg?v=1760010576&width=400",
+        "image": "/images/products/elio-card.webp",
         "variants": [],
     },
     "elio-sport": {
@@ -75,7 +75,7 @@ PRODUCTS = {
         "type": "subscription",
         "desc": "Standard + coaching sportif, VO2max, recuperation, programmes personnalises.",
         "desc_en": "Standard + sports coaching, VO2max, recovery, personalized programs.",
-        "image": "https://chutex-innovation.com/cdn/shop/files/elio_bracelet_health_connected_chutex_1.jpg?v=1760010576&width=400",
+        "image": "/images/products/elio-card.webp",
         "variants": [],
     },
     "elio-physio": {
@@ -88,7 +88,7 @@ PRODUCTS = {
         "type": "subscription",
         "desc": "Standard + suivi reeducation, partage donnees kinesitherapeute, exercices guides.",
         "desc_en": "Standard + rehabilitation tracking, physio data sharing, guided exercises.",
-        "image": "https://chutex-innovation.com/cdn/shop/files/elio_bracelet_health_connected_chutex_1.jpg?v=1760010576&width=400",
+        "image": "/images/products/elio-card.webp",
         "variants": [],
     },
     "elio-care": {
@@ -101,7 +101,7 @@ PRODUCTS = {
         "type": "subscription",
         "desc": "Tout inclus : teleassistance 24/7, geolocalisation, coordination secours, support prioritaire.",
         "desc_en": "All-inclusive: 24/7 teleassistance, geolocation, emergency coordination, priority support.",
-        "image": "https://chutex-innovation.com/cdn/shop/files/elio_bracelet_health_connected_chutex_1.jpg?v=1760010576&width=400",
+        "image": "/images/products/elio-card.webp",
         "variants": [],
     },
 
@@ -183,7 +183,7 @@ PRODUCTS = {
         "type": "one-time",
         "desc": "Chargeur magnetique de remplacement pour le bracelet Elio.",
         "desc_en": "Replacement magnetic charger for the Elio bracelet.",
-        "image": "https://chutex-innovation.com/cdn/shop/files/elio_bracelet_health_connected_chutex_1.jpg?v=1760010576&width=400",
+        "image": "/images/products/elio-card.webp",
         "variants": [],
     },
     "bracelet-elio-spare": {
@@ -195,7 +195,7 @@ PRODUCTS = {
         "type": "one-time",
         "desc": "Bracelet en silicone medical de rechange (3 couleurs).",
         "desc_en": "Replacement medical silicone strap (3 colors).",
-        "image": "https://chutex-innovation.com/cdn/shop/files/elio_bracelet_health_connected_chutex_1.jpg?v=1760010576&width=400",
+        "image": "/images/products/elio-card.webp",
         "variants": [
             {"id": "bracelet-spare-noir", "label": "Noir", "label_en": "Black"},
             {"id": "bracelet-spare-gris", "label": "Gris", "label_en": "Grey"},

@@ -6,7 +6,7 @@ const SOLUTIONS = [
   {
     key: 'elio',
     icon: Watch,
-    image: 'https://chutex-innovation.com/cdn/shop/files/elio_bracelet_health_connected_chutex_1.jpg?v=1760010576&width=600',
+    image: '/images/products/elio-card.webp',
     href: '/produits/elio',
     accent: 'from-blue-500/20 to-blue-600/5',
     accentBorder: 'hover:border-blue-300/40',
