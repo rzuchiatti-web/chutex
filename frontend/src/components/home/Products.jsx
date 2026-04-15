@@ -65,7 +65,7 @@ function DeviceCard({ device, lang, index }) {
           <img
             src={device.image}
             alt={tx.name}
-            className="w-full h-[120%] object-contain object-top transition-transform duration-700 group-hover:scale-[1.03]"
+            className={`w-full object-contain object-top transition-transform duration-700 group-hover:scale-[1.03] ${device.key === 'elder' ? 'h-[160%]' : 'h-[120%]'}`}
           />
         </div>
       </div>
