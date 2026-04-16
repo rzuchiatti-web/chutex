@@ -1,33 +1,117 @@
 import { useRef, useEffect, useState } from 'react'
-import { motion, useScroll, useTransform, useInView } from 'framer-motion'
+import { motion, useInView, animate } from 'framer-motion'
 import { useI18n } from '../../i18n/I18nContext'
 import { Phone, Clock, MapPin, Users, ArrowRight, Shield, Radio, HeartPulse, Siren } from 'lucide-react'
 
-function AnimatedNumber({ target, suffix = '', duration = 2000 }) {
+/* ─── Animated counter inspired by 21st.dev Activity Stats Card ─── */
+function AnimatedMetric({ value, suffix = '' }) {
   const ref = useRef(null)
+  const numRef = useRef(null)
   const inView = useInView(ref, { once: true })
-  const [value, setValue] = useState(0)
+
   useEffect(() => {
-    if (!inView) return
-    const num = parseInt(String(target).replace(/[^0-9]/g, ''))
-    if (isNaN(num)) { setValue(target); return }
-    let start = null
-    const step = (ts) => {
-      if (!start) start = ts
-      const p = Math.min((ts - start) / duration, 1)
-      setValue(Math.round((1 - Math.pow(1 - p, 3)) * num))
-      if (p < 1) requestAnimationFrame(step)
-    }
-    requestAnimationFrame(step)
-  }, [inView, target, duration])
-  const prefix = String(target).replace(/[0-9]/g, '')
-  return <span ref={ref}>{typeof value === 'number' ? prefix + value + suffix : value}</span>
+    if (!inView || !numRef.current) return
+    const num = parseInt(String(value).replace(/[^0-9]/g, ''))
+    if (isNaN(num)) { numRef.current.textContent = value + suffix; return }
+    const prefix = String(value).replace(/[0-9]/g, '')
+    const controls = animate(0, num, {
+      duration: 2,
+      ease: 'easeOut',
+      onUpdate(v) { numRef.current.textContent = prefix + Math.round(v) + suffix },
+    })
+    return () => controls.stop()
+  }, [inView, value, suffix])
+
+  return <span ref={ref}><span ref={numRef}>0</span></span>
+}
+
+/* ─── Glowing Stat Card inspired by 21st.dev Stat Card (halo + ray) ─── */
+function GlowStatCard({ icon: Icon, value, suffix, label, delay }) {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 30 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true }}
+      transition={{ duration: 0.6, delay }}
+      className="relative rounded-2xl overflow-hidden p-[1px] bg-gradient-to-br from-white/[0.08] via-emerald-500/[0.06] to-transparent"
+    >
+      {/* Moving halo */}
+      <motion.div
+        className="absolute w-16 h-16 rounded-full bg-emerald-400/15 blur-2xl"
+        animate={{
+          top: ['10%', '10%', '70%', '70%', '10%'],
+          left: ['10%', '75%', '75%', '10%', '10%'],
+        }}
+        transition={{ duration: 12, repeat: Infinity, ease: 'linear' }}
+      />
+
+      {/* Inner card */}
+      <div className="relative flex flex-col items-center justify-center rounded-[15px] bg-gradient-to-br from-slate-900/90 to-slate-950/95 backdrop-blur-xl p-6 md:p-8 h-full">
+        {/* Rotating subtle ray */}
+        <motion.div
+          className="absolute w-[180px] h-[30px] rounded-full bg-emerald-500/[0.06] blur-2xl"
+          animate={{ rotate: [0, 360] }}
+          transition={{ duration: 15, repeat: Infinity, ease: 'linear' }}
+        />
+
+        <Icon size={20} className="text-emerald-400/60 mb-4 relative z-10" strokeWidth={1.5} />
+
+        {/* Animated value with glow */}
+        <motion.div
+          className="relative z-10 text-3xl md:text-4xl font-bold tracking-tight bg-gradient-to-r from-white via-emerald-100 to-white bg-clip-text text-transparent mb-1.5"
+          animate={{
+            textShadow: [
+              '0 0 12px rgba(52,211,153,0.4)',
+              '0 0 2px rgba(52,211,153,0.1)',
+              '0 0 12px rgba(52,211,153,0.4)',
+            ],
+          }}
+          transition={{ duration: 4, repeat: Infinity }}
+        >
+          <AnimatedMetric value={value} suffix={suffix} />
+        </motion.div>
+
+        <span className="relative z-10 text-[12px] text-white/30 font-medium tracking-wide">{label}</span>
+
+        {/* Subtle top line */}
+        <motion.div
+          className="absolute top-[10%] w-[70%] h-[1px] bg-gradient-to-r from-emerald-400/20 to-transparent"
+          animate={{ opacity: [0.3, 0.8, 0.3] }}
+          transition={{ duration: 5, repeat: Infinity }}
+        />
+      </div>
+    </motion.div>
+  )
+}
+
+/* ─── Glass Feature Card ─── */
+function GlassFeature({ icon: Icon, title, desc, delay }) {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true }}
+      transition={{ duration: 0.5, delay }}
+      className="group relative flex items-start gap-4 p-5 rounded-2xl border border-white/[0.05] bg-white/[0.02] backdrop-blur-sm hover:bg-white/[0.05] hover:border-emerald-500/15 transition-all duration-500"
+    >
+      {/* Hover glow */}
+      <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-emerald-500/0 to-emerald-500/0 group-hover:from-emerald-500/[0.03] group-hover:to-transparent transition-all duration-500" />
+
+      <div className="relative z-10 w-11 h-11 rounded-xl bg-emerald-500/10 border border-emerald-500/10 flex items-center justify-center flex-shrink-0 group-hover:bg-emerald-500/20 group-hover:border-emerald-500/20 transition-all duration-300">
+        <Icon size={18} className="text-emerald-400" strokeWidth={1.5} />
+      </div>
+      <div className="relative z-10">
+        <h4 className="text-[15px] font-semibold text-white mb-1 group-hover:text-emerald-100 transition-colors duration-300">{title}</h4>
+        <p className="text-[13px] text-white/25 leading-relaxed group-hover:text-white/40 transition-colors duration-300">{desc}</p>
+      </div>
+    </motion.div>
+  )
 }
 
 const CONTENT = {
   fr: {
-    overline: 'Teleassistance 24/7',
-    title: 'Une equipe medicale\nveille sur vous.',
+    live: 'En service',
+    title: "Une equipe medicale\nveille sur vous.",
     desc: "Notre centre de teleassistance surveille en continu les donnees de vos dispositifs. En cas d'alerte, une equipe formee intervient en moins de 3 minutes.",
     stats: [
       { value: '<3', suffix: ' min', label: "Temps d'intervention", icon: Clock },
@@ -41,15 +125,14 @@ const CONTENT = {
       { icon: MapPin, title: 'Geolocalisation temps reel', desc: 'Localisation precise pour une intervention rapide.' },
       { icon: Siren, title: 'Coordination des secours', desc: 'Liaison SAMU, pompiers et gardiens en simultanee.' },
       { icon: Shield, title: 'Notification gardiens', desc: 'Alertes instantanees a tous les proches designes.' },
-      { icon: Radio, title: 'Suivi post-alerte', desc: 'Accompagnement et rapport post-intervention.' },
+      { icon: Radio, title: 'Suivi post-alerte', desc: 'Accompagnement et rapport apres chaque intervention.' },
     ],
     cta: 'Decouvrir la teleassistance',
-    live: 'En service',
   },
   en: {
-    overline: 'Teleassistance 24/7',
-    title: 'A medical team\nwatching over you.',
-    desc: "Our teleassistance center continuously monitors data from your devices. In case of an alert, a trained team intervenes in less than 3 minutes.",
+    live: 'Active',
+    title: "A medical team\nwatching over you.",
+    desc: "Our teleassistance center continuously monitors your device data. In case of an alert, a trained team intervenes in less than 3 minutes.",
     stats: [
       { value: '<3', suffix: ' min', label: 'Response time', icon: Clock },
       { value: '100', suffix: '%', label: 'France coverage', icon: MapPin },
@@ -62,48 +145,46 @@ const CONTENT = {
       { icon: MapPin, title: 'Real-time geolocation', desc: 'Precise location for rapid intervention.' },
       { icon: Siren, title: 'Emergency coordination', desc: 'Simultaneous liaison with paramedics and guardians.' },
       { icon: Shield, title: 'Guardian notification', desc: 'Instant alerts to all designated loved ones.' },
-      { icon: Radio, title: 'Post-alert follow-up', desc: 'Support and post-intervention report.' },
+      { icon: Radio, title: 'Post-alert follow-up', desc: 'Support and report after each intervention.' },
     ],
     cta: 'Discover teleassistance',
-    live: 'Active',
   },
 }
 
 export default function Teleassistance() {
   const { lang } = useI18n()
   const tx = CONTENT[lang] || CONTENT.fr
-  const sectionRef = useRef(null)
-  const { scrollYProgress } = useScroll({ target: sectionRef, offset: ['start end', 'end start'] })
-  const bgY = useTransform(scrollYProgress, [0, 1], ['0%', '8%'])
 
   return (
-    <section ref={sectionRef} data-testid="teleassistance-section" className="relative bg-slate-950 overflow-hidden py-24 md:py-32">
-      {/* Ambient glow */}
-      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[600px] h-[600px] rounded-full bg-emerald-500/[0.07] blur-[150px] pointer-events-none" />
-      <div className="absolute bottom-0 right-0 w-[300px] h-[300px] rounded-full bg-blue-500/[0.05] blur-[100px] pointer-events-none" />
+    <section data-testid="teleassistance-section" className="relative bg-[#060611] overflow-hidden py-24 md:py-32">
+      {/* Ambient glows */}
+      <div className="absolute top-[20%] left-1/2 -translate-x-1/2 w-[700px] h-[700px] rounded-full bg-emerald-600/[0.04] blur-[180px] pointer-events-none" />
+      <div className="absolute bottom-[10%] right-[10%] w-[400px] h-[400px] rounded-full bg-blue-600/[0.03] blur-[120px] pointer-events-none" />
+      <div className="absolute top-[60%] left-[5%] w-[300px] h-[300px] rounded-full bg-emerald-500/[0.03] blur-[100px] pointer-events-none" />
 
       <div className="relative z-10 max-w-[1780px] mx-auto px-4 md:px-12">
         {/* Header */}
         <div className="text-center mb-16 md:mb-20">
+          {/* Live pulse badge */}
           <motion.div
-            initial={{ opacity: 0 }}
-            whileInView={{ opacity: 1 }}
+            initial={{ opacity: 0, scale: 0.9 }}
+            whileInView={{ opacity: 1, scale: 1 }}
             viewport={{ once: true }}
-            className="inline-flex items-center gap-2.5 px-4 py-1.5 rounded-full border border-emerald-500/20 bg-emerald-500/[0.08] mb-6"
+            className="inline-flex items-center gap-2.5 px-5 py-2 rounded-full border border-emerald-500/20 bg-emerald-500/[0.06] backdrop-blur-sm mb-7"
           >
             <span className="relative flex h-2.5 w-2.5">
-              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
+              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-60" />
               <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-emerald-400" />
             </span>
-            <span className="text-[12px] uppercase tracking-[0.2em] text-emerald-400/80 font-semibold">{tx.live}</span>
+            <span className="text-[12px] uppercase tracking-[0.25em] text-emerald-400/80 font-bold">{tx.live}</span>
           </motion.div>
 
           <motion.h2
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            transition={{ duration: 0.7 }}
-            className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-[-0.04em] leading-[0.92] text-white whitespace-pre-line mb-5"
+            transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+            className="text-4xl md:text-5xl lg:text-[3.8rem] font-bold tracking-[-0.04em] leading-[0.95] text-white whitespace-pre-line mb-6"
           >
             {tx.title}
           </motion.h2>
@@ -113,59 +194,24 @@ export default function Teleassistance() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6, delay: 0.1 }}
-            className="text-[15px] md:text-[17px] text-white/40 max-w-xl mx-auto leading-relaxed"
+            className="text-[16px] md:text-[18px] text-white/30 max-w-xl mx-auto leading-relaxed"
           >
             {tx.desc}
           </motion.p>
         </div>
 
-        {/* Stats row */}
+        {/* Glowing stat cards */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 mb-16 md:mb-20">
-          {tx.stats.map((stat, i) => {
-            const Icon = stat.icon
-            return (
-              <motion.div
-                key={i}
-                initial={{ opacity: 0, y: 25 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.5, delay: i * 0.08 }}
-                data-testid={`tele-metric-${i}`}
-                className="relative group bg-white/[0.04] backdrop-blur-sm border border-white/[0.06] rounded-2xl p-5 md:p-6 text-center hover:bg-white/[0.07] hover:border-emerald-500/20 transition-all duration-500"
-              >
-                <Icon size={18} className="text-emerald-400/50 mx-auto mb-3" strokeWidth={1.5} />
-                <div className="text-3xl md:text-4xl font-bold text-white tracking-tight mb-1">
-                  {stat.value}{stat.suffix}
-                </div>
-                <span className="text-[12px] text-white/30 font-medium">{stat.label}</span>
-              </motion.div>
-            )
-          })}
+          {tx.stats.map((stat, i) => (
+            <GlowStatCard key={i} {...stat} delay={i * 0.1} />
+          ))}
         </div>
 
-        {/* Features grid */}
+        {/* Glass feature grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4 mb-14 md:mb-16">
-          {tx.features.map((feat, i) => {
-            const Icon = feat.icon
-            return (
-              <motion.div
-                key={i}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.45, delay: i * 0.06 }}
-                className="group flex items-start gap-4 p-5 rounded-2xl bg-white/[0.02] border border-white/[0.04] hover:bg-white/[0.05] hover:border-white/[0.08] transition-all duration-400"
-              >
-                <div className="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/10 flex items-center justify-center flex-shrink-0 group-hover:bg-emerald-500/15 transition-colors">
-                  <Icon size={18} className="text-emerald-400" strokeWidth={1.5} />
-                </div>
-                <div>
-                  <h4 className="text-[14px] font-semibold text-white mb-1">{feat.title}</h4>
-                  <p className="text-[13px] text-white/30 leading-relaxed">{feat.desc}</p>
-                </div>
-              </motion.div>
-            )
-          })}
+          {tx.features.map((feat, i) => (
+            <GlassFeature key={i} {...feat} delay={i * 0.07} />
+          ))}
         </div>
 
         {/* CTA */}
@@ -179,10 +225,12 @@ export default function Teleassistance() {
           <a
             href="/teleassistance"
             data-testid="tele-cta-button"
-            className="group inline-flex items-center gap-2.5 px-8 py-4 rounded-full bg-white text-slate-900 text-[14px] font-semibold hover:bg-white/90 hover:shadow-[0_0_40px_rgba(255,255,255,0.1)] transition-all duration-300"
+            className="group relative inline-flex items-center gap-2.5 px-9 py-4 rounded-full text-[14px] font-semibold overflow-hidden transition-all duration-300 hover:shadow-[0_0_50px_rgba(52,211,153,0.15)]"
           >
-            {tx.cta}
-            <ArrowRight size={15} strokeWidth={2} className="transition-transform duration-300 group-hover:translate-x-1" />
+            <span className="absolute inset-0 bg-white rounded-full" />
+            <span className="absolute inset-0 bg-gradient-to-r from-emerald-500/0 via-emerald-500/0 to-emerald-500/0 group-hover:from-emerald-50 group-hover:to-white rounded-full transition-all duration-500" />
+            <span className="relative text-slate-900">{tx.cta}</span>
+            <ArrowRight size={15} strokeWidth={2} className="relative text-slate-900 transition-transform duration-300 group-hover:translate-x-1" />
           </a>
         </motion.div>
       </div>
