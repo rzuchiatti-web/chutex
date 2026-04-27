@@ -309,7 +309,7 @@ async def create_checkout(data: CheckoutRequest):
     if total <= 0 and not has_subscription:
         raise HTTPException(status_code=400, detail="Invalid order total")
 
-    base_url = os.environ.get("REACT_APP_BACKEND_URL", os.environ.get("EXPO_PUBLIC_BACKEND_URL", "https://premium-clinic-web-1.preview.emergentagent.com"))
+    base_url = os.environ.get("REACT_APP_BACKEND_URL", os.environ.get("EXPO_PUBLIC_BACKEND_URL", "https://chutex-premium-1.preview.emergentagent.com"))
 
     amount_value = f"{total:.2f}" if total > 0 else f"{subscription_monthly:.2f}"
 

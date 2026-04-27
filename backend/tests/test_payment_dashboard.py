@@ -6,7 +6,7 @@ import pytest
 import requests
 import os
 
-BASE_URL = os.environ.get('EXPO_PUBLIC_BACKEND_URL', 'https://premium-clinic-web-1.preview.emergentagent.com')
+BASE_URL = os.environ.get('EXPO_PUBLIC_BACKEND_URL', 'https://chutex-premium-1.preview.emergentagent.com')
 
 class TestPaymentDashboard:
     """Payment Dashboard endpoint tests for Coach/Physio professionals"""

@@ -22,7 +22,7 @@
   "seed_data_creation": "None - used existing beneficiary 495e5e38-3591-474b-abe5-c932574bb609",
   "retest_needed": false,
   "should_main_agent_self_test": false,
-  "context_for_next_testing_agent": "Iteration 75 tested visual/style parity of popups on beneficiary-detail page. All popups (guardian, contract, safezone) use consistent add-beneficiary glass style. Test credentials: 0612345678 / test123. Base URL: https://premium-clinic-web-1.preview.emergentagent.com",
+  "context_for_next_testing_agent": "Iteration 75 tested visual/style parity of popups on beneficiary-detail page. All popups (guardian, contract, safezone) use consistent add-beneficiary glass style. Test credentials: 0612345678 / test123. Base URL: https://chutex-premium-1.preview.emergentagent.com",
   "features_verified": {
     "popup_visual_parity": {
       "add_beneficiary_reference_style": {
