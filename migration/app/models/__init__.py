@@ -1,0 +1,11 @@
+"""Re-exporte tous les modèles pour qu'Alembic les détecte."""
+from app.models.auth import *  # noqa: F401, F403
+from app.models.shop import *  # noqa: F401, F403
+from app.models.health import *  # noqa: F401, F403
+from app.models.alerts import *  # noqa: F401, F403
+from app.models.devices import *  # noqa: F401, F403
+from app.models.guardian import *  # noqa: F401, F403
+from app.models.pro import *  # noqa: F401, F403
+from app.models.programs import *  # noqa: F401, F403
+from app.models.notifications import *  # noqa: F401, F403
+from app.models.misc import *  # noqa: F401, F403
