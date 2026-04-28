@@ -32,7 +32,7 @@ services:
     networks:
       - proxy-net
     environment:
-      DEFAULT_HOST: www.chutex-care.fr
+      DEFAULT_HOST: dev.chutex-innovation.com
       ENABLE_IPV6: "true"
       # Limite globale d'upload (passe à 25M pour les avatars / contrats signés)
       CLIENT_MAX_BODY_SIZE: 25M
@@ -52,7 +52,7 @@ services:
     networks:
       - proxy-net
     environment:
-      DEFAULT_EMAIL: ${LETSENCRYPT_EMAIL:-contact@chutex-care.fr}
+      DEFAULT_EMAIL: ${LETSENCRYPT_EMAIL:-contact@chutex-innovation.com}
       NGINX_PROXY_CONTAINER: nginx-proxy
 
 networks:

@@ -23,7 +23,7 @@ jobs:
       - name: Pull & start proxy stack
         working-directory: infra/proxy
         env:
-          LETSENCRYPT_EMAIL: ${{ vars.LETSENCRYPT_EMAIL || 'contact@chutex-care.fr' }}
+          LETSENCRYPT_EMAIL: ${{ vars.LETSENCRYPT_EMAIL || 'contact@chutex-innovation.com' }}
         run: |
           set -euo pipefail
           # Garantit que le réseau partagé existe (déclaré external dans le compose)

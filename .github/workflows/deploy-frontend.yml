@@ -48,9 +48,9 @@ jobs:
 
       - name: Restart container
         env:
-          VIRTUAL_HOST: ${{ vars.VIRTUAL_HOST || 'www.chutex-care.fr,chutex-care.fr' }}
-          LETSENCRYPT_HOST: ${{ vars.LETSENCRYPT_HOST || 'www.chutex-care.fr,chutex-care.fr' }}
-          LETSENCRYPT_EMAIL: ${{ vars.LETSENCRYPT_EMAIL || 'contact@chutex-care.fr' }}
+          VIRTUAL_HOST: ${{ vars.VIRTUAL_HOST || 'dev.chutex-innovation.com' }}
+          LETSENCRYPT_HOST: ${{ vars.LETSENCRYPT_HOST || 'dev.chutex-innovation.com' }}
+          LETSENCRYPT_EMAIL: ${{ vars.LETSENCRYPT_EMAIL || 'contact@chutex-innovation.com' }}
         run: |
           set -euo pipefail
           CONTAINER_NAME="frontend"
