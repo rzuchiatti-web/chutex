@@ -1,0 +1,27 @@
+name: alembic-migrate
+
+on:
+  workflow_dispatch:
+
+jobs:
+  migrate:
+    runs-on: [self-hosted, chutex]
+    defaults:
+      run:
+        working-directory: migration
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install deps (venv)
+        run: |
+          python3 -m venv .venv
+          . .venv/bin/activate
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Run Alembic migrations
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        run: |
+          . .venv/bin/activate
+          alembic -c alembic.ini upgrade head
