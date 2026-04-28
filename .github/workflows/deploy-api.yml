@@ -84,6 +84,33 @@ jobs:
             | sed -E 's#@(0\.0\.0\.0|127\.0\.0\.1|localhost)(:|/)#@host.docker.internal\2#g')
           echo "→ DATABASE_URL (host masqué) : $(echo "$DB_URL_FIXED" | sed -E 's#://[^@]*@#://***@#')"
 
+          # ─────────────────────────────────────────────────────────────
+          # Pre-check connectivité réseau & TCP vers Postgres
+          # Si ça échoue ici, ce n'est PAS un bug du code mais un souci
+          # de config Postgres (listen_addresses) ou pg_hba.conf.
+          # ─────────────────────────────────────────────────────────────
+          DB_HOST=$(echo "$DB_URL_FIXED" | sed -E 's#.*@([^:/]+).*#\1#')
+          DB_PORT=$(echo "$DB_URL_FIXED" | sed -E 's#.*:([0-9]+)/.*#\1#' | grep -E '^[0-9]+$' || echo 5432)
+          echo "→ Test TCP : ${DB_HOST}:${DB_PORT}"
+          if ! docker run --rm --network proxy-net --add-host host.docker.internal:host-gateway \
+                alpine sh -c "apk add --quiet --no-progress busybox-extras >/dev/null 2>&1; nc -zvw3 ${DB_HOST} ${DB_PORT}" 2>&1 | tee /tmp/nc-out; then
+            echo ""
+            echo "❌ Le conteneur ne peut PAS atteindre Postgres sur ${DB_HOST}:${DB_PORT}"
+            echo ""
+            echo "  Causes probables côté serveur (à corriger 1 seule fois) :"
+            echo "  1) /etc/postgresql/<ver>/main/postgresql.conf"
+            echo "        listen_addresses = '*'"
+            echo "  2) /etc/postgresql/<ver>/main/pg_hba.conf — ajouter une ligne :"
+            echo "        host  all  all  172.17.0.0/16  md5"
+            echo "  3) sudo systemctl restart postgresql"
+            echo "  4) sudo ufw allow from 172.17.0.0/16 to any port 5432"
+            echo ""
+            echo "  Vérification manuelle :"
+            echo "    ss -tnlp | grep 5432   # doit afficher 0.0.0.0:5432 ou *:5432"
+            exit 1
+          fi
+          echo "✅ TCP OK"
+
           echo "→ Stop & remove old container (si existant)"
           docker stop "$CONTAINER_NAME" 2>/dev/null || true
           docker rm   "$CONTAINER_NAME" 2>/dev/null || true
