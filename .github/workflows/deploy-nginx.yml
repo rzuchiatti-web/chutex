@@ -1,14 +1,11 @@
 name: Deploy nginx config
 
 # ─────────────────────────────────────────────────────────────────
-#  Copie la config nginx du repo (infra/nginx/chutex-care.fr.conf)
-#  vers /etc/nginx/sites-available/, vérifie la syntaxe (nginx -t)
-#  puis recharge le service nginx hôte sans coupure.
+#  ⚠ Cette version utilise SUDO_PASSWORD (secret GitHub) au lieu
+#  de NOPASSWD sudoers. Moins sécurisé : un leak du secret donne
+#  un accès root complet au serveur.
 #
-#  Tourne sur le runner self-hosted (même serveur que nginx).
-#  Pré-requis :
-#   - L'user du runner peut faire `sudo nginx -t`, `sudo cp ...`,
-#     `sudo systemctl reload nginx` (configurer /etc/sudoers.d/runner)
+#  Recommandation : préférer la version NOPASSWD (voir doc).
 # ─────────────────────────────────────────────────────────────────
 
 on:
@@ -22,45 +19,57 @@ on:
 jobs:
   deploy-nginx:
     runs-on: [self-hosted, chutex]
+    env:
+      SUDO_ASKPASS_CMD: 'echo "$SUDO_PASSWORD" | sudo -S'
     steps:
       - uses: actions/checkout@v4
 
       - name: Backup current config
+        env:
+          SUDO_PASSWORD: ${{ secrets.SUDO_PASSWORD }}
         run: |
           set -euo pipefail
           if [ -f /etc/nginx/sites-available/chutex-care.fr.conf ]; then
-            sudo cp /etc/nginx/sites-available/chutex-care.fr.conf \
-                    /etc/nginx/sites-available/chutex-care.fr.conf.bak.$(date +%s)
+            echo "$SUDO_PASSWORD" | sudo -S cp \
+              /etc/nginx/sites-available/chutex-care.fr.conf \
+              /etc/nginx/sites-available/chutex-care.fr.conf.bak.$(date +%s)
             echo "→ Backup créé"
           else
             echo "→ Pas de config existante, premier déploiement"
           fi
 
       - name: Copy config
+        env:
+          SUDO_PASSWORD: ${{ secrets.SUDO_PASSWORD }}
         run: |
           set -euo pipefail
-          sudo cp infra/nginx/chutex-care.fr.conf \
-                  /etc/nginx/sites-available/chutex-care.fr.conf
-          sudo ln -sf /etc/nginx/sites-available/chutex-care.fr.conf \
-                      /etc/nginx/sites-enabled/chutex-care.fr.conf
+          echo "$SUDO_PASSWORD" | sudo -S cp \
+            infra/nginx/chutex-care.fr.conf \
+            /etc/nginx/sites-available/chutex-care.fr.conf
+          echo "$SUDO_PASSWORD" | sudo -S ln -sf \
+            /etc/nginx/sites-available/chutex-care.fr.conf \
+            /etc/nginx/sites-enabled/chutex-care.fr.conf
           echo "→ Config copiée et activée"
 
       - name: Test nginx config
+        env:
+          SUDO_PASSWORD: ${{ secrets.SUDO_PASSWORD }}
         run: |
           set -euo pipefail
-          sudo nginx -t
+          echo "$SUDO_PASSWORD" | sudo -S nginx -t
 
       - name: Reload nginx
+        env:
+          SUDO_PASSWORD: ${{ secrets.SUDO_PASSWORD }}
         run: |
           set -euo pipefail
-          sudo systemctl reload nginx
+          echo "$SUDO_PASSWORD" | sudo -S systemctl reload nginx
           echo "✅ nginx rechargé sans coupure"
 
       - name: Healthcheck (HTTPS)
         run: |
           set -euo pipefail
           sleep 2
-          # Test interne (évite les soucis DNS public côté runner)
           curl -fsSk -H "Host: www.chutex-care.fr" \
             https://127.0.0.1/healthz \
             && echo "✅ Reverse-proxy répond" \
