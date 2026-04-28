@@ -75,17 +75,26 @@ jobs:
           set -euo pipefail
           CONTAINER_NAME="api"
 
+          # ─────────────────────────────────────────────────────────────
+          # Réécriture automatique du host de la DATABASE_URL pour qu'il
+          # pointe vers l'hôte Docker depuis l'intérieur du conteneur.
+          # Accepte 0.0.0.0, 127.0.0.1, localhost en entrée → host.docker.internal
+          # ─────────────────────────────────────────────────────────────
+          DB_URL_FIXED=$(echo "$DATABASE_URL" \
+            | sed -E 's#@(0\.0\.0\.0|127\.0\.0\.1|localhost)(:|/)#@host.docker.internal\2#g')
+          echo "→ DATABASE_URL (host masqué) : $(echo "$DB_URL_FIXED" | sed -E 's#://[^@]*@#://***@#')"
+
           echo "→ Stop & remove old container (si existant)"
           docker stop "$CONTAINER_NAME" 2>/dev/null || true
           docker rm   "$CONTAINER_NAME" 2>/dev/null || true
 
-          echo "→ Run new container (sur proxy-net, expose apiprod.chutex-innovation.com)"
+          echo "→ Run new container (sur proxy-net, expose ${VIRTUAL_HOST})"
           docker run -d \
             --name "$CONTAINER_NAME" \
             --restart unless-stopped \
             --network proxy-net \
             --add-host host.docker.internal:host-gateway \
-            -e DATABASE_URL="$DATABASE_URL" \
+            -e DATABASE_URL="$DB_URL_FIXED" \
             -e JWT_SECRET="$JWT_SECRET" \
             -e MOLLIE_TEST_KEY="$MOLLIE_TEST_KEY" \
             -e MOLLIE_API_KEY="$MOLLIE_API_KEY" \
