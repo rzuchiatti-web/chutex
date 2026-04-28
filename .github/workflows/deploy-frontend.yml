@@ -1,20 +1,18 @@
 name: Deploy frontend
 
 # ─────────────────────────────────────────────────────────────────
-#  Build l'image Docker du site web (React/Vite + nginx),
-#  la pousse sur GitHub Container Registry (ghcr.io),
-#  puis se connecte en SSH au serveur de prod pour la déployer.
-#
-#  Secrets requis (Settings → Secrets and variables → Actions) :
-#    - DEPLOY_HOST      : ex. 51.158.xxx.xxx ou prod.chutex-care.fr
-#    - DEPLOY_USER      : ex. root ou deploy
-#    - DEPLOY_SSH_KEY   : clé privée SSH (contenu du fichier id_ed25519)
-#    - DEPLOY_PORT      : (optionnel) port SSH, 22 par défaut
+#  Build l'image Docker du site web (React/Vite + nginx)
+#  et redémarre le conteneur — directement sur ton serveur via le
+#  runner self-hosted taggé "chutex".
 #
 #  Variables (Settings → Secrets and variables → Actions → Variables) :
 #    - REACT_APP_BACKEND_URL : ex. https://api.chutex-care.fr
 #    - REACT_APP_VAPID_KEY   : (optionnel) clé publique web-push
 #    - WEB_PORT              : ex. 80 (port exposé du conteneur)
+#
+#  Pré-requis sur le serveur :
+#    - Docker installé et accessible par l'utilisateur du runner
+#      (membre du groupe `docker` ou runner lancé en root)
 # ─────────────────────────────────────────────────────────────────
 
 on:
@@ -23,107 +21,62 @@ on:
     paths:
       - "frontend/**"
       - ".github/workflows/deploy-frontend.yml"
-  workflow_dispatch: # permet de lancer le workflow manuellement
-
-env:
-  REGISTRY: ghcr.io
-  IMAGE_NAME: ${{ github.repository }}/chutex-website
+  workflow_dispatch:
 
 jobs:
-  # ─── Build & push de l'image Docker sur GHCR ───────────────────
-  build:
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      packages: write
-    outputs:
-      image: ${{ steps.meta.outputs.tags }}
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-
-      - name: Log in to GHCR
-        uses: docker/login-action@v3
-        with:
-          registry: ${{ env.REGISTRY }}
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Extract Docker metadata
-        id: meta
-        uses: docker/metadata-action@v5
-        with:
-          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
-          tags: |
-            type=ref,event=branch
-            type=sha,prefix=,format=short
-            type=raw,value=latest,enable={{is_default_branch}}
-
-      - name: Build and push
-        uses: docker/build-push-action@v6
-        with:
-          context: ./frontend
-          file: ./frontend/Dockerfile
-          push: true
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
-          build-args: |
-            REACT_APP_BACKEND_URL=${{ vars.REACT_APP_BACKEND_URL }}
-            REACT_APP_VAPID_KEY=${{ vars.REACT_APP_VAPID_KEY }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
-
-  # ─── Déploiement SSH sur le serveur ────────────────────────────
   deploy:
-    runs-on: ubuntu-latest
-    needs: build
-    environment: production
+    runs-on: [self-hosted, chutex]
     steps:
-      - name: Pull & restart on server
-        uses: appleboy/ssh-action@v1.0.3
-        with:
-          host: ${{ secrets.DEPLOY_HOST }}
-          username: ${{ secrets.DEPLOY_USER }}
-          key: ${{ secrets.DEPLOY_SSH_KEY }}
-          port: ${{ secrets.DEPLOY_PORT || 22 }}
-          envs: WEB_PORT
-          script: |
-            set -euo pipefail
+      - uses: actions/checkout@v4
 
-            IMAGE="${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest"
-            CONTAINER_NAME="chutex-website"
-            PORT="${{ vars.WEB_PORT || '80' }}"
+      - name: Build Docker image
+        working-directory: frontend
+        run: |
+          set -euo pipefail
+          docker build \
+            --build-arg REACT_APP_BACKEND_URL="${{ vars.REACT_APP_BACKEND_URL }}" \
+            --build-arg REACT_APP_VAPID_KEY="${{ vars.REACT_APP_VAPID_KEY }}" \
+            -t chutex-website:latest \
+            -t chutex-website:${{ github.sha }} \
+            .
 
-            echo "→ Login GHCR"
-            echo "${{ secrets.GITHUB_TOKEN }}" | docker login ${{ env.REGISTRY }} \
-              -u ${{ github.actor }} --password-stdin
+      - name: Restart container
+        env:
+          WEB_PORT: ${{ vars.WEB_PORT || '80' }}
+        run: |
+          set -euo pipefail
+          CONTAINER_NAME="chutex-website"
 
-            echo "→ Pull $IMAGE"
-            docker pull "$IMAGE"
+          echo "→ Stop & remove old container (si existant)"
+          docker stop  "$CONTAINER_NAME" 2>/dev/null || true
+          docker rm    "$CONTAINER_NAME" 2>/dev/null || true
 
-            echo "→ Stop & remove old container (si existant)"
-            docker stop "$CONTAINER_NAME" 2>/dev/null || true
-            docker rm   "$CONTAINER_NAME" 2>/dev/null || true
+          echo "→ Run new container on port $WEB_PORT"
+          docker run -d \
+            --name "$CONTAINER_NAME" \
+            --restart unless-stopped \
+            -p "$WEB_PORT:80" \
+            chutex-website:latest
 
-            echo "→ Run new container on port $PORT"
-            docker run -d \
-              --name "$CONTAINER_NAME" \
-              --restart unless-stopped \
-              -p "$PORT:80" \
-              "$IMAGE"
+          echo "→ Cleanup old images (>7 jours)"
+          docker image prune -af --filter "until=168h" || true
 
-            echo "→ Cleanup old images (>7 jours)"
-            docker image prune -af --filter "until=168h" || true
-
-            echo "✅ Deploy OK — $IMAGE"
+          echo "✅ Deploy OK"
 
       - name: Healthcheck
+        env:
+          WEB_PORT: ${{ vars.WEB_PORT || '80' }}
         run: |
-          sleep 5
-          curl -fsS --retry 5 --retry-delay 3 \
-            "http://${{ secrets.DEPLOY_HOST }}:${{ vars.WEB_PORT || '80' }}/healthz" \
-            || (echo "❌ healthcheck failed" && exit 1)
-          echo "✅ Site répond"
+          set -euo pipefail
+          sleep 3
+          for i in 1 2 3 4 5; do
+            if curl -fsS "http://127.0.0.1:${WEB_PORT}/healthz"; then
+              echo "✅ Site répond"
+              exit 0
+            fi
+            echo "  → tentative $i/5, retry dans 3s..."
+            sleep 3
+          done
+          echo "❌ Healthcheck failed"
+          docker logs --tail 50 chutex-website || true
+          exit 1
