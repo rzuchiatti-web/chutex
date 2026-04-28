@@ -48,8 +48,8 @@ jobs:
 
       - name: Restart container
         env:
-          VIRTUAL_HOST: ${{ vars.VIRTUAL_HOST || 'dev.chutex-innovation.com' }}
-          LETSENCRYPT_HOST: ${{ vars.LETSENCRYPT_HOST || 'dev.chutex-innovation.com' }}
+          VIRTUAL_HOST: ${{ vars.VIRTUAL_HOST || 'prod.chutex-innovation.com' }}
+          LETSENCRYPT_HOST: ${{ vars.LETSENCRYPT_HOST || 'prod.chutex-innovation.com' }}
           LETSENCRYPT_EMAIL: ${{ vars.LETSENCRYPT_EMAIL || 'contact@chutex-innovation.com' }}
         run: |
           set -euo pipefail
