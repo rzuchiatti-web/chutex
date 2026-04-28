@@ -1,11 +1,8 @@
 name: Deploy nginx config
 
 # ─────────────────────────────────────────────────────────────────
-#  ⚠ Cette version utilise SUDO_PASSWORD (secret GitHub) au lieu
-#  de NOPASSWD sudoers. Moins sécurisé : un leak du secret donne
-#  un accès root complet au serveur.
-#
-#  Recommandation : préférer la version NOPASSWD (voir doc).
+#  Copie la config nginx dans /etc/nginx/conf.d/ (universel),
+#  vérifie la syntaxe et recharge nginx.
 # ─────────────────────────────────────────────────────────────────
 
 on:
@@ -19,26 +16,36 @@ on:
 jobs:
   deploy-nginx:
     runs-on: [self-hosted, chutex]
-    env:
-      SUDO_ASKPASS_CMD: 'echo "$SUDO_PASSWORD" | sudo -S'
     steps:
       - uses: actions/checkout@v4
+
+      - name: Detect target directory
+        id: detect
+        run: |
+          set -euo pipefail
+          if [ -d /etc/nginx/sites-available ] && [ -d /etc/nginx/sites-enabled ]; then
+            echo "mode=debian"  >> "$GITHUB_OUTPUT"
+            echo "→ Mode Debian (sites-available + sites-enabled)"
+          else
+            echo "mode=confd" >> "$GITHUB_OUTPUT"
+            echo "→ Mode conf.d (universel)"
+          fi
 
       - name: Backup current config
         env:
           SUDO_PASSWORD: ${{ secrets.SUDO_PASSWORD }}
         run: |
           set -euo pipefail
-          if [ -f /etc/nginx/sites-available/chutex-care.fr.conf ]; then
-            echo "$SUDO_PASSWORD" | sudo -S cp \
-              /etc/nginx/sites-available/chutex-care.fr.conf \
-              /etc/nginx/sites-available/chutex-care.fr.conf.bak.$(date +%s)
-            echo "→ Backup créé"
-          else
-            echo "→ Pas de config existante, premier déploiement"
-          fi
+          for path in /etc/nginx/conf.d/chutex-care.fr.conf \
+                     /etc/nginx/sites-available/chutex-care.fr.conf; do
+            if [ -f "$path" ]; then
+              echo "$SUDO_PASSWORD" | sudo -S cp "$path" "${path}.bak.$(date +%s)"
+              echo "→ Backup: $path"
+            fi
+          done
 
-      - name: Copy config
+      - name: Copy config (Debian style)
+        if: steps.detect.outputs.mode == 'debian'
         env:
           SUDO_PASSWORD: ${{ secrets.SUDO_PASSWORD }}
         run: |
@@ -49,7 +56,19 @@ jobs:
           echo "$SUDO_PASSWORD" | sudo -S ln -sf \
             /etc/nginx/sites-available/chutex-care.fr.conf \
             /etc/nginx/sites-enabled/chutex-care.fr.conf
-          echo "→ Config copiée et activée"
+          echo "→ Config installée (Debian)"
+
+      - name: Copy config (conf.d style)
+        if: steps.detect.outputs.mode == 'confd'
+        env:
+          SUDO_PASSWORD: ${{ secrets.SUDO_PASSWORD }}
+        run: |
+          set -euo pipefail
+          echo "$SUDO_PASSWORD" | sudo -S mkdir -p /etc/nginx/conf.d
+          echo "$SUDO_PASSWORD" | sudo -S cp \
+            infra/nginx/chutex-care.fr.conf \
+            /etc/nginx/conf.d/chutex-care.fr.conf
+          echo "→ Config installée (conf.d)"
 
       - name: Test nginx config
         env:
@@ -66,7 +85,7 @@ jobs:
           echo "$SUDO_PASSWORD" | sudo -S systemctl reload nginx
           echo "✅ nginx rechargé sans coupure"
 
-      - name: Healthcheck (HTTPS)
+      - name: Healthcheck
         run: |
           set -euo pipefail
           sleep 2
