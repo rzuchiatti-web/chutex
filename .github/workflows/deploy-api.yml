@@ -1,0 +1,123 @@
+name: Deploy API
+
+# ─────────────────────────────────────────────────────────────────
+#  Build l'image Docker de l'API FastAPI (migration/) et la déploie
+#  sur le réseau proxy-net pour être exposée sur api.chutex-innovation.com
+#
+#  Pré-requis :
+#    - Stack proxy-net déjà démarrée (workflow deploy-proxy.yml)
+#    - Postgres accessible depuis le conteneur (host.docker.internal:5432)
+#    - Secrets GitHub :
+#        DATABASE_URL          : ex postgresql+psycopg://user:pass@host.docker.internal:5432/chutex_care
+#        DATABASE_URL_ASYNC    : ex postgresql+asyncpg://user:pass@host.docker.internal:5432/chutex_care
+#        JWT_SECRET            : openssl rand -hex 32
+#        MOLLIE_TEST_KEY       : test_xxx (optionnel)
+#        MOLLIE_API_KEY        : live_xxx (optionnel)
+#    - Variables GitHub :
+#        API_VIRTUAL_HOST      : api.chutex-innovation.com
+#        API_LETSENCRYPT_HOST  : api.chutex-innovation.com
+#        ALLOWED_ORIGINS       : https://prod.chutex-innovation.com,https://app.chutex-innovation.com
+# ─────────────────────────────────────────────────────────────────
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "migration/**"
+      - ".github/workflows/deploy-api.yml"
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: [self-hosted, chutex]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build Docker image
+        working-directory: migration
+        run: |
+          set -euo pipefail
+          docker build \
+            -t chutex-api:latest \
+            -t chutex-api:${{ github.sha }} \
+            .
+
+      - name: Ensure proxy-net network exists
+        run: |
+          set -euo pipefail
+          docker network inspect proxy-net >/dev/null 2>&1 || \
+            docker network create proxy-net
+
+      - name: Restart container
+        env:
+          # Connectivité DB (Postgres tourne sur l'hôte sur 127.0.0.1:5432)
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          DATABASE_URL_ASYNC: ${{ secrets.DATABASE_URL_ASYNC }}
+          JWT_SECRET: ${{ secrets.JWT_SECRET }}
+          # Mollie (paiements)
+          MOLLIE_TEST_KEY: ${{ secrets.MOLLIE_TEST_KEY }}
+          MOLLIE_API_KEY: ${{ secrets.MOLLIE_API_KEY }}
+          # nginx-proxy + Let's Encrypt
+          VIRTUAL_HOST: ${{ vars.API_VIRTUAL_HOST || 'api.chutex-innovation.com' }}
+          LETSENCRYPT_HOST: ${{ vars.API_LETSENCRYPT_HOST || 'api.chutex-innovation.com' }}
+          LETSENCRYPT_EMAIL: ${{ vars.LETSENCRYPT_EMAIL || 'contact@chutex-innovation.com' }}
+          # CORS / public URLs
+          ALLOWED_ORIGINS: ${{ vars.ALLOWED_ORIGINS || 'https://prod.chutex-innovation.com' }}
+          FRONTEND_BASE_URL: ${{ vars.FRONTEND_BASE_URL || 'https://prod.chutex-innovation.com' }}
+          API_BASE_URL: ${{ vars.API_BASE_URL || 'https://api.chutex-innovation.com' }}
+        run: |
+          set -euo pipefail
+          CONTAINER_NAME="api"
+
+          echo "→ Stop & remove old container (si existant)"
+          docker stop "$CONTAINER_NAME" 2>/dev/null || true
+          docker rm   "$CONTAINER_NAME" 2>/dev/null || true
+
+          echo "→ Run new container (sur proxy-net, expose api.chutex-innovation.com)"
+          docker run -d \
+            --name "$CONTAINER_NAME" \
+            --restart unless-stopped \
+            --network proxy-net \
+            --add-host host.docker.internal:host-gateway \
+            -e DATABASE_URL="$DATABASE_URL" \
+            -e DATABASE_URL_ASYNC="$DATABASE_URL_ASYNC" \
+            -e JWT_SECRET="$JWT_SECRET" \
+            -e MOLLIE_TEST_KEY="$MOLLIE_TEST_KEY" \
+            -e MOLLIE_API_KEY="$MOLLIE_API_KEY" \
+            -e ALLOWED_ORIGINS="$ALLOWED_ORIGINS" \
+            -e FRONTEND_BASE_URL="$FRONTEND_BASE_URL" \
+            -e API_BASE_URL="$API_BASE_URL" \
+            -e VIRTUAL_HOST="$VIRTUAL_HOST" \
+            -e VIRTUAL_PORT=8000 \
+            -e LETSENCRYPT_HOST="$LETSENCRYPT_HOST" \
+            -e LETSENCRYPT_EMAIL="$LETSENCRYPT_EMAIL" \
+            chutex-api:latest
+
+          echo "→ Cleanup old images (>7 jours)"
+          docker image prune -af --filter "until=168h" || true
+
+          echo "✅ Deploy OK — VIRTUAL_HOST=$VIRTUAL_HOST"
+
+      - name: Wait for startup
+        run: |
+          set -euo pipefail
+          for i in 1 2 3 4 5 6 7 8 9 10; do
+            sleep 3
+            if docker exec api curl -fsS http://127.0.0.1:8000/api/health >/dev/null 2>&1; then
+              echo "✅ API ready (tentative $i)"
+              docker exec api curl -s http://127.0.0.1:8000/api/health
+              exit 0
+            fi
+            echo "  → tentative $i/10, retry dans 3s..."
+          done
+          echo "❌ API non répondant — logs :"
+          docker logs --tail 50 api
+          exit 1
+
+      - name: Healthcheck (interne via proxy-net)
+        run: |
+          set -euo pipefail
+          docker run --rm --network proxy-net curlimages/curl:latest \
+            -fsS http://api:8000/api/health \
+            && echo "✅ API joignable depuis proxy-net" \
+            || (docker logs --tail 30 api && exit 1)
