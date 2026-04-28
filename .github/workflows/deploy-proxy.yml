@@ -1,0 +1,47 @@
+name: Deploy proxy (nginx-proxy + Let's Encrypt)
+
+# ─────────────────────────────────────────────────────────────────
+#  Démarre / met à jour la stack nginx-proxy + acme-companion sur
+#  le runner self-hosted. À lancer 1 fois pour bootstrap, puis
+#  uniquement quand `infra/proxy/docker-compose.yml` change.
+# ─────────────────────────────────────────────────────────────────
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "infra/proxy/**"
+      - ".github/workflows/deploy-proxy.yml"
+  workflow_dispatch:
+
+jobs:
+  deploy-proxy:
+    runs-on: [self-hosted, chutex]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Pull & start proxy stack
+        working-directory: infra/proxy
+        env:
+          LETSENCRYPT_EMAIL: ${{ vars.LETSENCRYPT_EMAIL || 'contact@chutex-care.fr' }}
+        run: |
+          set -euo pipefail
+          docker compose pull
+          docker compose up -d
+          echo "→ Stack proxy démarrée"
+
+      - name: Show status
+        run: |
+          set -euo pipefail
+          docker compose -f infra/proxy/docker-compose.yml ps
+          echo "--- nginx-proxy logs (10 dernières lignes) ---"
+          docker logs --tail 10 nginx-proxy || true
+          echo "--- acme-companion logs (10 dernières lignes) ---"
+          docker logs --tail 10 nginx-proxy-acme || true
+
+      - name: Healthcheck (HTTP)
+        run: |
+          set -euo pipefail
+          sleep 3
+          curl -fsS -o /dev/null -w "%{http_code}\n" http://127.0.0.1/ || true
+          echo "✅ nginx-proxy écoute sur 80/443"

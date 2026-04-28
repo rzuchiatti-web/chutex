@@ -1,18 +1,18 @@
 name: Deploy frontend
 
 # ─────────────────────────────────────────────────────────────────
-#  Build l'image Docker du site web (React/Vite + nginx)
-#  et redémarre le conteneur — directement sur ton serveur via le
-#  runner self-hosted taggé "chutex".
+#  Build l'image Docker du site web et la connecte au réseau
+#  `proxy-net` (nginx-proxy + acme-companion).
 #
-#  Variables (Settings → Secrets and variables → Actions → Variables) :
+#  Variables (Settings → Variables) :
 #    - REACT_APP_BACKEND_URL : ex. https://api.chutex-care.fr
-#    - REACT_APP_VAPID_KEY   : (optionnel) clé publique web-push
-#    - WEB_PORT              : ex. 80 (port exposé du conteneur)
+#    - REACT_APP_VAPID_KEY   : (optionnel) clé Web Push publique
+#    - VIRTUAL_HOST          : ex. www.chutex-care.fr,chutex-care.fr
+#    - LETSENCRYPT_HOST      : idem (souvent identique à VIRTUAL_HOST)
+#    - LETSENCRYPT_EMAIL     : email pour les certs Let's Encrypt
 #
-#  Pré-requis sur le serveur :
-#    - Docker installé et accessible par l'utilisateur du runner
-#      (membre du groupe `docker` ou runner lancé en root)
+#  Pré-requis :
+#    - La stack proxy doit déjà tourner (workflow `deploy-proxy.yml`)
 # ─────────────────────────────────────────────────────────────────
 
 on:
@@ -29,15 +29,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Debug runner permissions
-        run: |
-          echo "user: $(whoami)"
-          echo "id: $(id)"
-          echo "groups: $(groups)"
-          echo "--- docker test ---"
-          docker version --format '{{.Server.Version}}' || true
-          docker ps
-
       - name: Build Docker image
         working-directory: frontend
         run: |
@@ -49,9 +40,17 @@ jobs:
             -t chutex-website:${{ github.sha }} \
             .
 
+      - name: Ensure proxy-net network exists
+        run: |
+          set -euo pipefail
+          docker network inspect proxy-net >/dev/null 2>&1 || \
+            docker network create proxy-net
+
       - name: Restart container
         env:
-          WEB_PORT: ${{ vars.WEB_PORT || '80' }}
+          VIRTUAL_HOST: ${{ vars.VIRTUAL_HOST || 'www.chutex-care.fr,chutex-care.fr' }}
+          LETSENCRYPT_HOST: ${{ vars.LETSENCRYPT_HOST || 'www.chutex-care.fr,chutex-care.fr' }}
+          LETSENCRYPT_EMAIL: ${{ vars.LETSENCRYPT_EMAIL || 'contact@chutex-care.fr' }}
         run: |
           set -euo pipefail
           CONTAINER_NAME="chutex-website"
@@ -60,32 +59,28 @@ jobs:
           docker stop  "$CONTAINER_NAME" 2>/dev/null || true
           docker rm    "$CONTAINER_NAME" 2>/dev/null || true
 
-          echo "→ Run new container on port $WEB_PORT"
+          echo "→ Run new container (sur le réseau proxy-net)"
           docker run -d \
             --name "$CONTAINER_NAME" \
             --restart unless-stopped \
-            -p "$WEB_PORT:80" \
+            --network proxy-net \
+            -e VIRTUAL_HOST="$VIRTUAL_HOST" \
+            -e VIRTUAL_PORT=80 \
+            -e LETSENCRYPT_HOST="$LETSENCRYPT_HOST" \
+            -e LETSENCRYPT_EMAIL="$LETSENCRYPT_EMAIL" \
             chutex-website:latest
 
           echo "→ Cleanup old images (>7 jours)"
           docker image prune -af --filter "until=168h" || true
 
-          echo "✅ Deploy OK"
+          echo "✅ Deploy OK — VIRTUAL_HOST=$VIRTUAL_HOST"
 
-      - name: Healthcheck
-        env:
-          WEB_PORT: ${{ vars.WEB_PORT || '80' }}
+      - name: Healthcheck (interne via proxy-net)
         run: |
           set -euo pipefail
           sleep 3
-          for i in 1 2 3 4 5; do
-            if curl -fsS "http://127.0.0.1:${WEB_PORT}/healthz"; then
-              echo "✅ Site répond"
-              exit 0
-            fi
-            echo "  → tentative $i/5, retry dans 3s..."
-            sleep 3
-          done
-          echo "❌ Healthcheck failed"
-          docker logs --tail 50 chutex-website || true
-          exit 1
+          # Test direct sur le conteneur via son nom DNS interne
+          docker run --rm --network proxy-net curlimages/curl:latest \
+            -fsS http://chutex-website/healthz \
+            && echo "✅ Site répond en interne" \
+            || (docker logs --tail 30 chutex-website && exit 1)
