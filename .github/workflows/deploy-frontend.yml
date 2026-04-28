@@ -53,11 +53,14 @@ jobs:
           LETSENCRYPT_EMAIL: ${{ vars.LETSENCRYPT_EMAIL || 'contact@chutex-care.fr' }}
         run: |
           set -euo pipefail
-          CONTAINER_NAME="chutex-website"
+          CONTAINER_NAME="frontend"
 
           echo "→ Stop & remove old container (si existant)"
           docker stop  "$CONTAINER_NAME" 2>/dev/null || true
           docker rm    "$CONTAINER_NAME" 2>/dev/null || true
+          # Migration : supprime aussi l'ancien nom si présent
+          docker stop chutex-website 2>/dev/null || true
+          docker rm   chutex-website 2>/dev/null || true
 
           echo "→ Run new container (sur le réseau proxy-net)"
           docker run -d \
@@ -79,8 +82,7 @@ jobs:
         run: |
           set -euo pipefail
           sleep 3
-          # Test direct sur le conteneur via son nom DNS interne
           docker run --rm --network proxy-net curlimages/curl:latest \
-            -fsS http://chutex-website/healthz \
+            -fsS http://frontend/healthz \
             && echo "✅ Site répond en interne" \
-            || (docker logs --tail 30 chutex-website && exit 1)
+            || (docker logs --tail 30 frontend && exit 1)
