@@ -8,15 +8,14 @@ name: Deploy API
 #    - Stack proxy-net déjà démarrée (workflow deploy-proxy.yml)
 #    - Postgres accessible depuis le conteneur (host.docker.internal:5432)
 #    - Secrets GitHub :
-#        DATABASE_URL          : ex postgresql+psycopg://user:pass@host.docker.internal:5432/chutex_care
-#        DATABASE_URL_ASYNC    : ex postgresql+asyncpg://user:pass@host.docker.internal:5432/chutex_care
-#        JWT_SECRET            : openssl rand -hex 32
-#        MOLLIE_TEST_KEY       : test_xxx (optionnel)
-#        MOLLIE_API_KEY        : live_xxx (optionnel)
+#        DATABASE_URL    : MÊME secret que le workflow alembic-migrate
+#                          (la version async est dérivée automatiquement)
+#        JWT_SECRET      : openssl rand -hex 32
+#        MOLLIE_TEST_KEY : test_xxx (optionnel)
+#        MOLLIE_API_KEY  : live_xxx (optionnel)
 #    - Variables GitHub :
-#        API_VIRTUAL_HOST      : api.chutex-innovation.com
-#        API_LETSENCRYPT_HOST  : api.chutex-innovation.com
-#        ALLOWED_ORIGINS       : https://prod.chutex-innovation.com,https://app.chutex-innovation.com
+#        API_VIRTUAL_HOST : api.chutex-innovation.com
+#        ALLOWED_ORIGINS  : https://prod.chutex-innovation.com,...
 # ─────────────────────────────────────────────────────────────────
 
 on:
@@ -50,9 +49,8 @@ jobs:
 
       - name: Restart container
         env:
-          # Connectivité DB (Postgres tourne sur l'hôte sur 127.0.0.1:5432)
+          # Connectivité DB (réutilise le secret du workflow alembic-migrate)
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
-          DATABASE_URL_ASYNC: ${{ secrets.DATABASE_URL_ASYNC }}
           JWT_SECRET: ${{ secrets.JWT_SECRET }}
           # Mollie (paiements)
           MOLLIE_TEST_KEY: ${{ secrets.MOLLIE_TEST_KEY }}
@@ -80,7 +78,6 @@ jobs:
             --network proxy-net \
             --add-host host.docker.internal:host-gateway \
             -e DATABASE_URL="$DATABASE_URL" \
-            -e DATABASE_URL_ASYNC="$DATABASE_URL_ASYNC" \
             -e JWT_SECRET="$JWT_SECRET" \
             -e MOLLIE_TEST_KEY="$MOLLIE_TEST_KEY" \
             -e MOLLIE_API_KEY="$MOLLIE_API_KEY" \
