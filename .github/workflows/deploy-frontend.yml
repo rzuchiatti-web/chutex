@@ -51,9 +51,6 @@ jobs:
           VIRTUAL_HOST: ${{ vars.VIRTUAL_HOST || 'prod.chutex-innovation.com' }}
           LETSENCRYPT_HOST: ${{ vars.LETSENCRYPT_HOST || 'prod.chutex-innovation.com' }}
           LETSENCRYPT_EMAIL: ${{ vars.LETSENCRYPT_EMAIL || 'contact@chutex-innovation.com' }}
-          OVH_AK: ${{ secrets.OVH_AK }}
-          OVH_AS: ${{ secrets.OVH_AS }}
-          OVH_CK: ${{ secrets.OVH_CK }}
         run: |
           set -euo pipefail
           CONTAINER_NAME="frontend"
@@ -64,11 +61,7 @@ jobs:
           docker stop chutex-website 2>/dev/null || true
           docker rm   chutex-website 2>/dev/null || true
 
-          # Construit la config DNS-01 OVH pour acme.sh (challenge sans port 80)
-          ACME_CONFIG=$(printf '{"DNS_API":"dns_ovh","OVH_END_POINT":"ovh-eu","OVH_AK":"%s","OVH_AS":"%s","OVH_CK":"%s"}' \
-            "$OVH_AK" "$OVH_AS" "$OVH_CK")
-
-          echo "→ Run new container (sur le réseau proxy-net, DNS-01 via OVH)"
+          echo "→ Run new container (sur le réseau proxy-net, HTTP-01)"
           docker run -d \
             --name "$CONTAINER_NAME" \
             --restart unless-stopped \
@@ -77,14 +70,12 @@ jobs:
             -e VIRTUAL_PORT=80 \
             -e LETSENCRYPT_HOST="$LETSENCRYPT_HOST" \
             -e LETSENCRYPT_EMAIL="$LETSENCRYPT_EMAIL" \
-            -e ACME_CHALLENGE=DNS-01 \
-            -e "ACMESH_DNS_API_CONFIG=$ACME_CONFIG" \
             chutex-website:latest
 
           echo "→ Cleanup old images (>7 jours)"
           docker image prune -af --filter "until=168h" || true
 
-          echo "✅ Deploy OK — VIRTUAL_HOST=$VIRTUAL_HOST (DNS-01)"
+          echo "✅ Deploy OK — VIRTUAL_HOST=$VIRTUAL_HOST"
 
       - name: Healthcheck (interne via proxy-net)
         run: |
