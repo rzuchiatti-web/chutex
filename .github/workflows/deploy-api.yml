@@ -4,15 +4,21 @@ name: Deploy API
 #  Build l'image Docker de l'API FastAPI (migration/) et la déploie
 #  sur le réseau proxy-net pour être exposée sur api.chutex-innovation.com
 #
+#  ⚙️  154 endpoints exposés — auth, shop, alerts, devices, bracelet,
+#      dorsi, guardian, programs, reminders, minceur, subscriptions,
+#      teleassistance, escalation, pro, geofences, settings, RGPD,
+#      Nora caches, firmware OTA, carewatch.
+#
 #  Pré-requis :
 #    - Stack proxy-net déjà démarrée (workflow deploy-proxy.yml)
 #    - Postgres accessible depuis le conteneur (host.docker.internal:5432)
 #    - Secrets GitHub :
-#        DATABASE_URL    : MÊME secret que le workflow alembic-migrate
-#                          (la version async est dérivée automatiquement)
+#        DATABASE_URL    : postgresql+psycopg://USER:PWD@host.docker.internal:5432/chutex_care
+#                          (la version async asyncpg est dérivée automatiquement)
 #        JWT_SECRET      : openssl rand -hex 32
 #        MOLLIE_TEST_KEY : test_xxx (optionnel)
 #        MOLLIE_API_KEY  : live_xxx (optionnel)
+#        EMERGENT_LLM_KEY: clé universelle Emergent (optionnel — chat IA Nora)
 #    - Variables GitHub :
 #        API_VIRTUAL_HOST : api.chutex-innovation.com
 #        ALLOWED_ORIGINS  : https://prod.chutex-innovation.com,...
@@ -55,6 +61,8 @@ jobs:
           # Mollie (paiements)
           MOLLIE_TEST_KEY: ${{ secrets.MOLLIE_TEST_KEY }}
           MOLLIE_API_KEY: ${{ secrets.MOLLIE_API_KEY }}
+          # Emergent LLM key (chat Nora — optionnel)
+          EMERGENT_LLM_KEY: ${{ secrets.EMERGENT_LLM_KEY }}
           # nginx-proxy + Let's Encrypt
           VIRTUAL_HOST: ${{ vars.API_VIRTUAL_HOST || 'api.chutex-innovation.com' }}
           LETSENCRYPT_HOST: ${{ vars.API_LETSENCRYPT_HOST || 'api.chutex-innovation.com' }}
@@ -81,6 +89,7 @@ jobs:
             -e JWT_SECRET="$JWT_SECRET" \
             -e MOLLIE_TEST_KEY="$MOLLIE_TEST_KEY" \
             -e MOLLIE_API_KEY="$MOLLIE_API_KEY" \
+            -e EMERGENT_LLM_KEY="$EMERGENT_LLM_KEY" \
             -e ALLOWED_ORIGINS="$ALLOWED_ORIGINS" \
             -e FRONTEND_BASE_URL="$FRONTEND_BASE_URL" \
             -e API_BASE_URL="$API_BASE_URL" \

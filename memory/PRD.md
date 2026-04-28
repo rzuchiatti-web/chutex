@@ -69,7 +69,22 @@ Nos Solutions | Professionnels | Ressources | Legal
 
 - **Image Elio optimisee** -- SVG 5.3MB converti en WebP : hero 36KB (1200px), card 12KB (600px), thumb 4KB (300px). Compression 150x. References mises a jour dans Products.jsx, Solutions.jsx et shop_routes.py (15/04/2026)
 
+- **Migration complete MongoDB -> PostgreSQL** -- Schema SQLAlchemy 122 tables, scripts Alembic + Mongo->Postgres data transfer, infra Docker (nginx-proxy + Let's Encrypt) + workflows CI/CD GitHub Actions (deploy-frontend, deploy-proxy, deploy-api, alembic-migrate). API externe FastAPI/SQLAlchemy sur api.chutex-innovation.com (avr 2026)
+
+- **Portage massif des routes Mongo -> Postgres SQLAlchemy** -- 154 endpoints actifs (vs 19 au depart) repartis sur 21 modules dans /app/migration/api/routes/ : auth, shop, web, notifications, push, thresholds, health (vitals/ECG/glycemie/weighings), alerts (incl. live-status & tracking), intervention, chat (Nora), devices, bracelet (V6/V8), dorsi, guardian, programs, reminders, minceur, subscriptions/contracts/plans, teleassistance/escalation, pro (conversations/exercices/repas/rappels), geofences/settings/medications/RGPD/streaks, nora caches, firmware OTA J2358, carewatch. Smoke E2E test 12/12 OK contre Postgres local. Workflow deploy-api.yml mis a jour avec EMERGENT_LLM_KEY (28/04/2026)
+
 ## A FAIRE
+### P0 - Routes API restantes a porter (vague 2)
+- Workflows complexes Twilio/Vapi/ElevenLabs (TTS, IVR, speech-response) dans teleassistance.py
+- Logique metier complete Nora (services/nora_*) : contextes enrichis, actions, cache LLM
+- Daily reports IA (health_report_routes.py - 2325 lignes) : computeurs subscores, agregations multi-jours
+- Health aging + sleep complets (algorithmes scoring detailes)
+- Workflows Stripe contracts (contract_routes - 837 lignes) : creation/signature/PDF/webhook
+- Admin routes (admin_routes.py - 617 lignes), advanced_routes (731 lignes), professional_routes (1943 lignes)
+- Bracelet V6 4G TCP J2358 push payloads complets (1262 lignes)
+- Shopify webhook (shopify_routes - 349 lignes) si encore utile
+- batch_routes, company_routes, dorsi_routes complet, minceur_routes complet, glycemia_routes complet, escalation full, professional_routes, pro_subscription_routes, pro_application_routes, pro_exercise_routes, program_team_routes, program_routes (full cycle), team programs, RGPD complet, advanced_routes (admin tools)
+
 ### P1 - Landing Pages produits
 - Bracelet Elio (+ grille abonnements Standard/Sport/Physio/Care), Balance Vita, Accessoires & Recharges
 
