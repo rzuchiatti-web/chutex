@@ -73,17 +73,17 @@ Nos Solutions | Professionnels | Ressources | Legal
 
 - **Portage massif des routes Mongo -> Postgres SQLAlchemy** -- 154 endpoints actifs (vs 19 au depart) repartis sur 21 modules dans /app/migration/api/routes/ : auth, shop, web, notifications, push, thresholds, health (vitals/ECG/glycemie/weighings), alerts (incl. live-status & tracking), intervention, chat (Nora), devices, bracelet (V6/V8), dorsi, guardian, programs, reminders, minceur, subscriptions/contracts/plans, teleassistance/escalation, pro (conversations/exercices/repas/rappels), geofences/settings/medications/RGPD/streaks, nora caches, firmware OTA J2358, carewatch. Smoke E2E test 12/12 OK contre Postgres local. Workflow deploy-api.yml mis a jour avec EMERGENT_LLM_KEY (28/04/2026)
 
+- **Vague 2 du portage Mongo -> Postgres** -- +83 endpoints supplementaires (237 total) repartis sur 5 modules supplementaires : `admin.py` (codes activation/intervention, KPI, revenue, backoffice users/alerts/prescriptions, devices/health overview, RGPD/SAAD invitations, documents memory/), `professional.py` (profile pro, beneficiaries, exercise/meal/reminder templates CRUD, pro_programs CRUD, dashboard, assignments), `contract.py` (Stripe contracts create/validate/sign/activate avec creation auto Subscription, list, payments, invoices, webhook Stripe basique), `advanced.py` (Nora morning-briefing + weekly-report avec cache + LLM via EMERGENT_LLM_KEY, daily check-in avec streak tracking, predictive-alerts), `extras.py` (glycemia log, vest sync + fall-detection -> alert, batch dashboard, health/extended single-call, daily/sleep/aging summaries, pro-applications status, pro_subscriptions, shopify deprecate stub). URL deploy-api migree de api.chutex-innovation.com -> apiprod.chutex-innovation.com. Smoke E2E v2 16/16 + v1 12/12 = 28/28 OK contre Postgres local (28/04/2026)
+
 ## A FAIRE
-### P0 - Routes API restantes a porter (vague 2)
-- Workflows complexes Twilio/Vapi/ElevenLabs (TTS, IVR, speech-response) dans teleassistance.py
-- Logique metier complete Nora (services/nora_*) : contextes enrichis, actions, cache LLM
-- Daily reports IA (health_report_routes.py - 2325 lignes) : computeurs subscores, agregations multi-jours
-- Health aging + sleep complets (algorithmes scoring detailes)
-- Workflows Stripe contracts (contract_routes - 837 lignes) : creation/signature/PDF/webhook
-- Admin routes (admin_routes.py - 617 lignes), advanced_routes (731 lignes), professional_routes (1943 lignes)
-- Bracelet V6 4G TCP J2358 push payloads complets (1262 lignes)
-- Shopify webhook (shopify_routes - 349 lignes) si encore utile
-- batch_routes, company_routes, dorsi_routes complet, minceur_routes complet, glycemia_routes complet, escalation full, professional_routes, pro_subscription_routes, pro_application_routes, pro_exercise_routes, program_team_routes, program_routes (full cycle), team programs, RGPD complet, advanced_routes (admin tools)
+### P0 - Routes API restantes a porter (vague 3 - reduite)
+- Workflows complets Twilio/Vapi/ElevenLabs (TTS, IVR, speech-response) — **STUB MINIMAL pour l'instant**
+- Logique metier complete Nora services (services/nora_*) : contextes enrichis, actions LLM avec tool calls — **CHAT FONCTIONNE EN MODE LLM SIMPLE**
+- Algorithmes complets daily report scoring (subscores cardio/sommeil/stress, agregation 7j/30j) — **CACHE + STATS DE BASE OK**
+- Sleep / Body age / aging algorithmes detailes — **LECTURE CACHE OK, CALCULS A PORTER**
+- Stripe Connect complet : onboarding professionnels, transfers, IBAN verify, PDF contrats — **CRUD + WEBHOOK BASIQUE OK**
+- Bracelet V6 4G TCP J2358 push payloads complets binaires (1262 lignes) — **CONFIG + ECG HISTORY OK**
+- Routes Visit intervenant SAAD detaillees (advanced_routes.py - intervenant/visit/*)
 
 ### P1 - Landing Pages produits
 - Bracelet Elio (+ grille abonnements Standard/Sport/Physio/Care), Balance Vita, Accessoires & Recharges

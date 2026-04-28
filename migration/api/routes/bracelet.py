@@ -123,6 +123,6 @@ async def get_bracelet_config(user: dict = Depends(get_current_user)):
         "user_id": user["id"],
         "tcp_host": "tcp.chutex-innovation.com",
         "tcp_port": 9001,
-        "ws_host": "wss://api.chutex-innovation.com",
+        "ws_host": "wss://apiprod.chutex-innovation.com",
         "ble_active": True,
     }

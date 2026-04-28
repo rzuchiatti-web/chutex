@@ -48,14 +48,18 @@ async def save_nora_analysis(
     session: AsyncSession = Depends(get_session),
 ):
     cache_key = data.get("cache_key") or f"{user['id']}-{utcnow().date().isoformat()}"
+    analysis = data.get("analysis")
+    if isinstance(analysis, (dict, list)):
+        import json as _json
+        analysis = _json.dumps(analysis, ensure_ascii=False)
     stmt = pg_insert(NoraAnalysisCache).values(
         cache_key=cache_key, user_id=user["id"],
         date=data.get("date"), context=data.get("context"),
-        analysis=data.get("analysis"),
+        analysis=analysis,
         created_at=utcnow(),
     ).on_conflict_do_update(
         index_elements=[NoraAnalysisCache.cache_key],
-        set_={"analysis": data.get("analysis"), "context": data.get("context"), "created_at": utcnow()},
+        set_={"analysis": analysis, "context": data.get("context"), "created_at": utcnow()},
     )
     await session.execute(stmt)
     await session.commit()

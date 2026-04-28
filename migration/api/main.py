@@ -71,6 +71,11 @@ from api.routes import teleassistance as teleassistance_routes  # noqa: E402
 from api.routes import pro as pro_routes  # noqa: E402
 from api.routes import misc as misc_routes  # noqa: E402
 from api.routes import nora_firmware as nora_firmware_routes  # noqa: E402
+from api.routes import admin as admin_routes  # noqa: E402
+from api.routes import professional as professional_routes  # noqa: E402
+from api.routes import contract as contract_routes  # noqa: E402
+from api.routes import advanced as advanced_routes  # noqa: E402
+from api.routes import extras as extras_routes  # noqa: E402
 
 app = FastAPI(
     title="Chutex Care API",
@@ -131,6 +136,13 @@ app.include_router(misc_routes.router, prefix="/api")
 
 # Nora caches, firmware, carewatch
 app.include_router(nora_firmware_routes.router, prefix="/api")
+
+# Vague 2 — Admin / Professional / Contract / Advanced (Nora) / Extras
+app.include_router(admin_routes.router, prefix="/api")
+app.include_router(professional_routes.router, prefix="/api")
+app.include_router(contract_routes.router, prefix="/api")
+app.include_router(advanced_routes.router, prefix="/api")
+app.include_router(extras_routes.router, prefix="/api")
 
 
 @app.get("/api/health")
