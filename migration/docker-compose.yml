@@ -1,0 +1,39 @@
+version: "3.9"
+
+services:
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: chutex_care
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      retries: 10
+
+  api:
+    build: .
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql+psycopg://postgres:postgres@db:5432/chutex_care
+      DATABASE_URL_ASYNC: postgresql+asyncpg://postgres:postgres@db:5432/chutex_care
+      JWT_SECRET: ${JWT_SECRET:-change-me}
+      ALLOWED_ORIGINS: ${ALLOWED_ORIGINS:-*}
+      MOLLIE_TEST_KEY: ${MOLLIE_TEST_KEY:-}
+      MOLLIE_API_KEY: ${MOLLIE_API_KEY:-}
+      FRONTEND_BASE_URL: ${FRONTEND_BASE_URL:-}
+      API_BASE_URL: ${API_BASE_URL:-}
+    ports:
+      - "8000:8000"
+
+volumes:
+  pgdata:

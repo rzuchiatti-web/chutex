@@ -3,6 +3,14 @@ alembic>=1.13.2
 psycopg[binary]>=3.2.0
 asyncpg>=0.29.0
 python-dotenv>=1.0.1
-# Uniquement pour scripts/migrate_data.py
+# API FastAPI
+fastapi>=0.115.0
+uvicorn[standard]>=0.30.0
+pydantic[email]>=2.7.0
+python-multipart>=0.0.9
+PyJWT>=2.9.0
+bcrypt>=4.2.0
+mollie-api-python>=3.7.0
+# Migration data (Mongo → Postgres)
 motor>=3.5.0
 pymongo>=4.7.0
