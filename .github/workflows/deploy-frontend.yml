@@ -29,6 +29,15 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Debug runner permissions
+        run: |
+          echo "user: $(whoami)"
+          echo "id: $(id)"
+          echo "groups: $(groups)"
+          echo "--- docker test ---"
+          docker version --format '{{.Server.Version}}' || true
+          docker ps
+
       - name: Build Docker image
         working-directory: frontend
         run: |
