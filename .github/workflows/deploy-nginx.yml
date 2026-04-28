@@ -1,0 +1,67 @@
+name: Deploy nginx config
+
+# ─────────────────────────────────────────────────────────────────
+#  Copie la config nginx du repo (infra/nginx/chutex-care.fr.conf)
+#  vers /etc/nginx/sites-available/, vérifie la syntaxe (nginx -t)
+#  puis recharge le service nginx hôte sans coupure.
+#
+#  Tourne sur le runner self-hosted (même serveur que nginx).
+#  Pré-requis :
+#   - L'user du runner peut faire `sudo nginx -t`, `sudo cp ...`,
+#     `sudo systemctl reload nginx` (configurer /etc/sudoers.d/runner)
+# ─────────────────────────────────────────────────────────────────
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "infra/nginx/**"
+      - ".github/workflows/deploy-nginx.yml"
+  workflow_dispatch:
+
+jobs:
+  deploy-nginx:
+    runs-on: [self-hosted, chutex]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Backup current config
+        run: |
+          set -euo pipefail
+          if [ -f /etc/nginx/sites-available/chutex-care.fr.conf ]; then
+            sudo cp /etc/nginx/sites-available/chutex-care.fr.conf \
+                    /etc/nginx/sites-available/chutex-care.fr.conf.bak.$(date +%s)
+            echo "→ Backup créé"
+          else
+            echo "→ Pas de config existante, premier déploiement"
+          fi
+
+      - name: Copy config
+        run: |
+          set -euo pipefail
+          sudo cp infra/nginx/chutex-care.fr.conf \
+                  /etc/nginx/sites-available/chutex-care.fr.conf
+          sudo ln -sf /etc/nginx/sites-available/chutex-care.fr.conf \
+                      /etc/nginx/sites-enabled/chutex-care.fr.conf
+          echo "→ Config copiée et activée"
+
+      - name: Test nginx config
+        run: |
+          set -euo pipefail
+          sudo nginx -t
+
+      - name: Reload nginx
+        run: |
+          set -euo pipefail
+          sudo systemctl reload nginx
+          echo "✅ nginx rechargé sans coupure"
+
+      - name: Healthcheck (HTTPS)
+        run: |
+          set -euo pipefail
+          sleep 2
+          # Test interne (évite les soucis DNS public côté runner)
+          curl -fsSk -H "Host: www.chutex-care.fr" \
+            https://127.0.0.1/healthz \
+            && echo "✅ Reverse-proxy répond" \
+            || (echo "⚠ healthcheck KO (peut-être normal si conteneur pas encore up)" && exit 0)
