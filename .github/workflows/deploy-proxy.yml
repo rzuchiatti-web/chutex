@@ -26,6 +26,9 @@ jobs:
           LETSENCRYPT_EMAIL: ${{ vars.LETSENCRYPT_EMAIL || 'contact@chutex-care.fr' }}
         run: |
           set -euo pipefail
+          # Garantit que le réseau partagé existe (déclaré external dans le compose)
+          docker network inspect proxy-net >/dev/null 2>&1 || \
+            docker network create proxy-net
           docker compose pull
           docker compose up -d
           echo "→ Stack proxy démarrée"
