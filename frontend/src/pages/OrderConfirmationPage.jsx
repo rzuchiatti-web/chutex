@@ -63,7 +63,7 @@ export default function OrderConfirmationPage() {
 
     const fetchOrder = async () => {
       try {
-        const API = import.meta.env.REACT_APP_BACKEND_URL
+        const API = import.meta.env.REACT_APP_BACKEND_URL || ''
         const res = await fetch(`${API}/api/shop/order/${orderId}`)
         if (!res.ok) throw new Error('Not found')
         const data = await res.json()

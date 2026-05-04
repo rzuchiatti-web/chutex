@@ -4,8 +4,13 @@ name: Deploy frontend
 #  Build l'image Docker du site web et la connecte au réseau
 #  `proxy-net` (nginx-proxy + acme-companion).
 #
+#  ⚙️  Architecture : le site web parle à l'API Postgres via
+#      le réseau Docker interne. Nginx du conteneur frontend proxy
+#      les requêtes /api/* vers http://api:8000 (DNS Docker), donc
+#      AUCUNE route backend n'est exposée publiquement.
+#      → REACT_APP_BACKEND_URL doit rester vide en prod (path relatif).
+#
 #  Variables (Settings → Variables) :
-#    - REACT_APP_BACKEND_URL : ex. https://api.chutex-care.fr
 #    - REACT_APP_VAPID_KEY   : (optionnel) clé Web Push publique
 #    - VIRTUAL_HOST          : ex. www.chutex-care.fr,chutex-care.fr
 #    - LETSENCRYPT_HOST      : idem (souvent identique à VIRTUAL_HOST)
@@ -13,6 +18,8 @@ name: Deploy frontend
 #
 #  Pré-requis :
 #    - La stack proxy doit déjà tourner (workflow `deploy-proxy.yml`)
+#    - Le conteneur API doit déjà tourner sur proxy-net (workflow
+#      `deploy-api.yml`) — sinon les requêtes /api/* renverront 502.
 # ─────────────────────────────────────────────────────────────────
 
 on:
@@ -33,8 +40,10 @@ jobs:
         working-directory: frontend
         run: |
           set -euo pipefail
+          # REACT_APP_BACKEND_URL volontairement vide en prod : le frontend
+          # appelle des paths relatifs (/api/...) que nginx proxy en interne.
           docker build \
-            --build-arg REACT_APP_BACKEND_URL="${{ vars.REACT_APP_BACKEND_URL }}" \
+            --build-arg REACT_APP_BACKEND_URL="" \
             --build-arg REACT_APP_VAPID_KEY="${{ vars.REACT_APP_VAPID_KEY }}" \
             -t chutex-website:latest \
             -t chutex-website:${{ github.sha }} \

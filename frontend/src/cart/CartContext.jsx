@@ -64,7 +64,7 @@ export function CartProvider({ children }) {
   const checkout = useCallback(async (customerInfo) => {
     setIsLoading(true)
     try {
-      const API = import.meta.env.REACT_APP_BACKEND_URL
+      const API = import.meta.env.REACT_APP_BACKEND_URL || ''
       const res = await fetch(`${API}/api/shop/checkout`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
