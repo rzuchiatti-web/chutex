@@ -9,7 +9,7 @@ export default defineConfig({
     strictPort: true,
     allowedHosts: true,
     watch: {
-      ignored: ['**/node_modules/**', '**/.metro-cache/**', '**/.expo/**'],
+      ignored: ['**/node_modules/**'],
     },
   },
   envPrefix: ['VITE_', 'REACT_APP_']
