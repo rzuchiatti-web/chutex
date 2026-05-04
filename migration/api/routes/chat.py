@@ -18,6 +18,11 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from api.deps import get_current_user, get_session
 from api.helpers import get_effective_role, row_to_dict, utcnow
+from api.services.nora_context import (
+    APP_SERVICES_KNOWLEDGE,
+    build_nora_context,
+    format_nora_context_for_prompt,
+)
 from app.models.misc import ChatMessage
 
 logger = logging.getLogger(__name__)
@@ -74,10 +79,15 @@ async def send_chat_message(
     if api_key:
         try:
             from emergentintegrations.llm.chat import LlmChat, UserMessage  # type: ignore
+            # Build full Nora context (santé, devices, programme, alertes…)
+            ctx = await build_nora_context(user, session)
+            ctx_str = format_nora_context_for_prompt(ctx)
             system = (
-                f"Tu es Nora, IA de Chutex specialisee en prevention et longevite. "
+                f"Tu es Nora, IA de Chutex specialisee en prevention sante et longevite. "
                 f"Reponds en {lang_name}, ton serieux et factuel, max 3-4 phrases sauf "
-                f"question complexe. L'app s'appelle Chutex (JAMAIS \"CareWatch\")."
+                f"question complexe. L'app s'appelle Chutex (JAMAIS \"CareWatch\").\n\n"
+                f"=== CONTEXTE PATIENT ===\n{ctx_str}\n\n"
+                f"=== SERVICES DISPONIBLES ===\n{APP_SERVICES_KNOWLEDGE}"
             )
             chat = LlmChat(
                 api_key=api_key,

@@ -196,23 +196,56 @@ async def daily_report(
     c = res.scalar_one_or_none()
     if c and c.cached_at and (utcnow() - c.cached_at).total_seconds() < 4 * 3600:
         return row_to_dict(c)
-    # Compute lightweight summary
+
+    # Compute via scoring service (cardio + sleep + activity + stress + body age)
+    from api.services.scoring import daily_report as compute_daily_report
+
     since = utcnow() - timedelta(days=1)
     vr = await session.execute(
         select(HealthVital).where(
             HealthVital.user_id == user["id"], HealthVital.timestamp >= since
         )
     )
-    vitals = list(vr.scalars().all())
-    payload = {
-        "date": today,
-        "samples": len(vitals),
-        "avg_hr": (
-            round(sum(v.heart_rate or 0 for v in vitals) / max(len(vitals), 1), 1)
-            if vitals else 0
-        ),
-        "total_steps": sum(v.steps or 0 for v in vitals),
-    }
+    vitals_rows = list(vr.scalars().all())
+    vitals_dicts = [
+        {
+            "heart_rate": v.heart_rate, "spo2": v.spo2, "hrv": v.hrv,
+            "temperature": v.temperature, "steps": v.steps,
+            "calories": v.calories,
+            "sleep_quality": v.sleep_quality,
+            "sleep_duration_min": (v.sleep_hours or 0) * 60 if v.sleep_hours else None,
+        }
+        for v in vitals_rows
+    ]
+
+    # Latest scale
+    sres = await session.execute(
+        select(DeviceReading).where(
+            DeviceReading.user_id == user["id"], DeviceReading.device_type == "scale"
+        ).order_by(DeviceReading.timestamp.desc()).limit(1)
+    )
+    scale = sres.scalar_one_or_none()
+    latest_scale = (scale.raw_data or {}) if scale else {}
+
+    # Compute age from user
+    age = None
+    if user.get("date_of_birth"):
+        for fmt in ("%d/%m/%Y", "%Y-%m-%d"):
+            try:
+                born = datetime.strptime(user["date_of_birth"], fmt)
+                age = (utcnow() - born.replace(tzinfo=timezone.utc)).days // 365
+                break
+            except ValueError:
+                continue
+
+    payload = compute_daily_report(
+        vitals=vitals_dicts,
+        latest_scale=latest_scale,
+        age=age,
+        height_cm=user.get("height_cm"),
+    )
+    payload["date"] = today
+
     if c:
         c.cached_at = utcnow()
         c.report = payload
@@ -245,8 +278,34 @@ async def aging_summary(
         select(BodyAgeCache).where(BodyAgeCache.user_id == user["id"])
     )
     b = res.scalar_one_or_none()
+
+    # Compute composite aging score from cached body age + global score
+    from api.services.scoring import aging_score
+
+    # Get latest daily report cache for global score
+    drres = await session.execute(
+        select(DailyReportCache).where(DailyReportCache.user_id == user["id"])
+    )
+    dr = drres.scalar_one_or_none()
+    gs = (dr.report or {}).get("global_score") if dr and dr.report else None
+
+    age = None
+    if user.get("date_of_birth"):
+        for fmt in ("%d/%m/%Y", "%Y-%m-%d"):
+            try:
+                born = datetime.strptime(user["date_of_birth"], fmt)
+                age = (utcnow() - born.replace(tzinfo=timezone.utc)).days // 365
+                break
+            except ValueError:
+                continue
+
     if b:
-        return row_to_dict(b)
+        bdict = row_to_dict(b)
+        composite = aging_score(
+            body_age_value=b.body_age, real_age=age, global_score=gs,
+        )
+        return {**bdict, "composite": composite}
+
     nres = await session.execute(
         select(NoraAgingAnalysisCache).where(NoraAgingAnalysisCache.user_id == user["id"])
         .order_by(NoraAgingAnalysisCache.created_at.desc()).limit(1)
