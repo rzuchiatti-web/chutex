@@ -3,13 +3,14 @@ Setup test accounts for complete SOS alert flow testing.
 Run: python3 /app/backend/setup_test_accounts.py
 """
 import asyncio
+import os
 import uuid
 import bcrypt
 from datetime import datetime, timezone
 from motor.motor_asyncio import AsyncIOMotorClient
 
-client = AsyncIOMotorClient("mongodb://localhost:27017")
-db = client["vitallink_db"]
+client = AsyncIOMotorClient(os.environ["MONGO_URL"])
+db = client[os.environ.get("DB_NAME", "test_database")]
 
 
 def hp(p):

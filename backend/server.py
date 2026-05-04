@@ -101,6 +101,12 @@ api_router.include_router(shop_router)
 app.include_router(api_router)
 app.add_middleware(CORSMiddleware, allow_credentials=True, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
 
+
+@app.get("/api/health")
+async def health_check():
+    """Liveness probe pour deploiement."""
+    return {"status": "ok"}
+
 import os
 os.makedirs("/app/backend/uploads", exist_ok=True)
 app.mount("/api/uploads", StaticFiles(directory="/app/backend/uploads"), name="uploads")
