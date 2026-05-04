@@ -91,6 +91,16 @@ jobs:
           # ─────────────────────────────────────────────────────────────
           DB_HOST=$(echo "$DB_URL_FIXED" | sed -E 's#.*@([^:/]+).*#\1#')
           DB_PORT=$(echo "$DB_URL_FIXED" | sed -E 's#.*:([0-9]+)/.*#\1#' | grep -E '^[0-9]+$' || echo 5432)
+
+          # Détecter la subnet réelle de proxy-net (pour la règle pg_hba.conf)
+          PROXY_SUBNET=$(docker network inspect proxy-net \
+            --format '{{range .IPAM.Config}}{{.Subnet}}{{end}}' 2>/dev/null || echo "")
+          # Subnet docker0 (par défaut) en fallback
+          DOCKER0_SUBNET=$(docker network inspect bridge \
+            --format '{{range .IPAM.Config}}{{.Subnet}}{{end}}' 2>/dev/null || echo "172.17.0.0/16")
+          echo "→ Subnet proxy-net   : ${PROXY_SUBNET:-<introuvable>}"
+          echo "→ Subnet docker0     : ${DOCKER0_SUBNET}"
+
           echo "→ Test TCP : ${DB_HOST}:${DB_PORT}"
           if ! docker run --rm --network proxy-net --add-host host.docker.internal:host-gateway \
                 alpine sh -c "apk add --quiet --no-progress busybox-extras >/dev/null 2>&1; nc -zvw3 ${DB_HOST} ${DB_PORT}" 2>&1 | tee /tmp/nc-out; then
@@ -98,12 +108,19 @@ jobs:
             echo "❌ Le conteneur ne peut PAS atteindre Postgres sur ${DB_HOST}:${DB_PORT}"
             echo ""
             echo "  Causes probables côté serveur (à corriger 1 seule fois) :"
+            echo ""
             echo "  1) /etc/postgresql/<ver>/main/postgresql.conf"
             echo "        listen_addresses = '*'"
-            echo "  2) /etc/postgresql/<ver>/main/pg_hba.conf — ajouter une ligne :"
-            echo "        host  all  all  172.17.0.0/16  md5"
+            echo ""
+            echo "  2) /etc/postgresql/<ver>/main/pg_hba.conf — autoriser CES subnets :"
+            [ -n "$PROXY_SUBNET" ] && echo "        host  all  all  ${PROXY_SUBNET}  md5"
+            echo "        host  all  all  ${DOCKER0_SUBNET}  md5"
+            echo ""
             echo "  3) sudo systemctl restart postgresql"
-            echo "  4) sudo ufw allow from 172.17.0.0/16 to any port 5432"
+            echo ""
+            echo "  4) UFW :"
+            [ -n "$PROXY_SUBNET" ] && echo "        sudo ufw allow from ${PROXY_SUBNET} to any port 5432"
+            echo "        sudo ufw allow from ${DOCKER0_SUBNET} to any port 5432"
             echo ""
             echo "  Vérification manuelle :"
             echo "    ss -tnlp | grep 5432   # doit afficher 0.0.0.0:5432 ou *:5432"
